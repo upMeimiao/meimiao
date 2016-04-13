@@ -1,0 +1,19 @@
+{
+  "api": {
+    "app_key": "c9e697e443715900",
+    "app_secret": "0fae643f14fc38f49e241328736e16d2",
+    "access_token": "53452fb58df0f8359d80c87308924684",
+    "refresh_token": "4c4419dc492e7a4f997101b55e543f92",
+    "tokenRefresh": "https://openapi.youku.com/v2/oauth2/token",
+    "userInfo": "https://openapi.youku.com/v2/users/myinfo.json",
+    "videos": "https://openapi.youku.com/v2/videos/by_user.json"
+  },
+  "userID": 854459409,
+  "log_level":"DEBUG",
+  "waitTime":3600000,
+  "sendToServer":[
+    "http://192.168.1.201:6677/index.php/spider/video/addPlatformInfo",
+    "http://192.168.1.201:6677/index.php/spider/video/addVideoInfo",
+    "http://192.168.1.201:6677/index.php/spider/video/getYkToken/uid/"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "suid": "PQv2kc8mW0~1Gd4BYlTRdQ__",
+  "userID": "bF7jm~Uj1NCOVwi9",
+  "api": "http://api.miaopai.com/m/shot_channel.json?version=6.3.3&os=ios&page=",
+  "log_level":"DEBUG",
+  "waitTime":3600000,
+  "sendToServer":[
+    "http://192.168.1.201:6677/index.php/spider/video/addPlatformInfo",
+    "http://192.168.1.201:6677/index.php/spider/video/addVideoInfo"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": 26365523,
+  "userInfo": "http://space.bilibili.com/ajax/member/GetInfo?mid=",
+  "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
+  "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
+  "log_level":"DEBUG",
+  "waitTime":3600000,
+  "sendToServer":[
+    "http://192.168.1.201:6677/index.php/spider/video/addPlatformInfo",
+    "http://192.168.1.201:6677/index.php/spider/video/addVideoInfo"
+  ]
+}
