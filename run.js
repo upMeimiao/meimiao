@@ -94,7 +94,7 @@ var creatTT = function () {
     creat_tt.start();
 }
 var ttmpSpider = function () {
-    var logger = logging.getLogger('creatTT',options['i'],log_level)
+    var logger = logging.getLogger('ttmp',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
     var toutiao = new (require('./toutiaoHome'))(settings);
