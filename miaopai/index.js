@@ -83,7 +83,7 @@ spiderCore.prototype.getVideos = function (total,callback) {
             })
         },
         function (err,result) {
-            //logger.debug("length",spiderCore.videosList.length)
+            logger.debug("length",spiderCore.videosList.length)
             spiderCore.sendVideos(function () {
                 callback()
             })

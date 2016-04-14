@@ -172,8 +172,9 @@ spiderCore.prototype.getVideos = function (page,callback) {
                 if (err) {
 
                 }
-                var dataBack = JSON.parse(back.body).videos
-                //logger.debug(dataBack)
+                var dataBack = JSON.parse(back.body)
+                dataBack = dataBack.videos
+                logger.debug(dataBack)
                 for(var i = 0;i<dataBack.length;i++){
                     var video = {
                         author: "一色神技能",

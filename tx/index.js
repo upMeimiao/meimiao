@@ -90,7 +90,7 @@ spiderCore.prototype.getList = function (total,callback) {
             url  = spiderCore.settings.videoList + spiderCore.settings.euin + "&pagenum="+sign
             spiderCore.api_request.get(url,function (err,back) {
                 if(err){}
-                //logger.debug(back)
+                logger.debug(back.body)
                 var backData = eval(back.body),
                     backList = backData.videolst
                 spiderCore.getCommentID(backList,function () {
