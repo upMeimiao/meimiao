@@ -69,8 +69,12 @@ spiderCore.prototype.download = function (callback) {
     var spiderCore = this
     spiderCore.userInfo(function (err , res , body) {
         userInfo = JSON.parse(body)
-        var videos_count = userInfo.videos_count,
+        var videos_count = userInfo.videos_count,page
+        if(videos_count/20 == 0){
+            page = videos_count/20
+        }else{
             page = Math.floor(videos_count/20)+1
+        }
 
         var maxId = '',
             sign = 1
