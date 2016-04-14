@@ -129,8 +129,8 @@ spiderCore.prototype.down = function (pageNum,url,callback) {
                         support: backData[i].digg_count,
                         step:backData[i].bury_count,
                         forward_num: backData[i].share_count,
-                        save_num: backData[i].repin_count,
-                        a_create_time: backData[i].create_time
+                        save_num: backData[i].repin_count
+                        //a_create_time: backData[i].create_time
                     }
                     logger.debug(media)
                     mediaList.push(media)

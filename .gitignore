@@ -45,8 +45,6 @@ spider/temp.json
 # VIM .swp
 *.swp
 
-# 还未确实是否要用的文件
-taskQueue.js
 
 # 忽略 phantomjs 渲染出现问题时记录的图片
 phantom_error/*
