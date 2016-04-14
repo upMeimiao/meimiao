@@ -49,13 +49,13 @@ spiderCore.prototype.start = function () {
 }
 spiderCore.prototype.wait = function () {
     var spiderCore = this, url = spiderCore.settings.contentUrl
-    var date = new Date(),
-        timestamp = date.getTime(),
-        start = moment.unix(moment().format('X') - 360 * 24 * 60 * 60).format('YYYY-MM-DD'),
-        end = moment().format('YYYY-MM-DD'),
-        initUrl = url + "start_date=" + start + "&end_date=" + end + "&pagenum=1&_=" + timestamp
     setInterval(function () {
         mediaList = []
+        var date = new Date(),
+            timestamp = date.getTime(),
+            start = moment.unix(moment().format('X') - 360 * 24 * 60 * 60).format('YYYY-MM-DD'),
+            end = moment().format('YYYY-MM-DD'),
+            initUrl = url + "start_date=" + start + "&end_date=" + end + "&pagenum=1&_=" + timestamp
         if (date.getHours() == 3) {
             spiderCore.initPage(initUrl, function (err, pageNum) {
                 if (err) {
@@ -129,8 +129,8 @@ spiderCore.prototype.down = function (pageNum,url,callback) {
                         support: backData[i].digg_count,
                         step:backData[i].bury_count,
                         forward_num: backData[i].share_count,
-                        save_num: backData[i].repin_count
-                        //a_create_time: backData[i].create_time
+                        save_num: backData[i].repin_count,
+                        a_create_time: backData[i].create_time
                     }
                     logger.debug(media)
                     mediaList.push(media)

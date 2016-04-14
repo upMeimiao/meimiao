@@ -62,9 +62,9 @@ creatTask.prototype.getTask = function(){
     })
 }
 creatTask.prototype.wait = function () {
-    var now = new Date()
     var self = this
     setInterval(function () {
+        var now = new Date()
         if(now.getHours() == 3){
             var info = [
                 {

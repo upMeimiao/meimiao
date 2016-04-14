@@ -24,8 +24,9 @@ spiderCore.prototype.start = function () {
 }
 spiderCore.prototype.wait = function () {
     logger.debug("开始等待下次执行时间")
-    var now = new Date(),spiderCore = this
+    var spiderCore = this
     setInterval(function () {
+        var now = new Date()
         if(now.getHours() == 3){
             spiderCore.getTotal(function () {
                 spiderCore.sendVideos(function () {

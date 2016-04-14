@@ -31,8 +31,9 @@ spiderCore.prototype.start = function(){
     })
 }
 spiderCore.prototype.wait = function () {
-    var now = new Date(),spiderCore = this
+    var spiderCore = this
     setInterval(function () {
+        var now = new Date()
         if(now.getHours() == 3){
             spiderCore.videosList = []
             spiderCore.getToken(0,function () {

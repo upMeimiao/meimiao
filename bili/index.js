@@ -19,8 +19,9 @@ spiderCore.prototype.start = function () {
     })
 }
 spiderCore.prototype.wait = function () {
-    var spiderCore = this,now = new Date()
+    var spiderCore = this
     setInterval(function () {
+        var now = new Date()
         if(now.getHours() == 3){
             spiderCore.getUserInfo()
             spiderCore.getTotal(function () {

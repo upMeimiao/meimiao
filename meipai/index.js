@@ -35,9 +35,10 @@ spiderCore.prototype.start = function(){
 }
 
 spiderCore.prototype.wait = function () {
-    var spiderCore = this,now = new Date()
+    var spiderCore = this
     setInterval(function () {
         mediasInfo = [],mediaList = []
+        var now = new Date()
         if(now.getHours() == 3){
             spiderCore.download(function () {
                 backUser = {
