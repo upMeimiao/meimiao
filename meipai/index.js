@@ -70,7 +70,7 @@ spiderCore.prototype.download = function (callback) {
     spiderCore.userInfo(function (err , res , body) {
         userInfo = JSON.parse(body)
         var videos_count = userInfo.videos_count,page
-        if(videos_count/20 == 0){
+        if(videos_count%20 == 0){
             page = videos_count/20
         }else{
             page = Math.floor(videos_count/20)+1
