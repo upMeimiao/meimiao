@@ -75,7 +75,7 @@ spiderCore.prototype.download = function (callback) {
         }else{
             page = Math.floor(videos_count/20)+1
         }
-
+        logger.debug("page",page)
         var maxId = '',
             sign = 1
         async.whilst(
@@ -84,9 +84,9 @@ spiderCore.prototype.download = function (callback) {
             },
             function (cb) {
                 spiderCore.mediaList(maxId,function (err,res,body) {
-                    logger.debug(body)
+                    //logger.debug(body)
                     var medias = JSON.parse(body)
-                    logger.debug(medias)
+                    //logger.debug(medias)
                     for(var i = 0; i<medias.length;i++){
                         mediaList[i] = medias[i].id
                     }
