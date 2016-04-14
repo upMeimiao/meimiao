@@ -79,6 +79,13 @@ var tx = function () {
     var spider = new (require('./tx'))(settings);
     spider.start()
 }
+var le = function () {
+    var logger = logging.getLogger('乐视',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    var spider = new (require('./le'))(settings);
+    spider.start()
+}
 var creatTT = function () {
     var logger = logging.getLogger('creatTT',options['i'],log_level)
     settings['logger'] = logger
@@ -145,6 +152,9 @@ switch(options['a']){
         break
     case 'tx':
         tx()
+        break
+    case "le":
+        le()
         break
     case 'creatTT':
         creatTT()

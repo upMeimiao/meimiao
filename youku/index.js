@@ -4,6 +4,7 @@
 var crypto = require('crypto')
 var moment = require('moment')
 var async = require( 'async' )
+var logger
 var spiderCore = function(settings){
     this.settings = settings
     this.api_request = new (require( './api_request.js' ))( this )

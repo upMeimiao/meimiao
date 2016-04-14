@@ -1,0 +1,11 @@
+{
+  "id":"180321517",
+  "list":"http://api.my.le.com/video/user/videolist?callback=jsonp&pagesize=30&userid=180321517&page=1&_=1460549479013",
+  "info":"http://v.stat.letv.com/vplay/getIdsInfo?type=vlist&callback=jsonp&ids=25108581&_=1460549474868",
+  "log_level":"DEBUG",
+  "waitTime":3600000,
+  "sendToServer":[
+    "http://192.168.1.201:6677/index.php/spider/video/addPlatformInfo",
+    "http://192.168.1.201:6677/index.php/spider/video/addVideoInfo"
+  ]
+}

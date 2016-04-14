@@ -27,7 +27,7 @@
   "contentUrl": "https://mp.toutiao.com/statistic/content_article_stat/?",
   "cookie":"uuid=\"w:30c47138882848d4b7c8005fe59a162e\"; sessionid=8fc2c698ce59110a6e241e01b19f60e4",
   "sendToServer":[
-    "http://192.168.1.54:6677/index.php/spider/video/addPlatformInfo",
-    "http://192.168.1.54:6677/index.php/spider/video/addVideoInfo"
+    "http://yise.tv/index.php/spider/video/addPlatformInfo",
+    "http://yise.tv/index.php/spider/video/addVideoInfo"
   ]
 }

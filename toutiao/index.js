@@ -4,7 +4,7 @@
 var moment = require('moment')
 var async = require( 'async' )
 var request = require('request')
-var mediaList = []
+var mediaList = [],logger
 var spiderCore = function (settings) {
     this.settings = settings;
     logger = settings.logger;

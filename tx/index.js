@@ -3,6 +3,7 @@
  */
 var moment = require('moment')
 var async = require( 'async' )
+var logger
 var jsonp = function (data) {
     return data
 }

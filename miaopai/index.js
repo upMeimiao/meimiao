@@ -2,6 +2,7 @@
  * Created by junhao on 16/4/8.
  */
 var async = require( 'async' )
+var logger
 var spiderCore = function(settings){
     this.settings = settings
     this.api_request = new (require( './api_request.js' ))( this )
