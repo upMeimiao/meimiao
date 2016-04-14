@@ -10,7 +10,7 @@ node_modules/*
 
 lib/phantomjs/*.png
 # Logs
-logs
+#logs
 *.log
 
 # Runtime data

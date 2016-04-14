@@ -21,7 +21,7 @@
   "getQueueTime": 10000,
   "interval":1500,
   "redis":{
-    "pwd":""
+    "pwd":"n0de5091jsPCHoneyT"
   },
   "waitTime":3600000,
   "contentUrl": "https://mp.toutiao.com/statistic/content_article_stat/?",
