@@ -8,7 +8,7 @@
   "taskQueue":[6000],
   "proxy_router":"27.221.31.78:8080",
   "download_timeout":60,
-  "check_driller_rules_interval":120,
+  "check_driller_rules_interval":360,
   "spider_concurrency":1,
   "spider_request_delay":0,
   "schedule_interval":60,

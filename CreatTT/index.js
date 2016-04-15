@@ -65,7 +65,7 @@ creatTask.prototype.wait = function () {
     var self = this
     setInterval(function () {
         var now = new Date()
-        if(now.getHours() == 3){
+        if(now.getHours() == 2){
             var info = [
                 {
                     app: 6,

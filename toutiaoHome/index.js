@@ -108,7 +108,7 @@ spiderCore.prototype.start = function () {
     this.on( 'slide_queue', function () {
         var spiderCore = this
         var hour = (new Date()).getHours()
-        if(hour == 0){
+        if(hour == 3){
             setTimeout( function () {
                 if ( spiderCore.spider.queue_length > 0 ) {
                     spiderCore.spider.queue_length--;
