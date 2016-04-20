@@ -5,7 +5,7 @@
   "proxy_info_redis_db":["localhost",6379,3],
   "task_cache_redis_db":["localhost",6379,4],
   "use_proxy":false,
-  "taskQueue":[6000,2000],
+  "taskQueue":[6000],
   "proxy_router":"27.221.31.78:8080",
   "download_timeout":60,
   "check_driller_rules_interval":360,
