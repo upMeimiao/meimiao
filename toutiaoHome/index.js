@@ -114,7 +114,7 @@ spiderCore.prototype.start = function () {
                     spiderCore.spider.queue_length--;
                 }
                 spiderCore.spider.checkQueue( spiderCore.spider );//猜测 这个 checkQueue就是开始工作的函数，它的使命应该是 先检查队列 然后 再爬取，最后处理
-            }, 3000 )
+            }, spiderCore.settings.waitTime )
         }else{
             logger.debug(hour)
             setTimeout( function () {
