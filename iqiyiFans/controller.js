@@ -13,30 +13,26 @@ controller.prototype.classify = function ( taskInfo ) {
     //拿到任务类型
     logger.debug( "开始判断任务类型" );
     switch ( String( type ) ) {
-        case 'ttmp':
-            logger.debug( "任务类型：头条首页任务" );
-            return self.ttmp( taskInfo );
+        case 'iqiyi_fans':
+            logger.debug( "任务类型：爱奇艺粉丝任务" );
+            return self.fans( taskInfo );
         default :
             taskInfo.origin.done = null;
             return taskInfo;
     }
 };
-controller.prototype.ttmp = function (taskInfo) {
+controller.prototype.fans = function (taskInfo) {
     var app = taskInfo.origin.app,
         res = taskInfo.extracted_data
-    if(typeof res.num === 'undefined')return taskInfo
-    var fans_num = res.num[0].replace(",",""),
-        recommend_num = res.num[1].replace(",",""),
-        toutiao_num = res.num[2].replace(",",""),
-        read_num = res.num[3]
+    if(typeof res.fans === 'undefined')return taskInfo
+    var start = res.fans.indexOf("(") + 1,
+        end = res.fans.lastIndexOf(")"),
+        fans_num = res.fans.substring(start,end)
     var backInfo = {
-        name: "今日头条",
-        uid: "m3542667621",
-        u_name: "创意生活每一天",
-        fans_num: fans_num,
-        recommend_num: recommend_num,
-        toutiao_num: toutiao_num,
-        read_num: read_num
+        name: "爱奇艺",
+        uid: "1267152904",
+        u_name: "一色神技能",
+        fans_num: fans_num
     }
     taskInfo.origin.done = true;
     taskInfo.backInfo = backInfo

@@ -55,6 +55,11 @@ creatTask.prototype.getTask = function(){
             app: 6,
             url: "https://mp.toutiao.com/",
             type: "ttmp"
+        },
+        {
+            app: 2,
+            url: "http://www.iqiyi.com/u/1267152904/fans",
+            type: "iqiyi_fans"
         }
     ]
     self.dealWith(info,function(){
@@ -63,21 +68,13 @@ creatTask.prototype.getTask = function(){
 }
 creatTask.prototype.wait = function () {
     var self = this
-    setInterval(function () {
+    setTimeout(function () {
         var now = new Date()
         if(now.getHours() == 2){
-            var info = [
-                {
-                    app: 6,
-                    url: "https://mp.toutiao.com/",
-                    type: "ttmp"
-                }
-            ]
-            self.dealWith(info,function(){
-
-            })
+            self.getTask()
         }else{
             logger.debug(now.getHours())
+            self.wait()
         }
     },self.settings.waitTime)
 }
@@ -92,16 +89,29 @@ creatTask.prototype.dealWith = function(info,callback){
             return sign < len
         },
         function (cb){
-            var taskInfo = {
-                taskId: "6000_"+info[sign].type+"_"+(new Date()).getTime(),
-                app: info[sign].app,
-                taskUrl: info[sign].url,
-                priority : '6000',
-                cookie: self.settings.cookie,
-                //cookie: 'uuid="w:30c47138882848d4b7c8005fe59a162e"; sessionid=8fc2c698ce59110a6e241e01b19f60e4',
-                alias: info[sign].type,
-                type: info[sign].type,
-                done : 0
+            var taskInfo
+            if(info[sign].app == 6){
+                taskInfo= {
+                    taskId: "6000_"+info[sign].type+"_"+(new Date()).getTime(),
+                    app: info[sign].app,
+                    taskUrl: info[sign].url,
+                    priority : '6000',
+                    cookie: self.settings.cookie,
+                    //cookie: 'uuid="w:30c47138882848d4b7c8005fe59a162e"; sessionid=8fc2c698ce59110a6e241e01b19f60e4',
+                    alias: info[sign].type,
+                    type: info[sign].type,
+                    done : 0
+                }
+            }else if(info[sign].app == 2){
+                taskInfo= {
+                    taskId: "2000_"+info[sign].type+"_"+(new Date()).getTime(),
+                    app: info[sign].app,
+                    taskUrl: info[sign].url,
+                    priority : '2000',
+                    alias: info[sign].type,
+                    type: info[sign].type,
+                    done : 0
+                }
             }
             self.saveTask(taskInfo,function(){
                 sign++

@@ -107,7 +107,22 @@ var ttSpider = function () {
     var toutiao = new (require('./toutiao'))(settings);
     toutiao.start()
 }
+var iqiyiFans = function () {
+    var logger = logging.getLogger('爱奇艺粉丝',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    var spider = new (require('./iqiyiFans'))(settings);
 
+    spider.start();
+}
+var iqiyi = function () {
+    var logger = logging.getLogger('爱奇艺',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    var spider = new (require('./iqiyi'))(settings);
+
+    spider.start();
+}
 ////proxy Service////////////////////////////////////////////////////////////
 var proxyService = function(){
 	var logger = logging.getLogger('proxy-service',options['i'],log_level);
@@ -164,6 +179,12 @@ switch(options['a']){
         break
     case 'tt':
         ttSpider()
+        break
+    case 'iFans':
+        iqiyiFans()
+        break
+    case 'iqiyi':
+        iqiyi()
         break
     default:
         userArgv.showHelp();
