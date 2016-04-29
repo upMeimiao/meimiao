@@ -25,7 +25,7 @@
   },
   "waitTime":3600000,
   "contentUrl": "https://mp.toutiao.com/statistic/content_article_stat/?",
-  "cookie": "uuid=\"w:541e3731d4d94f35a41d0328ed8c06c8\"; sessionid=ce383abeaf297c2ae9ffb3d5e07551df",
+  "cookie": "uuid=\"w:b8807fcb90504441b6bbb3f8178b7901\"; sessionid=8e7b81330194357d3b323785f256e0de",
   "sendToServer":[
     "http://yise.tv/index.php/spider/video/addPlatformInfo",
     "http://yise.tv/index.php/spider/video/addVideoInfo"
