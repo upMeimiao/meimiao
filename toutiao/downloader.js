@@ -53,7 +53,9 @@ downloader.prototype.download = function ( url ,callback) {
     var req = https.request(options,function (res) {
         //logger.debug( util.format( '收到回复, %s', url ) )
         if(res.statusCode != 200){
-            callback(err,null)
+            logger.debug(res.statusCode)
+            logger.debug(res.headers.location)
+            //callback(err,null)
             return
         }
         var compressed = /gzip|deflate/.test( res.headers[ 'content-encoding' ] )
