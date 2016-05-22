@@ -55,8 +55,8 @@ downloader.prototype.download = function ( url ,callback) {
         if(res.statusCode != 200){
             logger.debug(res.statusCode)
             logger.debug(res.headers.location)
-            //callback(err,null)
-            return
+            return callback(null,res.statusCode)
+            //return
         }
         var compressed = /gzip|deflate/.test( res.headers[ 'content-encoding' ] )
         var bufferHelper = new BufferHelper()

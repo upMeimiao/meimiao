@@ -23,6 +23,15 @@
   "redis":{
     "pwd":"n0de5091jsPCHoneyT"
   },
+  "login":{
+    "need":true,
+    "cookie":"",
+    "username":"ttkq@qwbcg.com",
+    "password":"honeytime2013",
+    "loginAddr":"https://api.weibo.com/oauth2/authorize?client_id=2504490989&response_type=code&display=desktop&state=1ba39ad9iaFhGKFwqnNpbmFfd2VpYm-hc6ChcgKhdgKhaQChaKt0b3V0aWFvLmNvbaFtAKFutWh0dHA6Ly9tcC50b3V0aWFvLmNvbQ==&redirect_uri=http://api.snssdk.com/auth/login_success/",
+    "usernameInput":"userId",
+    "passwordInput":"passwd"
+  },
   "waitTime":3600000,
   "contentUrl": "https://mp.toutiao.com/statistic/content_article_stat/?",
   "cookie": "uuid=\"w:512c0b95581e4d3885a9d6687ac48a66\"; sessionid=284a9046d9340324849dc9f85b2cd78f",

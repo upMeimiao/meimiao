@@ -8,6 +8,7 @@ var mediaList = [],logger
 var spiderCore = function (settings) {
     this.settings = settings;
     logger = settings.logger;
+    //this.login = new (require( './login.js' ))( this );
     this.downloader = new (require( './downloader.js' ))( this )
 }
 spiderCore.prototype.start = function () {
@@ -151,14 +152,18 @@ spiderCore.prototype.initPage = function (url,callback) {
         if(err){
             return
         }
-        try{
-            back = JSON.parse(back)
-        }catch (e){
-            logger.error( 'Server Back Data Occur Error' , e.message );
-            return callback(err)
+        if(back == 302){
+            logger.debug(back)
+        }else{
+            try{
+                back = JSON.parse(back)
+            }catch (e){
+                logger.error( 'Server Back Data Occur Error' , e.message );
+                return callback(err)
+            }
+            total_pagenum = back.data.total_pagenum
+            return callback(null,total_pagenum)
         }
-        total_pagenum = back.data.total_pagenum
-        return callback(null,total_pagenum)
     })
 }
 spiderCore.prototype.send = function (data,callback) {
