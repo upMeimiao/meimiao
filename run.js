@@ -105,7 +105,7 @@ var ttSpider = function () {
     settings['logger'] = logger
     settings['instance'] = options['i']
     var toutiao = new (require('./toutiao'))(settings);
-    toutiao.start()
+    toutiao.assembly()
 }
 var iqiyiFans = function () {
     var logger = logging.getLogger('爱奇艺粉丝',options['i'],log_level);

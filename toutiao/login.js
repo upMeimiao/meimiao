@@ -36,6 +36,42 @@ login.prototype.do = function ( retry, callback ) {
     var id
     // 开始登录
     logger.debug('开始登录')
+    var casper = child_process.spawn( 'casperjs',
+        ['./toutiao/casper.js',self.username, self.password, self.loginAddr, self.usernameInput, self.passwordInput ],
+        {
+            'stdio' : [ 'pipe', 'pipe', 'pipe' ]
+        }
+    )
+    casper.stdin.setEncoding( 'utf8' )
+    casper.stdout.setEncoding( 'utf8' )
+    casper.on( 'error', function ( err ) {
+        console.log( 'err', err );
+    })
+    var feedback = ''
+    var data = ''
+    casper.stdout.on( 'data', function ( chunk ) {
+        data += chunk
+        if ( data.indexOf( '_end_' ) !== -1 ) {
+            // 请求发布完成
+            data = data.replace( '_end_', '' )
+            data = JSON.parse( data )
+            casper.emit( 'feedback',data)
+        } else {
+            feedback += data
+            casper.emit( 'feedback',feedback)
+        }
+    } )
+
+    casper.stdout.on( 'message', function ( data ) {
+        console.log( '收到来自子进程的消息')
+    } )
+
+
+    casper.on( 'feedback', function ( _data ) {
+        // 返回数据
+        console.log(_data)
+        //casper.kill()
+    } )
 }
 /**
  * 登录模块

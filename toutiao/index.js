@@ -6,11 +6,25 @@ var async = require( 'async' )
 var request = require('request')
 var mediaList = [],logger
 var spiderCore = function (settings) {
-    this.settings = settings;
-    logger = settings.logger;
-    //this.login = new (require( './login.js' ))( this );
+    this.settings = settings
+    logger = settings.logger
+    this.login = new (require( './login.js' ))( this )
     this.downloader = new (require( './downloader.js' ))( this )
+    // cookie
+    this.cookie = settings.login.cookie
 }
+spiderCore.prototype.assembly = function (callback) {
+    'use strict'
+    this.login.assembly(function (err,result) {
+        if(err){
+            logger.error( '登录准备出现错误:', err );
+            logger.error( '程序将停止' );
+            process.exit()
+        }
+        logger.debug(result)
+    })
+}
+
 spiderCore.prototype.start = function () {
     var spiderCore = this, url = spiderCore.settings.contentUrl
     var date = new Date(),
