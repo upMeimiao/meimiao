@@ -54,7 +54,7 @@ login.prototype.do = function ( retry, callback ) {
         if ( data.indexOf( '_end_' ) !== -1 ) {
             // 请求发布完成
             data = data.replace( '_end_', '' )
-            data = JSON.parse( data )
+            //data = JSON.parse( data )
             casper.emit( 'feedback',data)
         } else {
             feedback += data
