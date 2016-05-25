@@ -30,7 +30,6 @@
     "generic-pool": ">=2.1.1",
     "hbase": "0.1.6",
     "iconv-lite": "0.2.11",
-    "jsdom": "^8.4.0",
     "log4js": "0.6.9",
     "moment": "^2.12.0",
     "mongodb": "^2.1.4",
