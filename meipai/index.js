@@ -35,6 +35,7 @@ spiderCore.prototype.start = function(){
 }
 
 spiderCore.prototype.wait = function () {
+    logger.debug("开始等待下次执行时间")
     var spiderCore = this
     setInterval(function () {
         mediasInfo = [],mediaList = []
@@ -91,15 +92,16 @@ spiderCore.prototype.download = function (callback) {
                         mediaList[i] = medias[i].id
                     }
                     maxId = medias[medias.length-1].id
-                    sign++
-                    cb()
+                    logger.debug(maxId)
+                    spiderCore.getMedias(function () {
+                        sign++
+                        cb()
+                    })
                 })
             },
             function (err,result) {
                 logger.debug("length",mediaList.length)
-                spiderCore.getMedias(function () {
-                    callback()
-                })
+                callback()
             }
         )
     })
