@@ -22,7 +22,7 @@ spiderCore.prototype.start = function () {
     var spiderCore = this
     this.getTotal(function (total) {
         spiderCore.getList(total,function () {
-
+            spiderCore.wait()
         })
     })
 }
@@ -52,6 +52,7 @@ spiderCore.prototype.getTotal = function (callback) {
 }
 spiderCore.prototype.getList = function (total,callback) {
     var spiderCore = this, url ,index = 1
+    logger.debug('page',total)
     async.whilst(
         function () {
             return index <= total
@@ -60,7 +61,7 @@ spiderCore.prototype.getList = function (total,callback) {
             url = spiderCore.settings.list + index
             spiderCore.api_request.get(url,function (err,back) {
                 if(err){
-                    cb()
+                    //cb()
                 }
                 var backData = JSON.parse(back.body),
                     data = backData.data
@@ -77,72 +78,119 @@ spiderCore.prototype.getList = function (total,callback) {
                     titles.push(title)
                 }
                 //logger.debug(titles)
-                spiderCore.getInfo(ids,titles,function () {
+                spiderCore.deal(ids,titles,function () {
                     index++
                     cb()
                 })
             })
         },
         function (err,result) {
-            logger.debug(spiderCore.videoInfo.length)
+            logger.debug('videos length',spiderCore.videosList.length)
+            spiderCore.send(function () {
+                callback()
+            })
         }
     )
 }
-spiderCore.prototype.getInfo = function(ids,titles,callback){
-    var spiderCore = this, url ,index = 0,length = ids.length
-    logger.debug(length)
+spiderCore.prototype.send = function (callback) {
+    logger.debug("开始向服务器发送数据")
+    var spiderCore = this,
+        url = this.settings.sendToServer[1]
+    async.whilst(
+        function () {
+            if(spiderCore.videosList.length == 0){
+                return false
+            }else{
+                return true
+            }
+        },
+        function (cb) {
+            spiderCore.api_request.post(url,spiderCore.videosList.shift(),function (err,back) {
+                if(err){}
+                logger.debug(back.body)
+                cb()
+            })
+        },
+        function (err,result) {
+            if(err){}
+            logger.debug("向服务器返回数据完毕")
+            callback()
+        }
+    )
+}
+spiderCore.prototype.deal = function (ids,titles,callback) {
+    var spiderCore = this,index = 0,length = ids.length
     async.whilst(
         function () {
             return index < length
         },
         function (cb) {
-            url = spiderCore.settings.info + ids[index]
-            logger.debug('index',index)
-            spiderCore.api_request.get(url,function (err,back) {
+            spiderCore.getInfo(ids[index],titles[index],function (err) {
                 if(err){
-                    
+                    setTimeout(cb,500)
+                    return
+                    //return cb()
                 }
-                //logger.debug(back.body)
-                var backData = back.body.replace(/try{/g,'').replace(/}catch\(e\)\{\}/g,'')
-                var infoData = eval(backData),media
-                logger.debug(infoData)
-                spiderCore.getCommentNum(ids[index],function (commentsNum,playNum,creatTime) {
-                    media = {
-                        author: "一色神技能",
-                        platform: 2,
-                        aid: ids[index],
-                        title: titles[index],
-                        play_num: playNum,
-                        support: infoData.data.up,
-                        step: infoData.data.down,
-                        comment_num: commentsNum,
-                        a_create_time: creatTime
-                    }
-                    spiderCore.videosList.push(media)
-                    cb()
-                })
+                index++
+                setTimeout(cb,500)
+                //cb()
             })
         },
-        function (err,result) {
+        function () {
             callback()
         }
     )
+}
+spiderCore.prototype.getInfo = function(id,title,callback){
+    var spiderCore = this,
+        url = spiderCore.settings.info + id
+    spiderCore.api_request.get(url,function (err,back) {
+        if(err){
+
+        }
+        //logger.debug(back.body)
+        if(back.body.indexOf('<html>') != -1){
+            logger.debug("error",503)
+            return callback(err)
+        }
+        var backData = back.body.replace(/try{/g,'').replace(/}catch\(e\)\{\}/g,'')
+        //logger.debug(backData)
+        var infoData = eval(backData),media
+        //logger.debug(infoData)
+        spiderCore.getCommentNum(id,function (commentsNum,playNum,creatTime) {
+            media = {
+                author: "一色神技能",
+                platform: 2,
+                aid: id,
+                title: title,
+                play_num: playNum,
+                support: infoData.data.up,
+                step: infoData.data.down,
+                comment_num: commentsNum,
+                a_create_time: creatTime
+            }
+            spiderCore.videosList.push(media)
+            callback()
+            //setTimeout(callback,1000)
+        })
+    })
+    
 }
 spiderCore.prototype.getCommentNum = function (id,callback) {
     var url = this.settings.comment + id,spiderCore = this
     this.api_request.get(url,function (err,back) {
         if(err){
-            spiderCore.getPlayNum(id,function (playNum,creatTime) {
-                return callback(0,playNum,creatTime)
-            })
+            // spiderCore.getPlayNum(id,function (playNum,creatTime) {
+            //     return callback(0,playNum,creatTime)
+            // })
         }
         var backData = JSON.parse(back.body),
             commentNum = backData.data.count
-        logger.debug(commentNum)
+        logger.debug('commentNum',commentNum)
         spiderCore.getPlayNum(id,function (playNum,creatTime) {
-            if(commentNum){
-                callback(0,playNum,creatTime)
-            }
+            // if(commentNum){
+            //     callback(0,playNum,creatTime)
+            // }
             callback(commentNum,playNum,creatTime)
         })
     })
@@ -158,8 +206,8 @@ spiderCore.prototype.getPlayNum = function (id,callback) {
         var playData = eval(backData),
             playNum = playData.data.playCount,
             creatTime = parseInt(playData.data.issueTime / 1000)
-        logger.debug(playNum)
-        logger.debug(creatTime)
+        logger.debug('play',playNum)
+        logger.debug('time',creatTime)
         callback(playNum,creatTime)
     })
 }
