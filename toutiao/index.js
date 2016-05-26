@@ -11,7 +11,7 @@ var spiderCore = function (settings) {
     this.login = new (require( './login.js' ))( this )
     this.downloader = new (require( './downloader.js' ))( this )
     // cookie
-    this.cookie = settings.login.cookie
+    this.cookie = settings.login.cookie_jn
 }
 spiderCore.prototype.assembly = function (callback) {
     'use strict'
@@ -133,7 +133,7 @@ spiderCore.prototype.down = function (pageNum,url,callback) {
                 var backData = back.data.data_list
                 for(var i= 0; i < backData.length;i++){
                     var media = {
-                        author:"创意生活每一天",
+                        author:"一色神技能",
                         platform: 6,
                         aid:backData[i].article_id,
                         title:backData[i].title,

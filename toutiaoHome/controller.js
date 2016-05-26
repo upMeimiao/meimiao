@@ -31,8 +31,8 @@ controller.prototype.ttmp = function (taskInfo) {
         read_num = res.num[3]
     var backInfo = {
         name: "今日头条",
-        uid: "m3542667621",
-        u_name: "创意生活每一天",
+        uid: "m6204859881",
+        u_name: "一色神技能",
         fans_num: fans_num,
         recommend_num: recommend_num,
         toutiao_num: toutiao_num,

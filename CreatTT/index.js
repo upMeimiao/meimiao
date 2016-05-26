@@ -96,7 +96,7 @@ creatTask.prototype.dealWith = function(info,callback){
                     app: info[sign].app,
                     taskUrl: info[sign].url,
                     priority : '6000',
-                    cookie: self.settings.cookie,
+                    cookie: self.settings.login.cookie_jn,
                     alias: info[sign].type,
                     type: info[sign].type,
                     done : 0

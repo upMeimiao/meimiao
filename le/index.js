@@ -3,6 +3,7 @@
  */
 var logger
 var async = require( 'async' )
+var moment = require('moment')
 var jsonp = function (data) {
     return data
 }
@@ -61,39 +62,54 @@ spiderCore.prototype.sendVideos = function (callback){
     )
 }
 spiderCore.prototype.getTotal = function (callback) {
-    logger.debug("开始获取视频总数")
+    logger.debug("开始获取视频总页数")
     var spiderCore = this,
-        url = this.settings.list + this.settings.id + "&page=1&_=" + (new Date()).getTime()
-    this.api_request.get(url,function (err,back) {
+        url = this.settings.newList,
+        data = {
+            orderType:0,
+            currentPage:1
+        }
+    this.api_request.post(url,data,function (err,back) {
         if(err){}
         var backData = eval(back.body)
-        if(backData.code != 200){
-            return callback()
-        }
-        spiderCore.getList(backData.data.total,function () {
+        spiderCore.getList(backData.data.totalPage,function () {
             callback()
         })
     })
 }
-spiderCore.prototype.getList = function (total,callback) {
-    var spiderCore = this,url,sign = 1,page
-    if(total % 30 == 0){
-        page = total / 30
-    }else{
-        page = Math.ceil(total / 30)
-    }
+// spiderCore.prototype.getTotal = function (callback) {
+//     logger.debug("开始获取视频总数")
+//     var spiderCore = this,
+//         url = this.settings.list + this.settings.id + "&page=1&_=" + (new Date()).getTime()
+//     this.api_request.get(url,function (err,back) {
+//         if(err){}
+//         var backData = eval(back.body)
+//         if(backData.code != 200){
+//             return callback()
+//         }
+//         spiderCore.getList(backData.data.total,function () {
+//             callback()
+//         })
+//     })
+// }
+spiderCore.prototype.getList = function (page,callback) {
+    var spiderCore = this,url,sign = 1
     async.whilst(
         function () {
             return sign <= page
         },
         function (cb) {
             logger.debug("开始获取第"+ sign +"页视频列表")
-            url  = spiderCore.settings.list + spiderCore.settings.id + "&page=" + sign + "&_=" + (new Date()).getTime()
-            spiderCore.api_request.get(url,function (err,back) {
+            var url = spiderCore.settings.newList,
+                data = {
+                    orderType:0,
+                    currentPage:sign
+                }
+            spiderCore.api_request.post(url,data,function (err,back) {
                 if(err){}
                 //logger.debug(back.body)
                 var backData = eval(back.body),
-                    backList = backData.data.items
+                    backList = backData.data.list
                 //logger.debug(backList)
                 spiderCore.getInfo(backList,function () {
                     sign++
@@ -113,25 +129,28 @@ spiderCore.prototype.getInfo = function (list,callback) {
             return sign < list.length
         },
         function (cb) {
-            url = spiderCore.settings.info + list[sign].video_id + "&_=" + (new Date()).getTime()
+            url = spiderCore.settings.info + list[sign].vid + "&_=" + (new Date()).getTime()
             spiderCore.api_request.get(url,function (err,back) {
                 if(err){}
                 var backData = eval(back.body),
-                    info = backData[0],
+                    info = backData[0],media
+                spiderCore.getTime(list[sign].vid,function (time) {
                     media = {
                         author: "一色神技能",
                         platform: 3,
-                        aid: list[sign].video_id,
+                        aid: list[sign].vid,
                         title: list[sign].title,
                         play_num: info.play_count,
                         comment_num: info.vcomm_count,
                         support: info.up,
                         step: info.down,
-                        a_create_time: list[sign].create_time
+                        a_create_time: time
                     }
-                spiderCore.videosList.push(media)
-                sign++
-                cb()
+                    //logger.debug(media)
+                    spiderCore.videosList.push(media)
+                    sign++
+                    cb()
+                })
             })
         },
         function (err,result) {
@@ -139,5 +158,16 @@ spiderCore.prototype.getInfo = function (list,callback) {
             callback()
         }
     )
+}
+spiderCore.prototype.getTime = function (id,callback) {
+    var url = this.settings.time + id
+    this.api_request.get(url,function (err,back) {
+        if(err){
+            callback(0)
+        }
+        var backData = JSON.parse(back.body),
+            time = backData.version_time
+        callback(moment(time).unix())
+    })
 }
 module.exports = spiderCore

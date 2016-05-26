@@ -42,7 +42,7 @@ downloader.prototype.download = function ( url ,callback) {
             "Accept-Language":"zh-CN,zh;q=0.8",
             "Cache-Control":"no-cache",
             "Connection":"keep-alive",
-            "Cookie":settings.cookie,
+            "Cookie":settings.login.cookie_jn,
             "DNT":1,
             "Host":"mp.toutiao.com",
             "Pragma":"no-cache",
