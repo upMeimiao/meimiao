@@ -64,6 +64,7 @@ login.prototype.do = function ( retry, callback ) {
                 data = '';
                 logger.debug( '收到cookie请求' );
             } else if ( data.action === 'report' ) {
+                logger.debug( '收到cookie结果' );
                 casper.emit( 'feedback', data );
                 data = '';
             } else {
@@ -140,7 +141,7 @@ login.prototype.assembly = function ( callback ) {
                 return callback( err, result )
             }
             logger.debug( result.result.cookie )
-            self.spiderCore.cookie = result.result.cookie
+            self.spiderCore.cookie = "lemail=yssjn%40meimiao.net;"+result.result.cookie
             return callback( null, true )
         } )
     } else {

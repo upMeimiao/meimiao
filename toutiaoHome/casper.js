@@ -84,9 +84,15 @@ casper.then( function () {
                 cookie : cookies
             }
         };
-        send( 'cookie 获取完毕，返回结果' );
+        //send( 'cookie 获取完毕，返回结果' );
         sendToCaller( ret );
         casper.exit();
-    })
+    }, function () {
+        // 没有等到
+        send( '登录失败' );
+        //var content = phantom.content;
+        var content = self.getPageContent();
+        console.log(content)
+    },15000)
 })
 casper.run()

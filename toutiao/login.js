@@ -141,7 +141,7 @@ login.prototype.assembly = function ( callback ) {
                 return callback( err, result )
             }
             logger.debug( result.result.cookie )
-            self.spiderCore.cookie = result.result.cookie
+            self.spiderCore.cookie = "lemail=yssjn%40meimiao.net;"+result.result.cookie
             return callback( null, true )
         } )
     } else {
