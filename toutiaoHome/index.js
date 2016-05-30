@@ -17,6 +17,7 @@ var spiderCore = function ( settings ) {
     'use strict';
     events.EventEmitter.call( this );//eventemitter inherits
     this.settings = settings;
+    this.cookie = settings.login.cookie_jn
     // redis连接
     this.redis = new (require( './redis.js' ))( this );
     // 爬虫
@@ -32,7 +33,7 @@ var spiderCore = function ( settings ) {
     this.login = new (require( './login.js' ))( this );
     // 获取任务
     this.task = new (require( './taskQueue.js' ))( this );
-    this.cookie = settings.login.cookie_jn
+    
     logger = settings.logger;
     logger.debug( '控制器 实例化...' );
 };

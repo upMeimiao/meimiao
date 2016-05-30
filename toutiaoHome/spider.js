@@ -294,7 +294,7 @@ spider.prototype.detectLink = function ( taskInfo ) {
  */
 spider.prototype.wrapLink = function ( taskInfo ) {
     'use strict';
-    var linkinfo = null;
+    var linkinfo = null,self = this;
     if(!taskInfo.taskUrl){
         logger.error("不存在任务url : " , taskInfo );
         return null
@@ -314,7 +314,7 @@ spider.prototype.wrapLink = function ( taskInfo ) {
                 "url_pattern":drillerInfo['url_pattern'],
                 "urllib":'urllib:'+driller,
                 "save_page":drillerInfo['save_page'],
-                "cookie":taskInfo.cookie,
+                "cookie":spiderCore.cookie,
                 'use_proxy' : drillerInfo['use_proxy'],
                 "jshandle":drillerInfo['jshandle'],
                 "inject_jquery":drillerInfo['inject_jquery'],
@@ -333,6 +333,7 @@ spider.prototype.wrapLink = function ( taskInfo ) {
                 'taskType': taskInfo.type,
                 'done': taskInfo.done
             }
+            //logger.debug(linkinfo)
         }
     }
     return linkinfo;

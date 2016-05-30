@@ -81,7 +81,6 @@ creatTask.prototype.wait = function () {
 creatTask.prototype.dealWith = function(info,callback){
     logger.debug( "开始处理信息" )
     var self = this
-    logger.debug(self.settings.cookie)
     var len = info.length
     var sign = 0
     async.whilst(
@@ -96,7 +95,6 @@ creatTask.prototype.dealWith = function(info,callback){
                     app: info[sign].app,
                     taskUrl: info[sign].url,
                     priority : '6000',
-                    cookie: self.settings.login.cookie_jn,
                     alias: info[sign].type,
                     type: info[sign].type,
                     done : 0
