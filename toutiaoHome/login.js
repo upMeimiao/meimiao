@@ -69,7 +69,6 @@ login.prototype.do = function ( retry, callback ) {
             } else {
                 logger.info( data );
                 data = '';
-                return self.do( retry + 1, callback )
             }
         } else {
             feedback += data;
