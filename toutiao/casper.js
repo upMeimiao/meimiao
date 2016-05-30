@@ -84,7 +84,7 @@ casper.then( function () {
                 cookie : cookies
             }
         };
-        send( 'cookie 获取完毕，返回结果' );
+        //send( 'cookie 获取完毕，返回结果' );
         sendToCaller( ret );
         casper.exit();
     }, function () {

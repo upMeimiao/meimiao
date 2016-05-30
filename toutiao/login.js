@@ -64,6 +64,7 @@ login.prototype.do = function ( retry, callback ) {
                 data = '';
                 logger.debug( '收到cookie请求' );
             } else if ( data.action === 'report' ) {
+                logger.debug( '收到cookie结果' );
                 casper.emit( 'feedback', data );
                 data = '';
             } else {
