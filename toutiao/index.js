@@ -15,13 +15,17 @@ var spiderCore = function (settings) {
 }
 spiderCore.prototype.assembly = function (callback) {
     'use strict'
+    var spiderCore = this
     this.login.assembly(function (err,result) {
         if(err){
             logger.error( '登录准备出现错误:', err );
             logger.error( '程序将停止' );
             process.exit()
         }
-        logger.debug(result)
+        if(result){
+            logger.debug('cookie',spiderCore.cookie)
+            spiderCore.start()
+        }
     })
 }
 
@@ -168,6 +172,7 @@ spiderCore.prototype.initPage = function (url,callback) {
         }
         if(back == 302){
             logger.debug(back)
+            spiderCore.assembly()
         }else{
             try{
                 back = JSON.parse(back)

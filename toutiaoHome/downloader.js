@@ -302,6 +302,7 @@ downloader.prototype.downloadItAct = function ( taskInfo ) {
                     result.origin.redirect = urlUtil.resolve( pageLink, res.headers.location );
 
                     logger.debug( pageLink + ' 被 301 重定向到  ' + res.headers.location );
+                    spiderCore.assembly()
                 }
             }
 

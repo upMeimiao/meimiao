@@ -29,8 +29,10 @@ var spiderCore = function ( settings ) {
     this.controller = new (require( './controller.js' ))( this );
     // 向服务器返回
     this.sendToServer = new (require( './sendToServer.js' ))( this );
+    this.login = new (require( './login.js' ))( this );
     // 获取任务
     this.task = new (require( './taskQueue.js' ))( this );
+    this.cookie = settings.login.cookie_jn
     logger = settings.logger;
     logger.debug( '控制器 实例化...' );
 };
@@ -47,7 +49,16 @@ spiderCore.prototype.assembly = function () {
         self.downloader.assembly( callback );
     }, function ( callback ) {
         self.extractor.assembly( callback );
-    } ], function ( err, result ) {
+    } , function ( callback ) {
+        self.login.assembly( function ( err, result ) {
+            if ( err ) {
+                logger.error( '登录准备出现错误:', err );
+                logger.error( '程序将停止' );
+                process.exit();
+            }
+            callback( err, result );
+        } );
+    }], function ( err, result ) {
         if ( err ) {
             logger.error( 'spider addembly occur error : ', err );
             logger.error( 'process will send a email then exit' );
