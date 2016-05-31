@@ -1,7 +1,7 @@
 {
   "id":"180321517",
   "list":"http://api.my.le.com/video/user/videolist?callback=jsonp&pagesize=30&userid=",
-  "newList":"http://chuang.le.com/u/180321517?callback=jsonp",
+  "newList":"http://chuang.le.com/u/180321517/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=",
   "info":"http://v.stat.letv.com/vplay/getIdsInfo?type=vlist&callback=jsonp&ids=",
   "time":"http://api.my.le.com/vcm/api/list?type=video&rows=20&page=1&sort=&source=1&xid=",
   "log_level":"DEBUG",

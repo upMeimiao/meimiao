@@ -92,7 +92,7 @@ spiderCore.prototype.getList = function (total,callback) {
             url  = spiderCore.settings.videoList + spiderCore.settings.euin + "&pagenum="+sign
             spiderCore.api_request.get(url,function (err,back) {
                 if(err){}
-                logger.debug(back.body)
+                //logger.debug(back.body)
                 var backData = eval(back.body),
                     backList = backData.videolst
                 spiderCore.getCommentID(backList,function () {
@@ -180,7 +180,11 @@ spiderCore.prototype.getView = function (id,callback) {
     this.api_request.get(url,function (err,back) {
         if(err){}
         var backData = eval(back.body)
-        callback(backData.results[0].fields.view_all_count)
+        if(backData.results[0].fields){
+            callback(backData.results[0].fields.view_all_count)
+        }else{
+            callback(0)
+        }
     })
 }
 spiderCore.prototype.time = function (string) {
