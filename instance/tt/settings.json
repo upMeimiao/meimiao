@@ -1,0 +1,12 @@
+{
+  "log_level":"DEBUG",
+  "waitTime":3600000,
+  "userId": 6204859881,
+  "list": "http://toutiao.com/ma_mobile/?page_type=1&count=10&version=2&media_id=",
+  "info": "http://is.snssdk.com/2/article/information/v14/?aggr_type=2&group_id=",
+  "contentUrl": "https://mp.toutiao.com/statistic/content_article_stat/?",
+  "sendToServer":[
+    "http://yise.tv/index.php/spider/video/addPlatformInfo",
+    "http://yise.tv/index.php/spider/video/addVideoInfo"
+  ]
+}

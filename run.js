@@ -107,6 +107,13 @@ var ttSpider = function () {
     var toutiao = new (require('./toutiao'))(settings);
     toutiao.assembly()
 }
+var ntt = function () {
+    var logger = logging.getLogger('toutiao',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    var toutiao = new (require('./toutiao_new'))(settings);
+    toutiao.start()
+}
 var iqiyiFans = function () {
     var logger = logging.getLogger('爱奇艺粉丝',options['i'],log_level);
     settings['logger'] = logger;
@@ -179,6 +186,9 @@ switch(options['a']){
         break
     case 'tt':
         ttSpider()
+        break
+    case 'ntt':
+        ntt()
         break
     case 'iFans':
         iqiyiFans()
