@@ -130,6 +130,14 @@ var iqiyi = function () {
 
     spider.start();
 }
+var souhu = function () {
+    var logger = logging.getLogger('搜狐',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    var spider = new (require('./souhu'))(settings);
+
+    spider.start()
+}
 ////proxy Service////////////////////////////////////////////////////////////
 var proxyService = function(){
 	var logger = logging.getLogger('proxy-service',options['i'],log_level);
@@ -195,6 +203,9 @@ switch(options['a']){
         break
     case 'iqiyi':
         iqiyi()
+        break
+    case 'souhu':
+        souhu()
         break
     default:
         userArgv.showHelp();
