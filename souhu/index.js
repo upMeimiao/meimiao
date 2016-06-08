@@ -14,7 +14,7 @@ var spiderCore = function (settings) {
 spiderCore.prototype.start = function () {
     logger.debug('start')
     var spiderCore = this
-    //this.getUserInfo()
+    this.getUserInfo()
     this.getTotal()
 }
 spiderCore.prototype.wait = function () {
@@ -42,7 +42,6 @@ spiderCore.prototype.getUserInfo = function () {
             logger.error('json数据解析失败')
             return
         }
-        logger.debug(url)
         var backData = back.data,
             user = {
             name: "搜狐视频",
