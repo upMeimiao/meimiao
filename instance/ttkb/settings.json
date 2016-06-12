@@ -1,3 +1,16 @@
 {
-
+  "id": "5096453",
+  "user": "http://r.cnews.qq.com/getSubItem?chlid=",
+  "news": "http://r.cnews.qq.com/getSubNewsIndex",
+  "video": "http://r.cnews.qq.com/getVideoNewsIndex",
+  "list": "http://r.cnews.qq.com/getSubNewsListItems",
+  "comment": "http://r.cnews.qq.com/getQQNewsComment",
+  "expr": "http://w.cnews.qq.com/getArticleExprList?appver=9.3.2_qnreading_2.1.1",
+  "play": "http://r.cnews.qq.com/getSubNewsContent?appver=9.3.2_qnreading_2.1.1",
+  "log_level":"DEBUG",
+  "waitTime":3600000,
+  "sendToServer":[
+    "http://yise.tv/index.php/spider/video/addPlatformInfo",
+    "http://yise.tv/index.php/spider/video/addVideoInfo"
+  ]
 }

@@ -138,6 +138,14 @@ var souhu = function () {
 
     spider.start()
 }
+var ttbk = function () {
+    var logger = logging.getLogger('天天快报',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    var spider = new (require('./ttkb'))(settings);
+
+    spider.start()
+}
 ////proxy Service////////////////////////////////////////////////////////////
 var proxyService = function(){
 	var logger = logging.getLogger('proxy-service',options['i'],log_level);
@@ -206,6 +214,9 @@ switch(options['a']){
         break
     case 'souhu':
         souhu()
+        break
+    case 'ttkb':
+        ttbk()
         break
     default:
         userArgv.showHelp();

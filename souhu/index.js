@@ -44,12 +44,13 @@ spiderCore.prototype.getUserInfo = function () {
         }
         var backData = back.data,
             user = {
-            name: "搜狐视频",
-            uid: backData.user_id,
-            u_name: backData.nickname,
-            fans_num: backData.total_fans_count,
-            read_num: backData.total_play_count
-        }
+                name: "搜狐视频",
+                uid: backData.user_id,
+                u_name: backData.nickname,
+                fans_num: backData.total_fans_count,
+                read_num: 0,
+                vv_count: backData.total_play_count
+            }
         spiderCore.sendUser(user)
     })
 }
