@@ -95,10 +95,16 @@ spiderCore.prototype.getList = function (total,callback) {
                 //logger.debug(back.body)
                 var backData = eval(back.body),
                     backList = backData.videolst
-                spiderCore.getCommentID(backList,function () {
+                if(backList){
+                    spiderCore.getCommentID(backList,function () {
+                        sign++
+                        cb()
+                    })
+                }else{
                     sign++
                     cb()
-                })
+                }
+                
             })
         },
         function (err,result) {
