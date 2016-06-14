@@ -46,4 +46,25 @@ api_request.prototype.post = function (url,data,callback) {
         return callback( err, back );
     } )
 }
+api_request.prototype.gets = function (url,callback) {
+    var back = {}
+    var options = {
+        method : 'GET',
+        url: url,
+        headers: {
+            'Referer':'http://m.le.com/vplay_25759142.html'
+        }
+    }
+    request.get(options,function(err,res,body){
+        if ( err ) {
+            logger.error( 'occur error : ', err );
+        }
+        back = {
+            statusCode : res.statusCode,
+            headers : JSON.stringify( res.headers ),
+            body : body
+        }
+        return callback( err, back );
+    })
+}
 module.exports = api_request

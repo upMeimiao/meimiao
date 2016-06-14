@@ -14,7 +14,7 @@ var spiderCore = function (settings) {
 spiderCore.prototype.start = function () {
     logger.debug('start')
     var spiderCore = this
-    this.getUserInfo()
+    //this.getUserInfo()
     this.getTotal()
 }
 spiderCore.prototype.wait = function () {
@@ -114,7 +114,7 @@ spiderCore.prototype.getList = function (total) {
     )
 }
 spiderCore.prototype.deal = function (list,callback) {
-    var spiderCore = this,sign = 0
+    var spiderCore = this
     async.whilst(
         function () {
             return list.length != 0
@@ -122,12 +122,10 @@ spiderCore.prototype.deal = function (list,callback) {
         function (cb) {
             var video = list.shift()
             video = {
-                id: video.vid,
-                title: video.video_name,
-                time: Math.round(video.create_date / 1000),
-                play: video.play_count
+                aid: video.aid,
+                id: video.vid
             }
-            spiderCore.getInfo(video,function () {
+            spiderCore.info(video,function () {
                 cb()
             })
         },
@@ -136,34 +134,84 @@ spiderCore.prototype.deal = function (list,callback) {
         }
     )
 }
+spiderCore.prototype.info = function (video,callback) {
+    var spiderCore = this
+    async.series([
+        function (cb) {
+            spiderCore.getInfo(video,function (data) {
+                cb(null,data)
+            })
+        },
+        function (cb) {
+            spiderCore.getDigg(video,function (data) {
+                cb(null,data)
+            })
+        },
+        function (cb) {
+            spiderCore.getCommentNum(video,function (num) {
+                cb(null,num)
+            })
+        }
+    ],
+    function (err,result) {
+        //logger.debug(result)
+        var media = {
+            author: result[0].director,
+            platform: 9,
+            aid: video.id,
+            title: result[0].title,
+            desc: result[0].desc,
+            play_num: result[0].play,
+            comment_num: result[2],
+            support:result[1].up,
+            step:result[1].down,
+            a_create_time: result[0].time
+        }
+        //logger.debug(media)
+        spiderCore.sendVideo(media,function () {
+            callback()
+        })
+    })
+}
 spiderCore.prototype.getInfo = function (video,callback) {
+    var spiderCore = this,
+        url = this.settings.videoInfo + video.id + ".json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=" + video.aid
+    this.api_request.get(url,function (err,back) {
+        if(err){}
+        back = back.body
+        try{
+            back = JSON.parse(back)
+        }catch (e){
+            logger.error('json数据解析失败')
+            return
+        }
+        var backData  = back.data
+        var data = {
+            director: backData.director,
+            title: backData.video_name,
+            desc: backData.video_desc,
+            time: Math.round(backData.create_time / 1000),
+            play: backData.play_count
+        }
+        callback(data)
+    })
+}
+spiderCore.prototype.getDigg = function (video,callback) {
     var spiderCore = this,id = video.id,
         url = this.settings.digg + id + "&_=" + (new Date()).getTime()
     this.api_request.get(url,function (err,back) {
         if(err){}
-        var backInfo = eval(back.body)
-        //logger.debug(back)
-        spiderCore.getCommentNum(id,function (num) {
-            var media = {
-                author: "一色神技能",
-                platform: 9,
-                aid: id,
-                title: video.title,
-                play_num: video.play,
-                comment_num: num,
-                support:backInfo.upCount,
-                step:backInfo.downCount,
-                a_create_time: video.time
+        var backInfo = eval(back.body),
+            data = {
+                up: backInfo.upCount,
+                down: backInfo.downCount
             }
-            spiderCore.sendVideo(media,function () {
-                callback()
-            })
-        })
+        callback(data)
     })
 }
-spiderCore.prototype.getCommentNum = function (id,callback) {
+spiderCore.prototype.getCommentNum = function (video,callback) {
     var spiderCore = this,
-        url = this.settings.comment + id
+        url = this.settings.comment + video.id
     this.api_request.get(url,function (err,back) {
         if(err){}
         back = back.body

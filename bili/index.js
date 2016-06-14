@@ -13,7 +13,7 @@ var spiderCore = function(settings){
 spiderCore.prototype.start = function () {
     logger.info("start")
     var spiderCore = this
-    this.getUserInfo()
+    // this.getUserInfo()
     this.getTotal(function () {
         spiderCore.wait()
     })
@@ -93,6 +93,7 @@ spiderCore.prototype.getVideo = function (data,callback) {
                         platform: 8,
                         aid: backData.data.aid,
                         title: backData.data.title,
+                        desc: backData.data.desc,
                         play_num: backData.data.stat.view,
                         save_num: backData.data.stat.favorite,
                         comment_num: backData.data.stat.reply,

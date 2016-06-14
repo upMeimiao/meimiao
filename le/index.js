@@ -16,11 +16,7 @@ var spiderCore = function(settings){
 spiderCore.prototype.start = function () {
     logger.debug("start")
     var spiderCore = this
-    this.getTotal(function () {
-        spiderCore.sendVideos(function () {
-            spiderCore.wait()
-        })
-    })
+    this.getTotal()
 }
 spiderCore.prototype.wait = function () {
     logger.debug("开始等待下次执行时间")
@@ -35,42 +31,14 @@ spiderCore.prototype.wait = function () {
         }
     },this.settings.waitTime)
 }
-spiderCore.prototype.sendVideos = function (callback){
-    logger.debug("开始向服务器发送数据")
-    var spiderCore = this,
-        url = this.settings.sendToServer[1]
-    async.whilst(
-        function () {
-            if(spiderCore.videosList.length == 0){
-                return false
-            }else{
-                return true
-            }
-        },
-        function (cb) {
-            spiderCore.api_request.post(url,spiderCore.videosList.shift(),function (err,back) {
-                if(err){}
-                logger.debug(back.body)
-                cb()
-            })
-        },
-        function (err,result) {
-            if(err){}
-            logger.debug("向服务器返回数据完毕")
-            callback()
-        }
-    )
-}
-spiderCore.prototype.getTotal = function (callback) {
+spiderCore.prototype.getTotal = function () {
     logger.debug("开始获取视频总页数")
     var spiderCore = this,
         url = this.settings.newList + "1&_="+ (new Date()).getTime()
     this.api_request.get(url,function (err,back) {
         if(err){}
         var backData = eval(back.body)
-        spiderCore.getList(backData.data.totalPage,function () {
-            callback()
-        })
+        spiderCore.getList(backData.data.totalPage)
     })
 }
 // spiderCore.prototype.getTotal = function (callback) {
@@ -88,7 +56,7 @@ spiderCore.prototype.getTotal = function (callback) {
 //         })
 //     })
 // }
-spiderCore.prototype.getList = function (page,callback) {
+spiderCore.prototype.getList = function (page) {
     var spiderCore = this,url,sign = 1
     async.whilst(
         function () {
@@ -103,10 +71,26 @@ spiderCore.prototype.getList = function (page,callback) {
                 var backData = eval(back.body),
                     backList = backData.data.list
                 //logger.debug(backList)
-                spiderCore.getInfo(backList,function () {
+                spiderCore.deal(backList,function () {
                     sign++
                     cb()
                 })
+            })
+        },
+        function (err,result) {
+            spiderCore.wait()
+        }
+    )
+}
+spiderCore.prototype.deal = function (list,callback) {
+    var spiderCore = this
+    async.whilst(
+        function () {
+            return list.length != 0
+        },
+        function (cb) {
+            spiderCore.info(list.shift(),function(){
+                cb()
             })
         },
         function (err,result) {
@@ -114,42 +98,55 @@ spiderCore.prototype.getList = function (page,callback) {
         }
     )
 }
-spiderCore.prototype.getInfo = function (list,callback) {
-    var spiderCore = this,url,sign = 0
-    async.whilst(
-        function () {
-            return sign < list.length
-        },
+spiderCore.prototype.info = function (video,callback) {
+    var spiderCore = this
+    async.series([
         function (cb) {
-            url = spiderCore.settings.info + list[sign].vid + "&_=" + (new Date()).getTime()
-            spiderCore.api_request.get(url,function (err,back) {
-                if(err){}
-                var backData = eval(back.body),
-                    info = backData[0],media
-                spiderCore.getTime(list[sign].vid,function (time) {
-                    media = {
-                        author: "一色神技能",
-                        platform: 3,
-                        aid: list[sign].vid,
-                        title: list[sign].title,
-                        play_num: info.play_count,
-                        comment_num: info.vcomm_count,
-                        support: info.up,
-                        step: info.down,
-                        a_create_time: time
-                    }
-                    //logger.debug(media)
-                    spiderCore.videosList.push(media)
-                    sign++
-                    cb()
-                })
+            spiderCore.getInfo(video.vid,function (data) {
+                cb(null,data)
             })
         },
-        function (err,result) {
-            //logger.debug(spiderCore.videosList)
-            callback()
+        function (cb) {
+            spiderCore.getTime(video.vid,function (time) {
+                cb(null,time)
+            })
+        },
+        function (cb) {
+            spiderCore.getDesc(video.vid,function (desc) {
+                cb(null,desc)
+            })
         }
-    )
+    ],
+    function (err,result) {
+        var media = {
+            author: "一色神技能",
+            platform: 3,
+            aid: video.vid,
+            title: video.title,
+            desc: result[2],
+            play_num: result[0].play_count,
+            comment_num: result[0].vcomm_count,
+            support: result[0].up,
+            step: result[0].down,
+            a_create_time: result[1]
+        }
+        //logger.debug(media)
+        spiderCore.sendVideo(media,function () {
+            callback()
+        })
+    })
+}
+spiderCore.prototype.getInfo = function (id,callback) {
+    var url = this.settings.info + id + "&_=" + (new Date()).getTime()
+    this.api_request.get(url,function (err,back) {
+        if(err){
+            
+        }
+        var backData = eval(back.body),
+            info = backData[0]
+        callback(info)
+    })
+
 }
 spiderCore.prototype.getTime = function (id,callback) {
     var url = this.settings.time + id
@@ -160,6 +157,29 @@ spiderCore.prototype.getTime = function (id,callback) {
         var backData = JSON.parse(back.body),
             time = backData.version_time
         callback(moment(time).unix())
+    })
+}
+spiderCore.prototype.getDesc = function (id,callback) {
+    var url = this.settings.desc + id
+    this.api_request.gets(url,function (err,back) {
+        if(err){}
+        back = back.body
+        try{
+            back = JSON.parse(back)
+        }catch (e){
+            logger.error('json数据解析失败')
+            return
+        }
+        var backData  = back.data.introduction
+        backData ? callback(backData.video_description) : callback('')
+    })
+}
+spiderCore.prototype.sendVideo = function (media,callback) {
+    var url = this.settings.sendToServer[1]
+    this.api_request.post(url,media,function (err,back) {
+        if(err){}
+        logger.debug(back.body)
+        callback()
     })
 }
 module.exports = spiderCore

@@ -183,6 +183,7 @@ spiderCore.prototype.getVideos = function (page,callback) {
                         platform: 1,
                         aid: dataBack[i].id,
                         title: dataBack[i].title,
+                        desc: dataBack[i].desc,
                         play_num: dataBack[i].view_count,
                         save_num: dataBack[i].favorite_count,
                         comment_num: dataBack[i].comment_count,

@@ -176,6 +176,7 @@ spiderCore.prototype.getMedias = function (callback) {
                         platform: 5,
                         aid:media.id,
                         title:media.caption,
+                        desc: media.caption,
                         play_num: media.plays_count,
                         comment_num: media.comments_count,
                         support: media.likes_count,

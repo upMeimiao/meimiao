@@ -133,6 +133,7 @@ spiderCore.prototype.getCommentID = function (list,callback) {
                                 platform: 4,
                                 aid: list[sign].vid,
                                 title: list[sign].title,
+                                desc: list[sign].desc,
                                 play_num: count,
                                 comment_num: num,
                                 a_create_time: spiderCore.time(list[sign].uploadtime)

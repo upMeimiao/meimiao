@@ -4,7 +4,7 @@
 var moment = require('moment')
 var async = require( 'async' )
 var cheerio = require('cheerio')
-var mediaList = [],logger
+var logger
 var spiderCore = function (settings) {
     this.settings = settings
     logger = settings.logger
@@ -85,64 +85,6 @@ spiderCore.prototype.getList = function (hot_time) {
         spiderCore.getInfo(info)
     })
 }
-// spiderCore.prototype.getList = function () {
-//     var spiderCore = this , sign = true ,
-//         url = this.settings.list + this.settings.userId + "&max_behot_time="
-//     async.whilst(
-//         function () {
-//             return sign
-//         },
-//         function (cb) {
-//             spiderCore.api_request.get(url,function (err,back) {
-//                 if(err){}
-//                 var back = back.body
-//                 try{
-//                     back = JSON.parse(back)
-//                 }catch (e){
-//                     logger.error('json数据解析失败')
-//                     return
-//                 }
-//                 var max_behot_time = back.max_behot_time,
-//                     html = back.html.replace(/\n/ig,'').replace(/\t/ig,'').replace(/\r/ig,''),
-//                     $ = cheerio.load(html),
-//                     section = $('section'),group_ids = [],hot_times = [],
-//                     h = $('h3'),titles = [],
-//                     span = $('.time'),times = [],
-//                     count_span = $('.label-count'),counts = []
-//                 h.each(function(i, elem) {
-//                     titles[i] = $(this).text()
-//                 })
-//                 span.each(function (i,elem) {
-//                     times[i] = moment($(this).attr('title')).unix()
-//                 })
-//                 section.each(function(i, elem) {
-//                     group_ids[i] = $(this).attr('data-id')
-//                     hot_times[i] = $(this).attr('hot-time')
-//                 })
-//                 count_span.each(function (i, elem) {
-//                     counts[i] = $(this).text()
-//                 })
-//                 //ogger.debug(counts)
-//                 // logger.debug('group_ids',group_ids)
-//                 // logger.debug('hot_times',hot_times)
-//                 var info = {
-//                     group_ids:group_ids,
-//                     titles:titles,
-//                     counts:counts,
-//                     times:times,
-//                     hot_times:hot_times
-//                 }
-//                 spiderCore.getInfo(info,function () {
-//                
-//                 })
-//             })
-//         },
-//         function (err,result) {
-//
-//         }
-//     )
-//
-// }
 spiderCore.prototype.getInfo = function (info) {
     var spiderCore = this, hot_time = info.hot_time
     async.whilst(
@@ -204,8 +146,7 @@ spiderCore.prototype.getInfo = function (info) {
 }
 spiderCore.prototype.sendVideos = function (data,callback) {
     logger.debug("开始向服务器发送数据")
-    var spiderCore = this,
-        url = this.settings.sendToServer[1]
+    var url = this.settings.sendToServer[1]
     this.api_request.post(url,data,function (err,back) {
         if(err){}
         logger.debug(back.body)

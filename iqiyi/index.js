@@ -3,10 +3,6 @@
  */
 var logger
 var async = require( 'async' )
-// var jsdom = require('jsdom')
-// var fs = require("fs")
-// var path = require('path')
-// var jquery = fs.readFileSync(path.join(__dirname, "../lib/jquery.js"), "utf-8")
 var cheerio = require('cheerio')
 var jsonp = function (data) {
     return data
@@ -157,12 +153,13 @@ spiderCore.prototype.getInfo = function(id,title,callback){
         //logger.debug(backData)
         var infoData = eval(backData),media
         //logger.debug(infoData)
-        spiderCore.getCommentNum(id,function (commentsNum,playNum,creatTime) {
+        spiderCore.getCommentNum(id,function (commentsNum,playNum,creatTime,desc) {
             media = {
                 author: "一色神技能",
                 platform: 2,
                 aid: id,
                 title: title,
+                desc: desc,
                 play_num: playNum,
                 support: infoData.data.up,
                 step: infoData.data.down,
@@ -187,11 +184,11 @@ spiderCore.prototype.getCommentNum = function (id,callback) {
         var backData = JSON.parse(back.body),
             commentNum = backData.data.count
         logger.debug('commentNum',commentNum)
-        spiderCore.getPlayNum(id,function (playNum,creatTime) {
+        spiderCore.getPlayNum(id,function (playNum,creatTime,desc) {
             // if(commentNum){
             //     callback(0,playNum,creatTime)
             // }
-            callback(commentNum,playNum,creatTime)
+            callback(commentNum,playNum,creatTime,desc)
         })
     })
 }
@@ -205,10 +202,11 @@ spiderCore.prototype.getPlayNum = function (id,callback) {
         //logger.debug(backData)
         var playData = eval(backData),
             playNum = playData.data.playCount,
+            desc = playData.data.description,
             creatTime = parseInt(playData.data.issueTime / 1000)
         logger.debug('play',playNum)
         logger.debug('time',creatTime)
-        callback(playNum,creatTime)
+        callback(playNum,creatTime,desc)
     })
 }
 module.exports = spiderCore
