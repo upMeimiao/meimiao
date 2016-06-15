@@ -2,13 +2,13 @@
  * Created by junhao on 16/4/8.
  */
 var request = require('request')
-
+var logger
 var api_request = function ( spiderCore ) {
     'use strict'
     this.spiderCore = spiderCore;
-    this.logger = spiderCore.settings.logger
+    logger = spiderCore.settings.logger
     this.settings = spiderCore.settings
-    this.logger.debug( 'API Request 实例化...' )
+    logger.debug( 'API Request 实例化...' )
 }
 api_request.prototype.get = function (url,callback) {
     var back = {}
@@ -46,13 +46,13 @@ api_request.prototype.post = function (url,data,callback) {
         return callback( err, back );
     } )
 }
-api_request.prototype.gets = function (url,callback) {
+api_request.prototype.gets = function (url,id,callback) {
     var back = {}
     var options = {
         method : 'GET',
         url: url,
         headers: {
-            'Referer':'http://m.le.com/vplay_25759142.html'
+            'Referer':'http://m.le.com/vplay_' + id +'.html'
         }
     }
     request.get(options,function(err,res,body){

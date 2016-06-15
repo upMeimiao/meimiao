@@ -161,7 +161,7 @@ spiderCore.prototype.getTime = function (id,callback) {
 }
 spiderCore.prototype.getDesc = function (id,callback) {
     var url = this.settings.desc + id
-    this.api_request.gets(url,function (err,back) {
+    this.api_request.gets(url,id,function (err,back) {
         if(err){}
         back = back.body
         try{
