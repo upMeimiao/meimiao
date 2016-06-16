@@ -32,7 +32,7 @@ api_request.prototype.post = function (url,data,callback) {
         form : data
     };
     var back = {}
-    this.logger.debug(options)
+    logger.debug(options)
     request.post( options, function ( err, res, body ) {
         if ( err ) {
             logger.error( 'occur error : ', err );
