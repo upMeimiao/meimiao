@@ -82,69 +82,123 @@ spiderCore.prototype.getList = function (hot_time) {
             times:times,
             hot_time:max_behot_time
         }
-        spiderCore.getInfo(info)
+        spiderCore.deal(info)
     })
 }
-spiderCore.prototype.getInfo = function (info) {
+spiderCore.prototype.deal = function (info) {
     var spiderCore = this, hot_time = info.hot_time
     async.whilst(
         function () {
             return info.group_ids.length > 0 ? true :false
         },
         function (cb) {
-            var group_id = info.group_ids.shift(),id = info.ids.shift()
-                url = spiderCore.settings.info + group_id + '&item_id=' + id
-            spiderCore.api_request.get(url,function (err,back) {
-                if(err){}
-                var back = back.body
-                try{
-                    back = JSON.parse(back)
-                }catch (e){
-                    logger.error('返回JSON格式不正确')
-                    return
-                }
-                //logger.debug(back)
-                var backData = back.data,media,count = info.counts.shift()
-                if(backData.video_watch_count){
-                    media = {
-                        author:"一色神技能",
-                        platform: 6,
-                        aid:id,
-                        title:info.titles.shift(),
-                        play_num: backData.video_watch_count,
-                        comment_num: backData.comment_count || 0,
-                        support: backData.digg_count || 0,
-                        step:backData.bury_count || 0,
-                        save_num: backData.repin_count || 0,
-                        a_create_time: info.times.shift()
-                    }
-                }else{
-                    media = {
-                        author:"一色神技能",
-                        platform: 6,
-                        aid:id,
-                        title:info.titles.shift(),
-                        read_num: (count).replace(/阅读/g,''),
-                        comment_num: backData.comment_count || 0,
-                        support: backData.digg_count || 0,
-                        step:backData.bury_count || 0,
-                        save_num: backData.repin_count || 0,
-                        a_create_time: info.times.shift()
-                    }
-                }
-                //logger.debug(media)
-                spiderCore.sendVideos(media,function () {
-                    cb()
-                })
+            var data = {
+                id: info.ids.shift(),
+                g_id: info.group_ids.shift(),
+                title: info.titles.shift(),
+                count: info.counts.shift(),
+                time: info.times.shift()
+            }
+            spiderCore.info(data,function () {
+                cb()
             })
         },
         function (err,result) {
-            if(err){}
             spiderCore.getList(hot_time)
         }
     )
 }
-spiderCore.prototype.sendVideos = function (data,callback) {
+spiderCore.prototype.info = function (info,callback) {
+    var spiderCore = this,
+        id = info.id,title = info.title,time = info.time,count = info.count
+    async.series([
+        function (cb) {
+            spiderCore.getInfo(info,function (data) {
+                cb(null,data)
+            })
+        },
+        function (cb) {
+            spiderCore.getDesc(info,function (data) {
+                cb(null,data)
+            })
+        }
+    ],
+    function (err,result) {
+        var type = result[0].type,
+            desc = result[1],
+            media
+        if(type == 0){
+            media = {
+                author:"一色神技能",
+                platform: 6,
+                aid: id,
+                title: title,
+                desc: desc,
+                play_num: result[0].play_num,
+                comment_num: result[0].comment_num,
+                support: result[0].support,
+                step:result[0].step,
+                save_num: result[0].save_num,
+                a_create_time: time
+            }
+            spiderCore.sendVideo(media,function () {
+                callback()
+            })
+        }
+    })
+}
+spiderCore.prototype.getInfo = function (info,callback) {
+    var group_id = info.g_id,id = info.id,
+        url = this.settings.info + group_id + '&item_id=' + id
+    this.api_request.get(url,function (err,back) {
+        if(err){}
+        var back = back.body
+        try{
+            back = JSON.parse(back)
+        }catch (e){
+            logger.error('返回JSON格式不正确')
+            return
+        }
+        //logger.debug(back)
+        var backData = back.data,data
+        if(backData.video_watch_count){
+            data = {
+                type: 0,
+                play_num: backData.video_watch_count,
+                comment_num: backData.comment_count || 0,
+                support: backData.digg_count || 0,
+                step:backData.bury_count || 0,
+                save_num: backData.repin_count || 0
+            }
+        }else{
+            data = {
+                type: 1,
+                comment_num: backData.comment_count || 0,
+                support: backData.digg_count || 0,
+                step:backData.bury_count || 0,
+                save_num: backData.repin_count || 0
+            }
+        }
+        callback(data)
+    })
+}
+spiderCore.prototype.getDesc = function (info,callback) {
+    var group_id = info.g_id,id = info.id,
+        url = this.settings.desc + group_id + "/" + id + "/2/0/"
+    this.api_request.get(url,function (err,back) {
+        if(err){}
+        back = back.body
+        try{
+            back = JSON.parse(back)
+        }catch (e){
+            logger.error('json数据解析失败')
+            return
+        }
+        var backData = back.data
+        callback(backData.abstract)
+    })
+}
+spiderCore.prototype.sendVideo = function (data,callback) {
     logger.debug("开始向服务器发送数据")
     var url = this.settings.sendToServer[1]
     this.api_request.post(url,data,function (err,back) {

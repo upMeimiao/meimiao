@@ -13,8 +13,7 @@ var spiderCore = function (settings) {
 }
 spiderCore.prototype.start = function () {
     logger.debug('start')
-    var spiderCore = this
-    //this.getUserInfo()
+    this.getUserInfo()
     this.getTotal()
 }
 spiderCore.prototype.wait = function () {

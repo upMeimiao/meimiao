@@ -15,7 +15,6 @@ var spiderCore = function(settings){
 }
 spiderCore.prototype.start = function () {
     logger.debug("start")
-    var spiderCore = this
     this.getTotal()
 }
 spiderCore.prototype.wait = function () {
