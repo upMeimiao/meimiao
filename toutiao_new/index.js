@@ -43,6 +43,7 @@ spiderCore.prototype.getList = function (hot_time) {
             logger.error('json数据解析失败')
             return
         }
+        logger.debug(back)
         if(back.return_count == 0){
             return spiderCore.wait()
         }
@@ -144,6 +145,8 @@ spiderCore.prototype.info = function (info,callback) {
             spiderCore.sendVideo(media,function () {
                 callback()
             })
+        }else{
+            callback()
         }
     })
 }
