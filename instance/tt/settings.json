@@ -7,7 +7,7 @@
   "desc": "http://a3.pstatp.com/article/full/12/2/",
   "contentUrl": "https://mp.toutiao.com/statistic/content_article_stat/?",
   "sendToServer":[
-    "http://yise/index.php/spider/video/addPlatformInfo",
-    "http://yise/index.php/spider/video/addVideoInfo"
+    "http://yise.tv/index.php/spider/video/addPlatformInfo",
+    "http://yise.tv/index.php/spider/video/addVideoInfo"
   ]
 }
