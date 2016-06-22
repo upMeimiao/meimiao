@@ -1,0 +1,8 @@
+{
+  "port": 6379,
+  "host": "localhost",
+  "auth": "",
+  "db": 2,
+  "url":"",
+  "interval":3600000
+}
