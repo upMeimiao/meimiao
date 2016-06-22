@@ -39,7 +39,7 @@ scheduler.prototype.wait = function () {
     var self = this
     setTimeout(function () {
         var now = new Date()
-        if(now.getHours() == 2 || now.getHours() == 4){
+        if(now.getHours() == 2){
             self.test()
         }else{
             logger.debug("now",now.getHours())
@@ -54,10 +54,8 @@ scheduler.prototype.createQueue = function (raw,callback) {
         p: raw.p,
         name: raw.name,
         property: raw.property
-    }).priority('critical').attempts(5).backoff({
-        delay: 30*1000,
-        type: 'fixed'
-    }).removeOnComplete(true).ttl(60000).save(function (err) {
+    }).priority('critical').attempts(10).backoff(true).removeOnComplete(true).ttl(60000)
+        .save(function (err) {
         if(err){
             logger.error( 'Create queue occur error' )
             logger.info( 'error :' , err )
