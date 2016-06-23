@@ -3,6 +3,7 @@
  */
 var async = require( 'async' )
 var kue = require( 'kue' )
+var schedule = require('node-schedule')
 var request = require( 'request' )
 var test_data = require('../data.json')
 
@@ -23,8 +24,15 @@ var scheduler = function ( settings ) {
     logger.trace( '调度器初始化完成' )
 }
 scheduler.prototype.start = function () {
-    logger.trace('start')
-    this.getTask()
+    var self = this
+    var rule = new schedule.RecurrenceRule()
+    rule.minute = 0
+    rule.second = 0
+    var data = test_data
+    schedule.scheduleJob(rule, function(){
+        self.deal(data)
+        //self.getTask()
+    })
 }
 scheduler.prototype.getTask = function () {
     request.get(this.settings.url,function (err,res,body) {
@@ -50,11 +58,12 @@ scheduler.prototype.createQueue = function (raw,callback) {
         property: raw.property
     }).priority('critical').attempts(5).backoff(true).removeOnComplete(true).ttl(90000)
         .save(function (err) {
-        if(err){
-            logger.error( 'Create queue occur error' )
-            logger.info( 'error :' , err )
-        }
-        callback()
+            if(err){
+                logger.error( 'Create queue occur error' )
+                logger.info( 'error :' , err )
+            }
+            logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
+            callback()
     })
 }
 scheduler.prototype.deal = function ( raw, callback ) {
@@ -119,7 +128,7 @@ scheduler.prototype.deal = function ( raw, callback ) {
             if(callback){
                 callback()
             }
-            self.wait()
+            logger.debug("开始等待下次执行时间")
         }
     )
 }
