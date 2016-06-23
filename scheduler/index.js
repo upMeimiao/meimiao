@@ -54,7 +54,7 @@ scheduler.prototype.createQueue = function (raw,callback) {
         p: raw.p,
         name: raw.name,
         property: raw.property
-    }).priority('critical').attempts(10).backoff(true).removeOnComplete(true).ttl(60000)
+    }).priority('critical').attempts(5).backoff(true).removeOnComplete(true).ttl(90000)
         .save(function (err) {
         if(err){
             logger.error( 'Create queue occur error' )
