@@ -38,13 +38,7 @@ scheduler.prototype.wait = function () {
     logger.debug("开始等待下次执行时间")
     var self = this
     setTimeout(function () {
-        var now = new Date()
-        if(now.getHours() == 2){
-            self.test()
-        }else{
-            logger.debug("now",now.getHours())
-            self.wait()
-        }
+        self.test()
     },this.settings.interval)
 }
 scheduler.prototype.createQueue = function (raw,callback) {
