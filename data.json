@@ -14,24 +14,26 @@
     {
       "id": "1267152904",
       "p": 2,
-      "name": "一色神技能"
+      "name": "一色神技能",
+      "type": 1
     },
     {
       "id": "1271981297",
       "p": 2,
-      "name": "一色安全屋"
+      "name": "一色安全屋",
+      "type": 2
     },
     {
       "id": "180321517",
       "p": 3,
       "name": "一色神技能",
-      "property": "chuangxiang"
+      "type": 1
     },
     {
       "id": "184344915",
       "p": 3,
       "name": "一色安全屋",
-      "property": "general"
+      "type": 2
     },
     {
       "id": "1070947971",
@@ -81,20 +83,24 @@
     {
       "id": "6acb1e41b183289c9fcf6a40cd1fae90",
       "p": 4,
-      "name": "一色神技能"
+      "name": "一色神技能",
+      "type": 1
     },
     {
       "id": "ffb37f8727de6e54f1e701cbd613f876",
       "p": 4,
-      "name": "一色安全屋"
+      "name": "一色安全屋",
+      "type": 2
     },
     {
       "id": "854459409",
+      "encodeId": "UMzQxNzgzNzYzNg==",
       "p": 1,
       "name": "一色神技能"
     },
     {
       "id": "858532827",
+      "encodeId": "UMzQzNDEzMTMwOA==",
       "p": 1,
       "name": "一色安全屋"
     }

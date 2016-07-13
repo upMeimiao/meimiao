@@ -11,7 +11,7 @@
     "test": "node test/test.js"
   },
   "dependencies": {
-    "async": "^2.0.0-rc.6",
+    "async": "^2.0.0",
     "kue": "^0.11.1",
     "log4js": "^0.6.37",
     "minimist": "^1.2.0",

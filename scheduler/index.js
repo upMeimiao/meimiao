@@ -1,141 +1,134 @@
 /**
  * spider core
  */
-var async = require( 'async' )
-var kue = require( 'kue' )
-var schedule = require('node-schedule')
-var request = require( 'request' )
-var test_data = require('../data.json')
+const async = require( 'async' )
+const kue = require( 'kue' )
+const schedule = require('node-schedule')
+const request = require( 'request' )
+const test_data = require('../data.json')
 
-var logger
+let logger
 
-var scheduler = function ( settings ) {
-    'use strict'
-    this.settings = settings
-    logger = this.settings.logger
-    this.queue = kue.createQueue( {
-        redis : {
-            port : settings.port ,
-            host : settings.host ,
-            auth : settings.auth ,
-            db : settings.db
-        }
-    } )
-    logger.trace( '调度器初始化完成' )
-}
-scheduler.prototype.start = function () {
-    var self = this
-    var rule = new schedule.RecurrenceRule()
-    rule.minute = 0
-    rule.second = 0
-    var data = test_data
-    schedule.scheduleJob(rule, function(){
-        self.deal(data)
-        //self.getTask()
-    })
-}
-scheduler.prototype.getTask = function () {
-    request.get(this.settings.url,function (err,res,body) {
-        if(err){
-            logger.error()
-        }
-    })
-    
-}
-scheduler.prototype.wait = function () {
-    logger.debug("开始等待下次执行时间")
-    var self = this
-    setTimeout(function () {
-        self.test()
-    },this.settings.interval)
-}
-scheduler.prototype.createQueue = function (raw,callback) {
-    var job = this.queue.create( raw.type , {
-        uid: raw.uid,
-        id: raw.id,
-        p: raw.p,
-        name: raw.name,
-        property: raw.property
-    }).priority('critical').attempts(5).backoff(true).removeOnComplete(true).ttl(90000)
-        .save(function (err) {
+class scheduler {
+    constructor ( settings ) {
+        'use strict'
+        this.settings = settings
+        logger = this.settings.logger
+        this.queue = kue.createQueue( {
+            redis : {
+                port : settings.port ,
+                host : settings.host ,
+                auth : settings.auth ,
+                db : settings.db
+            }
+        } )
+        logger.trace( '调度器初始化完成' )
+    }
+    start () {
+        let rule = new schedule.RecurrenceRule()
+        rule.minute = 0
+        rule.second = 0
+        let data = test_data
+        schedule.scheduleJob(rule, () => {
+            this.deal(data)
+            //this.getTask()
+        })
+    }
+    getTask () {
+        request.get(this.settings.url,function (err,res,body) {
             if(err){
-                logger.error( 'Create queue occur error' )
-                logger.info( 'error :' , err )
+                logger.error()
             }
-            logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
-            callback()
-    })
-}
-scheduler.prototype.deal = function ( raw, callback ) {
-    var self = this
-    var data = raw.data,
-        len = data.length,
-        i = 0
-    async.whilst(
-        function () {
-            return i < len
-        },
-        function (cb) {
-            var _ = data[i],processed,type
-            switch( _.p ){
-                case 1:
-                    type = "youku"
-                    break
-                case 2:
-                    type = "iqiyi"
-                    break
-                case 3:
-                    type = "le"
-                    break
-                case 4:
-                    type = "tencent"
-                    break
-                case 5:
-                    type = "meipai"
-                    break
-                case 6:
-                    type = "toutiao"
-                    break
-                case 7:
-                    type = "miaopai"
-                    break
-                case 8:
-                    type = "bili"
-                    break
-                case 9:
-                    type = "souhu"
-                    break
-                case 10:
-                    type = "kuaibao"
-                    break
-                default:
-                    break
-            }
-            processed = {
-                uid: raw.id,
-                id: _.id,
-                p: _.p,
-                name: _.name,
-                type: type,
-                property: _.property ? _.property : ''
-            }
-            self.createQueue(processed,function () {
-                i++
-                cb()
-            })
-        },
-        function () {
-            if(callback){
+        })
+    }
+    createQueue (raw,callback) {
+        let job = this.queue.create( raw.platform , {
+            uid: raw.uid,
+            id: raw.id,
+            p: raw.p,
+            name: raw.name,
+            encodeId: raw.encodeId,
+            type: raw.type
+        }).priority('critical').attempts(5).backoff(true).removeOnComplete(true).ttl(90000)
+            .save(function (err) {
+                if(err){
+                    logger.error( 'Create queue occur error' )
+                    logger.info( 'error :' , err )
+                }
+                logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
                 callback()
+            })
+    }
+    deal ( raw, callback ) {
+        let data = raw.data,
+            len = data.length,
+            i = 0
+        async.whilst(
+            () => {
+                return i < len
+            },
+            (cb) => {
+                var _ = data[i],processed,platform
+                switch( _.p ){
+                    case 1:
+                        platform = "youku"
+                        break
+                    case 2:
+                        platform = "iqiyi"
+                        break
+                    case 3:
+                        platform = "le"
+                        break
+                    case 4:
+                        platform = "tencent"
+                        break
+                    case 5:
+                        platform = "meipai"
+                        break
+                    case 6:
+                        platform = "toutiao"
+                        break
+                    case 7:
+                        platform = "miaopai"
+                        break
+                    case 8:
+                        platform = "bili"
+                        break
+                    case 9:
+                        platform = "souhu"
+                        break
+                    case 10:
+                        platform = "kuaibao"
+                        break
+                    default:
+                        break
+                }
+                processed = {
+                    uid: raw.id,
+                    id: _.id,
+                    p: _.p,
+                    name: _.name,
+                    platform: platform,
+                    encodeId: _.encodeId ? _.encodeId : '',
+                    type: _.type ? _.type : ''
+                }
+                this.createQueue(processed, () => {
+                    i++
+                    cb()
+                })
+            },
+            () => {
+                if(callback){
+                    callback()
+                }
+                logger.debug("开始等待下次执行时间")
             }
-            logger.debug("开始等待下次执行时间")
-        }
-    )
-}
-scheduler.prototype.test = function () {
-    logger.trace('测试模式')
-    var data = test_data
-    logger.debug(data)
-    this.deal(data)
+        )
+    }
+    test () {
+        logger.trace('测试模式')
+        let data = test_data
+        this.deal(data)
+    }
 }
 module.exports = scheduler

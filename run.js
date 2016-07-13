@@ -11,7 +11,7 @@ var i = argv.i;
 var t = argv.t;
 
 if ( !i ) {
-    i = 'generate';
+    i = 'scheduler';
 }
 var way = path.join( '.' , '/instance' , i , 'settings.json' );
 
