@@ -1,5 +1,5 @@
 {
-  "name": "mediadata",
+  "name": "qiaoyan",
   "version": "0.0.5",
   "description": "Media Data Spider",
   "main": "./run.js",
@@ -23,5 +23,10 @@
     "name": "Junhao",
     "email": "changjunhao@meimiao.net",
     "url": "http://ifable.cn/blog"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://changjunhao@svngit.qwbcg.com:8443/r/yise_statistics_spider.git"
+  },
+  "license": "BSD-3-Clause"
 }
