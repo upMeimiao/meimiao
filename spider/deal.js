@@ -1,16 +1,16 @@
 const URL = require('url')
 const cheerio = require('cheerio')
+const request = require( '../lib/req' )
 const jsonp = function (data) {
     return data
 }
-let request,logger,settings,core,api
+let logger,settings,core,api
 class deal{
     constructor (spiderCore) {
         core = spiderCore
         settings = core.settings
         logger = settings.logger
         api = settings.api
-        request = new (require( '../lib/req.js' ))( core )
         logger.debug('任务处理模块 实例化...')
     }
     youku (data,callback) {
@@ -19,6 +19,7 @@ class deal{
         }
         request.get (option,(err,result) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -56,6 +57,7 @@ class deal{
         }
         request.get ( option, ( err, result) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -86,6 +88,7 @@ class deal{
         }
         request.get ( option, ( err, result) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -117,6 +120,7 @@ class deal{
         }
         request.get ( option, ( err, result) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -148,6 +152,7 @@ class deal{
         }
         request.get ( option, ( err, result) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -182,6 +187,7 @@ class deal{
         }
         request.post( option, ( err, result ) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -212,6 +218,7 @@ class deal{
         }
         request.get(option,(err,result)=>{
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -228,6 +235,7 @@ class deal{
                 }
             request.get(option,(err,result)=>{
                 if(err){
+                    logger.error( 'occur error : ', err )
                     return callback(err)
                 }
                 if(result.statusCode != 200 ){
@@ -252,6 +260,7 @@ class deal{
         }
         request.get(option,(err,result)=>{
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -280,7 +289,9 @@ class deal{
                 url: 'http://chuang.le.com/u/' + id
             }
             request.get(option,(err,result) => {
-                if(err){}
+                if(err){
+                    logger.error( 'occur error : ', err )
+                }
                 let _$ = cheerio.load(result.body),
                     name = _$('.au_info').text()
                 let res ={
@@ -298,6 +309,7 @@ class deal{
         }
         request.get(option,(err,result) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
@@ -335,6 +347,7 @@ class deal{
             }
             request.get(option,(err,result)=>{
                 if(err){
+                    logger.error( 'occur error : ', err )
                     return callback(err)
                 }
                 if(result.statusCode != 200 ){
@@ -360,6 +373,7 @@ class deal{
             }
         request.get(option,(err,result)=>{
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode != 200 ){
