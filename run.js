@@ -1,44 +1,57 @@
-var EventEmitter = require( 'events' ).EventEmitter;
-var argv = require( 'minimist' )( process.argv.slice( 2 ) );
-var fs = require( 'fs' );
-var path = require( 'path' );
+const EventEmitter = require( 'events' ).EventEmitter
+const argv = require( 'minimist' )( process.argv.slice( 2 ) )
+const fs = require( 'fs' )
+const path = require( 'path' )
 
-var logger = require( './lib/logger.js' );
+const logger = require( './lib/logger.js' )
 
-var event = new EventEmitter();
+const event = new EventEmitter()
 
-var i = argv.i;
-var t = argv.t;
+let i = argv.i
+let t = argv.t
 
 if ( !i ) {
-    i = 'scheduler';
+    i = 'scheduler'
 }
-var way = path.join( '.' , '/instance' , i , 'settings.json' );
+let way = path.join( '.' , '/instance' , i , 'settings.json' )
 
 // TODO: Judge instance exist
-fs.exists( way , function ( result ) {
+fs.exists( way , ( result ) => {
     if ( result ) {
-        event.emit( 'exist' );
+        event.emit( 'exist' )
     } else {
-        event.emit( 'non' );
+        event.emit( 'non' )
     }
-} );
+} )
 
-event.on( 'exist' , function () {
-
-    var settings = require( './' + way );
-
-    settings.logger = logger.getLogger( i , i , 'trace' );
-
-    var scheduler = new (require( './scheduler' ))( settings );
-
-    if ( t ) {
-        scheduler.test();
-    } else {
-        scheduler.start();
+event.on( 'exist' ,  () => {
+    let settings = require( './' + way )
+    settings.logger = logger.getLogger( i , i , 'trace' )
+    let scheduler = () => {
+        let scheduler = new (require( './scheduler' ))( settings )
+        if ( t ) {
+            scheduler.test()
+        } else {
+            scheduler.start()
+        }
     }
-} );
+    let servant = () => {
+        let crawling = new (require( './spider' ))( settings )
+        crawling.start()
+    }
+    switch (i){
+        case 'scheduler':
+        case 'test':
+            scheduler()
+            break
+        case 'servant':
+            servant()
+            break
+        default:
+            break
+    }
+} )
 
-event.on( 'non' , function () {
-    console.error( 'Specify instance name config is not exist' , { path : way } );
-} );
+event.on( 'non' , () => {
+    console.error( 'Specify instance name config is not exist' , { path : way } )
+} )

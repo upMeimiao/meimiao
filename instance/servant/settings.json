@@ -1,0 +1,36 @@
+{
+  "listen": {
+    "ip":"192.168.1.44",
+    "port":2016
+  },
+  "api": {
+    "youku": {
+      "key": "c9e697e443715900",
+      "url": "https://openapi.youku.com/v2/videos/show_basic.json"
+    },
+    "bili": {
+      "url": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid="
+    },
+    "meipai": {
+      "url": "https://newapi.meipai.com/medias/show.json?id="
+    },
+    "miaopai": {
+      "url": "http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="
+    },
+    "souhu": {
+      "url": "http://s1.api.tv.itc.cn/v4/video/info/"
+    },
+    "kuaibao": {
+      "url": "http://r.cnews.qq.com/getSubNewsListItems"
+    },
+    "iqiyi": {
+      "url": "http://mixer.video.iqiyi.com/jp/mixin/videos/"
+    },
+    "tencent": {
+      "url": "http://sns.video.qq.com/tvideo/fcgi-bin/video?otype=json&callback=jsonp&low_login=1&vid="
+    },
+    "toutiao": {
+      "url": "http://m.toutiao.com/i"
+    }
+  }
+}
