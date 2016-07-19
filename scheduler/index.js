@@ -102,9 +102,11 @@ class scheduler {
                             logger.info( 'error :' , err )
                         }
                         logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
+                        callback()
                     })
+            }else{
+                callback()
             }
-            callback()
         })
     }
     deal ( raw, callback ) {
