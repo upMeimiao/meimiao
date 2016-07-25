@@ -1,3 +1,4 @@
+.DS_Store
 .settings
 .project
 .idea
@@ -11,7 +12,6 @@ node_modules/*
 lib/phantomjs/*.png
 # Logs
 #logs
-*.log
 
 # Runtime data
 pids

@@ -3,7 +3,6 @@
  */
 const async = require( 'async' )
 const kue = require( 'kue' )
-const schedule = require('node-schedule')
 const request = require( 'request' )
 const myRedis = require( '../lib/myredis.js' )
 const test_data = require('../data.json')
