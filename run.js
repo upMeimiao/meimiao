@@ -128,6 +128,9 @@ switch (options['a']){
     case 'scheduler':
         scheduler()
         break
+    case 'servant':
+        servant()
+        break
     case 'tencent':
         tencent()
         break

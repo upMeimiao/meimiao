@@ -82,7 +82,7 @@ class scheduler {
     }
     createQueue (raw,callback) {
         let job
-        this.checkTime( raw, ( err, result ) => {
+        this.checkKey( raw, ( err, result ) => {
             if(err){
                 return callback(err)
             }
@@ -174,16 +174,53 @@ class scheduler {
             }
         )
     }
+    checkKey ( raw, callback ) {
+        let key = raw.p + ':' + raw.id
+        this.taskDB.hmget( key, 'id', ( err, result ) => {
+            if(err){
+                logger.debug(err)
+                return callback(err)
+            }
+            if(result[0] === null){
+                this.setKey( raw, () => {
+                    return callback(null,true)
+                })
+            }else{
+                this.checkTime( raw, ( err, result ) => {
+                    if(err){
+                        return callback(err)
+                    }
+                    if(result){
+                        return callback(null,true)
+                    }
+                    return callback(null,false)
+                })
+            }
+        })
+    }
+    setKey ( raw, callback ) {
+        let key = raw.p + ':' + raw.id
+        this.taskDB.hmset( key, 'id', raw.id, 'init', (new Date().getTime()),
+            ( err, result ) => {
+                if(err){
+                    return callback(err)
+                }
+                if( result === 'OK' ){
+                    return callback(null,true)
+                }
+                return callback(null,false)
+            })
+    }
     checkTime ( raw, callback ) {
-        let key = raw.p + '_' + raw.id
-        this.taskDB.get( key, ( err, result) => {
+        let key = raw.p + ':' + raw.id
+        this.taskDB.hmget( key, 'update', ( err, result) => {
             if(err){
                 return callback(err)
             }
-            if(result === null){
+            if(result[0] === null){
                 return callback(null,true)
             }
-            if((new Date().getTime()) - result >= 3600000){
+            if((new Date().getTime()) - result[0] >= 3600000){
                 return callback(null,true)
             }
             return callback(null,false)
