@@ -126,6 +126,22 @@ class spiderCore {
                 return callback(null,result)
             })
         }
+        if(hostname.endsWith('yidianzixun.com')){
+            this.deal.yidian(url,(err,result) => {
+                if(err){
+
+                }
+                return callback(null,result)
+            })
+        }
+        if(hostname.endsWith('tudou.com')){
+            this.deal.tudou(url,(err,result) => {
+                if(err){
+
+                }
+                return callback(null,result)
+            })
+        }
     }
 }
 module.exports = spiderCore

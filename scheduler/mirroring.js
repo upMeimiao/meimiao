@@ -193,6 +193,12 @@ class scheduler {
                     case 10:
                         platform = "kuaibao"
                         break
+                    case 11:
+                        platform = "yidian"
+                        break
+                    case 12:
+                        platform = "tudou"
+                        break
                     default:
                         break
                 }

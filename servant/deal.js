@@ -408,6 +408,63 @@ class deal{
         }
         callback(null,res)
     }
+    yidian ( data, callback ) {
+        let href = URL.parse(data,true).href,
+            v_array = href.split('='),
+            v_id = v_array[2],
+            option = {
+                url: api.yidian.url + v_id
+            }
+        request.get(option,(err,result)=>{
+            if(err){
+                logger.error( 'occur error : ', err )
+            }
+            if(result.statusCode != 200 ){
+                logger.error('一点状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            let $ = cheerio.load(result.body),
+                name = $('#source-name').text(),
+                res = {
+                    id: v_id,
+                    name: name
+                }
+            callback(null,res)
+        })
+    }
+    tudou (data,callback) {
+        let href = URL.parse(data,true).href
+        let v_array1 = href.split('&'),
+            v_array2 = v_array1[4].split('='),
+            v_id = v_array2[1],
+            option = {
+                url: api.tudou.url + v_id
+            }
+        request.get ( option, ( err, result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            if(result.statusCode != 200 ){
+                logger.error('土豆状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e){
+                logger.error('土豆json数据解析失败')
+                logger.info(result)
+                return callback(e)
+            }
+            let res = {
+                id: result.id,
+                name: result.nick
+            }
+            callback(null,res)
+        })
+    }
 }
 class Tool{
     hexToString(str){

@@ -117,6 +117,20 @@ const iqiyi = () => {
     let spider = new (require('./iqiyi'))(settings)
     spider.start()
 }
+const yidian = () => {
+    let logger = logging.getLogger('一点资讯',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./yidian'))(settings)
+    spider.start()
+}
+const tudou = () => {
+    let logger = logging.getLogger('土豆',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./tudou'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('爱奇艺',options['i'],log_level)
     settings['logger'] = logger
@@ -160,6 +174,12 @@ switch (options['a']){
         break
     case 'iqiyi':
         iqiyi()
+        break
+    case 'yidian':
+        yidian()
+        break
+    case 'tudou':
+        tudou()
         break
     case 'test':
         test()

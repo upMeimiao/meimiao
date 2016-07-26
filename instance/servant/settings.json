@@ -1,7 +1,7 @@
 {
   "listen": {
-    "ip":"192.168.1.44",
-    "port":2016
+    "ip":"192.168.1.92",
+    "port":2017
   },
   "api": {
     "youku": {
@@ -31,6 +31,12 @@
     },
     "toutiao": {
       "url": "http://m.toutiao.com/i"
+    },
+    "yidian": {
+      "url": "http://yidianzixun.com/home?page=article&id="
+    },
+    "tudou": {
+      "url": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id="
     }
   }
 }
