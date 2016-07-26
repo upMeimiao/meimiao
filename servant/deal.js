@@ -409,9 +409,8 @@ class deal{
         callback(null,res)
     }
     yidian ( data, callback ) {
-        let href = URL.parse(data,true).href,
-            v_array = href.split('='),
-            v_id = v_array[2],
+        let query = URL.parse(data,true).query,
+            v_id = query.id,
             option = {
                 url: api.yidian.url + v_id
             }
@@ -434,10 +433,8 @@ class deal{
         })
     }
     tudou (data,callback) {
-        let href = URL.parse(data,true).href
-        let v_array1 = href.split('&'),
-            v_array2 = v_array1[4].split('='),
-            v_id = v_array2[1],
+        let query = URL.parse(data,true).query,
+            v_id = query.id,
             option = {
                 url: api.tudou.url + v_id
             }
