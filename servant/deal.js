@@ -447,7 +447,6 @@ class deal{
                 id: result.detail.userid,
                 name: result.detail.username
             }
-            logger.info(res)
             callback(null,res)
         })
     }
