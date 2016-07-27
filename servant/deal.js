@@ -409,10 +409,8 @@ class deal{
         callback(null,res)
     }
     yidian ( data, callback ) {
-        let query = URL.parse(data,true).query,
-            v_id = query.id,
-            option = {
-                url: api.yidian.url + v_id
+        let option = {
+                url: data
             }
         request.get(option,(err,result)=>{
             if(err){
@@ -425,6 +423,9 @@ class deal{
             }
             let $ = cheerio.load(result.body),
                 name = $('#source-name').text(),
+                href = $('#source-name').href(),
+                h_array = href.split('='),
+                v_id = h_array[h_array.length-1],
                 res = {
                     id: v_id,
                     name: name
@@ -433,8 +434,8 @@ class deal{
         })
     }
     tudou (data,callback) {
-        let query = URL.parse(data,true).query,
-            v_id = query.id,
+        let v_array = data.split('/'),
+            v_id = v_array[2].substring(1),
             option = {
                 url: api.tudou.url + v_id
             }
