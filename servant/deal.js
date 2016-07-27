@@ -426,7 +426,6 @@ class deal{
             option = {
                 url: api.tudou.url + v_id
             }
-            logger.debug(v_id)
         request.get ( option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
@@ -445,9 +444,10 @@ class deal{
                 return callback(e)
             }
             let res = {
-                id: result.id,
-                name: result.nick
+                id: result.detail.userid,
+                name: result.detail.username
             }
+            logger.info(res)
             callback(null,res)
         })
     }

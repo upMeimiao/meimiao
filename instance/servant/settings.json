@@ -36,7 +36,7 @@
       "url": "http://yidianzixun.com/home?page=article&id="
     },
     "tudou": {
-      "url": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id="
+      "url": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid="
     }
   }
 }
