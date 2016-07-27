@@ -395,19 +395,6 @@ class deal{
             callback(null,res)
         })
     }
-    kuaishou ( data, callback ) {
-        let url_obj = URL.parse(data,true),
-            pathname = url_obj.pathname,
-            query = url_obj.query,
-            id = query.userId
-        request.get(option,(err,result)=>{
-            
-        })
-        let res  = {
-            id: id
-        }
-        callback(null,res)
-    }
     yidian ( data, callback ) {
         let option = {
                 url: data
@@ -423,7 +410,7 @@ class deal{
             }
             let $ = cheerio.load(result.body),
                 name = $('#source-name').text(),
-                href = $('#source-name').href(),
+                href = $('#source-name').attr('href'),
                 h_array = href.split('='),
                 v_id = h_array[h_array.length-1],
                 res = {
@@ -435,10 +422,11 @@ class deal{
     }
     tudou (data,callback) {
         let v_array = data.split('/'),
-            v_id = v_array[2].substring(1),
+            v_id = v_array[v_array.length-2],
             option = {
                 url: api.tudou.url + v_id
             }
+            logger.debug(v_id)
         request.get ( option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
@@ -462,6 +450,9 @@ class deal{
             }
             callback(null,res)
         })
+    }
+    baomihua ( data, callback ) {
+        callback(null,data)
     }
 }
 class Tool{
