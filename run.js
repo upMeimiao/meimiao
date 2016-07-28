@@ -131,6 +131,13 @@ const tudou = () => {
     let spider = new (require('./tudou'))(settings)
     spider.start()
 }
+const baomihua = () => {
+    let logger = logging.getLogger('爆米花',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./baomihua'))(settings)
+    spider.start()
+}
 const ku6 = () => {
     let logger = logging.getLogger('酷6',options['i'],log_level)
     settings['logger'] = logger
@@ -187,6 +194,9 @@ switch (options['a']){
         break
     case 'tudou':
         tudou()
+        break
+    case 'baomihua':
+        baomihua()
         break
     case 'ku6':
         ku6()
