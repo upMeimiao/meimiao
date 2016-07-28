@@ -457,6 +457,15 @@ class deal{
         })
     }
     baomihua ( data, callback ) {
+        let urlObj = URL.parse(data,true),
+            hostname = urlObj.hostname,
+            pathname = urlObj.pathname,
+            id,v_id
+        if(hostname == 'www.baomihua.com'){
+            if(pathname.indexOf('_')){
+
+            }
+        }
         callback(null,data)
     }
 }
