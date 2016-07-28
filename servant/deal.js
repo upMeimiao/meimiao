@@ -503,6 +503,32 @@ class deal{
             callback(null,res)
         })
     }
+    ku6 ( data ,callback ) {
+        let v_array1 = data.split('/'),
+            v_array2 = v_array1[v_array1.length-1].split('.'),
+            v_id = v_array2[0] + '..',
+            v_time = new Date().getTime(),
+            option = {
+                url: api.ku6.url + v_id + '&_=' + v_time
+            }
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error:', err )
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch(e){
+                logger.error('酷6json数据解析失败')
+                logger.info(result)
+                return callback(e)
+            }
+            let res = {
+                id: result.data.list[0].author.id,
+                name: result.data.list[0].author.nick
+            }
+            callback(null,res)
+        })
+    }
 }
 class Tool{
     hexToString(str){

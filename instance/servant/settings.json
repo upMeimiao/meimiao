@@ -40,6 +40,9 @@
     },
     "baomihua": {
       "url": "http://m.interface.baomihua.com/interfaces/userchannel.ashx"
+    },
+    "ku6": {
+      "url": "http://v.ku6.com/video.htm?t=getVideosByIds&ids="
     }
   }
 }
