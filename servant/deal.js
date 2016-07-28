@@ -460,13 +460,48 @@ class deal{
         let urlObj = URL.parse(data,true),
             hostname = urlObj.hostname,
             pathname = urlObj.pathname,
-            id,v_id
-        if(hostname == 'www.baomihua.com'){
+            id,v_id,option = {}
+        if(hostname == 'www.baomihua.com' || hostname == 'baomihua.com'){
+            let v_array = pathname.split('/')
+            logger.debug(v_array)
             if(pathname.indexOf('_')){
-
+                id = v_array[2].split('_')[0]
+                v_id = v_array[2].split('_')[1]
+            }else{
+                id = v_array[2]
             }
+        }else{
+            let v_array = pathname.split('/')
+            v_id = v_array[2]
         }
-        callback(null,data)
+        if(id){
+            option.url = api.baomihua.url + `?channelid=${id}&type=channelinfo`
+        }else{
+            option.url = api.baomihua.url + `?channelid=0&type=channelinfo&videoid=${v_id}`
+        }
+        request.get ( option, ( err, result ) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            if(result.statusCode != 200 ){
+                logger.error('爆米花状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e){
+                logger.error('爆米花json数据解析失败')
+                logger.info(result)
+                return callback(e)
+            }
+            let res = {
+                id: result.result.ChannelInfo.ChannelID,
+                name: result.result.ChannelInfo.ChannelName
+            }
+            callback(null,res)
+        })
     }
 }
 class Tool{

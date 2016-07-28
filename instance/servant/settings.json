@@ -37,6 +37,9 @@
     },
     "tudou": {
       "url": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid="
+    },
+    "baomihua": {
+      "url": "http://m.interface.baomihua.com/interfaces/userchannel.ashx"
     }
   }
 }

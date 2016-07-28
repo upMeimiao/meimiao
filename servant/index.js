@@ -129,6 +129,7 @@ class spiderCore {
                 })
                 break
             case 'www.baomihua.com':
+            case 'baomihua.com':
             case 'video.baomihua.com':
                 this.deal.baomihua(url,(err,result) => {
                     if(err){
