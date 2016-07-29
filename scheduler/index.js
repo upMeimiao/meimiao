@@ -157,8 +157,10 @@ class scheduler {
                         break
                     case 13:
                         platform = "baomihua"
+                        break
                     case 14:
                         platform = "ku6"
+                        break
                     default:
                         break
                 }
