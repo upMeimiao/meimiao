@@ -44,8 +44,8 @@
     "ku6": {
       "url": "http://v.ku6.com/video.htm?t=getVideosByIds&ids="
     },
-    "bjtime": {
-      "url": ""
+    "btime": {
+      "url": "http://record.btime.com/getUserChannel?uid="
     }
   }
 }

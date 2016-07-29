@@ -146,8 +146,8 @@ class spiderCore {
                     return callback(null,result)
                 })
                 break
-            case '.com':
-                this.deal.bjtime(url,(err,result) => {
+            case 'record.btime.com':
+                this.deal.btime(url,(err,result) => {
                     if(err){
 
                     }

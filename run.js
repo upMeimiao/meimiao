@@ -145,11 +145,11 @@ const ku6 = () => {
     let spider = new (require('./ku6'))(settings)
     spider.start()
 }
-const bjtime = () => {
+const btime = () => {
     let logger = logging.getLogger('北京时间',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./bjtime'))(settings)
+    let spider = new (require('./btime'))(settings)
     spider.start()
 }
 const test = () => {
@@ -208,8 +208,8 @@ switch (options['a']){
     case 'ku6':
         ku6()
         break
-    case 'bjtime':
-        bjtime()
+    case 'btime':
+        btime()
         break
     case 'test':
         test()

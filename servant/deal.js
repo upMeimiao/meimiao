@@ -517,6 +517,11 @@ class deal{
                 logger.error('occur error:', err )
                 return callback(err)
             }
+            if(result.statusCode != 200){
+                logger.error('酷6状态码错误:',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
@@ -529,6 +534,44 @@ class deal{
                 name: result.data.list[0].author.nick
             }
             callback(null,res)
+        })
+    }
+    btime ( data, callback) {
+        let option = {
+            url: data
+        }
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                logger.error('北京时间状态码错误:',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            let $ = cheerio.load(result.body),
+                id = $("input[name='uid']").attr('value'),
+                option = {
+                    url: api.btime.url + id
+                }
+            request.get( option, (err,result) => {
+                if(err){
+                    return callback(err)
+                }
+                try{
+                    result = JSON.parse(result.body)
+                } catch (e){
+                    logger.error('北京时间json数据解析失败')
+                    logger.info('json error: ',result.body)
+                    return callback(e)
+                }
+                let res = {
+                    id: result.data.uid,
+                    name: result.data.nickname
+                }
+                callback(null,res)
+            })
         })
     }
 }
