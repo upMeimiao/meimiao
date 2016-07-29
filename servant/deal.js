@@ -402,6 +402,7 @@ class deal{
         request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
+                return callback(err)
             }
             if(result.statusCode != 200 ){
                 logger.error('一点状态码错误',result.statusCode)
@@ -514,6 +515,7 @@ class deal{
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error:', err )
+                return callback(err)
             }
             try{
                 result = JSON.parse(result.body)
