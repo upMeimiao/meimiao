@@ -205,6 +205,9 @@ class scheduler {
                     case 14:
                         platform = "ku6"
                         break
+                    case 15:
+                        platform = "bjtime"
+                        break
                     default:
                         break
                 }

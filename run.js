@@ -145,6 +145,13 @@ const ku6 = () => {
     let spider = new (require('./ku6'))(settings)
     spider.start()
 }
+const bjtime = () => {
+    let logger = logging.getLogger('北京时间',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./bjtime'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('爱奇艺',options['i'],log_level)
     settings['logger'] = logger
@@ -200,6 +207,9 @@ switch (options['a']){
         break
     case 'ku6':
         ku6()
+        break
+    case 'bjtime':
+        bjtime()
         break
     case 'test':
         test()
