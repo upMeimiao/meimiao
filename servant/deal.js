@@ -574,6 +574,31 @@ class deal{
             })
         })
     }
+    xiaoying ( data, callback) {
+        let path = URL.parse(data,true).pathname,
+            v_array = path.split('/'),
+            id = v_array[2],
+            option = {
+                url: api.xiaoying.url + id
+            }
+        request.get( option, (err,result) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch(e){
+                logger.error('小影json数据解析失败')
+                logger.info('json error: ',result.body)
+                return callback(e)
+            }
+            let res = {
+                id: result.videoinfo.auid,
+                name: result.videoinfo.username
+            }
+            callback(null,res)
+        })
+    }
 }
 class Tool{
     hexToString(str){

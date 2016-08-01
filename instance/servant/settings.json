@@ -46,6 +46,9 @@
     },
     "btime": {
       "url": "http://record.btime.com/getUserChannel?uid="
+    },
+    "xiaoying": {
+      "url": "https://w.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&puid="
     }
   }
 }
