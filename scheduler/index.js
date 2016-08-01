@@ -164,6 +164,9 @@ class scheduler {
                     case 15:
                         platform = "btime"
                         break
+                    case 16:
+                        platform = "weishi"
+                        break
                     default:
                         break
                 }
