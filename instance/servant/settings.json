@@ -46,6 +46,10 @@
     },
     "btime": {
       "url": "http://record.btime.com/getUserChannel?uid="
+    },
+    "weishi": {
+      "url_1": "http://wsm.qq.com/weishi/t/other.php",
+      "url_2": "http://wsi.weishi.com/weishi/t/show.php"
     }
   }
 }

@@ -154,6 +154,16 @@ class spiderCore {
                     return callback(null,result)
                 })
                 break
+            case 'www.weishi.com':
+            case 'weishi.com':
+            case 'weishi.qq.com':
+                this.deal.weishi( url, ( err, result ) => {
+                    if(err){
+
+                    }
+                    return callback(null,result)
+                })
+                break
             default:
                 return callback(null,{code:1001,msg:'暂不支持该平台'})
         }

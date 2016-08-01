@@ -574,6 +574,38 @@ class deal{
             })
         })
     }
+    weishi ( data, callback ) {
+        let urlObj = URL.parse(data,true),
+            hostname = urlObj.hostname,
+            pathname = urlObj.pathname,
+            id,v_id,option = {},res = {}
+        if( hostname.indexOf('qq') == -1 ){
+            v_id = pathname.split('/')[2]
+            option.url = api.weishi.url_2 + `?id=${v_id}`
+            option.referer = `http://www.weishi.com/t/${v_id}`
+        } else {
+            id = pathname.split('/')[2]
+            option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`
+            option.referer = `http://weishi.qq.com/u/${id}`
+        }
+        request.get( option, ( err, result ) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e){
+                logger.error('微视json数据解析失败')
+                logger.info('json error: ',result.body)
+                return callback(e)
+            }
+            let data = result.data.user
+            res.name = Object.keys(data)[0]
+            res.id = data[res.name]
+            callback(null,res)
+        })
+    }
 }
 class Tool{
     hexToString(str){
