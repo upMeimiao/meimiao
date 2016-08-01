@@ -575,11 +575,11 @@ class deal{
         })
     }
     weishi ( data, callback ) {
-        let urlObj = URL.parse(data,true),
+        let urlObj = URL.parse(data, true),
             hostname = urlObj.hostname,
             pathname = urlObj.pathname,
-            id,v_id,option = {},res = {}
-        if( hostname.indexOf('qq') == -1 ){
+            id, v_id, option = {}, res = {}
+        if (hostname.indexOf('qq') == -1) {
             v_id = pathname.split('/')[2]
             option.url = api.weishi.url_2 + `?id=${v_id}`
             option.referer = `http://www.weishi.com/t/${v_id}`
@@ -588,21 +588,46 @@ class deal{
             option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`
             option.referer = `http://weishi.qq.com/u/${id}`
         }
-        request.get( option, ( err, result ) => {
-            if(err){
-                logger.error('occur error: ',err)
+        request.get(option, (err, result) => {
+            if (err) {
+                logger.error('occur error: ', err)
                 return callback(err)
             }
-            try{
+            try {
                 result = JSON.parse(result.body)
-            } catch (e){
+            } catch (e) {
                 logger.error('微视json数据解析失败')
-                logger.info('json error: ',result.body)
+                logger.info('json error: ', result.body)
                 return callback(e)
             }
             let data = result.data.user
             res.name = Object.keys(data)[0]
             res.id = data[res.name]
+            callback(null,res)
+        })
+    }
+    xiaoying ( data, callback) {
+        let path = URL.parse(data,true).pathname,
+            v_array = path.split('/'),
+            id = v_array[2],
+            option = {
+                url: api.xiaoying.url + id
+            }
+        request.get( option, (err,result) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch(e){
+                logger.error('小影json数据解析失败')
+                logger.info('json error: ',result.body)
+                return callback(e)
+            }
+            let res = {
+                id: result.videoinfo.auid,
+                name: result.videoinfo.username
+            }
             callback(null,res)
         })
     }

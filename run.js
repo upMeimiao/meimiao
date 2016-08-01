@@ -152,6 +152,13 @@ const btime = () => {
     let spider = new (require('./btime'))(settings)
     spider.start()
 }
+const xiaoying = () => {
+    let logger = logging.getLogger('小影',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./xiaoying'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('爱奇艺',options['i'],log_level)
     settings['logger'] = logger
@@ -210,6 +217,9 @@ switch (options['a']){
         break
     case 'btime':
         btime()
+        break
+    case 'xiaoying':
+        xiaoying()
         break
     case 'test':
         test()

@@ -50,6 +50,9 @@
     "weishi": {
       "url_1": "http://wsm.qq.com/weishi/t/other.php",
       "url_2": "http://wsi.weishi.com/weishi/t/show.php"
+    },
+    "xiaoying": {
+      "url": "https://w.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&puid="
     }
   }
 }

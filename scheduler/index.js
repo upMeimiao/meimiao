@@ -167,6 +167,9 @@ class scheduler {
                     case 16:
                         platform = "weishi"
                         break
+                    case 17:
+                        platform = "xiaoying"
+                        break
                     default:
                         break
                 }
