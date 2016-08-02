@@ -397,8 +397,8 @@ class deal{
     }
     yidian ( data, callback ) {
         let option = {
-                url: data
-            }
+            url: data
+        }
         request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
@@ -464,7 +464,6 @@ class deal{
             id,v_id,option = {}
         if(hostname == 'www.baomihua.com' || hostname == 'baomihua.com'){
             let v_array = pathname.split('/')
-            logger.debug(v_array)
             if(pathname.indexOf('_')){
                 id = v_array[2].split('_')[0]
                 v_id = v_array[2].split('_')[1]
@@ -557,6 +556,7 @@ class deal{
                 }
             request.get( option, (err,result) => {
                 if(err){
+                    logger.error( 'occur error : ', err )
                     return callback(err)
                 }
                 try{
@@ -615,6 +615,7 @@ class deal{
             }
         request.get( option, (err,result) => {
             if(err){
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             try{
