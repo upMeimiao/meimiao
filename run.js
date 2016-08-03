@@ -159,6 +159,13 @@ const xiaoying = () => {
     let spider = new (require('./xiaoying'))(settings)
     spider.start()
 }
+const neihan = () => {
+    let logger = logging.getLogger('内涵段子',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./neihan'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('爱奇艺',options['i'],log_level)
     settings['logger'] = logger
@@ -220,6 +227,9 @@ switch (options['a']){
         break
     case 'xiaoying':
         xiaoying()
+        break
+    case 'neihan':
+        neihan()
         break
     case 'test':
         test()
