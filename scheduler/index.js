@@ -170,8 +170,11 @@ class scheduler {
                     case 17:
                         platform = "xiaoying"
                         break
-                    case 17:
+                    case 18:
                         platform = "budejie"
+                        break
+                    case 19:
+                        platform = "neihan"
                         break
                     default:
                         break

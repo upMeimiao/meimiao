@@ -516,11 +516,6 @@ class deal{
                 logger.error('occur error:', err )
                 return callback(err)
             }
-            if(result.statusCode != 200){
-                logger.error('酷6状态码错误:',result.statusCode)
-                logger.info(result)
-                return callback(true)
-            }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
@@ -655,6 +650,34 @@ class deal{
                 return
         }
         callback(null,res)
+    }
+    neihan( data, callback) {
+        let path = URL.parse(data, true).pathname,
+            v_array = path.split('/'),
+            id = v_array[3],
+            option = {
+                url: api.neihan.url + 'p' + id
+            }
+        request.get(option, (err, result) => {
+            if (err) {
+                return callback(err)
+            }
+            if (result.statusCode != 200) {
+                logger.error('内涵段子状态码错误', result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            let $ = cheerio.load(result.body),
+                name = $('.name-time-wrapper .name').text(),
+                href = $('.detail-wrapper .header a').attr('href')
+            let hArr = href.split('/'),
+                v_id = hArr[4],
+                res = {
+                    name: name,
+                    id: v_id
+                }
+            callback(null, res)
+        })
     }
 }
 class Tool{
