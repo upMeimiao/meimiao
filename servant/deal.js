@@ -635,7 +635,10 @@ class deal{
         switch (hostname) {
             case 'www.budejie.com':
                 if(pathname.indexOf('user') == -1){
-
+                    let start = pathname.indexOf('-'),
+                        end = pathname.indexOf('.')
+                    v_id = pathname.substring(start + 1,end)
+                    option.url = `http://www.budejie.com/detail-${v_id}.html`
                 }else{
                     let start = pathname.indexOf('-'),
                         end = pathname.indexOf('.')
@@ -645,6 +648,10 @@ class deal{
                 break
             case 'm.budejie.com':
             case 'a.f.budejie.com':
+                let start = pathname.lastIndexOf('/'),
+                    end = pathname.indexOf('.')
+                v_id = pathname.substring(start + 1,end)
+                option.url = `http://www.budejie.com/detail-${v_id}.html`
                 break
             default:
                 return
@@ -673,7 +680,25 @@ class deal{
                 callback(null,res)
             })
         } else {
-
+            request.get( option, ( err, result ) => {
+                if (err) {
+                    logger.error( 'occur error : ', err )
+                    return callback(err)
+                }
+                if (result.statusCode != 200) {
+                    logger.error('不得姐状态码错误', result.statusCode)
+                    logger.info(result)
+                    return callback(true)
+                }
+                let $ = cheerio.load(result.body),
+                    userNode = $('.u-user-name'),
+                    href = userNode.attr('href'),
+                    start = href.lastIndexOf('-'),
+                    end = href.indexOf('.')
+                res.id = href.substring(start + 1,end)
+                res.name = userNode.html().trim()
+                callback(null,res)
+            })
         }
     }
     neihan( data, callback) {
