@@ -191,6 +191,15 @@ class spiderCore {
                     return callback(null,result)
                 })
                 break
+            case 'w.3g.yy.com':
+            case 'shenqu.yy.com':
+                this.deal.yy(url,(err,result) => {
+                    if(err){
+
+                    }
+                    return callback(null,result)
+                })
+                break
             default:
                 return callback(null,{code:1001,msg:'暂不支持该平台'})
         }

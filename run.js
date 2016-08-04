@@ -166,6 +166,13 @@ const neihan = () => {
     let spider = new (require('./neihan'))(settings)
     spider.start()
 }
+const yy = () => {
+    let logger = logging.getLogger('yy',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./yy'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('爱奇艺',options['i'],log_level)
     settings['logger'] = logger
@@ -230,6 +237,9 @@ switch (options['a']){
         break
     case 'neihan':
         neihan()
+        break
+    case 'yy':
+        yy()
         break
     case 'test':
         test()

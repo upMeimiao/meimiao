@@ -176,6 +176,9 @@ class scheduler {
                     case 19:
                         platform = "neihan"
                         break
+                    case 20:
+                        platform = "yy"
+                        break
                     default:
                         break
                 }

@@ -730,6 +730,49 @@ class deal{
             callback(null, res)
         })
     }
+    yy( data, callback) {
+        let host = URL.parse(data,true).hostname,
+        if(host == 'shenqu.3g.yy.com'){
+            option = {
+                url: data
+            }
+        }else if(host == 'w.3g.yy.com'){
+            let q = URL.parse(data,true).queryString,
+                v_id = q.resid,
+                option = {
+                    url: api.yy.url + v_id
+                }
+        }else{
+            logger.error('链接错误',data)
+            return callback(true)
+        }
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                logger.error('yy状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            let $ = cheerio.load(result.body),
+                id,
+                name
+            if(host == 'shenqu.3g.yy.com'){
+                name = $('.info a').text,
+                let href = $('.info a').attr('href'),
+                    
+            }else{
+
+            }
+            let res = {
+                name: name,
+                id: id
+            }
+            callback(null,res)
+        })
+    }
 }
 class Tool{
     hexToString(str){
