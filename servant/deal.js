@@ -732,16 +732,22 @@ class deal{
     }
     yy( data, callback) {
         let host = URL.parse(data,true).hostname,
+            option
         if(host == 'shenqu.3g.yy.com'){
+            let path = URL.parse(data,true).pathname,
+                v_array1 = path.split('/'),
+                v_array2 = v_array1[v_array1.length-1].split('_'),
+                v_array3 = v_array2[1].split('.'),
+                v_id = v_array3[0]
             option = {
-                url: data
+                url: api.yy.url_1 + v_id
             }
         }else if(host == 'w.3g.yy.com'){
-            let q = URL.parse(data,true).queryString,
-                v_id = q.resid,
-                option = {
-                    url: api.yy.url + v_id
-                }
+            let q = URL.parse(data,true).query,
+                v_id = q.resid
+            option = {
+                url: api.yy.url_2 + v_id
+            }
         }else{
             logger.error('链接错误',data)
             return callback(true)
@@ -757,19 +763,14 @@ class deal{
                 return callback(true)
             }
             let $ = cheerio.load(result.body),
-                id,
-                name
-            if(host == 'shenqu.3g.yy.com'){
-                name = $('.info a').text,
-                let href = $('.info a').attr('href'),
-                    
-            }else{
-
-            }
-            let res = {
-                name: name,
-                id: id
-            }
+                name = $('.info-txt .nickname a').text(),
+                href = $('.info-txt .nickname a').attr('href'),
+                h_array = href.split('/'),
+                id = h_array[h_array.length-1],
+                res = {
+                    name: name,
+                    id: id
+                }
             callback(null,res)
         })
     }

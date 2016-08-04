@@ -192,7 +192,7 @@ class spiderCore {
                 })
                 break
             case 'w.3g.yy.com':
-            case 'shenqu.yy.com':
+            case 'shenqu.3g.yy.com':
                 this.deal.yy(url,(err,result) => {
                     if(err){
 

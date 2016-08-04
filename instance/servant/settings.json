@@ -61,7 +61,8 @@
       "url": "http://neihanshequ.com/"
     },
     "yy": {
-      "url": "http://www.yy.com/d/" 
+      "url_1": "http://www.yy.com/s/",
+      "url_2": "http://www.yy.com/d/" 
     }
   }
 }
