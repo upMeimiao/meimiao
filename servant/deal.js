@@ -632,6 +632,30 @@ class deal{
             callback(null,res)
         })
     }
+    budejie ( data, callback ) {
+        let urlObj = URL.parse(data, true),
+            hostname = urlObj.hostname,
+            pathname = urlObj.pathname,
+            id, v_id, option = {}, res = {}
+        switch (hostname) {
+            case 'www.budejie.com':
+                if(pathname.indexOf('user') == -1){
+
+                }else{
+                    let start = pathname.indexOf('-'),
+                        end = pathname.indexOf('.')
+                    id = pathname.substring(start + 1,end)
+                    logger.debug(id)
+                }
+                break
+            case 'm.budejie.com':
+            case 'a.f.budejie.com':
+                break
+            default:
+                return
+        }
+        callback(null,res)
+    }
 }
 class Tool{
     hexToString(str){
