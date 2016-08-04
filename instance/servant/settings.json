@@ -54,6 +54,9 @@
     "xiaoying": {
       "url": "https://w.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&puid="
     },
+    "budejie": {
+      "url_1": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid="
+    },
     "neihan": {
       "url": "http://neihanshequ.com/"
     }

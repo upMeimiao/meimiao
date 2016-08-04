@@ -640,7 +640,7 @@ class deal{
                     let start = pathname.indexOf('-'),
                         end = pathname.indexOf('.')
                     id = pathname.substring(start + 1,end)
-                    logger.debug(id)
+                    option.url = api.budejie.url_1 + id
                 }
                 break
             case 'm.budejie.com':
@@ -649,7 +649,32 @@ class deal{
             default:
                 return
         }
-        callback(null,res)
+        if(id){
+            request.get( option, ( err, result) => {
+                if (err) {
+                    logger.error( 'occur error : ', err )
+                    return callback(err)
+                }
+                if (result.statusCode != 200) {
+                    logger.error('不得姐状态码错误', result.statusCode)
+                    logger.info(result)
+                    return callback(true)
+                }
+                try {
+                    result = JSON.parse(result.body)
+                } catch (e) {
+                    logger.error('不得姐json数据解析失败')
+                    logger.info('json error: ',result)
+                    return callback(e)
+                }
+                let data = result.data
+                res.id = data.id
+                res.name = data.username
+                callback(null,res)
+            })
+        } else {
+
+        }
     }
     neihan( data, callback) {
         let path = URL.parse(data, true).pathname,
@@ -660,6 +685,7 @@ class deal{
             }
         request.get(option, (err, result) => {
             if (err) {
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if (result.statusCode != 200) {
