@@ -8,10 +8,9 @@ const myRedis = require( '../lib/myredis.js' )
 const test_data = require('../data.json')
 
 let logger
-
+    
 class scheduler {
     constructor ( settings ) {
-        'use strict'
         this.settings = settings
         this.redis = settings.redis
         logger = this.settings.logger
