@@ -64,7 +64,7 @@ class spiderCore {
                     return callback(null,result)
                 })
                 break
-            case 'tv.sohu.com':
+            case 'my.tv.sohu.com':
                 this.deal.souhu(url,(err,result) => {
                     if(err){
 
