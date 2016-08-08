@@ -2,7 +2,7 @@
   "redis": {
     "port": 6379,
     "host": "localhost",
-    "auth": "",
+    "auth": "n0de5091jsPCHoneyT",
     "userDB": 10,
     "taskDB": 11,
     "jobDB": 12
