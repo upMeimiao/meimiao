@@ -3,9 +3,9 @@
     "port": 6379,
     "host": "localhost",
     "auth": "",
-    "userDB": 0,
-    "taskDB": 1,
-    "jobDB": 2
+    "userDB": 10,
+    "taskDB": 11,
+    "jobDB": 12
   },
   "url": "",
   "interval": 10000
