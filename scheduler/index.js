@@ -250,10 +250,10 @@ class scheduler {
             if(err){
                 return callback(err)
             }
-            if(result[0] === null && (new Date().getTime()) - result[1] >= 3600000){
+            if(result[0] === null && (new Date().getTime()) - result[1] >= 600000){
                 return callback(null,true)
             }
-            if(result[0] !== null && (new Date().getTime()) - result[0] >= 3600000){
+            if(result[0] !== null && (new Date().getTime()) - result[0] >= 600000){
                 return callback(null,true)
             }
             return callback(null,false)
