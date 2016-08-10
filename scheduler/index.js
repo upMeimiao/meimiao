@@ -97,7 +97,7 @@ class scheduler {
                     name: raw.name,
                     encodeId: raw.encodeId,
                     type: raw.type
-                }).priority('critical').attempts(3).backoff(true).removeOnComplete(true).ttl(30000)
+                }).priority('critical').attempts(3).backoff(true).removeOnComplete(true)
                     .save(function (err) {
                         if(err){
                             logger.error( 'Create queue occur error' )
