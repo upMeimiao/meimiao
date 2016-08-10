@@ -97,7 +97,7 @@ class scheduler {
                     name: raw.name,
                     encodeId: raw.encodeId,
                     type: raw.type
-                }).priority('critical').attempts(3).backoff(true).removeOnComplete(true)
+                }).priority('critical').attempts(3).backoff(true).removeOnComplete(true).ttl(30000)
                     .save(function (err) {
                         if(err){
                             logger.error( 'Create queue occur error' )
@@ -250,10 +250,10 @@ class scheduler {
             if(err){
                 return callback(err)
             }
-            if(result[0] === null && (new Date().getTime()) - result[1] >= 600000){
+            if(result[0] === null && (new Date().getTime()) - result[1] >= 1800000){
                 return callback(null,true)
             }
-            if(result[0] !== null && (new Date().getTime()) - result[0] >= 600000){
+            if(result[0] !== null && (new Date().getTime()) - result[0] >= 3600000){
                 return callback(null,true)
             }
             return callback(null,false)
