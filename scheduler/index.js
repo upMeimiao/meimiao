@@ -185,6 +185,15 @@ class scheduler {
                     default:
                         break
                 }
+                // processed = {
+                //     uid: _.id,
+                //     id: _.bid,
+                //     p: _.platform,
+                //     name: _.bname,
+                //     platform: platform,
+                //     encodeId: _.encodeId ? _.encodeId : '',
+                //     type: _.type ? _.type : ''
+                // }
                 processed = {
                     uid: raw.id,
                     id: _.id,
@@ -250,7 +259,7 @@ class scheduler {
             if(err){
                 return callback(err)
             }
-            if(result[0] === null && (new Date().getTime()) - result[1] >= 1800000){
+            if(result[0] === null && (new Date().getTime()) - result[1] >= 300000){
                 return callback(null,true)
             }
             if(result[0] !== null && (new Date().getTime()) - result[0] >= 3600000){
