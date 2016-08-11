@@ -1,8 +1,9 @@
 {
   "listen": {
-    "ip":"121.42.139.160",
+    "ip":"127.0.0.1",
     "port":2017
   },
+  "server": "http://192.168.1.54:6699/index.php/spider/videoO/postVbinfo/rxdebug/2015",
   "api": {
     "youku": {
       "key": "c9e697e443715900",

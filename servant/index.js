@@ -1,5 +1,6 @@
 const HTTP = require('http')
 const URL = require('url')
+const request = require( 'request' )
 
 let logger
 class spiderCore {
@@ -20,10 +21,46 @@ class spiderCore {
             let query = URL.parse(req.url,true).query
             this.preDeal(query,(err,data) => {
                 res.end(JSON.stringify(data))
+                this.send(data)
             })
         })
         server.listen(this.port, this.ip, () => {
             logger.debug(`Server running at ${this.ip}:${this.port}`)
+        })
+    }
+    send(data){
+        let options = {
+            method : 'POST',
+            url: this.settings.server,
+            form : {
+                platform: data.p,
+                bid: data.id,
+                bname: data.name,
+                type: data.type ? data.type : null,
+                encodeId: data.encode_id ? data.encode_id : null
+            }
+        }
+        request.post( options, ( err, res, body ) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return
+            }
+            if(res.statusCode != 200 ){
+                logger.error( `状态码${res.statusCode}` )
+                logger.info( res )
+                return
+            }
+            try {
+                body = JSON.parse( body )
+            } catch (e) {
+                logger.info( '不符合JSON格式' )
+                return
+            }
+            if(body.errno == 0){
+                logger.info(body.errmsg)
+            }else{
+                logger.info(body)
+            }
         })
     }
     preDeal(data,callback){

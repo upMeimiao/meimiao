@@ -38,7 +38,8 @@ class deal{
                 res = {
                 id: user.id,
                 name: user.name,
-                encode_id: user.link.substring(user.link.lastIndexOf('/')+1)
+                p: 1,
+                encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
             }
             callback(null,res)
         })
