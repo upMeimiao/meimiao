@@ -243,8 +243,7 @@ class deal{
                     logger.info(result)
                     return callback(true)
                 }
-                let backData = result.body.replace(/try{/g,'').replace(/;}catch\(e\)\{\}/g,''),
-                    back = eval(backData),
+                let back = eval(result.body),
                     res = {
                         id: back.data.user.id,
                         name: back.data.user.name
