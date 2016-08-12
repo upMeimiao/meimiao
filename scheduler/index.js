@@ -49,19 +49,20 @@ class scheduler {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            //this.getTask()
-            //this.deal(test_data)
             setInterval( () => {
-                this.deal(test_data)
+                this.getTask()
             }, 30000)
+            // setInterval( () => {
+            //     this.deal(test_data)
+            // }, 30000)
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
     }
-    getTask ( ) {
-        request.get(this.settings.url,function (err,res,body) {
+    getTask () {
+        request.get(this.settings.url, (err,res,body) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -112,15 +113,16 @@ class scheduler {
     }
     deal ( raw, callback ) {
         let data = raw.data,
-            len = data.length,
+            len = data ? data.length : 0,
             i = 0, _,processed,platform
+        logger.debug(raw)
         async.whilst(
             () => {
                 return i < len
             },
             (cb) => {
                 _ = data[i]
-                switch( _.p ){
+                switch( Number(_.platform) ){
                     case 1:
                         platform = "youku"
                         break
@@ -184,24 +186,25 @@ class scheduler {
                     default:
                         break
                 }
-                // processed = {
-                //     uid: _.id,
-                //     id: _.bid,
-                //     p: _.platform,
-                //     name: _.bname,
-                //     platform: platform,
-                //     encodeId: _.encodeId ? _.encodeId : '',
-                //     type: _.type ? _.type : ''
-                // }
                 processed = {
-                    uid: raw.id,
-                    id: _.id,
-                    p: _.p,
-                    name: _.name,
+                    uid: _.id,
+                    id: _.bid,
+                    p: _.platform,
+                    name: _.bname,
                     platform: platform,
                     encodeId: _.encodeId ? _.encodeId : '',
                     type: _.type ? _.type : ''
                 }
+                // processed = {
+                //     uid: raw.id,
+                //     id: _.id,
+                //     p: _.p,
+                //     name: _.name,
+                //     platform: platform,
+                //     encodeId: _.encodeId ? _.encodeId : '',
+                //     type: _.type ? _.type : ''
+                // }
+                logger.debug(processed)
                 this.createQueue(processed, (err) => {
                     i++
                     cb()
