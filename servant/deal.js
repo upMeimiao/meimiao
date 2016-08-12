@@ -75,7 +75,8 @@ class deal{
             }
             let res = {
                 id: result.data.owner.mid,
-                name: result.data.owner.name
+                name: result.data.owner.name,
+                p: 8
             }
             callback(null,res)
         })
@@ -106,7 +107,8 @@ class deal{
             }
             let res = {
                 id: result.user.id,
-                name: result.user.screen_name
+                name: result.user.screen_name,
+                p: 5
             }
             callback(null,res)
         })
@@ -138,7 +140,8 @@ class deal{
             }
             let res = {
                 id: result.result.ext.owner.suid,
-                name: result.result.ext.owner.nick
+                name: result.result.ext.owner.nick,
+                p: 6
             }
             callback(null,res)
         })
@@ -170,7 +173,8 @@ class deal{
             }
             let res = {
                 id: result.data.user_id,
-                name: result.data.director
+                name: result.data.director,
+                p: 9
             }
             callback(null,res)
         })
@@ -207,7 +211,8 @@ class deal{
             let back = result.newslist[0],
                 res = {
                     id: back.uin,
-                    name: back.chlname
+                    name: back.chlname,
+                    p: 10
                 }
             callback(null,res)
         })
@@ -247,7 +252,8 @@ class deal{
                 let back = eval(result.body),
                     res = {
                         id: back.data.user.id,
-                        name: back.data.user.name
+                        name: back.data.user.name,
+                        p: 2
                     }
                 callback(err,res)
             })
@@ -297,7 +303,8 @@ class deal{
                 let res ={
                     id: id,
                     name: name,
-                    type: type
+                    type: type,
+                    p: 3
                 }
                 callback(null,res)
             })
@@ -334,7 +341,8 @@ class deal{
                 res = {
                     id: id,
                     name: new Tool().hexToString(name),
-                    type: type
+                    type: type,
+                    p: 4
                 }
                 return callback(null,res)
             }
@@ -359,7 +367,8 @@ class deal{
                 res = {
                     id: back.vppinfo.euin,
                     name: back.vppinfo.nick,
-                    type: 1
+                    type: 1,
+                    p: 4
                 }
                 return callback(null,res)
             })
@@ -390,7 +399,8 @@ class deal{
             }
             let res = {
                 id: result.data.media_user.id,
-                name: result.data.media_user.screen_name
+                name: result.data.media_user.screen_name,
+                p: 7
             }
             callback(null,res)
         })
@@ -416,7 +426,8 @@ class deal{
                 v_id = h_array[h_array.length-1],
                 res = {
                     id: v_id,
-                    name: name
+                    name: name,
+                    p: 11  
                 }
             callback(null,res)
         })
@@ -452,7 +463,8 @@ class deal{
             }
             let res = {
                 id: result.detail.userid,
-                name: result.detail.username
+                name: result.detail.username,
+                p: 12
             }
             callback(null,res)
         })
@@ -498,7 +510,8 @@ class deal{
             }
             let res = {
                 id: result.result.ChannelInfo.ChannelID,
-                name: result.result.ChannelInfo.ChannelName
+                name: result.result.ChannelInfo.ChannelName,
+                p: 13
             }
             callback(null,res)
         })
@@ -525,7 +538,8 @@ class deal{
             }
             let res = {
                 id: result.data.list[0].author.id,
-                name: result.data.list[0].author.nick
+                name: result.data.list[0].author.nick,
+                p: 14
             }
             callback(null,res)
         })
@@ -563,7 +577,8 @@ class deal{
                 }
                 let res = {
                     id: result.data.uid,
-                    name: result.data.nickname
+                    name: result.data.nickname,
+                    p: 15
                 }
                 callback(null,res)
             })
@@ -598,6 +613,7 @@ class deal{
             let data = result.data.user
             res.name = Object.keys(data)[0]
             res.id = data[res.name]
+            res.p = 16
             callback(null,res)
         })
     }
@@ -622,7 +638,8 @@ class deal{
             }
             let res = {
                 id: result.videoinfo.auid,
-                name: result.videoinfo.username
+                name: result.videoinfo.username,
+                p: 17
             }
             callback(null,res)
         })
@@ -697,6 +714,7 @@ class deal{
                     end = href.indexOf('.')
                 res.id = href.substring(start + 1,end)
                 res.name = userNode.html().trim()
+                res.p = 18
                 callback(null,res)
             })
         }
@@ -725,7 +743,8 @@ class deal{
                 v_id = hArr[4],
                 res = {
                     name: name,
-                    id: v_id
+                    id: v_id,
+                    p: 19
                 }
             callback(null, res)
         })
@@ -769,7 +788,8 @@ class deal{
                 id = h_array[h_array.length-1],
                 res = {
                     name: name,
-                    id: id
+                    id: id,
+                    p: 20
                 }
             callback(null,res)
         })
