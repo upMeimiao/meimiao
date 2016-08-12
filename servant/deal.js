@@ -38,7 +38,8 @@ class deal{
                 res = {
                 id: user.id,
                 name: user.name,
-                encode_id: user.link.substring(user.link.lastIndexOf('/')+1)
+                p: 1,
+                encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
             }
             callback(null,res)
         })
@@ -279,7 +280,7 @@ class deal{
                 return callback(true)
             }
             if($('.Info_hot_dl dd a').length == 0){
-                type = 0
+                type = 2
             }else{
                 type = 1
             }
@@ -326,9 +327,9 @@ class deal{
                 id = h_url.substring(h_url.lastIndexOf('/')+1)
                 u_tips = $('.user_badge_tips')
                 if(u_tips.length == 0){
-                    type = 0
-                }else{
                     type = 1
+                }else{
+                    type = 2
                 }
                 res = {
                     id: id,
@@ -358,7 +359,7 @@ class deal{
                 res = {
                     id: back.vppinfo.euin,
                     name: back.vppinfo.nick,
-                    type: 0
+                    type: 1
                 }
                 return callback(null,res)
             })

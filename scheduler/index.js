@@ -50,7 +50,10 @@ class scheduler {
             }
             logger.debug( '创建数据库连接完毕' )
             //this.getTask()
-            this.deal(test_data)
+            //this.deal(test_data)
+            setInterval( () => {
+                this.deal(test_data)
+            }, 30000)
         })
     }
     start () {
@@ -93,7 +96,7 @@ class scheduler {
                     name: raw.name,
                     encodeId: raw.encodeId,
                     type: raw.type
-                }).priority('critical').attempts(5).backoff(true).removeOnComplete(true)
+                }).priority('critical').attempts(3).backoff(true).removeOnComplete(true)
                     .save(function (err) {
                         if(err){
                             logger.error( 'Create queue occur error' )
@@ -181,6 +184,15 @@ class scheduler {
                     default:
                         break
                 }
+                // processed = {
+                //     uid: _.id,
+                //     id: _.bid,
+                //     p: _.platform,
+                //     name: _.bname,
+                //     platform: platform,
+                //     encodeId: _.encodeId ? _.encodeId : '',
+                //     type: _.type ? _.type : ''
+                // }
                 processed = {
                     uid: raw.id,
                     id: _.id,
@@ -242,14 +254,14 @@ class scheduler {
     }
     checkTime ( raw, callback ) {
         let key = raw.p + ':' + raw.id
-        this.taskDB.hmget( key, 'update', ( err, result) => {
+        this.taskDB.hmget( key, 'update', 'init', ( err, result) => {
             if(err){
                 return callback(err)
             }
-            if(result[0] === null){
+            if(result[0] === null && (new Date().getTime()) - result[1] >= 300000){
                 return callback(null,true)
             }
-            if((new Date().getTime()) - result[0] >= 3600000){
+            if(result[0] !== null && (new Date().getTime()) - result[0] >= 3600000){
                 return callback(null,true)
             }
             return callback(null,false)
