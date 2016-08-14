@@ -115,7 +115,7 @@ class scheduler {
         let data = raw.data,
             len = data ? data.length : 0,
             i = 0, _,processed,platform
-        logger.debug(raw)
+        //logger.debug(raw)
         async.whilst(
             () => {
                 return i < len
