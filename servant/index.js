@@ -15,6 +15,7 @@ class spiderCore {
     start(){
         const server = HTTP.createServer((req, res) => {
             res.writeHead(200, {
+                'Access-Control-Allow-Origin':'*',
                 'Content-Type': 'text/plain;charset=utf-8'
             })
             if(req.url =='/favicon.ico')return
@@ -238,7 +239,7 @@ class spiderCore {
                 })
                 break
             default:
-                return callback(null,{code:1001,msg:'暂不支持该平台'})
+                return callback(null,{code:1001,msg:'暂不支持该平台或输入的不是播放页地址'})
         }
     }
 }

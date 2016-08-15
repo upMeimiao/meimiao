@@ -1,9 +1,9 @@
 {
   "listen": {
-    "ip":"192.168.1.44",
+    "ip":"121.42.139.160",
     "port":2017
   },
-  "server": "http://192.168.1.201:6699/index.php/spider/videoO/postVbinfo/rxdebug/2015",
+  "server": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVbinfo/rxdebug/2015",
   "api": {
     "youku": {
       "key": "c9e697e443715900",
