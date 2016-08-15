@@ -44,17 +44,15 @@ class sendServer {
                 logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
                 return
             }
-            logger.debug(result)
-            //this.send(result)
+            this.send(JSON.parse(result))
         } )
     }
-    send (data) {
+    send (media) {
         let option = {
             method : 'POST',
             url: this.settings.url,
-            data: data
-        },
-            media = JSON.parse(data)
+            data: media
+        }
         request.post(option, (err,back) => {
             if(err){
                 logger.error( 'occur error : ', err )
