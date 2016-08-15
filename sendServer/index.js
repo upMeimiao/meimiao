@@ -51,26 +51,27 @@ class sendServer {
         let option = {
             method : 'POST',
             url: this.settings.url,
-            data: media
+            form: media
         }
-        request.post(option, (err,back) => {
+        //logger.debug(option)
+        request.post(option, (err,res, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 return
             }
             try{
-                back = JSON.parse(back.body)
+                result = JSON.parse(result)
             }catch (e){
                 logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
-                logger.info(back)
+                logger.info(result)
                 return
             }
-            if(back.errno == 0){
-                logger.debug("平台${media.platform}:",media.aid + 'back end')
+            if(result.errno == 0){
+                logger.debug(`平台${media.platform}:`,media.aid + ' back end')
             }else{
-                logger.error("平台${media.platform}:",media.aid + 'back error')
-                logger.info(back)
+                logger.error(`平台${media.platform}:`,media.aid + ' back error')
+                logger.info(result)
                 logger.info('media info: ',media)
             }
         })
