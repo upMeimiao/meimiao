@@ -60,6 +60,11 @@ class sendServer {
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 return
             }
+            if(res.statusCode != 200){
+                logger.debug(`errorCode: ${res.statusCode}`)
+                logger.info(result)
+                return
+            }
             try{
                 result = JSON.parse(result)
             }catch (e){
