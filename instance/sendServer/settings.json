@@ -1,0 +1,10 @@
+{
+  "redis": {
+    "port": 6379,
+    "host": "localhost",
+    "auth": "n0de5091jsPCHoneyT",
+    "cache_db": 13
+  },
+  "url": "http://192.168.1.201:6699/index.php/spider/video1/addVideoInfo",
+  "interval": 20
+}

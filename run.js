@@ -173,6 +173,13 @@ const yy = () => {
     let spider = new (require('./yy'))(settings)
     spider.start()
 }
+const server = () => {
+    let logger = logging.getLogger('数据中心',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./sendServer'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('web',options['i'],log_level)
     settings['logger'] = logger
@@ -240,6 +247,9 @@ switch (options['a']){
         break
     case 'yy':
         yy()
+        break
+    case 'server':
+        server()
         break
     case 'test':
         test()
