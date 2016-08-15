@@ -174,10 +174,10 @@ const yy = () => {
     spider.start()
 }
 const test = () => {
-    let logger = logging.getLogger('爱奇艺',options['i'],log_level)
+    let logger = logging.getLogger('web',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./iqiyi'))(settings)
+    let spider = new (require('./input'))(settings)
     spider.start()
 }
 switch (options['a']){

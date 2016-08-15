@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>绑定平台</title>
+    <style>
+        #url{
+            display: block;
+            width: 500px;
+            height: 40px;
+            margin: 100px auto 50px;
+            padding: 0 10px;
+        }
+        button{
+            display: block;
+            width: 300px;
+            height: 40px;
+            margin: 0 auto;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="url" name="url" placeholder="请输入正确的播放页地址">
+    <button id="submit">提交</button>
+    <script>
+        var input = document.querySelector('#url')
+        var button = document.querySelector('#submit')
+        var url
+        button.addEventListener('click',function (event) {
+            if(input.value != ''){
+                url = encodeURIComponent(input.value)
+            }else{
+                alert('请输入正确的播放页地址')
+            }
+        })
+    </script>
+</body>
+</html>
