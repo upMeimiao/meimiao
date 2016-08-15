@@ -23,7 +23,7 @@ class sendServer {
                     return
                 }
                 this.cache_db = cli
-                logger.debug( "任务信息数据库连接建立...成功" )
+                logger.debug( "缓存队列数据库连接建立...成功" )
                 setInterval(()=>{
                     this.deal()
                 })
@@ -41,7 +41,7 @@ class sendServer {
                 return callback( err )
             }
             if(!result){
-                logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
+                //logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
                 return
             }
             this.send(JSON.parse(result))

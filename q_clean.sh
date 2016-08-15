@@ -9,4 +9,7 @@ rm -rf *.log-*
 cd /root/qiaosuan/instance/scheduler/logs
 rm -rf *.log
 rm -rf *.log-*
+cd /root/qiaosuan/instance/sendServer/logs
+rm -rf *.log
+rm -rf *.log-*
 echo "巧算日志文件清理完毕"
