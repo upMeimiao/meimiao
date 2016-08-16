@@ -36,11 +36,11 @@ class deal{
             }
             let user = result.user,
                 res = {
-                id: user.id,
-                name: user.name,
-                p: 1,
-                encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
-            }
+                    id: user.id,
+                    name: user.name,
+                    p: 1,
+                    encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
+                }
             callback(null,res)
         })
     }
@@ -114,10 +114,15 @@ class deal{
         })
     }
     miaopai (data,callback) {
-        let pathname = URL.parse(data,true).pathname
+        let urlObj = URL.parse(data,true),
+            pathname = urlObj.pathname,
+            hostname = urlObj.hostname
         let start = pathname.lastIndexOf('/'),
             end = pathname.lastIndexOf('.'),
             id = pathname.substring(start+1,end)
+        if(hostname == 'm.miaopai.com'){
+            id = pathname.substring(start+1)
+        }
         let option = {
             url: api.miaopai.url + id
         }
@@ -275,8 +280,8 @@ class deal{
                 return callback(true)
             }
             let $ = cheerio.load(result.body,{
-                ignoreWhitespace:true
-            }),
+                    ignoreWhitespace:true
+                }),
                 _info_ = $('head script').text(),
                 reg = new RegExp('userId:"[0-9]+"'),
                 _info = _info_.match(reg),info,id,type
@@ -421,13 +426,17 @@ class deal{
             }
             let $ = cheerio.load(result.body),
                 name = $('#source-name').text(),
-                href = $('#source-name').attr('href'),
-                h_array = href.split('='),
+                href = $('#source-name').attr('href')
+            if(!name || !href){
+                logger.error(`url可能不是播放页地址:${data}`)
+                return callback('101')
+            }
+            let h_array = href.split('='),
                 v_id = h_array[h_array.length-1],
                 res = {
                     id: v_id,
                     name: name,
-                    p: 11  
+                    p: 11
                 }
             callback(null,res)
         })
@@ -438,11 +447,11 @@ class deal{
         if( test > 0 ){
             let v_array = data.split('/'),
                 v_id = (v_array[v_array.length-1].split('.'))[0]
-                option.url = api.tudou.url + v_id
+            option.url = api.tudou.url + v_id
         }else{
             let v_array = data.split('/'),
                 v_id = v_array[v_array.length-2]
-                option.url = api.tudou.url + v_id
+            option.url = api.tudou.url + v_id
         }
         request.get ( option, ( err, result) => {
             if(err){
@@ -767,9 +776,11 @@ class deal{
             option = {
                 url: api.yy.url_2 + v_id
             }
+        }else if(host == 'www.yy.com'){
+            return callback('104')
         }else{
             logger.error('链接错误',data)
-            return callback(true)
+            return callback('101')
         }
         request.get( option, (err,result) => {
             if(err){

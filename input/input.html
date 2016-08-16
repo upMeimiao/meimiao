@@ -33,42 +33,44 @@
     </style>
 </head>
 <body>
-    <input type="text" id="url" name="url" placeholder="请输入正确的播放页地址">
-    <button id="submit">提交</button>
-    <p id="success"></p>
-    <p id="error"></p>
-    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script>
-        var input = document.querySelector('#url')
-        var button = document.querySelector('#submit')
-        var p = document.querySelector('#success')
-        var err = document.querySelector('#error')
-        var url
-        button.addEventListener('click',function (event) {
-            if(input.value != ''){
-                url = encodeURIComponent(input.value)
-                console.log(url)
-                $.ajax({
-                    type: "GET",
-                    url: "http://192.168.1.44:2017?url=" + url,
-                    success(data) {
-                        p.innerHTML = data
-                    },
-                    error(XMLHttpRequest, textStatus, errorThrown) {
-                        if(textStatus){
-                            err.innerHTML = '错误代码' + textStatus
-                            return
-                        }
-                        if(errorThrown){
-                            err.innerHTML = '错误信息' + errorThrown
-                            console.log('错误信息' + errorThrown)
-                        }
+<input type="text" id="url" name="url" placeholder="请输入正确的播放页地址">
+<button id="submit">提交</button>
+<p id="success"></p>
+<p id="error"></p>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script>
+    var input = document.querySelector('#url')
+    var button = document.querySelector('#submit')
+    var p = document.querySelector('#success')
+    var err = document.querySelector('#error')
+    var url
+    button.addEventListener('click',function (event) {
+        if(input.value != ''){
+            url = encodeURIComponent(input.value)
+            console.log(url)
+            $.ajax({
+                type: "GET",
+                url: "http://121.42.139.160:2017?url=" + url,
+                success: function(data) {
+                    p.innerHTML = data
+                    err.innerHTML =''
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown) {
+                    p.innerHTML = ''
+                    if(textStatus){
+                        err.innerHTML = '错误代码' + XMLHttpRequest.status + ' 错误信息' + textStatus
+                        return
                     }
-                })
-            }else{
-                alert('请输入正确的播放页地址')
-            }
-        })
-    </script>
+                    if(errorThrown){
+                        err.innerHTML = '错误代码' + XMLHttpRequest.status + ' 错误信息' + errorThrown
+                        console.log('错误信息' + errorThrown)
+                    }
+                }
+            })
+        }else{
+            alert('请输入正确的播放页地址')
+        }
+    })
+</script>
 </body>
 </html>
