@@ -603,9 +603,15 @@ class deal{
             option.url = api.weishi.url_2 + `?id=${v_id}`
             option.referer = `http://www.weishi.com/t/${v_id}`
         } else {
-            id = pathname.split('/')[2]
-            option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`
-            option.referer = `http://weishi.qq.com/u/${id}`
+            if(pathname.includes('u')){
+                id = pathname.split('/')[2]
+                option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`
+                option.referer = `http://weishi.qq.com/u/${id}`
+            }else{
+                v_id = pathname.split('/')[2]
+                option.url = api.weishi.url_2 + `?id=${v_id}`
+                option.referer = `http://weishi.qq.com/t/${id}`
+            }
         }
         request.get(option, (err, result) => {
             if (err) {
@@ -729,12 +735,46 @@ class deal{
         }
     }
     neihan( data, callback) {
-        let path = URL.parse(data, true).pathname,
+        let urlObj = URL.parse(data, true),
+            hostname = urlObj.hostname,
+            path = urlObj.pathname,
             v_array = path.split('/'),
-            id = v_array[3],
-            option = {
-                url: api.neihan.url + 'p' + id
+            option = {},id,v_id
+        if(hostname == 'm.neihanshequ.com'){
+            id = path.includes('share') ? v_array[3] : v_array[2]
+            option.url = api.neihan.url + 'p' + id
+        }else if(hostname == 'neihanshequ.com' && path.startsWith('/p')){
+            let rex = new RegExp(/^p[1-9]\d*|0$/)
+            if(rex.test(v_array[1]) ){
+                option.url = data
+            }else{
+                return callback(101)
             }
+        }else if(hostname == 'neihanshequ.com' && path.startsWith('/user/')){
+            id = v_array[2]
+            option.url = data
+            request.get( option, ( err, result ) => {
+                if (err) {
+                    logger.error( 'occur error : ', err )
+                    return callback(err)
+                }
+                if (result.statusCode != 200) {
+                    logger.error('内涵段子状态码错误', result.statusCode)
+                    logger.info(result)
+                    return callback(true)
+                }
+                let $ = cheerio.load(result.body,{ignoreWhitespace:true}),
+                    name = $('.desc-item .desc-wrapper .name').text(),
+                    res = {
+                        name: name,
+                        id: id,
+                        p: 19
+                    }
+                return callback(null,res)
+            })
+        }else{
+            return callback(101)
+        }
         request.get(option, (err, result) => {
             if (err) {
                 logger.error( 'occur error : ', err )
@@ -759,25 +799,25 @@ class deal{
         })
     }
     yy( data, callback) {
-        let host = URL.parse(data,true).hostname,
-            option
+        let urlObj = URL.parse(data,true),
+            host = urlObj.hostname,
+            path = urlObj.pathname,
+            option = {}
         if(host == 'shenqu.3g.yy.com'){
-            let path = URL.parse(data,true).pathname,
-                v_array1 = path.split('/'),
+            let v_array1 = path.split('/'),
                 v_array2 = v_array1[v_array1.length-1].split('_'),
                 v_array3 = v_array2[1].split('.'),
                 v_id = v_array3[0]
-            option = {
-                url: api.yy.url_1 + v_id
-            }
+            option.url = api.yy.url_1 + v_id
         }else if(host == 'w.3g.yy.com'){
-            let q = URL.parse(data,true).query,
-                v_id = q.resid
-            option = {
-                url: api.yy.url_2 + v_id
-            }
+            let q = URL.parse(data,true).query
+            option.url = q.resid ? api.yy.url_2 + q.resid : api.yy.url_3 + q.pid
         }else if(host == 'www.yy.com'){
-            return callback('104')
+            if(path.startsWith('/x/') || path.startsWith('/s/') || path.startsWith('/d/')){
+                option.url = data
+            }else{
+                return callback('101')
+            }
         }else{
             logger.error('链接错误',data)
             return callback('101')

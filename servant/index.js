@@ -242,6 +242,9 @@ class spiderCore {
             case 'neihanshequ.com':
                 this.deal.neihan(url,(err,result) => {
                     if(err){
+                        if(err == 101){
+                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址'})
+                        }
                         return callback(null,{errno:102,errmsg:'获取信息过程出错'})
                     }
                     return callback(null,result)
@@ -254,9 +257,6 @@ class spiderCore {
                     if(err){
                         if(err == 101){
                             return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址'})
-                        }
-                        if(err == 104){
-                            return callback(null,{errno:104,errmsg:'暂时没做'})
                         }
                         return callback(null,{errno:102,errmsg:'获取信息过程出错'})
                     }
