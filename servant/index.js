@@ -154,6 +154,7 @@ class spiderCore {
                 })
                 break
             case 'toutiao.com':
+            case 'm.toutiao.com':
                 this.deal.toutiao(url,(err,result) => {
                     if(err){
                         return callback(null,{errno:102,errmsg:'获取信息过程出错'})

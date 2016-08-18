@@ -1,6 +1,7 @@
 const URL = require('url')
 const cheerio = require('cheerio')
 const request = require( '../lib/req' )
+const r = require('request')
 const jsonp = function (data) {
     return data
 }
@@ -215,7 +216,7 @@ class deal{
             if(result.newslist.length == 0){return callback(true)}
             let back = result.newslist[0],
                 res = {
-                    id: back.uin,
+                    id: back.chlid,
                     name: back.chlname,
                     p: 10
                 }
@@ -316,10 +317,14 @@ class deal{
         })
     }
     tencent (data,callback){
-        let option = {
-            url: data
-        }
-        request.get(option,(err,result) => {
+        let urlObj = URL.parse(data,true),
+            pathname = urlObj.pathname,
+            start = pathname.lastIndexOf('/'),
+            end = pathname.indexOf('.html'),
+            option = {},res,
+            vid = pathname.substring(start+1,end)
+        option.url = api.tencent.url + vid + "&_=" + new Date().getTime()
+        request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -329,46 +334,8 @@ class deal{
                 logger.info(result)
                 return callback(true)
             }
-            let $ = cheerio.load(result.body),
-                name = $('a.user_name').html(),
-                h_url,
-                id,u_tips,
-                res,type
-            if(name){
-                h_url = $('a.user_name').attr('href')
-                id = h_url.substring(h_url.lastIndexOf('/')+1)
-                u_tips = $('.user_badge_tips')
-                if(u_tips.length == 0){
-                    type = 1
-                }else{
-                    type = 2
-                }
-                res = {
-                    id: id,
-                    name: new Tool().hexToString(name),
-                    type: type,
-                    p: 4
-                }
-                return callback(null,res)
-            }
-            let pathname = URL.parse(data,true).pathname
-            let start = pathname.lastIndexOf('/'),
-                end = pathname.indexOf('.html'),
-                vid = pathname.substring(start+1,end)
-            let option = {
-                url: api.tencent.url + vid + "&_=" + new Date().getTime()
-            }
-            request.get(option,(err,result)=>{
-                if(err){
-                    logger.error( 'occur error : ', err )
-                    return callback(err)
-                }
-                if(result.statusCode != 200 ){
-                    logger.error('腾讯状态码错误2',result.statusCode)
-                    logger.info(result)
-                    return callback(true)
-                }
-                let back = eval(result.body)
+            let back = eval(result.body)
+            if(!back.result){
                 res = {
                     id: back.vppinfo.euin,
                     name: back.vppinfo.nick,
@@ -376,39 +343,98 @@ class deal{
                     p: 4
                 }
                 return callback(null,res)
-            })
+            }else{
+                option.url = data
+                request.get(option,(err,result) => {
+                    if(err){
+                        logger.error( 'occur error : ', err )
+                        return callback(err)
+                    }
+                    if(result.statusCode != 200 ){
+                        logger.error('腾讯状态码错误2',result.statusCode)
+                        logger.info(result)
+                        return callback(true)
+                    }
+                    let $ = cheerio.load(result.body),
+                        num = $('.btn_book .num')
+                    if(num.length){
+                        return callback(true)
+                    }
+                    let user = $('.user_info'),
+                        name = user.attr('title'),
+                        href = user.attr('href'),
+                        id = href.substring(href.lastIndexOf('/')+1)
+                    res = {
+                        id: id,
+                        name: name,
+                        type: 2,
+                        p: 4
+                    }
+                    return callback(null,res)
+                })
+            }
         })
     }
     toutiao (data,callback) {
         let pathname = URL.parse(data,true).pathname,
-            v_id = pathname.replace(/\//g,'').substring(1),
-            option = {
-                url: api.toutiao.url + v_id + "/info/"
-            }
-        request.get(option,(err,result)=>{
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('头条状态码错误',result.statusCode)
-                logger.info(result)
-                return callback(true)
-            }
-            try {
-                result = JSON.parse(result.body)
-            } catch (e) {
-                logger.error('头条json数据解析失败')
-                logger.info(result)
-                return callback(e)
-            }
-            let res = {
-                id: result.data.media_user.id,
-                name: result.data.media_user.screen_name,
-                p: 7
-            }
-            callback(null,res)
-        })
+            v_id, option = {}
+        if(pathname.startsWith('/i')){
+            v_id = pathname.replace(/\//g,'').substring(1)
+            option.url = api.toutiao.url + v_id + "/info/"
+            request.get(option,(err,result)=>{
+                if(err){
+                    logger.error( 'occur error : ', err )
+                    return callback(err)
+                }
+                if(result.statusCode != 200 ){
+                    logger.error('头条状态码错误',result.statusCode)
+                    logger.info(result)
+                    return callback(true)
+                }
+                try {
+                    result = JSON.parse(result.body)
+                } catch (e) {
+                    logger.error('头条json数据解析失败')
+                    logger.info(result)
+                    return callback(e)
+                }
+                let res = {
+                    id: result.data.media_user.id,
+                    name: result.data.media_user.screen_name,
+                    p: 7
+                }
+                callback(null,res)
+            })
+        }else if(pathname.startsWith('/a')){
+            r.head(data,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
+                v_id = (res.request.path).replace(/\//g,'').substring(1)
+                option.url = api.toutiao.url + v_id + "/info/"
+                request.get(option,(err,result)=>{
+                    if(err){
+                        logger.error( 'occur error : ', err )
+                        return callback(err)
+                    }
+                    if(result.statusCode != 200 ){
+                        logger.error('头条状态码错误',result.statusCode)
+                        logger.info(result)
+                        return callback(true)
+                    }
+                    try {
+                        result = JSON.parse(result.body)
+                    } catch (e) {
+                        logger.error('头条json数据解析失败')
+                        logger.info(result)
+                        return callback(e)
+                    }
+                    let res = {
+                        id: result.data.media_user.id,
+                        name: result.data.media_user.screen_name,
+                        p: 7
+                    }
+                    callback(null,res)
+                })
+            })
+        }
     }
     yidian ( data, callback ) {
         let option = {
