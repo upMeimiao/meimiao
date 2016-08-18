@@ -580,9 +580,11 @@ class deal{
         })
     }
     btime ( data, callback) {
-        let option = {
-            url: data
+        let pathname = URL.parse(data,true).pathname,option = {}
+        if(!(pathname.startsWith('/wemedia/'))){
+            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址,请输入时间号的视频播放地址'})
         }
+        option.url = data
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)

@@ -201,9 +201,6 @@ class spiderCore {
                 break
             case 'record.btime.com':
             case 'video.btime.com':
-                if(hostname == 'video.btime.com'){
-                    return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址,请输入时间号的视频播放地址'})
-                }
                 this.deal.btime(url,(err,result) => {
                     if(err){
                         return callback(null,{errno:102,errmsg:'获取信息过程出错'})
