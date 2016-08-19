@@ -256,15 +256,18 @@ class scheduler {
             })
     }
     checkTime ( raw, callback ) {
-        let key = raw.p + ':' + raw.id
-        this.taskDB.hmget( key, 'update', 'init', ( err, result) => {
+        let key = raw.p + ':' + raw.id,
+            time = new Date().getTime()
+        this.taskDB.hmget( key, 'update', 'init', 'create', ( err, result) => {
             if(err){
                 return callback(err)
             }
-            if(result[0] === null && (new Date().getTime()) - result[1] >= 300000){
+            if(result[0] === null && time - result[1] >= 300000){
+                this.taskDB.hset( key, 'create', time)
                 return callback(null,true)
             }
-            if(result[0] !== null && (new Date().getTime()) - result[0] >= 3600000){
+            if(result[0] !== null && time - result[0] >= 3600000 && time - result[2] >= 300000 ){
+                this.taskDB.hset( key, 'create', time)
                 return callback(null,true)
             }
             return callback(null,false)

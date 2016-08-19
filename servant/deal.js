@@ -638,7 +638,7 @@ class deal{
             }else{
                 v_id = pathname.split('/')[2]
                 option.url = api.weishi.url_2 + `?id=${v_id}`
-                option.referer = `http://weishi.qq.com/t/${id}`
+                option.referer = `http://weishi.qq.com/t/${v_id}`
             }
         }
         request.get(option, (err, result) => {
