@@ -78,7 +78,7 @@ class spiderCore {
             case 'v.youku.com':
                 this.deal.youku(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:1}})
                     }
                     return callback(null,result)
                 })
@@ -87,7 +87,7 @@ class spiderCore {
             case 'bilibili.com':
                 this.deal.bili(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:8}})
                     }
                     return callback(null,result)
                 })
@@ -96,7 +96,7 @@ class spiderCore {
             case 'meipai.com':
                 this.deal.meipai(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:5}})
                     }
                     return callback(null,result)
                 })
@@ -104,11 +104,11 @@ class spiderCore {
             case 'www.miaopai.com':
             case 'm.miaopai.com':
                 if(!((url.includes('.htm') && url.includes('/show/')) || url.includes('/show/channel/'))){
-                    return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址'})
+                    return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址',data:{platform:7}})
                 }
                 this.deal.miaopai(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:7}})
                     }
                     return callback(null,result)
                 })
@@ -116,7 +116,7 @@ class spiderCore {
             case 'my.tv.sohu.com':
                 this.deal.souhu(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:9}})
                     }
                     return callback(null,result)
                 })
@@ -124,7 +124,7 @@ class spiderCore {
             case 'kuaibao.qq.com':
                 this.deal.kuaibao(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:10}})
                     }
                     return callback(null,result)
                 })
@@ -132,7 +132,7 @@ class spiderCore {
             case 'www.iqiyi.com':
                 this.deal.iqiyi(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:2}})
                     }
                     return callback(null,result)
                 })
@@ -140,7 +140,7 @@ class spiderCore {
             case 'www.le.com':
                 this.deal.le(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:3}})
                     }
                     return callback(null,result)
                 })
@@ -148,7 +148,7 @@ class spiderCore {
             case 'v.qq.com':
                 this.deal.tencent(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:4}})
                     }
                     return callback(null,result)
                 })
@@ -157,7 +157,7 @@ class spiderCore {
             case 'm.toutiao.com':
                 this.deal.toutiao(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:6}})
                     }
                     return callback(null,result)
                 })
@@ -166,9 +166,9 @@ class spiderCore {
                 this.deal.yidian(url,(err,result) => {
                     if(err){
                         if(err == 101){
-                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址'})
+                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址',data:{platform:11}})
                         }
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:11}})
                     }
                     return callback(null,result)
                 })
@@ -176,7 +176,7 @@ class spiderCore {
             case 'www.tudou.com':
                 this.deal.tudou(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:12}})
                     }
                     return callback(null,result)
                 })
@@ -186,7 +186,7 @@ class spiderCore {
             case 'video.baomihua.com':
                 this.deal.baomihua(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:13}})
                     }
                     return callback(null,result)
                 })
@@ -194,7 +194,7 @@ class spiderCore {
             case 'v.ku6.com':
                 this.deal.ku6(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:14}})
                     }
                     return callback(null,result)
                 })
@@ -203,7 +203,7 @@ class spiderCore {
             case 'video.btime.com':
                 this.deal.btime(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:15}})
                     }
                     return callback(null,result)
                 })
@@ -213,7 +213,7 @@ class spiderCore {
             case 'weishi.qq.com':
                 this.deal.weishi( url, ( err, result ) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:16}})
                     }
                     return callback(null,result)
                 })
@@ -221,7 +221,7 @@ class spiderCore {
             case 'xiaoying.tv':
                 this.deal.xiaoying(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:17}})
                     }
                     return callback(null,result)
                 })
@@ -231,7 +231,7 @@ class spiderCore {
             case 'm.budejie.com':
                 this.deal.budejie(url,(err,result) => {
                     if(err){
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:18}})
                     }
                     return callback(null,result)
                 })
@@ -241,9 +241,9 @@ class spiderCore {
                 this.deal.neihan(url,(err,result) => {
                     if(err){
                         if(err == 101){
-                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址'})
+                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址',data:{platform:19}})
                         }
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:19}})
                     }
                     return callback(null,result)
                 })
@@ -254,9 +254,9 @@ class spiderCore {
                 this.deal.yy(url,(err,result) => {
                     if(err){
                         if(err == 101){
-                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址'})
+                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址',data:{platform:20}})
                         }
-                        return callback(null,{errno:102,errmsg:'获取信息过程出错'})
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:20}})
                     }
                     return callback(null,result)
                 })
