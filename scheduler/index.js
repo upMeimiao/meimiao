@@ -54,7 +54,7 @@ class scheduler {
             // }, 30000)
             setInterval( () => {
                 this.deal(test_data)
-            }, 30000)
+            }, 1000)
         })
     }
     start () {
@@ -97,7 +97,7 @@ class scheduler {
                     name: raw.name,
                     encodeId: raw.encodeId,
                     type: raw.type
-                }).priority('critical').attempts(3).backoff(true).removeOnComplete(true)
+                }).priority('critical').attempts(3).backoff({delay: 30*1000, type:'fixed'}).removeOnComplete(true)
                     .save(function (err) {
                         if(err){
                             logger.error( 'Create queue occur error' )
@@ -214,7 +214,7 @@ class scheduler {
                 if(callback){
                     callback()
                 }
-                logger.debug("开始等待下次执行时间")
+                //logger.debug("开始等待下次执行时间")
             }
         )
     }
