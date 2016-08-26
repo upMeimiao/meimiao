@@ -52,9 +52,9 @@ class scheduler {
             setInterval( () => {
                 this.getTask()
             }, 10000)
-            // setInterval( () => {
-            //     this.deal(test_data)
-            // }, 1000)
+            setInterval( () => {
+                this.deal(test_data)
+            }, 1000)
         })
     }
     start () {
@@ -78,9 +78,9 @@ class scheduler {
                 logger.info(body)
                 return
             }
-            this.deal(result, (err) => {
-
-            })
+            // this.deal(result, (err) => {
+            //
+            // })
         })
     }
     createQueue (raw,callback) {
