@@ -21,7 +21,6 @@ class spiderCore {
             if(req.url =='/favicon.ico')return
             logger.debug(`url: ${req.url}`)
             let query = URL.parse(req.url,true).query
-            logger.debug(`query: ${query}`)
             this.preDeal(query,(err,data) => {
                 if(!data.errno){
                     data = {
