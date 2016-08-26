@@ -115,14 +115,14 @@ class scheduler {
         let data = raw.data,
             len = data ? data.length : 0,
             i = 0, _,processed,platform
-        logger.debug(raw)
+        //logger.debug(raw)
         async.whilst(
             () => {
                 return i < len
             },
             (cb) => {
                 _ = data[i]
-                switch( Number(_.platform) ){//_.p
+                switch( Number(_.p) ){//_.platform
                     case 1:
                         platform = "youku"
                         break
@@ -186,24 +186,24 @@ class scheduler {
                     default:
                         break
                 }
-                processed = {
-                    uid: _.id,
-                    id: _.bid,
-                    p: _.platform,
-                    name: _.bname,
-                    platform: platform,
-                    encodeId: _.encodeId ? _.encodeId : '',
-                    type: _.type ? _.type : ''
-                }
                 // processed = {
-                //     uid: raw.id,
-                //     id: _.id,
-                //     p: _.p,
-                //     name: _.name,
+                //     uid: _.id,
+                //     id: _.bid,
+                //     p: _.platform,
+                //     name: _.bname,
                 //     platform: platform,
                 //     encodeId: _.encodeId ? _.encodeId : '',
                 //     type: _.type ? _.type : ''
                 // }
+                processed = {
+                    uid: raw.id,
+                    id: _.id,
+                    p: _.p,
+                    name: _.name,
+                    platform: platform,
+                    encodeId: _.encodeId ? _.encodeId : '',
+                    type: _.type ? _.type : ''
+                }
                 logger.debug(processed)
                 this.createQueue(processed, (err) => {
                     i++
