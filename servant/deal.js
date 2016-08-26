@@ -429,7 +429,7 @@ class deal{
                     let res = {
                         id: result.data.media_user.id,
                         name: result.data.media_user.screen_name,
-                        p: 7
+                        p: 6
                     }
                     callback(null,res)
                 })
