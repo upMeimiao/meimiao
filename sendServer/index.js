@@ -53,35 +53,36 @@ class sendServer {
             url: this.settings.url,
             form: media
         }
-        //logger.debug(option)
+        logger.debug('aid: ',media.aid)
+        logger.debug('time: ',media.a_create_time)
         request.post(option, (err,res, result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
-                return
-            }
-            if(res.statusCode != 200){
-                logger.error(`errorCode: ${res.statusCode}`)
-                logger.error(result)
-                return
-            }
-            try{
-                result = JSON.parse(result)
-            }catch (e){
-                logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
-                logger.error(result)
-                return
-            }
-            if(result.errno == 0){
-                logger.debug(`平台${media.platform}:`,media.aid + ' back end')
-                logger.info(result)
-            }else{
-                logger.error(`平台${media.platform}:`,media.aid + ' back error')
-                if(media.bid != 0){
-                    logger.error(result)
-                    logger.error('media info: ',media)
-                }
-            }
+            // if(err){
+            //     logger.error( 'occur error : ', err )
+            //     logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
+            //     return
+            // }
+            // if(res.statusCode != 200){
+            //     logger.error(`errorCode: ${res.statusCode}`)
+            //     logger.error(result)
+            //     return
+            // }
+            // try{
+            //     result = JSON.parse(result)
+            // }catch (e){
+            //     logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
+            //     logger.error(result)
+            //     return
+            // }
+            // if(result.errno == 0){
+            //     logger.debug(`平台${media.platform}:`,media.aid + ' back end')
+            //     logger.info(result)
+            // }else{
+            //     logger.error(`平台${media.platform}:`,media.aid + ' back error')
+            //     if(media.bid != 0){
+            //         logger.error(result)
+            //         logger.error('media info: ',media)
+            //     }
+            // }
         })
     }
 }
