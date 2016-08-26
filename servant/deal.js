@@ -147,7 +147,7 @@ class deal{
             let res = {
                 id: result.result.ext.owner.suid,
                 name: result.result.ext.owner.nick,
-                p: 6
+                p: 7
             }
             callback(null,res)
         })
@@ -401,7 +401,7 @@ class deal{
                 let res = {
                     id: result.data.media_user.id,
                     name: result.data.media_user.screen_name,
-                    p: 7
+                    p: 6
                 }
                 callback(null,res)
             })
