@@ -35,7 +35,7 @@ class spiderCore {
                     }
                 }
                 res.end(JSON.stringify(data))
-                this.send(data)
+                // this.send(data)
             })
         })
         server.listen(this.port, this.ip, () => {

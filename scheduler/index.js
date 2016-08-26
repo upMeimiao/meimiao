@@ -49,12 +49,12 @@ class scheduler {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            // setInterval( () => {
-            //     this.getTask()
-            // }, 30000)
             setInterval( () => {
-                this.deal(test_data)
-            }, 1000)
+                this.getTask()
+            }, 5000)
+            // setInterval( () => {
+            //     this.deal(test_data)
+            // }, 1000)
         })
     }
     start () {
@@ -115,14 +115,14 @@ class scheduler {
         let data = raw.data,
             len = data ? data.length : 0,
             i = 0, _,processed,platform
-        //logger.debug(raw)
+        logger.debug(raw)
         async.whilst(
             () => {
                 return i < len
             },
             (cb) => {
                 _ = data[i]
-                switch( _.p ){//Number(_.platform)
+                switch( Number(_.platform) ){//_.p
                     case 1:
                         platform = "youku"
                         break
@@ -186,25 +186,25 @@ class scheduler {
                     default:
                         break
                 }
-                // processed = {
-                //     uid: _.id,
-                //     id: _.bid,
-                //     p: _.platform,
-                //     name: _.bname,
-                //     platform: platform,
-                //     encodeId: _.encodeId ? _.encodeId : '',
-                //     type: _.type ? _.type : ''
-                // }
                 processed = {
-                    uid: raw.id,
-                    id: _.id,
-                    p: _.p,
-                    name: _.name,
+                    uid: _.id,
+                    id: _.bid,
+                    p: _.platform,
+                    name: _.bname,
                     platform: platform,
                     encodeId: _.encodeId ? _.encodeId : '',
                     type: _.type ? _.type : ''
                 }
-                //logger.debug(processed)
+                // processed = {
+                //     uid: raw.id,
+                //     id: _.id,
+                //     p: _.p,
+                //     name: _.name,
+                //     platform: platform,
+                //     encodeId: _.encodeId ? _.encodeId : '',
+                //     type: _.type ? _.type : ''
+                // }
+                logger.debug(processed)
                 this.createQueue(processed, (err) => {
                     i++
                     cb()
