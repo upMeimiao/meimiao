@@ -204,7 +204,7 @@ class scheduler {
                     encodeId: _.encodeId ? _.encodeId : '',
                     type: _.type ? _.type : ''
                 }
-                logger.debug(processed)
+                //logger.debug(processed)
                 this.createQueue(processed, (err) => {
                     i++
                     cb()
