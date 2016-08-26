@@ -303,6 +303,7 @@ class deal{
             request.get(option,(err,result) => {
                 if(err){
                     logger.error( 'occur error : ', err )
+                    return callback(true)
                 }
                 let _$ = cheerio.load(result.body),
                     name = _$('.au_info').text()
