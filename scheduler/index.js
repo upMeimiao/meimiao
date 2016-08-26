@@ -51,7 +51,7 @@ class scheduler {
             logger.debug( '创建数据库连接完毕' )
             setInterval( () => {
                 this.getTask()
-            }, 5000)
+            }, 10000)
             // setInterval( () => {
             //     this.deal(test_data)
             // }, 1000)

@@ -61,15 +61,15 @@ class sendServer {
                 return
             }
             if(res.statusCode != 200){
-                logger.debug(`errorCode: ${res.statusCode}`)
-                logger.info(result)
+                logger.error(`errorCode: ${res.statusCode}`)
+                logger.error(result)
                 return
             }
             try{
                 result = JSON.parse(result)
             }catch (e){
                 logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
-                logger.info(result)
+                logger.error(result)
                 return
             }
             if(result.errno == 0){
@@ -77,8 +77,8 @@ class sendServer {
                 logger.info(result)
             }else{
                 logger.error(`平台${media.platform}:`,media.aid + ' back error')
-                logger.info(result)
-                logger.info('media info: ',media)
+                logger.error(result)
+                logger.error('media info: ',media)
             }
         })
     }
