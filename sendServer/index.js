@@ -77,8 +77,10 @@ class sendServer {
                 logger.info(result)
             }else{
                 logger.error(`平台${media.platform}:`,media.aid + ' back error')
-                logger.error(result)
-                logger.error('media info: ',media)
+                if(media.bid != 0){
+                    logger.error(result)
+                    logger.error('media info: ',media)
+                }
             }
         })
     }
