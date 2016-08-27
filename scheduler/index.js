@@ -214,7 +214,7 @@ class scheduler {
                 if(callback){
                     callback()
                 }
-                //logger.debug("开始等待下次执行时间")
+                logger.debug("开始等待下次执行时间")
             }
         )
     }
@@ -222,7 +222,7 @@ class scheduler {
         let data = raw.data,
             len = data ? data.length : 0,
             i = 0, _,processed,platform
-        //logger.debug(raw)
+        logger.debug(raw)
         async.whilst(
             () => {
                 return i < len
@@ -312,7 +312,7 @@ class scheduler {
                 if(callback){
                     callback()
                 }
-                //logger.debug("开始等待下次执行时间")
+                logger.debug("online 开始等待下次执行时间")
             }
         )
     }
