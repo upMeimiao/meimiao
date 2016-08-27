@@ -53,8 +53,6 @@ class sendServer {
             url: this.settings.url,
             form: media
         }
-        logger.debug('aid: ',media.aid)
-        logger.debug('time: ',media.a_create_time)
         request.post(option, (err,res, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
@@ -73,16 +71,16 @@ class sendServer {
                 logger.error(result)
                 return
             }
-            // if(result.errno == 0){
-            //     logger.debug(`平台${media.platform}:`,media.aid + ' back end')
-            //     logger.info(result)
-            // }else{
-            //     logger.error(`平台${media.platform}:`,media.aid + ' back error')
-            //     if(media.bid != 0){
-            //         logger.error(result)
-            //         logger.error('media info: ',media)
-            //     }
-            // }
+            if(result.errno == 0){
+                logger.debug(`平台${media.platform}:`,media.aid + ' back end')
+                logger.info(result)
+            }else{
+                logger.error(`平台${media.platform}:`,media.aid + ' back error')
+                if(media.bid != 0){
+                    logger.error(result)
+                    logger.error('media info: ',media)
+                }
+            }
         })
     }
 }

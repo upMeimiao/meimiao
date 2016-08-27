@@ -51,7 +51,7 @@ class scheduler {
             logger.debug( '创建数据库连接完毕' )
             setInterval( () => {
                 this.getTask()
-            }, 10000)
+            }, 5000)
             setInterval( () => {
                 this.deal(test_data)
             }, 1000)
@@ -78,9 +78,9 @@ class scheduler {
                 logger.info(body)
                 return
             }
-            // this.deal(result, (err) => {
-            //
-            // })
+            this.deal_online(result, (err) => {
+
+            })
         })
     }
     createQueue (raw,callback) {
@@ -200,6 +200,104 @@ class scheduler {
                     id: _.id,
                     p: _.p,
                     name: _.name,
+                    platform: platform,
+                    encodeId: _.encodeId ? _.encodeId : '',
+                    type: _.type ? _.type : ''
+                }
+                //logger.debug(processed)
+                this.createQueue(processed, (err) => {
+                    i++
+                    cb()
+                })
+            },
+            () => {
+                if(callback){
+                    callback()
+                }
+                //logger.debug("开始等待下次执行时间")
+            }
+        )
+    }
+    deal_online ( raw, callback ) {
+        let data = raw.data,
+            len = data ? data.length : 0,
+            i = 0, _,processed,platform
+        //logger.debug(raw)
+        async.whilst(
+            () => {
+                return i < len
+            },
+            (cb) => {
+                _ = data[i]
+                switch( Number(_.platform) ){//_.platform
+                    case 1:
+                        platform = "youku"
+                        break
+                    case 2:
+                        platform = "iqiyi"
+                        break
+                    case 3:
+                        platform = "le"
+                        break
+                    case 4:
+                        platform = "tencent"
+                        break
+                    case 5:
+                        platform = "meipai"
+                        break
+                    case 6:
+                        platform = "toutiao"
+                        break
+                    case 7:
+                        platform = "miaopai"
+                        break
+                    case 8:
+                        platform = "bili"
+                        break
+                    case 9:
+                        platform = "souhu"
+                        break
+                    case 10:
+                        platform = "kuaibao"
+                        break
+                    case 11:
+                        platform = "yidian"
+                        break
+                    case 12:
+                        platform = "tudou"
+                        break
+                    case 13:
+                        platform = "baomihua"
+                        break
+                    case 14:
+                        platform = "ku6"
+                        break
+                    case 15:
+                        platform = "btime"
+                        break
+                    case 16:
+                        platform = "weishi"
+                        break
+                    case 17:
+                        platform = "xiaoying"
+                        break
+                    case 18:
+                        platform = "budejie"
+                        break
+                    case 19:
+                        platform = "neihan"
+                        break
+                    case 20:
+                        platform = "yy"
+                        break
+                    default:
+                        break
+                }
+                processed = {
+                    uid: _.id,
+                    id: _.bid,
+                    p: _.platform,
+                    name: _.bname,
                     platform: platform,
                     encodeId: _.encodeId ? _.encodeId : '',
                     type: _.type ? _.type : ''
