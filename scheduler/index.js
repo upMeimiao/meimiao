@@ -104,8 +104,6 @@ class scheduler {
                             logger.info( 'error :' , err )
                         }
                         logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
-                        this.taskDB.hmset( key, 'update', (new Date().getTime()))
-                        this.sendUpdate( raw )
                         callback()
                     })
             }else{
@@ -367,35 +365,15 @@ class scheduler {
                 this.taskDB.hset( key, 'create', time)
                 return callback(null,true)
             }
-            if(result[0] !== null && time - result[0] >= 3600000 && time - result[2] >= 300000 ){
+            if(result[0] !== null && time - result[2] >= 300000 &&  result[2] > result[0] ){
+                this.taskDB.hset( key, 'create', time)
+                return callback(null,true)
+            }
+            if(result[0] !== null && time - result[2] >= 3600000){
                 this.taskDB.hset( key, 'create', time)
                 return callback(null,true)
             }
             return callback(null,false)
-        })
-    }
-    sendUpdate ( raw ) {
-        request.post( this.settings.update, {form:{platform:raw.p,bid: raw.id}},(err,res,body) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return
-            }
-            if(res.statusCode != 200 ){
-                logger.error( `状态码${res.statusCode}` )
-                logger.error( res )
-                return
-            }
-            try {
-                body = JSON.parse( body )
-            } catch (e) {
-                logger.error( '不符合JSON格式' )
-                return
-            }
-            if(body.errno == 0){
-                logger.info(body.errmsg)
-            }else{
-                logger.error(body)
-            }
         })
     }
 }
