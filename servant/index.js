@@ -36,40 +36,10 @@ class spiderCore {
                     }
                 }
                 res.end(JSON.stringify(data))
-                // this.send(data)
             })
         })
         server.listen(this.port, this.ip, () => {
             logger.debug(`Server running at ${this.ip}:${this.port}`)
-        })
-    }
-    send(data){
-        let options = {
-            method : 'POST',
-            url: this.settings.server,
-            form : data.data
-        }
-        request.post( options, ( err, res, body ) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return
-            }
-            if(res.statusCode != 200 ){
-                logger.error( `状态码${res.statusCode}` )
-                logger.info( res )
-                return
-            }
-            try {
-                body = JSON.parse( body )
-            } catch (e) {
-                logger.info( '不符合JSON格式' )
-                return
-            }
-            if(body.errno == 0){
-                logger.info(body.errmsg)
-            }else{
-                logger.info(body)
-            }
         })
     }
     preDeal(data,callback){

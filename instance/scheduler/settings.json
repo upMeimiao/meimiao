@@ -8,5 +8,6 @@
     "jobDB": 12
   },
   "url": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/getUpdateV/rxdebug/2015",
+  "update": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate",
   "interval": 10000
 }

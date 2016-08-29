@@ -104,6 +104,8 @@ class scheduler {
                             logger.info( 'error :' , err )
                         }
                         logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
+                        this.taskDB.hmset( key, 'update', (new Date().getTime()))
+                        this.sendUpdate( raw )
                         callback()
                     })
             }else{
@@ -222,7 +224,7 @@ class scheduler {
         let data = raw.data,
             len = data ? data.length : 0,
             i = 0, _,processed,platform
-        logger.debug(raw)
+        //logger.debug(raw)
         async.whilst(
             () => {
                 return i < len
@@ -372,14 +374,28 @@ class scheduler {
             return callback(null,false)
         })
     }
-    test () {
-        logger.trace('测试模式')
-        this.assembly( () => {
-            let data = test_data
-            this.saveUser(data,()=>{
-                logger.debug('用户平台信息已保存到镜像库')
-            })
-            //this.deal(data)
+    sendUpdate ( raw ) {
+        request.post( this.settings.update, {form:{platform:raw.p,bid: raw.id}},(err,res,body) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return
+            }
+            if(res.statusCode != 200 ){
+                logger.error( `状态码${res.statusCode}` )
+                logger.error( res )
+                return
+            }
+            try {
+                body = JSON.parse( body )
+            } catch (e) {
+                logger.error( '不符合JSON格式' )
+                return
+            }
+            if(body.errno == 0){
+                logger.info(body.errmsg)
+            }else{
+                logger.error(body)
+            }
         })
     }
 }

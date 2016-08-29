@@ -38,7 +38,7 @@ class sendServer {
         this.cache_db.lpop( 'cache', ( err, result ) => {
             if ( err ) {
                 logger.error( '获取缓存队列出现错误：', err );
-                return callback( err )
+                return
             }
             if(!result){
                 //logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
@@ -73,7 +73,7 @@ class sendServer {
             }
             if(result.errno == 0){
                 logger.debug(`平台${media.platform}:`,media.aid + ' back end')
-                logger.info(result)
+                //logger.info(result)
             }else{
                 logger.error(`平台${media.platform}:`,media.aid + ' back error')
                 if(media.bid != 0){
