@@ -214,7 +214,7 @@ class scheduler {
                 if(callback){
                     callback()
                 }
-                logger.debug("开始等待下次执行时间")
+                //logger.debug("开始等待下次执行时间")
             }
         )
     }
@@ -312,7 +312,7 @@ class scheduler {
                 if(callback){
                     callback()
                 }
-                logger.debug("online 开始等待下次执行时间")
+                //logger.debug("online 开始等待下次执行时间")
             }
         )
     }
