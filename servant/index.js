@@ -237,6 +237,24 @@ class spiderCore {
                     return callback(null,result)
                 })
                 break
+            case 'www.56.com':
+            case 'm.56.com':
+                this.deal.tv56(url,(err,result) => {
+                    if (err) {
+
+                    }
+                    return callback(null,result)
+                })
+                break
+            case 'www.acfun.tv':
+            case 'm.acfun.tv':
+                this.deal.acfun(url,(err,result) => {
+                    if (err) {
+
+                    }
+                    return callback(null,result)
+                })
+                break
             default:
                 return callback(null,{code:1001,msg:'暂不支持该平台'})
         }

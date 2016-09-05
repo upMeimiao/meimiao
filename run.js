@@ -173,6 +173,20 @@ const yy = () => {
     let spider = new (require('./yy'))(settings)
     spider.start()
 }
+const tv56 = () => {
+    let logger = logging.getLogger('tv56',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./tv56'))(settings)
+    spider.start()
+}
+const acfun = () => {
+    let logger = logging.getLogger('acfun',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./acfun'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('爱奇艺',options['i'],log_level)
     settings['logger'] = logger
@@ -240,6 +254,12 @@ switch (options['a']){
         break
     case 'yy':
         yy()
+        break
+    case 'tv56':
+        tv56()
+        break
+    case 'acfun':
+        acfun()
         break
     case 'test':
         test()

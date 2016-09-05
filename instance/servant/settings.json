@@ -64,6 +64,12 @@
     "yy": {
       "url_1": "http://www.yy.com/s/",
       "url_2": "http://www.yy.com/d/" 
+    },
+    "tv56": {
+      "url": ""
+    },
+    "acfun": {
+      "url": "http://api.aixifan.com/videos/"
     }
   }
 }
