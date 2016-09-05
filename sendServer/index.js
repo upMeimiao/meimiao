@@ -53,6 +53,9 @@ class sendServer {
             url: this.settings.url,
             form: media
         }
+        if(media.platform == 14 && media.bid == 24586950){
+            return
+        }
         request.post(option, (err,res, result) => {
             if(err){
                 logger.error( 'occur error : ', err )

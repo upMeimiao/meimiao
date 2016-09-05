@@ -229,6 +229,10 @@ class scheduler {
             },
             (cb) => {
                 _ = data[i]
+                if( _.platform == 14 && _.bid == 24586950){
+                    i++
+                    return cb()
+                }
                 switch( Number(_.platform) ){//_.platform
                     case 1:
                         platform = "youku"

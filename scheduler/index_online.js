@@ -82,7 +82,9 @@ class scheduler {
                     encodeId: raw.encodeId,
                     type: raw.type
                 }).priority('critical').attempts(5).backoff({delay: 30*1000, type:'fixed'}).removeOnComplete(true)
-                job.ttl( Math.ceil(result.videoNumber / 500) * 210000 )
+                if( result.videoNumber != 0 ){
+                    job.ttl( Math.ceil(result.videoNumber / 500) * 210000 )
+                }
                 job.save(function (err) {
                     if(err){
                         logger.error( 'Create queue occur error' )
@@ -93,6 +95,26 @@ class scheduler {
                 })
             }else{
                 callback()
+            }
+        })
+    }
+    checkKey ( raw, callback ) {
+        let key = raw.p + ':' + raw.id,
+            time = new Date().getTime()
+        this.taskDB.hmget( key, 'id', 'video_number', ( err, result ) => {
+            if(err){
+                logger.debug(err)
+                return callback(err)
+            }
+            if(result[0] === null){
+                this.taskDB.hmset( key, 'id', raw.id, 'init', time, 'create', time)
+                return callback(null,{videoNumber: 0})
+            }
+            if(result[1] === null){
+                return callback(null,{videoNumber: 0})
+            }
+            if(result[1]){
+                return callback(null,{videoNumber: Number(result[1])})
             }
         })
     }
