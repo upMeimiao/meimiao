@@ -5,7 +5,7 @@ const async = require( 'async' )
 const kue = require( 'kue' )
 const request = require( 'request' )
 const myRedis = require( '../lib/myredis.js' )
-const test_data = require('../data.json')
+// const test_data = require('../data.json')
 
 let logger
     
@@ -52,9 +52,9 @@ class scheduler {
             setInterval( () => {
                 this.getTask()
             }, 5000)
-            setInterval( () => {
-                this.deal(test_data)
-            }, 1000)
+            // setInterval( () => {
+            //     this.deal(test_data)
+            // }, 1000)
         })
     }
     start () {
