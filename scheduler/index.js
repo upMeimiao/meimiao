@@ -332,15 +332,16 @@ class scheduler {
                     return callback(null,true)
                 })
             }else{
-                this.checkTime( raw, ( err, result ) => {
-                    if(err){
-                        return callback(err)
-                    }
-                    if(result){
-                        return callback(null,true)
-                    }
-                    return callback(null,false)
-                })
+                return callback(null,true)
+                // this.checkTime( raw, ( err, result ) => {
+                //     if(err){
+                //         return callback(err)
+                //     }
+                //     if(result){
+                //         return callback(null,true)
+                //     }
+                //     return callback(null,false)
+                // })
             }
         })
     }
