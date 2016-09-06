@@ -291,26 +291,24 @@ class deal{
             }else{
                 return callback(true)
             }
-            if($('.Info_hot_dl dd a').length == 0){
-                type = 2
-            }else{
-                type = 1
-            }
             id = info.substring(8,info.lastIndexOf('"'))
             let option = {
-                url: 'http://chuang.le.com/u/' + id
+                url: `http://api.chuang.letv.com/outer/ugc/video/user/videocount?callback=jsonp&userid=${id}&_=${(new Date()).getTime()}`
             }
             request.get(option,(err,result) => {
                 if(err){
                     logger.error( 'occur error : ', err )
                     return callback(true)
                 }
-                let _$ = cheerio.load(result.body),
-                    name = _$('.au_info').text()
+                result = eval(result.body)
+                let data = result.data,
+                    name = data.nickname
+                // let _$ = cheerio.load(result.body),
+                //     name = _$('.au_info .au_info_name').text()
                 let res ={
                     id: id,
                     name: name,
-                    type: type,
+                    type: 1,
                     p: 3
                 }
                 callback(null,res)
@@ -320,10 +318,16 @@ class deal{
     tencent (data,callback){
         let urlObj = URL.parse(data,true),
             pathname = urlObj.pathname,
+            query = urlObj.query,
             start = pathname.lastIndexOf('/'),
             end = pathname.indexOf('.html'),
             option = {},res,
             vid = pathname.substring(start+1,end)
+        if(pathname.startsWith('/x/cover/')){
+            if(query.vid){
+                vid = query.vid
+            }
+        }
         option.url = api.tencent.url + vid + "&_=" + new Date().getTime()
         request.get(option,(err,result)=>{
             if(err){
@@ -362,16 +366,30 @@ class deal{
                         return callback(true)
                     }
                     let user = $('.user_info'),
-                        name = user.attr('title'),
+                        //name = user.attr('title'),
                         href = user.attr('href'),
                         id = href.substring(href.lastIndexOf('/')+1)
-                    res = {
-                        id: id,
-                        name: name,
-                        type: 2,
-                        p: 4
-                    }
-                    return callback(null,res)
+                    option.url = href
+                    request.get(option,(err,result)=>{
+                        if(err){
+                            logger.error( 'occur error : ', err )
+                            return callback(err)
+                        }
+                        if(result.statusCode != 200 ){
+                            logger.error('腾讯状态码错误3',result.statusCode)
+                            logger.info(result)
+                            return callback(true)
+                        }
+                        let $ = cheerio.load(result.body),
+                            name = $('h2.user_info_name').html()
+                        res = {
+                            id: id,
+                            name: name,
+                            type: 2,
+                            p: 4
+                        }
+                        return callback(null,res)
+                    })
                 })
             }
         })
