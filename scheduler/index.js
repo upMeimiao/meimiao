@@ -151,7 +151,7 @@ class scheduler {
                         platform = "toutiao"
                         break
                     case 7:
-                        platform = "git p"
+                        platform = "miaopai"
                         break
                     case 8:
                         platform = "bili"
