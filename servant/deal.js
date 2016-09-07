@@ -487,15 +487,16 @@ class deal{
         })
     }
     tudou (data,callback) {
-        let test = data.indexOf('html'),
+        let pathname = URL.parse(data,true).pathname,
+            test = pathname.indexOf('html'),
             option = {}
         if( test > 0 ){
-            let v_array = data.split('/'),
+            let v_array = pathname.split('/'),
                 v_id = (v_array[v_array.length-1].split('.'))[0]
             option.url = api.tudou.url + v_id
         }else{
-            let v_array = data.split('/'),
-                v_id = v_array[v_array.length-2]
+            let v_array = pathname.split('/'),
+                v_id = v_array[3]
             option.url = api.tudou.url + v_id
         }
         request.get ( option, ( err, result) => {
