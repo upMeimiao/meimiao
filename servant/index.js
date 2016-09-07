@@ -235,8 +235,11 @@ class spiderCore {
             case 'www.56.com':
             case 'm.56.com':
                 this.deal.tv56(url,(err,result) => {
-                    if (err) {
-
+                    if(err){
+                        if(err == 101){
+                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址',data:{platform:21}})
+                        }
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:21}})
                     }
                     return callback(null,result)
                 })
@@ -244,8 +247,11 @@ class spiderCore {
             case 'www.acfun.tv':
             case 'm.acfun.tv':
                 this.deal.acfun(url,(err,result) => {
-                    if (err) {
-
+                    if(err){
+                        if(err == 101){
+                            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址',data:{platform:22}})
+                        }
+                        return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:22}})
                     }
                     return callback(null,result)
                 })

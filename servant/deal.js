@@ -894,7 +894,20 @@ class deal{
         })
     }
     tv56( data, callback) {
-
+        let urlObj = URL.parse(data,true).hostname,
+            host = urlObj.hostname,
+            path = urlObj.pathname,
+            option = {},
+            vid
+        switch (host){
+            case 'www.56.com':
+                break
+            case 'm.56.com':
+                break
+        }
+        if(host == 'www.56.com'){
+            if()
+        }
     }
     acfun( data, callback){
         let host = URL.parse(data,true).hostname,
