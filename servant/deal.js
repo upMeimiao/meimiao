@@ -1,6 +1,7 @@
 const URL = require('url')
 const cheerio = require('cheerio')
 const request = require( '../lib/req' )
+const r = require('request')
 const jsonp = function (data) {
     return data
 }
@@ -36,11 +37,11 @@ class deal{
             }
             let user = result.user,
                 res = {
-                id: user.id,
-                name: user.name,
-                p: 1,
-                encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
-            }
+                    id: user.id,
+                    name: user.name,
+                    p: 1,
+                    encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
+                }
             callback(null,res)
         })
     }
@@ -114,10 +115,15 @@ class deal{
         })
     }
     miaopai (data,callback) {
-        let pathname = URL.parse(data,true).pathname
+        let urlObj = URL.parse(data,true),
+            pathname = urlObj.pathname,
+            hostname = urlObj.hostname
         let start = pathname.lastIndexOf('/'),
             end = pathname.lastIndexOf('.'),
             id = pathname.substring(start+1,end)
+        if(hostname == 'm.miaopai.com'){
+            id = pathname.substring(start+1)
+        }
         let option = {
             url: api.miaopai.url + id
         }
@@ -141,7 +147,7 @@ class deal{
             let res = {
                 id: result.result.ext.owner.suid,
                 name: result.result.ext.owner.nick,
-                p: 6
+                p: 7
             }
             callback(null,res)
         })
@@ -210,7 +216,7 @@ class deal{
             if(result.newslist.length == 0){return callback(true)}
             let back = result.newslist[0],
                 res = {
-                    id: back.uin,
+                    id: back.chlid,
                     name: back.chlname,
                     p: 10
                 }
@@ -275,8 +281,8 @@ class deal{
                 return callback(true)
             }
             let $ = cheerio.load(result.body,{
-                ignoreWhitespace:true
-            }),
+                    ignoreWhitespace:true
+                }),
                 _info_ = $('head script').text(),
                 reg = new RegExp('userId:"[0-9]+"'),
                 _info = _info_.match(reg),info,id,type
@@ -285,25 +291,24 @@ class deal{
             }else{
                 return callback(true)
             }
-            if($('.Info_hot_dl dd a').length == 0){
-                type = 2
-            }else{
-                type = 1
-            }
             id = info.substring(8,info.lastIndexOf('"'))
             let option = {
-                url: 'http://chuang.le.com/u/' + id
+                url: `http://api.chuang.letv.com/outer/ugc/video/user/videocount?callback=jsonp&userid=${id}&_=${(new Date()).getTime()}`
             }
             request.get(option,(err,result) => {
                 if(err){
                     logger.error( 'occur error : ', err )
+                    return callback(true)
                 }
-                let _$ = cheerio.load(result.body),
-                    name = _$('.au_info').text()
+                result = eval(result.body)
+                let data = result.data,
+                    name = data.nickname
+                // let _$ = cheerio.load(result.body),
+                //     name = _$('.au_info .au_info_name').text()
                 let res ={
                     id: id,
                     name: name,
-                    type: type,
+                    type: 1,
                     p: 3
                 }
                 callback(null,res)
@@ -311,10 +316,20 @@ class deal{
         })
     }
     tencent (data,callback){
-        let option = {
-            url: data
+        let urlObj = URL.parse(data,true),
+            pathname = urlObj.pathname,
+            query = urlObj.query,
+            start = pathname.lastIndexOf('/'),
+            end = pathname.indexOf('.html'),
+            option = {},res,
+            vid = pathname.substring(start+1,end)
+        if(pathname.startsWith('/x/cover/')){
+            if(query.vid){
+                vid = query.vid
+            }
         }
-        request.get(option,(err,result) => {
+        option.url = api.tencent.url + vid + "&_=" + new Date().getTime()
+        request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -324,46 +339,8 @@ class deal{
                 logger.info(result)
                 return callback(true)
             }
-            let $ = cheerio.load(result.body),
-                name = $('a.user_name').html(),
-                h_url,
-                id,u_tips,
-                res,type
-            if(name){
-                h_url = $('a.user_name').attr('href')
-                id = h_url.substring(h_url.lastIndexOf('/')+1)
-                u_tips = $('.user_badge_tips')
-                if(u_tips.length == 0){
-                    type = 1
-                }else{
-                    type = 2
-                }
-                res = {
-                    id: id,
-                    name: new Tool().hexToString(name),
-                    type: type,
-                    p: 4
-                }
-                return callback(null,res)
-            }
-            let pathname = URL.parse(data,true).pathname
-            let start = pathname.lastIndexOf('/'),
-                end = pathname.indexOf('.html'),
-                vid = pathname.substring(start+1,end)
-            let option = {
-                url: api.tencent.url + vid + "&_=" + new Date().getTime()
-            }
-            request.get(option,(err,result)=>{
-                if(err){
-                    logger.error( 'occur error : ', err )
-                    return callback(err)
-                }
-                if(result.statusCode != 200 ){
-                    logger.error('腾讯状态码错误2',result.statusCode)
-                    logger.info(result)
-                    return callback(true)
-                }
-                let back = eval(result.body)
+            let back = eval(result.body)
+            if(!back.result){
                 res = {
                     id: back.vppinfo.euin,
                     name: back.vppinfo.nick,
@@ -371,39 +348,112 @@ class deal{
                     p: 4
                 }
                 return callback(null,res)
-            })
+            }else{
+                option.url = data
+                request.get(option,(err,result) => {
+                    if(err){
+                        logger.error( 'occur error : ', err )
+                        return callback(err)
+                    }
+                    if(result.statusCode != 200 ){
+                        logger.error('腾讯状态码错误2',result.statusCode)
+                        logger.info(result)
+                        return callback(true)
+                    }
+                    let $ = cheerio.load(result.body),
+                        num = $('.btn_book .num')
+                    if(num.length){
+                        return callback(true)
+                    }
+                    let user = $('.user_info'),
+                        //name = user.attr('title'),
+                        href = user.attr('href'),
+                        id = href.substring(href.lastIndexOf('/')+1)
+                    option.url = href
+                    request.get(option,(err,result)=>{
+                        if(err){
+                            logger.error( 'occur error : ', err )
+                            return callback(err)
+                        }
+                        if(result.statusCode != 200 ){
+                            logger.error('腾讯状态码错误3',result.statusCode)
+                            logger.info(result)
+                            return callback(true)
+                        }
+                        let $ = cheerio.load(result.body),
+                            name = $('h2.user_info_name').html()
+                        res = {
+                            id: id,
+                            name: name,
+                            type: 2,
+                            p: 4
+                        }
+                        return callback(null,res)
+                    })
+                })
+            }
         })
     }
     toutiao (data,callback) {
         let pathname = URL.parse(data,true).pathname,
-            v_id = pathname.replace(/\//g,'').substring(1),
-            option = {
-                url: api.toutiao.url + v_id + "/info/"
-            }
-        request.get(option,(err,result)=>{
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('头条状态码错误',result.statusCode)
-                logger.info(result)
-                return callback(true)
-            }
-            try {
-                result = JSON.parse(result.body)
-            } catch (e) {
-                logger.error('头条json数据解析失败')
-                logger.info(result)
-                return callback(e)
-            }
-            let res = {
-                id: result.data.media_user.id,
-                name: result.data.media_user.screen_name,
-                p: 7
-            }
-            callback(null,res)
-        })
+            v_id, option = {}
+        if(pathname.startsWith('/i')){
+            v_id = pathname.replace(/\//g,'').substring(1)
+            option.url = api.toutiao.url + v_id + "/info/"
+            request.get(option,(err,result)=>{
+                if(err){
+                    logger.error( 'occur error : ', err )
+                    return callback(err)
+                }
+                if(result.statusCode != 200 ){
+                    logger.error('头条状态码错误',result.statusCode)
+                    logger.info(result)
+                    return callback(true)
+                }
+                try {
+                    result = JSON.parse(result.body)
+                } catch (e) {
+                    logger.error('头条json数据解析失败')
+                    logger.info(result)
+                    return callback(e)
+                }
+                let res = {
+                    id: result.data.media_user.id,
+                    name: result.data.media_user.screen_name,
+                    p: 6
+                }
+                callback(null,res)
+            })
+        }else if(pathname.startsWith('/a')){
+            r.head(data,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
+                v_id = (res.request.path).replace(/\//g,'').substring(1)
+                option.url = api.toutiao.url + v_id + "/info/"
+                request.get(option,(err,result)=>{
+                    if(err){
+                        logger.error( 'occur error : ', err )
+                        return callback(err)
+                    }
+                    if(result.statusCode != 200 ){
+                        logger.error('头条状态码错误',result.statusCode)
+                        logger.info(result)
+                        return callback(true)
+                    }
+                    try {
+                        result = JSON.parse(result.body)
+                    } catch (e) {
+                        logger.error('头条json数据解析失败')
+                        logger.info(result)
+                        return callback(e)
+                    }
+                    let res = {
+                        id: result.data.media_user.id,
+                        name: result.data.media_user.screen_name,
+                        p: 6
+                    }
+                    callback(null,res)
+                })
+            })
+        }
     }
     yidian ( data, callback ) {
         let option = {
@@ -421,28 +471,33 @@ class deal{
             }
             let $ = cheerio.load(result.body),
                 name = $('#source-name').text(),
-                href = $('#source-name').attr('href'),
-                h_array = href.split('='),
+                href = $('#source-name').attr('href')
+            if(!name || !href){
+                logger.error(`url可能不是播放页地址:${data}`)
+                return callback('101')
+            }
+            let h_array = href.split('='),
                 v_id = h_array[h_array.length-1],
                 res = {
                     id: v_id,
                     name: name,
-                    p: 11  
+                    p: 11
                 }
             callback(null,res)
         })
     }
     tudou (data,callback) {
-        let test = data.indexOf('html'),
+        let pathname = URL.parse(data,true).pathname,
+            test = pathname.indexOf('html'),
             option = {}
         if( test > 0 ){
-            let v_array = data.split('/'),
+            let v_array = pathname.split('/'),
                 v_id = (v_array[v_array.length-1].split('.'))[0]
-                option.url = api.tudou.url + v_id
+            option.url = api.tudou.url + v_id
         }else{
-            let v_array = data.split('/'),
-                v_id = v_array[v_array.length-2]
-                option.url = api.tudou.url + v_id
+            let v_array = pathname.split('/'),
+                v_id = v_array[3]
+            option.url = api.tudou.url + v_id
         }
         request.get ( option, ( err, result) => {
             if(err){
@@ -545,9 +600,11 @@ class deal{
         })
     }
     btime ( data, callback) {
-        let option = {
-            url: data
+        let pathname = URL.parse(data,true).pathname,option = {}
+        if(!(pathname.startsWith('/wemedia/'))){
+            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址,请输入时间号的视频播放地址'})
         }
+        option.url = data
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
@@ -594,9 +651,15 @@ class deal{
             option.url = api.weishi.url_2 + `?id=${v_id}`
             option.referer = `http://www.weishi.com/t/${v_id}`
         } else {
-            id = pathname.split('/')[2]
-            option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`
-            option.referer = `http://weishi.qq.com/u/${id}`
+            if(pathname.includes('u')){
+                id = pathname.split('/')[2]
+                option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`
+                option.referer = `http://weishi.qq.com/u/${id}`
+            }else{
+                v_id = pathname.split('/')[2]
+                option.url = api.weishi.url_2 + `?id=${v_id}`
+                option.referer = `http://weishi.qq.com/t/${v_id}`
+            }
         }
         request.get(option, (err, result) => {
             if (err) {
@@ -720,12 +783,46 @@ class deal{
         }
     }
     neihan( data, callback) {
-        let path = URL.parse(data, true).pathname,
+        let urlObj = URL.parse(data, true),
+            hostname = urlObj.hostname,
+            path = urlObj.pathname,
             v_array = path.split('/'),
-            id = v_array[3],
-            option = {
-                url: api.neihan.url + 'p' + id
+            option = {},id,v_id
+        if(hostname == 'm.neihanshequ.com'){
+            id = path.includes('share') ? v_array[3] : v_array[2]
+            option.url = api.neihan.url + 'p' + id
+        }else if(hostname == 'neihanshequ.com' && path.startsWith('/p')){
+            let rex = new RegExp(/^p[1-9]\d*|0$/)
+            if(rex.test(v_array[1]) ){
+                option.url = data
+            }else{
+                return callback(101)
             }
+        }else if(hostname == 'neihanshequ.com' && path.startsWith('/user/')){
+            id = v_array[2]
+            option.url = data
+            request.get( option, ( err, result ) => {
+                if (err) {
+                    logger.error( 'occur error : ', err )
+                    return callback(err)
+                }
+                if (result.statusCode != 200) {
+                    logger.error('内涵段子状态码错误', result.statusCode)
+                    logger.info(result)
+                    return callback(true)
+                }
+                let $ = cheerio.load(result.body,{ignoreWhitespace:true}),
+                    name = $('.desc-item .desc-wrapper .name').text(),
+                    res = {
+                        name: name,
+                        id: id,
+                        p: 19
+                    }
+                return callback(null,res)
+            })
+        }else{
+            return callback(101)
+        }
         request.get(option, (err, result) => {
             if (err) {
                 logger.error( 'occur error : ', err )
@@ -750,26 +847,28 @@ class deal{
         })
     }
     yy( data, callback) {
-        let host = URL.parse(data,true).hostname,
-            option
+        let urlObj = URL.parse(data,true),
+            host = urlObj.hostname,
+            path = urlObj.pathname,
+            option = {}
         if(host == 'shenqu.3g.yy.com'){
-            let path = URL.parse(data,true).pathname,
-                v_array1 = path.split('/'),
+            let v_array1 = path.split('/'),
                 v_array2 = v_array1[v_array1.length-1].split('_'),
                 v_array3 = v_array2[1].split('.'),
                 v_id = v_array3[0]
-            option = {
-                url: api.yy.url_1 + v_id
-            }
+            option.url = api.yy.url_1 + v_id
         }else if(host == 'w.3g.yy.com'){
-            let q = URL.parse(data,true).query,
-                v_id = q.resid
-            option = {
-                url: api.yy.url_2 + v_id
+            let q = URL.parse(data,true).query
+            option.url = q.resid ? api.yy.url_2 + q.resid : api.yy.url_3 + q.pid
+        }else if(host == 'www.yy.com'){
+            if(path.startsWith('/x/') || path.startsWith('/s/') || path.startsWith('/d/')){
+                option.url = data
+            }else{
+                return callback('101')
             }
         }else{
             logger.error('链接错误',data)
-            return callback(true)
+            return callback('101')
         }
         request.get( option, (err,result) => {
             if(err){
