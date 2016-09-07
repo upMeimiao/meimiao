@@ -262,7 +262,6 @@ switch (options['a']){
     case 'yy':
         yy()
         break
-<<<<<<< HEAD
     case 'tv56':
         tv56()
         break
