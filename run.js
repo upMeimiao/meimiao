@@ -173,7 +173,6 @@ const yy = () => {
     let spider = new (require('./yy'))(settings)
     spider.start()
 }
-<<<<<<< HEAD
 const tv56 = () => {
     let logger = logging.getLogger('tv56',options['i'],log_level)
     settings['logger'] = logger
