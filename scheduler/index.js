@@ -198,6 +198,12 @@ class scheduler {
                     case 20:
                         platform = "yy"
                         break
+                    case 21:
+                        platform = "tv56"
+                        break
+                    case 22:
+                        platform = "acfun"
+                        break
                     default:
                         break
                 }

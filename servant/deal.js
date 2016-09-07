@@ -893,6 +893,46 @@ class deal{
             callback(null,res)
         })
     }
+    tv56( data, callback) {
+
+    }
+    acfun( data, callback){
+        let host = URL.parse(data,true).hostname,
+            option = {},
+            v_id
+        if(host == 'www.acfun.tv'){
+            let v_array = URL.parse(data,true).pathname.split('ac')
+                v_id = v_array[1]
+        }else{
+            v_id = URL.parse(data,true).query.ac
+        }
+        option.url = api.acfun.url + v_id
+        option.deviceType = '0'
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                logger.error('A站状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            try {
+                result = JSON.parse(result.body)
+            } catch (e) {
+                logger.error('A站json数据解析失败')
+                logger.info('json error: ',result)
+                return callback(e)
+            }
+            let res = {
+                name: result.data.owner.name,
+                id: result.data.owner.id,
+                p: 22
+            }
+            callback(null,res)
+        })
+    }
 }
 class Tool{
     hexToString(str){
