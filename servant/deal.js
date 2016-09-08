@@ -894,20 +894,65 @@ class deal{
         })
     }
     tv56( data, callback) {
-        let urlObj = URL.parse(data,true).hostname,
+        let urlObj = URL.parse(data,true),
             host = urlObj.hostname,
             path = urlObj.pathname,
-            option = {},
-            vid
+            v_array = path.split('/'),
+            pre_vid = v_array[2].replace('.html',''),
+            vid,id,res,name
         switch (host){
             case 'www.56.com':
+                if(path.indexOf('play_album-aid') == -1){
+                    vid = pre_vid.split('_')[1]
+                }else{
+                    vid = pre_vid.split('_')[2].split('-')[1]
+                }
                 break
             case 'm.56.com':
+                vid =  pre_vid.split('-')[1]
                 break
+            default:
+                return callback('101')
         }
-        if(host == 'www.56.com'){
-            if()
+        let options = {
+            method: 'GET',
+            url: `http://m.56.com/view/id-${vid}.html`,
+            headers: {
+                'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+            }
         }
+        r( options, ( err, res, body ) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err)
+            }
+            if(res.statusCode != 200){
+                logger.error('56状态码错误',res.statusCode)
+                return callback(true)
+            }
+            let $ = cheerio.load(body,{
+                    ignoreWhitespace:true
+                }),
+                scriptData = $('script')[1].children[0].data,
+                reg_id = new RegExp("sohu_vid:'[0-9]+'"),
+                _id_info = scriptData.match(reg_id),id_info,
+                reg_name = new RegExp("user_name:'[A-Za-z0-9_\u4e00-\u9fa5]+'"),
+                _name_info = scriptData.match(reg_name),name_info
+            if(_id_info && _name_info){
+                id_info = _id_info[0]
+                name_info = _name_info[0]
+            }else{
+                return callback(true)
+            }
+            id = id_info.substring(10,id_info.lastIndexOf("'"))
+            name = name_info.substring(11,name_info.lastIndexOf("'"))
+            res = {
+                id: id,
+                name: name,
+                p: 21
+            }
+            callback(null,res)
+        })
     }
     acfun( data, callback){
         let host = URL.parse(data,true).hostname,
