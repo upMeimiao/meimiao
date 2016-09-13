@@ -172,6 +172,7 @@ class spiderCore {
                 break
             case 'record.btime.com':
             case 'video.btime.com':
+            case 'item.btime.com':
                 this.deal.btime(url,(err,result) => {
                     if(err){
                         return callback(null,{errno:102,errmsg:'获取信息过程出错',data:{platform:15}})

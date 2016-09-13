@@ -601,7 +601,7 @@ class deal{
     }
     btime ( data, callback) {
         let pathname = URL.parse(data,true).pathname,option = {}
-        if(!(pathname.startsWith('/wemedia/'))){
+        if(!((pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')))){
             return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址,请输入时间号的视频播放地址'})
         }
         option.url = data
