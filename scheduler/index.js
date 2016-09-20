@@ -37,9 +37,9 @@ class scheduler {
                 }
                 this.taskDB = cli
                 logger.debug( "任务信息数据库连接建立...成功" )
-                setInterval( () => {
-                    this.getTask()
-                }, 5000)
+                // setInterval( () => {
+                //     this.getTask()
+                // }, 5000)
             }
         )
     }
