@@ -1,0 +1,10 @@
+{
+  "redis": {
+    "port": 6379,
+    "host": "10.144.191.122",
+    "auth": "n0de5091jsPCHoneyT",
+    "cache_db": 3
+  },
+  "url": "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
+  "interval": 30
+}

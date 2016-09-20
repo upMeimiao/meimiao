@@ -1,0 +1,33 @@
+{
+  "name": "qiaoyan",
+  "version": "0.0.5",
+  "description": "Media Data Spider",
+  "main": "./run.js",
+  "bin": {
+    "run": "./run.js"
+  },
+  "scripts": {
+    "start": "node run.js",
+    "test": "node test/test.js"
+  },
+  "dependencies": {
+    "async": "^2.0.1",
+    "cheerio": "^0.22.0",
+    "kue": "^0.11.1",
+    "log4js": "^0.6.38",
+    "minimist": "^1.2.0",
+    "optimist": "^0.6.1",
+    "redis": "^2.6.2",
+    "request": "^2.73.0"
+  },
+  "author": {
+    "name": "Junhao",
+    "email": "changjunhao@meimiao.net",
+    "url": "http://blog.ifable.cn"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://git.meimiao.net/qiaosuan_spider/code.git"
+  },
+  "license": "GPL-3.0"
+}

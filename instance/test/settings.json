@@ -1,0 +1,12 @@
+{
+  "redis": {
+    "port": 6379,
+    "host": "localhost",
+    "auth": "",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2
+  },
+  "url": "",
+  "interval": 10000
+}
