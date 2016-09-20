@@ -1,11 +1,11 @@
 {
   "redis": {
     "port": 6379,
-    "host": "localhost",
+    "host": "10.144.191.122",
     "auth": "n0de5091jsPCHoneyT",
-    "userDB": 10,
-    "taskDB": 11,
-    "jobDB": 12
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2
   },
   "url": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/getUpdateV/rxdebug/2015",
   "update": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate",
