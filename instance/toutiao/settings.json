@@ -1,0 +1,20 @@
+{
+  "log_level":"TRACE",
+  "redis": {
+    "port": 6379,
+    "host": "10.144.191.122",
+    "auth": "n0de5091jsPCHoneyT",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3
+  },
+  "list": "http://toutiao.com/ma_mobile/?page_type=0&count=10&version=2&media_id=",
+  "info_old": "http://is.snssdk.com/2/article/information/v14/?aggr_type=2&group_id=",
+  "info": "http://a3.pstatp.com/article/full/12/2/",
+  "contentUrl_old": "https://mp.toutiao.com/statistic/content_article_stat/?",
+  "sendToServer": [
+    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+  ]
+}

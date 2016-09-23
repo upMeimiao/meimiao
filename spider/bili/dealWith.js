@@ -1,0 +1,229 @@
+/**
+ * Created by ifable on 16/6/21.
+ */
+const async = require( 'async' )
+const request = require( '../lib/req' )
+
+let logger
+class dealWith {
+    constructor ( spiderCore ) {
+        this.core = spiderCore
+        this.settings = spiderCore.settings
+        logger = this.settings.logger
+        logger.trace('DealWith instantiation ...')
+    }
+    todo ( task, callback) {
+        task.total = 0
+        async.series(
+            {
+                user: (callback) => {
+                    this.getUser(task,(err)=>{
+                        callback(null,"用户信息已返回")
+                    })
+                },
+                media: (callback) => {
+                    this.getTotal( task, (err) => {
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,'视频信息已返回')
+                    })
+                }
+            },
+            ( err, result ) => {
+                if(err){
+                    return callback(err)
+                }
+                logger.debug(task.id + "_result:",result)
+                callback(null,task.total)
+            }
+        )
+    }
+    getUser ( task, callback) {
+        let option = {
+            url: this.settings.userInfo,
+            referer: `http://space.bilibili.com/${task.id}/`,
+            data: {
+                mid: task.id
+            }
+        }
+        request.post (option,(err,result)=>{
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            try {
+                result = JSON.parse(result.body)
+            } catch (e) {
+                logger.error('json数据解析失败')
+                logger.info('json error:',result.body)
+                return callback(e)
+            }
+            let userInfo = result.data,
+                user = {
+                    platform: 8,
+                    bid: userInfo.mid,
+                    fans_num: userInfo.fans
+                }
+            this.sendUser( user,(err,result) => {
+                callback()
+            })
+        })
+    }
+    sendUser (user,callback){
+        let option = {
+            url: this.settings.sendToServer[0],
+            data: user
+        }
+        request.post(option,(err,back) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                logger.info(`返回哔哩哔哩用户 ${user.bid} 连接服务器失败`)
+                return callback(err)
+            }
+            try{
+                back = JSON.parse(back.body)
+            }catch (e){
+                logger.error(`哔哩哔哩用户 ${user.bid} json数据解析失败`)
+                logger.info(back)
+                return callback(e)
+            }
+            if(back.errno == 0){
+                logger.debug("哔哩哔哩用户:",user.bid + ' back_end')
+            }else{
+                logger.error("哔哩哔哩用户:",user.bid + ' back_error')
+                logger.info(back)
+                logger.info('user info: ',user)
+            }
+            callback()
+        })
+    }
+    getTotal ( task, callback) {
+        let option = {
+            url: this.settings.mediaList + task.id + "&pagesize=30"
+        }
+        request.get(option, (err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            try {
+                result = JSON.parse(result.body)
+            } catch (e) {
+                logger.error('json数据解析失败')
+                logger.info(result)
+                return callback(e)
+            }
+            task.total = result.data.count
+            this.getVideos( task, result.data.pages, () => {
+                callback()
+            })
+        })
+    }
+    getVideos ( task,pages,callback) {
+        let option,sign = 1
+        async.whilst(
+            () => {
+                return sign <= pages
+            },
+            (cb) => {
+                option = {
+                    url: this.settings.mediaList + task.id + "&page=" + sign + "&pagesize=30"
+                }
+                request.get(option, (err,result) => {
+                    if(err){
+                        logger.error( 'occur error : ', err )
+                        return cb()
+                    }
+                    try {
+                        result = JSON.parse(result.body)
+                    } catch (e){
+                        logger.error('json数据解析失败')
+                        logger.info('list error:',result.body)
+                        return cb()
+                    }
+                    let list = result.data.vlist
+                    if(!list || list == 'null'){
+                        logger.debug('已经没有数据')
+                        return this.even.emit('end')
+                    }
+                    this.deal(task,list,() => {
+                        sign++
+                        cb()  
+                    })
+                })
+            },
+            (err,result) => {
+                callback()
+            }
+        )
+    }
+    deal ( task,list,callback) {
+        let index = 0,
+            length = list.length
+        async.whilst(
+            () => {
+                return index < length
+            },
+            (cb) => {
+                this.getInfo(task,list[index].aid, (err) => {
+                    if(err){
+                        index++
+                        return cb()
+                    }
+                    index++
+                    cb()
+                })
+            },
+            (err,result) => {
+                callback()
+            }
+        )
+    }
+    getInfo ( task,aid,callback ) {
+        let option = {
+            url: this.settings.media + aid
+        }
+        request.get(option, (err,back) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            try {
+                back = JSON.parse(back.body)
+            } catch (e){
+                logger.error('json数据解析失败')
+                logger.info('info error:',back.body)
+                return callback(e)
+            }
+            if(back.code != 0){
+                return callback()
+            }
+            let media = {
+                author: back.data.owner.name,
+                platform: 8,
+                bid: task.id,
+                aid: back.data.aid,
+                title: back.data.title,
+                desc: back.data.desc,
+                play_num: back.data.stat.view,
+                save_num: back.data.stat.favorite,
+                comment_num: back.data.stat.reply,
+                forward_num: back.data.stat.share,
+                a_create_time: back.data.pubdate
+            }
+            this.sendCache( media )
+            callback()
+        })
+    }
+    sendCache ( media ){
+        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
+            if ( err ) {
+                logger.error( '加入缓存队列出现错误：', err )
+                return
+            }
+            logger.debug(`哔哩哔哩 ${media.aid} 加入缓存队列`)
+        } )
+    }
+}
+module.exports = dealWith

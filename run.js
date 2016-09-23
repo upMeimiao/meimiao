@@ -47,6 +47,13 @@ const servant = () => {
     let scheduler = new (require('./servant'))(settings)
     scheduler.start()
 }
+const server = () => {
+    let logger = logging.getLogger('数据中心',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./sendServer'))(settings)
+    spider.start()
+}
 const tencent = () => {
     let logger = logging.getLogger('腾讯视频',options['i'],log_level)
     settings['logger'] = logger
@@ -152,11 +159,25 @@ const btime = () => {
     let spider = new (require('./btime'))(settings)
     spider.start()
 }
+const weishi = () => {
+    let logger = logging.getLogger('微视', options['i'], log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./weishi'))(settings)
+    spider.start()
+}
 const xiaoying = () => {
     let logger = logging.getLogger('小影',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
     let spider = new (require('./xiaoying'))(settings)
+    spider.start()
+}
+const budejie = () => {
+    let logger = logging.getLogger('不得姐',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./budejie'))(settings)
     spider.start()
 }
 const neihan = () => {
@@ -173,24 +194,18 @@ const yy = () => {
     let spider = new (require('./yy'))(settings)
     spider.start()
 }
-const tv56 = () => {
-    let logger = logging.getLogger('tv56',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./tv56'))(settings)
-    spider.start()
-}
 const acfun = () => {
     let logger = logging.getLogger('acfun',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
     let spider = new (require('./acfun'))(settings)
+    spider.start()
 }
-const server = () => {
-    let logger = logging.getLogger('数据中心',options['i'],log_level)
+const tv56 = () => {
+    let logger = logging.getLogger('56视频',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./sendServer'))(settings)
+    let spider = new (require('./tv56'))(settings)
     spider.start()
 }
 const test = () => {
@@ -206,6 +221,9 @@ switch (options['a']){
         break
     case 'servant':
         servant()
+        break
+    case 'server':
+        server()
         break
     case 'tencent':
         tencent()
@@ -252,8 +270,14 @@ switch (options['a']){
     case 'btime':
         btime()
         break
+    case 'weishi':
+        weishi()
+        break
     case 'xiaoying':
         xiaoying()
+        break
+    case 'budejie':
+        budejie()
         break
     case 'neihan':
         neihan()
@@ -261,14 +285,11 @@ switch (options['a']){
     case 'yy':
         yy()
         break
-    case 'tv56':
-        tv56()
-        break
     case 'acfun':
         acfun()
         break
-    case 'server':
-        server()
+    case 'tv56':
+        tv56()
         break
     case 'test':
         test()

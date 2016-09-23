@@ -1,0 +1,23 @@
+{
+  "log_level":"TRACE",
+  "redis": {
+    "port": 6379,
+    "host": "10.144.191.122",
+    "auth": "n0de5091jsPCHoneyT",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3
+  },
+  "key": "f351515304020cad28c92f70f002261c",
+  "userInfo" :"http://my.tv.sohu.com/user/media/mobile/userinfo.do?api_key=",
+  "videoList":"http://api.tv.sohu.com/v4/user/video.json?page_size=20&with_fee_video=2&page=",
+  "videoInfo": "http://s1.api.tv.itc.cn/v4/video/info/",
+  "digg":"http://score.my.tv.sohu.com/digg/get.do?type=9001&callback=jsonp&vid=",
+  "comment":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=&page_size=1&topic_source_id=bk",
+  "sendToServer":[
+    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "log_level":"TRACE",
+  "redis": {
+    "port": 6379,
+    "host": "10.144.191.122",
+    "auth": "n0de5091jsPCHoneyT",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3
+  },
+  "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",
+  "list": "http://user.api.3g.tudou.com/v4/user/ugc_list?page_size=30&pid=c0637223f8b69b02&sort_desc_by=pub&user_ids=",
+  "media": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid=",
+  "mediaTime": "http://www.tudou.com/tvp/getItemInfo.action?app=1&ic=",
+  "sendToServer":[
+    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+  ]
+}

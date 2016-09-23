@@ -1,0 +1,23 @@
+{
+  "log_level":"TRACE",
+  "redis": {
+    "port": 6379,
+    "host": "10.144.191.122",
+    "auth": "n0de5091jsPCHoneyT",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3
+  },
+  "list": [
+    "http://www.iqiyi.com/u/api/V/video/get_paged_video?page_size=42&sort=1&uid=",
+    "http://www.iqiyi.com/u/"
+  ],
+  "expr": "http://up.video.iqiyi.com/ugc-updown/quud.do?type=2&callback=jsonp&dataid=",
+  "comment": "http://api.t.iqiyi.com/qx_api/comment/get_video_comments?need_total=1&sort=add_time&tvid=",
+  "info": "http://mixer.video.iqiyi.com/jp/mixin/videos/",
+  "sendToServer": [
+    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+  ]
+}

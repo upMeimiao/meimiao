@@ -1,0 +1,18 @@
+{
+  "log_level":"TRACE",
+  "redis": {
+    "port": 6379,
+    "host": "10.144.191.122",
+    "auth": "n0de5091jsPCHoneyT",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3
+  },
+  "api": "http://api.miaopai.com/m/shot_channel.json?version=6.3.7&os=ios&page=",
+  "sendToServer":[
+    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+  ]
+}
