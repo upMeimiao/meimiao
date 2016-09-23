@@ -39,15 +39,11 @@ http://caolan.github.io/async/docs.html
 https://www.npmjs.com/package/cheerio
 > * moment JavaScript 日期处理类库
 http://momentjs.cn/
-> * eventproxy 事件代理
-用于代替node提供的events模块
-https://www.npmjs.com/package/eventproxy
+> * eventproxy 事件代理,用于代替node提供的events模块 https://www.npmjs.com/package/eventproxy
 
 ##其他技术
 
-> * redis
-http://www.redis.cn/ （中文官网）
-http://redis.io/ （官网）
+> * redis  http://www.redis.cn/ （中文官网）  http://redis.io/ （官网）
 
 ##视频需要信息
 
