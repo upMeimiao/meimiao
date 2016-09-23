@@ -58,154 +58,154 @@ const tencent = () => {
     let logger = logging.getLogger('腾讯视频',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./tencent'))(settings)
+    let spider = new (require('./spider/tencent'))(settings)
     spider.start()
 }
 const kuaibao = () => {
     let logger = logging.getLogger('天天快报',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./kuaibao'))(settings)
+    let spider = new (require('./spider/kuaibao'))(settings)
     spider.start()
 }
 const souhu = () => {
     let logger = logging.getLogger('搜狐视频',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./souhu'))(settings)
+    let spider = new (require('./spider/souhu'))(settings)
     spider.start()
 }
 const toutiao = () => {
     let logger = logging.getLogger('今日头条',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./toutiao'))(settings)
+    let spider = new (require('./spider/toutiao'))(settings)
     spider.start()
 }
 const le = () => {
     let logger = logging.getLogger('乐视',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./le'))(settings)
+    let spider = new (require('./spider/le'))(settings)
     spider.start()
 }
 const bili = () => {
     let logger = logging.getLogger('bili',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./bili'))(settings)
+    let spider = new (require('./spider/bili'))(settings)
     spider.start()
 }
 const meipai = () => {
     let logger = logging.getLogger('美拍',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./meipai'))(settings)
+    let spider = new (require('./spider/meipai'))(settings)
     spider.start()
 }
 const miaopai = () => {
     let logger = logging.getLogger('秒拍',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./miaopai'))(settings)
+    let spider = new (require('./spider/miaopai'))(settings)
     spider.start()
 }
 const youku = () => {
     let logger = logging.getLogger('优酷',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./youku'))(settings)
+    let spider = new (require('./spider/youku'))(settings)
     spider.start()
 }
 const iqiyi = () => {
     let logger = logging.getLogger('爱奇艺',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./iqiyi'))(settings)
+    let spider = new (require('./spider/iqiyi'))(settings)
     spider.start()
 }
 const yidian = () => {
     let logger = logging.getLogger('一点资讯',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./yidian'))(settings)
+    let spider = new (require('./spider/yidian'))(settings)
     spider.start()
 }
 const tudou = () => {
     let logger = logging.getLogger('土豆',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./tudou'))(settings)
+    let spider = new (require('./spider/tudou'))(settings)
     spider.start()
 }
 const baomihua = () => {
     let logger = logging.getLogger('爆米花',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./baomihua'))(settings)
+    let spider = new (require('./spider/baomihua'))(settings)
     spider.start()
 }
 const ku6 = () => {
     let logger = logging.getLogger('酷6',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./ku6'))(settings)
+    let spider = new (require('./spider/ku6'))(settings)
     spider.start()
 }
 const btime = () => {
     let logger = logging.getLogger('北京时间',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./btime'))(settings)
+    let spider = new (require('./spider/btime'))(settings)
     spider.start()
 }
 const weishi = () => {
     let logger = logging.getLogger('微视', options['i'], log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./weishi'))(settings)
+    let spider = new (require('./spider/weishi'))(settings)
     spider.start()
 }
 const xiaoying = () => {
     let logger = logging.getLogger('小影',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./xiaoying'))(settings)
+    let spider = new (require('./spider/xiaoying'))(settings)
     spider.start()
 }
 const budejie = () => {
     let logger = logging.getLogger('不得姐',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./budejie'))(settings)
+    let spider = new (require('./spider/budejie'))(settings)
     spider.start()
 }
 const neihan = () => {
     let logger = logging.getLogger('内涵段子',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./neihan'))(settings)
+    let spider = new (require('./spider/neihan'))(settings)
     spider.start()
 }
 const yy = () => {
     let logger = logging.getLogger('yy',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./yy'))(settings)
+    let spider = new (require('./spider/yy'))(settings)
     spider.start()
 }
 const acfun = () => {
     let logger = logging.getLogger('acfun',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./acfun'))(settings)
+    let spider = new (require('./spider/acfun'))(settings)
     spider.start()
 }
 const tv56 = () => {
     let logger = logging.getLogger('56视频',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./tv56'))(settings)
+    let spider = new (require('./spider/tv56'))(settings)
     spider.start()
 }
 const test = () => {

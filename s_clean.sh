@@ -60,4 +60,10 @@ rm -rf *.log-*
 cd /root/qiaosuan/instance/yy/logs
 rm -rf *.log
 rm -rf *.log-*
+cd /root/qiaosuan/instance/acfun/logs
+rm -rf *.log
+rm -rf *.log-*
+cd /root/qiaosuan/instance/tv56/logs
+rm -rf *.log
+rm -rf *.log-*
 echo "巧算日志文件清理完毕"

@@ -1,252 +1,288 @@
 /**
- * Created by yunsong on 16/7/28.
+ * Created by junhao on 16/6/21.
  */
+const URL = require('url')
+const moment = require('moment')
 const async = require( 'async' )
+const cheerio = require('cheerio')
+const EventProxy = require( 'eventproxy' )
 const request = require( '../lib/req' )
+const r = require('request')
 let logger
 class dealWith {
-    constructor (spiderCore){
+    constructor ( spiderCore ){
         this.core = spiderCore
         this.settings = spiderCore.settings
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
     }
-    todo (task,callback) {
+    todo ( task, callback ) {
         task.total = 0
-        this.getTotal (task,(err) => {
-            if(err){
-                return callback(err)
-            }
+        task.page = 0
+        task.event = new EventProxy()
+        task.event.once('end', () => {
             callback(null,task.total)
         })
+        this.getList(task,null)
     }
-    getTotal (task,callback){
-        logger.debug('开始获取视频总数')
-        let option = {
-            url: this.settings.userInfo + task.id
+    getList ( task, hot_time ) {
+        task.page++
+        let options = {
+            method: 'GET',
+            headers: {
+                'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+            }
         }
-        request.get(option,(err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error('json数据解析失败')
-                logger.info('json error :',result.body)
-                return callback(e)
-            }
-            let user = {
-                platform: 12,
-                bid: task.id,
-                fans_num: result.subed_count
-            }
-            task.total = result.video_count
-            async.series({
-                user: (callback) => {
-                    this.sendUser (user,(err,result)=>{
-                        callback(null,'用户信息已返回')
-                    })
-                },
-                media: (callback) => {
-                    this.getList( task, result.video_count, (err) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,'视频信息已返回')
-                    })
-                }
-            },(err,result) => {
-                if(err){
-                    return callback(err)
-                }
-                logger.debug('result : ',result)
-                callback()
-            })
-        })
-    }
-    sendUser (user,callback){
-        let option = {
-            url: this.settings.sendToServer[0],
-            data: user
-        }
-        request.post(option,(err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                logger.info(`返回土豆用户 ${user.bid} 连接服务器失败`)
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            }catch (e){
-                logger.error(`土豆用户 ${user.bid} json数据解析失败`)
-                logger.info(result)
-                return callback(e)
-            }
-            if(result.errno == 0){
-                logger.debug("土豆用户:",user.bid + ' back_end')
-            }else{
-                logger.error("土豆用户:",user.bid + ' back_error')
-                logger.info(result)
-                logger.info(`user info: `,user)
-            }
-            callback()
-        })
-    }
-    getList ( task, total, callback ) {
-        let sign = 1,
-            page,
-            option
-        if(total % 30 == 0 ){
-            page = total / 30
+        if(hot_time){
+            options.url = this.settings.list + task.id + "&max_behot_time=" + hot_time
         }else{
-            page = Math.ceil(total / 30)
+            options.url = this.settings.list + task.id + "&max_behot_time=0"
         }
+        r(options, (err, response, body) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+            }
+            try{
+                body = JSON.parse(body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info(body)
+                return
+            }
+            if(body.return_count == 0){
+                logger.debug('已经没有数据')
+                task.total = (task.page - 1) * 10
+                return task.event.emit('end')
+            }
+            let max_behot_time = body.max_behot_time,
+                html = body.html.replace(/\n/ig,'').replace(/\t/ig,'').replace(/\r/ig,''),
+                $ = cheerio.load(html),
+                section = $('section'),group_ids = [],hot_times = [],
+                // h = $('h3'),titles = [],
+                // span = $('.time'),times = [],
+                // count_span = $('.label-count'),counts = [],
+                href = $('a'),ids = []
+            href.each(function (i,elem) {
+                let a_href = $(this).attr('href'),
+                    urlObj = URL.parse(a_href,true),
+                    path = urlObj.pathname
+                if(path.startsWith('/item/')){
+                    ids[i] = a_href.slice(24,a_href.length-1)
+                }else if(path.startsWith('/group/')){
+                    ids[i] = 'a'+a_href.slice(25,a_href.length-1)
+                }else if(path.startsWith('/i')){
+                    ids[i] = a_href.slice(20,a_href.length-1)
+                }
+            })
+            // h.each(function(i, elem) {
+            //     titles[i] = $(this).text()
+            // })
+            // span.each(function (i,elem) {
+            //     times[i] = moment($(this).attr('title')).unix()
+            // })
+            section.each(function(i, elem) {
+                group_ids[i] = $(this).attr('data-id')
+                hot_times[i] = $(this).attr('hot-time')
+            })
+            // count_span.each(function (i, elem) {
+            //     counts[i] = $(this).text()
+            // })
+            // let info = {
+            //     ids:ids,
+            //     group_ids:group_ids,
+            //     titles:titles,
+            //     counts:counts,
+            //     times:times,
+            //     hot_time:max_behot_time
+            // }
+            let info = {
+                ids:ids,
+                group_ids:group_ids,
+                hot_time:max_behot_time
+            }
+            this.deal(task,info)
+        })
+    }
+    deal ( task, info ) {
+        let index = 0,
+            length = info.group_ids.length,
+            hot_time = info.hot_time,
+            data
         async.whilst(
             () => {
-                return sign <= page
+                return index < length
             },
-            (cb) => {
-                logger.debug('开始获取第' + sign + '页视频列表')
-                option = {
-                    url: this.settings.list + task.id + "&page_no=" + sign
+            ( cb ) => {
+                data = {
+                    id: info.ids[index],
+                    g_id: info.group_ids[index]
+                    // title: info.titles[index],
+                    // count: info.counts[index],
+                    // time: info.times[index]
                 }
-                request.get(option, (err,result) => {
-                    if(err){
-                        logger.error( 'occur error : ' + err )
-                        return cb()
-                    }
-                    if(result.statusCode != 200){
-                        logger.error( `第${sign}页视频状态码${result.statusCode}` )
-                        return cb()
-                    }
-                    let data = JSON.parse(result.body),
-                        list = data.items
-                    if(list){
-                        this.deal(task,list, () => {
-                            sign++
+                if(data.id.startsWith('a')){
+                    this.getVId(data.id,(err,vid)=>{
+                        data.id = vid
+                        this.info(task,data, () => {
+                            index++
                             cb()
                         })
-                    }else{
-                        sign++
+                    })
+                }else{
+                    this.info(task,data, () => {
+                        index++
                         cb()
-                    }
-                })
+                    })
+                }
             },
-            (err,result) => {
-                callback()
+            ( err, result ) => {
+                this.getList( task, hot_time )
             }
         )
     }
-    deal ( task, list, callback) {
-        let index = 0
-        async.whilst(
-            () => {
-                return index < list.length
-            },
-            (cb) => {
-                this.getInfo(task,list[index],(err) => {
-                    index++
-                    cb()
-                })
-            },
-            (err,result) => {
-                callback()
-            }
-        )
+    getVId (g_id, callback){
+        r.head(`http://toutiao.com/${g_id}/`,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
+            let v_id = (res.request.path).replace(/\//g,'').substring(1)
+            callback(null,v_id)
+        })
     }
-    getInfo ( task, data, callback ) {
+    info ( task, info, callback ) {
+        let id = info.id
+        //title = info.title,time = info.time,count = info.count
         async.series([
-            (cb) => {
-                this.getVideo(data.icode,(err,backData) => {
+            ( cb ) => {
+                this.getInfo( info, ( err, data ) => {
                     if(err){
-                        return cb(err)
+                        cb(err)
+                    }else {
+                        cb(null,data)
                     }
-                    cb(null,backData)
                 })
             },
-            (cb) => {
-                this.getVideoTime(data.icode,(err,backData) => {
+            ( cb ) => {
+                this.getPlayNum( info, ( err, num ) => {
                     if(err){
-                        return cb(err)
+                        cb(err)
+                    }else {
+                        cb(null,num)
                     }
-                    cb(null,backData)
                 })
             }
-        ],(err,result) => {
+        ], ( err, result ) => {
             if(err){
-                return callback(err)
+                return callback()
             }
             let media = {
-                author: result[0].detail.username,
-                platform: 12,
+                author:result[0].name,
+                platform: 6,
                 bid: task.id,
-                aid: result[0].detail.iid,
-                title: result[0].detail.title,
-                desc: result[0].detail.desc,
-                play_num: data.playtimes,
-                save_num: result[0].detail.total_fav,
-                comment_num: result[0].detail.total_comment,
-                support: result[0].detail.subed_num,
-                a_create_time: result[1]
+                aid: id,
+                title: result[0].title != '' ? result[0].title : `未命名${id}`,
+                desc: result[0].desc,
+                play_num: result[1],
+                comment_num: result[0].comment_num,
+                support: result[0].support,
+                step:result[0].step,
+                save_num: result[0].save_num,
+                a_create_time: result[0].time
             }
+            //logger.debug('medis info: ',media)
             this.sendCache( media )
             callback()
         })
     }
-    sendCache ( media ){
+    getInfo ( info, callback ) {
+        let group_id = info.g_id,id = info.id,
+            option = {
+                url: this.settings.info + group_id + "/" + id + "/2/0/"
+            }
+        request.get( option, ( err, result ) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e) {
+                logger.error('返回JSON格式不正确')
+                logger.info('info:',result)
+                return callback(e)
+            }
+            //logger.debug(result.data)
+            let backData = result.data,data
+            if(!backData){
+                return callback(true)
+            }
+            data = {
+                title: backData.title,
+                desc: backData.abstract,
+                name: backData.media_name,
+                comment_num: backData.comment_count >= 0 ?  backData.comment_count : 0,
+                support: backData.digg_count || 0,
+                step:backData.bury_count || 0,
+                save_num: backData.repin_count || 0,
+                time: backData.publish_time
+            }
+            // if(backData.has_video && backData.video_detail_info){
+            //     data = {
+            //         type: 0,
+            //         title: backData.title,
+            //         desc: backData.abstract,
+            //         name: backData.media_name,
+            //         play_num: backData.video_detail_info.video_watch_count,
+            //         comment_num: backData.comment_count >= 0 ?  backData.comment_count : 0,
+            //         support: backData.digg_count || 0,
+            //         step:backData.bury_count || 0,
+            //         save_num: backData.repin_count || 0,
+            //         time: backData.publish_time
+            //     }
+            // }else{
+            //     data = {
+            //         type: 1,
+            //         title: backData.title,
+            //         desc: backData.abstract,
+            //         name: backData.media_name,
+            //         comment_num: backData.comment_count || 0,
+            //         support: backData.digg_count || 0,
+            //         step:backData.bury_count || 0,
+            //         save_num: backData.repin_count || 0,
+            //         time: backData.publish_time
+            //     }
+            // }
+            callback(null,data)
+        })
+    }
+    getPlayNum ( info, callback ) {
+        let option = {
+            url: `http://m.toutiao.com/i${info.id}/info/`
+        }
+        request.get( option, ( err, result ) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e) {
+                logger.error('返回JSON格式不正确')
+                logger.info('info:',result)
+                return callback(e)
+            }
+            let backData = result.data
+            if(!backData){
+                return callback(true)
+            }
+            callback(null,backData.video_play_count)
+        })
+    }
+    sendCache (media,callback){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            logger.debug(`土豆视频 ${media.aid} 加入缓存队列`)
+            logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
         } )
-    }  
-    getVideo ( id, callback){
-        let option = {
-            url: this.settings.media + id
-        }
-        request.get( option, (err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error('json数据解析失败')
-                logger.info('backData:',result)
-                return callback(e)
-            }
-            if(result.error_code_api == 0){
-                callback(null,result)
-            } else {
-                callback(true)
-            }
-        })
-    }
-    getVideoTime ( id, callback){
-        let option = {
-            url: this.settings.mediaTime + id
-        }
-        request.get( option, (err,result) => {
-            if(err){
-                logger.error( 'occur error : ',err)
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error('json数据解析失败')
-                logger.info('backData:',result)
-                return callback(e)
-            }
-            let time = result.pt,
-                create_time = time.toString().substring(0,10)
-            callback(null,create_time)
-        })
     }
 }
 module.exports = dealWith
