@@ -4,15 +4,13 @@
 
 ## Git 分支：
 
-> * master：目前为空，用于后期代码合并
-> * scheduler：中控系统
-    > *任务调度模块 —— scheduler文件夹
-    > *数据发送模块 —— sendServer文件夹
-    > *获取用户信息模块 —— servant文件夹
-> * spider：爬虫系统
-> * staging-scheduler,staging-spider：用于测试环境的中控系统与爬虫系统
-> * center：添加任务分片的逻辑的中控系统，主要修改任务调度模块，用于替换旧的逻辑
-> * new-spider：与任务分片相适应的爬虫系统，目前还未修改
+> * master：主分支，用于线上环境部署
+> *任务调度模块 —— scheduler文件夹
+> *数据发送模块 —— sendServer文件夹
+> *获取用户信息模块 —— servant文件夹
+> *爬虫模块 —— spider文件夹
+> * staging：用于测试环境部署的分支
+> * taskSheet：添加任务分片的逻辑进行重构的分支
 
 ## 文件及文件夹作用
 > * 文件夹绝大部分属于相关任务模块
@@ -20,7 +18,7 @@
 > * instance —— 配置文件及log文件夹
 > * newStart —— 用于pm2启动的脚本存放文件夹
 > * run.js —— 程序启动文件
-    > *node run.js -i 配置文件夹下的某个文件夹名 -a 启动文件中定义的方法名
+> *node run.js -i 配置文件夹下的某个文件夹名 -a 启动文件中定义的方法名
 
 ## 主要模块及作用
 > * Node内置模块
