@@ -124,6 +124,7 @@ class spiderCore {
                     return callback(null,result)
                 })
                 break
+            case 'www.toutiao.com':
             case 'toutiao.com':
             case 'm.toutiao.com':
                 this.deal.toutiao(url,(err,result) => {
