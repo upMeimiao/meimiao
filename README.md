@@ -21,6 +21,7 @@
 > *node run.js -i 配置文件夹下的某个文件夹名 -a 启动文件中定义的方法名
 
 ## 主要模块及作用
+
 > * Node内置模块
 > *HTTP
 > *URL
@@ -43,11 +44,13 @@ http://momentjs.cn/
 https://www.npmjs.com/package/eventproxy
 
 ##其他技术
+
 > * redis
-http://www.redis.cn/（中文官网）
-http://redis.io/（官网）
+http://www.redis.cn/ （中文官网）
+http://redis.io/ （官网）
 
 ##视频需要信息
+
 author  发布者
 platform  平台id
 bid  帐号id
@@ -65,6 +68,7 @@ step  踩
 a_create_time  视频(文章)发布时间
 
 ## 平台ID
+
 1、优酷视频
 2、爱奇艺
 3、乐视视频
