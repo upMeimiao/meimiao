@@ -46,3 +46,84 @@ https://www.npmjs.com/package/eventproxy
 > * redis
 http://www.redis.cn/（中文官网）
 http://redis.io/（官网）
+
+##视频需要信息
+author  发布者
+platform  平台id
+bid  帐号id
+aid   视频(文章)id
+title  视频(文章)标题
+desc  视频描述
+play_num  播放量
+read_num  阅读数
+forward_num  转发数
+comment_num  评论数
+save_num  收藏数
+follow_num  关注数
+support  顶
+step  踩
+a_create_time  视频(文章)发布时间
+
+## 平台ID
+1、优酷视频
+2、爱奇艺
+3、乐视视频
+4、腾讯视频
+5、美拍
+6、今日头条
+7、秒拍
+8、哔哩哔哩
+9、搜狐
+10、天天快报
+11、一点资讯
+12、土豆视频
+13、爆米花
+14、酷6视频
+15、北京时间
+16、微视
+17、小影
+18、百思不得姐
+19、内涵段子
+20、YY
+
+## 从服务器拿到的任务信息
+```
+{
+errno: 0,
+errmsg: "获取成功",
+data: [
+        {
+            id: "406",
+            bid: "2320443191",
+            platform: "2",
+            type: "0",
+            encodeId: "",
+            bname: "papi酱"
+        },
+        {
+            id: "409",
+            bid: "283217183",
+            platform: "9",
+            type: "0",
+            encodeId: "",
+            bname: "papi酱"
+        },
+        {
+            id: "5",
+            bid: "m110950",
+            platform: "11",
+            type: "0",
+            encodeId: "",
+            bname: "一色神技能"
+        },
+        {
+            id: "92",
+            bid: "m81955",
+            platform: "11",
+            type: "0",
+            encodeId: "",
+            bname: "陈翔六点半"
+        }
+    ]
+}
+```
