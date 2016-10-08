@@ -69,7 +69,7 @@ class dealWith {
                         username = $('.pf_username .username').text()
                     if(username == ''){
                         let totalText = $('.num_item a').text(),
-                            text = totalText.split('视频'),
+                            text = totalText.replace(/,/ig,'').split('视频'),
                             total = text[0]
                         task.total = total
                         if(total % 42 == 0){
