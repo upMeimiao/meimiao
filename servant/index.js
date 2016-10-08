@@ -21,19 +21,40 @@ class spiderCore {
             if(req.url =='/favicon.ico')return
             logger.debug(`url: ${req.url}`)
             let query = URL.parse(req.url,true).query
-            this.preDeal(query,(err,data) => {
-                if(!data.errno){
-                    data = {
-                        errno: 0,
-                        errmsg: '获取信息成功',
-                        data: {
-                            platform: data.p,
-                            bid: data.id,
-                            bname: data.name,
-                            type: data.type ? data.type : 0,
-                            encodeId: data.encode_id ? data.encode_id : ''
+            this.preDeal(query,(err,result) => {
+                let data
+                if(!result.errno){
+                    if(!result.id || result.id == ''){
+                        data = {
+                            errno: 103,
+                            errmsg: '没有获取到bid',
+                            data: {
+                                platform: result.p
+                            }
+                        }
+                    }else if(!result.name || result.name == ''){
+                        data = {
+                            errno: 104,
+                            errmsg: '没有获取到bname',
+                            data: {
+                                platform: result.p
+                            }
+                        }
+                    }else{
+                        data = {
+                            errno: 0,
+                            errmsg: '获取信息成功',
+                            data: {
+                                platform: result.p,
+                                bid: result.id,
+                                bname: result.name,
+                                type: result.type ? result.type : 0,
+                                encodeId: result.encode_id ? result.encode_id : ''
+                            }
                         }
                     }
+                }else{
+                    data = result
                 }
                 res.end(JSON.stringify(data))
             })
