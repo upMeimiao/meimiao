@@ -620,25 +620,51 @@ class deal{
                 option = {
                     url: api.btime.url + id
                 }
-            request.get( option, (err,result) => {
-                if(err){
-                    logger.error( 'occur error : ', err )
-                    return callback(err)
-                }
-                try{
-                    result = JSON.parse(result.body)
-                } catch (e){
-                    logger.error('北京时间json数据解析失败')
-                    logger.info('json error: ',result.body)
-                    return callback(e)
-                }
-                let res = {
-                    id: result.data.uid,
-                    name: result.data.nickname,
-                    p: 15
-                }
-                callback(null,res)
-            })
+            if(!id){
+                let scriptDOM = $('script'),
+                    scriptText = scriptDOM[32].children[0].data,
+                    v_id = scriptText.replace('var video_id = "','').replace('";','')
+                option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${v_id}`
+                request.get(option, (err,result) => {
+                    if(err){
+                        logger.error( 'occur error : ', err )
+                        return callback(err)
+                    }
+                    try{
+                        result = JSON.parse(result.body)
+                    } catch (e){
+                        logger.error('北京时间json数据解析失败')
+                        logger.info('json error: ',result.body)
+                        return callback(e)
+                    }
+                    let res = {
+                        id: result.data.author_uid,
+                        name: result.data.source,
+                        p: 15
+                    }
+                    return callback(null,res)
+                })
+            }else{
+                request.get( option, (err,result) => {
+                    if(err){
+                        logger.error( 'occur error : ', err )
+                        return callback(err)
+                    }
+                    try{
+                        result = JSON.parse(result.body)
+                    } catch (e){
+                        logger.error('北京时间json数据解析失败')
+                        logger.info('json error: ',result.body)
+                        return callback(e)
+                    }
+                    let res = {
+                        id: result.data.uid,
+                        name: result.data.nickname,
+                        p: 15
+                    }
+                    return callback(null,res)
+                })
+            }
         })
     }
     weishi ( data, callback ) {
@@ -960,7 +986,7 @@ class deal{
             v_id
         if(host == 'www.acfun.tv'){
             let v_array = URL.parse(data,true).pathname.split('ac')
-                v_id = v_array[1]
+            v_id = v_array[1]
         }else{
             v_id = URL.parse(data,true).query.ac
         }
