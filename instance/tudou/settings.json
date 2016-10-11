@@ -10,6 +10,7 @@
     "cache_db": 3
   },
   "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",
+  "fans": "http://www.tudou.com/uis/userStatInfo.action?app=homev2&uidCode=",
   "list": "http://user.api.3g.tudou.com/v4/user/ugc_list?page_size=30&pid=c0637223f8b69b02&sort_desc_by=pub&user_ids=",
   "media": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid=",
   "mediaTime": "http://www.tudou.com/tvp/getItemInfo.action?app=1&ic=",

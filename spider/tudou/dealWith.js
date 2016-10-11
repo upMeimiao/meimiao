@@ -3,6 +3,8 @@
  */
 const async = require( 'async' )
 const request = require( '../lib/req' )
+const req = require( '../lib/request' )
+const cheerio = require('cheerio')
 let logger
 class dealWith {
     constructor (spiderCore){
@@ -37,15 +39,10 @@ class dealWith {
                 logger.info('json error :',result.body)
                 return callback(e)
             }
-            let user = {
-                platform: 12,
-                bid: task.id,
-                fans_num: result.subed_count
-            }
             task.total = result.video_count
             async.series({
                 user: (callback) => {
-                    this.sendUser (user,(err,result)=>{
+                    this.openHome( task, result.homeUrl, (err) => {
                         callback(null,'用户信息已返回')
                     })
                 },
@@ -62,6 +59,51 @@ class dealWith {
                     return callback(err)
                 }
                 logger.debug('result : ',result)
+                callback()
+            })
+        })
+    }
+    openHome ( task, url, callback){
+        const option = {
+            url: url,
+            ua:2
+        }
+        req.get(logger,option,(err,result)=>{
+            if(err){
+                return callback()
+            }
+            let $ = cheerio.load(result.body),
+                script = $('script')[0].children[0].data
+            script = script.slice(script.indexOf('var CONFIG')+13)
+            script = script.replace(';','')
+            let user_conf = eval("(" + script + ")"),
+                uidCode = user_conf.uidCode
+            this.getFans( task, uidCode, (err)=>{
+                callback()
+            })
+        })
+    }
+    getFans ( task, uidCode, callback){
+        let option = {
+            url: this.settings.fans + uidCode
+        }
+        request.get( option, (err, result)=>{
+            if(err){
+                return callback()
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error(`土豆粉丝 json数据解析失败`)
+                logger.info(result)
+                return callback(e)
+            }
+            let user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: result.data.subedNum
+            }
+            this.sendUser(user, () => {
                 callback()
             })
         })
