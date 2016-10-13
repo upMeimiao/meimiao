@@ -54,6 +54,13 @@ const server = () => {
     let spider = new (require('./sendServer'))(settings)
     spider.start()
 }
+const statusServer = () =>{
+    let logger = logging.getLogger('数据中心',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./StatusServer'))(settings)
+    spider.start()
+}
 const tencent = () => {
     let logger = logging.getLogger('腾讯视频',options['i'],log_level)
     settings['logger'] = logger
@@ -224,6 +231,9 @@ switch (options['a']){
         break
     case 'server':
         server()
+        break
+    case 'status':
+        statusServer()
         break
     case 'tencent':
         tencent()
