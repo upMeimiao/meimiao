@@ -187,6 +187,9 @@ class dealWith {
                 logger.info(result.body)
                 return callback(e)
             }
+            if(result.lives){
+                return callback()
+            }
             let media = {
                 author: result.user.screen_name,
                 platform: 5,
