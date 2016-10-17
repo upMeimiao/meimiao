@@ -17,12 +17,85 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
-        this.getTotal( task, ( err ) => {
+        async.series(
+            {
+                user: (callback) => {
+                    this.getUser(task,(err)=>{
+                        callback(null,"用户信息已返回")
+                    })
+                },
+                media: (callback) => {
+                    this.getTotal( task, ( err ) => {
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,"视频信息已返回")
+                    })
+                }
+            },
+            ( err, result ) => {
+                if(err){
+                    return callback(err)
+                }
+                logger.debug(task.id + "_result:",result)
+                callback(null,task.total)
+            }
+        )
+    }
+    getUser ( task, callback ){
+        let option = {
+            url: `http://m.iqiyi.com/u/${task.id}/fans/`,
+            referer: `http://m.iqiyi.com/u/${task.id}`,
+            ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+        }
+        request.get( option, ( err, result ) => {
             if(err){
-                logger.error('error back')
+                logger.error( 'occur error : ', err )
                 return callback(err)
             }
-            callback(null,task.total)
+            if(result.statusCode != 200){
+                logger.error( '获取爱奇艺视频粉丝状态码错误' )
+                return callback(true)
+            }
+            let $ = cheerio.load(result.body),
+                fansDom = $('h3.tle').text(),
+                user = {
+                    platform: 2,
+                    bid: task.id,
+                    fans_num: fansDom.substring(2)
+                }
+                logger.debug(user)
+            this.sendUser ( user,(err,result) => {
+                callback()
+            })
+        })
+    }
+    sendUser ( user, callback ){
+        let option = {
+            url: this.settings.sendToServer[0],
+            data: user
+        }
+        request.post(option, (err,result)=>{
+            if(err){
+                logger.error( 'occur error : ', err )
+                logger.info(`返回爱奇艺用户 ${user.bid} 连接服务器失败`)
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error(`爱奇艺用户 ${user.bid} json数据解析失败`)
+                logger.info(result)
+                return callback(e)
+            }
+            if(result.errno == 0){
+                logger.debug("爱奇艺用户:",user.bid + ' back_end')
+            }else{
+                logger.error("爱奇艺用户:",user.bid + ' back_error')
+                logger.info(result)
+                logger.info(`user info: `,user)
+            }
+            callback()
         })
     }
     getTotal ( task, callback ) {

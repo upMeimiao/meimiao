@@ -16,7 +16,8 @@
   "expr": "http://up.video.iqiyi.com/ugc-updown/quud.do?type=2&callback=jsonp&dataid=",
   "comment": "http://api.t.iqiyi.com/qx_api/comment/get_video_comments?need_total=1&sort=add_time&tvid=",
   "info": "http://mixer.video.iqiyi.com/jp/mixin/videos/",
-  "sendToServer": [
+  "sendToServer":[
+    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
     "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
     "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
   ]
