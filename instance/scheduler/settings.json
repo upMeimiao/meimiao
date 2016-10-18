@@ -8,7 +8,7 @@
     "jobDB": 2
   },
   "listen": {
-    "ip":"127.0.0.1",
+    "ip":"121.42.164.116",
     "port": 3001
   },
   "url": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/getUpdateV/rxdebug/2015",
