@@ -104,7 +104,7 @@ class server {
                 return index < list.length
             },
             (cb) => {
-                this.taskDB.hmget( list[index], 'id', 'init', 'create', 'video_number', 'update','banem', (err,result)=>{
+                this.taskDB.hmget( list[index], 'id', 'init', 'create', 'video_number', 'update','bname', (err,result)=>{
                     if(err) return
                     info = {
                         p: list[index].substring(0,list[index].indexOf(':')),
@@ -113,7 +113,7 @@ class server {
                         create: result[2],
                         videoNumber: result[3],
                         update: result[4] || null,
-                        banem: result[5] || null
+                        bname: result[5] || null
                     }
                     infos.push(info)
                     index++
