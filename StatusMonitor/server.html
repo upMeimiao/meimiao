@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>服务器端任务数据可视化</title>
+    <link rel="stylesheet" href="lib/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/style.css">
+</head>
+<body>
+<div id="redis" class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">服务器端任务状态</div>
+    <div class="panel-body">
+        <p>详细说明</p>
+    </div>
+
+    <!-- Table -->
+    <table class="table table-bordered table-hover">
+        <tr>
+            <th class="text-center">平台</th>
+            <th class="text-center">ID</th>
+            <th class="text-center">用户名</th>
+            <th class="text-center">发送任务时间</th>
+            <th class="text-center">任务更新时间</th>
+            <th class="text-center">是否返回更新状态</th>
+        </tr>
+        <template>
+            <tr v-for="(item,index) in items">
+                <td class="text-center">{{item.platform | show_pname}}</td>
+                <td class="text-center">{{item.bid}}</td>
+                <td class="text-center">{{item.bname}}</td>
+                <td class="text-center">{{item.post_t | show_time}}</td>
+                <td class="text-center">{{item.update_t | show_time}}</td>
+                <td class="text-center">{{item.is_post | show_status}}</td>
+            </tr>
+        </template>
+    </table>
+</div>
+<script src="lib/vue.js"></script>
+<script src="lib/vue-resource.min.js"></script>
+<script src="lib/moment.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script src="lib/bootstrap.min.js"></script>
+<script src="action_server.js"></script>
+</body>
+</html>

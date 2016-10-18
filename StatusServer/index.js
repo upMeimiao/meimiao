@@ -52,6 +52,15 @@ class server {
                         res.end(JSON.stringify(result))
                     })
                     break
+                case '/get/server':
+                    this.getServerData((err,result)=>{
+                        if(err){
+                            res.writeHead(500)
+                            return
+                        }
+                        res.end(result)
+                    })
+                    break
                 default:
                     res.writeHead(404)
                     res.end()
@@ -60,6 +69,26 @@ class server {
         })
         server.listen(this.port, this.ip, () => {
             logger.debug(`Server running at ${this.ip}:${this.port}`)
+        })
+    }
+    getServerData(callback){
+        request.get('http://qiaosuan-intra.yise.tv/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            if(res.statusCode !== 200){
+                return callback(true)
+            }
+            let result
+            // try {
+            //     result = JSON.parse(body)
+            // } catch (e){
+            //     logger.error('json数据解析失败')
+            //     logger.info(body)
+            //     return callback(e)
+            // }
+            callback(null,body)
         })
     }
     deal(callback){
@@ -128,7 +157,7 @@ class server {
                     infos: infos,
                     count: infos.length
                 }
-                return callback(null,data)
+                return callback(null,JSON.stringify(data))
             }
         )
     }
