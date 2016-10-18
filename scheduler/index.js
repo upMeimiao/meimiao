@@ -113,15 +113,15 @@ class scheduler {
                 return callback(err)
             }
             if(result[0] === null){
-                this.taskDB.hmset( key, 'id', raw.id, 'init', time, 'create', time, 'video_number', 0)
+                this.taskDB.hmset( key, 'id', raw.id, 'bname',raw.name, 'init', time, 'create', time, 'video_number', 0)
                 return callback(null,{videoNumber: 0})
             }
             if(result[1] === null){
-                this.taskDB.hmset( key, 'create', time)
+                this.taskDB.hmset( key, 'create', time ,'bname',raw.name)
                 return callback(null,{videoNumber: 0})
             }
             if(result[1] >= 0){
-                this.taskDB.hmset( key, 'create', time)
+                this.taskDB.hmset( key, 'create', time,'bname',raw.name)
                 return callback(null,{videoNumber: result[1]})
             }
         })
