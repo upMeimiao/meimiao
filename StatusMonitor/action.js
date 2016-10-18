@@ -87,7 +87,7 @@ const vm = new Vue({
 
     },
     created: function () {
-        this.$http.get('http://127.0.0.1:3001/get/data').then((response) => {
+        this.$http.get('http://121.42.164.116:3001/get/data').then((response) => {
             const result = response.body,
                 infos = result.infos
             if(infos.length !== result.count){
