@@ -7,6 +7,10 @@
     "taskDB": 1,
     "jobDB": 2
   },
+  "listen": {
+    "ip":"127.0.0.1",
+    "port": 3001
+  },
   "url": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/getUpdateV/rxdebug/2015",
   "update": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate",
   "interval": 10000

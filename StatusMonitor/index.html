@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Redis 任务数据可视化</title>
+    <link rel="stylesheet" href="lib/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/style.css">
+</head>
+<body>
+<div id="redis" class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">爬虫初始任务状态</div>
+    <div class="panel-body">
+        <p>详细说明</p>
+    </div>
+
+    <!-- Table -->
+    <table class="table table-bordered table-hover">
+        <tr>
+            <th class="text-center">平台</th>
+            <th class="text-center">ID</th>
+            <th class="text-center">用户名</th>
+            <th class="text-center">初始化时间</th>
+            <th class="text-center">创建时间</th>
+            <th class="text-center">更新时间</th>
+            <th class="text-center">视频总数</th>
+        </tr>
+        <template>
+            <tr v-for="(item,index) in items">
+                <td class="text-center">{{item.p | show_pname}}</td>
+                <td class="text-center">{{item.bid}}</td>
+                <td class="text-center">{{item.bname}}</td>
+                <td class="text-center">{{item.init | show_time}}</td>
+                <td class="text-center">{{item.create | show_time}}</td>
+                <td class="text-center">{{item.update | show_time}}</td>
+                <td class="text-center">{{item.videoNumber}}</td>
+            </tr>
+        </template>
+    </table>
+</div>
+<script src="lib/vue.js"></script>
+<script src="lib/vue-resource.min.js"></script>
+<script src="lib/moment.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script src="lib/bootstrap.min.js"></script>
+<script src="action.js"></script>
+</body>
+</html>
