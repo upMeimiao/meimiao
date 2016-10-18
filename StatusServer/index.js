@@ -39,13 +39,12 @@ class server {
         const server = HTTP.createServer((req, res) => {
             res.writeHead(200, {
                 'Access-Control-Allow-Origin':'*',
-                'Content-Type': 'text/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8'
             })
-            logger.debug(`url: ${req.url}`)
+            //logger.debug(`url: ${req.url}`)
             switch (req.url){
                 case '/get/data':
                     this.deal((err,result)=>{
-                        console.log(result)
                         if(err){
                             res.writeHead(500)
                             return
@@ -108,7 +107,8 @@ class server {
                 this.taskDB.hvals( list[index], (err,result)=>{
                     if(err) return
                     info = {
-                        id: result[0],
+                        p: list[index].substring(0,list[index].indexOf(':')),
+                        bid: result[0],
                         init: result[1],
                         create: result[2],
                         videoNumber: result[3],

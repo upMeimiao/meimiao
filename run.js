@@ -55,10 +55,17 @@ const server = () => {
     spider.start()
 }
 const statusServer = () =>{
-    let logger = logging.getLogger('数据中心',options['i'],log_level)
+    let logger = logging.getLogger('状态服务',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
     let spider = new (require('./StatusServer'))(settings)
+    spider.start()
+}
+const statusMonitor = () => {
+    let logger = logging.getLogger('状态监控',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./StatusMonitor'))(settings)
     spider.start()
 }
 const tencent = () => {
@@ -234,6 +241,9 @@ switch (options['a']){
         break
     case 'status':
         statusServer()
+        break
+    case 'monitor':
+        statusMonitor()
         break
     case 'tencent':
         tencent()
