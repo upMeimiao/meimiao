@@ -49,7 +49,7 @@ class server {
                             res.writeHead(500)
                             return
                         }
-                        res.end(JSON.stringify(result))
+                        res.end(result)
                     })
                     break
                 case '/get/server':
