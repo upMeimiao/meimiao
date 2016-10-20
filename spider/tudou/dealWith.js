@@ -76,8 +76,15 @@ class dealWith {
                 script = $('script')[0].children[0].data
             script = script.slice(script.indexOf('var CONFIG')+13)
             script = script.replace(';','')
-            let user_conf = eval("(" + script + ")"),
-                uidCode = user_conf.uidCode
+            let user_conf
+            try {
+                user_conf = eval("(" + script + ")")
+            } catch (e){
+                logger.error('土豆解析userconf失败')
+                logger.error(script)
+                return callback(e)
+            }
+            let uidCode = user_conf.uidCode
             this.getFans( task, uidCode, (err)=>{
                 callback()
             })

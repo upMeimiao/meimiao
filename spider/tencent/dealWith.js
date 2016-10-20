@@ -271,7 +271,16 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
+            if( result.statusCode != 200){
+                logger.error( '腾讯获取评论数code错误 : ', result.statusCode )
+                return callback(true)
+            }
             let backData = eval(result.body)
+            if(!backData.result){
+                logger.error( '腾讯获取评论数异常错误' )
+                logger.error(backData)
+                return callback(true)
+            }
             if(backData.result.code == 0){
                 this.getCommentNum(backData.comment_id, (err,num) => {
                     if(err){

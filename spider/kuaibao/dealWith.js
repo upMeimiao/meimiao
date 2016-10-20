@@ -43,6 +43,10 @@ class dealWith {
             if(err){
                 return callback()
             }
+            if( result.statusCode != 200){
+                logger.error('获取粉丝code error：',result.statusCode)
+                return callback()
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {

@@ -47,6 +47,10 @@ class dealWith {
             if(err){
                 return callback()
             }
+            if( result.statusCode != 200){
+                logger.error('获取粉丝code error：',result.statusCode)
+                return callback()
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -101,6 +105,10 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
+            if( result.statusCode != 200){
+                logger.error('获取total code error：',result.statusCode)
+                return callback(error)
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -135,12 +143,16 @@ class dealWith {
                         logger.error( 'occur error : ', err )
                         return cb()
                     }
+                    if( result.statusCode != 200){
+                        logger.error('获取videos code error：',result.statusCode)
+                        return cb()
+                    }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
                         logger.error('json数据解析失败')
                         logger.info(result)
-                        return callback(e)
+                        return cb()
                     }
                     maxId = result[result.length-1].id
                     this.deal(task,result, () => {
@@ -179,6 +191,10 @@ class dealWith {
         request.get(option, (err,result) => {
             if(err){
                 return callback(err)
+            }
+            if( result.statusCode != 200){
+                logger.error('获取info code error：',result.statusCode)
+                return callback()
             }
             try {
                 result = JSON.parse(result.body)

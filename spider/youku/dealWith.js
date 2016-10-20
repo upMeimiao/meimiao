@@ -120,8 +120,13 @@ class dealWith {
                 logger.info('total error:',body)
                 return callback(e)
             }
-            let data = body.data,
-                total = data.total
+            let data = body.data
+            if(!data){
+                logger.error('未知错误')
+                logger.error(body)
+                return callback(true)
+            }
+            let total = data.total
             task.total = total
             if(total % 20 != 0){
                 page = Math.ceil(total / 20)

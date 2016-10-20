@@ -238,7 +238,18 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
-            result = eval(result.body)
+            if(result.statusCode != 200){
+                logger.error('getExpr code错误：',result.statusCode)
+                return callback(true)
+            }
+            try{
+                result = eval(result.body)
+            } catch (e){
+                logger.error('getExpr jsonp error')
+                logger.error(result.body)
+                return callback(e)
+            }
+
             if(result.length == 0){
                 return callback(null,{zancount:0,CollectionCount:0})
             }
