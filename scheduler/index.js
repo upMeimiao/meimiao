@@ -216,6 +216,10 @@ class scheduler {
                     encodeId: _.encodeId ? _.encodeId : '',
                     type: _.type ? _.type : ''
                 }
+                if(Number(_.platform) > 20){
+                    i++
+                    return cb()
+                }
                 //logger.debug(processed)
                 this.createQueue(processed, (err) => {
                     i++

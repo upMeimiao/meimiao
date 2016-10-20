@@ -1,8 +1,8 @@
 {
   "redis": {
     "port": 6379,
-    "host": "10.144.191.122",
-    "auth": "n0de5091jsPCHoneyT",
+    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
+    "auth": "C19prsPjHs52CHoA0vm",
     "cache_db": 3
   },
   "url": "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
