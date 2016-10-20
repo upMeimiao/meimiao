@@ -287,6 +287,11 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
+            if(back.statusCode != 200){
+                logger.error(`${video.id} getDigg状态码错误`)
+                logger.debug('code:',back.statusCode)
+                return callback(true)
+            }
             let backInfo = eval(back.body),
                 data = {
                     up: backInfo.upCount,

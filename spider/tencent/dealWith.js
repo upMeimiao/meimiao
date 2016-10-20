@@ -39,6 +39,11 @@ class dealWith {
                 logger.error(`异常错误${result.em}`)
                 return callback(result.em)
             }
+            let videolst = result.videolst
+            if(!videolst || videolst.length == 0){
+                logger.error(`异常错误`)
+                return callback(true)
+            }
             task.total = result.vtotal
             async.series({
                 user: (callback) => {
