@@ -13,8 +13,8 @@
   "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
   "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
   "sendToServer":[
-    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

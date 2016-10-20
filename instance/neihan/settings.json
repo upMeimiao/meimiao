@@ -12,8 +12,8 @@
   "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?user_id=",
   "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id=",
   "sendToServer":[
-    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

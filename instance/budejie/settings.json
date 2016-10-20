@@ -12,8 +12,8 @@
   "userInfo": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid=",
   "medialist": "http://s.budejie.com/topic/user-topic/",
   "sendToServer":[
-    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

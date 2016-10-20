@@ -14,8 +14,8 @@
   "video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
   "comment": "http://comment.56.com/trickle/api/commentApi.php?a=flvLatest&pct=1&page=1&limit=20&vid=",
   "sendToServer":[
-    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

@@ -12,8 +12,8 @@
   "userInfo": "http://wsm.qq.com/weishi/user/getUserInfo.php?v=w&g_tk=&ukey=147010735534085719&uid=",
   "list": "http://wsm.qq.com/weishi/t/other.php?v=p&reqnum=20&pageflag=2&uid=",
   "sendToServer":[
-    "http://qiaosuan-intra.yise.tv/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

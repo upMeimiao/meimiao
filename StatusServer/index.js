@@ -72,7 +72,7 @@ class server {
         })
     }
     getServerData(callback){
-        request.get('http://qiaosuan-intra.yise.tv/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
+        request.get('http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)

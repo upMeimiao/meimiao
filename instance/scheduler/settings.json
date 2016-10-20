@@ -11,7 +11,7 @@
     "ip":"121.42.164.116",
     "port": 3001
   },
-  "url": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/getUpdateV/rxdebug/2015",
-  "update": "http://qiaosuan-intra.yise.tv/index.php/spider/videoO/postVUpdate",
+  "url": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
+  "update": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
   "interval": 10000
 }
