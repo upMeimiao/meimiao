@@ -57,7 +57,7 @@ class dealWith {
             let userInfo = result.channelInfo,
                 user = {
                     platform: 10,
-                    bid: userInfo.chlid,
+                    bid: task.id,
                     fans_num: userInfo.subCount
                 }
             this.sendUser (user,(err,result)=>{

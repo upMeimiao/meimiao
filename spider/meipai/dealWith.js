@@ -154,6 +154,12 @@ class dealWith {
                         logger.info(result)
                         return cb()
                     }
+                    if(!result || result.length == 0){
+                        logger.error('数据解析异常失败')
+                        logger.error(result)
+                        sign++
+                        return cb()
+                    }
                     maxId = result[result.length-1].id
                     this.deal(task,result, () => {
                         sign++
