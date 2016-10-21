@@ -54,6 +54,7 @@ class scheduler {
                 return
             }
             if(res.statusCode !== 200){
+                logger.error('code error:', res.statusCode)
                 return
             }
             let result
@@ -64,6 +65,7 @@ class scheduler {
                 logger.info(body)
                 return
             }
+            logger.debug(body)
             this.deal_online(result)
         })
     }
