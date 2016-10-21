@@ -73,8 +73,10 @@ class scheduler {
         let job
         this.checkKey( raw, ( err, result ) => {
             if(err){
+                logger.error(err)
                 return callback(err)
             }
+            logger.debug(raw)
             if(result){
                 job = this.queue.create( raw.platform , {
                     uid: raw.uid,
@@ -222,7 +224,7 @@ class scheduler {
                     i++
                     return cb()
                 }
-                //logger.debug(processed)
+                logger.debug(processed)
                 this.createQueue(processed, (err) => {
                     i++
                     cb()
