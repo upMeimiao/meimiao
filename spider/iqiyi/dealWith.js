@@ -320,7 +320,7 @@ class dealWith {
                 logger.error( '获取爱奇艺视频总数状态码错误' )
                 return callback(true)
             }
-            result = result.body.replace(/try{/g,'').replace(/;}catch\(e\)\{\}/g,'')
+            result = result.body.replace(/try{/g,'').replace(/;/g,'').replace(/}catch\(e\)\{\}/g,'')
             //logger.debug(backData)
             let playData
             try {

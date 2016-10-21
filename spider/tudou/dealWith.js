@@ -75,7 +75,7 @@ class dealWith {
             let $ = cheerio.load(result.body),
                 script = $('script')[0].children[0].data
             script = script.slice(script.indexOf('var CONFIG')+13)
-            script = script.replace(';','')
+            script = script.replace(/;/g,'')
             let user_conf
             try {
                 user_conf = eval("(" + script + ")")
