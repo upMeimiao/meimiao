@@ -86,15 +86,15 @@ class scheduler {
                     encodeId: raw.encodeId,
                     type: raw.type
                 }).priority('critical').attempts(3).backoff({delay: 30*1000, type:'fixed'}).removeOnComplete(true)
-                if( result.videoNumber >= 0 && result.videoNumber < 2500){
-                    job.ttl( Math.ceil(result.videoNumber / 500) * 210000 )
-                }
-                if( result.videoNumber >= 2500 && result.videoNumber < 4000){
-                    job.attempts(2).ttl( Math.ceil(result.videoNumber / 500) * 210000 )
-                }
-                if( result.videoNumber >= 4000 && result.videoNumber < 5000){
-                    job.attempts(1).ttl( Math.ceil(result.videoNumber / 500) * 210000 )
-                }
+                // if( result.videoNumber >= 0 && result.videoNumber < 2500){
+                //     job.ttl( Math.ceil(result.videoNumber / 500) * 210000 )
+                // }
+                // if( result.videoNumber >= 2500 && result.videoNumber < 4000){
+                //     job.attempts(2).ttl( Math.ceil(result.videoNumber / 500) * 210000 )
+                // }
+                // if( result.videoNumber >= 4000 && result.videoNumber < 5000){
+                //     job.attempts(1).ttl( Math.ceil(result.videoNumber / 500) * 210000 )
+                // }
                 job.save(function (err) {
                     if(err){
                         logger.error( 'Create queue occur error' )
@@ -129,6 +129,7 @@ class scheduler {
                 this.taskDB.hmset( key, 'create', time,'bname',raw.name)
                 return callback(null,{videoNumber: result[1]})
             }
+            return callback()
         })
     }
     deal_online ( raw ) {
