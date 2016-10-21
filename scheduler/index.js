@@ -65,7 +65,7 @@ class scheduler {
                 logger.info(body)
                 return
             }
-            //logger.debug(body)
+            logger.debug(result)
             this.deal_online(result)
         })
     }
@@ -76,7 +76,7 @@ class scheduler {
                 logger.error(err)
                 return callback(err)
             }
-            logger.debug(raw)
+            //logger.debug(raw)
             if(result){
                 job = this.queue.create( raw.platform , {
                     uid: raw.uid,
@@ -109,7 +109,7 @@ class scheduler {
         })
     }
     checkKey ( raw, callback ) {
-        logger.debug('checkKey:',raw)
+        //logger.debug('checkKey:',raw)
         let key = raw.p + ':' + raw.id,
             time = new Date().getTime()
         this.taskDB.hmget( key, 'id', 'video_number', ( err, result ) => {
@@ -136,7 +136,7 @@ class scheduler {
         let data = raw.data,
             len = data ? data.length : 0,
             i = 0, _,processed,platform
-        logger.debug(raw)
+        logger.debug(len)
         async.whilst(
             () => {
                 return i < len
@@ -226,7 +226,7 @@ class scheduler {
                     i++
                     return cb()
                 }
-                logger.debug('processed:',processed)
+                //logger.debug('processed:',processed)
                 this.createQueue(processed, (err) => {
                     i++
                     cb()
