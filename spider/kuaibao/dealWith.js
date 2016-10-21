@@ -57,7 +57,7 @@ class dealWith {
             let userInfo = result.channelInfo
             if(!userInfo){
                 logger.error('userInfo异常错误')
-                logger(result)
+                logger.error(result)
                 return callback()
             }
             let user = {
