@@ -152,7 +152,7 @@ class dealWith {
                     }
                     //logger.debug(back.body)
                     let data = eval(result.body)
-                    logger.debug('videolst:', data)
+                    // logger.debug('videolst:', data)
                     let list = data.videolst
                     if(list){
                         this.deal(task,list, () => {
@@ -275,7 +275,14 @@ class dealWith {
                 logger.error( '腾讯获取评论数code错误 : ', result.statusCode )
                 return callback(true)
             }
-            let backData = eval(result.body)
+            let backData
+            try {
+                backData = eval(result.body)
+            } catch (e) {
+                logger.error('腾讯获取评论数jsonp解析失败')
+                logger.error(result.body)
+                return callback(e)
+            }
             if(!backData.result){
                 logger.error( '腾讯获取评论数异常错误' )
                 logger.error(backData)

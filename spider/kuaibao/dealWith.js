@@ -54,12 +54,17 @@ class dealWith {
                 logger.info('json error:',result.body)
                 return callback()
             }
-            let userInfo = result.channelInfo,
-                user = {
-                    platform: 10,
-                    bid: task.id,
-                    fans_num: userInfo.subCount
-                }
+            let userInfo = result.channelInfo
+            if(!userInfo){
+                logger.error('userInfo异常错误')
+                logger(result)
+                return callback()
+            }
+            let user = {
+                platform: 10,
+                bid: task.id,
+                fans_num: userInfo.subCount
+            }
             this.sendUser (user,(err,result)=>{
                 callback()
             })

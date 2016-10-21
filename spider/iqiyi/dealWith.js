@@ -150,7 +150,6 @@ class dealWith {
                         }else{
                             page = Math.ceil(total / 42)
                         }
-                        logger.info(page)
                         this.getVideos( task, page, (err) => {
                             if(err){
                                 return callback(err)
@@ -323,7 +322,14 @@ class dealWith {
             }
             result = result.body.replace(/try{/g,'').replace(/;}catch\(e\)\{\}/g,'')
             //logger.debug(backData)
-            let playData = eval(result)
+            let playData
+            try {
+                playData = eval("("+result+")")
+            } catch (e){
+                logger.error('eval错误:',e)
+                logger.error(result)
+                return callback(e)
+            }
             if(playData.code != 'A00000'){
                 return callback(true)
             }
