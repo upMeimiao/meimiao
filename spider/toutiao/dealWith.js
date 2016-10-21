@@ -8,6 +8,7 @@ const cheerio = require('cheerio')
 const EventProxy = require( 'eventproxy' )
 const request = require( '../lib/req' )
 const r = require('request')
+const md5 = require('js-md5')
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -25,16 +26,32 @@ class dealWith {
         })
         this.getList(task,null)
     }
+    getHoney () {
+        var t = Math.floor((new Date).getTime() / 1e3),
+            e = t.toString(16).toUpperCase(),
+            n = md5(t.toString()).toString().toUpperCase()
+        if (8 != e.length) return {
+            as: "479BB4B7254C150",
+            cp: "7E0AC8874BB0985"
+        }
+        for (var o = n.slice(0, 5), i = n.slice(-5), a = "", r = 0; 5 > r; r++) a += o[r] + e[r]
+        for (var l = "", s = 0; 5 > s; s++) l += e[s + 3] + i[s]
+        return {
+            as: "A1" + a + e.slice(-3),
+            cp: e.slice(0, 3) + l + "E1"
+        }
+    }
     getList ( task, hot_time ) {
+        const {as, cp} = this.getHoney()
         task.page++
         let option
         if(hot_time){
             option = {
-                url: this.settings.list + task.id + "&max_behot_time=" + hot_time
+                url: this.settings.list + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
             }
         }else{
             option = {
-                url: this.settings.list + task.id + "&max_behot_time=0"
+                url: this.settings.list + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
             }
         }
         request.get( option, (err,result) => {
