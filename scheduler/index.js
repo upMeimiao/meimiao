@@ -109,6 +109,7 @@ class scheduler {
         })
     }
     checkKey ( raw, callback ) {
+        logger.debug('checkKey:',raw)
         let key = raw.p + ':' + raw.id,
             time = new Date().getTime()
         this.taskDB.hmget( key, 'id', 'video_number', ( err, result ) => {
@@ -224,7 +225,7 @@ class scheduler {
                     i++
                     return cb()
                 }
-                logger.debug(processed)
+                logger.debug('processed:',processed)
                 this.createQueue(processed, (err) => {
                     i++
                     cb()
