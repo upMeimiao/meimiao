@@ -65,7 +65,7 @@ class scheduler {
                 logger.info(body)
                 return
             }
-            logger.debug(body)
+            //logger.debug(body)
             this.deal_online(result)
         })
     }
