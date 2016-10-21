@@ -13,54 +13,50 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        this.getTotal (task,(err) => {
+        async.series({
+            user: (callback) => {
+                this.getUser (task,(err)=>{
+                    callback(null,'用户信息已返回')
+                })
+            },
+            media: (callback) => {
+                this.getList( task, (err) => {
+                    if(err){
+                        return callback(err)
+                    }
+                    callback(null,'视频信息已返回')
+                })
+            }
+        },(err,result) => {
             if(err){
                 return callback(err)
             }
+            logger.debug('result : ',result)
             callback(null,task.total)
         })
     }
-    getTotal (task,callback){
-        logger.debug('开始获取视频总数')
+    getUser (task,callback){
         let option = {
             url: this.settings.userInfo + task.id
         }
         request.get(option,(err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('json数据解析失败')
                 logger.info('json error :',result.body)
-                return callback(e)
+                return callback()
             }
             let user = {
                 platform: 19,
                 bid: task.id,
                 fans_num: result.data.followers
             }
-            async.series({
-                user: (callback) => {
-                    this.sendUser (user,(err,result)=>{
-                        callback(null,'用户信息已返回')
-                    })
-                },
-                media: (callback) => {
-                    this.getList( task, (err) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,'视频信息已返回')
-                    })
-                }
-            },(err,result) => {
-                if(err){
-                    return callback(err)
-                }
-                logger.debug('result : ',result)
+            this.sendUser (user,(err)=>{
                 callback()
             })
         })
@@ -118,12 +114,19 @@ class dealWith {
                         logger.error( 'occur error : ' + err )
                         return cb()
                     }
+                    if(result.statusCode != 200){
+                        logger.error('code error: ',result.statusCode)
+                        logger.error(sign)
+                        return cb()
+                    }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
                         logger.error('json数据解析失败')
-                        logger.info('json error: ',result.body)
-                        return callback(e)
+                        logger.error('json error: ',result.body)
+                        logger.error(sign)
+                        sign++
+                        return cb()
                     }
                     let list = result.data.data
                     if(list.length != 0){
@@ -174,7 +177,7 @@ class dealWith {
         if(group.title != ''){
             title = group.title
         }else{
-            title = '未知视频' + group.id_str
+            title = '未命名视频' + group.id_str
         }
         let media = {
                 author: group.user.name,

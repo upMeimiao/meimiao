@@ -44,7 +44,41 @@ class dealWith {
     }
     getUser ( task, callback ){
         let option = {
-            url: `http://m.iqiyi.com/u/${task.id}/fans/`,
+            url: `http://m.iqiyi.com/u/${task.id}`,
+            referer: `http://m.iqiyi.com/u/${task.id}`,
+            ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+        }
+        request.get( option, ( err, result ) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                logger.error( '获取爱奇艺视频粉丝状态码错误' )
+                return callback(true)
+            }
+            let $ = cheerio.load(result.body),
+                fansDom = $('span.c-num-fans')
+            if(fansDom.length === 0){
+                return this.get_user(task,function () {
+                    callback()
+                })
+            }
+            let fans = fansDom.attr('data-num'),
+                user = {
+                    platform: 2,
+                    bid: task.id,
+                    fans_num: fans
+                }
+            //logger.debug(user)
+            this.sendUser ( user,(err,result) => {
+                callback()
+            })
+        })
+    }
+    get_user ( task, callback) {
+        let option = {
+            url: `http://m.iqiyi.com/u/${task.id}/fans`,
             referer: `http://m.iqiyi.com/u/${task.id}`,
             ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
         }
@@ -64,7 +98,7 @@ class dealWith {
                     bid: task.id,
                     fans_num: fansDom.substring(2)
                 }
-                logger.debug(user)
+            //logger.debug(user)
             this.sendUser ( user,(err,result) => {
                 callback()
             })
