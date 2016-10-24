@@ -88,6 +88,7 @@ class scheduler {
                 logger.info(body)
                 return
             }
+            console.log(body)
             this.emit('task_loaded',body)
         })
     }
@@ -126,8 +127,8 @@ class scheduler {
                 scheduler.emit( 'redis_error', {db: 'taskDB',action: 2})
                 return
             }
-            // const url = `http://${this.settings.kue.ip}:3000/api/job/${result}`
-            const url = `http://127.0.0.1:3000/api/job/${result}`
+            const url = `http://${this.settings.kue.ip}:3000/api/job/${result}`
+            //const url = `http://127.0.0.1:3000/api/job/${result}`
             request.get( url, {'auth': {'user': 'verona','pass': '2319446'}}, ( err, res, body) => {
                 if(err){
                     logger.error( 'occur error : ', err )
