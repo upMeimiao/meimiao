@@ -169,8 +169,22 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
-            let backData = eval(result.body),
-                info = backData[0]
+            if(result.statusCode != 200){
+                logger.error(`getInfo code error: ${result.statusCode}`)
+                return callback(true)
+            }
+            let backData
+            try {
+                backData = eval(result.body)
+            } catch (e){
+                logger.error(`getInfo jsonp error`)
+                return callback(e)
+            }
+            if(!backData || backData.length === 0){
+                logger.error(`getInfo 异常`)
+                return callback(true)
+            }
+            let info = backData[0]
             callback(null,info)
         })
     }
