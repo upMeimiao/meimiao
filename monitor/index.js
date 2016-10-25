@@ -3,45 +3,61 @@ const URL = require('url')
 const path = require("path")
 const fs = require("fs")
 const mime = require("mime")
-const kue = require( 'kue' )
+const request = require( 'request' )
+const async = require( 'async' )
+const myRedis = require( '../lib/myredis.js' )
 
 let logger
 class web {
     constructor ( settings ) {
         this.settings = settings
-        this.port = 3000
+        this.port = 3001
         this.ip = '127.0.0.1'
         this.redis = settings.redis
         logger = settings.logger
-        this.queue = kue.createQueue({
-            redis: {
-                port: this.redis.port,
-                host: this.redis.host,
-                auth: this.redis.auth,
-                db: this.redis.jobDB
-            }
-        })
         logger.debug('WEB服务实例化')
     }
+    assembly () {
+        myRedis.createClient(this.redis.host,
+            this.redis.port,
+            this.redis.taskDB,
+            this.redis.auth,
+            ( err, cli ) => {
+                if(err){
+                    logger.error( "连接redis数据库出错。错误信息：", err )
+                    logger.error( "出现错误，程序终止。" )
+                    process.exit()
+                    return
+                }
+                this.taskDB = cli
+                logger.debug( "任务信息数据库连接建立...成功" )
+                this.createServer()
+            }
+        )
+    }
     start () {
+        logger.trace('启动服务')
+        this.assembly()
+    }
+    createServer () {
         const server = HTTP.createServer((req, res) => {
             let pathname = URL.parse(req.url).pathname
             if(req.url === '/'){
-                pathname = '/kue/index'
+                pathname = '/app/index'
             }
             let pathArr = pathname.split('/'),
-                realPath
+                router
             switch (pathArr[1]){
-                case 'kue':
-                    realPath = pathArr[2] + '.html'
-                    this.kueHandle(realPath,req,res)
+                case 'app':
+                    router = pathArr[2] + '.html'
+                    this.appHandle(router,req,res)
                     break
                 case 'api':
-                    realPath = pathname.substring(4)
-                    this.apiHandle(realPath,req,res)
+                    router = pathname.substring(4)
+                    this.apiHandle(router,req,res)
                     break
-                case 'src':
-                    this.kueHandle(pathname,req,res)
+                case 'lib':
+                    this.appHandle(pathname,req,res)
                     break
                 default:
                     res.writeHead(404,{
@@ -55,8 +71,8 @@ class web {
             logger.debug(`Server running at ${this.ip}:${this.port}`)
         })
     }
-    kueHandle ( realPath, req, res ){
-        realPath = path.join('kueMonitor',realPath)
+    appHandle ( router, req, res ){
+        const realPath = path.join('monitor',router)
         fs.readFile(realPath, "binary", (err, file) => {
             if(err){
                 res.writeHead(404)
@@ -69,10 +85,126 @@ class web {
             res.end()
         })
     }
-    apiHandle ( realPath, req, res ){
-        res.setHeader('Content-Type',`application/json;charset=utf-8`)
-        res.writeHead(200)
-        res.end()
+    apiHandle ( router, req, res ){
+        const routerArr = router.split('/'),
+            method = routerArr[1]
+        switch (method){
+            case 'get':
+                this.apiHandleGet( router, req, res )
+                break
+            default:
+                res.setHeader('Content-Type',`text/html;charset=utf-8`)
+                res.writeHead(400)
+                res.end()
+                break
+        }
+    }
+    apiHandleGet ( router, req, res ) {
+        const routerArr = router.split('/'),
+            action = routerArr[2]
+        switch (action){
+            case 'data':
+                this.getData( req, res )
+                break
+            default:
+                res.setHeader('Content-Type',`text/html;charset=utf-8`)
+                res.writeHead(400)
+                res.end()
+                break
+        }
+    }
+    getData( req, res ) {
+        async.waterfall([
+            (callback) => {
+                this.getServerData( (err,result) => {
+                    if( err ){
+                        return callback(err)
+                    }
+                    callback(null, result)
+                })
+            },
+            (list, callback) => {
+                this.getInfo( list, (err, info)=>{
+                    if(err){
+                        return callback(err)
+                    }
+                    callback(null, info)
+                })
+            }
+        ], function (err, result) {
+            if(err){
+                res.setHeader('Content-Type',`text/html;charset=utf-8`)
+                res.writeHead(502)
+                res.end()
+                return
+            }
+            res.setHeader('Content-Type',`application/json;charset=utf-8`)
+            res.writeHead(200)
+            res.end(result)
+        })
+    }
+    getServerData(callback){
+        request.get('http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            if(res.statusCode !== 200){
+                return callback(true)
+            }
+            let result
+            try {
+                result = JSON.parse(body)
+            } catch (e){
+                logger.error('json数据解析失败')
+                logger.error(body)
+                return callback(e)
+            }
+            if(result.errno !== 0){
+                return callback(true)
+            }
+            if(result.data.length === 0){
+                const data = {
+                    infos: 0,
+                    count: []
+                }
+                res.setHeader('Content-Type',`application/json;charset=utf-8`)
+                res.writeHead(200)
+                res.end(JSON.stringify(data))
+                return
+            }
+            callback(null,result.data)
+        })
+    }
+    getInfo ( list, callback ){
+        const self = this
+        const getRedisData = function ( item, callback ) {
+            const key = item.platform + ":" + item.bid
+            let info
+            self.taskDB.hmget( key, 'init', 'create', 'video_number', 'update', (err,result)=>{
+                if(err) return
+                info = {
+                    p: item.platform,
+                    bid: item.bid,
+                    bname: item.bname,
+                    post_t: item.post_t,
+                    update_t: item.update_t,
+                    is_post: item.is_post,
+                    init: result[0],
+                    create: result[1],
+                    videoNumber: result[2],
+                    update: result[3] || null
+                }
+                callback(null,info)
+            })
+        }
+        async.map(list, getRedisData, (err, results) => {
+            const data = {
+                infos: results,
+                count: list.length
+            }
+            return callback(null,JSON.stringify(data))
+        })
     }
 }
 module.exports = web

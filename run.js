@@ -54,18 +54,11 @@ const server = () => {
     let spider = new (require('./sendServer'))(settings)
     spider.start()
 }
-const statusServer = () =>{
-    let logger = logging.getLogger('状态服务',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./StatusServer'))(settings)
-    spider.start()
-}
 const statusMonitor = () => {
     let logger = logging.getLogger('状态监控',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./StatusMonitor'))(settings)
+    let spider = new (require('./monitor'))(settings)
     spider.start()
 }
 const kueMonitor = () => {
@@ -245,9 +238,6 @@ switch (options['a']){
         break
     case 'server':
         server()
-        break
-    case 'status':
-        statusServer()
         break
     case 'monitor':
         statusMonitor()
