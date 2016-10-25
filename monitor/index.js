@@ -11,8 +11,8 @@ let logger
 class web {
     constructor ( settings ) {
         this.settings = settings
-        this.port = 3001
-        this.ip = '10.251.55.50'
+        this.port = settings.listen.port
+        this.ip = settings.listen.ip
         this.redis = settings.redis
         logger = settings.logger
         logger.debug('WEB服务实例化')
