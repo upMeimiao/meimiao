@@ -12,7 +12,7 @@ class web {
     constructor ( settings ) {
         this.settings = settings
         this.port = 3001
-        this.ip = '127.0.0.1'
+        this.ip = '10.251.55.50'
         this.redis = settings.redis
         logger = settings.logger
         logger.debug('WEB服务实例化')
