@@ -1,4 +1,10 @@
 #redis {
-    max-width: 1300px;
+    max-width: 1260px;
     margin: 50px auto 100px;
+}
+.bname {
+    max-width: 160px;
+}
+.status {
+    max-width: 80px;
 }
