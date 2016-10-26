@@ -177,7 +177,8 @@ class dealWith {
             try {
                 backData = eval(result.body)
             } catch (e){
-                logger.error(`getInfo jsonp error`)
+                logger.error(`getInfo jsonp error: `,e)
+                logger.error(result.body)
                 return callback(e)
             }
             if(!backData || backData.length === 0){

@@ -59,6 +59,9 @@ class web {
                 case 'lib':
                     this.appHandle(pathname,req,res)
                     break
+                case 'email':
+                    this.emailHandle(router,req,res)
+                    break
                 default:
                     res.writeHead(404,{
                         'Content-Type': 'text/html;charset=utf-8'
@@ -98,6 +101,9 @@ class web {
                 res.end()
                 break
         }
+    }
+    emailHandle ( router, req, res ){
+
     }
     apiHandleGet ( router, req, res ) {
         const routerArr = router.split('/'),
