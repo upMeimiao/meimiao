@@ -403,6 +403,7 @@ class dealWith {
                 infoData = eval("("+result+")")
             } catch (e){
                 logger.error('eval错误:',e)
+                logger.error(result)
                 return callback(e)
             }
             if(infoData.code != 'A00000'){
