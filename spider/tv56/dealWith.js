@@ -58,6 +58,7 @@ class dealWith {
                 logger.error(result)
                 return callback(e)
             }
+            logger.debug(result)
             let userInfo = result.data,
                 user = {
                     platform: task.p,
