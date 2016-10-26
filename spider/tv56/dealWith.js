@@ -59,12 +59,16 @@ class dealWith {
                 return callback(e)
             }
             logger.debug(result)
-            let userInfo = result.data,
-                user = {
-                    platform: task.p,
-                    bid: task.id,
-                    fans_num: userInfo[0].fansCount
-                }
+            let userInfo = result.data,user
+            if(userInfo.length === 0){
+                logger.error('异常')
+                return callback(true)
+            }
+            user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: userInfo[0].fansCount
+            }
             this.sendUser ( user,(err,result) => {
                 callback()
             })
@@ -75,7 +79,7 @@ class dealWith {
             url: this.settings.sendToServer[0],
             data: user
         }
-        logger.debug(option)
+        //logger.debug(option)
         request.post( logger, option,(err,result) => {
             if(err){
                 return callback(err)
@@ -114,6 +118,7 @@ class dealWith {
                 logger.info('total error:',result)
                 return callback(e)
             }
+            logger.debug(result)
             let data = result.data,
                 total = data.count
             task.total = total
