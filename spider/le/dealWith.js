@@ -173,6 +173,7 @@ class dealWith {
                 logger.error(`getInfo code error: ${result.statusCode}`)
                 return callback(true)
             }
+            logger.debug(result.body)
             let backData
             try {
                 backData = eval(result.body)
@@ -185,6 +186,7 @@ class dealWith {
                 logger.error(`getInfo 异常`)
                 return callback(true)
             }
+            logger.debug('188: ',backData)
             let info = backData[0]
             callback(null,info)
         })
