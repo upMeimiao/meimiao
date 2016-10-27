@@ -1,10 +1,13 @@
 const async = require( 'async' )
-const myRedis = require( '../lib/myredis.js' )
 const request = require('request')
+const util = require( 'util' )
+const events = require( 'events' )
+const myRedis = require( '../lib/myredis.js' )
 
 let logger
 class sendServer {
     constructor ( settings ) {
+        events.EventEmitter.call( this )
         this.settings = settings
         this.redis = settings.redis
         logger = settings.logger
@@ -28,13 +31,19 @@ class sendServer {
                 this.cache_db = cli
                 logger.debug( "缓存队列数据库连接建立...成功" )
                 setInterval(()=>{
-                    this.deal()
+                    this.emit('get_lists')
                 },20)
             }
         )
     }
     start () {
         logger.trace('启动函数')
+        this.on( 'get_lists', () => {
+            this.deal()
+        })
+        this.on( 'send_data', ( raw ) => {
+            this.send( raw )
+        })
         this.assembly()
     }
     deal () {
@@ -47,7 +56,7 @@ class sendServer {
                 //logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
                 return
             }
-            this.send(JSON.parse(result))
+            this.emit('send_data', JSON.parse(result))
         } )
     }
     send (media) {
@@ -85,4 +94,5 @@ class sendServer {
         })
     }
 }
+util.inherits( sendServer, events.EventEmitter )
 module.exports = sendServer
