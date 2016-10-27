@@ -5,6 +5,7 @@ const fs = require("fs")
 const mime = require("mime")
 const request = require( 'request' )
 const async = require( 'async' )
+const email = require( './emailDeal')
 const myRedis = require( '../lib/myredis.js' )
 
 let logger
@@ -41,38 +42,67 @@ class web {
     }
     createServer () {
         const server = HTTP.createServer((req, res) => {
-            let pathname = URL.parse(req.url).pathname
-            if(req.url === '/'){
-                pathname = '/app/index'
-            }
-            let pathArr = pathname.split('/'),
-                router
-            switch (pathArr[1]){
-                case 'app':
-                    router = pathArr[2] + '.html'
-                    this.appHandle(router,req,res)
+            switch ( req.method ){
+                case 'GET':
+                    this.getHandle( req, res )
                     break
-                case 'api':
-                    router = pathname.substring(4)
-                    this.apiHandle(router,req,res)
-                    break
-                case 'lib':
-                    this.appHandle(pathname,req,res)
-                    break
-                case 'email':
-                    this.emailHandle(router,req,res)
+                case 'POST':
+                    this.postHandle( req, res )
                     break
                 default:
-                    res.writeHead(404,{
-                        'Content-Type': 'text/html;charset=utf-8'
-                    })
-                    res.end('找不到相关文件')
-                    return
+                    res.setHeader('Content-Type',`text/html;charset=utf-8`)
+                    res.writeHead(400)
+                    res.end()
+                    break
             }
         })
         server.listen(this.port, this.ip, () => {
             logger.debug(`Server running at ${this.ip}:${this.port}`)
         })
+    }
+    getHandle ( req, res ){
+        if(req.url === '/'){
+            res.writeHead(301,{'Location': '/app/index'})
+            res.end()
+            return
+        }
+        const pathname = URL.parse(req.url).pathname,
+            pathArr = pathname.split('/')
+        let router
+        switch (pathArr[1]){
+            case 'app':
+                router = pathArr[2] + '.html'
+                this.appHandle(router,req,res)
+                break
+            case 'api':
+                router = pathname.substring(4)
+                this.apiHandle(router,req,res)
+                break
+            case 'lib':
+                this.appHandle(pathname,req,res)
+                break
+            default:
+                res.writeHead(404,{
+                    'Content-Type': 'text/html;charset=utf-8'
+                })
+                res.end('找不到相关文件')
+                return
+        }
+    }
+    postHandle ( req, res ){
+        const pathname = URL.parse(req.url).pathname,
+            pathArr = pathname.split('/')
+        switch (pathArr[1]){
+            case 'email':
+                this.emailHandle(req,res)
+                break
+            default:
+                res.writeHead(404,{
+                    'Content-Type': 'text/html;charset=utf-8'
+                })
+                res.end('找不到相关文件')
+                return
+        }
     }
     appHandle ( router, req, res ){
         const realPath = path.join('monitor',router)
@@ -90,23 +120,6 @@ class web {
     }
     apiHandle ( router, req, res ){
         const routerArr = router.split('/'),
-            method = routerArr[1]
-        switch (method){
-            case 'get':
-                this.apiHandleGet( router, req, res )
-                break
-            default:
-                res.setHeader('Content-Type',`text/html;charset=utf-8`)
-                res.writeHead(400)
-                res.end()
-                break
-        }
-    }
-    emailHandle ( router, req, res ){
-
-    }
-    apiHandleGet ( router, req, res ) {
-        const routerArr = router.split('/'),
             action = routerArr[2]
         switch (action){
             case 'data':
@@ -118,6 +131,21 @@ class web {
                 res.end()
                 break
         }
+    }
+    emailHandle (  req, res ){
+        let body = ''
+        req.setEncoding('utf-8')
+        req.addListener('data', (chunk) => {
+            body += chunk
+        })
+        req.addListener('end', () =>{
+            body = JSON.parse(body)
+            email.sendEmail(body.subject,body.content)
+            res.setHeader('Content-Type',`application/json;charset=utf-8`)
+            res.writeHead(200)
+            res.end()
+        })
+
     }
     getData( req, res ) {
         async.waterfall([
