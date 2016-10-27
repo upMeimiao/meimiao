@@ -31,13 +31,14 @@ class sendServer {
                 this.cache_db = cli
                 logger.debug( "缓存队列数据库连接建立...成功" )
                 setInterval(()=>{
-                    this.emit('get_lists')
+                    //this.emit('get_lists')
                 },20)
             }
         )
     }
     start () {
         logger.trace('启动函数')
+        logger.debug(this.option)
         this.on( 'get_lists', () => {
             this.deal()
         })
