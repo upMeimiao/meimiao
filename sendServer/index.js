@@ -10,7 +10,7 @@ class sendServer {
         logger = settings.logger
         logger.trace('sendServer instantiation ...')
     }
-    assembly (option) {
+    assembly () {
         myRedis.createClient(this.redis.host,
             this.redis.port,
             this.redis.cache_db,
@@ -25,19 +25,16 @@ class sendServer {
                 this.cache_db = cli
                 logger.debug( "缓存队列数据库连接建立...成功" )
                 setInterval(()=>{
-                    this.deal(option)
+                    this.deal()
                 },20)
             }
         )
     }
     start () {
         logger.trace('启动函数')
-        const option = {
-            url: this.settings.url
-        }
-        this.assembly(option)
+        this.assembly()
     }
-    deal (option) {
+    deal () {
         this.cache_db.lpop( 'cache', ( err, result ) => {
             if ( err ) {
                 logger.error( '获取缓存队列出现错误：', err );
@@ -47,11 +44,14 @@ class sendServer {
                 //logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
                 return
             }
-            this.send(option,JSON.parse(result))
+            this.send(JSON.parse(result))
         } )
     }
-    send (option,media) {
-        option.form = media
+    send (media) {
+        const option = {
+            url: this.settings.url,
+            form: media
+        }
         request.post(option, (err,res, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
