@@ -12,7 +12,7 @@ class sendServer {
         this.redis = settings.redis
         logger = settings.logger
         this.option = {
-            url: this.settings.sendUrl
+            url: settings.sendUrl
         }
         logger.trace('sendServer instantiation ...')
     }
