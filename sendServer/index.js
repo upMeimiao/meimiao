@@ -37,7 +37,7 @@ class sendServer {
         }
         this.assembly(option)
     }
-    deal () {
+    deal (option) {
         this.cache_db.lpop( 'cache', ( err, result ) => {
             if ( err ) {
                 logger.error( '获取缓存队列出现错误：', err );
