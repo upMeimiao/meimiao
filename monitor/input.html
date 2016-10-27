@@ -37,7 +37,7 @@
 <button id="submit">提交</button>
 <p id="success"></p>
 <p id="error"></p>
-<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="/lib/jquery.min.js"></script>
 <script>
     var input = document.querySelector('#url')
     var button = document.querySelector('#submit')
@@ -50,7 +50,7 @@
             console.log(url)
             $.ajax({
                 type: "GET",
-                url: "http://121.42.139.160:2017?url=" + url,
+                url: "http://127.0.0.1:2017?url=" + url,
                 success: function(data) {
                     p.innerHTML = data
                     err.innerHTML =''
