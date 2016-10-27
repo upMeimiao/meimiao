@@ -1,7 +1,7 @@
 {
   "name"        : "send",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","sendServer","-a","server"],
+  "args"        : ["-i","scheduler","-a","server"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

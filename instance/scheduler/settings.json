@@ -5,7 +5,8 @@
     "auth": "C19prsPjHs52CHoA0vm",
     "userDB": 0,
     "taskDB": 1,
-    "jobDB": 2
+    "jobDB": 2,
+    "cache_db": 3
   },
   "kue": {
     "ip": "10.251.55.50",
@@ -17,5 +18,6 @@
   },
   "url": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
   "update": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
+  "sendUrl": "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
   "interval": 10000
 }
