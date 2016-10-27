@@ -8,6 +8,9 @@ class sendServer {
         this.settings = settings
         this.redis = settings.redis
         logger = settings.logger
+        this.option = {
+            url: this.settings.url
+        }
         logger.trace('sendServer instantiation ...')
     }
     assembly () {
@@ -48,11 +51,12 @@ class sendServer {
         } )
     }
     send (media) {
-        const option = {
-            url: this.settings.url,
-            form: media
-        }
-        request.post(option, (err,res, result) => {
+        // const option = {
+        //     url: this.settings.url,
+        //     form: media
+        // }
+        this.option.form = media
+        request.post(this.option, (err,res, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
