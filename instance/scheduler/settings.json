@@ -12,7 +12,7 @@
     "port": 3000
   },
   "listen": {
-    "ip":"121.42.164.116",
+    "ip":"0.0.0.0",
     "port": 3001
   },
   "url": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
