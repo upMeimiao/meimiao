@@ -46,10 +46,13 @@ class spiderCore {
         }
         const remote = query.url,
             hostname = URL.parse(remote,true).hostname,
-            crx = { req, res }
+            ctx = { req, res }
         switch (hostname){
             case 'v.youku.com':
-                handle.youkuHandle( crx, remote )
+                handle.youkuHandle( ctx, remote )
+                break
+            case 'www.iqiyi.com':
+                handle.iqiyiHandle( ctx, remote )
                 break
             case 'www.bilibili.com':
             case 'bilibili.com':
@@ -65,8 +68,7 @@ class spiderCore {
                 break
             case 'kuaibao.qq.com':
                 break
-            case 'www.iqiyi.com':
-                break
+
             case 'www.le.com':
                 break
             case 'v.qq.com':

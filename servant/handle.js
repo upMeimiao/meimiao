@@ -8,16 +8,19 @@ class Handle {
         logger = core.settings.logger
         logger.debug('控制器实例化...')
     }
-    youkuHandle ( crx, remote ) {
+    youkuHandle ( ctx, remote ) {
         dealWith.youku( remote, ( err, result ) => {
             if( err ){
 
                 return
             }
-            crx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-            crx.res.writeHead(200)
-            crx.res.end(JSON.stringify({name:'junhao',age:24}))
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+            ctx.res.writeHead(200)
+            ctx.res.end(JSON.stringify({name:'junhao',age:24}))
         })
+    }
+    iqiyiHandle ( ctx, remote ) {
+
     }
 }
 module.exports = Handle
