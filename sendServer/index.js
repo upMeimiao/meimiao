@@ -33,6 +33,9 @@ class sendServer {
                 setInterval(()=>{
                     this.emit('get_lists')
                 },20)
+                setInterval(()=>{
+                    this.emit('get_lists_staging')
+                },5000)
             }
         )
     }
@@ -41,8 +44,14 @@ class sendServer {
         this.on( 'get_lists', () => {
             this.deal()
         })
+        this.on( 'get_lists_staging', () => {
+            this.deal_staging()
+        })
         this.on( 'send_data', ( raw ) => {
             this.send( raw )
+        })
+        this.on( 'send_data_staging', ( raw ) => {
+            this.send_staging( raw )
         })
         this.assembly()
     }
@@ -59,6 +68,20 @@ class sendServer {
             this.emit('send_data', JSON.parse(result))
         } )
     }
+    deal_staging () {
+        this.cache_db.lpop( 'cache', ( err, result ) => {
+            if ( err ) {
+                logger.error( '获取缓存队列出现错误：', err );
+                return
+            }
+            if(!result){
+                //logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
+                return
+            }
+            this.emit('send_data', JSON.parse(result))
+            this.emit('send_data_staging', JSON.parse(result))
+        } )
+    }
     send (media) {
         // const option = {
         //     url: this.settings.url,
@@ -66,6 +89,39 @@ class sendServer {
         // }
         this.option.form = media
         request.post(this.option, (err,res, result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
+                return
+            }
+            if(res.statusCode != 200){
+                logger.error(`errorCode: ${res.statusCode}`)
+                logger.error(result)
+                return
+            }
+            try{
+                result = JSON.parse(result)
+            }catch (e){
+                logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
+                logger.error(result)
+                return
+            }
+            if(result.errno == 0){
+                logger.debug(`平台${media.platform}:`,media.aid + ' back end')
+                //logger.info(result)
+            }else{
+                logger.error(`平台${media.platform}:`,media.aid + ' back error')
+                logger.error(result)
+                logger.error('media info: ',media)
+            }
+        })
+    }
+    send_staging (media) {
+        const option = {
+            url: 'http://staging.caihongip.com/index.php/spider/video1/addVideoInfo',
+            form: media
+        }
+        request.post(option, (err,res, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
