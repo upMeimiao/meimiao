@@ -117,6 +117,7 @@ class sendServer {
         })
     }
     send_staging (media) {
+        console.log('-----------------------------------staging----------------------------------------')
         const option = {
             url: 'http://staging.caihongip.com/index.php/Spider/video/postVideos/',
             form: media
@@ -131,6 +132,7 @@ class sendServer {
             if(res.statusCode != 200){
                 logger.error(`errorCode: ${res.statusCode}`)
                 logger.error(result)
+                logger.error(media)
                 return
             }
             try{
