@@ -118,7 +118,7 @@ class sendServer {
     }
     send_staging (media) {
         const option = {
-            url: 'http://staging.caihongip.com/index.php/spider/video1/addVideoInfo',
+            url: 'http://staging.caihongip.com/index.php/Spider/video/postVideos/',
             form: media
         }
         request.post(option, (err,res, result) => {
