@@ -122,6 +122,7 @@ class sendServer {
             form: media
         }
         request.post(option, (err,res, result) => {
+            console.log('--------------------------staging-----------------------------')
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
