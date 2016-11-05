@@ -25,8 +25,8 @@ class spiderCore {
                     break
             }
         })
-        server.listen(this.port, this.ip, () => {
-            logger.debug(`Server running at ${this.ip}:${this.port}`)
+        server.listen(this.port, () => {
+            logger.debug(`Server running at ${this.port} port`)
         })
     }
     getHandle ( req, res ){
@@ -59,7 +59,6 @@ class spiderCore {
                 break
             case 'www.meipai.com':
             case 'meipai.com':
-
                 break
             case 'www.miaopai.com':
             case 'm.miaopai.com':
@@ -68,7 +67,6 @@ class spiderCore {
                 break
             case 'kuaibao.qq.com':
                 break
-
             case 'www.le.com':
                 break
             case 'v.qq.com':
@@ -90,36 +88,29 @@ class spiderCore {
             case 'record.btime.com':
             case 'video.btime.com':
             case 'item.btime.com':
-
                 break
             case 'www.weishi.com':
             case 'weishi.com':
             case 'weishi.qq.com':
                 break
             case 'xiaoying.tv':
-
                 break
             case 'www.budejie.com':
             case 'a.f.budejie.com':
             case 'm.budejie.com':
-
                 break
             case 'm.neihanshequ.com':
             case 'neihanshequ.com':
-
                 break
             case 'w.3g.yy.com':
             case 'shenqu.3g.yy.com':
             case 'www.yy.com':
-
                 break
             case 'www.56.com':
             case 'm.56.com':
-
                 break
             case 'www.acfun.tv':
             case 'm.acfun.tv':
-
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
