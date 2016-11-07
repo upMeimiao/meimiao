@@ -516,6 +516,9 @@ class DealWith {
                 logger.info(result)
                 return callback(e,{code:102,p:12})
             }
+            if(!result.detail){
+                return callback(true,{code:102,p:12})
+            }
             let res = {
                 id: result.detail.userid,
                 name: result.detail.username,
