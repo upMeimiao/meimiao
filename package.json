@@ -1,6 +1,6 @@
 {
   "name": "qiaosuan",
-  "version": "0.6.0",
+  "version": "0.6.5",
   "description": "Media Data Spider",
   "private": true,
   "main": "./run.js",
