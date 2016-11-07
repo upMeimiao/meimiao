@@ -7,7 +7,6 @@ class spiderCore {
     constructor( settings) {
         this.settings = settings
         this.port = settings.port
-        this.ip = settings.listen.ip
         logger = this.settings.logger
         handle = new Handle( this )
         logger.debug('server实例化')
@@ -54,63 +53,83 @@ class spiderCore {
             case 'www.iqiyi.com':
                 handle.iqiyiHandle( ctx, remote )
                 break
-            case 'www.bilibili.com':
-            case 'bilibili.com':
+            case 'www.le.com':
+                handle.leHandle( ctx, remote )
+                break
+            case 'v.qq.com':
+                handle.tencentHandle( ctx, remote )
                 break
             case 'www.meipai.com':
             case 'meipai.com':
-                break
-            case 'www.miaopai.com':
-            case 'm.miaopai.com':
-                break
-            case 'my.tv.sohu.com':
-                break
-            case 'kuaibao.qq.com':
-                break
-            case 'www.le.com':
-                break
-            case 'v.qq.com':
+                handle.meipaiHandle( ctx, remote )
                 break
             case 'www.toutiao.com':
             case 'toutiao.com':
             case 'm.toutiao.com':
+                handle.toutiaoHandle( ctx, remote )
+                break
+            case 'www.miaopai.com':
+            case 'm.miaopai.com':
+                handle.miaopaiHandle( ctx, remote )
+                break
+            case 'www.bilibili.com':
+            case 'bilibili.com':
+                handle.biliHandle( ctx, remote )
+                break
+            case 'my.tv.sohu.com':
+                handle.sohuHandle( ctx, remote )
+                break
+            case 'kuaibao.qq.com':
+                handle.kuaibaoHandle( ctx, remote )
                 break
             case 'www.yidianzixun.com':
+                handle.yidianHandle( ctx, remote )
                 break
             case 'www.tudou.com':
+                handle.tudouHandle( ctx, remote )
                 break
             case 'www.baomihua.com':
             case 'baomihua.com':
             case 'video.baomihua.com':
+                handle.baomihuaHandle( ctx, remote )
                 break
             case 'v.ku6.com':
+                handle.ku6Handle( ctx, remote )
                 break
             case 'record.btime.com':
             case 'video.btime.com':
             case 'item.btime.com':
+                handle.btimeHandle( ctx, remote )
                 break
             case 'www.weishi.com':
             case 'weishi.com':
             case 'weishi.qq.com':
+                handle.weishiHandle( ctx, remote )
                 break
             case 'xiaoying.tv':
+                handle.xiaoyingHandle( ctx, remote )
                 break
             case 'www.budejie.com':
             case 'a.f.budejie.com':
             case 'm.budejie.com':
+                handle.budejieHandle( ctx, remote )
                 break
             case 'm.neihanshequ.com':
             case 'neihanshequ.com':
+                handle.neihanHandle( ctx, remote )
                 break
             case 'w.3g.yy.com':
             case 'shenqu.3g.yy.com':
             case 'www.yy.com':
+                handle.yyHandle( ctx, remote )
                 break
             case 'www.56.com':
             case 'm.56.com':
+                handle.tv56Handle( ctx, remote )
                 break
             case 'www.acfun.tv':
             case 'm.acfun.tv':
+                handle.acfunHandle( ctx, remote )
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
