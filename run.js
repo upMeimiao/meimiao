@@ -43,6 +43,7 @@ const scheduler = () => {
 const servant = () => {
     let logger = logging.getLogger('平台',options['i'],log_level)
     settings['logger'] = logger
+    settings[ 'port' ] = parseInt( options[ 'p' ] )
     settings['instance'] = options['i']
     let scheduler = new (require('./servant'))(settings)
     scheduler.start()

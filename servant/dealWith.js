@@ -5,35 +5,35 @@ const r = require('request')
 const jsonp = function (data) {
     return data
 }
-let logger,settings,core,api
-class deal{
-    constructor (spiderCore) {
-        core = spiderCore
-        settings = core.settings
-        logger = settings.logger
-        api = settings.api
-        logger.debug('任务处理模块 实例化...')
+
+let logger,api
+
+class DealWith {
+    constructor( core ) {
+        logger = core.settings.logger
+        api = core.settings.servantAPI
+        logger.debug('处理器实例化...')
     }
-    youku (data,callback) {
+    youku ( remote, callback ) {
         let option = {
-            url: api.youku.url + '?client_id=' + api.youku.key + "&video_url=" + encodeURIComponent(data)
+            url: api.youku.url + '?client_id=' + api.youku.key + "&video_url=" + encodeURIComponent(remote)
         }
         request.get (option,(err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:1})
             }
             if(result.statusCode != 200 ){
                 logger.error('优酷状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:1})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('优酷json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:1})
             }
             let user = result.user,
                 res = {
@@ -60,19 +60,19 @@ class deal{
         request.get ( option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:8})
             }
             if(result.statusCode != 200 ){
                 logger.error('哔哩哔哩状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:8})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('哔哩哔哩json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:8})
             }
             let res = {
                 id: result.data.owner.mid,
@@ -92,19 +92,19 @@ class deal{
         request.get ( option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:5})
             }
             if(result.statusCode != 200 ){
                 logger.error('美拍状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:5})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('美拍json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:5})
             }
             let res = {
                 id: result.user.id,
@@ -130,19 +130,19 @@ class deal{
         request.get ( option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:7})
             }
             if(result.statusCode != 200 ){
                 logger.error('秒拍状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:7})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('秒拍json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:7})
             }
             let res = {
                 id: result.result.ext.owner.suid,
@@ -152,7 +152,7 @@ class deal{
             callback(null,res)
         })
     }
-    souhu (data,callback) {
+    sohu (data,callback) {
         let pathname = URL.parse(data,true).pathname
         let start = pathname.lastIndexOf('/'),
             end = pathname.lastIndexOf('.'),
@@ -163,19 +163,19 @@ class deal{
         request.get ( option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:9})
             }
             if(result.statusCode != 200 ){
                 logger.error('搜狐状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:9})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('搜狐json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:9})
             }
             let res = {
                 id: result.data.user_id,
@@ -199,21 +199,21 @@ class deal{
         request.post( option, ( err, result ) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:10})
             }
             if(result.statusCode != 200 ){
                 logger.error('天天快报状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:10})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('天天快报json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:10})
             }
-            if(result.newslist.length == 0){return callback(true)}
+            if(result.newslist.length == 0){return callback(true,{code:102,p:10})}
             let back = result.newslist[0],
                 res = {
                     id: back.chlid,
@@ -231,12 +231,12 @@ class deal{
         request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:2})
             }
             if(result.statusCode != 200 ){
                 logger.error('爱奇艺状态码错误1',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:2})
             }
             let $ = cheerio.load(result.body),
                 id = $('#flashbox').attr('data-player-tvid'),
@@ -248,12 +248,12 @@ class deal{
             request.get(option,(err,result)=>{
                 if(err){
                     logger.error( 'occur error : ', err )
-                    return callback(err)
+                    return callback(err,{code:102,p:2})
                 }
                 if(result.statusCode != 200 ){
                     logger.error('爱奇艺状态码错误2',result.statusCode)
                     logger.info(result)
-                    return callback(true)
+                    return callback(true,{code:102,p:2})
                 }
                 let back = eval(result.body),
                     res = {
@@ -261,7 +261,7 @@ class deal{
                         name: back.data.user.name,
                         p: 2
                     }
-                callback(err,res)
+                callback(null,res)
             })
         })
     }
@@ -273,12 +273,12 @@ class deal{
         request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:3})
             }
             if(result.statusCode != 200 ){
                 logger.error('乐视状态码错误1',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:3})
             }
             let $ = cheerio.load(result.body,{
                     ignoreWhitespace:true
@@ -298,11 +298,11 @@ class deal{
             request.get(option,(err,result) => {
                 if(err){
                     logger.error( 'occur error : ', err )
-                    return callback(true)
+                    return callback(true,{code:102,p:3})
                 }
                 result = eval(result.body)
                 let data = result.data,
-                    name = data.nickname
+                    name = data ? data.nickname : null
                 // let _$ = cheerio.load(result.body),
                 //     name = _$('.au_info .au_info_name').text()
                 let res ={
@@ -332,12 +332,12 @@ class deal{
         request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:4})
             }
             if(result.statusCode != 200 ){
                 logger.error('腾讯状态码错误1',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:4})
             }
             let back = eval(result.body)
             if(!back.result){
@@ -353,17 +353,17 @@ class deal{
                 request.get(option,(err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
-                        return callback(err)
+                        return callback(err,{code:102,p:4})
                     }
                     if(result.statusCode != 200 ){
                         logger.error('腾讯状态码错误2',result.statusCode)
                         logger.info(result)
-                        return callback(true)
+                        return callback(true,{code:102,p:4})
                     }
                     let $ = cheerio.load(result.body),
                         num = $('.btn_book .num')
                     if(num.length){
-                        return callback(true)
+                        return callback(true,{code:102,p:4})
                     }
                     let user = $('.user_info'),
                         //name = user.attr('title'),
@@ -373,12 +373,12 @@ class deal{
                     request.get(option,(err,result)=>{
                         if(err){
                             logger.error( 'occur error : ', err )
-                            return callback(err)
+                            return callback(err,{code:102,p:4})
                         }
                         if(result.statusCode != 200 ){
                             logger.error('腾讯状态码错误3',result.statusCode)
                             logger.info(result)
-                            return callback(true)
+                            return callback(true,{code:102,p:4})
                         }
                         let $ = cheerio.load(result.body),
                             name = $('h2.user_info_name').html()
@@ -403,19 +403,19 @@ class deal{
             request.get(option,(err,result)=>{
                 if(err){
                     logger.error( 'occur error : ', err )
-                    return callback(err)
+                    return callback(err,{code:102,p:6})
                 }
                 if(result.statusCode != 200 ){
                     logger.error('头条状态码错误',result.statusCode)
                     logger.info(result)
-                    return callback(true)
+                    return callback(true,{code:102,p:6})
                 }
                 try {
                     result = JSON.parse(result.body)
                 } catch (e) {
                     logger.error('头条json数据解析失败')
                     logger.info(result)
-                    return callback(e)
+                    return callback(e,{code:102,p:6})
                 }
                 let res = {
                     id: result.data.media_user.id,
@@ -431,19 +431,19 @@ class deal{
                 request.get(option,(err,result)=>{
                     if(err){
                         logger.error( 'occur error : ', err )
-                        return callback(err)
+                        return callback(err,{code:102,p:6})
                     }
                     if(result.statusCode != 200 ){
                         logger.error('头条状态码错误',result.statusCode)
                         logger.info(result)
-                        return callback(true)
+                        return callback(true,{code:102,p:6})
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
                         logger.error('头条json数据解析失败')
                         logger.info(result)
-                        return callback(e)
+                        return callback(e,{code:102,p:6})
                     }
                     let res = {
                         id: result.data.media_user.id,
@@ -462,19 +462,19 @@ class deal{
         request.get(option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:11})
             }
             if(result.statusCode != 200 ){
                 logger.error('一点状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:11})
             }
             let $ = cheerio.load(result.body),
                 name = $('#source-name').text(),
                 href = $('#source-name').attr('href')
             if(!name || !href){
                 logger.error(`url可能不是播放页地址:${data}`)
-                return callback('101')
+                return callback(true,{code:101,p:11})
             }
             let h_array = href.split('='),
                 v_id = h_array[h_array.length-1],
@@ -502,19 +502,22 @@ class deal{
         request.get ( option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:12})
             }
             if(result.statusCode != 200 ){
                 logger.error('土豆状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:12})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('土豆json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:12})
+            }
+            if(!result.detail){
+                return callback(true,{code:102,p:12})
             }
             let res = {
                 id: result.detail.userid,
@@ -549,19 +552,19 @@ class deal{
         request.get ( option, ( err, result ) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:13})
             }
             if(result.statusCode != 200 ){
                 logger.error('爆米花状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:13})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('爆米花json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:13})
             }
             let res = {
                 id: result.result.ChannelInfo.ChannelID,
@@ -582,14 +585,14 @@ class deal{
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error:', err )
-                return callback(err)
+                return callback(err,{code:102,p:14})
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('酷6json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(e,{code:102,p:14})
             }
             let res = {
                 id: result.data.list[0].author.id,
@@ -602,18 +605,18 @@ class deal{
     btime ( data, callback) {
         let pathname = URL.parse(data,true).pathname,option = {}
         if(!((pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/')))){
-            return callback(null,{errno:101,errmsg:'该URL不是合法播放页地址,请输入时间号的视频播放地址'})
+            return callback(true,{code:101,p:15})
         }
         option.url = data
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
-                return callback(err)
+                return callback(err,{code:102,p:15})
             }
             if(result.statusCode != 200){
                 logger.error('北京时间状态码错误:',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:15})
             }
             let $ = cheerio.load(result.body),
                 id = $("input[name='uid']").attr('value'),
@@ -628,14 +631,14 @@ class deal{
                 request.get(option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
-                        return callback(err)
+                        return callback(err,{code:102,p:15})
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch (e){
                         logger.error('北京时间json数据解析失败')
                         logger.info('json error: ',result.body)
-                        return callback(e)
+                        return callback(e,{code:102,p:15})
                     }
                     let res = {
                         id: result.data.author_uid,
@@ -648,14 +651,14 @@ class deal{
                 request.get( option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
-                        return callback(err)
+                        return callback(err,{code:102,p:15})
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch (e){
                         logger.error('北京时间json数据解析失败')
                         logger.info('json error: ',result.body)
-                        return callback(e)
+                        return callback(e,{code:102,p:15})
                     }
                     let res = {
                         id: result.data.uid,
@@ -690,14 +693,14 @@ class deal{
         request.get(option, (err, result) => {
             if (err) {
                 logger.error('occur error: ', err)
-                return callback(err)
+                return callback(err,{code:102,p:16})
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('微视json数据解析失败')
                 logger.info('json error: ', result.body)
-                return callback(e)
+                return callback(e,{code:102,p:16})
             }
             let data = result.data.user
             res.name = Object.keys(data)[0]
@@ -716,14 +719,14 @@ class deal{
         request.get( option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:17})
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('小影json数据解析失败')
                 logger.info('json error: ',result.body)
-                return callback(e)
+                return callback(e,{code:102,p:17})
             }
             let res = {
                 id: result.videoinfo.auid,
@@ -766,19 +769,19 @@ class deal{
             request.get( option, ( err, result) => {
                 if (err) {
                     logger.error( 'occur error : ', err )
-                    return callback(err)
+                    return callback(err,{code:102,p:18})
                 }
                 if (result.statusCode != 200) {
-                    logger.error('不得姐状态码错误', result.statusCode)
+                    logger.error('不得姐状态码错误1', result.statusCode)
                     logger.info(result)
-                    return callback(true)
+                    return callback(true,{code:102,p:18})
                 }
                 try {
                     result = JSON.parse(result.body)
                 } catch (e) {
                     logger.error('不得姐json数据解析失败')
                     logger.info('json error: ',result)
-                    return callback(e)
+                    return callback(e,{code:102,p:18})
                 }
                 let data = result.data
                 res.id = data.id
@@ -789,12 +792,12 @@ class deal{
             request.get( option, ( err, result ) => {
                 if (err) {
                     logger.error( 'occur error : ', err )
-                    return callback(err)
+                    return callback(err,{code:102,p:18})
                 }
                 if (result.statusCode != 200) {
-                    logger.error('不得姐状态码错误', result.statusCode)
+                    logger.error('不得姐状态码错误2', result.statusCode)
                     logger.info(result)
-                    return callback(true)
+                    return callback(true,{code:102,p:18})
                 }
                 let $ = cheerio.load(result.body),
                     userNode = $('.u-user-name'),
@@ -822,7 +825,7 @@ class deal{
             if(rex.test(v_array[1]) ){
                 option.url = data
             }else{
-                return callback(101)
+                return callback(true,{code:101,p:19})
             }
         }else if(hostname == 'neihanshequ.com' && path.startsWith('/user/')){
             id = v_array[2]
@@ -830,12 +833,12 @@ class deal{
             request.get( option, ( err, result ) => {
                 if (err) {
                     logger.error( 'occur error : ', err )
-                    return callback(err)
+                    return callback(err,{code:102,p:19})
                 }
                 if (result.statusCode != 200) {
                     logger.error('内涵段子状态码错误', result.statusCode)
                     logger.info(result)
-                    return callback(true)
+                    return callback(true,{code:102,p:19})
                 }
                 let $ = cheerio.load(result.body,{ignoreWhitespace:true}),
                     name = $('.desc-item .desc-wrapper .name').text(),
@@ -847,17 +850,17 @@ class deal{
                 return callback(null,res)
             })
         }else{
-            return callback(101)
+            return callback(true,{code:101,p:19})
         }
         request.get(option, (err, result) => {
             if (err) {
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err,{code:102,p:19})
             }
             if (result.statusCode != 200) {
                 logger.error('内涵段子状态码错误', result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:19})
             }
             let $ = cheerio.load(result.body),
                 name = $('.name-time-wrapper .name').text(),
@@ -890,21 +893,21 @@ class deal{
             if(path.startsWith('/x/') || path.startsWith('/s/') || path.startsWith('/d/')){
                 option.url = data
             }else{
-                return callback('101')
+                return callback(true,{code:101,p:20})
             }
         }else{
             logger.error('链接错误',data)
-            return callback('101')
+            return callback(true,{code:101,p:20})
         }
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
-                return callback(err)
+                return callback(err,{code:102,p:20})
             }
             if(result.statusCode != 200){
                 logger.error('yy状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:20})
             }
             let $ = cheerio.load(result.body),
                 name = $('.info-txt .nickname a').text(),
@@ -938,7 +941,7 @@ class deal{
                 vid =  pre_vid.split('-')[1]
                 break
             default:
-                return callback('101')
+                return callback(true,{code:101,p:21})
         }
         let options = {
             method: 'GET',
@@ -950,11 +953,11 @@ class deal{
         r( options, ( err, res, body ) => {
             if(err){
                 logger.error('occur error: ',err)
-                return callback(err)
+                return callback(err,{code:102,p:21})
             }
             if(res.statusCode != 200){
                 logger.error('56状态码错误',res.statusCode)
-                return callback(true)
+                return callback(true,{code:102,p:21})
             }
             let $ = cheerio.load(body,{
                     ignoreWhitespace:true
@@ -968,7 +971,7 @@ class deal{
                 id_info = _id_info[0]
                 name_info = _name_info[0]
             }else{
-                return callback(true)
+                return callback(true,{code:102,p:21})
             }
             id = id_info.substring(10,id_info.lastIndexOf("'"))
             name = name_info.substring(11,name_info.lastIndexOf("'"))
@@ -995,19 +998,19 @@ class deal{
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
-                return callback(err)
+                return callback(err,{code:102,p:22})
             }
             if(result.statusCode != 200){
                 logger.error('A站状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return callback(true,{code:102,p:22})
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('A站json数据解析失败')
                 logger.info('json error: ',result)
-                return callback(e)
+                return callback(e,{code:102,p:22})
             }
             let res = {
                 name: result.data.owner.name,
@@ -1018,14 +1021,4 @@ class deal{
         })
     }
 }
-class Tool{
-    hexToString(str){
-        let val = ''
-        let arr = str.split(';')
-        for(let i = 0; i < arr.length-1; i++){
-            val += String.fromCodePoint(arr[i].replace('&#','0'))
-        }
-        return val
-    }
-}
-module.exports = deal
+module.exports = DealWith

@@ -19,5 +19,74 @@
   "url": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
   "update": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
   "sendUrl": "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-  "interval": 10000
+  "interval": 10000,
+  "servantAPI": {
+    "youku": {
+      "key": "c9e697e443715900",
+      "url": "https://openapi.youku.com/v2/videos/show_basic.json"
+    },
+    "bili": {
+      "url": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid="
+    },
+    "meipai": {
+      "url": "https://newapi.meipai.com/medias/show.json?id="
+    },
+    "miaopai": {
+      "url": "http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="
+    },
+    "souhu": {
+      "url": "http://s1.api.tv.itc.cn/v4/video/info/"
+    },
+    "kuaibao": {
+      "url": "http://r.cnews.qq.com/getSubNewsListItems"
+    },
+    "iqiyi": {
+      "url": "http://mixer.video.iqiyi.com/jp/mixin/videos/"
+    },
+    "tencent": {
+      "url": "http://sns.video.qq.com/tvideo/fcgi-bin/video?otype=json&callback=jsonp&low_login=1&vid="
+    },
+    "toutiao": {
+      "url": "http://m.toutiao.com/i"
+    },
+    "yidian": {
+      "url": "http://yidianzixun.com/home?page=article&id="
+    },
+    "tudou": {
+      "url": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid="
+    },
+    "baomihua": {
+      "url": "http://m.interface.baomihua.com/interfaces/userchannel.ashx"
+    },
+    "ku6": {
+      "url": "http://v.ku6.com/video.htm?t=getVideosByIds&ids="
+    },
+    "btime": {
+      "url": "http://record.btime.com/getUserChannel?uid="
+    },
+    "weishi": {
+      "url_1": "http://wsm.qq.com/weishi/t/other.php",
+      "url_2": "http://wsi.weishi.com/weishi/t/show.php"
+    },
+    "xiaoying": {
+      "url": "https://w.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&puid="
+    },
+    "budejie": {
+      "url_1": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid="
+    },
+    "neihan": {
+      "url": "http://neihanshequ.com/"
+    },
+    "yy": {
+      "url_1": "http://www.yy.com/s/",
+      "url_2": "http://www.yy.com/d/" ,
+      "url_3": "http://www.yy.com/x/"
+    },
+    "tv56": {
+      "url": ""
+    },
+    "acfun": {
+      "url": "http://api.aixifan.com/videos/"
+    }
+  }
 }
