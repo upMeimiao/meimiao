@@ -340,10 +340,11 @@ class DealWith {
                 return callback(true,{code:102,p:4})
             }
             let back = eval(result.body)
-            if(!back.result){
+            let nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault
+            if(!back.result || !nameIs){
                 res = {
                     id: back.vppinfo.euin,
-                    name: back.vppinfo.nick,
+                    name: nameIs,
                     type: 1,
                     p: 4
                 }
