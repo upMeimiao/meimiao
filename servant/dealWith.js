@@ -362,9 +362,9 @@ class DealWith {
                     }
                     let $ = cheerio.load(result.body),
                         num = $('.btn_book .num')
-                    if(num.length){
-                        return callback(true,{code:102,p:4})
-                    }
+                    // if(num.length){
+                    //     return callback(true,{code:102,p:4})
+                    // }
                     let user = $('.user_info'),
                         //name = user.attr('title'),
                         href = user.attr('href'),
