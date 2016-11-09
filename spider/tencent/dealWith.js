@@ -17,12 +17,30 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        this.getTotal(task,(err) => {
-            if(err){
-                return callback(err)
+        async.parallel(
+            {
+                user: (callback) => {
+                    this.getUser(task,(err)=>{
+                        callback(null,"用户信息已返回")
+                    })
+                },
+                media: (callback) => {
+                    this.getTotal(task,(err)=>{
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,"视频信息已返回")
+                    })
+                }
+            },
+            ( err, result ) => {
+                if(err){
+                    return callback(err)
+                }
+                logger.debug(task.id + "_result:",result)
+                callback(null,task.total)
             }
-            callback(null,task.total)
-        })
+        )
     }
     getTotal (task,callback) {
         logger.debug("开始获取视频总数")
@@ -35,68 +53,53 @@ class dealWith {
                 return callback(err)
             }
             result = eval(result.body)
+            logger.debug(result)
             if(result.s != 'o'){
                 logger.error(`异常错误${result.em}`)
                 return callback(result.em)
             }
-            let videolst = result.videolst
-            if(!videolst || videolst.length == 0){
+            if(!result.vtotal){
                 logger.error(`异常错误`)
                 return callback(true)
             }
             task.total = result.vtotal
-            async.series({
-                user: (callback) => {
-                    if(result.videolst[0]){
-                        this.getUser(task,result.videolst[0].vid,(err)=>{
-                            if(err){
-                                return callback(null,"用户信息获取错误")
-                            }
-                            callback(null,"用户信息已返回")
-                        })
-                    }else{
-                        callback(null,"发生未知错误")
-                    }
-                },
-                media: (callback) => {
-                    this.getList(task,result.vtotal, (err) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,"视频信息已返回")
-                    })
-                }
-            },(err,result) => {
+            this.getList(task,result.vtotal, (err) => {
                 if(err){
                     return callback(err)
                 }
-                logger.debug("result:",result)
                 callback()
             })
         })
     }
-    getUser (task,id,callback) {
+    getUser (task,callback) {
         let option = {
-            url: this.settings.user + id + "&_=" + new Date().getTime()
+            url: this.settings.user + task.id + "&_=" + new Date().getTime()
         }
         request.get( option, (err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback()
             }
-            result = eval(result.body)
-            if(result.result){
+            if(result.statusCode != 200){
+                logger.error('tencent code error: ',result.statusCode)
                 return callback()
             }
-            let userInfo = result.vppinfo,
-                user = {
+            try {
+                result = eval(result.body)
+            } catch (e){
+                logger.error('tencent jsonp error: ',result)
+                return callback()
+            }
+            let user = {
                     platform: 4,
-                    bid: userInfo.euin,
-                    fans_num: userInfo.count1
+                    bid: task.id,
+                    fans_num: result.followcount
                 }
-            this.sendUser (user,(err,result) => {
+                logger.debug(user)
                 callback()
-            })
+            // this.sendUser (user,(err,result) => {
+            //     callback()
+            //})
         })
     }
     sendUser (user,callback){

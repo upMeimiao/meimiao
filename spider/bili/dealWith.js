@@ -142,6 +142,11 @@ class dealWith {
                         logger.info('list error:',result.body)
                         return cb()
                     }
+                    if(!result.data){
+                        logger.debug(result)
+                        sign++
+                        cb()
+                    }
                     let list = result.data.vlist
                     if(!list || list == 'null'){
                         logger.debug('已经没有数据')
