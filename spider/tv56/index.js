@@ -74,7 +74,7 @@ class spiderCore {
             }
         })
         logger.trace('Queue get ready')
-        queue.process('tv56',10, (job,done) => {
+        queue.process('tv56',8, (job,done) => {
             logger.trace( 'Get tv56 task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
