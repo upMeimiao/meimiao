@@ -112,13 +112,13 @@ class sendServer {
         })
     }
     send_staging (media) {
-        console.log('-----------------------------------staging----------------------------------------')
+        //console.log('-----------------------------------staging----------------------------------------')
         const option = {
             url: 'http://staging.caihongip.com/index.php/Spider/video/postVideos/',
             form: media
         }
         request.post(option, (err,res, result) => {
-            console.log('--------------------------staging-----------------------------')
+            //console.log('--------------------------staging-----------------------------')
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
@@ -126,8 +126,8 @@ class sendServer {
             }
             if(res.statusCode != 200){
                 logger.error(`errorCode: ${res.statusCode}`)
-                logger.error(result)
-                logger.error(media)
+                // logger.error(result)
+                // logger.error(media)
                 return
             }
             try{
