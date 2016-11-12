@@ -340,16 +340,7 @@ class DealWith {
                 return callback(true,{code:102,p:4})
             }
             let back = eval(result.body)
-            let nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault
-            if(!back.result || !nameIs){
-                res = {
-                    id: back.vppinfo.euin,
-                    name: nameIs,
-                    type: 1,
-                    p: 4
-                }
-                return callback(null,res)
-            }else{
+            if( back.result && back.result.code == -200){
                 option.url = data
                 request.get(option,(err,result) => {
                     if(err){
@@ -392,7 +383,62 @@ class DealWith {
                         return callback(null,res)
                     })
                 })
+            }else{
+                let nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault
+                if(!back.result || !nameIs){
+                    res = {
+                        id: back.vppinfo.euin,
+                        name: nameIs,
+                        type: 1,
+                        p: 4
+                    }
+                    return callback(null,res)
+                }else{
+                    option.url = data
+                    request.get(option,(err,result) => {
+                        if(err){
+                            logger.error( 'occur error : ', err )
+                            return callback(err,{code:102,p:4})
+                        }
+                        if(result.statusCode != 200 ){
+                            logger.error('腾讯状态码错误2',result.statusCode)
+                            logger.info(result)
+                            return callback(true,{code:102,p:4})
+                        }
+                        let $ = cheerio.load(result.body),
+                            num = $('.btn_book .num')
+                        // if(num.length){
+                        //     return callback(true,{code:102,p:4})
+                        // }
+                        let user = $('.user_info'),
+                            //name = user.attr('title'),
+                            href = user.attr('href'),
+                            id = href.substring(href.lastIndexOf('/')+1)
+                        option.url = href
+                        request.get(option,(err,result)=>{
+                            if(err){
+                                logger.error( 'occur error : ', err )
+                                return callback(err,{code:102,p:4})
+                            }
+                            if(result.statusCode != 200 ){
+                                logger.error('腾讯状态码错误3',result.statusCode)
+                                logger.info(result)
+                                return callback(true,{code:102,p:4})
+                            }
+                            let $ = cheerio.load(result.body),
+                                name = $('h2.user_info_name').html()
+                            res = {
+                                id: id,
+                                name: name,
+                                type: 2,
+                                p: 4
+                            }
+                            return callback(null,res)
+                        })
+                    })
+                }
             }
+
         })
     }
     toutiao (data,callback) {
