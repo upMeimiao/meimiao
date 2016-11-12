@@ -373,7 +373,7 @@ class DealWith {
                             return callback(true,{code:102,p:4})
                         }
                         let $ = cheerio.load(result.body),
-                            name = $('h2.user_info_name').html()
+                            name = $('h2.user_info_name').text()
                         res = {
                             id: id,
                             name: name,
