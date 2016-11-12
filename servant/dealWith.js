@@ -852,7 +852,7 @@ class DealWith {
                     start = href.lastIndexOf('-'),
                     end = href.indexOf('.')
                 res.id = href.substring(start + 1,end)
-                res.name = userNode.html().trim()
+                res.name = userNode.text().trim()
                 res.p = 18
                 callback(null,res)
             })
