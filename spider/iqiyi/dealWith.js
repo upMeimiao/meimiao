@@ -260,7 +260,6 @@ class dealWith {
                     comment_num: result[0].comment,
                     a_create_time: result[0].time
                 }
-                logger.debug(media)
                 this.sendCache( media )
                 callback()
             }
