@@ -1,7 +1,7 @@
 {
   "name"        : "爱奇艺",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","iqiyi","-a","iqiyi"],
+  "args"        : ["-i","master","-a","iqiyi"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,
