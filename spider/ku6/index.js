@@ -6,6 +6,7 @@ const kue = require( 'kue' )
 const request = require('request')
 const myRedis = require( '../lib/myredis.js' )
 const async = require( 'async' )
+const domain = require('domain')
 
 let logger,settings
 class spiderCore {
@@ -73,6 +74,9 @@ class spiderCore {
                     db: this.redis.jobDB
                 }
             })
+        queue.on( 'error', function( err ) {
+            logger.error( 'Oops... ', err )
+        })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
         queue.process('ku6',5,(job,done) => {
@@ -80,40 +84,44 @@ class spiderCore {
             let work = job.data,
                 key = work.p + ':' + work.id
             logger.info( work )
-            logger.debug(job.id)
-            this.dealWith.todo(work, (err,total) => {
-                if(err){
-                    logger.debug('task error:',key)
-                    return done(err)
-                }
-                this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
-                    done(null)
-                })
-                request.post( settings.sendToServer[2], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+            const d = domain.create()
+            d.on('error', function(err){
+                done(err)
+            })
+            d.run(()=>{
+                this.dealWith.todo(work, (err,total) => {
                     if(err){
-                        logger.error( 'occur error : ', err )
-                        return
+                        logger.debug('task error:',key)
+                        return done(err)
                     }
-                    if(res.statusCode != 200 ){
-                        logger.error( `状态码${res.statusCode}` )
-                        logger.info( res )
-                        return
-                    }
-                    try {
-                        body = JSON.parse( body )
-                    } catch (e) {
-                        logger.info( '不符合JSON格式' )
-                        return
-                    }
-                    if(body.errno == 0){
-                        logger.info(body.errmsg)
-                    }else{
-                        logger.info(body)
-                    }
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
+                        done(null)
+                    })
+                    request.post( settings.sendToServer[2], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+                        if(err){
+                            logger.error( 'occur error : ', err )
+                            return
+                        }
+                        if(res.statusCode != 200 ){
+                            logger.error( `状态码${res.statusCode}` )
+                            logger.info( res )
+                            return
+                        }
+                        try {
+                            body = JSON.parse( body )
+                        } catch (e) {
+                            logger.info( '不符合JSON格式' )
+                            return
+                        }
+                        if(body.errno == 0){
+                            logger.info(body.errmsg)
+                        }else{
+                            logger.info(body)
+                        }
+                    })
                 })
             })
         })
-        
     }
 }
 module.exports = spiderCore

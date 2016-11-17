@@ -5,6 +5,7 @@ const kue = require( 'kue' )
 const request = require('../lib/request.js')
 const myRedis = require( '../lib/myredis.js' )
 const async = require( 'async' )
+const domain = require('domain')
 
 let logger,settings
 class spiderCore {
@@ -73,6 +74,9 @@ class spiderCore {
                 db: this.redis.jobDB
             }
         })
+        queue.on( 'error', function( err ) {
+            logger.error( 'Oops... ', err )
+        })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
         queue.process('tv56',5, (job,done) => {
@@ -80,28 +84,34 @@ class spiderCore {
             let work = job.data,
                 key = work.p + ':' + work.id
             logger.info( work )
-            this.dealWith.todo(work, (err,total) => {
-                if(err){
-                    return done(err)
-                }
-                this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
-                    done(null)
-                })
-                request.post( logger, {url:settings.sendToServer[2], data:{platform:work.p,bid: work.id}},(err,result) => {
+            const d = domain.create()
+            d.on('error', function(err){
+                done(err)
+            })
+            d.run(()=>{
+                this.dealWith.todo(work, (err,total) => {
                     if(err){
-                        return
+                        return done(err)
                     }
-                    try {
-                        result = JSON.parse( result.body )
-                    } catch (e) {
-                        logger.info( '不符合JSON格式' )
-                        return
-                    }
-                    if(result.errno == 0){
-                        logger.info(result.errmsg)
-                    }else{
-                        logger.info(result)
-                    }
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
+                        done(null)
+                    })
+                    request.post( logger, {url:settings.sendToServer[2], data:{platform:work.p,bid: work.id}},(err,result) => {
+                        if(err){
+                            return
+                        }
+                        try {
+                            result = JSON.parse( result.body )
+                        } catch (e) {
+                            logger.info( '不符合JSON格式' )
+                            return
+                        }
+                        if(result.errno == 0){
+                            logger.info(result.errmsg)
+                        }else{
+                            logger.info(result)
+                        }
+                    })
                 })
             })
         })
