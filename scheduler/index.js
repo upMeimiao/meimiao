@@ -3,6 +3,7 @@ const request = require( 'request' )
 const util = require( 'util' )
 const events = require( 'events' )
 const myRedis = require( '../lib/myredis.js' )
+const schedule = require('node-schedule')
 
 let logger
 class scheduler {
@@ -38,9 +39,12 @@ class scheduler {
                 this.taskDB = cli
                 logger.debug( "任务信息数据库连接建立...成功" )
                 //this.emit('task_loaded',test_data)
-                setInterval( () => {
+                const j = schedule.scheduleJob('* /6 * * * *', () =>{
                     this.getTask()
-                }, 300000)
+                })
+                // setInterval( () => {
+                //     this.getTask()
+                // }, 300000)
             }
         )
     }
@@ -88,7 +92,7 @@ class scheduler {
                 logger.info(body)
                 return
             }
-            console.log(body)
+            logger.debug(body)
             this.emit('task_loaded',body)
         })
     }
