@@ -40,7 +40,7 @@ class scheduler {
                 //this.emit('task_loaded',test_data)
                 setInterval( () => {
                     this.getTask()
-                }, 5000)
+                }, 300000)
             }
         )
     }
