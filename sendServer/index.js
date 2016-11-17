@@ -35,7 +35,7 @@ class sendServer {
                 },20)
                 setInterval(()=>{
                     this.emit('get_lists_staging')
-                },60)
+                },40)
             }
         )
     }
