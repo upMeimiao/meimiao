@@ -106,7 +106,7 @@ class scheduler {
                 logger.info(body)
                 return
             }
-            //logger.debug(body)
+            logger.debug(body)
             this.emit('task_loaded',body)
         })
     }
