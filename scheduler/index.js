@@ -39,12 +39,12 @@ class scheduler {
                 this.taskDB = cli
                 logger.debug( "任务信息数据库连接建立...成功" )
                 //this.emit('task_loaded',test_data)
-                const j = schedule.scheduleJob('* /6 * * * *', () =>{
-                    this.getTask()
-                })
-                // setInterval( () => {
+                // const j = schedule.scheduleJob('* /6 * * * *', () =>{
                 //     this.getTask()
-                // }, 300000)
+                // })
+                setInterval( () => {
+                    this.getTask()
+                }, 300000)
             }
         )
     }
