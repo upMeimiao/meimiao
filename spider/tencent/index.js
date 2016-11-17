@@ -73,6 +73,7 @@ class spiderCore {
                     db: this.redis.jobDB
                 }
             })
+        queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
         queue.process('tencent',5, (job,done) => {
             logger.trace( 'Get tencent task!' )
