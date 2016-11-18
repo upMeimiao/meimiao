@@ -33,9 +33,9 @@ class sendServer {
                 setInterval(()=>{
                     this.emit('get_lists')
                 },20)
-                setInterval(()=>{
-                    this.emit('get_lists_staging')
-                },40)
+                // setInterval(()=>{
+                //     this.emit('get_lists_staging')
+                // },40)
             }
         )
     }
@@ -66,7 +66,7 @@ class sendServer {
                 return
             }
             this.emit('send_data', JSON.parse(result))
-            //this.emit('send_data_staging', JSON.parse(result))
+            this.emit('send_data_staging', JSON.parse(result))
         } )
     }
     deal_staging () {
