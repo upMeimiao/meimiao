@@ -77,7 +77,7 @@ class spiderCore {
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
         })
-        queue.watchStuckJobs( 1000 )
+        //queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
         queue.process('bili',10,(job,done)=> {
             logger.trace( 'Get bili task!' )
@@ -85,42 +85,43 @@ class spiderCore {
                 key = work.p + ':' + work.id
             logger.info( work )
             const d = domain.create()
-            d.on('error', function(err){
-                console.log(err)
-                done(err)
-            })
-            d.run(()=>{
-                this.dealWith.todo(work, (err, total) => {
+            // d.on('error', function(err){
+            //     console.log(err)
+            //     done(err)
+            // })
+            // d.run(()=>{
+            // })
+            this.dealWith.todo(work, (err, total) => {
+                if(err){
+                    return done(err)
+                }
+                this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
+                    done(null)
+                })
+                request.post( settings.sendToServer[2], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                     if(err){
-                        return done(err)
+                        logger.error( 'occur error : ', err )
+                        return
                     }
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
-                        done(null)
-                    })
-                    request.post( settings.sendToServer[2], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
-                        if(err){
-                            logger.error( 'occur error : ', err )
-                            return
-                        }
-                        if(res.statusCode != 200 ){
-                            logger.error( `状态码${res.statusCode}` )
-                            logger.info( res )
-                            return
-                        }
-                        try {
-                            body = JSON.parse( body )
-                        } catch (e) {
-                            logger.info( '不符合JSON格式' )
-                            return
-                        }
-                        if(body.errno == 0){
-                            logger.info(body.errmsg)
-                        }else{
-                            logger.info(body)
-                        }
-                    })
+                    if(res.statusCode != 200 ){
+                        logger.error( `状态码${res.statusCode}` )
+                        logger.info( res )
+                        return
+                    }
+                    try {
+                        body = JSON.parse( body )
+                    } catch (e) {
+                        logger.info( '不符合JSON格式' )
+                        return
+                    }
+                    if(body.errno == 0){
+                        logger.info(body.errmsg)
+                    }else{
+                        logger.info(body)
+                    }
                 })
             })
+
         })
     }
 }
