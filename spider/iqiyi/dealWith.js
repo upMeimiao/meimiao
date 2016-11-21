@@ -129,23 +129,23 @@ class dealWith {
             url: 'http://staging.caihongip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post( logger, option, (err,result)=>{
             if(err){
-                logger.error( 'occur error : ', err )
                 return
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                logger.info('send error:',result)
+                logger.error(`爱奇艺用户 ${user.bid} json数据解析失败`)
+                logger.error(result)
                 return
             }
             if(result.errno == 0){
-                logger.debug("用户:",user.bid + ' back_end')
+                logger.debug("爱奇艺用户:",user.bid + ' back_end')
             }else{
-                logger.error("用户:",user.bid + ' back_error')
-                logger.info(result)
+                logger.error("爱奇艺用户:",user.bid + ' back_error')
+                logger.error(result)
+                logger.error(`user info: `,user)
             }
         })
     }
