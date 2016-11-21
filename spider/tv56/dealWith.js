@@ -107,9 +107,8 @@ class dealWith {
             url: 'http://staging.caihongip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post( logger, option,(err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return
             }
             try{

@@ -11,7 +11,7 @@
   },
   "list":"http://api.my.le.com/video/user/videolist?callback=jsonp&pagesize=30&userid=",
   "newList":"http://chuang.le.com/u/",
-  "info":"http://v.stat.letv.com/vplay/getIdsInfo?type=vlist&callback=jsonp&ids=",
+  "info":"http://v.stat.letv.com/vplay/getIdsInfo?type=vlist&ids=",
   "time":"http://api.my.le.com/vcm/api/list?type=video&rows=20&page=1&sort=&source=1&xid=",
   "desc": "http://d.api.m.le.com/apiplay/dynamicCard?type=introduction%2Crecommend&vid=",
   "sendToServer": [
