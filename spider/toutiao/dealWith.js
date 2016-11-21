@@ -138,6 +138,10 @@ class dealWith {
                 }
                 if(data.id.startsWith('a')){
                     this.getVId(data.id,(err,vid)=>{
+                        if(err){
+                            index++
+                            return cb()
+                        }
                         data.id = vid
                         this.info(task,data, () => {
                             index++
@@ -158,6 +162,9 @@ class dealWith {
     }
     getVId (g_id, callback){
         r.head(`http://toutiao.com/${g_id}/`,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
+            if(!res){
+                return callback(true)
+            }
             let v_id = (res.request.path).replace(/\//g,'').substring(1)
             callback(null,v_id)
         })
