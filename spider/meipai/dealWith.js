@@ -66,6 +66,7 @@ class dealWith {
             this.sendUser (user,(err,result)=>{
                 callback()
             })
+            this.sendStagingUser(user)
         })
     }
     sendUser (user,callback){
@@ -94,6 +95,31 @@ class dealWith {
                 logger.info(`user info: `,back)
             }
             callback()
+        })
+    }
+    sendStagingUser (user){
+        let option = {
+            url: 'http://staging.caihongip.com/index.php/Spider/Fans/postFans',
+            data: user
+        }
+        request.post( option,(err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info('send error:',result)
+                return
+            }
+            if(result.errno == 0){
+                logger.debug("用户:",user.bid + ' back_end')
+            }else{
+                logger.error("用户:",user.bid + ' back_error')
+                logger.info(result)
+            }
         })
     }
     getTotal ( task,callback ) {
