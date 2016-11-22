@@ -240,8 +240,8 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.id,
-                    title: video.title,
-                    desc: result[0].video_desc,
+                    title: video.title.substr(0,100),
+                    desc: result[0].video_desc.substr(0,100),
                     play_num: result[0].play_count,
                     comment_num: result[1],
                     a_create_time: Math.round(result[0].create_time / 1000)

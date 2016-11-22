@@ -198,7 +198,7 @@ class dealWith {
                     bid: task.id,
                     aid: video.id,
                     title: video.origtext ? video.origtext.substr(0,80) : '无标题',
-                    desc: video.origtext,
+                    desc: video.origtext.substr(0,100),
                     play_num: video.playCount,
                     forward_num: video.rtcount,
                     comment_num: video.mcount,

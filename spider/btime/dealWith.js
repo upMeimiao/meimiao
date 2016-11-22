@@ -189,8 +189,8 @@ class dealWith {
                 platform: 15,
                 bid: task.id,
                 aid: data.id,
-                title: data.title,
-                desc: data.description,
+                title: data.title.substr(0,100),
+                desc: data.description.substr(0,100),
                 play_num: data.click_count,
                 comment_num: data.comment,
                 a_create_time: a_create_time
