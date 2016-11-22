@@ -360,6 +360,7 @@ class DealWith {
                     let user = $('.user_info'),
                         //name = user.attr('title'),
                         href = user.attr('href'),
+                        idDom = $('.btn_book'),
                         id = href.substring(href.lastIndexOf('/')+1)
                     option.url = href
                     request.get(option,(err,result)=>{
@@ -373,7 +374,15 @@ class DealWith {
                             return callback(true,{code:102,p:4})
                         }
                         let $ = cheerio.load(result.body),
-                            name = $('h2.user_info_name').text()
+                            nameDom = $('h2.user_info_name'),
+                            nameDom2 = $('#userInfoNick'),
+                            name
+                        if(nameDom.length == 0){
+                            name = nameDom2.text()
+                            id = idDom.attr('r-subscribe')
+                        }else{
+                            name = nameDom.text()
+                        }
                         res = {
                             id: id,
                             name: name,
