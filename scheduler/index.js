@@ -41,19 +41,19 @@ class scheduler {
                 logger.debug( "任务信息数据库连接建立...成功" )
                 //this.emit('task_loaded',test_data)
                 const rule = new schedule.RecurrenceRule();
-                // const osName = os.hostname()
-                // switch (osName){
-                //     case 'servant_3':
-                //         rule.second = [0,10,20,30,40,50]
-                //         break
-                //     case 'iZ28ilm78mlZ':
-                //         rule.second = [5,15,25,35,45,55]
-                //         break
-                //     default:
-                //         rule.second = [0,5,10,15,20,25,30,35,40,45,50,55]
-                //         break
-                // }
-                rule.minute = [0,6,12,18,24,30,36,42,48,54]
+                const osName = os.hostname()
+                switch (osName){
+                    case 'servant_3':
+                        rule.second = [0,10,20,30,40,50]
+                        break
+                    case 'iZ28ilm78mlZ':
+                        rule.second = [5,15,25,35,45,55]
+                        break
+                    default:
+                        rule.second = [0,5,10,15,20,25,30,35,40,45,50,55]
+                        break
+                }
+                //rule.minute = [0,6,12,18,24,30,36,42,48,54]
                 const j = schedule.scheduleJob(rule, () =>{
                     this.getTask()
                 })
