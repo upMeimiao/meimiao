@@ -178,8 +178,8 @@ class DealWith {
                 return callback(e,{code:102,p:9})
             }
             let res = {
-                id: result.data.user_id,
-                name: result.data.director,
+                id: result.data.user.user_id,
+                name: result.data.user.nickname,
                 p: 9
             }
             callback(null,res)
