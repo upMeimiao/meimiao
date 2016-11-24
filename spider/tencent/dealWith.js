@@ -93,7 +93,7 @@ class dealWith {
             let user = {
                     platform: 4,
                     bid: task.id,
-                    fans_num: result.followcount
+                    fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g,'')) * 10000
                 }
             this.sendUser (user,(err,result) => {
                 callback()
