@@ -216,7 +216,7 @@ class dealWith {
         )
     }
     getInfo ( task, data, callback ) {
-        async.series([
+        async.parallel([
             (cb) => {
                 this.getView(data.vid, (err,num) => {
                     if(err){
