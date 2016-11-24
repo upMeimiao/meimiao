@@ -120,7 +120,7 @@ class sendServer {
     send_staging (media) {
         //console.log('-----------------------------------staging----------------------------------------')
         const option = {
-            url: 'http://staging.caihongip.com/index.php/Spider/video/postVideos/',
+            url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/',
             form: media
         }
         request.post(option, (err,res, result) => {
