@@ -240,17 +240,21 @@ class dealWith {
     getInfo ( task, video, callback ){
         let options = {
             method: 'GET',
-            url: this.settings.info,
-            qs: { area_code: '1',
-                guid: '7066707c5bdc38af1621eaf94a6fe779',
-                id: video.videoid,
-                pid: '69b81504767483cf',
-                scale: '3',
-                ver: '5.8'
-            },
-            headers: {
-                'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
+            url: this.settings.newInfo,
+            qs: {
+                client_id:this.settings.app_key,
+                video_id:video.videoid
             }
+            // qs: { area_code: '1',
+            //     guid: '7066707c5bdc38af1621eaf94a6fe779',
+            //     id: video.videoid,
+            //     pid: '69b81504767483cf',
+            //     scale: '3',
+            //     ver: '5.8'
+            // },
+            // headers: {
+            //     'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
+            // }
         }
         request(options, (error, response, body) => {
             if(error){
@@ -268,19 +272,19 @@ class dealWith {
                 logger.info('info error:',body)
                 return callback(e)
             }
-            let result  = body.detail
+            let result  = body
             let data = {
                 author: task.name,
                 platform: 1,
                 bid: task.id,
                 aid: video.videoid,
                 title: video.title.substr(0,100),
-                desc: video.desc.substr(0,100),
+                desc: result.description.substr(0,100),
                 play_num: video.total_vv,
-                save_num: result.total_fav,
-                comment_num: result.total_comment.indexOf('万') == -1 ? result.total_comment : Number(result.total_comment.replace(/万/g,'')) * 10000,
-                support: result.total_up,
-                step: result.total_down,
+                save_num: result.favorite_count,
+                comment_num: result.comment_count,
+                support: result.up_count,
+                step: result.down_count,
                 a_create_time: video.publishtime
             }
             logger.debug(data)
