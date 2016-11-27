@@ -12,8 +12,10 @@
   "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",
   "fans": "http://www.tudou.com/uis/userStatInfo.action?app=homev2&uidCode=",
   "list": "http://user.api.3g.tudou.com/v4/user/ugc_list?page_size=30&pid=c0637223f8b69b02&sort_desc_by=pub&user_ids=",
+  "newList": "http://v.tudou.com/item/list.do?pageSize=100&sort=1",
   "media": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid=",
   "mediaTime": "http://www.tudou.com/tvp/getItemInfo.action?app=1&ic=",
+  "expr":"http://www.tudou.com/crp/itemSum.action?app=1&showArea=true&juabcdefg=01b2d5k98v31hl&iabcdefg=",
   "sendToServer":[
     "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
     "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",

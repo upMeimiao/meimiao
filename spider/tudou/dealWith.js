@@ -1,9 +1,5 @@
-/**
- * Created by yunsong on 16/7/28.
- */
 const async = require( 'async' )
-const request = require( '../lib/req' )
-const req = require( '../lib/request' )
+const request = require( '../../lib/request' )
 const cheerio = require('cheerio')
 let logger
 class dealWith {
@@ -15,60 +11,37 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        this.getTotal (task,(err) => {
-            if(err){
-                return callback(err)
-            }
-            callback(null,task.total)
-        })
-    }
-    getTotal (task,callback){
-        logger.debug('开始获取视频总数')
-        let option = {
-            url: this.settings.userInfo + task.id
-        }
-        request.get(option,(err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error('json数据解析失败')
-                logger.info('json error :',result.body)
-                return callback(e)
-            }
-            task.total = result.video_count
-            async.series({
+        async.parallel(
+            {
                 user: (callback) => {
-                    this.openHome( task, result.homeUrl, (err) => {
-                        callback(null,'用户信息已返回')
+                    this.getUser(task,(err)=>{
+                        callback(null,"用户信息已返回")
                     })
                 },
                 media: (callback) => {
-                    this.getList( task, result.video_count, (err) => {
+                    this.getTotal(task,(err)=>{
                         if(err){
                             return callback(err)
                         }
-                        callback(null,'视频信息已返回')
+                        callback(null,"视频信息已返回")
                     })
                 }
-            },(err,result) => {
+            },
+            ( err, result ) => {
                 if(err){
                     return callback(err)
                 }
-                logger.debug('result : ',result)
-                callback()
-            })
-        })
+                logger.debug(task.id + "_result:",result)
+                callback(null,task.total)
+            }
+        )
     }
-    openHome ( task, url, callback){
+    getUser ( task, callback){
         const option = {
-            url: url,
+            url: `http://www.tudou.com/home/_${task.id}/`,
             ua:2
         }
-        req.get(logger,option,(err,result)=>{
+        request.get(logger,option,(err,result)=>{
             if(err){
                 return callback()
             }
@@ -94,7 +67,7 @@ class dealWith {
         let option = {
             url: this.settings.fans + uidCode
         }
-        request.get( option, (err, result)=>{
+        request.get( logger, option, (err, result)=>{
             if(err){
                 return callback()
             }
@@ -102,7 +75,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error(`土豆粉丝 json数据解析失败`)
-                logger.info(result)
+                logger.error(result)
                 return callback(e)
             }
             let user = {
@@ -110,10 +83,36 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.data.subedNum
             }
+            //logger.debug(user)
             this.sendUser(user, () => {
                 callback()
             })
             this.sendStagingUser(user)
+        })
+    }
+    getTotal (task,callback){
+        logger.debug('开始获取视频总数')
+        let option = {
+            url: this.settings.userInfo + task.id
+        }
+        request.get( logger, option,(err,result) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e){
+                logger.error('json数据解析失败')
+                logger.info('json error :',result.body)
+                return callback(e)
+            }
+            task.total = result.video_count
+            this.getList( task, result.video_count, (err) => {
+                if(err){
+                    return callback(err)
+                }
+                callback()
+            })
         })
     }
     sendUser (user,callback){
@@ -121,10 +120,8 @@ class dealWith {
             url: this.settings.sendToServer[0],
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger,option,(err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
-                logger.info(`返回土豆用户 ${user.bid} 连接服务器失败`)
                 return callback(err)
             }
             try{
@@ -149,9 +146,8 @@ class dealWith {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post( logger,option,(err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return
             }
             try{
@@ -173,10 +169,10 @@ class dealWith {
         let sign = 1,
             page,
             option
-        if(total % 30 == 0 ){
-            page = total / 30
+        if(total % 100 == 0 ){
+            page = total / 100
         }else{
-            page = Math.ceil(total / 30)
+            page = Math.ceil(total / 100)
         }
         async.whilst(
             () => {
@@ -185,19 +181,14 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 option = {
-                    url: this.settings.list + task.id + "&page_no=" + sign
+                    url: this.settings.newList + `&uid=${task.id}&page=${sign}`
                 }
-                request.get(option, (err,result) => {
+                request.get(logger,option, (err,result) => {
                     if(err){
-                        logger.error( 'occur error : ' + err )
                         return cb()
                     }
-                    if(result.statusCode != 200){
-                        logger.error( `第${sign}页视频状态码${result.statusCode}` )
-                        return cb()
-                    }
-                    let data = JSON.parse(result.body),
-                        list = data.items
+                    result = JSON.parse(result.body)
+                    let list = result.data.data
                     if(list){
                         this.deal(task,list, () => {
                             sign++
@@ -232,17 +223,17 @@ class dealWith {
         )
     }
     getInfo ( task, data, callback ) {
-        async.series([
+        async.parallel([
             (cb) => {
-                this.getVideo(data.icode,(err,backData) => {
+                this.getExpr( data.itemID, (err,result) => {
                     if(err){
                         return cb(err)
                     }
-                    cb(null,backData)
+                    cb(null,result)
                 })
             },
             (cb) => {
-                this.getVideoTime(data.icode,(err,backData) => {
+                this.getVideoTime(data.code,(err,backData) => {
                     if(err){
                         return cb(err)
                     }
@@ -254,18 +245,20 @@ class dealWith {
                 return callback(err)
             }
             let media = {
-                author: result[0].detail.username,
+                author: task.name,
                 platform: 12,
                 bid: task.id,
-                aid: result[0].detail.iid,
-                title: result[0].detail.title.substr(0,100),
-                desc: result[0].detail.desc.substr(0,100),
-                play_num: data.playtimes,
-                save_num: result[0].detail.total_fav,
-                comment_num: result[0].detail.total_comment,
-                support: result[0].detail.subed_num,
+                aid: data.code,
+                title: data.title,
+                desc: data.comments,
+                play_num: data.playNum,
+                save_num: result[0].favorNum,
+                comment_num: result[0].commentNum,
+                support: result[0].digNum,
+                step: result[0].buryNum,
                 a_create_time: result[1]
             }
+            //logger.debug(media)
             this.sendCache( media )
             callback()
         })
@@ -279,36 +272,12 @@ class dealWith {
             logger.debug(`土豆视频 ${media.aid} 加入缓存队列`)
         } )
     }
-    getVideo ( id, callback){
-        let option = {
-            url: this.settings.media + id
-        }
-        request.get( option, (err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error('json数据解析失败')
-                logger.info('backData:',result)
-                return callback(e)
-            }
-            if(result.error_code_api == 0){
-                callback(null,result)
-            } else {
-                callback(true)
-            }
-        })
-    }
     getVideoTime ( id, callback){
         let option = {
             url: this.settings.mediaTime + id
         }
-        request.get( option, (err,result) => {
+        request.get( logger, option, (err,result) => {
             if(err){
-                logger.error( 'occur error : ',err)
                 return callback(err)
             }
             try{
@@ -322,6 +291,25 @@ class dealWith {
                 create_time = time.toString().substring(0,10)
             callback(null,create_time)
         })
+    }
+    getExpr (id,callback) {
+        let option = {
+            url: this.settings.expr + id
+        }
+        request.get( logger, option, (err,result) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e){
+                logger.error('json数据解析失败')
+                logger.info('backData:',result)
+                return callback(e)
+            }
+            callback(null,result)
+        })
+
     }
 }
 module.exports = dealWith
