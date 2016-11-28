@@ -226,7 +226,7 @@ class dealWith {
     getInfo ( task, data, callback ) {
         async.parallel([
             (cb) => {
-                this.getExpr( data.itemID, (err,result) => {
+                this.getExpr( data.itemID, data.code,(err,result) => {
                     if(err){
                         return cb(err)
                     }
@@ -299,9 +299,11 @@ class dealWith {
             callback(null,data)
         })
     }
-    getExpr (id,callback) {
+    getExpr (id,code,callback) {
         let option = {
-            url: this.settings.expr + id
+            url: this.settings.expr + id,
+            ua: 1,
+            referer: `http://www.tudou.com/programs/view/${code}/`
         }
         request.get( logger, option, (err,result) => {
             if(err){

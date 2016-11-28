@@ -188,7 +188,7 @@ class sendServer {
     emailError( type, err ){
         const content = {
             subject: '发送数据连接服务器出错',
-            content: `服务器${type},错误信息${err}`
+            content: `服务器${type},错误信息${JSON.stringify(err)}`
         }
         const options = {
             method : 'POST',
