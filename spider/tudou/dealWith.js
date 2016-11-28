@@ -310,9 +310,17 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('json数据解析失败')
+                logger.error('expr json数据解析失败')
                 logger.info('backData:',result)
                 return callback(e)
+            }
+            if(result.error != 0){
+                logger.error(`expr error:${result.error},${result.msg}`)
+                return callback(err)
+            }
+            if(!result.data){
+                logger.error('expr error:',result)
+                return callback(err)
             }
             callback(null,result.data)
         })
