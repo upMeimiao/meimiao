@@ -93,6 +93,7 @@ class sendServer {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
+                this.emailError('master',err)
                 return
             }
             if(res.statusCode != 200){
@@ -128,6 +129,7 @@ class sendServer {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
+                this.emailError('staging',err)
                 return
             }
             if(res.statusCode != 200){
@@ -151,6 +153,28 @@ class sendServer {
                 logger.error(result)
                 logger.error('media info: ',media)
             }
+        })
+    }
+    emailError( type, err ){
+        const content = {
+            subject: '发送数据连接服务器出错',
+            content: `服务器${type},错误信息${err}`
+        }
+        const options = {
+            method : 'POST',
+            url: 'http://www.iapi.site/email',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            form : JSON.stringify(content)
+    }
+        request( options, (err, res, body)=> {
+            if(err){
+                console.log(err)
+                return
+            }
+            console.log(res.statusCode)
         })
     }
 }
