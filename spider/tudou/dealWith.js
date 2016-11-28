@@ -1,6 +1,7 @@
 const async = require( 'async' )
 const request = require( '../../lib/request' )
 const cheerio = require('cheerio')
+const moment = require('moment')
 let logger
 class dealWith {
     constructor (spiderCore){
@@ -256,7 +257,11 @@ class dealWith {
                 comment_num: result[0].commentNum,
                 support: result[0].digNum,
                 step: result[0].buryNum,
-                a_create_time: result[1]
+                v_img: data.picurl,
+                long_t: moment.duration(data.formatTotalTime).asSeconds(),
+                class: result[1].class,
+                tag: result[1].tag,
+                a_create_time: data.pubDate.toString().substring(0,10)
             }
             //logger.debug(media)
             this.sendCache( media )
@@ -287,9 +292,11 @@ class dealWith {
                 logger.info('backData:',result)
                 return callback(e)
             }
-            let time = result.pt,
-                create_time = time.toString().substring(0,10)
-            callback(null,create_time)
+            const data = {
+                tag: result.tag,
+                class: result.cname
+            }
+            callback(null,data)
         })
     }
     getExpr (id,callback) {
