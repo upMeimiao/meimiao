@@ -170,10 +170,10 @@ class dealWith {
         let sign = 1,
             page,
             option
-        if(total % 100 == 0 ){
-            page = total / 100
+        if(total % 40 == 0 ){
+            page = total / 40
         }else{
-            page = Math.ceil(total / 100)
+            page = Math.ceil(total / 40)
         }
         async.whilst(
             () => {
