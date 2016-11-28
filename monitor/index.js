@@ -50,9 +50,10 @@ class web {
                     this.postHandle( req, res )
                     break
                 default:
+                    logger.debug(req.method)
                     res.setHeader('Content-Type',`text/html;charset=utf-8`)
                     res.writeHead(400)
-                    res.end()
+                    res.end('1')
                     break
             }
         })

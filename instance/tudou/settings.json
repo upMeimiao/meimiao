@@ -15,7 +15,7 @@
   "newList": "http://v.tudou.com/item/list.do?pageSize=100&sort=1",
   "media": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid=",
   "mediaTime": "http://www.tudou.com/tvp/getItemInfo.action?app=1&ic=",
-  "expr":"http://www.tudou.com/crp/itemSum.action?app=1&showArea=true&juabcdefg=01b2d5k98v31hl&iabcdefg=",
+  "expr":"http://www.tudou.com/crp/itemSum.action?app=1&showArea=true&juabcdefg=01b2l1vfl9lho&iabcdefg=",
   "sendToServer":[
     "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
     "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
