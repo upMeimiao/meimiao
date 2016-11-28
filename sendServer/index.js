@@ -192,7 +192,7 @@ class sendServer {
         }
         const options = {
             method : 'POST',
-            url: 'http://www.iapi.site/email',
+            url: 'http://monitor.iapi.site/email',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
