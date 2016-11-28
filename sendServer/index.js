@@ -108,7 +108,7 @@ class sendServer {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
-                this.emailError('master',err)
+                //this.emailError('master',err)
                 return
             }
             if(res.statusCode != 200){
@@ -159,7 +159,7 @@ class sendServer {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
-                this.emailError('staging',err)
+                //this.emailError('staging',err)
                 return
             }
             if(res.statusCode != 200){
