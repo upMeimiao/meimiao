@@ -60,10 +60,13 @@ class dealWith {
                     bid: task.id,
                     fans_num: userInfo.sumCount
                 }
+            if(task.id == '854459409'){
+                user.time = new Date().getTime()
+                this.core.fansDB.sadd('fans',user)
+            }
             this.sendUser ( user,(err,result) => {
                 callback()
             })
-            this.sendStagingUser(user)
         })
     }
     sendUser ( user,callback ){
@@ -93,31 +96,6 @@ class dealWith {
                 logger.info(`user info: `,user)
             }
             callback()
-        })
-    }
-    sendStagingUser (user){
-        let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
-            data: user
-        }
-        request.post( option,(err,res,body) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return
-            }
-            try{
-                body = JSON.parse(body)
-            }catch (e){
-                logger.error('json数据解析失败')
-                logger.info('send error:',body)
-                return
-            }
-            if(body.errno == 0){
-                logger.debug("用户:",user.bid + ' back_end')
-            }else{
-                logger.error("用户:",user.bid + ' back_error')
-                logger.info(body)
-            }
         })
     }
     getTotal ( task, callback ) {
@@ -240,21 +218,17 @@ class dealWith {
     getInfo ( task, video, callback ){
         let options = {
             method: 'GET',
-            url: this.settings.newInfo,
-            qs: {
-                client_id:this.settings.app_key,
-                video_id:video.videoid
+            url: this.settings.info,
+            qs: { area_code: '1',
+                guid: '7066707c5bdc38af1621eaf94a6fe779',
+                id: video.videoid,
+                pid: '69b81504767483cf',
+                scale: '3',
+                ver: '5.8'
+            },
+            headers: {
+                'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
             }
-            // qs: { area_code: '1',
-            //     guid: '7066707c5bdc38af1621eaf94a6fe779',
-            //     id: video.videoid,
-            //     pid: '69b81504767483cf',
-            //     scale: '3',
-            //     ver: '5.8'
-            // },
-            // headers: {
-            //     'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
-            // }
         }
         request(options, (error, response, body) => {
             if(error){
@@ -272,19 +246,19 @@ class dealWith {
                 logger.info('info error:',body)
                 return callback(e)
             }
-            let result  = body
+            let result  = body.detail
             let data = {
                 author: task.name,
                 platform: 1,
                 bid: task.id,
                 aid: video.videoid,
-                title: video.title.substr(0,100),
-                desc: result.description.substr(0,100),
+                title: video.title,
+                desc: video.desc,
                 play_num: video.total_vv,
-                save_num: result.favorite_count,
-                comment_num: result.comment_count,
-                support: result.up_count,
-                step: result.down_count,
+                save_num: result.total_fav,
+                comment_num: result.total_comment.indexOf('万') == -1 ? result.total_comment : Number(result.total_comment.replace(/万/g,'')) * 10000,
+                support: result.total_up,
+                step: result.total_down,
                 a_create_time: video.publishtime
             }
             logger.debug(data)
