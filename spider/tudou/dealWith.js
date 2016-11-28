@@ -316,11 +316,11 @@ class dealWith {
             }
             if(result.error != 0){
                 logger.error(`expr error:${result.error},${result.msg}`)
-                return callback(err)
+                return callback(true)
             }
             if(!result.data){
                 logger.error('expr error:',result)
-                return callback(err)
+                return callback(true)
             }
             callback(null,result.data)
         })
