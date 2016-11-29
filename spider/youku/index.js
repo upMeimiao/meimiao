@@ -59,7 +59,7 @@ class spiderCore {
                         if(err){
                             return callback(err)
                         }
-                        this.cache_db = cli
+                        this.fansDB = cli
                         logger.debug( "缓存队列数据库连接建立...成功" )
                         callback()
                     }
