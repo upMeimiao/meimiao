@@ -799,7 +799,12 @@ class DealWith {
             id, v_id, option = {}, res = {}
         switch (hostname) {
             case 'www.budejie.com':
-                if(pathname.indexOf('user') == -1){
+                if(pathname.indexOf('pc') !== -1){
+                    let start = pathname.indexOf('/pc/'),
+                        end = pathname.indexOf('.')
+                    v_id = pathname.substring(start + 4,end)
+                    option.url = `http://www.budejie.com/detail-${v_id}.html`
+                }else if(pathname.indexOf('user') == -1){
                     let start = pathname.indexOf('-'),
                         end = pathname.indexOf('.')
                     v_id = pathname.substring(start + 1,end)
