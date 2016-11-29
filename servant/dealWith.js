@@ -681,7 +681,7 @@ class DealWith {
                 }
             if(!id){
                 let scriptDOM = $('script'),
-                    scriptText = scriptDOM[32].children[0].data,
+                    scriptText = scriptDOM[34].children[0].data,
                     v_id = scriptText.replace('var video_id = "','').replace('";','')
                 option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${v_id}`
                 request.get(option, (err,result) => {
