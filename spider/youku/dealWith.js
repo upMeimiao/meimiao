@@ -62,7 +62,7 @@ class dealWith {
                 }
             if(task.id == '854459409'){
                 user.time = new Date().getTime()
-                this.core.fansDB.sadd('fans',user)
+                this.core.fansDB.sadd('fans',JSON.stringify(user))
             }
             this.sendUser ( user,(err,result) => {
                 callback()
