@@ -244,7 +244,7 @@ class dealWith {
                 return callback(e)
             }
             let time = result.videoinfo.publishtime,
-                a_create_time = moment(time).format('X'),
+                a_create_time = moment(time, ["YYYYMMDDHHmmss"], true).unix(),
                 media = {
                     author: result.videoinfo.username,
                     platform: 17,
@@ -252,9 +252,12 @@ class dealWith {
                     aid: result.videoinfo.puid,
                     title: result.videoinfo.title.substr(0,100),
                     desc: result.videoinfo.desc.substr(0,100),
+                    tag: result.videoinfo.tags,
+                    v_img: result.videoinfo.coverurl,
+                    long_t: moment.duration(result.videoinfo.duration).asSeconds(),
                     play_num: result.videoinfo.playcount,
                     forward_num: result.videoinfo.forwardcount,
-                    comment_num: result.videoinfo.commentcount,
+                    comment_num: result.videoinfo.commentCount,
                     support: result.videoinfo.likecount,
                     a_create_time: a_create_time
                 }

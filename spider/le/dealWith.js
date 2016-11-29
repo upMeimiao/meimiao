@@ -187,7 +187,7 @@ class dealWith {
                 descDom = $('p.p_03'),
                 timeDom2 = $('#video_time'),
                 descDom2 = $('li.li_04 p')
-            if(timeDom.length === 0 || timeDom2 === 0){
+            if(timeDom.length === 0 && timeDom2 === 0){
                 return callback(true)
             }
             let time,desc
