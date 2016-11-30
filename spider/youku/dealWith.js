@@ -96,11 +96,12 @@ class dealWith {
         })
     }
     sendStagingUser (user){
-        let option = {
+        let options = {
+            method: 'POST',
             url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
-            data: user
+            form: user
         }
-        request.post( option,(err,res,body) => {
+        request( options,(err,res,body) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -197,13 +198,13 @@ class dealWith {
                     }
                     let data = body.data
                     if(!data){
-                        logger.error('body data : ',sign)
-                        logger.error(body)
+                        // logger.error('body data : ',sign)
+                        // logger.error(body)
                         sign++
                         return cb()
                     }
                     let videos = data.videos
-                    this.deal(task,videos, () => {
+                    this.info(task,videos, () => {
                         sign++
                         cb()
                     })
@@ -214,49 +215,21 @@ class dealWith {
             }
         )
     }
-    deal ( task, list, callback ) {
-        let index = 0,
-            length = list.length
-        async.whilst(
-            () => {
-                return index < length
-            },
-            (cb) => {
-                let video = list[index]
-                this.getInfo( task, video, (err) => {
-                    if(err){
-                        cb()
-                    }else{
-                        index++
-                        cb()
-                    }
-                })
-            },
-            (err,result) => {
-                callback()
-            }
-        )
-    }
-    getInfo ( task, video, callback ){
-        let options = {
+    info ( task, list, callback ) {
+        const idList = []
+        for( let index in list){
+            idList.push(list[index].videoid)
+        }
+        const ids = idList.join(',')
+        const options = {
             method: 'GET',
-            url: this.settings.newInfo,
+            url: 'https://openapi.youku.com/v2/videos/show_batch.json',
             qs: {
                 client_id:this.settings.app_key,
-                video_id:video.videoid
+                video_ids:ids
             }
-            // qs: { area_code: '1',
-            //     guid: '7066707c5bdc38af1621eaf94a6fe779',
-            //     id: video.videoid,
-            //     pid: '69b81504767483cf',
-            //     scale: '3',
-            //     ver: '5.8'
-            // },
-            // headers: {
-            //     'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
-            // }
         }
-        request(options, (error, response, body) => {
+        request( options, ( error, response, body ) => {
             if(error){
                 logger.error( 'info occur error: ', error )
                 return callback(error)
@@ -272,25 +245,51 @@ class dealWith {
                 logger.info('info error:',body)
                 return callback(e)
             }
-            let result  = body
-            let data = {
-                author: task.name,
-                platform: 1,
-                bid: task.id,
-                aid: video.videoid,
-                title: video.title.substr(0,100),
-                desc: result.description.substr(0,100),
-                play_num: video.total_vv,
-                save_num: result.favorite_count,
-                comment_num: result.comment_count,
-                support: result.up_count,
-                step: result.down_count,
-                a_create_time: video.publishtime
+            if(body.total == 0){
+                return callback()
             }
-            logger.debug(data)
-            this.sendCache( data )
-            callback()
+            this.deal( task, body.videos, list, () => {
+                callback()
+            })
         })
+    }
+    deal ( task, videos, list, callback ){
+        let index = 0,
+            length = videos.length
+        async.whilst(
+            () => {
+                return index < length
+            },
+            (cb) => {
+                const video = list[index]
+                const result = videos[index]
+                const media = {
+                    author: task.name,
+                    platform: 1,
+                    bid: task.id,
+                    aid: video.videoid,
+                    title: video.title.substr(0,100),
+                    desc: result.description.substr(0,100),
+                    class: result.category,
+                    tag: result.tags,
+                    v_img: result.bigThumbnail,
+                    long_t: Math.round(result.duration),
+                    play_num: video.total_vv,
+                    save_num: result.favorite_count,
+                    comment_num: result.comment_count,
+                    support: result.up_count,
+                    step: result.down_count,
+                    a_create_time: video.publishtime
+                }
+                //logger.debug(media)
+                this.sendCache( media )
+                index++
+                cb()
+            },
+            (err,result) => {
+                callback()
+            }
+        )
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
