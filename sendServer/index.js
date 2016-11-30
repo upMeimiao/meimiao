@@ -135,21 +135,6 @@ class sendServer {
     }
     send_staging (media) {
         //console.log('-----------------------------------staging----------------------------------------')
-        if(media.v_url){
-            delete media.v_url
-        }
-        if(media.v_img){
-            delete media.v_img
-        }
-        if(media.tag){
-            delete media.tag
-        }
-        if(media.class){
-            delete media.class
-        }
-        if(media.long_t){
-            delete media.long_t
-        }
         const option = {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/',
             form: media
