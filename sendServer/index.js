@@ -88,6 +88,7 @@ class sendServer {
         //     url: this.settings.url,
         //     form: media
         // }
+        if(time > 3)return
         if(media.v_url){
             delete media.v_url
         }
@@ -136,6 +137,7 @@ class sendServer {
         })
     }
     send_staging (media,time) {
+        if(time > 3)return
         //console.log('-----------------------------------staging----------------------------------------')
         const option = {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/',
