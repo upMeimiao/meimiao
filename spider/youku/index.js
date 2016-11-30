@@ -49,21 +49,6 @@ class spiderCore {
                         callback()
                     }
                 )
-            },
-            (callback) => {
-                myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    '15',
-                    this.redis.auth,
-                    ( err, cli ) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        this.fansDB = cli
-                        logger.debug( "缓存队列数据库连接建立...成功" )
-                        callback()
-                    }
-                )
             }
         ],(err, results) => {
             if ( err ) {
@@ -82,13 +67,13 @@ class spiderCore {
     }
     deal () {
         let queue = kue.createQueue({
-                redis: {
-                    port: this.redis.port,
-                    host: this.redis.host,
-                    auth: this.redis.auth,
-                    db: this.redis.jobDB
-                }
-            })
+            redis: {
+                port: this.redis.port,
+                host: this.redis.host,
+                auth: this.redis.auth,
+                db: this.redis.jobDB
+            }
+        })
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
         })
