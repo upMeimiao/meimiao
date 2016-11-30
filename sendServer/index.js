@@ -47,11 +47,11 @@ class sendServer {
         this.on( 'get_lists_staging', () => {
             this.deal_staging()
         })
-        this.on( 'send_data', ( raw ) => {
-            this.send( raw )
+        this.on( 'send_data', ( raw,time ) => {
+            this.send( raw,time )
         })
-        this.on( 'send_data_staging', ( raw ) => {
-            this.send_staging( raw )
+        this.on( 'send_data_staging', ( raw,time ) => {
+            this.send_staging( raw,time )
         })
         this.assembly()
     }
@@ -65,8 +65,8 @@ class sendServer {
                 //logger.debug( '获取缓存队列为空,20毫秒后再次执行' )
                 return
             }
-            this.emit('send_data', JSON.parse(result))
-            this.emit('send_data_staging', JSON.parse(result))
+            this.emit('send_data', JSON.parse(result),0)
+            this.emit('send_data_staging', JSON.parse(result),0)
         } )
     }
     deal_staging () {
@@ -83,7 +83,7 @@ class sendServer {
             this.emit('send_data_staging', JSON.parse(result))
         } )
     }
-    send (media) {
+    send (media,time) {
         // const option = {
         //     url: this.settings.url,
         //     form: media
@@ -105,10 +105,12 @@ class sendServer {
         }
         this.option.form = media
         request.post(this.option, (err,res, result) => {
+            time++
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('master',err)
+                this.emit('send_data', media,time)
                 return
             }
             if(res.statusCode != 200){
@@ -133,18 +135,20 @@ class sendServer {
             }
         })
     }
-    send_staging (media) {
+    send_staging (media,time) {
         //console.log('-----------------------------------staging----------------------------------------')
         const option = {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/',
             form: media
         }
         request.post(option, (err,res, result) => {
+            time++
             //console.log('--------------------------staging-----------------------------')
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('staging',err)
+                this.emit('send_data_staging', media,time)
                 return
             }
             if(res.statusCode != 200){
