@@ -285,7 +285,15 @@ class dealWith {
                     support: result[1].data.up,
                     step: result[1].data.down,
                     comment_num: result[0].comment,
-                    a_create_time: result[0].time
+                    a_create_time: result[0].time,
+                    // 新加字段
+                    v_url:result[0].v_url,
+                    long_t: result[0].seconds,
+                    v_img: result[0].picurl,
+                    class: result[0].type
+                }
+                if(media.comment_num < 0){
+                    delete media.comment_num
                 }
                 this.sendCache( media )
                 callback()
@@ -314,17 +322,46 @@ class dealWith {
             if(playData.code != 'A00000'){
                 return callback(true)
             }
+            //console.log(playData)
             let name = playData.data.user.name,
                 desc = playData.data.description,
                 comment = playData.data.commentCount,
                 creatTime = parseInt(playData.data.issueTime / 1000),
-                data = {
-                    name: name,
-                    desc: desc,
-                    comment: comment,
-                    time: creatTime
+                // 新加字段
+                picurl = playData.data.imageUrl,
+                typeArr = playData.data.categories,
+                seconds = playData.data.duration,
+                v_url = playData.data.url,
+                type = ''
+            if(typeArr && typeArr.length !=0 ){
+                const t_arr = []
+                for(let index in typeArr){
+                    t_arr[index] = typeArr[index].name
                 }
-            callback(null,data)
+                type = t_arr.join(',')
+            }
+            const data = {
+                name: name,
+                desc: desc,
+                comment: comment,
+                time: creatTime,
+                // 新加字段
+                v_url:v_url,
+                picurl:picurl,
+                type:type,
+                seconds:seconds
+            }
+            if(comment < 0){
+                this.getComment(playData.data.qitanId,playData.data.albumId,playData.data.tvId,link,(err,result)=>{
+                    if(err){
+                        return callback(null,data)
+                    }
+                    data.comment = result
+                    callback(null,data)
+                })
+            }else{
+                callback(null,data)
+            }
         })
     }
     getExpr ( id, link, callback ) {
@@ -372,6 +409,28 @@ class dealWith {
                 return callback(e)
             }
             callback(null,infoData[0][id])
+        })
+    }
+    getComment (qitanId,albumId,tvId,link,callback){
+        const option = {
+            url: `http://cmts.iqiyi.com/comment/tvid/${qitanId}_${tvId}_hot_2?is_video_page=true&albumid=${albumId}`,
+            referer: link,
+            ua: 1
+        }
+        request.get( logger, option, (err,result) => {
+            if(err){
+                return callback(err)
+            }
+            //logger.debug(result)
+            let infoData
+            try {
+                infoData = JSON.parse(result.body)
+            } catch (e){
+                logger.error('json err:',e)
+                logger.error(result)
+                return callback(e)
+            }
+            callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
     }
     sendCache ( media ){
