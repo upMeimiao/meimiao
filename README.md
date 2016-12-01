@@ -5,10 +5,10 @@
 ## Git 分支：
 
 > * master：主分支，用于线上环境部署
-> *任务调度模块 —— scheduler文件夹
-> *数据发送模块 —— sendServer文件夹
-> *获取用户信息模块 —— servant文件夹
-> *爬虫模块 —— spider文件夹
+> * 任务调度模块 —— scheduler文件夹
+> * 数据发送模块 —— sendServer文件夹
+> * 获取用户信息模块 —— servant文件夹
+> * 爬虫模块 —— spider文件夹
 > * staging：用于测试环境部署的分支
 > * taskSheet：添加任务分片的逻辑进行重构的分支
 
@@ -18,15 +18,15 @@
 > * instance —— 配置文件及log文件夹
 > * newStart —— 用于pm2启动的脚本存放文件夹
 > * run.js —— 程序启动文件
-> *node run.js -i 配置文件夹下的某个文件夹名 -a 启动文件中定义的方法名
+> * node run.js -i 配置文件夹下的某个文件夹名 -a 启动文件中定义的方法名
 
 ## 主要模块及作用
 
 > * Node内置模块
-> *HTTP
-> *URL
-> *events
-> *util
+> * HTTP
+> * URL
+> * events
+> * util
 > * pm2 用于Node的进程管理器，了解即可
 > * request 用于发送http请求的模块，大部分情况下，不直接用，使用lib下的封装过的req.js（重构时使用lib/request.js）;
 某些情况也会直接用；需要学习。
@@ -47,44 +47,51 @@ http://momentjs.cn/
 
 ##视频需要信息
 
-author  发布者
-platform  平台id
-bid  帐号id
-aid   视频(文章)id
-title  视频(文章)标题
-desc  视频描述
-play_num  播放量
-read_num  阅读数
-forward_num  转发数
-comment_num  评论数
-save_num  收藏数
-follow_num  关注数
-support  顶
-step  踩
-a_create_time  视频(文章)发布时间
+* author  发布者
+* platform  平台id
+* bid  帐号id
+* aid   视频(文章)id
+* title  视频(文章)标题
+* desc  视频描述
+* play_num  播放量
+* read_num  阅读数
+* forward_num  转发数
+* comment_num  评论数
+* save_num  收藏数
+* follow_num  关注数
+* support  顶
+* step  踩
+* a_create_time  视频(文章)发布时间
+* v_url  播放地址
+* v_img  头图
+* tag  标签
+* class  分类
+* long_t  时长
 
 ## 平台ID
 
-1、优酷视频
-2、爱奇艺
-3、乐视视频
-4、腾讯视频
-5、美拍
-6、今日头条
-7、秒拍
-8、哔哩哔哩
-9、搜狐
-10、天天快报
-11、一点资讯
-12、土豆视频
-13、爆米花
-14、酷6视频
-15、北京时间
-16、微视
-17、小影
-18、百思不得姐
-19、内涵段子
-20、YY
+* 1、优酷视频
+* 2、爱奇艺
+* 3、乐视视频
+* 4、腾讯视频
+* 5、美拍
+* 6、今日头条
+* 7、秒拍
+* 8、哔哩哔哩
+* 9、搜狐
+* 10、天天快报
+* 11、一点资讯
+* 12、土豆视频
+* 13、爆米花
+* 14、酷6视频
+* 15、北京时间
+* 16、微视
+* 17、小影
+* 18、百思不得姐
+* 19、内涵段子
+* 20、YY
+* 21、56视频
+* 22、AcFun
 
 ## 从服务器拿到的任务信息
 ```
