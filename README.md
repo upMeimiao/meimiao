@@ -41,11 +41,11 @@ https://www.npmjs.com/package/cheerio
 http://momentjs.cn/
 > * eventproxy 事件代理,用于代替node提供的events模块 https://www.npmjs.com/package/eventproxy
 
-##其他技术
+## 其他技术
 
 > * redis  http://www.redis.cn/ （中文官网）  http://redis.io/ （官网）
 
-##视频需要信息
+## 视频需要信息
 
 * author  发布者
 * platform  平台id
