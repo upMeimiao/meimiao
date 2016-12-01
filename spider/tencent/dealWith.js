@@ -53,7 +53,7 @@ class dealWith {
                 return callback(err)
             }
             result = eval(result.body)
-            logger.debug(result)
+            //logger.debug(result)
             if(result.s != 'o'){
                 logger.error(`异常错误${result.em}`)
                 return callback(result.em)
@@ -91,10 +91,10 @@ class dealWith {
                 return callback()
             }
             let user = {
-                    platform: 4,
-                    bid: task.id,
-                    fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g,'')) * 10000
-                }
+                platform: 4,
+                bid: task.id,
+                fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g,'')) * 10000
+            }
             this.sendUser (user,(err,result) => {
                 callback()
             })
@@ -217,43 +217,62 @@ class dealWith {
     }
     getInfo ( task, data, callback ) {
         async.parallel([
-            (cb) => {
-                this.getView(data.vid, (err,num) => {
-                    if(err){
-                        cb(err)
-                    }else {
-                        cb(null,num)
-                    }
-                })
-            },
-            (cb) => {
-                this.getComment(data.vid, (err,num) => {
-                    if(err){
-                        cb(err)
-                    }else {
-                        cb(null,num)
-                    }
-                })
-            }
-        ],
-        (err,result) => {
-            if(err){
-                return callback(err)
-            }
-            let media = {
-                author: task.name,
-                platform: 4,
-                bid: task.id,
-                aid: data.vid,
-                title: data.title.substr(0,100),
-                desc: data.desc.substr(0,100),
-                play_num: result[0],
-                comment_num: result[1],
-                a_create_time: this.time(data.uploadtime)
-            }
-            this.sendCache( media )
-            callback()
-        })
+                (cb) => {
+                    this.getView(data.vid, (err,num) => {
+                        if(err){
+                            cb(err)
+                        }else {
+                            cb(null,num)
+                        }
+                    })
+                },
+                (cb) => {
+                    this.getComment(data.vid, (err,num) => {
+                        if(err){
+                            cb(err)
+                        }else {
+                            cb(null,num)
+                        }
+                    })
+                },
+                (cb) => {
+                    this.getVidTag(data.vid, (err,tags) => {
+                        if(err){
+                            cb(err)
+                        }else {
+                            cb(null,tags)
+                        }
+                    })
+                }
+            ],
+            (err,result) => {
+                if(err){
+                    return callback(err)
+                }
+                let media = {
+                    author: task.name,
+                    platform: 4,
+                    bid: task.id,
+                    aid: data.vid,
+                    title: data.title.substr(0,100),
+                    desc: data.desc.substr(0,100),
+                    play_num: result[0],
+                    comment_num: result[1],
+                    a_create_time: this.time(data.uploadtime),
+                    // 新加字段
+                    v_img: data.pic,
+                    long_t: this.long_t(data.duration),
+                    tag: result[2]
+                }
+                if(!media.comment_num){
+                    delete media.comment_num
+                }
+                if(!media.tag){
+                    delete media.tag
+                }
+                this.sendCache( media )
+                callback()
+            })
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
@@ -329,7 +348,9 @@ class dealWith {
     }
     getCommentNum ( id, callback ) {
         let option = {
-            url: this.settings.commentNum + id + "/commentnum"
+            url: this.settings.commentNum + id + "/commentnum?_=" + new Date().getTime(),
+            referer: 'https://v.qq.com/txyp/coralComment_yp_1.0.htm',
+            ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36'
         }
         request.get(option, (err,result) => {
             if(err){
@@ -341,13 +362,33 @@ class dealWith {
             } catch ( e ) {
                 logger.error(`获取视频${id}评论解析JSON错误`)
                 logger.info(result)
-                return callback(e)
+                return callback(null,null)
             }
             if(result.errCode == 0){
                 callback(null,result.data.commentnum)
             } else {
-                callback(true)
+                callback(null,null)
             }
+        })
+    }
+    getVidTag( vid, callback ){
+        const option = {
+            url : "http://c.v.qq.com/videoinfo?otype=json&callback=jsonp&low_login=1&vid="+vid+"&fields=recommend%7Cedit%7Cdesc%7Cnick%7Cplaycount"
+        }
+        request.get( option, ( err, result ) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = eval(result.body)
+            } catch (e){
+                return callback(null,null)
+            }
+            if(!result.v || result.v.length == 0){
+                return callback(null,null)
+            }
+            const tagStr = result.v[0].tags_video
+            callback(null,tagStr.replace(/\s+/g,','))
         })
     }
     time ( string ) {
@@ -361,6 +402,16 @@ class dealWith {
         if(string.indexOf("分钟") != -1){
             return moment(moment().format("YYYY-MM-DD")).unix()
         }
+    }
+    long_t( time ){
+        let timeArr = time.split(':'),
+            long_t  = ''
+        if(timeArr.length == 2){
+            long_t = moment.duration( `00:${time}`).asSeconds()
+        }else if(timeArr.length == 3){
+            long_t = moment.duration(time).asSeconds()
+        }
+        return long_t
     }
 }
 module.exports = dealWith
