@@ -258,7 +258,7 @@ class dealWith {
                 support: result[0].digNum,
                 step: result[0].buryNum,
                 v_img: data.picurl,
-                long_t: moment.duration(data.formatTotalTime).asSeconds(),
+                long_t: this.long_t(data.formatTotalTime),
                 class: result[1].class,
                 tag: result[1].tag,
                 a_create_time: data.pubDate.toString().substring(0,10)
@@ -325,6 +325,16 @@ class dealWith {
             callback(null,result.data)
         })
 
+    }
+    long_t( time ){
+        let timeArr = time.split(':'),
+            long_t  = ''
+        if(timeArr.length == 2){
+            long_t = moment.duration( `00:${time}`).asSeconds()
+        }else if(timeArr.length == 3){
+            long_t = moment.duration(time).asSeconds()
+        }
+        return long_t
     }
 }
 module.exports = dealWith

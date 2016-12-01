@@ -254,7 +254,7 @@ class dealWith {
                     desc: result.videoinfo.desc.substr(0,100),
                     tag: result.videoinfo.tags,
                     v_img: result.videoinfo.coverurl,
-                    long_t: moment.duration(result.videoinfo.duration).asSeconds(),
+                    long_t: this.long_t(result.videoinfo.duration),
                     play_num: result.videoinfo.playcount,
                     forward_num: result.videoinfo.forwardcount,
                     comment_num: result.videoinfo.commentCount,
@@ -273,6 +273,16 @@ class dealWith {
             }
             logger.debug(`小影 ${media.aid} 加入缓存队列`)
         } )
+    }
+    long_t( time ){
+        let timeArr = time.split(':'),
+            long_t  = ''
+        if(timeArr.length == 2){
+            long_t = moment.duration( `00:${time}`).asSeconds()
+        }else if(timeArr.length == 3){
+            long_t = moment.duration(time).asSeconds()
+        }
+        return long_t
     }
 }
 module.exports = dealWith

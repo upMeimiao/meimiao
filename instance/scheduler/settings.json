@@ -18,7 +18,7 @@
   },
   "url": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
   "update": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
-  "sendUrl": "http://qiaosuan-intra.caihongip.com/index.php/Spider/video/postVideos/",
+  "sendUrl": "http://qiaosuan-intra.caihongip.com:8080/index.php/Spider/video/postVideos/",
   "interval": 10000,
   "servantAPI": {
     "youku": {
