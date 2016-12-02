@@ -90,6 +90,7 @@ class sendServer {
         // }
         if(time > 3){
             media = null
+            time = null
             return
         }
         if(media.v_url){
@@ -138,11 +139,13 @@ class sendServer {
                 logger.error('media info: ',media)
             }
             media = null
+            time = null
         })
     }
     send_staging (media,time) {
         if(time > 3){
             media = null
+            time = null
             return
         }
         //console.log('-----------------------------------staging----------------------------------------')
@@ -182,6 +185,7 @@ class sendServer {
                 logger.error('media info: ',media)
             }
             media = null
+            time = null
         })
     }
     emailError( type, err ){

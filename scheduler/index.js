@@ -112,7 +112,7 @@ class scheduler {
         })
     }
     createQueue ( raw ) {
-        const job = this.queue.create( raw.platform , {
+        let job = this.queue.create( raw.platform , {
             id: raw.id,
             p: raw.p,
             name: raw.name,
@@ -137,6 +137,8 @@ class scheduler {
             }
             this.taskDB.hset( `${raw.p}:${raw.id}`, 'kue_id', job.id)
             logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
+            job = null
+            raw = null
         })
     }
     checkKue ( raw ) {
