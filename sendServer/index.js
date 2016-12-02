@@ -11,8 +11,11 @@ class sendServer {
         this.settings = settings
         this.redis = settings.redis
         logger = settings.logger
-        this.option = {
+        this.onlineOption = {
             url: settings.sendUrl
+        }
+        this.stagingOption = {
+            url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/'
         }
         logger.trace('sendServer instantiation ...')
     }
@@ -59,6 +62,7 @@ class sendServer {
         this.cache_db.lpop( 'cache', ( err, result ) => {
             if ( err ) {
                 logger.error( '获取缓存队列出现错误：', err );
+                err = null
                 return
             }
             if(!result){
@@ -73,6 +77,7 @@ class sendServer {
         this.cache_db.lpop( 'cache', ( err, result ) => {
             if ( err ) {
                 logger.error( '获取缓存队列出现错误：', err );
+                err = null
                 return
             }
             if(!result){
@@ -108,19 +113,22 @@ class sendServer {
         if(media.long_t){
             delete media.long_t
         }
-        this.option.form = media
-        request.post(this.option, (err,res, result) => {
+        this.onlineOption.form = media
+        request.post(this.onlineOption, (err,res, result) => {
             time++
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('master',err)
                 this.emit('send_data', media,time)
+                err = null
                 return
             }
             if(res.statusCode != 200){
                 logger.error(`errorCode: ${res.statusCode}`)
                 logger.error(result)
+                res = null
+                result = null
                 return
             }
             try{
@@ -128,6 +136,8 @@ class sendServer {
             }catch (e){
                 logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
                 logger.error(result)
+                res = null
+                result = null
                 return
             }
             if(result.errno == 0){
@@ -140,6 +150,8 @@ class sendServer {
             }
             media = null
             time = null
+            res = null
+            result = null
         })
     }
     send_staging (media,time) {
@@ -149,11 +161,8 @@ class sendServer {
             return
         }
         //console.log('-----------------------------------staging----------------------------------------')
-        const option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/',
-            form: media
-        }
-        request.post(option, (err,res, result) => {
+        this.stagingOption.form = media
+        request.post(this.stagingOption, (err,res, result) => {
             time++
             //console.log('--------------------------staging-----------------------------')
             if(err){
@@ -161,12 +170,15 @@ class sendServer {
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('staging',err)
                 this.emit('send_data_staging', media,time)
+                err = null
                 return
             }
             if(res.statusCode != 200){
                 logger.error(`errorCode: ${res.statusCode}`)
                 // logger.error(result)
                 // logger.error(media)
+                res = null
+                result = null
                 return
             }
             try{
@@ -174,6 +186,8 @@ class sendServer {
             }catch (e){
                 logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
                 logger.error(result)
+                res = null
+                result = null
                 return
             }
             if(result.errno == 0){
@@ -186,6 +200,8 @@ class sendServer {
             }
             media = null
             time = null
+            res = null
+            result = null
         })
     }
     emailError( type, err ){
