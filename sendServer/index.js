@@ -88,7 +88,10 @@ class sendServer {
         //     url: this.settings.url,
         //     form: media
         // }
-        if(time > 3)return
+        if(time > 3){
+            media = null
+            return
+        }
         if(media.v_url){
             delete media.v_url
         }
@@ -134,10 +137,14 @@ class sendServer {
                 logger.error(result)
                 logger.error('media info: ',media)
             }
+            media = null
         })
     }
     send_staging (media,time) {
-        if(time > 3)return
+        if(time > 3){
+            media = null
+            return
+        }
         //console.log('-----------------------------------staging----------------------------------------')
         const option = {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/',
@@ -174,6 +181,7 @@ class sendServer {
                 logger.error(result)
                 logger.error('media info: ',media)
             }
+            media = null
         })
     }
     emailError( type, err ){
@@ -189,7 +197,7 @@ class sendServer {
                 'Content-Type': 'application/json'
             },
             form : JSON.stringify(content)
-    }
+        }
         request( options, (err, res, body)=> {
             if(err){
                 console.log(err)
