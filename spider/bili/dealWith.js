@@ -1,6 +1,7 @@
 /**
  * Created by ifable on 16/6/21.
  */
+const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/req' )
 
@@ -14,7 +15,7 @@ class dealWith {
     }
     todo ( task, callback) {
         task.total = 0
-        async.series(
+        async.parallel(
             {
                 user: (callback) => {
                     this.getUser(task,(err)=>{
@@ -180,7 +181,7 @@ class dealWith {
                     }
                     this.deal(task,list,() => {
                         sign++
-                        cb()  
+                        cb()
                     })
                 })
             },
@@ -197,7 +198,7 @@ class dealWith {
                 return index < length
             },
             (cb) => {
-                this.getInfo(task,list[index].aid, (err) => {
+                this.getInfo(task,list[index], (err) => {
                     if(err){
                         index++
                         return cb()
@@ -211,9 +212,9 @@ class dealWith {
             }
         )
     }
-    getInfo ( task,aid,callback ) {
+    getInfo ( task,video,callback ) {
         let option = {
-            url: this.settings.media + aid
+            url: this.settings.media + video.aid
         }
         request.get(option, (err,back) => {
             if(err){
@@ -230,6 +231,10 @@ class dealWith {
             if(back.code != 0){
                 return callback()
             }
+            let tagStr = ''
+            if(back.data.tags && back.data.tags.length != 0){
+                tagStr = back.data.tags.join(',')
+            }
             let media = {
                 author: back.data.owner.name,
                 platform: 8,
@@ -241,7 +246,11 @@ class dealWith {
                 save_num: back.data.stat.favorite,
                 comment_num: back.data.stat.reply,
                 forward_num: back.data.stat.share,
-                a_create_time: back.data.pubdate
+                a_create_time: back.data.pubdate,
+                long_t:this.long_t(video.length),
+                v_img:video.pic,
+                class:back.data.tname,
+                tag:tagStr
             }
             this.sendCache( media )
             callback()
@@ -255,6 +264,16 @@ class dealWith {
             }
             logger.debug(`哔哩哔哩 ${media.aid} 加入缓存队列`)
         } )
+    }
+    long_t( time ){
+        let timeArr = time.split(':'),
+            long_t  = ''
+        if(timeArr.length == 2){
+            long_t = moment.duration( `00:${time}`).asSeconds()
+        }else if(timeArr.length == 3){
+            long_t = moment.duration(time).asSeconds()
+        }
+        return long_t
     }
 }
 module.exports = dealWith
