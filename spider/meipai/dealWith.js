@@ -5,6 +5,7 @@ const async = require( 'async' )
 const request = require( '../lib/req' )
 
 let logger
+const classification = ['搞笑','明星名人','女神','舞蹈','音乐','美食','美妆','男神','宝宝','宠物','直播','热门']
 class dealWith {
     constructor (spiderCore){
         this.core = spiderCore
@@ -14,7 +15,7 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        async.series(
+        async.parallel(
             {
                 user: (callback) => {
                     this.getUser(task,(err)=>{
@@ -238,19 +239,42 @@ class dealWith {
             if(result.lives){
                 return callback()
             }
+            let title,tagStr,_tags = [],tags = '',tagArr
+            if(result.caption && result.caption != ''){
+                title = result.caption.substr(0,100)
+                let start = result.caption.indexOf('#') + 1 ,
+                    end = result.caption.lastIndexOf('#')
+                tagStr = result.caption.substring(start,end).replace(/##/g,',')
+                tagArr = tagStr.split(",")
+                for( let i in tagArr){
+                    if(classification.includes(tagArr[i])){
+                        _tags.push(tagArr[i])
+                    }
+                }
+                if(_tags.length != 0){
+                    tags = _tags.join(',')
+                }
+            }else{
+                title = ''
+            }
             let media = {
                 author: result.user.screen_name,
                 platform: 5,
                 bid: task.id,
                 aid: result.id,
-                title: result.caption.substr(0,100),
-                desc: result.caption.substr(0,100),
+                title: title,
+                desc: title,
                 play_num: result.plays_count,
                 comment_num: result.comments_count,
                 support: result.likes_count,
                 forward_num: result.reposts_count,
-                a_create_time: result.created_at
+                a_create_time: result.created_at,
+                long_t:result.time,
+                v_img:result.cover_pic,
+                tag: tagStr,
+                class: tags
             }
+            //logger.debug(media)
             this.sendCache( media )
             callback()
         })
