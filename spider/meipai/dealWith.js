@@ -255,7 +255,7 @@ class dealWith {
                     tags = _tags.join(',')
                 }
             }else{
-                title = ''
+                title = '未命名' + result.id
             }
             let media = {
                 author: result.user.screen_name,
