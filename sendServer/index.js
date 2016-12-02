@@ -134,14 +134,14 @@ class sendServer {
             try{
                 result = JSON.parse(result)
             }catch (e){
-                logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
+                //logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
                 logger.error(result)
                 res = null
                 result = null
                 return
             }
             if(result.errno == 0){
-                logger.debug(`平台${media.platform}:`,media.aid + ' back end')
+                //logger.debug(`平台${media.platform}:`,media.aid + ' back end')
                 //logger.info(result)
             }else{
                 logger.error(`平台${media.platform}:`,media.aid + ' back error')
