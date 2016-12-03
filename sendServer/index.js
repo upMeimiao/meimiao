@@ -35,7 +35,7 @@ class sendServer {
                 logger.debug( "缓存队列数据库连接建立...成功" )
                 setInterval(()=>{
                     this.emit('get_lists')
-                },16)
+                },15)
                 // setInterval(()=>{
                 //     this.emit('get_lists_staging')
                 // },40)
