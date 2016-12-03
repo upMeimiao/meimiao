@@ -93,11 +93,6 @@ class sendServer {
         //     url: this.settings.url,
         //     form: media
         // }
-        if(time > 3){
-            media = null
-            time = null
-            return
-        }
         if(media.v_url){
             delete media.v_url
         }
@@ -115,13 +110,18 @@ class sendServer {
         }
         this.onlineOption.form = media
         request.post(this.onlineOption, (err,res, result) => {
-            time++
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('master',err)
-                this.emit('send_data', media,time)
-                err = null
+                time++
+                if(time > 3){
+                    media = null
+                    time = null
+                }else{
+                    this.emit('send_data', media,time)
+                    err = null
+                }
                 return
             }
             if(res.statusCode != 200){
@@ -155,22 +155,22 @@ class sendServer {
         })
     }
     send_staging (media,time) {
-        if(time > 3){
-            media = null
-            time = null
-            return
-        }
         //console.log('-----------------------------------staging----------------------------------------')
         this.stagingOption.form = media
         request.post(this.stagingOption, (err,res, result) => {
-            time++
             //console.log('--------------------------staging-----------------------------')
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('staging',err)
-                this.emit('send_data_staging', media,time)
-                err = null
+                time++
+                if(time > 3){
+                    media = null
+                    time = null
+                }else{
+                    this.emit('send_data_staging', media,time)
+                    err = null
+                }
                 return
             }
             if(res.statusCode != 200){
