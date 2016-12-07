@@ -122,6 +122,14 @@ class dealWith {
                         }
                         callback(null,time)
                     })
+                },
+                ( callback ) => {
+                    this.getDesc( id, ( err, data ) => {
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,data)
+                    })
                 }
             ], (err,result) => {
                 if(err){
@@ -133,12 +141,21 @@ class dealWith {
                     bid: task.id,
                     aid: id,
                     title: video.title.substr(0,100),
-                    desc: result[1].desc.substr(0,100),
+                    desc: result[2] ? result[2].desc.substr(0,100) : null,
                     play_num: result[0].play_count,
                     comment_num: result[0].vcomm_count,
                     support: result[0].up,
                     step: result[0].down,
-                    a_create_time: moment(result[1].time).unix()
+                    a_create_time: moment(result[1].time).unix(),
+                    long_t: this.long_t(video.duration),
+                    v_img: video.videoPic,
+                    class: result[2] ? result[2].class : null
+                }
+                if(!media.desc){
+                    delete media.desc
+                }
+                if(!media.class){
+                    delete media.class
                 }
                 this.sendCache(media)
                 callback()
@@ -223,27 +240,43 @@ class dealWith {
     //         callback(null,moment(time).unix())
     //     })
     // }
-    // getDesc ( id, callback ) {
-    //     let option = {
-    //         url: this.settings.desc + id,
-    //         referer: 'http://m.le.com/vplay_' + id +'.html'
-    //     }
-    //     request.get( option, (err,result) => {
-    //         if(err){
-    //             logger.error( 'occur error : ', err )
-    //             return callback(err)
-    //         }
-    //         try{
-    //             result = JSON.parse(result.body)
-    //         }catch (e){
-    //             logger.error('json数据解析失败')
-    //             logger.info(result)
-    //             return callback(e)
-    //         }
-    //         let backData  = result.data.introduction
-    //         backData ? callback(null,backData.video_description) : callback(null,'')
-    //     })
-    // }
+    getDesc ( id, callback ) {
+        let option = {
+            url: this.settings.desc + id,
+            referer: 'http://m.le.com/vplay_' + id +'.html'
+        }
+        request.get( logger, option, (err,result) => {
+            if(err){
+                return callback(null,null)
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info(result)
+                return callback(null,null)
+            }
+            result = result.data.introduction
+            if(!result){
+                return callback(null,null)
+            }
+            let backData = {
+                desc: result.video_description || '',
+                class: result.style
+            }
+            callback(null,backData)
+        })
+    }
+    long_t( time ){
+        let timeArr = time.split(':'),
+            long_t  = ''
+        if(timeArr.length == 2){
+            long_t = moment.duration( `00:${time}`).asSeconds()
+        }else if(timeArr.length == 3){
+            long_t = moment.duration(time).asSeconds()
+        }
+        return long_t
+    }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
