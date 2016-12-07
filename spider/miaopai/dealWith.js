@@ -244,9 +244,18 @@ class dealWith {
             dataJson.long_t = result.result.ext.length
             dataJson.v_img  = result.result.pic.base+result.result.pic.m
             dataJson.class  = this._class(result.result.category_info)
-            dataJson.tag    = result.result.topicinfo.join(',')
+            dataJson.tag    = this._tag(result.result.topicinfo)
             callback(null,dataJson)
         })
+    }
+    _tag ( raw ){
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]'){
+            return raw.join(',')
+        }
+        return ''
     }
     _class ( raw ){
         let _classArr = []

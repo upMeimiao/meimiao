@@ -195,12 +195,18 @@ class dealWith {
             if(err){
                 return callback()
             }
+            let title
+            if(!result[0].title || result[0].title == ''){
+                title = 'btwk_caihongip'
+            }else{
+                title = result[0].title.substr(0,100)
+            }
             let media = {
                 author:result[0].name,
                 platform: 6,
                 bid: task.id,
                 aid: id,
-                title: result[0].title != '' ? result[0].title.substr(0,100) : `btwk_caihongip`,
+                title: title,
                 desc: result[0].desc.substr(0,100),
                 play_num: result[1],
                 comment_num: result[0].comment_num,

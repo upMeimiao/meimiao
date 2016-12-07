@@ -196,6 +196,10 @@ class dealWith {
                         sign++
                         return cb()
                     }
+                    if(!result.data){
+                        sign++
+                        return cb()
+                    }
                     let list = result.data.data
                     if(list){
                         this.deal(task,list, () => {

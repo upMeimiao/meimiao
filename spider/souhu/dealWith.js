@@ -176,7 +176,7 @@ class dealWith {
                         return cb()
                     }
                     let data = result.data.videos
-                    if(data.length){
+                    if(!data){
                         index++
                         return cb()
                     }
