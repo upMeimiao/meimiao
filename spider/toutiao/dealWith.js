@@ -237,7 +237,7 @@ class dealWith {
                 return callback(true)
             }
             data = {
-                title: backData.title,
+                title: backData.title || 'btwk_caihongip',
                 desc: backData.abstract,
                 name: backData.media_name,
                 comment_num: backData.comment_count >= 0 ?  backData.comment_count : 0,

@@ -262,7 +262,7 @@ class dealWith {
                     // 新加字段
                     v_img: data.pic,
                     long_t: this.long_t(data.duration),
-                    tag: result[2]
+                    tag: this.tags(result[2])
                 }
                 if(!media.comment_num){
                     delete media.comment_num
@@ -412,6 +412,15 @@ class dealWith {
             long_t = moment.duration(time).asSeconds()
         }
         return long_t
+    }
+    tags( raw ){
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]'){
+            return raw.join(',')
+        }
+        return ''
     }
 }
 module.exports = dealWith

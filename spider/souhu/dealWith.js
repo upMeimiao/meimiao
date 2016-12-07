@@ -176,6 +176,10 @@ class dealWith {
                         return cb()
                     }
                     let data = result.data.videos
+                    if(data.length){
+                        index++
+                        return cb()
+                    }
                     this.deal(task,data, () => {
                         index++
                         cb()

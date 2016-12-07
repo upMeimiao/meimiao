@@ -188,7 +188,14 @@ class dealWith {
                     if(err){
                         return cb()
                     }
-                    result = JSON.parse(result.body)
+                    try{
+                        result = JSON.parse(result.body)
+                    } catch(e) {
+                        logger.error('土豆列表json解析失败')
+                        logger.error(result.body)
+                        sign++
+                        return cb()
+                    }
                     let list = result.data.data
                     if(list){
                         this.deal(task,list, () => {
