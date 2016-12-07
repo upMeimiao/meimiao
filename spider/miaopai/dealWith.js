@@ -13,7 +13,7 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        async.series(
+        async.parallel(
             {
                 user: (callback) => {
                     this.getUser(task,(err)=>{
@@ -191,27 +191,81 @@ class dealWith {
             },
             ( cb ) => {
                 video = list[index]
-                data = {
-                    author: video.channel.ext.owner.nick,
-                    platform: 7,
-                    bid: task.id,
-                    aid:video.channel.scid,
-                    title:video.channel.ext.t != '' ? video.channel.ext.t.substr(0,100) : `btwk_caihongip`,
-                    desc: video.channel.ext.t.substr(0,100),
-                    play_num: video.channel.stat.vcnt,
-                    comment_num: video.channel.stat.ccnt,
-                    support: video.channel.stat.lcnt,
-                    forward_num: video.channel.stat.scnt,
-                    a_create_time: Math.ceil(video.channel.ext.finishTime / 1000)
-                }
-                this.sendCache( data )
-                index++
-                cb()
+                this.getInfo( video.channel.scid, (err, result) => {
+                    data = {
+                        author: video.channel.ext.owner.nick,
+                        platform: 7,
+                        bid: task.id,
+                        aid:video.channel.scid,
+                        title:video.channel.ext.t != '' ? video.channel.ext.t.substr(0,100) : `未命名${video.channel.scid}`,
+                        desc: video.channel.ext.t.substr(0,100),
+                        play_num: video.channel.stat.vcnt,
+                        comment_num: video.channel.stat.ccnt,
+                        support: video.channel.stat.lcnt,
+                        forward_num: video.channel.stat.scnt,
+                        a_create_time: Math.ceil(video.channel.ext.finishTime / 1000)
+                    }
+                    if(!err){
+                        data.v_img = result.v_img
+                        data.long_t = result.long_t
+                        data.class = result.class
+                        data.tag = result.tag
+                    }
+                    this.sendCache( data )
+                    index++
+                    cb()
+                })
             },
             ( err, result ) => {
                 callback()
             }
         )
+    }
+    getInfo( id, callback){
+        let option = {
+            url : "http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+id+"&vend=miaopai"
+        }
+        let dataJson = {}
+        request.get( option, ( err, result ) => {
+            if(err){
+                logger.error('秒拍getInfo error')
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                logger.error(`秒拍getInfo code error: ${result.statusCode}`)
+                return callback(true)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch ( e ){
+                logger.error(`秒拍getInfo json 解析: ${result.statusCode}`)
+                return callback(e)
+            }
+            dataJson.long_t = result.result.ext.length
+            dataJson.v_img  = result.result.pic.base+result.result.pic.m
+            dataJson.class  = this._class(result.result.category_info)
+            dataJson.tag    = result.result.topicinfo.join(',')
+            callback(null,dataJson)
+        })
+    }
+    _class ( raw ){
+        let _classArr = []
+        if(!raw){
+            return ''
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length != 0){
+            for( let i in raw){
+                _classArr.push(raw[i].categoryName)
+            }
+            return _classArr.join(',')
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length == 0){
+            return ''
+        }
+        if(typeof raw == 'object'){
+            return raw.categoryName
+        }
+        return ''
     }
     sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
