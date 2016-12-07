@@ -16,7 +16,7 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
-        async.series({
+        async.parallel({
             user: (callback) => {
                 this.getUser(task,(err)=>{
                     callback(null,"用户信息已返回")
@@ -219,56 +219,60 @@ class dealWith {
         )
     }
     info ( task, video, callback ) {
-        async.series([
-            (cb) => {
-                this.getInfo(video, (err,data) => {
-                    if(err){
-                        cb(err)
-                    }else {
-                        cb(null,data)
-                    }
-                })
-            },
-            (cb) => {
-                this.getDigg(video, (err,data) => {
-                    if(err){
-                        cb(err)
-                    }else {
-                        cb(null,data)
-                    }
-                })
-            },
-            (cb) => {
-                this.getCommentNum(video,(err,num) => {
-                    if(err){
-                        cb(err)
-                    }else {
-                        cb(null,num)
-                    }
-                })
-            }
-        ],
-        (err,result) => {
-            //logger.debug(result)
-            if(err){
-                return callback(err)
-            }
-            let media = {
-                author: result[0].director,
-                platform: 9,
-                bid: task.id,
-                aid: video.id,
-                title: result[0].title.substr(0,100),
-                desc: result[0].desc.substr(0,100),
-                play_num: result[0].play,
-                comment_num: result[2],
-                support:result[1].up,
-                step:result[1].down,
-                a_create_time: result[0].time
-            }
-            this.sendCache( media )
-            callback()
-        })
+        async.parallel([
+                (cb) => {
+                    this.getInfo(video, (err,data) => {
+                        if(err){
+                            cb(err)
+                        }else {
+                            cb(null,data)
+                        }
+                    })
+                },
+                (cb) => {
+                    this.getDigg(video, (err,data) => {
+                        if(err){
+                            cb(err)
+                        }else {
+                            cb(null,data)
+                        }
+                    })
+                },
+                (cb) => {
+                    this.getCommentNum(video,(err,num) => {
+                        if(err){
+                            cb(err)
+                        }else {
+                            cb(null,num)
+                        }
+                    })
+                }
+            ],
+            (err,result) => {
+                //logger.debug(result)
+                if(err){
+                    return callback(err)
+                }
+                let media = {
+                    author: result[0].director,
+                    platform: 9,
+                    bid: task.id,
+                    aid: video.id,
+                    title: result[0].title.substr(0,100),
+                    desc: result[0].desc.substr(0,100),
+                    play_num: result[0].play,
+                    comment_num: result[2],
+                    support:result[1].up,
+                    step:result[1].down,
+                    a_create_time: result[0].time,
+                    long_t: result[0].seconds,
+                    tag: result[0].tag,
+                    class: result[0].type,
+                    v_img: result[0].picurl
+                }
+                this.sendCache( media )
+                callback()
+            })
     }
     getInfo ( video, callback ) {
         let option = {
@@ -302,7 +306,11 @@ class dealWith {
                 title: backData.video_name,
                 desc: backData.video_desc,
                 time: Math.round(backData.create_time / 1000),
-                play: backData.play_count
+                play: backData.play_count,
+                type : backData.first_cate_name,
+                tag : this._tag(backData.keyword),
+                seconds : backData.total_duration,
+                picurl : this._picUrl(backData)
             }
             callback(null,data)
         })
@@ -347,6 +355,37 @@ class dealWith {
             }
             callback(null,result.cmt_sum)
         })
+    }
+    _tag ( raw ){
+        if(!raw){
+            return ''
+        }
+        raw = raw.split(' ')
+        let _tagArr = []
+        if(raw.length != 0){
+            for(let i in raw){
+                _tagArr.push(raw[i])
+            }
+            return _tagArr.join(',')
+        }
+        return ''
+    }
+    _picUrl ( raw ){
+        if(raw.hor_w16_pic){
+            return raw.hor_w16_pic
+        }
+        if(raw.hor_w8_pic){
+            return raw.hor_w8_pic
+        }
+        if(raw.hor_high_pic){
+            return raw.hor_high_pic
+        }
+        if(raw.bgCover169){
+            return raw.bgCover169
+        }
+        if(raw.hor_big_pic){
+            return raw.hor_big_pic
+        }
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
