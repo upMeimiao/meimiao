@@ -4,6 +4,9 @@
 const async = require( 'async' )
 const request = require( '../lib/req' )
 let logger
+const jsonp = function (data) {
+    return data
+}
 class dealWith {
     constructor ( spiderCore ){
         this.core = spiderCore
@@ -13,7 +16,7 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
-        async.series({
+        async.parallel({
             user: (callback) => {
                 this.getUser(task,(err)=>{
                     callback(null,"用户信息已返回")
@@ -201,7 +204,8 @@ class dealWith {
                     type: backData.articletype,
                     commentId: backData.commentid,
                     title: backData.title,
-                    time: backData.timestamp
+                    time: backData.timestamp,
+                    vid: backData.video_channel.video.vid
                 }
             this.getDetail(task,info, (err) => {
                 if(err){
@@ -212,7 +216,7 @@ class dealWith {
         })
     }
     getDetail ( task, info, callback ) {
-        async.series({
+        async.parallel({
             comment:  (callback) => {
                 this.getCommentNum(info, (err,num) => {
                     if(err){
@@ -234,6 +238,14 @@ class dealWith {
                     }
                     callback(null,num)
                 })
+            },
+            newField: ( callback ) => {
+                this.getField(info,(err, data) => {
+                    if(err){
+                        return callback(err)
+                    }
+                    callback(null,data)
+                })
             }
         }, (err, results) => {
             if(err){
@@ -250,7 +262,23 @@ class dealWith {
                 support: results.expr.up,
                 step: results.expr.down,
                 save_num: results.expr.like,
-                a_create_time: info.time
+                a_create_time: info.time,
+                long_t: results.newField ? results.newField.long_t : null,
+                v_img: results.newField ? results.newField.v_img : null,
+                tag: results.newField ? results.newField.tag : null,
+                class: results.newField ? results.newField.class : null
+            }
+            if(!media.class){
+                delete media.class
+            }
+            if(!media.tag){
+                delete media.tag
+            }
+            if(!media.v_img){
+                delete media.v_img
+            }
+            if(!media.long_t){
+                delete media.long_t
             }
             this.sendCache( media )
             callback()
@@ -346,6 +374,63 @@ class dealWith {
                 callback(true)
             }
         })
+    }
+    getField ( info, callback ){
+        let option = {
+            url: "http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid="+info.vid+"&plat=5&pver=0&otype=json&callback=jsonp",
+            referer:'http://r.cnews.qq.com/inews/iphone/'
+        }
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err)
+            }
+            try{
+                result = eval(result.body)
+            }catch (e){
+                logger.error('jsonp数据解析失败')
+                logger.error(result)
+                return callback(e)
+            }
+            if(!result.video){
+                return callback(null, null)
+            }
+            const backData = {
+                long_t: result.video.tot,
+                v_img: result.video.pic,
+                tag: this._tag(result.video.tags),
+                class: this._class(result.video.class)
+            }
+            callback(null,backData)
+        })
+    }
+    _class( raw ){
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]'){
+            return raw.join(',')
+        }
+        return ''
+    }
+    _tag( raw ){
+        let _tagArr = []
+        if(!raw){
+            return ''
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length != 0){
+            for( let i in raw){
+                _tagArr.push(raw[i].tag)
+            }
+            return _tagArr.join(',')
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length == 0){
+            return ''
+        }
+        if(typeof raw == 'object'){
+            return raw.tag
+        }
+        return ''
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
