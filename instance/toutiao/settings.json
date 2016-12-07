@@ -9,6 +9,7 @@
     "jobDB": 2,
     "cache_db": 3
   },
+  "newList": "http://lf.snssdk.com/pgc/ma/?page_type=0&output=json&is_json=1&count=10&version=2&media_id=",
   "list": "http://toutiao.com/ma_mobile/?page_type=0&count=10&version=2&media_id=",
   "info_old": "http://is.snssdk.com/2/article/information/v14/?aggr_type=2&group_id=",
   "info": "http://a3.pstatp.com/article/full/12/2/",

@@ -1,33 +1,22 @@
 /**
- * Created by junhao on 16/6/21.
+ * Created by junhao on 2016/12/7.
  */
 const URL = require('url')
 const moment = require('moment')
 const async = require( 'async' )
-const cheerio = require('cheerio')
-const EventProxy = require( 'eventproxy' )
-const request = require( '../lib/req' )
-const r = require('request')
+const request = require( '../../lib/request' )
 const md5 = require('js-md5')
 let logger
+
 class dealWith {
-    constructor ( spiderCore ){
+    constructor(spiderCore) {
         this.core = spiderCore
         this.settings = spiderCore.settings
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
     }
-    todo ( task, callback ) {
-        task.total = 0
-        task.page = 0
-        task.event = new EventProxy()
-        task.event.once('end', () => {
-            callback(null,task.total)
-        })
-        this.getList(task,null)
-    }
-    getHoney () {
-        var t = Math.floor((new Date).getTime() / 1e3),
+    getHoney() {
+        const t = Math.floor((new Date).getTime() / 1e3),
             e = t.toString(16).toUpperCase(),
             n = md5(t.toString()).toString().toUpperCase()
         if (8 != e.length) return {
@@ -41,260 +30,215 @@ class dealWith {
             cp: e.slice(0, 3) + l + "E1"
         }
     }
-    getList ( task, hot_time ) {
-        const {as, cp} = this.getHoney()
-        task.page++
-        let option
-        if(hot_time){
-            option = {
-                url: this.settings.list + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
-            }
-        }else{
-            option = {
-                url: this.settings.list + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
-            }
-        }
-        request.get( option, (err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-            }
-            try{
-                result = JSON.parse(result.body)
-            }catch (e){
-                logger.error('json数据解析失败')
-                logger.info(result)
-                return
-            }
-            if(result.return_count == 0){
-                logger.debug('已经没有数据')
-                task.total = (task.page - 1) * 10
-                return task.event.emit('end')
-            }
-            let max_behot_time = result.max_behot_time,
-                html = result.html.replace(/\n/ig,'').replace(/\t/ig,'').replace(/\r/ig,''),
-                $ = cheerio.load(html),
-                section = $('section'),group_ids = [],hot_times = [],
-                // h = $('h3'),titles = [],
-                // span = $('.time'),times = [],
-                // count_span = $('.label-count'),counts = [],
-                href = $('a'),ids = []
-            href.each(function (i,elem) {
-                let a_href = $(this).attr('href'),
-                    urlObj = URL.parse(a_href,true),
-                    path = urlObj.pathname
-                if(path.startsWith('/item/')){
-                    ids[i] = a_href.slice(24,a_href.length-1)
-                }else if(path.startsWith('/group/')){
-                    ids[i] = 'a'+a_href.slice(25,a_href.length-1)
-                }else if(path.startsWith('/i')){
-                    ids[i] = a_href.slice(20,a_href.length-1)
-                }
-            })
-            // h.each(function(i, elem) {
-            //     titles[i] = $(this).text()
-            // })
-            // span.each(function (i,elem) {
-            //     times[i] = moment($(this).attr('title')).unix()
-            // })
-            section.each(function(i, elem) {
-                group_ids[i] = $(this).attr('data-id')
-                hot_times[i] = $(this).attr('hot-time')
-            })
-            // count_span.each(function (i, elem) {
-            //     counts[i] = $(this).text()
-            // })
-            // let info = {
-            //     ids:ids,
-            //     group_ids:group_ids,
-            //     titles:titles,
-            //     counts:counts,
-            //     times:times,
-            //     hot_time:max_behot_time
-            // }
-            let info = {
-                ids:ids,
-                group_ids:group_ids,
-                hot_time:max_behot_time
-            }
-            this.deal(task,info)
-        })
-    }
-    deal ( task, info ) {
-        let index = 0,
-            length = info.group_ids.length,
-            hot_time = info.hot_time,
-            data
-        async.whilst(
-            () => {
-                return index < length
-            },
-            ( cb ) => {
-                data = {
-                    id: info.ids[index],
-                    g_id: info.group_ids[index]
-                    // title: info.titles[index],
-                    // count: info.counts[index],
-                    // time: info.times[index]
-                }
-                if(data.id.startsWith('a')){
-                    this.getVId(data.id,(err,vid)=>{
-                        if(err){
-                            index++
-                            return cb()
-                        }
-                        data.id = vid
-                        this.info(task,data, () => {
-                            index++
-                            cb()
-                        })
+    todo ( task, callback) {
+        task.total = 0
+        task.page = 0
+        async.parallel(
+            {
+                user: (callback) => {
+                    this.getUser(task,(err)=>{
+                        callback(null,"用户信息已返回")
                     })
-                }else{
-                    this.info(task,data, () => {
-                        index++
-                        cb()
+                },
+                media: (callback) => {
+                    this.getList(task,(err)=>{
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,"视频信息已返回")
                     })
                 }
             },
             ( err, result ) => {
-                this.getList( task, hot_time )
+                if(err){
+                    return callback(err)
+                }
+                logger.debug(task.id + "_result:",result)
+                callback(null,task.total)
             }
         )
     }
-    getVId (g_id, callback){
-        r.head(`http://toutiao.com/${g_id}/`,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
-            if(!res){
-                return callback(true)
+    getUser ( task, callback ){
+        callback()
+    }
+    sendUser ( user,callback ){
+        let options = {
+            url: this.settings.sendToServer[0],
+            data: user
+        }
+        request.post(logger,options,(err,res,body) => {
+            if(err){
+                return callback(err)
             }
-            let v_id = (res.request.path).replace(/\//g,'').substring(1)
-            callback(null,v_id)
+            try{
+                body = JSON.parse(body)
+            }catch (e){
+                logger.error(`优酷用户 ${user.bid} json数据解析失败`)
+                logger.info(body)
+                return callback(e)
+            }
+            if(body.errno == 0){
+                logger.debug("头条用户:",user.bid + ' back_end')
+            }else{
+                logger.error("头条用户:",user.bid + ' back_error')
+                logger.info(body)
+                logger.info(`user info: `,user)
+            }
+            callback()
         })
     }
-    info ( task, info, callback ) {
-        let id = info.id
-        //title = info.title,time = info.time,count = info.count
-        async.series([
-            ( cb ) => {
-                this.getInfo( info, ( err, data ) => {
+    sendStagingUser (user){
+        let options = {
+            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            data: user
+        }
+        request.post( logger, options,(err,res,body) => {
+            if(err){
+                return
+            }
+            try{
+                body = JSON.parse(body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info('send error:',body)
+                return
+            }
+            if(body.errno == 0){
+                logger.debug("用户:",user.bid + ' back_end')
+            }else{
+                logger.error("用户:",user.bid + ' back_error')
+                logger.info(body)
+            }
+        })
+    }
+    getList ( task, callback ) {
+        let index = 0,
+            sign = true,
+            option = {},
+            hot_time = null
+        async.whilst(
+            () => {
+                return sign
+            },
+            (cb) => {
+                const {as, cp} = this.getHoney()
+                if(hot_time){
+                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                }else{
+                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time="
+                }
+                request.get( logger, option, (err,result) => {
                     if(err){
-                        cb(err)
-                    }else {
-                        cb(null,data)
+                        index++
+                        return cb()
                     }
+                    try{
+                        result = JSON.parse(result.body)
+                    }catch (e){
+                        logger.error('json数据解析失败')
+                        logger.error(result)
+                        index++
+                        return cb()
+                    }
+                    if(result.has_more == 0){
+                        task.total = 10 * index
+                        sign = false
+                        return cb()
+                    }
+                    hot_time = result.next.max_behot_time
+                    this.deal( task, result.data,(err) => {
+                        index++
+                        cb()
+                    })
                 })
             },
-            ( cb ) => {
-                this.getPlayNum( info, ( err, num ) => {
-                    if(err){
-                        cb(err)
-                    }else {
-                        cb(null,num)
-                    }
+            (err,result) => {
+                callback()
+            }
+        )
+    }
+    deal( task, list, callback ){
+        let index = 0,
+            length = list.length
+        async.whilst(
+            () => {
+                return index < length
+            },
+            (cb) => {
+                this.getInfo( task, list[index], (err) => {
+                    index++
+                    cb()
                 })
+            },
+            (err,result) => {
+                callback()
             }
-        ], ( err, result ) => {
-            if(err){
-                return callback()
+        )
+    }
+    getInfo ( task, video, callback) {
+        const media = {}
+        let vid
+        if(video.str_item_id){
+            vid = video.str_item_id
+        }else if(video.app_url){
+            let query = URL.parse(video.app_url,true).query
+            vid = query.item_id
+        }else{
+            logger.debug(video)
+            return callback(video)
+        }
+        this.getPlayNum( vid, ( err, result ) => {
+            media.author = video.detail_source || video.source || task.name
+            media.platform = 6
+            media.bid = task.id
+            media.aid = vid
+            media.title = video.title || 'btwk_caihongip'
+            media.desc = video.abstract ? video.abstract.substr(0,100) : ''
+            media.comment_num = video.comment_count
+            media.support = video.digg_count || null
+            media.step = video.bury_count || null
+            media.save_num = video.repin_count || null
+            media.a_create_time = video.publish_time
+            media.v_img = this._v_img(video)
+            media.long_t = this.long_t(video.video_duration_str)
+            media.tag = this._tag(video.label)
+            if(!err){
+                media.play_num = result
             }
-            let title
-            if(!result[0].title || result[0].title == ''){
-                title = 'btwk_caihongip'
-            }else{
-                title = result[0].title.substr(0,100)
+            if(!media.support){
+                delete media.support
             }
-            let media = {
-                author:result[0].name,
-                platform: 6,
-                bid: task.id,
-                aid: id,
-                title: title,
-                desc: result[0].desc.substr(0,100),
-                play_num: result[1],
-                comment_num: result[0].comment_num,
-                support: result[0].support,
-                step:result[0].step,
-                save_num: result[0].save_num,
-                a_create_time: result[0].time
+            if(!media.step){
+                delete media.step
+            }
+            if(!media.save_num){
+                delete media.save_num
+            }
+            if(!media.long_t){
+                delete media.long_t
+            }
+            if(!media.v_img){
+                delete media.v_img
             }
             //logger.debug('medis info: ',media)
             this.sendCache( media )
             callback()
         })
     }
-    getInfo ( info, callback ) {
-        let group_id = info.g_id,id = info.id,
-            option = {
-                url: this.settings.info + group_id + "/" + id + "/2/0/"
-            }
-        request.get( option, ( err, result ) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e) {
-                logger.error('返回JSON格式不正确')
-                logger.info('info:',result)
-                return callback(e)
-            }
-            //logger.debug(result.data)
-            let backData = result.data,data
-            if(!backData){
-                return callback(true)
-            }
-            data = {
-                title: backData.title || 'btwk_caihongip',
-                desc: backData.abstract,
-                name: backData.media_name,
-                comment_num: backData.comment_count >= 0 ?  backData.comment_count : 0,
-                support: backData.digg_count || 0,
-                step:backData.bury_count || 0,
-                save_num: backData.repin_count || 0,
-                time: backData.publish_time
-            }
-            // if(backData.has_video && backData.video_detail_info){
-            //     data = {
-            //         type: 0,
-            //         title: backData.title,
-            //         desc: backData.abstract,
-            //         name: backData.media_name,
-            //         play_num: backData.video_detail_info.video_watch_count,
-            //         comment_num: backData.comment_count >= 0 ?  backData.comment_count : 0,
-            //         support: backData.digg_count || 0,
-            //         step:backData.bury_count || 0,
-            //         save_num: backData.repin_count || 0,
-            //         time: backData.publish_time
-            //     }
-            // }else{
-            //     data = {
-            //         type: 1,
-            //         title: backData.title,
-            //         desc: backData.abstract,
-            //         name: backData.media_name,
-            //         comment_num: backData.comment_count || 0,
-            //         support: backData.digg_count || 0,
-            //         step:backData.bury_count || 0,
-            //         save_num: backData.repin_count || 0,
-            //         time: backData.publish_time
-            //     }
-            // }
-            callback(null,data)
-        })
-    }
-    getPlayNum ( info, callback ) {
+    getPlayNum ( vid, callback ) {
         let option = {
-            url: `http://m.toutiao.com/i${info.id}/info/`
+            url: `http://m.toutiao.com/i${vid}/info/`
         }
-        request.get( option, ( err, result ) => {
+        request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.debug(vid)
                 return callback(err)
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('返回JSON格式不正确')
-                logger.info('info:',result)
+                logger.error('info:',result)
                 return callback(e)
             }
             let backData = result.data
@@ -304,14 +248,50 @@ class dealWith {
             callback(null,backData.video_play_count)
         })
     }
-    sendCache (media,callback){
+    _tag ( raw ){
+        if(!raw){
+            return ''
+        }
+        let _tagArr = []
+        if(raw.length != 0){
+            for(let i in raw){
+                _tagArr.push(raw[i])
+            }
+            return _tagArr.join(',')
+        }
+        return ''
+    }
+    long_t( time ){
+        if(!time){
+            return null
+        }
+        let timeArr = time.split(':'),
+            long_t  = ''
+        if(timeArr.length == 2){
+            long_t = moment.duration( `00:${time}`).asSeconds()
+        }else if(timeArr.length == 3){
+            long_t = moment.duration(time).asSeconds()
+        }
+        return long_t
+    }
+    _v_img(video){
+        if(video.cover_image_infos && video.cover_image_infos.length != 0 && video.cover_image_infos[0].width && video.cover_image_infos[0].height){
+            return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`
+        }
+        if(video.middle_image){
+            return video.middle_image
+        }
+        return null
+    }
+    sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
             logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
-        } )
+        })
     }
 }
+
 module.exports = dealWith
