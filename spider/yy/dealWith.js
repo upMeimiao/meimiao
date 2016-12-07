@@ -311,7 +311,7 @@ class dealWith {
     getInfoL ( task, data, callback ) {
         let title = data.title
         if(title == ''){
-            title = "未知视频" + data.pid
+            title = "btwk_caihongip"
         }
         let media = {
             author: task.name,
@@ -328,7 +328,7 @@ class dealWith {
     getInfo ( task, data, callback ) {
         let title = data.songname
         if(title == ''){
-            title = "未知视频" + data.resid
+            title = "btwk_caihongip"
         }
         let time = data.addtime,
             a_create_time = moment(time).format('X'),

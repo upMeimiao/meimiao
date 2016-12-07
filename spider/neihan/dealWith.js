@@ -203,7 +203,7 @@ class dealWith {
         if(group.title != ''){
             title = group.title
         }else{
-            title = '未命名视频' + group.id_str
+            title = 'btwk_caihongip'
         }
         let media = {
                 author: group.user.name,

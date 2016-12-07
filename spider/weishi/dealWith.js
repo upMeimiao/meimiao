@@ -197,7 +197,7 @@ class dealWith {
                     platform: 16,
                     bid: task.id,
                     aid: video.id,
-                    title: video.origtext ? video.origtext.substr(0,80) : '无标题',
+                    title: video.origtext ? video.origtext.substr(0,80) : 'btwk_caihongip',
                     desc: video.origtext ? video.origtext.substr(0,100) : '',
                     play_num: video.playCount,
                     forward_num: video.rtcount,
