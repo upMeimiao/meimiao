@@ -43,7 +43,7 @@ class dealWith {
                     fans_num: userInfo.fans_count
                 }
             task.total = userInfo.tiezi_count
-            async.series({
+            async.parallel({
                 user: (callback) => {
                     this.sendUser (user ,(err,result) => {
                         callback(null,'用户信息已找到')
@@ -187,7 +187,10 @@ class dealWith {
                     comment_num: video.comment,
                     support: video.up,
                     step: video.down,
-                    a_create_time: moment(video.passtime).unix()
+                    a_create_time: moment(video.passtime).unix(),
+                    long_t: video.video.duration,
+                    v_img: this._v_img(video.video.thumbnail),
+                    tag: this._tag(video.tags)
                 }
                 this.sendCache( media )
                 index++
@@ -197,6 +200,37 @@ class dealWith {
                 callback()
             }
         )
+    }
+    _tag ( raw ) {
+        let _tagArr = []
+        if(!raw){
+            return ''
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length == 0){
+            return ''
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length != 0){
+            for( let i in raw){
+                _tagArr.push(raw[i].name)
+            }
+            return _tagArr.join(',')
+        }
+        return ''
+    }
+    _v_img ( raw ) {
+        if(!raw){
+            return ''
+        }
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length == 0){
+            return ''
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length != 0){
+            return raw[0]
+        }
+        return ''
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
