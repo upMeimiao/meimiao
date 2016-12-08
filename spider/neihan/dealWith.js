@@ -219,12 +219,39 @@ class dealWith {
             support: group.digg_count,
             step: group.bury_count,
             a_create_time: group.create_time,
-            v_img: group.large_cover.url_list[0].url,
-            long_t: Math.ceil(group.duration),
+            v_img: this._v_img( group ),
+            long_t: group.duration ? this.long_t(group.duration) : null,
             class: group.category_name
+        }
+        if(!media.long_t){
+            delete media.long_t
+        }
+        if(!media.v_img){
+            delete media.v_img
         }
         this.sendCache( media )
         callback()
+    }
+    long_t ( raw ){
+        if(!raw){
+            return ''
+        }
+        return Math.round(raw)
+    }
+    _v_img ( raw ){
+        if( !raw ){
+            return ''
+        }
+        if(!raw.large_cover && !raw.medium_cover){
+            return ''
+        }
+        if(raw.large_cover.url_list && raw.large_cover.url_list.length > 0){
+            return raw.large_cover.url_list[0].url
+        }
+        if(raw.medium_cover.url_list && raw.medium_cover.url_list.length > 0){
+            return raw.medium_cover.url_list[0].url
+        }
+        return ''
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
