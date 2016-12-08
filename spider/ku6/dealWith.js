@@ -15,7 +15,7 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        async.series({
+        async.parallel({
             user: (callback) => {
                 this.getUser( task, task.id, (err) => {
                     if(err){
@@ -59,7 +59,7 @@ class dealWith {
                 callback()
             })
             this.sendStagingUser(user)
-        })     
+        })
     }
     sendUser (user,callback){
         let option = {
@@ -115,8 +115,8 @@ class dealWith {
     getTotal ( task, id, callback){
         logger.debug('开始获取视频总数')
         let option = {
-                url: this.settings.listNum + id
-            }
+            url: this.settings.listNum + id
+        }
         request.get( option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
@@ -211,6 +211,7 @@ class dealWith {
         )
     }
     getInfo ( task, data, callback ) {
+        //logger.debug(data)
         let time = data.uploadtime,
             a_create_time = time.substring(0,10),
             media = {
@@ -223,10 +224,47 @@ class dealWith {
                 play_num: data.viewed,
                 support: data.liked,
                 step: data.disliked,
-                a_create_time: a_create_time
+                a_create_time: a_create_time,
+                long_t: data.videotime,
+                v_img: this._v_img(data.picpath),
+                tag: this._tag(data.tag),
+                class: this._class(data.catename)
             }
+        logger.debug(media)
         this.sendCache( media )
         callback()
+    }
+    _tag ( raw ){
+        if(!raw){
+            return ''
+        }
+        raw = raw.split(' ')
+        let _tagArr = []
+        if(raw.length != 0){
+            for(let i in raw){
+                _tagArr.push(raw[i])
+            }
+            return _tagArr.join(',')
+        }
+        return ''
+    }
+    _class ( raw ){
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]'){
+            return raw.join(',')
+        }
+        return ''
+    }
+    _v_img ( raw ){
+        if(!raw){
+            return ''
+        }
+        if(!raw.startsWith('http://') || !raw.startsWith('https://')){
+            return 'http://'+raw
+        }
+        return raw
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {

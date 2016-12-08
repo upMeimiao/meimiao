@@ -172,10 +172,9 @@ class dealWith {
                     if(!result.data){
                         logger.debug(result)
                         sign++
-                        cb()
+                        return cb()
                     }
-                    let _data = result.data
-                    if(!_data.vlist || _data.vlist == 'null'){
+                    if(!result.data.vlist || result.data.vlist == 'null'){
                         logger.debug('已经没有数据')
                         return this.even.emit('end')
                     }
