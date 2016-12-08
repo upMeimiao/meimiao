@@ -13,7 +13,7 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        async.series({
+        async.parallel({
             user: (callback) => {
                 this.getUser (task,(err)=>{
                     callback(null,'用户信息已返回')
@@ -206,20 +206,23 @@ class dealWith {
             title = 'btwk_caihongip'
         }
         let media = {
-                author: group.user.name,
-                platform: 19,
-                bid: task.id,
-                aid: group.id_str,
-                title: title.substr(0,100),
-                desc: group.text.substr(0,100),
-                play_num: group.play_count,
-                save_num: group.favorite_count,
-                forward_num: group.share_count,
-                comment_num: group.comment_count,
-                support: group.digg_count,
-                step: group.bury_count,
-                a_create_time: group.create_time
-            }
+            author: group.user.name,
+            platform: 19,
+            bid: task.id,
+            aid: group.id_str,
+            title: title.substr(0,100),
+            desc: group.text.substr(0,100),
+            play_num: group.play_count,
+            save_num: group.favorite_count,
+            forward_num: group.share_count,
+            comment_num: group.comment_count,
+            support: group.digg_count,
+            step: group.bury_count,
+            a_create_time: group.create_time,
+            v_img: group.large_cover.url_list[0].url,
+            long_t: Math.ceil(group.duration),
+            class: group.category_name
+        }
         this.sendCache( media )
         callback()
     }
@@ -231,6 +234,6 @@ class dealWith {
             }
             logger.debug(`内涵段子 ${media.aid} 加入缓存队列`)
         } )
-    }  
+    }
 }
 module.exports = dealWith
