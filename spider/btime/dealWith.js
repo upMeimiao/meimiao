@@ -15,7 +15,7 @@ class dealWith {
     }
     todo( task, callback) {
         task.total = 0
-        async.series({
+        async.parallel({
             user: (callback) => {
                 this.getUser(task , task.id, (err) => {
                     if(err){
@@ -184,19 +184,60 @@ class dealWith {
     getVideo(task ,data ,callback ) {
         let time = data.ctime,
             a_create_time = moment(time).format('X'),
-            media = {
-                author: task.name,
-                platform: 15,
-                bid: task.id,
-                aid: data.id,
-                title: data.title.substr(0,100),
-                desc: data.description.substr(0,100),
-                play_num: data.click_count,
-                comment_num: data.comment,
-                a_create_time: a_create_time
+            media = {}
+        this.getLong_t ( data, ( err, result ) => {
+            media.author = task.name
+            media.platform = 15
+            media.bid = task.id
+            media.aid = data.id
+            media.title = data.title.substr(0,100)
+            media.desc = data.description.substr(0,100)
+            media.play_num = data.click_count
+            media.comment_num = data.comment
+            media.a_create_time = a_create_time
+            media.v_img = data.image_url
+            if(!err){
+                media.long_t = result
             }
-        this.sendCache( media )
-        callback()
+            logger.debug(media)
+            this.sendCache( media )
+            callback()
+        })
+    }
+    getLong_t ( info, callback ){
+        let option={
+            url: "http://api.btime.com/video/play?id="+info.gid
+        }
+        request.get( option, ( err, result ) => {
+            if(err){
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                return callback(true)
+            }
+            try {
+                result = JSON.parse(result.body)
+            } catch (e){
+                return callback(e)
+            }
+            if(result.errno != 0 ){
+                return callback(true)
+            }
+            callback(null,this._long_t(result.data.duration))
+        })
+    }
+    _long_t ( time ){
+        if( !time ){
+            return ''
+        }
+        let timeArr = time.split(':'),
+            long_t  = ''
+        if(timeArr.length == 2){
+            long_t = moment.duration( `00:${time}`).asSeconds()
+        }else if(timeArr.length == 3){
+            long_t = moment.duration(time).asSeconds()
+        }
+        return long_t
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
