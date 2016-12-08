@@ -204,6 +204,8 @@ class dealWith {
             media.tag = this._tag(video.label)
             if(!err){
                 media.play_num = result
+            }else{
+                media.play_num = 0
             }
             if(!media.support){
                 delete media.support
