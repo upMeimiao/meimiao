@@ -17,7 +17,7 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
-        async.series(
+        async.parallel(
             {
                 user: (cb) => {
                     this.getUser(task,(err)=>{
@@ -187,7 +187,7 @@ class dealWith {
     }
     info ( task, video, callback ) {
         let id = video.OBJID
-        async.series([
+        async.parallel([
             ( cb ) => {
                 this.getExpr( id, ( err, data ) => {
                     if(err){
@@ -230,7 +230,8 @@ class dealWith {
                 comment_num: Number(result[0].reviewCount),
                 forward_num: Number(result[0].shareCount),
                 support: Number(result[0].zanCount) + Number(result[1].zancount),
-                save_num: Number(result[0].collectCount) + Number(result[1].CollectionCount)
+                save_num: Number(result[0].collectCount) + Number(result[1].CollectionCount),
+                v_img: video.IMGURL
             }
             this.sendCache( media )
             callback()
