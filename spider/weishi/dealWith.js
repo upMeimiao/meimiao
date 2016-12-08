@@ -42,7 +42,7 @@ class dealWith {
                     fans_num: data.follower_num
                 }
             task.total = data.tweet_num
-            async.series({
+            async.parallel({
                 user: (callback) => {
                     this.sendUser (user,(err,result) => {
                         callback(null,'用户信息已找到')
@@ -203,7 +203,23 @@ class dealWith {
                     forward_num: video.rtcount,
                     comment_num: video.mcount,
                     support: video.digcount,
-                    a_create_time: video.timestamp
+                    a_create_time: video.timestamp,
+                    long_t: video.newvideos ? this._long_t(video.newvideos) : null,
+                    v_img: video.newvideos ? this._v_img(video) : null,
+                    class: video.topic ? this._class(video.topic) : null,
+                    tag: video.tags ? this._class(video.tags): null
+                }
+                if(!media.long_t){
+                    delete media.long_t
+                }
+                if(!media.v_img){
+                    delete media.v_img
+                }
+                if(!media.class){
+                    delete media.class
+                }
+                if(!media.tag){
+                    delete media.tag
                 }
                 this.sendCache( media )
                 index++
@@ -213,6 +229,43 @@ class dealWith {
                 callback()
             }
         )
+    }
+    _long_t ( raw ){
+        if( !raw ){
+            return ''
+        }
+        if(raw.length != 0){
+            return raw[0].duration
+        }
+        return ''
+    }
+    _v_img ( raw ){
+        if( !raw.newvideos && !raw.videos ){
+            return ''
+        }
+        if(raw.newvideos && raw.newvideos.length > 0){
+            return raw.newvideos[0].picurl
+        }
+        if(raw.videos && raw.videos.length > 0){
+            return raw.videos[0].picurl
+        }
+        return ''
+    }
+    _class ( raw ){
+        if( !raw ){
+            return ''
+        }
+        let _classArr = []
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length == 0){
+            return ''
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]' && raw.length != 0){
+            for( let i in raw){
+                _classArr.push(raw[i].name)
+            }
+            return _classArr.join(',')
+        }
+        return ''
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
