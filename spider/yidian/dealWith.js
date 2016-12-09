@@ -152,16 +152,22 @@ class dealWith {
             if( result.result.length == 0){
                 return callback( true )
             }
-            if( !result.result[0].columns || result.result[0].columns.length < 2){
-                return callback( true )
+            if(result.result[0].ctype == 'interest_navigation'){
+                if( !result.result[0].columns || result.result[0].columns.length < 2){
+                    return callback( true )
+                }
+                task.interest_id = result.result[0].columns[1].interest_id
+                this.getList( task, 'video', ( err, result ) => {
+                    return callback()
+                })
+            } else {
+                this.getList( task, 'all', ( err, result ) => {
+                    return callback()
+                })
             }
-            task.interest_id = result.result[0].columns[1].interest_id
-            this.getList( task, ( err, result ) => {
-                callback()
-            })
         })
     }
-    getList ( task, callback ){
+    getList ( task, type, callback ){
         let sign = true, cstart = 0 ,cend = 50,
             option = {
                 ua:1
@@ -171,7 +177,11 @@ class dealWith {
                 return sign
             },
             ( cb ) => {
-                option.url = `${this.settings.list}&path=channel|news-list-for-vertical&interest_id=${task.interest_id}&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`
+                if(type == 'video'){
+                    option.url = `${this.settings.list}&path=channel|news-list-for-vertical&interest_id=${task.interest_id}&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`
+                }else{
+                    option.url = `${this.settings.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`
+                }
                 option.referer = `http://www.yidianzixun.com/home?page=channel&id=${task.id}`
                 request.get( logger, option, ( err, result ) => {
                     if(err){
@@ -212,6 +222,10 @@ class dealWith {
             },
             ( cb ) => {
                 video = list[index]
+                if(video.ctype != 'video_live'){
+                    index++
+                    return cb()
+                }
                 media = {
                     author: task.name,
                     platform: task.p,
