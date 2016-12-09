@@ -81,7 +81,13 @@ class scheduler {
             this.dealWith.setCreate( raw )
         })
         this.on( 'task_create', ( raw ) => {
-            this.createQueue( raw )
+            if( raw.p == 6){
+                this.getUserId( raw ,( err, result ) => {
+                    this.createQueue( result )
+                })
+            }else{
+                this.createQueue( raw )
+            }
         })
         this.on( 'redis_error', ( raw ) => {
             /**
@@ -117,11 +123,15 @@ class scheduler {
             p: raw.p,
             name: raw.name,
             encodeId: raw.encodeId,
-            type: raw.type
+            type: raw.type,
+            user_id: raw.uid
         }).priority('critical').attempts(5).backoff({delay: 60*1000, type:'fixed'}).removeOnComplete(true)
         // if(!raw.first){
         //     job.ttl(300000)
         // }
+        if(!job.data.user_id){
+            delete job.data.user_id
+        }
         if(job.data.type === 0){
             delete job.data.type
         }
@@ -139,6 +149,17 @@ class scheduler {
             logger.debug("任务: " + job.type + "_" + job.data.id + " 创建完成")
             job = null
             raw = null
+        })
+    }
+    getUserId ( raw, callback ){
+        const key = raw.p + ':' + raw.id
+        this.taskDB.hget( key, 'uid',(err,result)=>{
+            if( err ){
+                scheduler.emit( 'redis_error', {db: 'taskDB',action: 2})
+                return callback(err,raw)
+            }
+            raw.user_id = result
+            callback(null,raw)
         })
     }
     checkKue ( raw ) {

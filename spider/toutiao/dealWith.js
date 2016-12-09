@@ -32,7 +32,7 @@ class dealWith {
     }
     todo ( task, callback) {
         task.total = 0
-        task.page = 0
+        task.uid = ''
         async.parallel(
             {
                 user: (callback) => {
@@ -54,34 +54,66 @@ class dealWith {
                     return callback(err)
                 }
                 logger.debug(task.id + "_result:",result)
-                callback(null,task.total)
+                callback(null,task.total,task.uid)
             }
         )
     }
     getUser ( task, callback ){
-        callback()
+        if(!task.user_id){
+            return callback()
+        }
+        const option = {
+            url: this.settings.user + task.user_id
+        }
+        request.get( logger, option, ( err, result ) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e){
+                return callback(e)
+            }
+            if( result.message != 'success' || !result.data ){
+                return callback('fail')
+            }
+            let fans = result.data.total_cnt
+            if( typeof fans == 'string' && fans.indexOf('万') != -1 ){
+                fans = fans.replace('万','') * 10000
+            }
+            let user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: fans
+            }
+            logger.debug(user)
+            this.sendUser( user, (err) => {
+                callback()
+            })
+            this.sendStagingUser(user)
+        })
     }
     sendUser ( user,callback ){
         let options = {
             url: this.settings.sendToServer[0],
             data: user
         }
-        request.post(logger,options,(err,res,body) => {
+        request.post(logger,options,(err,res) => {
             if(err){
                 return callback(err)
             }
             try{
-                body = JSON.parse(body)
+                res = JSON.parse(res.body)
             }catch (e){
-                logger.error(`优酷用户 ${user.bid} json数据解析失败`)
-                logger.info(body)
+                logger.error(`头条用户 ${user.bid} json数据解析失败`)
+                logger.info(res)
                 return callback(e)
             }
-            if(body.errno == 0){
+            if(res.errno == 0){
                 logger.debug("头条用户:",user.bid + ' back_end')
             }else{
                 logger.error("头条用户:",user.bid + ' back_error')
-                logger.info(body)
+                logger.info(res)
                 logger.info(`user info: `,user)
             }
             callback()
@@ -92,22 +124,22 @@ class dealWith {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( logger, options,(err,res,body) => {
+        request.post( logger, options,(err,res) => {
             if(err){
                 return
             }
             try{
-                body = JSON.parse(body)
+                res = JSON.parse(res.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                logger.info('send error:',body)
+                logger.info('send error:',res)
                 return
             }
-            if(body.errno == 0){
+            if(res.errno == 0){
                 logger.debug("用户:",user.bid + ' back_end')
             }else{
                 logger.error("用户:",user.bid + ' back_error')
-                logger.info(body)
+                logger.info(res)
             }
         })
     }
@@ -146,6 +178,9 @@ class dealWith {
                         return cb()
                     }
                     hot_time = result.next.max_behot_time
+                    if(index == 0 && result.data.length > 0){
+                        task.uid = result.data[0].creator_uid
+                    }
                     this.deal( task, result.data,(err) => {
                         index++
                         cb()

@@ -44,7 +44,8 @@ class dealWith{
             name: _.bname,
             platform: platform,
             encodeId: _.encodeId ? _.encodeId : '',
-            type: _.type ? _.type : ''
+            type: _.type ? _.type : '',
+            uid: ''
         }
         scheduler.emit( 'task_init', baseInfo)
         callback()
