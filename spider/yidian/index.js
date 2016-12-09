@@ -89,11 +89,11 @@ class spiderCore {
                 done(err)
             })
             d.run(()=>{
-                this.dealWith.todo(work, (err) => {
+                this.dealWith.todo(work, (err,total) => {
                     if(err){
                         return done(err)
                     }
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), ( err, result) => {
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total,  ( err, result) => {
                         done(null)
                     })
                     request.post( settings.sendToServer[2], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
