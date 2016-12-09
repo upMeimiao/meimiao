@@ -5,6 +5,7 @@ exports.get = ( option , callback ) => {
         options = {
             method : 'GET',
             url: option.url,
+            timeout: 45000,
             headers: {
                 'Referer': option.referer || null,
                 'deviceType': option.deviceType || null

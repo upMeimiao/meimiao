@@ -20,6 +20,7 @@ exports.get = ( logger, option , callback ) => {
     let options = {
         method : 'GET',
         url: option.url,
+        timeout: 45000,
         headers: {
             'Referer': option.referer || null,
             'User-Agent': user_agent,
