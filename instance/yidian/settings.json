@@ -9,7 +9,8 @@
     "jobDB": 2,
     "cache_db": 3
   },
-  "userInfo": "http://www.yidianzixun.com/home?page=channel&id=",
+  "userInfo": "http://m.yidianzixun.com/api/channel/subnum?platform=0&appid=yidian&cv=4.3.4.4&version=020113&fromid=",
+  "list": "http://www.yidianzixun.com/api/q/?fields=docid&fields=category&fields=date&fields=image&fields=image_urls&fields=like&fields=source&fields=title&fields=url&fields=comment_count&fields=summary&fields=up&version=999999&infinite=true",
   "sendToServer":[
     "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
     "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
