@@ -49,7 +49,7 @@ class dealWith {
                 fans_num: fans_text.replace(/,/g,'')
             }
             task.total = Number(live_num) + Number(sq_num) + Number(dp_num)
-            async.series({
+            async.parallel({
                 user: (callback) => {
                     this.sendUser ( user,(err,result) => {
                         callback(null,'用户信息已返回')
@@ -172,7 +172,7 @@ class dealWith {
                     }
                     list = result.data.list
                     if(list){
-                        this.deal( task, list, () => {
+                        this.deal( task, list, '直播回放', () => {
                             sign++
                             cb()
                         })
@@ -220,7 +220,7 @@ class dealWith {
                     }
                     list = result.data
                     if(list){
-                        this.deal( task, list, () => {
+                        this.deal( task, list, '神曲', () => {
                             sign++
                             cb()
                         })
@@ -268,7 +268,7 @@ class dealWith {
                     }
                     list = result.data
                     if(list){
-                        this.deal( task, list, () => {
+                        this.deal( task, list, '短片', () => {
                             sign++
                             cb()
                         })
@@ -283,7 +283,7 @@ class dealWith {
             }
         )
     }
-    deal ( task, list, callback) {
+    deal ( task, list, type, callback) {
         let index = 0,video
         async.whilst(
             () => {
@@ -292,12 +292,12 @@ class dealWith {
             (cb) => {
                 video = list[index]
                 if(video.pid){
-                    this.getInfoL( task, video,(err) => {
+                    this.getInfoL( task, type, video,(err) => {
                         index++
                         cb()
                     })
                 }else{
-                    this.getInfo( task, video,(err) => {
+                    this.getInfo( task, type, video,(err) => {
                         index++
                         cb()
                     })
@@ -308,7 +308,7 @@ class dealWith {
             }
         )
     }
-    getInfoL ( task, data, callback ) {
+    getInfoL ( task, type, data, callback ) {
         let title = data.title
         if(title == ''){
             title = "btwk_caihongip"
@@ -319,16 +319,31 @@ class dealWith {
             bid: task.id,
             aid: data.pid,
             title: title,
-            play_num: Number(data.totalViewer),
-            a_create_time: data.beginTime
+            play_num: Number(data.viewer) + Number(data.recordViewer),
+            a_create_time: data.beginTime,
+            long_t: moment.duration(data.duration).asSeconds(),
+            v_url: data.playUrl,
+            v_img: data.imageUrl,
+            class: type
         }
         this.sendCache( media )
         callback()
     }
-    getInfo ( task, data, callback ) {
-        let title = data.songname
+    getInfo ( task, type, data, callback ) {
+        let title,play = data.watchCount
+        if(type == '神曲'){
+            title = data.songname
+        }
+        if( type == '短片'){
+            title = data.resdesc
+        }
         if(title == ''){
             title = "btwk_caihongip"
+        }
+        if(play.indexOf('万')){
+            play = play.replace('万','') * 10000
+        }else if(play.indexOf('亿')){
+            play = play.replace('亿','') * 100000000
         }
         let time = data.addtime,
             a_create_time = moment(time).format('X'),
@@ -339,13 +354,20 @@ class dealWith {
                 aid: data.resid,
                 title: title.substr(0,100),
                 desc: data.resdesc.substr(0,100),
-                play_num: data.watchCount,
+                play_num: play,
                 save_num: data.favorCount,
                 forward_num: data.shareCount,
                 comment_num: data.commentCount,
                 support: data.likeCount,
-                a_create_time: a_create_time
+                a_create_time: a_create_time,
+                long_t: data.duration ? moment.duration(data.duration).asSeconds() : null,
+                v_img: data.snapshoturl,
+                class: type,
+                v_url: data.playUrl
             }
+        if(!media.long_t){
+            delete media.long_t
+        }
         this.sendCache( media )
         callback()
     }
