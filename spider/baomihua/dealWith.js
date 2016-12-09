@@ -2,7 +2,7 @@
  * Created by junhao on 16/7/28.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
 const jsonp = function (data) {
     return data
 }
@@ -46,9 +46,8 @@ class dealWith {
         let option = {
             url: this.settings.userInfo + task.id
         }
-        request.get( option, ( err, result ) => {
+        request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             try{
@@ -75,10 +74,8 @@ class dealWith {
             url: this.settings.sendToServer[0],
             data: user
         }
-        request.post( option, ( err, back ) => {
+        request.post( logger,option, ( err, back ) => {
             if(err){
-                logger.error( 'occur error : ', err )
-                logger.info(`返回爆米花用户 ${user.bid} 连接服务器失败`)
                 return callback(err)
             }
             try{
@@ -103,9 +100,8 @@ class dealWith {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post( logger,option,(err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return
             }
             try{
@@ -135,9 +131,8 @@ class dealWith {
                 }else{
                     option.url = this.settings.mediaList + task.id
                 }
-                request.get( option, ( err, result ) => {
+                request.get( logger,option, ( err, result ) => {
                     if(err){
-                        logger.error( 'occur error : ', err )
                         return cb()
                     }
                     try{
@@ -239,11 +234,12 @@ class dealWith {
     }
     getExpr ( id, callback ) {
         let option = {
-            url: this.settings.expr_m + id
+            url: this.settings.expr_m + id,
+            ua: 3,
+            own_ua:'BMHVideo/3.3.3 (iPhone; iOS 10.1.1; Scale/3.00)'
         }
-        request.get( option, ( err, result ) => {
+        request.get( logger,option, ( err, result ) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             try{
@@ -260,14 +256,9 @@ class dealWith {
         let option = {
             url: this.settings.expr_pc + id + '&_=' + (new Date()).getTime()
         }
-        request.get( option, ( err, result ) => {
+        request.get( logger,option, ( err, result ) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return callback(err)
-            }
-            if(result.statusCode != 200){
-                logger.error('getExpr code错误：',result.statusCode)
-                return callback(true)
             }
             try{
                 result = eval(result.body)
@@ -287,9 +278,8 @@ class dealWith {
         let option = {
             url: this.settings.play + `${task.id}&flvid=` + id
         }
-        request.get( option, ( err, result ) => {
+        request.get( logger,option, ( err, result ) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             result = eval(result.body)
