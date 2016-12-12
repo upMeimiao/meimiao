@@ -60,9 +60,9 @@ class dealWith {
             }
             let fans_str = result.result.channels[task.id].replace('人订阅',''),
                 fans_num,user
-            if(fans_str.indexOf('万')){
+            if(fans_str.indexOf('万') != -1 ){
                 fans_num = fans_str.replace('万','') * 10000
-            }else if(fans_str.indexOf('亿')){
+            }else if(fans_str.indexOf('亿') != -1 ){
                 fans_num = fans_str.replace('亿','') * 100000000
             }else{
                 fans_num = Number(fans_num)
