@@ -92,7 +92,6 @@ class spiderCore {
             case 'www.baomihua.com':
             case 'baomihua.com':
             case 'video.baomihua.com':
-            case 'p.m.btime.com':
                 handle.baomihuaHandle( ctx, remote )
                 break
             case 'v.ku6.com':
@@ -101,6 +100,7 @@ class spiderCore {
             case 'record.btime.com':
             case 'video.btime.com':
             case 'item.btime.com':
+            case 'p.m.btime.com':
                 handle.btimeHandle( ctx, remote )
                 break
             case 'www.weishi.com':
