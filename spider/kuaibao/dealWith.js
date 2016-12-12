@@ -399,7 +399,7 @@ class dealWith {
                 long_t: result.video.tot,
                 v_img: result.video.pic,
                 tag: this._tag(result.video.tags),
-                class: this._class(result.video.class)
+                class: this._class(result.video.ctypename)
             }
             callback(null,backData)
         })
