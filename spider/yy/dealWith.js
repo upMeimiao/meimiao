@@ -340,9 +340,9 @@ class dealWith {
         if(title == ''){
             title = "btwk_caihongip"
         }
-        if(play.indexOf('万')){
+        if(play.indexOf('万') != -1 ){
             play = play.replace('万','') * 10000
-        }else if(play.indexOf('亿')){
+        }else if(play.indexOf('亿') != -1){
             play = play.replace('亿','') * 100000000
         }
         let time = data.addtime,

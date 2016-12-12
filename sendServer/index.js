@@ -89,25 +89,6 @@ class sendServer {
         } )
     }
     send (media,time) {
-        // const option = {
-        //     url: this.settings.url,
-        //     form: media
-        // }
-        if(media.v_url){
-            delete media.v_url
-        }
-        if(media.v_img){
-            delete media.v_img
-        }
-        if(media.tag){
-            delete media.tag
-        }
-        if(media.class){
-            delete media.class
-        }
-        if(media.long_t){
-            delete media.long_t
-        }
         this.onlineOption.form = media
         request.post(this.onlineOption, (err,res, result) => {
             if(err){
