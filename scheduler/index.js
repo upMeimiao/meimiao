@@ -158,7 +158,7 @@ class scheduler {
                 scheduler.emit( 'redis_error', {db: 'taskDB',action: 2})
                 return callback(err,raw)
             }
-            raw.user_id = result
+            raw.uid = result
             callback(null,raw)
         })
     }
