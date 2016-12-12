@@ -195,6 +195,7 @@ class dealWith {
             media.play_num = data.click_count
             media.comment_num = data.comment
             media.a_create_time = a_create_time
+            media.v_url = data.gid
             media.v_img = data.image_url
             if(!err){
                 media.long_t = result
