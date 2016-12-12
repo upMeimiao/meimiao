@@ -179,7 +179,7 @@ class DealWith {
             }
             let res = {
                 id: result.data.user ? result.data.user.user_id : result.data.user_id,
-                name: result.data.user ? result.data.user.nickname : result.data.director,
+                name: result.data.user ? result.data.user.nickname : result.data.director || result.data.album_name,
                 p: 9
             }
             callback(null,res)
@@ -660,7 +660,7 @@ class DealWith {
     }
     btime ( data, callback) {
         let pathname = URL.parse(data,true).pathname,option = {}
-        if(!((pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/')))){
+      if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
             return callback(true,{code:101,p:15})
         }
         option.url = data
@@ -681,7 +681,7 @@ class DealWith {
                 }
             if(!id){
                 let scriptDOM = $('script'),
-                    scriptText = scriptDOM[34].children[0].data,
+                    scriptText = scriptDOM[35].children[0].data,
                     v_id = scriptText.replace('var video_id = "','').replace('";','')
                 option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${v_id}`
                 request.get(option, (err,result) => {
