@@ -19,14 +19,15 @@ class dealWith {
             url: 'http://viva.api.xiaoying.co/api/rest/d/dg',
             headers: {
                 'content-type': 'application/x-www-form-urlencoded',
+                'User-Agent':'XiaoYing/5.3.5 (iPhone; iOS 10.1.1; Scale/3.00)'
             },
             form: {
                 a: 'dg',
                 b: '1.0',
-                c: '20006700',
-                e: 'DIqfov70',
-                i: '{"a":"[I]d41d8cd98f00b204e9800998ecf8427ed756afa2","b":"zh_CN"}',
-                j: '97ab307b8e8b5ef215182a2759dc643d',
+                c: '20007700',
+                e: 'DIqmr4fb',
+                i: '{"a":"[I]a8675492c8816a22c28a1b97f890ae144a8a4fa3","b":"zh_CN"}',
+                j: '6a0ea6a13e76e627121ee75c2b371ef2',
                 k: 'xysdkios20130711'
             }
         }
@@ -75,7 +76,7 @@ class dealWith {
                 fans_num: result.user.fanscount
             }
             task.total = result.user.videocount
-            async.series({
+            async.parallel({
                 user: (callback) => {
                     this.sendUser ( user,(err,result) => {
                         callback(null,'用户信息已返回')
@@ -174,10 +175,13 @@ class dealWith {
                         'user-agent': 'XiaoYing/5.0.5 (iPhone; iOS 9.3.3; Scale/3.00)'
                     },
                     form:{
-                        e: 'DIqfov70',
+                        a: 'vq',
+                        b: '1.0',
+                        c: 20006700,
+                        e: 'DIqmr4fb',
                         h: this.core.h,
                         i: `{"a":"${task.id}","b":20,"c":${sign}}`,
-                        j: '97ab307b8e8b5ef215182a2759dc643d' ,
+                        j: '21f1acbe43a8d2adaa5137312c44301e' ,
                         k: 'xysdkios20130711'
                     }
                 }
