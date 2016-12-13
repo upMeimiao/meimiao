@@ -21,5 +21,12 @@ const platformMap = new Map([
     [20,'yy'],
     [21,'tv56'],
     [22,'acfun'],
+    [23,'weibo'],
+    [24,'ifeng'],
+    [25,'wangyi'],
+    [26,'UCTT'],
+    [27,'mgtv'],
+    [28,'baijia'],
+    [29,'qzone']
 ])
 module.exports = platformMap
