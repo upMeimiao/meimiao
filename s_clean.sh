@@ -1,5 +1,8 @@
 #!/bin/sh
 echo "开启清理巧算日志文件"
+cd /root/qiaosuan/instance/master/logs
+rm -rf *.log
+rm -rf *.log-*
 cd /root/qiaosuan/instance/baomihua/logs
 rm -rf *.log
 rm -rf *.log-*

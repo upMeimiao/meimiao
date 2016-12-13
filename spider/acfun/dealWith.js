@@ -3,13 +3,13 @@
  */
 const async = require( 'async' )
 const cheerio = require( 'cheerio' )
+const request = require('../lib/request.js')
 
-let logger,request
+let logger
 class dealWith {
     constructor (spiderCore){
         this.core = spiderCore
         this.settings = spiderCore.settings
-        request = spiderCore.request
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
     }
