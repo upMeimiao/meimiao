@@ -1,5 +1,6 @@
 #!/bin/sh
 echo "启动 彩虹 spider"
+pm2 start acFun.json
 pm2 start baomihua.json
 pm2 start bili.json
 pm2 start btime.json
