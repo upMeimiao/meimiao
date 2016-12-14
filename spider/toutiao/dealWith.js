@@ -151,7 +151,7 @@ class dealWith {
             option = {
                 ua: 3,
                 xrw: 1,
-                refere: `https://lf.snssdk.com/2/user/profile/v3/?media_id=${task.user_id}&to_html=1`,
+                referer: `https://lf.snssdk.com/2/user/profile/v3/?media_id=${task.user_id}&to_html=1`,
                 own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
             },
             hot_time = null
