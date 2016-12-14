@@ -89,6 +89,10 @@ class sendServer {
         } )
     }
     send (media,time) {
+        if(media.platform > 20){
+            media = null
+            return
+        }
         this.onlineOption.form = media
         request.post(this.onlineOption, (err,res, result) => {
             if(err){
