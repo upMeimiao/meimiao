@@ -160,11 +160,10 @@ class dealWith {
             (cb) => {
                 const {as, cp} = this.getHoney()
                 if(hot_time){
-                    option.url = this.settings.newList + task.id + '&uid=' + task.user_id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
                 }else{
-                    option.url = this.settings.newList + task.id + '&uid=' + task.user_id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
+                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
                 }
-                logger.debug(option)
                 request.get( logger, option, (err,result) => {
                     if(err){
                         index++
