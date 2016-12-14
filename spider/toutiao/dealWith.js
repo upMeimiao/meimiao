@@ -160,9 +160,9 @@ class dealWith {
             (cb) => {
                 const {as, cp} = this.getHoney()
                 if(hot_time){
-                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                    option.url = this.settings.newList + task.id + '&media_id=' + task.user_id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
                 }else{
-                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time="
+                    option.url = this.settings.newList + task.id + '&media_id=' + task.user_id + '&cp=' + cp + "&as=" + as + "&max_behot_time="
                 }
                 request.get( logger, option, (err,result) => {
                     if(err){
@@ -177,15 +177,15 @@ class dealWith {
                         index++
                         return cb()
                     }
+                    if(index == 0 && result.data.length > 0){
+                        task.uid = result.data[0].creator_uid
+                    }
                     if(!result.data || result.data.length == 0){
                         task.total = 10 * index
                         sign = false
                         return cb()
                     }
                     hot_time = result.next.max_behot_time
-                    if(index == 0 && result.data.length > 0){
-                        task.uid = result.data[0].creator_uid
-                    }
                     this.deal( task, result.data,(err) => {
                         index++
                         cb()
