@@ -4,6 +4,7 @@
 const async = require( 'async' )
 const cheerio = require( 'cheerio' )
 const request = require('../lib/request.js')
+const channels = require('./channels')
 
 let logger
 class dealWith {
@@ -15,7 +16,7 @@ class dealWith {
     }
     todo (task,callback) {
         task.total = 0
-        async.series({
+        async.parallel({
             user: (callback) => {
                 this.getUser( task, (err) => {
                     if(err){
@@ -68,7 +69,7 @@ class dealWith {
                 callback()
             })
             this.sendStagingUser(user)
-        })     
+        })
     }
     sendUser (user,callback){
         let option = {
@@ -224,10 +225,23 @@ class dealWith {
                 play_num: data.views,
                 save_num: data.stows,
                 comment_num: data.comments,
-                a_create_time: a_create_time
+                a_create_time: a_create_time,
+                long_t: data.time,
+                v_img: data.titleImg,
+                tag: this._tags(data.tags),
+                class: channels.get(Number(data.channelId))
             }
         this.sendCache( media )
         callback()
+    }
+    _tags( raw ){
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]'){
+            return raw.join(',')
+        }
+        return ''
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
