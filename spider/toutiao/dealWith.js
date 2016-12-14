@@ -86,7 +86,6 @@ class dealWith {
                 bid: task.id,
                 fans_num: fans
             }
-            logger.debug(user)
             this.sendUser( user, (err) => {
                 callback()
             })
@@ -172,7 +171,9 @@ class dealWith {
                         index++
                         return cb()
                     }
+                    logger.debug(result)
                     if(result.has_more == 0){
+                        logger.debug(index)
                         task.total = 10 * index
                         sign = false
                         return cb()
@@ -268,7 +269,6 @@ class dealWith {
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.debug(vid)
                 return callback(err)
             }
             try{
