@@ -25,7 +25,6 @@ exports.get = ( logger, option , callback ) => {
             'Referer': option.referer || null,
             'User-Agent': user_agent,
             'deviceType': option.deviceType || null,
-            'X-Requested-With':	option.xrw == 1 ? 'XMLHttpRequest' : null
         }
     }
     request.get( options , (err,res,body) => {
