@@ -63,7 +63,9 @@ class dealWith {
             return callback()
         }
         const option = {
-            url: this.settings.user + task.user_id
+            url: this.settings.user + task.user_id,
+            ua: 3,
+            own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
@@ -145,7 +147,11 @@ class dealWith {
     getList ( task, callback ) {
         let index = 0,
             sign = true,
-            option = {},
+            option = {
+                ua: 3,
+                xrw: 1,
+                own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
+            },
             hot_time = null
         async.whilst(
             () => {
@@ -171,9 +177,7 @@ class dealWith {
                         index++
                         return cb()
                     }
-                    logger.debug(result)
-                    if(result.has_more == 0){
-                        logger.debug(index)
+                    if(!result.data || result.data.length == 0){
                         task.total = 10 * index
                         sign = false
                         return cb()
@@ -265,7 +269,7 @@ class dealWith {
     }
     getPlayNum ( vid, callback ) {
         let option = {
-            url: `http://m.toutiao.com/i${vid}/info/`
+            url: `http://m.toutiao.com/i${vid}/info/`,
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
