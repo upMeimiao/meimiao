@@ -1081,5 +1081,117 @@ class DealWith {
             callback(null,res)
         })
     }
+    ifeng(remote, callback) {
+        const urlObj = URL.parse(remote,true),
+            host = urlObj.host,
+            pathname = urlObj.pathname,
+            option = {},
+            date_reg = /\d{6}/
+        let v_id
+        if(host == "vcis.ifeng.com"){
+            v_id = urlObj.query.guid
+        }else if(host == "v.ifeng.com"){
+            if(pathname.startsWith('/m/')){
+                option.url = remote
+                request.get(option, ( err, result ) => {
+                    if (err) {
+                        logger.error('occur error: ', err)
+                        return callback(err, {code: 102, p: 24})
+                    }
+                    let _$ = cheerio.load(result.body),
+                        script = _$('script')[8].children[0].data,
+                        guid = script.match(/\"id\": \"[\d\w-]*/),
+                        v_id = guid[0].toString().replace(/\"id\": \"/,"")
+                    //logger.debug(v_id)
+                    option.url = api.ifeng.url + v_id
+                    request.get( option, (err,result) => {
+                        if(err){
+                            logger.error('occur error: ',err)
+                            return callback(err,{code:102,p:24})
+                        }
+                        if(result.statusCode != 200){
+                            logger.error('凤凰状态码错误',result.statusCode)
+                            logger.error(result)
+                            return callback(true,{code:102,p:24})
+                        }
+                        try {
+                            result = JSON.parse(result.body)
+                        } catch (e) {
+                            logger.error('凤凰json数据解析失败')
+                            logger.info('json error: ',result)
+                            return callback(e,{code:102,p:24})
+                        }
+                        let res = {
+                            name: result.weMedia.name,
+                            id: result.weMedia.id,
+                            p: 24
+                        }
+                        callback(null,res)
+                    })
+                })
+                return
+            }else{
+                let index = remote.indexOf(date_reg.exec(remote));
+                let preffix = remote.substring(index,remote.length).replace(".shtml","")
+                v_id = preffix.replace(/\d*\//,"");
+            }
+        }
+        option.url = api.ifeng.url + v_id
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:24})
+            }
+            if(result.statusCode != 200){
+                logger.error('凤凰状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:24})
+            }
+            try {
+                result = JSON.parse(result.body)
+            } catch (e) {
+                logger.error('凤凰json数据解析失败')
+                logger.info('json error: ',result)
+                return callback(e,{code:102,p:24})
+            }
+            let res = {
+                name: result.weMedia.name,
+                id: result.weMedia.id,
+                p: 24
+            }
+            callback(null,res)
+        })
+    }
+    wangyi(remote, callback) {
+        let host    = URL.parse(remote,true).hostname,
+            dataUrl = remote.match(/\/\w*\.html/).toString().replace(/\//,'').replace(/\.html/,''),
+            option  = {
+                url : 'http://c.m.163.com/nc/video/detail/'+dataUrl+'.html'
+            }
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:25})
+            }
+            if(result.statusCode != 200){
+                logger.error('网易状态码错误',result.statusCode)
+                logger.error(result)
+                return callback(true,{code:102,p:25})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.error('网易数据解析失败')
+                return callback(e,{code:102,p:25})
+            }
+            let res = {
+                name: result.videoTopic.tname,
+                id: result.videoTopic.tid,
+                p: 25
+            }
+            //logger.debug(res.name)
+            callback(null,res)
+        })
+    }
 }
 module.exports = DealWith

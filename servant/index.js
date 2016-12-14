@@ -133,6 +133,16 @@ class spiderCore {
             case 'm.acfun.tv':
                 handle.acfunHandle( ctx, remote )
                 break
+            case 'www.ifeng.com':
+            case 'v.ifeng.com':
+            case 'vcis.ifeng.com':
+                handle.ifengHandle( ctx, remote )
+                break
+            case 'www.163.com':
+            case 'v.163.com':
+            case 'c.m.163.com':
+                handle.wangyiHandle(ctx, remote)
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

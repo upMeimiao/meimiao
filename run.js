@@ -223,6 +223,13 @@ const tv56 = () => {
     let spider = new (require('./spider/tv56'))(settings)
     spider.start()
 }
+const ifeng = () => {
+    let logger = logging.getLogger('凤凰自媒体',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/ifeng'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('web',options['i'],log_level)
     settings['logger'] = logger
@@ -311,6 +318,9 @@ switch (options['a']){
         break
     case 'tv56':
         tv56()
+        break
+    case 'ifeng':
+        ifeng()
         break
     case 'test':
         test()

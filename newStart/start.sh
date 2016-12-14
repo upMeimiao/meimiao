@@ -5,6 +5,7 @@ pm2 start baomihua.json
 pm2 start bili.json
 pm2 start btime.json
 pm2 start budejie.json
+pm2 start ifeng.json
 pm2 start iqiyi.json
 pm2 start ku6.json
 pm2 start kuaibao.json
