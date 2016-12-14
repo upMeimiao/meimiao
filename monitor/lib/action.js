@@ -21,76 +21,14 @@ const platformMap = new Map([
     [20,'YY'],
     [21,'56视频'],
     [22,'AcFun'],
+    [23,'微博'],
+    [24,'凤凰号'],
+    [25,'网易号'],
+    [26,'UC头条'],
+    [27,'芒果TV'],
+    [28,'百家号'],
+    [29,'QQ空间'],
 ])
-const pname = function (pid) {
-    let name
-    switch (Number(pid)){
-        case 1:
-            name = '优酷视频'
-            break
-        case 2:
-            name = '爱奇艺'
-            break
-        case 3:
-            name = '乐视视频'
-            break
-        case 4:
-            name = '腾讯视频'
-            break
-        case 5:
-            name = '美拍'
-            break
-        case 6:
-            name = '今日头条'
-            break
-        case 7:
-            name = '秒拍'
-            break
-        case 8:
-            name = '哔哩哔哩'
-            break
-        case 9:
-            name = '搜狐视频'
-            break
-        case 10:
-            name = '天天快报'
-            break
-        case 11:
-            name = '一点资讯'
-            break
-        case 12:
-            name = '土豆视频'
-            break
-        case 13:
-            name = '爆米花'
-            break
-        case 14:
-            name = '酷6视频'
-            break
-        case 15:
-            name = '北京时间'
-            break
-        case 16:
-            name = '微视'
-            break
-        case 17:
-            name = '小影'
-            break
-        case 18:
-            name = '百思不得姐'
-            break
-        case 19:
-            name = '内涵段子'
-            break
-        case 20:
-            name = 'YY'
-            break
-        default:
-            name = pid
-            break
-    }
-    return name
-}
 const vm = new Vue({
     el: '#redis',
     data: {
