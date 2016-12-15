@@ -12,7 +12,7 @@
   "proxy": {
     "host": "10.251.55.50",
     "port": 2999,
-    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=100&sortby=time&foreign=none&format=json"
+    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=100&delay=5&sortby=time&foreign=none&format=json"
   },
   "kue": {
     "ip": "10.251.55.50",

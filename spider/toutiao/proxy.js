@@ -24,7 +24,7 @@ class proxy{
         } )
     }
     need(times, callback) {
-        if(times > 5){
+        if(times > 4){
             return callback('timeout!')
         }
         logger.trace('Send a Require command')
@@ -41,7 +41,7 @@ class proxy{
             }
             setTimeout(() => {
                 return this.need(times + 1, callback)
-            }, 10000)
+            }, 5000)
         })
     }
     back(proxy, status, callback) {
