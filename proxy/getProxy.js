@@ -31,10 +31,11 @@ class getProxy{
             if(body.error){
                 return callback(body.error)
             }
-            body.data.proxy_list.forEach((item) => {
-                proxy.push(item.host + ':' + item.port)
-            })
-            return callback(null, proxy)
+            // body.forEach((item) => {
+            //     proxy.push(item.host + ':' + item.port)
+            //     // proxy.push(item.host + ':' + item.port)
+            // })
+            return callback(null, body.data.proxy_list)
         })
     }
 }
