@@ -1,7 +1,7 @@
 {
-  "name"        : "今日头条",
+  "name"        : "代理池",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","master","-a","toutiao"],
+  "args"        : ["-i","master","-a","proxy"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

@@ -69,6 +69,13 @@ const kueMonitor = () => {
     let spider = new (require('./kueMonitor'))(settings)
     spider.start()
 }
+const proxy = () => {
+    let logger = logging.getLogger('代理',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./proxy'))(settings)
+    spider.start()
+}
 const tencent = () => {
     let logger = logging.getLogger('腾讯视频',options['i'],log_level)
     settings['logger'] = logger
@@ -252,6 +259,9 @@ switch (options['a']){
         break
     case 'kue':
         kueMonitor()
+        break
+    case 'proxy':
+        proxy()
         break
     case 'tencent':
         tencent()
