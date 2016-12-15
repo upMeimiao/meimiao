@@ -33,6 +33,9 @@ class dealWith {
     todo ( task, callback) {
         task.total = 0
         task.uid = ''
+        if(task.user_id){
+            task.uid = task.user_id
+        }
         async.parallel(
             {
                 user: (callback) => {
