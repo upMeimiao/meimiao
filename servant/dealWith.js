@@ -340,7 +340,7 @@ class DealWith {
                 return callback(true,{code:102,p:4})
             }
             let back = eval(result.body)
-            if( back.result && back.result.code == -200){
+            if( back.result && (back.result.code == -200 || back.result.code == -12)){
                 option.url = data
                 request.get(option,(err,result) => {
                     if(err){
