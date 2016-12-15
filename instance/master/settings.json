@@ -1,12 +1,18 @@
 {
   "redis": {
     "port": 6379,
-    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
+    "host": "127.0.0.1",
     "auth": "C19prsPjHs52CHoA0vm",
     "userDB": 0,
     "taskDB": 1,
     "jobDB": 2,
-    "cache_db": 3
+    "cache_db": 3,
+    "proxy": 4
+  },
+  "proxy": {
+    "host": "127.0.0.1",
+    "port": 2999,
+    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=5&delay=3&sortby=time&foreign=none&format=json"
   },
   "kue": {
     "ip": "10.251.55.50",
