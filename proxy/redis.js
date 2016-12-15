@@ -100,7 +100,7 @@ class redis{
                     return callback()
                 } else {
                     db.get(data.proxy, (err, result) => {
-                        if(!result || Number(result) < 3) {
+                        if(!result || Number(result) < 2) {
                             db.incr(data.proxy)
                             db.zrem('bproxy', data.proxy)
                             db.sadd('proxy', data.proxy)
