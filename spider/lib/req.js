@@ -11,6 +11,12 @@ exports.get = ( option , callback ) => {
                 'deviceType': option.deviceType || null
             }
         }
+    if(!options.headers.Referer){
+        delete options.headers.Referer
+    }
+    if(!options.headers.deviceType){
+        delete options.headers.deviceType
+    }
     request.get( options , (err,res,body) => {
         if ( err ) {
             return callback(err)
@@ -33,6 +39,9 @@ exports.post = ( option , callback ) => {
             },
             form : option.data
         }
+    if(!options.headers.Referer){
+        delete options.headers.Referer
+    }
     request.post ( options, ( err, res, body ) => {
         if ( err ) {
             return callback( err )

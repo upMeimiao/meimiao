@@ -19,13 +19,26 @@ exports.get = ( logger, option , callback ) => {
     }
     let options = {
         method : 'GET',
+        proxy: option.proxy ? option.proxy : null,
         url: option.url,
         timeout: 45000,
         headers: {
             'Referer': option.referer || null,
             'User-Agent': user_agent,
-            'deviceType': option.deviceType || null,
+            'deviceType': option.deviceType || null
         }
+    }
+    if(!options.proxy){
+        delete options.proxy
+    }
+    if(!options.headers['User-Agent']){
+        delete options.headers['User-Agent']
+    }
+    if(!options.headers.Referer){
+        delete options.headers.Referer
+    }
+    if(!options.headers.deviceType){
+        delete options.headers.deviceType
     }
     request.get( options , (err,res,body) => {
         if ( err ) {
@@ -71,6 +84,15 @@ exports.post = ( logger, option , callback ) => {
             'User-Agent': user_agent
         },
         form : option.data
+    }
+    if(!options.headers['User-Agent']){
+        delete options.headers['User-Agent']
+    }
+    if(!options.headers.Referer){
+        delete options.headers.Referer
+    }
+    if(!options.headers['content-type']){
+        delete options.headers['content-type']
     }
     request.post ( options, ( err, res, body ) => {
         if ( err ) {
