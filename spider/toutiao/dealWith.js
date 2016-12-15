@@ -6,8 +6,8 @@ const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../../lib/request' )
 const md5 = require('js-md5')
-let logger
 
+let logger
 class dealWith {
     constructor(spiderCore) {
         this.core = spiderCore
@@ -63,7 +63,7 @@ class dealWith {
             return callback()
         }
         const option = {
-            url: this.settings.user + task.user_id,
+            url: this.settings.spiderAPI.toutiao.user + task.user_id,
             ua: 3,
             own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
         }
@@ -97,7 +97,7 @@ class dealWith {
     }
     sendUser ( user,callback ){
         let options = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger,options,(err,res) => {
@@ -146,10 +146,9 @@ class dealWith {
         })
     }
     getList ( task, callback ) {
-        let index = 0,
+        let index = 0,times = 0,proxyStatus = false,proxy = '',
             sign = true,
             option = {
-                proxy:true,
                 ua: 3,
                 own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
             },
@@ -161,39 +160,99 @@ class dealWith {
             (cb) => {
                 const {as, cp} = this.getHoney()
                 if(hot_time){
-                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                    option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
                 }else{
-                    option.url = this.settings.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
+                    option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
                 }
-                request.get( logger, option, (err,result) => {
-                    if(err){
-                        index++
-                        return cb()
-                    }
-                    try{
-                        result = JSON.parse(result.body)
-                    }catch (e){
-                        logger.error('json数据解析失败')
-                        logger.error(result)
-                        index++
-                        return cb()
-                    }
-                    if(index == 0 && result.data.length > 0){
-                        task.uid = result.data[0].creator_uid
-                    }
-                    if(!result.data || result.data.length == 0){
-                        task.total = 10 * index
-                        sign = false
-                        return cb()
-                    }
-                    hot_time = result.next.max_behot_time
-                    this.deal( task, result.data,(err) => {
-                        index++
-                        cb()
+                if(proxyStatus && proxy){
+                    option.proxy = proxy
+                    request.get( logger, option, (err,result) => {
+                        if(err){
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy, false)
+                            return cb()
+                        }
+                        times = 0
+                        try{
+                            result = JSON.parse(result.body)
+                        }catch (e){
+                            logger.error('json数据解析失败')
+                            logger.error(result)
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy, false)
+                            return cb()
+                        }
+                        times = 0
+                        if(index == 0 && result.data.length > 0){
+                            task.uid = result.data[0].creator_uid
+                        }
+                        if(!result.data || result.data.length == 0){
+                            task.total = 10 * index
+                            sign = false
+                            return cb()
+                        }
+                        hot_time = result.next.max_behot_time
+                        this.deal( task, result.data,(err) => {
+                            index++
+                            cb()
+                        })
                     })
-                })
+                } else {
+                    this.core.proxy.need(times, (err, _proxy) => {
+                        if(err) {
+                            if(err == 'timeout'){
+                                return callback('Get proxy timesout!!')
+                            }
+                            logger.error('Get proxy occur error:' , err)
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(_proxy, false)
+                            return cb()
+                        }
+                        times = 0
+                        option.proxy = _proxy
+                        request.get( logger, option, (err,result) => {
+                            if(err){
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            times = 0
+                            try{
+                                result = JSON.parse(result.body)
+                            }catch (e){
+                                logger.error('json数据解析失败')
+                                logger.error(result)
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            times = 0
+                            proxyStatus = true
+                            proxy = _proxy
+                            if(index == 0 && result.data.length > 0){
+                                task.uid = result.data[0].creator_uid
+                            }
+                            if(!result.data || result.data.length == 0){
+                                task.total = 10 * index
+                                sign = false
+                                return cb()
+                            }
+                            hot_time = result.next.max_behot_time
+                            this.deal( task, result.data,(err) => {
+                                index++
+                                cb()
+                            })
+                        })
+                    })
+                }
             },
             (err,result) => {
+                this.core.proxy.back(proxy, true)
                 callback()
             }
         )

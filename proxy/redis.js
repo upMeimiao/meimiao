@@ -1,8 +1,5 @@
 const Redis = require('redis')
 const async = require('async')
-const EventProxy = require('eventproxy')
-const fs = require('fs')
-const path = require('path')
 const msgpack = require('msgpack5')()
 
 let logger,settings
@@ -94,7 +91,7 @@ class redis{
     back(data, callback) {
         logger.debug('back:', data)
         const db = this.client
-        data.status = data.status ? data.status : 'false'
+        data.status = data.status ? data.status : false
         db.zscore('bproxy', data.proxy, (err, proxy) => {
             if(proxy){
                 if(data.status){
@@ -107,7 +104,7 @@ class redis{
                             db.incr(data.proxy)
                             db.zrem('bproxy', data.proxy)
                             db.sadd('proxy', data.proxy)
-                            db.expire(data.proxy, 3600)
+                            db.expire(data.proxy, 1800)
                             return callback()
                         }else{
                             db.zrem('bproxy', data.proxy)
@@ -117,6 +114,7 @@ class redis{
                     })
                 }
             }
+            return callback()
         })
     }
 }
