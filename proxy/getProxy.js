@@ -17,7 +17,7 @@ class getProxy{
     }
     get(callback) {
         const proxy = []
-        request(settings.proxy.api, (err, res, body) => {
+        request(settings.proxy.newApi, (err, res, body) => {
             if(err){
                 logger.error('Get proxy occur error')
                 return callback(err)

@@ -70,7 +70,6 @@ class dealWith {
             ua: 3,
             own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
         }
-        logger.debug('user: ',option)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 return callback(err)
@@ -181,7 +180,7 @@ class dealWith {
                             result = JSON.parse(result.body)
                         }catch (e){
                             logger.error('json数据解析失败')
-                            logger.error(result)
+                            logger.error(result.body)
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
@@ -228,7 +227,7 @@ class dealWith {
                                 result = JSON.parse(result.body)
                             }catch (e){
                                 logger.error('json数据解析失败')
-                                logger.error(result)
+                                logger.error(result.body)
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
