@@ -31,7 +31,7 @@ class getProxy{
             if(body.error){
                 return callback(body.error)
             }
-            body.forEach((item) => {
+            body.data.proxy_list.forEach((item) => {
                 proxy.push(item.host + ':' + item.port)
             })
             return callback(null, proxy)
