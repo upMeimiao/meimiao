@@ -93,12 +93,13 @@ class dealWith {
     }
 
     getInfo( task, data, callback ){
-        let aid = data.xss_item_id
+        let aid = data.xss_item_id,
+            _id = data._id
         //logger.debug(data)               
         async.waterfall(
             [
                 (cb) => {
-                    this.getVidInfo( aid, ( err, result ) => {
+                    this.getVidInfo( _id, aid, ( err, result ) => {
                         cb(null,result)
                     })
                 }
@@ -106,29 +107,29 @@ class dealWith {
             (err,result) => {
                 let media = {
                     bid: task.id,
-                    author: data.other_info.video_filename,
+                    author: result.descData.author,
                     platform: task.p,
                     aid: result.id,
                     title: data.title,
                     play_num: result.view_cnt,
-                    comment_num: result.comment_num,
+                    comment_num: result.descData.comment_num,
                     support: data._incrs.liketimes,
                     v_img: data.cover_url,
                     class: data.category,
                     v_url: data.other_info.video_playurl,
                     a_create_time: moment(data._created_at).unix(),
                     tag: result.tags,
-                    desc: result.site_logo.desc,
+                    desc: result.descData.desc,
                     long_t: result.videos[0].length/1000
                 }
-                //logger.debug(media.long_t+"|||"+media.title)
+                //logger.debug(media.comment_num+"|||"+media.title)
                 this.sendCache( media )
                 callback()
             }
         )        
     }
 
-    getVidInfo( aid, callback ){
+    getVidInfo( _id, aid, callback ){
         let option = {
             url : 'http://m.uczzd.cn/ucnews/video?app=ucnews-iflow&fr=iphone&aid='+aid
         }
@@ -148,56 +149,60 @@ class dealWith {
                 logger.info(result)
                 return
             }
-            this.getCommentNum(result.id,(err,data) => {
-                result.comment_num = data
+            this.getCommentNum(_id,result.id,(err,data) => {
+                result.descData = data
                 callback(null,result)
             })
         })
     }
-    getCommentNum( id, callback ){
+    getCommentNum( _id, id, callback ){
         let sign         = 1,
             page         = 2,
             options      = {},
             hotScore     = '',
             num          = null,
             contLength   = null
-        async.whilst(
-            () => {
-                return sign < page
-            },
-            (cb) => {
-                options.url = 'http://m.uczzd.cn/iflow/api/v2/cmt/article/'+id+'/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue='+hotScore
-                //logger.debug(options.url)
-                request.get( logger, options, (err,data) => {
-                    if(err){
-                        logger.error( 'occur error : ', err )
-                        return callback(err,{code:102,p:1})
-                    }
-                    try{
-                        data = JSON.parse(data.body)
-                    }catch(e){
-                        logger.debug('UC数据解析失败')
-                    }
-                    contLength = data.data.comments.length
-                    num += contLength
-                    if(contLength <= 0 || contLength < 10){
-                        sign++
-                        page=0
-                        return cb()
-                    }else{
-                        for(let comment in data.data.comments_map){
-                            hotScore = data.data.comments_map[comment].hotScore
-                        }
-                        sign++
-                        page++
-                        return cb()
-                    }
-                })
-            },
-            (err,result) => {
-                callback(null,num)
+        
+        options.url = 'http://m.uczzd.cn/iflow/api/v2/cmt/article/'+id+'/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue='+hotScore
+        request.get( logger, options, (err,data) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err,{code:102,p:1})
             }
-        )
+            try{
+                data = JSON.parse(data.body)
+            }catch(e){
+                logger.debug('UC数据解析失败')
+            }
+            contLength = data.data.comments.length
+            num = data.data.comment_cnt
+            this.getDesc(_id,(err,result) => {
+                let res = {
+                    comment_num: num,
+                    author: result.data.other_info.video_filename,
+                    desc: result.data.sub_title
+                }
+                callback(null,res)
+            })
+        })
+           
+    }
+    getDesc( _id, callback ){
+        let option = {
+            url : 'http://napi.uc.cn/3/classes/article/objects/'+_id+'?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_ch=article'
+        }
+        request.get( logger, option, (err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err,{code:102,p:1})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('UC数据解析失败')
+            }
+            callback(null,result)
+        })
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
