@@ -58,7 +58,7 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            this.ucdeal()
+            this.deal()
         })
     }
     start () {
