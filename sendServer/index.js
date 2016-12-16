@@ -76,7 +76,7 @@ class sendServer {
     deal_staging () {
         this.cache_db.lpop( 'cache', ( err, result ) => {
             if ( err ) {
-                logger.error( '获取缓存队列出现错误：', err );
+                logger.error( '获取缓存队列出现错误：', err.message );
                 err = null
                 return
             }
@@ -89,14 +89,14 @@ class sendServer {
         } )
     }
     send (media,time) {
-        if(media.platform > 20){
+        if(media.platform > 24 || media.platform == 21 || media.platform == 23){
             media = null
             return
         }
         this.onlineOption.form = media
         request.post(this.onlineOption, (err,res, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'master occur error : ', err.message )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('master',err)
                 time++
@@ -145,7 +145,7 @@ class sendServer {
         request.post(this.stagingOption, (err,res, result) => {
             //console.log('--------------------------staging-----------------------------')
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'staging occur error : ', err.message )
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 //this.emailError('staging',err)
                 time++
