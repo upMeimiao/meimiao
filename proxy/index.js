@@ -66,7 +66,7 @@ class proxy{
                 logger.error('Msgpack Encode Occur Error!' , e.message)
                 return reply(msgpack.encode( e.message ))
             }
-            logger.debug('type:', type, 'msg:', msg)
+            //logger.debug('type:', type, 'msg:', msg)
             this.handle(type, msg, (err, val) => {
                 if(err){
                     return reply(null)
@@ -98,8 +98,8 @@ class proxy{
         }
         this.redis.borrow((err, retry, proxy) => {
             if(err) {
-                logger.error(err)
-                return callback(err)
+                logger.error(err.message)
+                return callback(err.message)
             }
             if(proxy) {
                 return callback(null, proxy)

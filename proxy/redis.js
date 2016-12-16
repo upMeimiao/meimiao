@@ -89,11 +89,12 @@ class redis{
         })
     }
     back(data, callback) {
-        logger.debug('back:', data)
+        // logger.debug('back:', data)
         const db = this.client
         data.status = data.status ? data.status : false
         db.zscore('bproxy', data.proxy, (err, proxy) => {
             if(proxy){
+                logger.debug('back:', data)
                 if(data.status){
                     db.zrem('bproxy', data.proxy)
                     db.sadd('proxy', data.proxy)

@@ -14,6 +14,15 @@ class proxy{
     }
     ready(callback) {
         this.sock.connect(this.port, this.host)
+        this.sock.on('error', (err) => {
+            logger.error('sock error:',err.message)
+        })
+        this.sock.on('ignored error', (err) => {
+            logger.error('sock ignored error:',err.message)
+        })
+        this.sock.on('socket error', (err) => {
+            logger.error('sock_error:',err.message)
+        })
         logger.trace('Start send test')
         this.sock.send('test', 'test', (res) => {
             if(res) {
@@ -27,12 +36,6 @@ class proxy{
         if(times > 4){
             return callback('timeout!')
         }
-        this.sock.on('error', (e) => {
-            logger.debug('sock error:',e.message)
-            setTimeout(() => {
-                return this.need(times + 1, callback)
-            }, 5000)
-        })
         logger.trace('Send a Require command')
         this.sock.send('borrow', msgpack.encode('borrow'), (res) => {
             if(res) {
@@ -55,10 +58,6 @@ class proxy{
             proxy: proxy,
             status: status
         }
-        this.sock.on('error', (e) => {
-            logger.debug('sock error:',e.message)
-            return callback()
-        })
         this.sock.send('back', msgpack.encode(back), (res) => {
             if(callback) {
                 return callback(res)

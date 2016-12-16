@@ -20,16 +20,16 @@ class getProxy{
         request(settings.proxy.newApi, (err, res, body) => {
             if(err){
                 logger.error('Get proxy occur error')
-                return callback(err)
+                return callback(err.message)
             }
             try{
                 body = JSON.parse(body)
             } catch (e) {
                 logger.error('parse proxy-json  error')
-                return callback(e)
+                return callback(e.message)
             }
-            if(body.error){
-                return callback(body.error)
+            if(body.code != 0){
+                return callback(body.msg)
             }
             // body.forEach((item) => {
             //     proxy.push(item.host + ':' + item.port)
