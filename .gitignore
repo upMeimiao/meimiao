@@ -4,7 +4,7 @@
 .idea
 *.log
 *.log-*
-.log.*.gz
+*.log.*.gz
 debug-*
 node_modules/*
 /doc/statistic/target/

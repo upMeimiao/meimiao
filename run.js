@@ -237,6 +237,20 @@ const ifeng = () => {
     let spider = new (require('./spider/ifeng'))(settings)
     spider.start()
 }
+const uctt = () => {
+    let logger = logging.getLogger('UC头条',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/uctt'))(settings)
+    spider.start()
+}
+const wangyi = () => {
+    let logger = logging.getLogger('网易号',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/wangyi'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('web',options['i'],log_level)
     settings['logger'] = logger
@@ -331,6 +345,12 @@ switch (options['a']){
         break
     case 'ifeng':
         ifeng()
+        break
+    case 'uctt':
+        uctt()
+        break
+    case 'wangyi':
+        wangyi()
         break
     case 'test':
         test()

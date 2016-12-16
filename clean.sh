@@ -1,10 +1,6 @@
 #!/bin/sh
 echo "开启清理巧算日志文件"
 echo "开启清理调度日志文件"
-cd /root/qiaosuan/instance/servant/logs
-rm -rf *.log
-rm -rf *.log-*
-rm -rf *.log.*.gz
 cd /root/qiaosuan/instance/master/logs
 rm -rf *.log
 rm -rf *.log-*
@@ -108,6 +104,14 @@ rm -rf *.log
 rm -rf *.log-*
 rm -rf *.log.*.gz
 cd /root/qiaosuan/instance/ifeng/logs
+rm -rf *.log
+rm -rf *.log-*
+rm -rf *.log.*.gz
+cd /root/qiaosuan/instance/uctt/logs
+rm -rf *.log
+rm -rf *.log-*
+rm -rf *.log.*.gz
+cd /root/qiaosuan/instance/wangyi/logs
 rm -rf *.log
 rm -rf *.log-*
 rm -rf *.log.*.gz

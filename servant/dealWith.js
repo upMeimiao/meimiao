@@ -1193,5 +1193,91 @@ class DealWith {
             callback(null,res)
         })
     }
+    uctt(remote, callback) {
+        let host = URL.parse(remote, true).hostname,
+            option = {
+                url: remote
+            },
+            bid = '', aid = '', options = {}
+        if(host == 'v.mp.uc.cn'){
+            bid = remote.match(/wm_id=\w*/).toString().replace(/wm_id=/,'')
+            options.url = 'http://napi.uc.cn/3/classes/article/categories/wemedia/lists/'+ bid +'?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_size=5&_max_pos=&uc_param_str=frdnsnpfvecpntnwprdsssnikt'
+            request.get( options, ( err, info ) => {
+                if(err){
+                    logger.error('occur error: ',err)
+                    return callback(err,{code:102,p:26})
+                }
+                try{
+                    info = JSON.parse(info.body)
+                }catch(e){
+                    logger.debug('UC数据解析失败')
+                    return callback(e,{code:102,p:26})
+                }
+                let res = {
+                    name: info.data[0].wm_name,
+                    id: bid,
+                    p: 26
+                }
+                callback(null,res)
+            })
+        }else{
+            request.get( option, ( err, result ) => {
+                if(err){
+                    logger.error('occur error: ',err)
+                    return callback(err,{code:102,p:26})
+                }
+                if(result.statusCode != 200){
+                    logger.error('UC状态码错误',result.statusCode)
+                    logger.info(result)
+                    return callback(true,{code:102,p:26})
+                }
+                let $ = cheerio.load(result.body),
+                    script
+                if(host == 'tc.uc.cn'){
+                    script = $('script')[0].children[0].data
+                }else{
+                    script = $('script')[1].children[0].data
+                }
+                bid = script.match(/mid=\w*/) == undefined? '': script.match(/mid=\w*/).toString().replace(/mid=/,'')
+                if(bid == ''){
+                    aid = script.match(/aid=\d*/).toString().replace(/aid=/,'')
+                    let bidUrl = {
+                        url : 'http://s4.uczzd.cn/ucnews/video?app=ucnews-iflow&aid='+aid
+                    }, name
+                    request.get( bidUrl, (err,bidInfo) => {
+                        bidInfo = bidInfo.body
+                        bid = bidInfo.match(/mid=\w*/).toString().replace(/mid=/,'')
+                        name = bidInfo.match(/\"source_name\":\"[^\x00-\xff]*/).toString().replace(/\"source_name\":\"/,'')
+                        let res = {
+                            name: name,
+                            id: bid,
+                            p: 26
+                        }
+                        callback(null,res)
+                    })
+                }else{
+                    options.url = 'http://napi.uc.cn/3/classes/article/categories/wemedia/lists/'+ bid +'?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_size=5&_max_pos=&uc_param_str=frdnsnpfvecpntnwprdsssnikt'
+                    request.get( options, ( err, info ) => {
+                        if(err){
+                            logger.error('occur error: ',err)
+                            return callback(err,{code:102,p:26})
+                        }
+                        try{
+                            info = JSON.parse(info.body)
+                        }catch(e){
+                            logger.debug('UC数据解析失败')
+                            return callback(e,{code:102,p:26})
+                        }
+                        let res = {
+                            name: info.data[0].wm_name,
+                            id: bid,
+                            p: 26
+                        }
+                        callback(null,res)
+                    })
+                }
+            })
+        }
+    }
 }
 module.exports = DealWith

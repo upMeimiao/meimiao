@@ -143,6 +143,11 @@ class spiderCore {
             case 'c.m.163.com':
                 handle.wangyiHandle(ctx, remote)
                 break
+            case 'tc.uc.cn':
+            case 'm.uczzd.cn':
+            case 'v.mp.uc.cn':
+                handle.ucHandle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

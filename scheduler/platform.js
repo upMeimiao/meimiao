@@ -24,7 +24,7 @@ const platformMap = new Map([
     [23,'weibo'],
     [24,'ifeng'],
     [25,'wangyi'],
-    [26,'UCTT'],
+    [26,'uctt'],
     [27,'mgtv'],
     [28,'baijia'],
     [29,'qzone']
