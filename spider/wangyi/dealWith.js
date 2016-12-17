@@ -123,18 +123,19 @@ class dealWith {
             }
         })
     }
-    getList ( task,count,callback ) {
-        let sign=1 ,
+    getList ( task,callback ) {
+        let sign=2 ,
             page=0,
             countNum=1
         async.whilst(
             () => {
-                return sign
+                return countNum < sign
             },
             (cb) => {
                let option = {
                     url: this.settings.videoInfo + task.id+"/all/"+page+"-20.html"
                 }
+                //logger.debug(option.url)
                 request.get(option,(err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
@@ -154,22 +155,24 @@ class dealWith {
                     if(!result || result.length == 0){
                         logger.error('数据解析异常失败')
                         logger.error(result)
+                        sign=0
                         countNum++
                         return cb()
                     }
                     task.total+=result.tab_list.length
                     //logger.debug(+"总共视频记录"+task.total)
-                    if(result.tab_list.length<19){
+                    if(result.tab_list.length <= 0){
                         sign=0
                     }
                     page+=20
                     this.deal(task,result.tab_list, () => {
+                        sign++
                         countNum++
                         cb()
                     })
                 })
             },
-            function (err,result) {
+            (err,result) => {
                 callback()
             }
         )
@@ -215,7 +218,7 @@ class dealWith {
              time = data.ptime,
                 a_create_time = moment(time).format('X'),
                 media = {
-                    author: data.videoTopic.tname,
+                    author: task.name,
                     platform: task.p,
                     bid: task.id,
                     aid: data.videoID,
@@ -229,6 +232,7 @@ class dealWith {
                     class:data.TAGS
                 }
         }
+        //logger.debug(media.author)
         this.sendCache( media )
         callback()
     }

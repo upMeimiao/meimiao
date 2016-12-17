@@ -58,7 +58,7 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            this.ucdeal()
+            this.deal()
         })
     }
     start () {
@@ -120,50 +120,6 @@ class spiderCore {
                 })
             })
         })
-    }
-    ucdeal(){
-        let work = {
-            p:23,
-            id:'41ad6b83918746c2ad1a4afbab13e1cd',
-            name:'陈翔六点半'
-        },
-                key = work.p + ':' + work.id
-            logger.info( work )
-            const d = domain.create()
-            /*d.on('error', function(err){
-                done(err)
-            })*/
-            d.run(()=>{
-                this.dealWith.todo(work, (err,total) => {
-                    if(err){
-                        //return done(err)
-                    }
-                    //done(null)
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    request.post( settings.sendToServer[1], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
-                        if(err){
-                            logger.error( 'occur error : ', err )
-                            return
-                        }
-                        if(res.statusCode != 200 ){
-                            logger.error( `状态码${res.statusCode}` )
-                            logger.info( res )
-                            return
-                        }
-                        try {
-                            body = JSON.parse( body )
-                        } catch (e) {
-                            logger.info( '不符合JSON格式' )
-                            return
-                        }
-                        if(body.errno == 0){
-                            logger.info(body.errmsg)
-                        }else{
-                            logger.info(body)
-                        }
-                    })
-                })
-            })
     }
     
 }
