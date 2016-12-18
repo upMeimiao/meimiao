@@ -65,7 +65,7 @@ class dealWith {
             }else if(fans_str.indexOf('亿') != -1 ){
                 fans_num = fans_str.replace('亿','') * 100000000
             }else{
-                fans_num = Number(fans_num)
+                fans_num = Number(fans_str)
             }
             if( isNaN(fans_num) ){
                 return callback( true )
