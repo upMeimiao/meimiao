@@ -50,11 +50,6 @@ class spiderCore {
                         callback()
                     }
                 )
-            },
-            (callback) => {
-                this.proxy.ready((err, result) => {
-                    return callback(err , result)
-                })
             }
         ],(err, results) => {
             if ( err ) {

@@ -1,6 +1,6 @@
 const async = require('async')
-const axon = require('axon')
-const msgpack = require( 'msgpack5' )()
+const HTTP = require('http')
+const URL = require('url')
 
 let logger, settings
 
@@ -12,7 +12,6 @@ class proxy{
         this.getProxy = new (require( './getProxy.js' ))( this )
         this.redis = new (require( './redis.js' ))( this )
         this.enborrow = true
-        this.sock = axon.socket('rep')
         logger.debug( '代理池 实例化...' )
     }
     start() {
@@ -53,41 +52,40 @@ class proxy{
     server() {
         const host = settings.proxy.host,
             port = settings.proxy.port
-        this.sock.bind(port, host, () => {
-            logger.trace('Listen on', host, ':', port)
+        const server = HTTP.createServer((req, res) => {
+            switch ( req.method ){
+                case 'GET':
+                    this.getHandle( req, res )
+                    break
+                case 'POST':
+                    this.postHandle( req, res )
+                    break
+                default:
+                    res.setHeader('Content-Type',`text/html;charset=utf-8`)
+                    res.writeHead(400)
+                    res.end()
+                    break
+            }
         })
-        this.sock.on('message', (type, msg, reply) => {
-            if(type === 'test'){
-                return reply('ok')
-            }
-            try {
-                msg = msgpack.decode(msg)
-            } catch (e) {
-                logger.error('Msgpack Encode Occur Error!' , e.message)
-                return reply(msgpack.encode( e.message ))
-            }
-            //logger.debug('type:', type, 'msg:', msg)
-            this.handle(type, msg, (err, val) => {
-                if(err){
-                    return reply(null)
-                }
-                reply(val)
-            })
+        server.listen(port, host, () => {
+            logger.debug(`Server running at ${host}:${port}`)
         })
     }
-    handle(type, data, callback) {
-        switch (type) {
-            case 'borrow':
-                return this.borrow((err, val) => {
-                    return callback(null, val)
-                })
-            case 'back':
-                return this.back(data, (err, result) => {
-                    return callback(err, result)
-                })
-            default:
-                return callback(null)
-        }
+    getHandle(req, res){
+        this.borrow((err, val) => {
+            res.setHeader('Content-Type',`application/json;charset=utf-8`)
+            res.writeHead(200)
+            res.end(JSON.stringify({proxy:val}))
+        })
+    }
+    postHandle(req, res){
+        const proxy = URL.parse(req.url,true).query.proxy,
+            status = URL.parse(req.url,true).query.status
+        this.back({proxy:proxy,status:status}, (err, result) => {
+            res.setHeader('Content-Type',`application/json;charset=utf-8`)
+            res.writeHead(200)
+            res.end(JSON.stringify({res:result}))
+        })
     }
     borrow(callback) {
         if(!this.enborrow){

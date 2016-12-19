@@ -1,6 +1,5 @@
 const Redis = require('redis')
 const async = require('async')
-const msgpack = require('msgpack5')()
 
 let logger,settings
 
@@ -82,7 +81,7 @@ class redis{
                     },
                     (err, result) => {
                         db.zadd('bproxy', time, proxy)
-                        return callback(null, null, msgpack.encode(proxy))
+                        return callback(null, null, proxy)
                     }
                 )
             })
