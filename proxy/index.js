@@ -69,9 +69,9 @@ class proxy{
             //logger.debug('type:', type, 'msg:', msg)
             this.handle(type, msg, (err, val) => {
                 if(err){
-                    return reply(err,null)
+                    return reply(null)
                 }
-                reply(null,val)
+                reply(val)
             })
         })
     }

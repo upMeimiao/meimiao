@@ -1,5 +1,6 @@
 const axon = require( 'axon' )
 const msgpack = require( 'msgpack5' )()
+const domain = require('domain')
 
 let logger,settings
 class proxy{
@@ -28,23 +29,28 @@ class proxy{
             return callback('timeout!')
         }
         logger.trace('Send a Require command')
-        this.sock.send('borrow', msgpack.encode('borrow'), (err,res) => {
-            if(err){
-                logger.debug('send error:',err.message)
-            }
-            if(res) {
-                let proxy
-                try {
-                    proxy = msgpack.decode(res)
-                } catch (e) {
-                    logger.error('Decode response occur error!')
-                    return callback(e.message)
-                }
-                return callback(null, proxy)
-            }
+        const d = domain.create()
+        d.on('error', function(err){
             setTimeout(() => {
                 return this.need(times + 1, callback)
-            }, 5000)
+            }, 3000)
+        })
+        d.run(() => {
+            this.sock.send('borrow', msgpack.encode('borrow'), (res) => {
+                if(res) {
+                    let proxy
+                    try {
+                        proxy = msgpack.decode(res)
+                    } catch (e) {
+                        logger.error('Decode response occur error!')
+                        return callback(e.message)
+                    }
+                    return callback(null, proxy)
+                }
+                setTimeout(() => {
+                    return this.need(times + 1, callback)
+                }, 3000)
+            })
         })
     }
     back(proxy, status, callback) {
@@ -52,13 +58,16 @@ class proxy{
             proxy: proxy,
             status: status
         }
-        this.sock.send('back', msgpack.encode(back), (err,res) => {
-            if(err){
-                logger.debug('send error:',err.message)
-            }
-            if(callback) {
-                return callback(res)
-            }
+        const d = domain.create()
+        d.on('error', function(err){
+            return logger.error(err.message)
+        })
+        d.run(() => {
+            this.sock.send('back', msgpack.encode(back), (res) => {
+                if(callback) {
+                    return callback(res)
+                }
+            })
         })
     }
 }

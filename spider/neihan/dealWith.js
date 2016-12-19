@@ -180,8 +180,12 @@ class dealWith {
                 return index < list.length
             },
             (cb) => {
-                let group = list[index].group,
-                    type = group.media_type
+                let group = list[index].group
+                if(!group){
+                    index++
+                    return cb()
+                }
+                let type = group.media_type
                 if(type == 3){
                     this.getInfo(task,list[index],(err) => {
                         index++
