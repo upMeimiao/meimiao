@@ -118,6 +118,12 @@
     },
     "ifeng":{
       "url":"http://vcis.ifeng.com/api/videoGuid?guid="
+    },
+    "qzone": {
+      "url": "https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?num=20"
+    },
+    "mgtv":{
+      "url": "http://pcweb.api.mgtv.com/player/video?video_id="
     }
   }
 }

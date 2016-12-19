@@ -1081,6 +1081,71 @@ class DealWith {
             callback(null,res)
         })
     }
+    weibo(remote, callback) {
+        let urlObj = URL.parse(remote,true),
+            host = urlObj.hostname,
+            path = urlObj.pathname,
+            bid = path.match(/\/\d*/).toString().replace(/\//g,''),
+            option = {},
+            v_id
+        if(bid == ''){
+            option.method = 'get'
+            /* logger.debug(remote)
+             return*/
+            /*request.get( option, ( err, result ) => {
+             if(err){
+             logger.error('occur error: ',err)
+             return callback(err,{code:102,p:23})
+             }
+             if(result.statusCode != 200){
+             logger.error('weibo状态码错误',result.statusCode)
+             logger.info(result)
+             return callback(true,{code:102,p:23})
+             }
+             let $ = cheerio.load(result.body),
+             nodetype = $('div').length
+             logger.debug(result.body)
+             })*/
+            /*fetchUrl( remote, option, (error, meta, body) => {
+             if(error){
+             logger.error( 'getInfo occur error : ', error )
+             return callback(error)
+             }
+             if(meta.status != 200){
+             logger.error(`getInfo请求状态有误: ${meta.status}`)
+             return callback(true)
+             }
+             logger.debug(body.length)
+             })*/
+            logger.debug('暂时没写出来')
+
+        }else{
+            option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid
+            request.get( option, ( err, result ) => {
+                if(err){
+                    logger.error('occur error: ',err)
+                    return callback(err,{code:102,p:23})
+                }
+                if(result.statusCode != 200){
+                    logger.error('weibo状态码错误',result.statusCode)
+                    logger.info(result)
+                    return callback(true,{code:102,p:23})
+                }
+                try{
+                    result = JSON.parse(result.body)
+                }catch(e){
+                    logger.debug('weibo数据解析失败')
+                    return callback(e,{code:102,p:23})
+                }
+                let res = {
+                    name: result.userInfo.screen_name,
+                    id: result.userInfo.id,
+                    p: 23
+                }
+                callback(null,res)
+            })
+        }
+    }
     ifeng(remote, callback) {
         const urlObj = URL.parse(remote,true),
             host = urlObj.host,
@@ -1278,6 +1343,79 @@ class DealWith {
                 }
             })
         }
+    }
+    mgtv(remote, callback) {
+        let host = URL.parse(remote,true).hostname,
+            vid = '',
+            option = {}
+        if(host == 'www.mgtv.com'){
+            vid = remote.match(/\/\d*\.html/).toString().replace(/[\/\.html]/g,'')
+        }else{
+            vid = remote.match(/\/\d*\?/).toString().replace(/[\/\?]/g,'')
+        }
+        option.url = api.mgtv.url+vid
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:27})
+            }
+            if(result.statusCode != 200){
+                logger.error('芒果TV状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:27})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('芒果TV数据解析失败')
+                return callback(e,{code:102,p:27})
+            }
+            let res = {
+                name: result.data.info.collection_name,
+                id: result.data.info.collection_id,
+                p: 27
+            }
+            //logger.debug(result.code+"++++")
+            callback(null,res)
+        })
+    }
+    qzone(remote, callback) {
+        let host = URL.parse(remote,true).hostname,
+            uin = '',
+            tid = '',
+            option = {}
+        if(host == 'user.qzone.qq.com'){
+            uin = remote.match(/com\/\d*/).toString().replace(/com\//,'')
+            tid = remote.match(/mood\/\w*/).toString().replace(/mood\//,'')
+        }else{
+            uin = remote.match(/&u=\d*/).toString().replace(/&u=/,'')
+            tid = remote.match(/&i=\w*/).toString().replace(/&i=/,'')
+        }
+        option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:29})
+            }
+            if(result.statusCode != 200){
+                logger.error('QQ空间状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:29})
+            }
+            try{
+                result = eval(result.body)
+            }catch(e){
+                logger.debug('QQ空间数据解析失败')
+                return callback(e,{code:102,p:29})
+            }
+            let res = {
+                name: result.usrinfo.name,
+                id: result.usrinfo.uin,
+                p: 29
+            }
+            //logger.debug(res.name)
+            callback(null,res)
+        })
     }
 }
 module.exports = DealWith

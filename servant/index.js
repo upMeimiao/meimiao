@@ -133,6 +133,11 @@ class spiderCore {
             case 'm.acfun.tv':
                 handle.acfunHandle( ctx, remote )
                 break
+            case 'www.weibo.com':
+            case 'weibo.com':
+            case 'm.weibo.cn':
+                handle.weiboHandle( ctx, remote )
+                break
             case 'www.ifeng.com':
             case 'v.ifeng.com':
             case 'vcis.ifeng.com':
@@ -147,6 +152,14 @@ class spiderCore {
             case 'm.uczzd.cn':
             case 'v.mp.uc.cn':
                 handle.ucHandle( ctx, remote )
+                break
+            case 'www.mgtv.com':
+            case 'm.mgtv.com':
+                handle.mgtvHandle( ctx, remote )
+                break
+            case 'user.qzone.qq.com':
+            case 'mobile.qzone.qq.com':
+                handle.qzoneHandle( ctx, remote )
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)

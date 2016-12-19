@@ -223,6 +223,13 @@ const acfun = () => {
     let spider = new (require('./spider/acfun'))(settings)
     spider.start()
 }
+const weibo = () => {
+    let logger = logging.getLogger('微博',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/weibo'))(settings)
+    spider.start()
+}
 const tv56 = () => {
     let logger = logging.getLogger('56视频',options['i'],log_level)
     settings['logger'] = logger
@@ -251,11 +258,25 @@ const wangyi = () => {
     let spider = new (require('./spider/wangyi'))(settings)
     spider.start()
 }
-const test = () => {
-    let logger = logging.getLogger('web',options['i'],log_level)
+const mgtv = () => {
+    let logger = logging.getLogger('芒果TV',options['i'],log_level)
     settings['logger'] = logger
     settings['instance'] = options['i']
-    let spider = new (require('./input'))(settings)
+    let spider = new (require('./spider/mgtv'))(settings)
+    spider.start()
+}
+const qzone = () => {
+    let logger = logging.getLogger('QQ空间',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/qzone'))(settings)
+    spider.start()
+}
+const test = () => {
+    let logger = logging.getLogger('monitor',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./monitor'))(settings)
     spider.start()
 }
 switch (options['a']){
@@ -340,6 +361,9 @@ switch (options['a']){
     case 'acfun':
         acfun()
         break
+    case 'weibo':
+        weibo()
+        break
     case 'tv56':
         tv56()
         break
@@ -351,6 +375,12 @@ switch (options['a']){
         break
     case 'wangyi':
         wangyi()
+        break
+    case 'mgtv':
+        mgtv()
+        break
+    case 'qzone':
+        qzone()
         break
     case 'test':
         test()
