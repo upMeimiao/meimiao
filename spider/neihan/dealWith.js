@@ -180,6 +180,10 @@ class dealWith {
                 return index < list.length
             },
             (cb) => {
+                if(!list[index].group){
+                    index++
+                    return cb()
+                }
                 let group = list[index].group
                 if(!group){
                     index++
