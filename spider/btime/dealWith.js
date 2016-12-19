@@ -219,7 +219,7 @@ class dealWith {
             media.v_url = data.gid
             media.v_img = data.image_url
             media.long_t = result[0]
-            logger.debug(media)
+            //logger.debug(media)
             this.sendCache( media )
             callback()
         })
