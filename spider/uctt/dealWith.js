@@ -56,6 +56,7 @@ class dealWith {
                         return
                     }
                     let length = result.data.length
+                    task.total += length
                     if(length <= 0){
                         page = 0
                         return cb() 
