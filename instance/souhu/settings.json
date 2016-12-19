@@ -10,7 +10,9 @@
     "cache_db": 3
   },
   "key": "f351515304020cad28c92f70f002261c",
-  "userInfo" :"http://my.tv.sohu.com/user/media/mobile/userinfo.do?api_key=",
+  "newUser": "http://api.tv.sohu.com/v4/user/info/",
+  "userInfo":"http://my.tv.sohu.com/user/media/mobile/userinfo.do?api_key=",
+  "newList": "http://api.tv.sohu.com/v4/user/videolist.json?api_key=f351515304020cad28c92f70f002261c&plat=3&sver=6.1&page_size=20&sort_type=2&user_id=",
   "videoList":"http://api.tv.sohu.com/v4/user/video.json?page_size=20&with_fee_video=2&page=",
   "videoInfo": "http://s1.api.tv.itc.cn/v4/video/info/",
   "digg":"http://score.my.tv.sohu.com/digg/get.do?type=9001&callback=jsonp&vid=",

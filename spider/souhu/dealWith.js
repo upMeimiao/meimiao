@@ -40,7 +40,7 @@ class dealWith {
     }
     getUser ( task, callback) {
         let option ={
-            url: this.settings.userInfo + this.settings.key + "&user_id=" + task.id + "&_=" + (new Date()).getTime()
+            url: this.settings.newUser + task.id + ".json?api_key=" + this.settings.key +  "&_=" + (new Date()).getTime()
         }
         request.get ( option,(err,result)=>{
             if(err){
@@ -121,7 +121,7 @@ class dealWith {
     }
     getTotal ( task, callback ) {
         let option = {
-            url: this.settings.videoList + 1 +"&user_id=" + task.id + "&api_key=" + this.settings.key
+            url: this.settings.newList + task.id + "&page=1&_=" + new Date().getTime()
         }
         request.get(option, (err,result) => {
             if(err){
@@ -136,7 +136,7 @@ class dealWith {
                 return callback(e)
             }
             //logger.debug(back)
-            let total  = result.data.count
+            let total  = result.data.totalCount
             task.total = total
             this.getList(task,total, () => {
                 callback()
@@ -156,7 +156,7 @@ class dealWith {
             },
             (cb) => {
                 option = {
-                    url: this.settings.videoList + index +"&user_id=" + task.id + "&api_key=" + this.settings.key
+                    url: this.settings.newList + task.id + "&page=" + index + "&_=" + new Date().getTime()
                 }
                 request.get(option, (err,result) => {
                     if(err){
@@ -199,12 +199,12 @@ class dealWith {
                 return index < length
             },
             (cb) => {
-                let video = list[index]
-                video = {
-                    aid: video.aid,
-                    id: video.vid
-                }
-                this.info(task,video, (err) => {
+                // let video = list[index]
+                // video = {
+                //     aid: video.aid,
+                //     id: video.vid
+                // }
+                this.info(task,list[index].id, (err) => {
                     if(err){
                         index++
                         return cb()
@@ -218,10 +218,10 @@ class dealWith {
             }
         )
     }
-    info ( task, video, callback ) {
+    info ( task, id, callback ) {
         async.parallel([
                 (cb) => {
-                    this.getInfo(video, (err,data) => {
+                    this.getInfo(id, (err,data) => {
                         if(err){
                             cb(err)
                         }else {
@@ -230,7 +230,7 @@ class dealWith {
                     })
                 },
                 (cb) => {
-                    this.getDigg(video, (err,data) => {
+                    this.getDigg(id, (err,data) => {
                         if(err){
                             cb(err)
                         }else {
@@ -239,7 +239,7 @@ class dealWith {
                     })
                 },
                 (cb) => {
-                    this.getCommentNum(video,(err,num) => {
+                    this.getCommentNum(id,(err,num) => {
                         if(err){
                             cb(err)
                         }else {
@@ -254,10 +254,10 @@ class dealWith {
                     return callback(err)
                 }
                 let media = {
-                    author: result[0].director,
-                    platform: 9,
+                    author: task.name,
+                    platform: task.p,
                     bid: task.id,
-                    aid: video.id,
+                    aid: id,
                     title: result[0].title.substr(0,100),
                     desc: result[0].desc.substr(0,100),
                     play_num: result[0].play,
@@ -270,13 +270,16 @@ class dealWith {
                     class: result[0].type,
                     v_img: result[0].picurl
                 }
+                if(!media.class){
+                    delete media.class
+                }
                 this.sendCache( media )
                 callback()
             })
     }
-    getInfo ( video, callback ) {
+    getInfo ( id, callback ) {
         let option = {
-            url: this.settings.videoInfo + video.id + ".json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=" + video.aid
+            url: this.settings.videoInfo + id + ".json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0"
         }
         request.get( option, (err,result) => {
             if(err){
@@ -302,12 +305,11 @@ class dealWith {
             //logger.debug('debug info message:',result)
             let backData  = result.data
             let data = {
-                director: backData.director,
                 title: backData.video_name,
                 desc: backData.video_desc,
                 time: Math.round(backData.create_time / 1000),
                 play: backData.play_count,
-                type : backData.first_cate_name,
+                type : backData.first_cate_name || null,
                 tag : this._tag(backData.keyword),
                 seconds : backData.total_duration,
                 picurl : this._picUrl(backData)
@@ -315,9 +317,8 @@ class dealWith {
             callback(null,data)
         })
     }
-    getDigg ( video, callback ) {
-        let id = video.id,
-            option = {
+    getDigg ( id, callback ) {
+        let option = {
                 url: this.settings.digg + id + "&_=" + (new Date()).getTime()
             }
         request.get(option, (err,back) => {
@@ -338,9 +339,9 @@ class dealWith {
             callback(null,data)
         })
     }
-    getCommentNum ( video, callback ) {
+    getCommentNum ( id, callback ) {
         let option = {
-            url: this.settings.comment + video.id
+            url: this.settings.comment + id
         }
         request.get( option, (err,result) => {
             if(err){
