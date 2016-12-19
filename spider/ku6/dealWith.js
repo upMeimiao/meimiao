@@ -172,7 +172,9 @@ class dealWith {
                     } catch(e){
                         logger.error('json数据解析失败')
                         logger.info('json error: ', result.body)
-                        return callback(e)
+                        sign++
+                        newSign++
+                        return cb()
                     }
                     let list = result.data
                     if(list){
