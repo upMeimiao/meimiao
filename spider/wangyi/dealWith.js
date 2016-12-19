@@ -196,44 +196,26 @@ class dealWith {
         )
     }
     getVideo(task ,data ,callback ) {
-        let time,a_create_time,media
         if(data.videoinfo){
-                 time = data.ptime,
-                a_create_time = moment(time).format('X'),
-                media = {
-                    author: task.name,
-                    platform: 25,
-                    bid: task.id,
-                    aid: data.videoID,
-                    title: data.title.substr(0,100),
-                    desc: data.digest.substr(0,100),
-                    play_num: data.videoinfo.playCount,
-                    comment_num: data.videoinfo.replyCount,
-                    a_create_time: a_create_time,
-                    v_img:data.imgsrc,
-                    long_t:data.videoinfo.length,
-                    class:data.TAGS
-                }
-        }else{
-             time = data.ptime,
-                a_create_time = moment(time).format('X'),
-                media = {
-                    author: task.name,
-                    platform: task.p,
-                    bid: task.id,
-                    aid: data.videoID,
-                    title: data.title.substr(0,100),
-                    desc: data.digest.substr(0,100),
-                    //play_num: data.playCount,
-                    comment_num: data.replyCount,
-                    a_create_time: a_create_time,
-                    v_img:data.imgsrc,
-                    long_t:data.length,
-                    class:data.TAGS
-                }
+            let media = {
+                author: task.name,
+                platform: 25,
+                bid: task.id,
+                aid: data.videoID,
+                title: data.title.substr(0,100),
+                desc: data.digest.substr(0,100),
+                play_num: data.videoinfo.playCount,
+                comment_num: data.videoinfo.replyCount,
+                a_create_time: moment(data.ptime).format('X'),
+                v_img:data.imgsrc,
+                long_t:data.videoinfo.length,
+                class:data.TAGS
+            }
+            if(!media.comment_num){
+                delete media.comment_num
+            }
+            this.sendCache( media )
         }
-        //logger.debug(media.author)
-        this.sendCache( media )
         callback()
     }
     sendCache ( media ){

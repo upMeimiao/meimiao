@@ -11,6 +11,7 @@
   },
   "userInfo": "http://record.btime.com/getUserChannel?uid=",
   "medialist": "http://record.btime.com/getNews?tab=video&pageRow=20&uid=",
+  "info": "http://api.btime.com/news/detail?nid=",
   "sendToServer":[
     "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
     "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",

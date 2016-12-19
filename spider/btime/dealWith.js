@@ -185,24 +185,70 @@ class dealWith {
         let time = data.ctime,
             a_create_time = moment(time).format('X'),
             media = {}
-        this.getLong_t ( data, ( err, result ) => {
+        async.parallel([
+            (cb) => {
+                this.getLong_t(data, (err, result) => {
+                    if(err){
+                        return cb(err)
+                    }
+                    return cb(null, result)
+                })
+            },
+            (cb) => {
+                this.getInfo(data, (err, result) => {
+                    if(err){
+                        return cb(err)
+                    }
+                    return cb(null, result)
+                })
+            }
+        ],(err, result) => {
+            if(err){
+                return callback()
+            }
             media.author = task.name
             media.platform = 15
             media.bid = task.id
             media.aid = data.id
             media.title = data.title.substr(0,100)
             media.desc = data.description.substr(0,100)
-            media.play_num = data.click_count
-            media.comment_num = data.comment
+            media.play_num = result[1].play
+            media.comment_num = result[1].comment
             media.a_create_time = a_create_time
+            media.support = result[1].ding
             media.v_url = data.gid
             media.v_img = data.image_url
-            if(!err){
-                media.long_t = result
-            }
+            media.long_t = result[0]
             logger.debug(media)
             this.sendCache( media )
             callback()
+        })
+    }
+    getInfo(info, callback) {
+        const option = {
+            url: this.settings.info + info.gid + "&timestamp=" + Math.round(new Date().getTime() / 1000)
+        }
+        request.get(option, (err, result) => {
+            if(err){
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                return callback(true)
+            }
+            try {
+                result = JSON.parse(result.body)
+            } catch (e){
+                return callback(e)
+            }
+            if(result.errno != 0 ){
+                return callback(true)
+            }
+            let data = {
+                play: result.data.watches,
+                comment: result.data.comment,
+                ding: result.data.ding
+            }
+            callback(null, data)
         })
     }
     getLong_t ( info, callback ){
