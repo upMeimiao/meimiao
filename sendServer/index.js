@@ -89,7 +89,7 @@ class sendServer {
         } )
     }
     send (media,time) {
-        if(media.platform > 24 || media.platform == 21 || media.platform == 23){
+        if(media.platform > 26 || media.platform == 21 || media.platform == 23){
             media = null
             return
         }
