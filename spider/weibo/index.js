@@ -121,5 +121,6 @@ class spiderCore {
             })
         })
     }
+    
 }
 module.exports = spiderCore

@@ -5,6 +5,9 @@ const r = require('request')
 const jsonp = function (data) {
     return data
 }
+const _Callback =function (data) {
+    return data
+}
 
 let logger,api
 
@@ -1347,6 +1350,7 @@ class DealWith {
     mgtv(remote, callback) {
         let host = URL.parse(remote,true).hostname,
             vid = '',
+            index = 0,
             option = {}
         if(host == 'www.mgtv.com'){
             vid = remote.match(/\/\d*\.html/).toString().replace(/[\/\.html]/g,'')
@@ -1354,6 +1358,7 @@ class DealWith {
             vid = remote.match(/\/\d*\?/).toString().replace(/[\/\?]/g,'')
         }
         option.url = api.mgtv.url+vid
+        //logger.debug(option.url)
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
@@ -1370,8 +1375,9 @@ class DealWith {
                 logger.debug('芒果TV数据解析失败')
                 return callback(e,{code:102,p:27})
             }
+            index = result.data.info.collection_name.indexOf(' ')
             let res = {
-                name: result.data.info.collection_name,
+                name: result.data.info.collection_name.substring(0,index),
                 id: result.data.info.collection_id,
                 p: 27
             }
@@ -1387,11 +1393,48 @@ class DealWith {
         if(host == 'user.qzone.qq.com'){
             uin = remote.match(/com\/\d*/).toString().replace(/com\//,'')
             tid = remote.match(/mood\/\w*/).toString().replace(/mood\//,'')
-        }else{
+            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+            this.getQzone(option,callback)
+        }else if(host == 'mobile.qzone.qq.com'){
             uin = remote.match(/&u=\d*/).toString().replace(/&u=/,'')
             tid = remote.match(/&i=\w*/).toString().replace(/&i=/,'')
+            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+            this.getQzone(option,callback)
+        }else if(host == 'h5.qzone.qq.com'){
+            uin = remote.match(/&uin=\d*/).toString().replace(/&uin=/,'')
+            tid = remote.match(/&shuoshuo_id=\w*/).toString().replace(/&shuoshuo_id=/,'')
+            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+            logger.debug(option.url)
+            this.getQzone(option,callback)
+        }else{
+            option.url = remote
+            request.get( option, (err,result) => {
+                if(err){
+                    logger.error('occur error: ',err)
+                    return callback(err,{code:102,p:28})
+                }
+                if(result.statusCode != 200){
+                    logger.error('网易状态码错误',result.statusCode)
+                    logger.info(result)
+                    return callback(true,{code:102,p:28})
+                }
+                let $ = cheerio.load(result.body),
+                    script = $('script')[13].children[0].data,
+                    data = script.match(/"uin":"\d*","_wv":"\d*","_ws":"\d*","adtag":"\w*","is_video":"\w*","shuoshuo_id":"\w*","data/).toString().replace(/"uin/,'{"uin').replace(/,"data/,'}')
+                    try{
+                        data = JSON.parse(data)
+                    }catch(e){
+                        logger.debug('QQ空间bid请求参数解析失败')
+                        return callback(e,{code:102,p:28})
+                    }
+                option.url = api.qzone.url+"&uin="+data.uin+"&tid="+data.shuoshuo_id
+                this.getQzone(option,callback)
+            })
         }
-        option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+        
+        
+    }
+    getQzone( option, callback ){
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
@@ -1413,7 +1456,6 @@ class DealWith {
                 id: result.usrinfo.uin,
                 p: 29
             }
-            //logger.debug(res.name)
             callback(null,res)
         })
     }

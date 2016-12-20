@@ -159,6 +159,8 @@ class spiderCore {
                 break
             case 'user.qzone.qq.com':
             case 'mobile.qzone.qq.com':
+            case 'h5.qzone.qq.com':
+            case 'url.cn':
                 handle.qzoneHandle( ctx, remote )
                 break
             default:
