@@ -157,6 +157,7 @@ class dealWith {
                 option = {
                     url: this.settings.api + sign + "&per=20&suid=" + task.id
                 }
+                logger.debug(option.url)
                 request.get(option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
@@ -197,7 +198,7 @@ class dealWith {
                         platform: 7,
                         bid: task.id,
                         aid:video.channel.scid,
-                        title:video.channel.ext.t != '' ? video.channel.ext.t.substr(0,100) : `未命名${video.channel.scid}`,
+                        title:video.channel.ext.ft != '' ? video.channel.ext.ft.substr(0,100) : video.channel.ext != '' ? video.channel.ext :`未命名${video.channel.scid}`,
                         desc: video.channel.ext.t.substr(0,100),
                         play_num: video.channel.stat.vcnt,
                         comment_num: video.channel.stat.ccnt,
@@ -211,6 +212,8 @@ class dealWith {
                         data.class = result.class
                         data.tag = result.tag
                     }
+                    // logger.debug(data.title+'标题')
+                    // logger.debug(data.desc+'描述')
                     this.sendCache( data )
                     index++
                     cb()

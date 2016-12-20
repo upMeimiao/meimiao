@@ -64,7 +64,6 @@ class dealWith {
                 logger.debug('result:',result)
                 callback()
             })
-
         })
     }
     sendUser( user,callback ){
@@ -138,6 +137,10 @@ class dealWith {
                     } catch(e){
                         logger.error('json数据解析失败')
                         logger.error('json error: ',result.body)
+                        index++
+                        return cb()
+                    }
+                    if(result.infoList.length <=0 ){
                         index++
                         return cb()
                     }
