@@ -1411,12 +1411,12 @@ class DealWith {
             request.get( option, (err,result) => {
                 if(err){
                     logger.error('occur error: ',err)
-                    return callback(err,{code:102,p:28})
+                    return callback(err,{code:102,p:29})
                 }
                 if(result.statusCode != 200){
                     logger.error('网易状态码错误',result.statusCode)
                     logger.info(result)
-                    return callback(true,{code:102,p:28})
+                    return callback(true,{code:102,p:29})
                 }
                 let $ = cheerio.load(result.body),
                     script = $('script')[13].children[0].data,
@@ -1425,7 +1425,7 @@ class DealWith {
                         data = JSON.parse(data)
                     }catch(e){
                         logger.debug('QQ空间bid请求参数解析失败')
-                        return callback(e,{code:102,p:28})
+                        return callback(e,{code:102,p:29})
                     }
                 option.url = api.qzone.url+"&uin="+data.uin+"&tid="+data.shuoshuo_id
                 this.getQzone(option,callback)

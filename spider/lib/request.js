@@ -21,7 +21,7 @@ exports.get = ( logger, option , callback ) => {
         method : 'GET',
         proxy: option.proxy ? option.proxy : null,
         url: option.url,
-        timeout: 45000,
+        timeout: 8000,
         headers: {
             'Referer': option.referer || null,
             'User-Agent': user_agent,
