@@ -198,7 +198,7 @@ class dealWith {
                         platform: 7,
                         bid: task.id,
                         aid:video.channel.scid,
-                        title:video.channel.ext.ft != '' ? video.channel.ext.ft.substr(0,100) : video.channel.ext != '' ? video.channel.ext :`未命名${video.channel.scid}`,
+                        title:video.channel.ext.ft != '' ? video.channel.ext.ft.substr(0,100) : video.channel.ext != '' ? video.channel.ext :`btwk_caihongip`,
                         desc: video.channel.ext.t.substr(0,100),
                         play_num: video.channel.stat.vcnt,
                         comment_num: video.channel.stat.ccnt,
