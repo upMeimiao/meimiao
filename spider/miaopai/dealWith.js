@@ -131,6 +131,13 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
+            if(result.statusCode != 200){
+                if(task.id == 'mEpTsCBR3q2uyDUc'){
+                    return callback()
+                }
+                logger.error( 'http code error : ', result.statusCode )
+                return callback(err)
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e){
