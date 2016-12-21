@@ -221,7 +221,7 @@ class dealWith {
                 platform: 14,
                 bid: task.id,
                 aid: data.vid,
-                title: data.title.substr(0,100),
+                title: data.title ? data.title.substr(0,100) : 'btwk_caihongip',
                 desc: data.desc.substr(0,100),
                 play_num: data.viewed,
                 support: data.liked,

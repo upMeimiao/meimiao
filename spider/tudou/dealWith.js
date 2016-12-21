@@ -274,6 +274,12 @@ class dealWith {
                 tag: result[1].tag,
                 a_create_time: data.pubDate.toString().substring(0,10)
             }
+            if(!media.class){
+                delete media.class
+            }
+            if(!media.tag){
+                delete media.tag
+            }
             //logger.debug(media)
             this.sendCache( media )
             callback()
