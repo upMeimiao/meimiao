@@ -153,6 +153,7 @@ class sendServer {
             }
             if(res.statusCode != 200){
                 logger.error(`staging errorCode: ${res.statusCode}`)
+                logger.error(result)
                 // list = null
                 // time = null
                 return
