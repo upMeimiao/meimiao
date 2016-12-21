@@ -60,7 +60,7 @@ class sendServer {
                 return
             }
             for (let [index, elem] of result.entries()) {
-               if(elem){
+               if(elem[1]){
                    list.push(JSON.parse(elem[1]))
                }
             }
@@ -90,7 +90,7 @@ class sendServer {
             if(err){
                 logger.error('master occur error : ', err)
                 logger.error(media)
-                //logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
+                logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 time++
                 if(time > 3){
                     media = null
@@ -119,7 +119,7 @@ class sendServer {
                 //logger.debug(`平台${media.platform}:`,media.aid + ' back end')
                 //logger.info(result)
             }else{
-                //logger.error(`平台${media.platform}:`,media.aid + ' back error')
+                logger.error(`平台${media.platform}:`,media.aid + ' back error')
                 logger.error(result)
                 logger.error('media info: ',media)
             }
