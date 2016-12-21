@@ -89,7 +89,8 @@ class sendServer {
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
                 logger.error('master occur error : ', err)
-                logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
+                logger.error(media)
+                //logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 time++
                 if(time > 3){
                     media = null
