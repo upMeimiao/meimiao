@@ -74,7 +74,7 @@ class dealWith {
                 logger.info(result)
                 return callback(e)
             }
-            total = result.cardlistInfo.total
+            let total = result.cardlistInfo.total
             task.total = total
             this.getVidList( task, data, total, callback )
         })
@@ -182,7 +182,7 @@ class dealWith {
                     bid: task.id,
                     aid: video.mblog.id,
                     title: video.mblog.text,
-                    desc: video.mblog.user.description == undefined ? '暂无描述' : video.mblog.user.description,
+                    desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description,
                     play_num: result[0].page_info == undefined ? null : result[0].page_info.media_info.online_users_number,
                     comment_num: video.mblog.comments_count,
                     forward_num: video.mblog.reposts_count,
