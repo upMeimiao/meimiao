@@ -1092,39 +1092,11 @@ class DealWith {
             option = {},
             v_id
         if(bid == ''){
-            option.method = 'get'
-            /* logger.debug(remote)
-             return*/
-            /*request.get( option, ( err, result ) => {
-             if(err){
-             logger.error('occur error: ',err)
-             return callback(err,{code:102,p:23})
-             }
-             if(result.statusCode != 200){
-             logger.error('weibo状态码错误',result.statusCode)
-             logger.info(result)
-             return callback(true,{code:102,p:23})
-             }
-             let $ = cheerio.load(result.body),
-             nodetype = $('div').length
-             logger.debug(result.body)
-             })*/
-            /*fetchUrl( remote, option, (error, meta, body) => {
-             if(error){
-             logger.error( 'getInfo occur error : ', error )
-             return callback(error)
-             }
-             if(meta.status != 200){
-             logger.error(`getInfo请求状态有误: ${meta.status}`)
-             return callback(true)
-             }
-             logger.debug(body.length)
-             })*/
-            logger.debug('暂时没写出来')
-
-        }else{
-            option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid
-            request.get( option, ( err, result ) => {
+            bid = path.match(/status\/\d*/).toString().replace(/status\//,'')
+        }
+        if(bid.length > 10){
+            option.url = remote
+            request.get( option, (err,result) => {
                 if(err){
                     logger.error('occur error: ',err)
                     return callback(err,{code:102,p:23})
@@ -1134,20 +1106,48 @@ class DealWith {
                     logger.info(result)
                     return callback(true,{code:102,p:23})
                 }
+                let $ = cheerio.load(result.body),
+                    script
                 try{
-                    result = JSON.parse(result.body)
+                    script = $('script')[1].children[0].data.replace(/[\s\n\r]/g,'')
+                    bid = script.match(/"user":\{"id":\d*/).toString().replace(/"user":\{"id":/,'')
                 }catch(e){
-                    logger.debug('weibo数据解析失败')
-                    return callback(e,{code:102,p:23})
+                    this.weibo(remote, callback)
+                    return
                 }
-                let res = {
-                    name: result.userInfo.screen_name,
-                    id: result.userInfo.id,
-                    p: 23
-                }
-                callback(null,res)
+                
+                option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid
+                this.getRes(option,callback)
             })
+        }else{
+            option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid
+            this.getRes(option,callback)
         }
+    }
+    getRes( option, callback ){
+        request.get( option, ( err, result ) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:23})
+            }
+            if(result.statusCode != 200){
+                logger.error('weibo状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:23})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('weibo数据解析失败')
+                return callback(e,{code:102,p:23})
+            }
+            let res = {
+                name: result.userInfo.screen_name,
+                id: result.userInfo.id,
+                p: 23
+            }
+            callback(null,res)
+        })
     }
     ifeng(remote, callback) {
         const urlObj = URL.parse(remote,true),

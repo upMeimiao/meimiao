@@ -40,14 +40,15 @@ class dealWith {
                 logger.info(result)
                 return callback()
             }
-            this.getVidList( task, result, (data) => {
+            this.getVidList( task, result, (err,data) => {
                 callback()
             })
         })
     }
     
     getVidList( task, data, callback ){
-        let total = 1000
+        let total = 1000,
+            num   = 0
         async.whilst(
             () => {
                 return task.total <= total
@@ -61,9 +62,23 @@ class dealWith {
                 //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
-                        logger.debug(err)
-
-                        logger.error( '接口请求错误 : ', err )
+                        if( num == 0 ){
+                            logger.debug(err)
+                            setTimeout(() => {
+                                num++
+                                task.page--
+                                logger.debug('300毫秒之后重新请求一下')
+                                return cb()
+                            },300)
+                        }else if( num == 1){
+                            logger.debug('直接请求下一页')
+                            cb()
+                            return 
+                        }else{
+                            logger.debug(err)
+                            logger.error( '接口请求错误 : ', err )
+                            return callback(err)
+                        }
                     }
                     try{
                         result = JSON.parse(result.body)
@@ -72,6 +87,13 @@ class dealWith {
                         logger.info(result)
                         return
                     }
+                    if(result.cardlistInfo.total == undefined){
+                        setTimeout(() => {
+                            task.page--
+                            logger.debug('300毫秒之后重新请求一下')
+                            return cb()
+                        },300)
+                    }
                     total = result.cardlistInfo.total
                     task.total += result.cards.length
                     //logger.debug('第'+task.page+'页')
@@ -79,8 +101,7 @@ class dealWith {
                         cb()
                     })
                     
-                    if( task.total == total ){
-                        logger.debug('已经没有数据')
+                    if( task.total >= total ){
                         task.total = total+1
                         return cb()
                     }
@@ -126,6 +147,8 @@ class dealWith {
             ],(err,result) => {
                 if(result[0] == '抛掉当前的'){
                     return callback()
+                }else if(video.mblog.user == undefined){
+                    return callback()
                 }
                 let media = {
                     author: task.name,
@@ -133,7 +156,7 @@ class dealWith {
                     bid: task.id,
                     aid: video.mblog.id,
                     title: video.mblog.text,
-                    desc: video.mblog.user.description,
+                    desc: video.mblog.user.description == undefined ? '暂无描述' : video.mblog.user.description,
                     play_num: result[0].page_info == undefined ? null : result[0].page_info.media_info.online_users_number,
                     comment_num: video.mblog.comments_count,
                     forward_num: video.mblog.reposts_count,
@@ -155,7 +178,8 @@ class dealWith {
     getVideoInfo( id, num, callback ){
         let option = {
             url:'http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=350a1d30&id='+id
-        }
+        },
+        dataTime = ''
         //console.log(option.url+'+++++')
         request.get( logger, option, ( err, result ) => {
             if(err){
@@ -179,27 +203,9 @@ class dealWith {
                 logger.info(result)
                 return
             }
-            //logger.debug(result.created_at)
-            //logger.debug(moment("2010-10-20 4:30","YYYY-MM-DD HH:mm"))
-            //logger.info(result)
-            let arr = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-            let Arr = ['01','02','03','04','05','06','07','08','09','10','11','12']
-            let yue = '',
-                time = ''
-            if(result.created_at == undefined){
-                time = null
-            }else{
-                let long_t = result.created_at.toString().split(' ')
-                for(let i=0;i<arr.length;i++){
-                    if(long_t[1] == arr[i]){
-                        yue = Arr[i]
-                        break
-                    }
-                }
-                time = (long_t[5] + "-" + yue + "-" + long_t[2] + "T" + long_t[3] + ".704Z")
-                time = moment(time).unix()
-            }
-            result.created_at = time
+            dataTime = new Date(result.created_at)
+            dataTime = moment(dataTime).unix()
+            result.created_at = dataTime
             callback(null,result)
         })
     }
