@@ -279,7 +279,7 @@ class dealWith {
                     platform: 2,
                     bid: task.id,
                     aid: id,
-                    title: title.substr(0,100),
+                    title: title ? title.substr(0,100) : 'btwk_caihongip',
                     desc: result[0].desc.substr(0,100),
                     play_num: result[2],
                     support: result[1].data.up,
