@@ -81,10 +81,10 @@ class dealWith {
     }
     getVidList( task, data, total, callback ){
         let num     = 0,
-            pageNum = 0
+            pageNum = 3
         async.whilst(
             () => {
-                return pageNum <= total
+                return task.page < pageNum
             },
             (cb) => {
                 task.page++
@@ -120,17 +120,17 @@ class dealWith {
                         logger.info(result)
                         return
                     }
-                    
-                    pageNum += result.cards.length
+                    //pageNum += result.cards.length
                     //logger.debug('第'+task.page+'页')
-                    this.deal(task,result.cards,data,() => {
-                        cb()
-                    })
-                    
-                    if( pageNum >= total ){
-                        pageNum = total+1
+                    if( result.cards.length <= 0 ){
+                        pageNum = 0
                         return cb()
                     }
+                    this.deal(task,result.cards,data,() => {
+                        task.page++
+                        pageNum++
+                        cb()
+                    })
                 })
             },
             (err,result) => {
@@ -182,7 +182,7 @@ class dealWith {
                     bid: task.id,
                     aid: video.mblog.id,
                     title: video.mblog.text,
-                    desc: video.mblog.user.description == undefined ? '暂无描述' : video.mblog.user.description,
+                    desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description,
                     play_num: result[0].page_info == undefined ? null : result[0].page_info.media_info.online_users_number,
                     comment_num: video.mblog.comments_count,
                     forward_num: video.mblog.reposts_count,
