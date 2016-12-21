@@ -49,7 +49,7 @@ exports.get = ( logger, option , callback ) => {
         if( res.statusCode != 200){
             logger.error(`请求状态有误: ${res.statusCode}`)
             logger.error( `error url: ${option.url}` )
-            return callback(body)
+            return callback({code:res.statusCode,errmsg:body})
         }
         back = {
             statusCode : res.statusCode,

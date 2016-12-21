@@ -67,7 +67,7 @@ class dealWith {
                         logger.info(result)
                         return callback(e)
                     }
-                    if(result.data.friend_data == undefined){
+                    if(!result.data.friend_data){
                         setTimeout(() => {
                             logger.debug('300毫秒之后重新请求一下')
                             return cb()
