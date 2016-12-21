@@ -27,7 +27,8 @@ class dealWith {
     getUserInfo( task, callback ){
         let option = {
             url : this.settings.userInfo+task.id
-        }
+        },
+        num = 0
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug(err)
@@ -40,18 +41,50 @@ class dealWith {
                 logger.info(result)
                 return callback()
             }
-            this.getVidList( task, result, (err,data) => {
+            this.getVidTotal( task, result, num, (err,data) => {
                 callback()
             })
         })
     }
-    
-    getVidList( task, data, callback ){
-        let total = 1000,
-            num   = 0
+    getVidTotal( task, data, num, callback ){
+        let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
+            option = {
+                url: this.settings.videoList + containerid + "&page=0"
+            }
+        request.get( logger, option, ( err, result ) => {
+            if (err) {
+                if( num == 0 ){
+                    logger.debug(err)
+                    setTimeout(() => {
+                        num++
+                        logger.debug('300毫秒之后重新请求一下')
+                        this.getVidTotal( task, data, callback )
+                        return 
+                    },300)
+                }else{
+                    logger.debug(err)
+                    logger.error( '接口请求错误 : ', err )
+                    return callback(err)
+                }
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info(result)
+                return callback(e)
+            }
+            total = result.cardlistInfo.total
+            task.total = total
+            this.getVidList( task, data, total, callback )
+        })
+    }
+    getVidList( task, data, total, callback ){
+        let num     = 0,
+            pageNum = 0
         async.whilst(
             () => {
-                return task.total <= total
+                return pageNum <= total
             },
             (cb) => {
                 task.page++
@@ -87,22 +120,15 @@ class dealWith {
                         logger.info(result)
                         return
                     }
-                    if(result.cardlistInfo.total == undefined){
-                        setTimeout(() => {
-                            task.page--
-                            logger.debug('300毫秒之后重新请求一下')
-                            return cb()
-                        },300)
-                    }
-                    total = result.cardlistInfo.total
-                    task.total += result.cards.length
+                    
+                    pageNum += result.cards.length
                     //logger.debug('第'+task.page+'页')
                     this.deal(task,result.cards,data,() => {
                         cb()
                     })
                     
-                    if( task.total >= total ){
-                        task.total = total+1
+                    if( pageNum >= total ){
+                        pageNum = total+1
                         return cb()
                     }
                 })

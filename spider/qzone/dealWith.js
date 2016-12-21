@@ -38,7 +38,7 @@ class dealWith {
                 let option = {
                         url : this.settings.listVideo+task.id+"&start="+start
                     }
-                logger.debug(option.url)
+                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
@@ -117,10 +117,18 @@ class dealWith {
         async.series([
             (cb) => {
                 this.getVideoInfo(task,video,num,(err,result) => {
-                    cb(null,result)
+                    if(err){
+                        cb(err)
+                    }else{
+                        cb(null,result)
+                    }
                 })
             }
         ],(err,result) => {
+            if(err){
+                logger.debug('当前视频解析不了，直接请求下一个视频')
+                return callback()
+            }
             if(result[0] == '抛掉当前的'){
                 logger.debug('直接请求下一个视频')
                 return callback()
