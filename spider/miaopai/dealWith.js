@@ -125,6 +125,9 @@ class dealWith {
         }
         request.get( option, (err,result) => {
             if(err){
+                if(task.id == 'mEpTsCBR3q2uyDUc'){
+                    return callback()
+                }
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
