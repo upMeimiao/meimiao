@@ -81,10 +81,10 @@ class dealWith {
     }
     getVidList( task, data, total, callback ){
         let num     = 0,
-            pageNum = 0
+            pageNum = 3
         async.whilst(
             () => {
-                return pageNum <= total
+                return task.page < pageNum
             },
             (cb) => {
                 task.page++
@@ -120,17 +120,17 @@ class dealWith {
                         logger.info(result)
                         return
                     }
-                    
-                    pageNum += result.cards.length
+                    //pageNum += result.cards.length
                     //logger.debug('第'+task.page+'页')
-                    this.deal(task,result.cards,data,() => {
-                        cb()
-                    })
-                    
-                    if( pageNum >= total ){
-                        pageNum = total+1
+                    if( result.cards.length <= 0 ){
+                        pageNum = 0
                         return cb()
                     }
+                    this.deal(task,result.cards,data,() => {
+                        task.page++
+                        pageNum++
+                        cb()
+                    })
                 })
             },
             (err,result) => {
