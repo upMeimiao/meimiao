@@ -1,6 +1,9 @@
 /*body {*/
     /*margin: 0;*/
 /*}*/
+.el-select .el-input {
+    width: 100px;
+}
 .el-table .info-row {
     background: #F7BA2A;
 }

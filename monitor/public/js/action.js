@@ -1,33 +1,33 @@
 const platformMap = new Map([
-    [1,'优酷视频'],
+    [1,'优酷'],
     [2,'爱奇艺'],
     [3,'乐视'],
-    [4,'腾讯视频'],
+    [4,'腾讯'],
     [5,'美拍'],
     [6,'头条'],
     [7,'秒拍'],
-    [8,'哔哩哔哩'],
-    [9,'搜狐视频'],
+    [8,'哔哩'],
+    [9,'搜狐'],
     [10,'快报'],
-    [11,'一点资讯'],
+    [11,'一点'],
     [12,'土豆'],
     [13,'爆米花'],
     [14,'酷6'],
-    [15,'北京时间'],
+    [15,'北时'],
     [16,'微视'],
     [17,'小影'],
-    [18,'百思不得姐'],
-    [19,'内涵段子'],
+    [18,'不得姐'],
+    [19,'内涵'],
     [20,'YY'],
-    [21,'56视频'],
+    [21,'56'],
     [22,'AcFun'],
     [23,'微博'],
     [24,'凤凰号'],
     [25,'网易号'],
-    [26,'UC头条'],
-    [27,'芒果TV'],
-    [28,'百家号'],
-    [29,'QQ空间'],
+    [26,'UC'],
+    [27,'芒果'],
+    [28,'百家'],
+    [29,'Qzone'],
 ])
 const platform = [
     {id:1,name:'优酷'},
@@ -66,6 +66,8 @@ const vm = new Vue({
         loading: true,
         platform: platform,
         radio: 1,
+        input: '',
+        select: '',
         arr1: [],
         arr2: [],
         arr3: [],
@@ -95,101 +97,106 @@ const vm = new Vue({
         arr27: [],
         arr28: [],
         arr29: [],
-        items: []
+        items: [],
+        bingo: [],
+        infos: []
     },
     filters: {
     },
     methods: {
         changePlatform: function (lab) {
-           switch (lab){
-               case 1:
-                   this.items = this.arr1
-                   break
-               case 2:
-                   this.items = this.arr2
-                   break
-               case 3:
-                   this.items = this.arr3
-                   break
-               case 4:
-                   this.items = this.arr4
-                   break
-               case 5:
-                   this.items = this.arr5
-                   break
-               case 6:
-                   this.items = this.arr6
-                   break
-               case 7:
-                   this.items = this.arr7
-                   break
-               case 8:
-                   this.items = this.arr8
-                   break
-               case 9:
-                   this.items = this.arr9
-                   break
-               case 10:
-                   this.items = this.arr10
-                   break
-               case 11:
-                   this.items = this.arr11
-                   break
-               case 12:
-                   this.items = this.arr12
-                   break
-               case 13:
-                   this.items = this.arr13
-                   break
-               case 14:
-                   this.items = this.arr14
-                   break
-               case 15:
-                   this.items = this.arr15
-                   break
-               case 16:
-                   this.items = this.arr16
-                   break
-               case 17:
-                   this.items = this.arr17
-                   break
-               case 18:
-                   this.items = this.arr18
-                   break
-               case 19:
-                   this.items = this.arr19
-                   break
-               case 20:
-                   this.items = this.arr20
-                   break
-               case 21:
-                   this.items = this.arr21
-                   break
-               case 22:
-                   this.items = this.arr22
-                   break
-               case 23:
-                   this.items = this.arr23
-                   break
-               case 24:
-                   this.items = this.arr24
-                   break
-               case 25:
-                   this.items = this.arr25
-                   break
-               case 26:
-                   this.items = this.arr26
-                   break
-               case 27:
-                   this.items = this.arr27
-                   break
-               case 28:
-                   this.items = this.arr28
-                   break
-               case 29:
-                   this.items = this.arr29
-                   break
-           }
+            switch (lab){
+                case 1:
+                    this.items = this.bingo = this.arr1
+                    break
+                case 2:
+                    this.items = this.bingo = this.arr2
+                    break
+                case 3:
+                    this.items = this.bingo = this.arr3
+                    break
+                case 4:
+                    this.items = this.bingo = this.arr4
+                    break
+                case 5:
+                    this.items = this.bingo = this.arr5
+                    break
+                case 6:
+                    this.items = this.bingo = this.arr6
+                    break
+                case 7:
+                    this.items = this.bingo = this.arr7
+                    break
+                case 8:
+                    this.items = this.bingo = this.arr8
+                    break
+                case 9:
+                    this.items = this.bingo = this.arr9
+                    break
+                case 10:
+                    this.items = this.bingo = this.arr10
+                    break
+                case 11:
+                    this.items = this.bingo = this.arr11
+                    break
+                case 12:
+                    this.items = this.bingo = this.arr12
+                    break
+                case 13:
+                    this.items = this.bingo = this.arr13
+                    break
+                case 14:
+                    this.items = this.bingo = this.arr14
+                    break
+                case 15:
+                    this.items = this.bingo = this.arr15
+                    break
+                case 16:
+                    this.items = this.bingo = this.arr16
+                    break
+                case 17:
+                    this.items = this.bingo = this.arr17
+                    break
+                case 18:
+                    this.items = this.bingo = this.arr18
+                    break
+                case 19:
+                    this.items = this.bingo = this.arr19
+                    break
+                case 20:
+                    this.items = this.bingo = this.arr20
+                    break
+                case 21:
+                    this.items = this.bingo = this.arr21
+                    break
+                case 22:
+                    this.items = this.bingo = this.arr22
+                    break
+                case 23:
+                    this.items = this.bingo = this.arr23
+                    break
+                case 24:
+                    this.items = this.bingo = this.arr24
+                    break
+                case 25:
+                    this.items = this.bingo = this.arr25
+                    break
+                case 26:
+                    this.items = this.bingo = this.arr26
+                    break
+                case 27:
+                    this.items = this.bingo = this.arr27
+                    break
+                case 28:
+                    this.items = this.bingo = this.arr28
+                    break
+                case 29:
+                    this.items = this.bingo = this.arr29
+                    break
+            }
+        },
+        show_pname: function (row, colomn) {
+            return platformMap.get(Number(row.p))
         },
         show_s_time: function (row, column) {
             if(column.property == 'post_t'){
@@ -241,6 +248,27 @@ const vm = new Vue({
         },
         filterStatus: function (value, row) {
             return Number(row.is_post) === value
+        },
+        search: function () {
+            if(this.input == '' || this.select == ''){
+                return this.items = this.bingo
+            }
+            let list = []
+            if(this.select == 1){
+                this.infos.find((value, index, arr) => {
+                    if(value.bid == this.input){
+                        list.push(value)
+                    }
+                })
+            }
+            if(this.select == 2){
+                this.infos.find((value, index, arr) => {
+                    if(value.bname == this.input){
+                        list.push(value)
+                    }
+                })
+            }
+            this.items = list
         }
     },
     created: function () {
@@ -250,6 +278,7 @@ const vm = new Vue({
             if(infos.length !== result.count){
                 console.log('获取过程有错误')
             }
+            this.infos = infos
             for (let [index, elem] of infos.entries()) {
                 switch (Number(elem.p)){
                     case 1:
@@ -341,7 +370,7 @@ const vm = new Vue({
                         break
                 }
             }
-            this.items = this.arr1
+            this.items = this.bingo = this.arr1
             this.loading = false
         }, (response) => {
             // error callback
