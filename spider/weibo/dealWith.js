@@ -46,9 +46,7 @@ class dealWith {
                     bid: task.id,
                     fans_num: result.followers_count
                 }
-            this.sendUser (user,(err,result)=>{
-                callback()
-            })
+            // this.sendUser (user)
 
             this.sendStagingUser(user)
 
@@ -58,7 +56,7 @@ class dealWith {
 
         })
     }
-    sendUser (user,callback){
+    sendUser (user){
         let option = {
             url: this.settings.sendToServer[0],
             data: user
@@ -67,14 +65,14 @@ class dealWith {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回搜狐视频用户 ${user.bid} 连接服务器失败`)
-                return callback(err)
+                return
             }
             try{
                 back = JSON.parse(back.body)
             }catch (e){
                 logger.error(`搜狐视频用户 ${user.bid} json数据解析失败`)
                 logger.info(back)
-                return callback(e)
+                return
             }
             if(back.errno == 0){
                 logger.debug("搜狐视频用户:",user.bid + ' back_end')
@@ -83,7 +81,6 @@ class dealWith {
                 logger.info(back)
                 logger.info(`user info: `,user)
             }
-            callback()
         })
     }
     sendStagingUser (user){
