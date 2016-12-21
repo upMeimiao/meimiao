@@ -81,14 +81,14 @@ class sendServer {
                 return i < length
             },
             (cb) => {
-                this.send(list[i], 0)
-                i++
-                cb()
-                // setTimeout(() => {
-                //     this.send(list[i], 0)
-                //     i++
-                //     cb()
-                // }, 5)
+                // this.send(list[i], 0)
+                // i++
+                // cb()
+                setTimeout(() => {
+                    this.send(list[i], 0)
+                    i++
+                    cb()
+                }, 5)
             }
         )
     }
@@ -150,8 +150,8 @@ class sendServer {
                 logger.error('staging occur error : ', err)
                 time++
                 if(time > 3){
-                    // list = null
-                    // time = null
+                    list = null
+                    time = null
                 }else{
                     this.emit('send_data_staging', list, time)
                 }
@@ -160,8 +160,8 @@ class sendServer {
             if(res.statusCode != 200){
                 logger.error(`staging errorCode: ${res.statusCode}`)
                 logger.error(result)
-                // list = null
-                // time = null
+                list = null
+                time = null
                 return
             }
             logger.debug(`${list.length}个视频 staging back end`)
