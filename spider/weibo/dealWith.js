@@ -41,9 +41,74 @@ class dealWith {
                 logger.info(result)
                 return callback()
             }
+            let user = {
+                    platform: task.p,
+                    bid: task.id,
+                    fans_num: result.followers_count
+                }
+            this.sendUser (user,(err,result)=>{
+                callback()
+            })
+
+            this.sendStagingUser(user)
+
             this.getVidTotal( task, result, num, (err,data) => {
                 callback()
             })
+
+        })
+    }
+    sendUser (user,callback){
+        let option = {
+            url: this.settings.sendToServer[0],
+            data: user
+        }
+        request.post( logger, option, (err,back) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                logger.info(`返回搜狐视频用户 ${user.bid} 连接服务器失败`)
+                return callback(err)
+            }
+            try{
+                back = JSON.parse(back.body)
+            }catch (e){
+                logger.error(`搜狐视频用户 ${user.bid} json数据解析失败`)
+                logger.info(back)
+                return callback(e)
+            }
+            if(back.errno == 0){
+                logger.debug("搜狐视频用户:",user.bid + ' back_end')
+            }else{
+                logger.error("搜狐视频用户:",user.bid + ' back_error')
+                logger.info(back)
+                logger.info(`user info: `,user)
+            }
+            callback()
+        })
+    }
+    sendStagingUser (user){
+        let option = {
+            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            data: user
+        }
+        request.post( logger, option,(err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info('send error:',result)
+                return
+            }
+            if(result.errno == 0){
+                logger.debug("用户:",user.bid + ' back_end')
+            }else{
+                logger.error("用户:",user.bid + ' back_error')
+                logger.info(result)
+            }
         })
     }
     getVidTotal( task, data, num, callback ){
@@ -190,7 +255,7 @@ class dealWith {
                     long_t: result[0].page_info == undefined ? null : result[0].page_info.media_info.duration,
                     v_img: result[0].page_info == undefined ? null : result[0].page_info.page_pic,
                     a_create_time: result[0].created_at,
-                    follow_num: user.followers_count,
+                    //follow_num: user.followers_count,
                     v_url: result[0].page_info == undefined ? null : result[0].page_info.media_info.mp4_sd_url
                 }
                 //logger.debug(media.a_create_time)

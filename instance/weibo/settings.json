@@ -12,6 +12,7 @@
   "userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=32b86df0&profile_entry_key=1&user_domain=",
   "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=350a1d30&count=24&containerid=",
   "sendToServer": [
+    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
     "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
     "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
   ]
