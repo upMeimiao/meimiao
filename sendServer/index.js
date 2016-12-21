@@ -134,8 +134,8 @@ class sendServer {
                 logger.error('staging occur error : ', err)
                 time++
                 if(time > 3){
-                    list = null
-                    time = null
+                    // list = null
+                    // time = null
                 }else{
                     this.emit('send_data_staging', list, time)
                 }
@@ -143,8 +143,8 @@ class sendServer {
             }
             if(res.statusCode != 200){
                 logger.error(`staging errorCode: ${res.statusCode}`)
-                list = null
-                time = null
+                // list = null
+                // time = null
                 return
             }
             logger.debug(`${list.length}个视频 staging back end`)
@@ -164,8 +164,8 @@ class sendServer {
             //     logger.error(result)
             //     //logger.error('media info: ',list)
             // }
-            list = null
-            time = null
+            // list = null
+            // time = null
         })
     }
 }
