@@ -80,6 +80,7 @@ class web {
                 this.apiHandle(router,req,res)
                 break
             case 'lib':
+            case 'public':
                 this.appHandle(pathname,req,res)
                 break
             default:
