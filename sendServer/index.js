@@ -91,6 +91,10 @@ class sendServer {
     }
     send(media, time){
         //logger.debug(media)
+        if(media.platform > 26 || media.platform == 21 || media.platform == 23){
+            media = null
+            return
+        }
         this.onlineOption.form = media
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
@@ -170,8 +174,8 @@ class sendServer {
             //     logger.error(result)
             //     //logger.error('media info: ',list)
             // }
-            // list = null
-            // time = null
+            list = null
+            time = null
         })
     }
 }
