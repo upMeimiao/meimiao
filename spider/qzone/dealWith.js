@@ -38,7 +38,7 @@ class dealWith {
                 let option = {
                         url : this.settings.listVideo+task.id+"&start="+start
                     }
-                logger.debug(option.url)
+                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
