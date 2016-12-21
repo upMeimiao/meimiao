@@ -123,6 +123,11 @@ class dealWith {
                         cb(null,result)
                     }
                 })
+            },
+            (cb) => {
+                this.getVidCom(task,video.key,(err,data) => {
+                    cb(null,data)
+                })
             }
         ],(err,result) => {
             if(err){
@@ -144,11 +149,14 @@ class dealWith {
                 title: result[0].singlefeed['4'].summary,
                 support: result[0].singlefeed['11'].num,
                 long_t: result[0].singlefeed['7'].videotime/1000,
-                v_img: result[0].singlefeed['7'].coverurl['0'].url,
+                v_img: result[0].v_img,
                 read_num: result[0].singlefeed['20'].view_count,
                 v_url: result[0].singlefeed['7'].videourl,
-                a_create_time: video.abstime
+                a_create_time: video.abstime,
+                comment_num: result[1]
             }
+            //logger.debug(media.v_img)
+            //logger.debug(media.comment_num)
             this.sendCache( media )
             callback()
         })
@@ -157,6 +165,7 @@ class dealWith {
         let option = {
             url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_"
         }
+        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
@@ -176,10 +185,39 @@ class dealWith {
                 logger.info(result)
                 return callback(e)
             }
-            callback(null,result.data.all_videolist_data[0])
+            result = result.data.all_videolist_data[0]
+            if(result.singlefeed['7'].coverurl['0'] == undefined){
+                result.v_img = ''
+                logger.debug('+++')
+            }else if(result.singlefeed['7'].coverurl['0'].url == undefined){
+                result.v_img = ''
+                logger.debug('---')
+            }else{
+                result.v_img = result.singlefeed['7'].coverurl['0'].url
+            }
+            callback(null,result)
         })
     }
-    
+    getVidCom( task, vid, callback ){
+        let option = {
+            url : 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin='+task.id+'&tid='+vid+'&pos=0&num=20'
+        }
+        //logger.debug(option.url)
+        request.get( logger, option, (err,result) => {
+            if(err){
+                logger.debug('评论总量请求失败')
+                callback(null,'')
+            }
+            try{
+                result = eval(result.body)
+            }catch(e){
+                logger.debug('评论量数据解析失败')
+                callback(null,'')
+            }
+
+            callback(null,result.cmtnum)
+        })
+    }
     sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
