@@ -119,7 +119,7 @@ class sendServer {
                 //logger.debug(`平台${media.platform}:`,media.aid + ' back end')
                 //logger.info(result)
             }else{
-                logger.error(`平台${media.platform}:`,media.aid + ' back error')
+                //logger.error(`平台${media.platform}:`,media.aid + ' back error')
                 logger.error(result)
                 logger.error('media info: ',media)
             }
