@@ -203,17 +203,22 @@ class dealWith {
                 timeDom = $('p.p_02 b.b_02'),
                 descDom = $('p.p_03'),
                 timeDom2 = $('#video_time'),
-                descDom2 = $('li.li_04 p')
-            if(timeDom.length === 0 && timeDom2 === 0){
+                descDom2 = $('li.li_04 p'),
+                timeDom3 = $('li.li_04 em'),
+                descDom3 = $('li_08 em p')
+            if(timeDom.length === 0 && timeDom2.length === 0 && timeDom3.length === 0){
                 return callback(true)
             }
             let time,desc
             if(timeDom.length !== 0){
                 time = timeDom.text()
                 desc = descDom.attr('title') || ''
-            }else{
+            }else if(timeDom2.length !== 0){
                 time = timeDom2.text()
                 desc = descDom2.attr('title') || ''
+            }else{
+                time = timeDom3.text()
+                desc = descDom3.attr('title') || ''
             }
             // logger.debug(timeDom.text())
             // logger.debug(descDom.attr('title'))
