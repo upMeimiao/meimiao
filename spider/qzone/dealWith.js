@@ -186,13 +186,14 @@ class dealWith {
                 logger.info(result)
                 return callback(e)
             }
+            if(result.data == undefined){
+                return callback(null,'抛掉当前的')
+            }
             result = result.data.all_videolist_data[0]
             if(result.singlefeed['7'].coverurl['0'] == undefined){
                 result.v_img = ''
-                logger.debug('+++')
             }else if(result.singlefeed['7'].coverurl['0'].url == undefined){
                 result.v_img = ''
-                logger.debug('---')
             }else{
                 result.v_img = result.singlefeed['7'].coverurl['0'].url
             }
