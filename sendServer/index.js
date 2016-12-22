@@ -149,7 +149,6 @@ class sendServer {
             newList.push(list[i])
         }
         this.stagingOption.form = {data: newList}
-        this.stagingOption.form = {data: list}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
                 logger.error('staging occur error : ', err)
@@ -157,6 +156,7 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
+                    newList = null
                 }else{
                     this.emit('send_data_staging', list, time)
                 }
@@ -166,10 +166,11 @@ class sendServer {
                 logger.error(`staging errorCode: ${res.statusCode}`)
                 logger.error(result)
                 list = null
+                newList = null
                 time = null
                 return
             }
-            logger.debug(`${list.length}个视频 staging back end`)
+            logger.debug(`${newList.length}个视频 staging back end`)
             // try{
             //     result = JSON.parse(result)
             // }catch (e){
@@ -187,6 +188,7 @@ class sendServer {
             //     //logger.error('media info: ',list)
             // }
             list = null
+            newList = null
             time = null
         })
     }
