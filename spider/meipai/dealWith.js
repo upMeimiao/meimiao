@@ -239,20 +239,20 @@ class dealWith {
             if(result.lives){
                 return callback()
             }
-            let title,tagStr,_tags = [],tags = '',tagArr
+            let title,_tags = [],__tags = [],tags = '',tagArr
             if(result.caption && result.caption != ''){
                 title = result.caption.substr(0,100)
-                let start = result.caption.indexOf('#') + 1 ,
-                    end = result.caption.lastIndexOf('#')
-                tagStr = result.caption.substring(start,end).replace(/##/g,',')
-                tagArr = tagStr.split(",")
+                tagArr = result.caption.match(/#[^0-9a-zA-Z\x00-\xff]+#/ig)
                 for( let i in tagArr){
-                    if(classification.includes(tagArr[i])){
-                        _tags.push(tagArr[i])
+                    _tags.push(tagArr[i].replace(/#/g,''))
+                }
+                for( let i in _tags){
+                    if(classification.includes(_tags[i])){
+                        __tags.push(_tags[i])
                     }
                 }
-                if(_tags.length != 0){
-                    tags = _tags.join(',')
+                if(__tags.length != 0){
+                    tags = __tags.join(',')
                 }
             }else{
                 title = 'btwk_caihongip'
@@ -271,7 +271,7 @@ class dealWith {
                 a_create_time: result.created_at,
                 long_t:result.time,
                 v_img:result.cover_pic,
-                tag: tagStr,
+                tag: _tags.join(','),
                 class: tags
             }
             //logger.debug(media)
