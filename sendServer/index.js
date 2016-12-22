@@ -35,7 +35,7 @@ class sendServer {
         this.emit('get_lists')
         setInterval(() => {
             this.emit('get_lists')
-        }, 80)
+        }, 1000)
     }
     start () {
         logger.trace('启动函数')
@@ -56,7 +56,7 @@ class sendServer {
     }
     getData() {
         const key = [],list = []
-        for( let i = 0; i < 10; i++){
+        for( let i = 0; i < 150; i++){
             key[i] = ['lpop', 'cache']
         }
         this.redis.pipeline(
@@ -144,6 +144,11 @@ class sendServer {
         if(list.length ==0){
             return
         }
+        let newList = [],length = Math.min(list.length,15)
+        for(let i = 0; i < length; i++){
+            newList.push(list[i])
+        }
+        this.stagingOption.form = {data: newList}
         this.stagingOption.form = {data: list}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
