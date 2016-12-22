@@ -67,7 +67,7 @@ const vm = new Vue({
         platform: platform,
         radio: 1,
         input: '',
-        select: '',
+        select: '1',
         arr1: [],
         arr2: [],
         arr3: [],
@@ -263,7 +263,7 @@ const vm = new Vue({
             }
             if(this.select == 2){
                 this.infos.find((value, index, arr) => {
-                    if(value.bname == this.input){
+                    if(value.bname.includes(this.input)){
                         list.push(value)
                     }
                 })

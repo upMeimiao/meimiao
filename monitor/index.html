@@ -9,38 +9,44 @@
 <body>
 <div id="app">
     <template>
-        <el-radio-group style="width: 1260px;margin: 20px auto;" v-model="radio" @change="changePlatform">
-            <el-radio-button v-for="(item, index) in platform" :label="item.id" :disabled="item.id == 21 || item.id ==28">{{item.name}}</el-radio-button>
-        </el-radio-group>
-        <el-input placeholder="请输入内容" v-model="input" style="width: 300px;">
-            <el-select v-model="select" slot="prepend" placeholder="请选择">
-                <el-option label="ID" value="1"></el-option>
-                <el-option label="用户名" value="2"></el-option>
-            </el-select>
-            <el-button slot="append" icon="search" @click="search"></el-button>
-        </el-input>
-        <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="max-width: 1260px;margin: 20px auto;"  :row-class-name="tableRowClassName" max-height="700">
-            <el-table-column align="center" prop="p"  :formatter="show_pname" label="平台">
-            </el-table-column>
-            <el-table-column align="center" prop="bid" width="280"  label="ID">
-            </el-table-column>
-            <el-table-column align="center" prop="bname" width="140"  label="用户名">
-            </el-table-column>
-            <el-table-column align="center" prop="videoNumber" label="视频总数">
-            </el-table-column>
-            <el-table-column align="center" prop="post_t" width="110" :formatter="show_s_time" label="服务器发送任务时间">
-            </el-table-column>
-            <el-table-column align="center" prop="update_t" width="110" :formatter="show_s_time" label="服务器任务更新时间">
-            </el-table-column>
-            <el-table-column align="center" prop="init" width="110" :formatter="show_time" label="爬虫初始化时间">
-            </el-table-column>
-            <el-table-column align="center" prop="create" width="110" :formatter="show_time" label="爬虫任务创建时间">
-            </el-table-column>
-            <el-table-column align="center" prop="update" width="110" :formatter="show_time" label="爬虫任务更新时间">
-            </el-table-column>
-            <el-table-column align="center" prop="is_post" :formatter="show_status" label="状态" :filters="[{ text: '是', value: 0 }, { text: '否', value: 1 }]" :filter-method="filterStatus">
-            </el-table-column>
-        </el-table>
+        <el-row style="width: 1260px;margin: 20px auto;">
+            <el-radio-group v-model="radio" @change="changePlatform">
+                <el-radio-button v-for="(item, index) in platform" :label="item.id" :disabled="item.id == 21 || item.id ==28">{{item.name}}</el-radio-button>
+            </el-radio-group>
+        </el-row>
+        <el-row style="width: 1260px;margin: 20px auto;">
+            <el-input placeholder="请输入内容" v-model="input" style="width: 300px;">
+                <el-select v-model="select" slot="prepend" placeholder="请选择">
+                    <el-option label="ID" value="1"></el-option>
+                    <el-option label="用户名" value="2"></el-option>
+                </el-select>
+                <el-button slot="append" icon="search" @click="search"></el-button>
+            </el-input>
+        </el-row>
+        <el-row style="width: 1260px;margin: 0 auto;">
+            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="width: 100%;"  :row-class-name="tableRowClassName" max-height="750">
+                <el-table-column align="center" prop="p"  :formatter="show_pname" label="平台">
+                </el-table-column>
+                <el-table-column align="center" prop="bid" width="280"  label="ID">
+                </el-table-column>
+                <el-table-column align="center" prop="bname" width="140"  label="用户名">
+                </el-table-column>
+                <el-table-column align="center" prop="videoNumber" label="视频总数">
+                </el-table-column>
+                <el-table-column align="center" prop="post_t" width="110" :formatter="show_s_time" label="服务器发送任务时间">
+                </el-table-column>
+                <el-table-column align="center" prop="update_t" width="110" :formatter="show_s_time" label="服务器任务更新时间">
+                </el-table-column>
+                <el-table-column align="center" prop="init" width="110" :formatter="show_time" label="爬虫初始化时间">
+                </el-table-column>
+                <el-table-column align="center" prop="create" width="110" :formatter="show_time" label="爬虫任务创建时间">
+                </el-table-column>
+                <el-table-column align="center" prop="update" width="110" :formatter="show_time" label="爬虫任务更新时间">
+                </el-table-column>
+                <el-table-column align="center" prop="is_post" :formatter="show_status" label="状态" :filters="[{ text: '是', value: 0 }, { text: '否', value: 1 }]" :filter-method="filterStatus">
+                </el-table-column>
+            </el-table>
+        </el-row>
     </template>
 </div>
 <script src="/public/js/lib/vue.min.js"></script>
