@@ -35,7 +35,7 @@ class sendServer {
         this.emit('get_lists')
         setInterval(() => {
             this.emit('get_lists')
-        }, 1000)
+        }, 80)
     }
     start () {
         logger.trace('启动函数')
@@ -56,7 +56,7 @@ class sendServer {
     }
     getData() {
         const key = [],list = []
-        for( let i = 0; i < 150; i++){
+        for( let i = 0; i < 10; i++){
             key[i] = ['lpop', 'cache']
         }
         this.redis.pipeline(
