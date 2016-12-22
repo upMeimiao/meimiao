@@ -4,6 +4,9 @@
 const moment = require('moment')
 const async = require( 'async' )
 const fetchUrl = require("fetch").fetchUrl
+const jsonp7 = function(data){
+    return data
+}
 
 let logger
 let request
@@ -58,7 +61,7 @@ class dealWith {
                 logger.error(result)
                 return callback(e)
             }
-            logger.debug(result)
+            //logger.debug(result)
             let userInfo = result.data,user
             if(userInfo.length === 0){
                 logger.error('异常')
@@ -69,10 +72,12 @@ class dealWith {
                 bid: task.id,
                 fans_num: userInfo[0].fansCount
             }
-            this.sendUser ( user,(err,result) => {
-                callback()
-            })
+            /*this.sendUser ( user,(err,result) => {
+             callback()
+             })*/
+
             this.sendStagingUser(user)
+            callback()
         })
     }
     sendUser ( user,callback ){
@@ -83,6 +88,7 @@ class dealWith {
         //logger.debug(option)
         request.post( logger, option,(err,result) => {
             if(err){
+                logger.debug('发送失败')
                 return callback(err)
             }
             try{
@@ -127,31 +133,33 @@ class dealWith {
         })
     }
     getTotal ( task, callback ) {
-        let page,
+        let page = 1,
             option = {
-                url: this.settings.list + `${task.id}&pg=1&_=${new Date().getTime()}`,
+                url: this.settings.list + `${task.id}&_=${new Date().getTime()}`+'&page='+page,
                 ua: 1
             }
+        //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if(err){
                 return callback(err)
             }
             try {
-                result = JSON.parse(result.body)
+                result = eval(result.body)
             } catch (e) {
                 logger.error('json数据解析失败')
                 logger.info('total error:',result)
                 return callback(e)
             }
-            logger.debug(result)
+            //logger.debug(result)
             let data = result.data,
-                total = data.count
+                total = data.totalCount
             task.total = total
-            if(total % 40 != 0){
-                page = Math.ceil(total / 40)
+            if(total % 20 != 0){
+                page = Math.ceil(total / 20)
             }else{
-                page = total / 40
+                page = total / 20
             }
+            //logger.debug(page)
             this.getVideos(task,page, () => {
                 callback()
             })
@@ -165,20 +173,21 @@ class dealWith {
                 return sign <= page
             },
             (cb) => {
-                option.url = this.settings.list + `${task.id}&pg=${sign}&_=${new Date().getTime()}`,
+                option.url = this.settings.list + `${task.id}&page=${sign}&_=${new Date().getTime()}`
+                    //logger.debug(option.url)
                 request.get( logger, option, (err, result) => {
                     if(err){
                         return callback(err)
                     }
                     try {
-                        result = JSON.parse(result.body)
+                        result = eval(result.body)
                     } catch (e) {
                         logger.error('json数据解析失败')
                         logger.info('list error:',result)
                         return callback(e)
                     }
                     let data = result.data,
-                        videos = data.list
+                        videos = data.videos
                     if(!videos){
                         return cb()
                     }
@@ -224,7 +233,7 @@ class dealWith {
                     })
                 },
                 ( callback ) => {
-                    this.getComment( video.vid56Encode, ( err, num ) => {
+                    this.getComment( video.id, ( err, num ) => {
                         if(err){
                             return callback(err)
                         }
@@ -243,9 +252,15 @@ class dealWith {
                     title: video.title.substr(0,100),
                     desc: result[0].video_desc.substr(0,100),
                     play_num: result[0].play_count,
+                    long_t:video.videoLength,
+                    v_url: video.url,
+                    v_img: video.cover640,
+                    class: result[0].first_cate_name,
+                    tag:result[0].keyword,
                     comment_num: result[1],
-                    a_create_time: Math.round(result[0].create_time / 1000)
+                    a_create_time: video.uploadTime.toString().substr(0,10)
                 }
+                //logger.debug(media.comment_num)
                 this.sendCache(media)
                 callback()
             }
@@ -280,7 +295,6 @@ class dealWith {
     getComment ( id, callback ){
         let option = {
             url: this.settings.comment + `${id}&_=${new Date().getTime()}`,
-            ua: 1
         }
         request.get( logger, option, (err, result) => {
             if(err){
@@ -293,7 +307,7 @@ class dealWith {
                 logger.info('comment error:',result)
                 return callback(e)
             }
-            callback(null,result.ctTotal)
+            callback(null,result.cmt_sum)
         })
     }
     sendCache ( media ){

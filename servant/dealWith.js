@@ -1027,7 +1027,7 @@ class DealWith {
                     ignoreWhitespace:true
                 }),
                 scriptData = $('script')[1].children[0].data,
-                reg_id = new RegExp("sohu_vid:'[0-9]+'"),
+                reg_id = new RegExp("sohu_user_id:'[0-9]+'"),
                 _id_info = scriptData.match(reg_id),id_info,
                 reg_name = new RegExp("user_name:'[A-Za-z0-9_\u4e00-\u9fa5]+'"),
                 _name_info = scriptData.match(reg_name),name_info
