@@ -45,6 +45,7 @@ class dealWith {
                         if(num == 0){
                             setTimeout(() => {
                                 num++
+                                num=0
                                 logger.debug('300毫秒之后重新请求一下当前列表')
                                 return cb()
                             },300)
@@ -169,7 +170,7 @@ class dealWith {
         logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.debug('单个视频请求失败 ' + err)
+                logger.debug('单个视频请求失败 ' , err)
                 if(num == 0){
                     setTimeout(() => {                    
                         this.getVideoInfo( task, video, num++, callback )
