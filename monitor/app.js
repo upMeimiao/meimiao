@@ -33,9 +33,10 @@ app.use('/api', api)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  const err = new Error('Not Found')
-  err.status = 404
-  next(err)
+    const err = new Error('Not Found')
+    err.status = 404
+    res.render('error', {error:err, message: '哦哦，页面飞了'})
+    //next(err)
 })
 
 // error handler
