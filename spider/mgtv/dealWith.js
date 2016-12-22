@@ -47,6 +47,7 @@ class dealWith {
                         return
                     }
                     let length = result.data.list.length
+                    task.total += length
                     if( sign >= result.data.tab_m.length ){
                         logger.debug('已经没有数据')
                         page = 0

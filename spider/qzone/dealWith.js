@@ -161,11 +161,12 @@ class dealWith {
             callback()
         })
     }
+    
     getVideoInfo( task, video, num, callback ){
         let option = {
             url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_"
         }
-        //logger.debug(option.url)
+        logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
@@ -195,6 +196,7 @@ class dealWith {
             }else{
                 result.v_img = result.singlefeed['7'].coverurl['0'].url
             }
+            //logger.debug(result)
             callback(null,result)
         })
     }
@@ -206,13 +208,13 @@ class dealWith {
         request.get( logger, option, (err,result) => {
             if(err){
                 logger.debug('评论总量请求失败')
-                callback(null,'')
+                return callback(null,'')
             }
             try{
                 result = eval(result.body)
             }catch(e){
                 logger.debug('评论量数据解析失败')
-                callback(null,'')
+                return callback(null,'')
             }
 
             callback(null,result.cmtnum)

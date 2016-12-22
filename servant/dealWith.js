@@ -1349,15 +1349,15 @@ class DealWith {
     }
     mgtv(remote, callback) {
         let host = URL.parse(remote,true).hostname,
-            vid = '',
+            bid = '',
             index = 0,
             option = {}
         if(host == 'www.mgtv.com'){
-            vid = remote.match(/\/\d*\.html/).toString().replace(/[\/\.html]/g,'')
+            bid = remote.match(/b\/\d*/).toString().replace(/b\//,'')
         }else{
-            vid = remote.match(/\/\d*\?/).toString().replace(/[\/\?]/g,'')
+            bid = remote.match(/b\/\d*/).toString().replace(/b\//,'')
         }
-        option.url = api.mgtv.url+vid
+        option.url = 'http://pcweb.api.mgtv.com/variety/showlist?collection_id='+bid
         //logger.debug(option.url)
         request.get( option, (err,result) => {
             if(err){
@@ -1375,13 +1375,13 @@ class DealWith {
                 logger.debug('芒果TV数据解析失败')
                 return callback(e,{code:102,p:27})
             }
-            index = result.data.info.collection_name.indexOf(' ')
+            index = result.data.info.title.indexOf(' ')
+            index = index == -1 ? result.data.info.title.length : index
             let res = {
-                name: result.data.info.collection_name.substring(0,index),
-                id: result.data.info.collection_id,
+                name: result.data.info.title.substring(0,index),
+                id: result.data.tab_y[0].id,
                 p: 27
             }
-            //logger.debug(result.code+"++++")
             callback(null,res)
         })
     }
