@@ -115,7 +115,7 @@ class dealWith {
     }
     getAllInfo( task, video, callback ){
         let num = 0
-        async.series([
+        async.parallel([
             (cb) => {
                 this.getVideoInfo(task,video,num,(err,result) => {
                     if(err){
