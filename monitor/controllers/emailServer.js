@@ -10,20 +10,20 @@ const transporter= nodemailer.createTransport({
         pass: 'Verona:2319446'
     }
 })
-exports.sendEmail = ( subject, content ) => {
+exports.sendEmail = (req, res) => {
     const mailOptions = {
         from: '"常君豪" <changjunhao@meimiao.net>', // sender address
         to: 'changjunhao@meimiao.net', // list of receivers
-        subject: subject, // Subject line
-        text: content, // plaintext body
-        html: `<b>${content}</b>` // html body
+        subject: '报警', // Subject line
+        text: '测试', // plaintext body
+        html: `<b>测试</b>` // html body
     }
 
 // send mail with defined transport object
-    transporter.sendMail(mailOptions, function(error, info){
+    transporter.sendMail(mailOptions, (error, info) => {
         if(error){
-            return console.log(error);
+            return res.status(500).json({error: error})
         }
-        console.log('Message sent: ' + info.response);
+        res.json({message: info.response})
     })
 }
