@@ -65,7 +65,8 @@ const vm = new Vue({
     data: {
         loading: true,
         platform: platform,
-        radio: 1,
+        p: '',
+        radio: '',
         input: '',
         select: '1',
         arr1: [],
@@ -279,7 +280,14 @@ const vm = new Vue({
             })
         },
         refresh: function () {
-            this.items = this.bingo = []
+            this.items = this.bingo = this.arr1 = this.arr2 =
+                this.arr3 = this.arr4 = this.arr5 = this.arr6 =
+                    this.arr7 = this.arr8 = this.arr9 = this.arr10 =
+                        this.arr11 = this.arr12 = this.arr13 = this.arr14 =
+                            this.arr15 = this.arr16 = this.arr17 = this.arr18 =
+                                this.arr19 = this.arr20 = this.arr21 = this.arr22 =
+                                    this.arr23 = this.arr24 =this.arr25 = this.arr26
+                                        =this.arr17 = this.arr18 = this.arr29 = []
             this.loading = true
             this.$http.get('http://monitor.iapi.site/api/statusMonitor').then((response) => {
                 const result = response.body,
@@ -379,7 +387,12 @@ const vm = new Vue({
                             break
                     }
                 }
-                this.items = this.bingo = this.arr1
+                if(this.p != ''){
+                    this.radio = this.p
+                }else{
+                    this.radio = 1
+                }
+                //this.items = this.bingo = this.arr1
                 this.loading = false
                 this.$message({
                     message: `全平台共获取${this.infos.length}个IP，当前平台${this.items.length}个IP`,
