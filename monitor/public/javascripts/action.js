@@ -194,6 +194,10 @@ const vm = new Vue({
                     this.items = this.bingo = this.arr29
                     break
             }
+            this.$message({
+                message: `获取${platformMap.get(lab)}${this.items.length}个IP`,
+                type: 'success'
+            })
         },
         show_pname: function (row, colomn) {
             return platformMap.get(Number(row.p))
@@ -269,112 +273,128 @@ const vm = new Vue({
                 })
             }
             this.items = list
+            this.$message({
+                message: `搜索到符合条件的IP${this.items.length}个`,
+                type: 'success'
+            })
+        },
+        refresh: function () {
+            if(this.items.length > 0){
+                this.items = []
+            }
+            this.loading = true
+            this.$http.get('http://monitor.iapi.site/api/statusMonitor').then((response) => {
+                const result = response.body,
+                    infos = result.infos
+                if(infos.length !== result.count){
+                    console.log('获取过程有错误')
+                }
+                this.infos = infos
+                for (let [index, elem] of infos.entries()) {
+                    switch (Number(elem.p)){
+                        case 1:
+                            this.arr1.push(elem)
+                            break
+                        case 2:
+                            this.arr2.push(elem)
+                            break
+                        case 3:
+                            this.arr3.push(elem)
+                            break
+                        case 4:
+                            this.arr4.push(elem)
+                            break
+                        case 5:
+                            this.arr5.push(elem)
+                            break
+                        case 6:
+                            this.arr6.push(elem)
+                            break
+                        case 7:
+                            this.arr7.push(elem)
+                            break
+                        case 8:
+                            this.arr8.push(elem)
+                            break
+                        case 9:
+                            this.arr9.push(elem)
+                            break
+                        case 10:
+                            this.arr10.push(elem)
+                            break
+                        case 11:
+                            this.arr11.push(elem)
+                            break
+                        case 12:
+                            this.arr12.push(elem)
+                            break
+                        case 13:
+                            this.arr13.push(elem)
+                            break
+                        case 14:
+                            this.arr14.push(elem)
+                            break
+                        case 15:
+                            this.arr15.push(elem)
+                            break
+                        case 16:
+                            this.arr16.push(elem)
+                            break
+                        case 17:
+                            this.arr17.push(elem)
+                            break
+                        case 18:
+                            this.arr18.push(elem)
+                            break
+                        case 19:
+                            this.arr19.push(elem)
+                            break
+                        case 20:
+                            this.arr20.push(elem)
+                            break
+                        case 21:
+                            this.arr21.push(elem)
+                            break
+                        case 22:
+                            this.arr22.push(elem)
+                            break
+                        case 23:
+                            this.arr23.push(elem)
+                            break
+                        case 24:
+                            this.arr24.push(elem)
+                            break
+                        case 25:
+                            this.arr25.push(elem)
+                            break
+                        case 26:
+                            this.arr26.push(elem)
+                            break
+                        case 27:
+                            this.arr27.push(elem)
+                            break
+                        case 28:
+                            this.arr28.push(elem)
+                            break
+                        case 29:
+                            this.arr29.push(elem)
+                            break
+                    }
+                }
+                this.items = this.bingo = this.arr1
+                this.loading = false
+                this.$message({
+                    message: `全平台共获取${this.infos.length}个IP，当前平台${this.items.length}个IP`,
+                    type: 'success',
+                    duration: 5000
+                })
+            }, (response) => {
+                // error callback
+            })
         }
     },
     created: function () {
-        this.$http.get('http://monitor.iapi.site/api/statusMonitor').then((response) => {
-            const result = response.body,
-                infos = result.infos
-            if(infos.length !== result.count){
-                console.log('获取过程有错误')
-            }
-            this.infos = infos
-            for (let [index, elem] of infos.entries()) {
-                switch (Number(elem.p)){
-                    case 1:
-                        this.arr1.push(elem)
-                        break
-                    case 2:
-                        this.arr2.push(elem)
-                        break
-                    case 3:
-                        this.arr3.push(elem)
-                        break
-                    case 4:
-                        this.arr4.push(elem)
-                        break
-                    case 5:
-                        this.arr5.push(elem)
-                        break
-                    case 6:
-                        this.arr6.push(elem)
-                        break
-                    case 7:
-                        this.arr7.push(elem)
-                        break
-                    case 8:
-                        this.arr8.push(elem)
-                        break
-                    case 9:
-                        this.arr9.push(elem)
-                        break
-                    case 10:
-                        this.arr10.push(elem)
-                        break
-                    case 11:
-                        this.arr11.push(elem)
-                        break
-                    case 12:
-                        this.arr12.push(elem)
-                        break
-                    case 13:
-                        this.arr13.push(elem)
-                        break
-                    case 14:
-                        this.arr14.push(elem)
-                        break
-                    case 15:
-                        this.arr15.push(elem)
-                        break
-                    case 16:
-                        this.arr16.push(elem)
-                        break
-                    case 17:
-                        this.arr17.push(elem)
-                        break
-                    case 18:
-                        this.arr18.push(elem)
-                        break
-                    case 19:
-                        this.arr19.push(elem)
-                        break
-                    case 20:
-                        this.arr20.push(elem)
-                        break
-                    case 21:
-                        this.arr21.push(elem)
-                        break
-                    case 22:
-                        this.arr22.push(elem)
-                        break
-                    case 23:
-                        this.arr23.push(elem)
-                        break
-                    case 24:
-                        this.arr24.push(elem)
-                        break
-                    case 25:
-                        this.arr25.push(elem)
-                        break
-                    case 26:
-                        this.arr26.push(elem)
-                        break
-                    case 27:
-                        this.arr27.push(elem)
-                        break
-                    case 28:
-                        this.arr28.push(elem)
-                        break
-                    case 29:
-                        this.arr29.push(elem)
-                        break
-                }
-            }
-            this.items = this.bingo = this.arr1
-            this.loading = false
-        }, (response) => {
-            // error callback
-        })
+        this.refresh()
     },
     mounted: function () {
 
