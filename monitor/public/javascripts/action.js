@@ -436,6 +436,13 @@ const vm = new Vue({
     },
     created: function () {
         this.refresh()
+        const socket = io.connect('http://monitor.iapi.site')
+        socket.on('cache', (data) => {
+            this.$notify.info({
+                title: '暂存队列消息',
+                message: `目前缓存队列中有${data.num}条数据`
+            })
+        })
     },
     mounted: function () {
 
