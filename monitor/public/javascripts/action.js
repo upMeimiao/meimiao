@@ -219,8 +219,8 @@ const vm = new Vue({
             this.arr24 = []
             this.arr25 = []
             this.arr26 = []
-            this.arr17 = []
-            this.arr18 = []
+            this.arr27 = []
+            this.arr28 = []
             this.arr29 = []
         },
         dispath: function (p) {
