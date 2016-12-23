@@ -65,8 +65,7 @@ const vm = new Vue({
     data: {
         loading: true,
         platform: platform,
-        p: '',
-        radio: '',
+        radio: 1,
         input: '',
         select: '1',
         arr1: [],
@@ -106,7 +105,126 @@ const vm = new Vue({
     },
     methods: {
         changePlatform: function (lab) {
-            switch (lab){
+            this.dispath(lab)
+            this.$message({
+                message: `获取 ${platformMap.get(lab)} ${this.items.length} 个IP`,
+                type: 'success'
+            })
+        },
+        show_pname: function (row, colomn) {
+            return platformMap.get(Number(row.p))
+        },
+        show_s_time: function (row, column) {
+            if(column.property == 'post_t'){
+                if(!row.post_t){
+                    return '-'
+                }
+                return moment(moment.unix(row.post_t)).format('YYYY-MM-D H:mm:ss')
+            }
+            if(column.property == 'update_t'){
+                if(!row.update_t){
+                    return '-'
+                }
+                return moment(moment.unix(row.update_t)).format('YYYY-MM-D H:mm:ss')
+            }
+        },
+        show_time: function (row, column) {
+            if(column.property == 'init'){
+                if(!row.update){
+                    return '-'
+                }
+                return moment(moment.unix(row.init/1000)).format('YYYY-MM-D H:mm:ss')
+            }
+            if(column.property == 'create'){
+                if(!row.update){
+                    return '-'
+                }
+                return moment(moment.unix(row.create/1000)).format('YYYY-MM-D H:mm:ss')
+            }
+            if(column.property == 'update'){
+                if(!row.update){
+                    return '-'
+                }
+                return moment(moment.unix(row.update/1000)).format('YYYY-MM-D H:mm:ss')
+            }
+        },
+        show_status: function (row, column) {
+            if(row.is_post == 0){
+                return '是'
+            }
+            if(row.is_post == 1){
+                return '否'
+            }
+        },
+        tableRowClassName: function(row, index) {
+            if (row.is_post == 1) {
+                return 'info-row'
+            }
+            return ''
+        },
+        filterStatus: function (value, row) {
+            return Number(row.is_post) === value
+        },
+        search: function () {
+            if(this.input == '' || this.select == ''){
+                return this.items = this.bingo
+            }
+            let list = []
+            if(this.select == 1){
+                this.infos.find((value, index, arr) => {
+                    if(value.bid == this.input){
+                        list.push(value)
+                    }
+                })
+            }
+            if(this.select == 2){
+                this.infos.find((value, index, arr) => {
+                    if(value.bname.includes(this.input)){
+                        list.push(value)
+                    }
+                })
+            }
+            this.items = list
+            this.$message({
+                message: `搜索到符合条件的IP${this.items.length}个`,
+                type: 'success'
+            })
+        },
+        init: function () {
+            this.items = []
+            this.bingo = []
+            this.arr1 = []
+            this.arr2 = []
+            this.arr3 = []
+            this.arr4 = []
+            this.arr5 = []
+            this.arr6 = []
+            this.arr7 = []
+            this.arr8 = []
+            this.arr9 = []
+            this.arr10 = []
+            this.arr11 = []
+            this.arr12 = []
+            this.arr13 = []
+            this.arr14 = []
+            this.arr15 = []
+            this.arr16 = []
+            this.arr17 = []
+            this.arr18 = []
+            this.arr19 = []
+            this.arr20 = []
+            this.arr21 = []
+            this.arr22 = []
+            this.arr23 = []
+            this.arr24 = []
+            this.arr25 = []
+            this.arr26 = []
+            this.arr17 = []
+            this.arr18 = []
+            this.arr29 = []
+        },
+        dispath: function (p) {
+            switch (p){
                 case 1:
                     this.items = this.bingo = this.arr1
                     break
@@ -195,99 +313,9 @@ const vm = new Vue({
                     this.items = this.bingo = this.arr29
                     break
             }
-            this.$message({
-                message: `获取 ${platformMap.get(lab)} ${this.items.length} 个IP`,
-                type: 'success'
-            })
-        },
-        show_pname: function (row, colomn) {
-            return platformMap.get(Number(row.p))
-        },
-        show_s_time: function (row, column) {
-            if(column.property == 'post_t'){
-                if(!row.post_t){
-                    return '-'
-                }
-                return moment(moment.unix(row.post_t)).format('YYYY-MM-D H:mm:ss')
-            }
-            if(column.property == 'update_t'){
-                if(!row.update_t){
-                    return '-'
-                }
-                return moment(moment.unix(row.update_t)).format('YYYY-MM-D H:mm:ss')
-            }
-        },
-        show_time: function (row, column) {
-            if(column.property == 'init'){
-                if(!row.update){
-                    return '-'
-                }
-                return moment(moment.unix(row.init/1000)).format('YYYY-MM-D H:mm:ss')
-            }
-            if(column.property == 'create'){
-                if(!row.update){
-                    return '-'
-                }
-                return moment(moment.unix(row.create/1000)).format('YYYY-MM-D H:mm:ss')
-            }
-            if(column.property == 'update'){
-                if(!row.update){
-                    return '-'
-                }
-                return moment(moment.unix(row.update/1000)).format('YYYY-MM-D H:mm:ss')
-            }
-        },
-        show_status: function (row, column) {
-            if(row.is_post == 0){
-                return '是'
-            }
-            if(row.is_post == 1){
-                return '否'
-            }
-        },
-        tableRowClassName: function(row, index) {
-            if (row.is_post == 1) {
-                return 'info-row'
-            }
-            return ''
-        },
-        filterStatus: function (value, row) {
-            return Number(row.is_post) === value
-        },
-        search: function () {
-            if(this.input == '' || this.select == ''){
-                return this.items = this.bingo
-            }
-            let list = []
-            if(this.select == 1){
-                this.infos.find((value, index, arr) => {
-                    if(value.bid == this.input){
-                        list.push(value)
-                    }
-                })
-            }
-            if(this.select == 2){
-                this.infos.find((value, index, arr) => {
-                    if(value.bname.includes(this.input)){
-                        list.push(value)
-                    }
-                })
-            }
-            this.items = list
-            this.$message({
-                message: `搜索到符合条件的IP${this.items.length}个`,
-                type: 'success'
-            })
         },
         refresh: function () {
-            this.items = this.bingo = this.arr1 = this.arr2 =
-                this.arr3 = this.arr4 = this.arr5 = this.arr6 =
-                    this.arr7 = this.arr8 = this.arr9 = this.arr10 =
-                        this.arr11 = this.arr12 = this.arr13 = this.arr14 =
-                            this.arr15 = this.arr16 = this.arr17 = this.arr18 =
-                                this.arr19 = this.arr20 = this.arr21 = this.arr22 =
-                                    this.arr23 = this.arr24 =this.arr25 = this.arr26
-                                        =this.arr17 = this.arr18 = this.arr29 = []
+            this.init()
             this.loading = true
             this.$http.get('http://monitor.iapi.site/api/statusMonitor').then((response) => {
                 const result = response.body,
@@ -387,12 +415,7 @@ const vm = new Vue({
                             break
                     }
                 }
-                if(this.p != ''){
-                    this.radio = this.p
-                }else{
-                    this.radio = 1
-                }
-                //this.items = this.bingo = this.arr1
+                this.dispath(this.radio)
                 this.loading = false
                 this.$message({
                     message: `全平台共获取${this.infos.length}个IP，当前平台${this.items.length}个IP`,
@@ -404,7 +427,8 @@ const vm = new Vue({
                 this.items = this.bingo = []
                 this.$message({
                     message: '获取数据出错',
-                    type: 'error'
+                    type: 'error',
+                    duration: 10000
                 })
                 // error callback
             })
