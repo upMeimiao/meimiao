@@ -279,9 +279,7 @@ const vm = new Vue({
             })
         },
         refresh: function () {
-            if(this.items.length > 0){
-                this.items = []
-            }
+            this.items = this.bingo = []
             this.loading = true
             this.$http.get('http://monitor.iapi.site/api/statusMonitor').then((response) => {
                 const result = response.body,
@@ -389,6 +387,12 @@ const vm = new Vue({
                     duration: 5000
                 })
             }, (response) => {
+                this.loading = false
+                this.items = this.bingo = []
+                this.$message({
+                    message: '获取数据出错',
+                    type: 'error'
+                })
                 // error callback
             })
         }
