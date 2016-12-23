@@ -15,6 +15,5 @@ exports.do = (io, socket) => {
             }
             socket.emit('cache', {num: number})
         })
-    }, 3000)
-    //}, 300000)
+    }, 300000)
 }
