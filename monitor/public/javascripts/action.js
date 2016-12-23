@@ -195,7 +195,7 @@ const vm = new Vue({
                     break
             }
             this.$message({
-                message: `获取${platformMap.get(lab)}${this.items.length}个IP`,
+                message: `获取 ${platformMap.get(lab)} ${this.items.length} 个IP`,
                 type: 'success'
             })
         },
