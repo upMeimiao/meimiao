@@ -1037,7 +1037,7 @@ class DealWith {
             }else{
                 return callback(true,{code:102,p:21})
             }
-            id = id_info.substring(10,id_info.lastIndexOf("'"))
+            id = id_info.substring(14,id_info.lastIndexOf("'"))
             name = name_info.substring(11,name_info.lastIndexOf("'"))
             res = {
                 id: id,
