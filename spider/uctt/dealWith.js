@@ -120,7 +120,7 @@ class dealWith {
                 }
                 let media = {
                     bid: task.id,
-                    author: result.descData.author,
+                    author: task.name,
                     platform: task.p,
                     aid: result.id,
                     title: data.title,
@@ -199,8 +199,7 @@ class dealWith {
             this.getDesc(_id,(err,result) => {
                 let res = {
                     comment_num: num,
-                    author: result.data.other_info == undefined ? task.name : result.data.other_info.video_filename,
-                    desc: result.data.sub_title
+                    desc: result.data != undefined ? '' : result.data.sub_title != undefined ? result.data.sub_title : ''
                 }
                 callback(null,res)
             })

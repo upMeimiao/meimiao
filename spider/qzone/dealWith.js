@@ -29,7 +29,8 @@ class dealWith {
         let sign   = 0,
             start  = 0,
             page   = 1,
-            num    = 0
+            num    = 0,
+            Retry  = 0
         async.whilst(
             () => {
                 return sign < page
@@ -45,13 +46,13 @@ class dealWith {
                         if(num == 0){
                             setTimeout(() => {
                                 num++
-                                num=0
                                 logger.debug('300毫秒之后重新请求一下当前列表')
                                 return cb()
                             },300)
                         }else if(num == 1){
                             setTimeout(() => {
                                 start += 10
+                                num=0
                                 logger.debug('300毫秒之后重新请求下一页列表')
                                 return cb()
                             },300)
@@ -68,11 +69,37 @@ class dealWith {
                         logger.info(result)
                         return callback(e)
                     }
+                    if(result.data == undefined){
+                        if(Retry == 0){
+                            setTimeout(() => {
+                                Retry++
+                                logger.debug('300毫秒之后重新请求一下')
+                                return cb()
+                            },300)
+                        }else{
+                           setTimeout(() => {
+                                Retry=0
+                                start+=10
+                                logger.debug('300毫秒之后重新请求一下')
+                                return cb()
+                            },300) 
+                        }
+                    }
                     if(result.data.friend_data == undefined){
-                        setTimeout(() => {
-                            logger.debug('300毫秒之后重新请求一下')
-                            return cb()
-                        },300)
+                        if(Retry == 0){
+                            setTimeout(() => {
+                                Retry++
+                                logger.debug('300毫秒之后重新请求一下')
+                                return cb()
+                            },300)
+                        }else{
+                           setTimeout(() => {
+                                Retry=0
+                                start+=10
+                                logger.debug('300毫秒之后重新请求一下')
+                                return cb()
+                            },300) 
+                        }
                     }
                     let length = result.data.friend_data.length-1
                     task.total += length
@@ -167,7 +194,7 @@ class dealWith {
         let option = {
             url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_"
         }
-        logger.debug(option.url)
+        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' , err)
