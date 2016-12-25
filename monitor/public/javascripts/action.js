@@ -440,7 +440,8 @@ const vm = new Vue({
         socket.on('cache', (data) => {
             this.$notify.info({
                 title: '暂存队列消息',
-                message: `目前缓存队列中有${data.num}条数据`
+                message: `目前缓存队列中有${data.num}条数据`,
+                duration: 360000
             })
         })
     },
