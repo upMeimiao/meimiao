@@ -186,6 +186,12 @@ class dealWith {
                             this.core.proxy.back(proxy, false)
                             return cb()
                         }
+                        if(result.has_more === false && result.nexit.max_max_behot_time === 0){
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(_proxy, false)
+                            return cb()
+                        }
                         times = 0
                         if(index == 0 && result.data.length > 0){
                             task.uid = result.data[0].creator_uid
@@ -228,6 +234,12 @@ class dealWith {
                             }catch (e){
                                 logger.error('json数据解析失败')
                                 logger.error(result.body)
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            if(result.has_more === false && result.nexit.max_max_behot_time === 0){
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
