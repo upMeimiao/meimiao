@@ -1,0 +1,19 @@
+{
+  "log_level":"TRACE",
+  "redis": {
+    "port": 6379,
+    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
+    "auth": "C19prsPjHs52CHoA0vm",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3
+  },
+  "videoInfo":"http://xiyou.cctv.com/interface/index?videoId=",
+  "fans":"http://my.xiyou.cntv.cn/api/user/getuserinfo?&format=json&visit_id=0&snap=30&user_id=",
+  "sendToServer": [
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
+    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans"
+  ]
+}

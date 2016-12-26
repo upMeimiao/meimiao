@@ -163,6 +163,10 @@ class spiderCore {
             case 'url.cn':
                 handle.qzoneHandle( ctx, remote )
                 break
+            case 'xiyou.cctv.com':
+            case 'xiyou.cntv.cn':
+                handle.cctvHandle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

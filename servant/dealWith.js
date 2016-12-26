@@ -1459,5 +1459,35 @@ class DealWith {
             callback(null,res)
         })
     }
+    cctv(data, callback){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            path     = urlObj.pathname,
+            bid      = '',
+            name     = '',
+            option   = {
+                url : data
+            }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:30})
+            }
+            if(result.statusCode != 200){
+                logger.error('CCTV状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:30})
+            }
+            let $    = cheerio.load(result.body)
+            bid  = $('#userName a').attr('href').match(/\d*\/index/).toString().replace(/\/index/,'')
+            name = $('#userName a').text()
+            let res  = {
+                p: 30,
+                id: bid,
+                name: name
+            }
+            callback(null,res)
+        })
+    }
 }
 module.exports = DealWith

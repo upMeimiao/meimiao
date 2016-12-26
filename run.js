@@ -272,6 +272,13 @@ const qzone = () => {
     let spider = new (require('./spider/qzone'))(settings)
     spider.start()
 }
+const cctv = () => {
+    let logger = logging.getLogger('CCTV',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/cctv'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level)
     settings['logger'] = logger
@@ -381,6 +388,9 @@ switch (options['a']){
         break
     case 'qzone':
         qzone()
+        break
+    case 'cctv':
+        cctv()
         break
     case 'test':
         test()
