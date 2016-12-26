@@ -133,7 +133,7 @@ class dealWith {
                 class: result[2].fstlvlName,
                 support: result[4].data.like,
                 step: result[4].data.unlike,
-                desc: result[3].substring(0,100),
+                desc: result[3] ? result[3].substring(0,100) : '',
                 comment_num: result[5].total_number
             }
             logger.debug(media.desc)
