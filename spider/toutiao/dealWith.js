@@ -189,7 +189,7 @@ class dealWith {
                         if(result.has_more === false){
                             times++
                             proxyStatus = false
-                            this.core.proxy.back(_proxy, false)
+                            this.core.proxy.back(proxy, false)
                             return cb()
                         }
                         times = 0
