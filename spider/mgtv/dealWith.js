@@ -193,7 +193,7 @@ class dealWith {
         request.get( logger, option, (err,result) => {
             if(err){
                 logger.debug('描述请求失败 ' + err)
-                callback(err,null)
+                return callback(err,null)
             }
 
             let $ = cheerio.load(result.body)
