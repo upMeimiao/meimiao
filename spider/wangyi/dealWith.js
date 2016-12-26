@@ -2,9 +2,11 @@
  * Created by qingyu on 16/12/2.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 const moment = require('moment')
-
+const videoList = function (data){
+    return data
+}
 let logger
 class dealWith {
     constructor (spiderCore){
@@ -44,7 +46,7 @@ class dealWith {
         let option = {
             url: this.settings.userInfo + task.id+".html"
         }
-        request.get(option,(err,result) => {
+        request.get( logger, option, (err,result) => {
             if(err){
                 return callback()
             }
@@ -75,7 +77,7 @@ class dealWith {
             url: this.settings.sendToServer[0],
             data: user
         }
-        request.post(option,(err,back) => {
+        request.post( logger, option, (err,back) => {
             if(err){
                 logger.error('occur error:',err)
                 logger.info(`返回网易用户 ${user.bid} 连接服务器失败`)
@@ -103,7 +105,7 @@ class dealWith {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post( logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -132,11 +134,11 @@ class dealWith {
                 return countNum < sign
             },
             (cb) => {
-               let option = {
-                    url: this.settings.videoInfo + task.id+"/all/"+page+"-20.html"
+                let option = {
+                    url: this.settings.videoInfo + task.id+"/video/"+page+"-20.html"
                 }
-                //logger.debug(option.url)
-                request.get(option,(err,result) => {
+                logger.debug(option.url)
+                request.get( logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
                         return cb()
@@ -148,7 +150,7 @@ class dealWith {
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
-                        logger.error('json解析失败')
+                        logger.error('视频列表json解析失败')
                         logger.info(result)
                         return cb()
                     }
@@ -196,28 +198,91 @@ class dealWith {
         )
     }
     getVideo(task ,data ,callback ) {
-        if(!data.videoinfo){
-            return callback()
+        let media
+        async.parallel(
+            [
+                (cb) => {
+                    this.getPlay(data.videoID,(err,result) => {
+                        cb(null,result)
+                    })
+                },
+                (cb) => {
+                    this.getVidInfo(data.videoID,(err,result) => {
+                        cb(null,result)
+                    })
+                }
+            ],
+            (err,result) => {
+                media = {
+                    author: task.name,
+                    platform: task.p,
+                    bid: task.id,
+                    aid: data.videoID,
+                    title: data.title.substr(0,100),
+                    desc: data.digest.substr(0,100),
+                    comment_num: data.replyCount,
+                    a_create_time: moment(data.ptime).format('X'),
+                    v_img:data.imgsrc,
+                    long_t:data.length,
+                    class:data.TAGS,
+                    support: result[0].supportcount,
+                    step: result[0].opposecount,
+                    play_num: result[0].hits,
+                    v_url: result[1].vurl
+                }
+                //logger.debug(media.author)
+                this.sendCache( media )
+                callback()
+            }
+        )
+
+    }
+    getVidInfo( vid, callback ){
+        let option = {
+            url: 'http://3g.163.com/touch/video/detail/jsonp/'+vid+'.html?callback=videoList'
         }
-        let media = {
-            author: task.name,
-            platform: 25,
-            bid: task.id,
-            aid: data.videoID,
-            title: data.title.substr(0,100),
-            desc: data.digest.substr(0,100),
-            play_num: data.videoinfo.playCount,
-            comment_num: data.videoinfo.replyCount,
-            a_create_time: moment(data.ptime).format('X'),
-            v_img:data.imgsrc,
-            long_t:data.videoinfo.length,
-            class:data.TAGS
+        request.get( logger, option, (err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(null,'')
+            }
+            if( result.statusCode != 200){
+                logger.error('获取Info code error：',result.statusCode)
+                return callback(null,'')
+            }
+            try {
+                result = eval(result.body)
+            } catch (e) {
+                logger.error('视频详情json解析失败')
+                logger.info(result)
+                return callback(null,'')
+            }
+            callback(null,result)
+        })
+    }
+    getPlay( vid, callback ) {
+        let option = {
+            url: 'http://so.v.163.com/vote/'+vid+'.js'
         }
-        if(!media.comment_num){
-            delete media.comment_num
-        }
-        this.sendCache( media )
-        callback()
+        request.get( logger, option, (err,result) => {
+            if(err){
+                logger.error( 'NO Play : ', err )
+                return callback(null,'')
+            }
+            if( result.statusCode != 200){
+                logger.error('获取play code error：',result.statusCode)
+                return callback(null,'')
+            }
+            try {
+                result = result.body.replace('var vote = ','').replace(';','')
+                result = JSON.parse(result)
+            } catch (e) {
+                logger.error('视频播放json解析失败')
+                logger.info(result)
+                return callback(null,'')
+            }
+            callback(null,result.info)
+        })
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
