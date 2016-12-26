@@ -15,6 +15,7 @@ class spiderCore {
         this.settings = settings
         this.redis = settings.redis
         this.dealWith = new( require('./dealWith'))(this)
+        this.proxy = new( require('./proxy'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
@@ -59,11 +60,20 @@ class spiderCore {
             }
             logger.debug( '创建数据库连接完毕' )
             this.deal()
+            //this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test(){
+        let work = { id: '2815097234', p: '23', name: '内裤都笑飞了' }
+        this.dealWith.todo(work, (err,total,uid) => {
+            logger.debug(total)
+            logger.debug(uid)
+            logger.debug('end')
+        })
     }
     deal () {
         let queue = kue.createQueue({
@@ -95,7 +105,7 @@ class spiderCore {
                     }
                     done(null)
                     this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    request.post( settings.sendToServer[2], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+                    request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )
                             return

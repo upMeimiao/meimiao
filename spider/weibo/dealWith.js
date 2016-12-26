@@ -3,7 +3,7 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -14,7 +14,7 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
-        task.page = 0
+        task.page = 1
         //logger.debug('---')
         this.getUserInfo( task, ( err ) => {
             if(err){
@@ -26,7 +26,7 @@ class dealWith {
 
     getUserInfo( task, callback ){
         let option = {
-            url : this.settings.userInfo+task.id
+            url : this.settings.spiderAPI.weibo.userInfo+task.id
         },
         num = 0
         request.get( logger, option, ( err, result ) => {
@@ -58,7 +58,7 @@ class dealWith {
     }
     sendUser (user){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post( logger, option, (err,back) => {
@@ -111,7 +111,7 @@ class dealWith {
     getVidTotal( task, data, num, callback ){
         let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
             option = {
-                url: this.settings.videoList + containerid + "&page=0"
+                url: this.settings.spiderAPI.weibo.videoList + containerid + "&page=0"
             }
         request.get( logger, option, ( err, result ) => {
             if (err) {
@@ -142,58 +142,113 @@ class dealWith {
         })
     }
     getVidList( task, data, total, callback ){
-        let num     = 0,
-            pageNum = 3
+        let num         = 0,
+            pageNum     = 3,
+            times       = 0,
+            proxyStatus = false,
+            proxy       = ''
         async.whilst(
             () => {
                 return task.page < pageNum
             },
             (cb) => {
-                task.page++
                 let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
                     option = {
-                        url: this.settings.videoList + containerid + "&page=" + task.page
+                        url: this.settings.spiderAPI.weibo.videoList + containerid + "&page=" + task.page
                     }
-                //logger.debug(option.url)
-                request.get( logger, option, ( err, result ) => {
-                    if (err) {
-                        if( num == 0 ){
-                            logger.debug(err)
-                            setTimeout(() => {
-                                num++
-                                task.page--
-                                logger.debug('300毫秒之后重新请求一下')
-                                return cb()
-                            },300)
-                        }else if( num == 1){
-                            logger.debug('直接请求下一页')
-                            cb()
-                            return 
-                        }else{
-                            logger.debug(err)
-                            logger.error( '接口请求错误 : ', err )
-                            return callback(err)
+                if(proxyStatus && proxy){
+                    option.proxy = proxy
+                    request.get( logger, option, ( err, result ) => {
+                        if (err) {
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy,false)
+                            return cb()
                         }
-                    }
-                    try{
-                        result = JSON.parse(result.body)
-                    }catch (e){
-                        logger.error('json数据解析失败')
-                        logger.info(result)
-                        return
-                    }
-                    //pageNum += result.cards.length
-                    //logger.debug('第'+task.page+'页')
-                    if( result.cards.length <= 0 ){
-                        pageNum = 0
-                        return cb()
-                    }
-                    this.deal(task,result.cards,data,() => {
-                        task.page++
-                        pageNum++
-                        cb()
+                        times = 0
+                        try{
+                            result = JSON.parse(result.body)
+                        }catch (e){
+                            logger.error('json数据解析失败')
+                            logger.info(result)
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy,false)
+                            return cb()
+                        }
+                        times = 0
+                        if( result.cards == undefined ){
+                            logger.debug('当前列表页的结构有问题，重新请求')
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(_proxy,false)
+                            return cb()
+                        }
+                        times = 0
+                        if( result.cards.length <= 0 ){
+                            pageNum = 0
+                            return cb()
+                        }
+                        this.deal(task,result.cards,data,() => {
+                            task.page++
+                            pageNum++
+                            cb()
+                        })
                     })
-                })
+                }else{
+                    this.core.proxy.need(times, (err, _proxy) => {
+                        if(err) {
+                            if(err == 'timeout'){
+                                return callback('Get proxy timesout!!')
+                            }
+                            logger.error('Get proxy occur error:', err)
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy, false)
+                            return cb()
+                        }
+                        times = 0
+                        option.proxy = _proxy
+                        request.get( logger, option, ( err, result ) => {
+                            if (err) {
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            times = 0
+                            try{
+                                result = JSON.parse(result.body)
+                            }catch (e){
+                                logger.error('json数据解析失败')
+                                logger.info(result.body)
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy,false)
+                                return cb()
+                            }
+                            times = 0
+                            if( result.cards == undefined ){
+                                logger.debug('当前列表页的结构有问题，重新请求')
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy,false)
+                                return cb()
+                            }
+                            times = 0
+                            if( result.cards.length <= 0 ){
+                                pageNum = 0
+                                return cb()
+                            }
+                            this.deal(task,result.cards,data,() => {
+                                task.page++
+                                pageNum++
+                                cb()
+                            })
+                        })
+                    })
+                }
+                
             },
             (err,result) => {
                 logger.debug('没有数据了')            
