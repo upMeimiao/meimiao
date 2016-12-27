@@ -195,7 +195,7 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: result.itemId,
-                title: result.title.substr(0,100),
+                title: result.title ? result.title.substr(0,100) : 'btwk_caihongip',
                 desc: result.abstractDesc ? result.abstractDesc.substr(0,100) : result.name.substr(0,100),
                 play_num: result.playTime,
                 comment_num: result.commentNo,
