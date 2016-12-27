@@ -27,7 +27,7 @@ class dealWith {
                     })
                 },
                 media: (callback) => {
-                    this.getTotal( task, ( err ) => {
+                    this.getList( task, ( err ) => {
                         if(err){
                             return callback(err)
                         }
@@ -149,122 +149,19 @@ class dealWith {
             }
         })
     }
-    getTotal(task, callback) {
+    getList ( task, callback ) {
+        let sign = true,
+            index = 1
         const option = {
-            ua: 1,
-            url: this.api.list[0] + task.id + "&page=1",
-            referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
-        }
-        request.get(logger, option, (err,result) => {
-            if (err) {
-                return callback(err)
-            }
-            try {
-                result = JSON.parse(result.body)
-            } catch (e) {
-                logger.error('json数据解析失败')
-                logger.error(result)
-                return callback(e)
-            }
-            if(result.total !== 0){
-                task.total = result.total * 42
-                this.getList(task, result.total, (err) => {
-                    callback()
-                })
-            } else {
-                this.getListN(task, (err) => {
-                    callback()
-                })
-            }
-        })
-    }
-    getListN(task, callback) {
-        let index = 1,
-            sign = true
-        const option = {
-            ua: 1,
-            referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
+            ua: 1
         }
         async.whilst(
             () => {
                 return sign
             },
             ( cb ) => {
-                option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
-                request.get( logger, option, (err,result) => {
-                    if(err){
-                        return cb()
-                    }
-                    const $ = cheerio.load(result.body,{
-                            ignoreWhitespace:true
-                        }),
-                        titleDom = $('p.mod-piclist_info_title a'),
-                        video = []
-                    if(titleDom.length === 0){
-                        task.total = 20 * (index -1)
-                        sign = false
-                        return cb()
-                    }
-                    for(let i = 0 ;i<titleDom.length;i++){
-                        video.push({
-                            title: titleDom[i].children[0].data,
-                            link: titleDom[i].attribs['href']
-                        })
-                    }
-                    //logger.debug(video)
-                    this.getIds(task, video, (err) => {
-                        index++
-                        cb()
-                    })
-                })
-            },
-            ( err, result ) => {
-                callback()
-            }
-        )
-    }
-    getIds(task, raw, callback) {
-        let index = 0
-        const option = {
-            ua: 1
-        }
-        async.whilst(
-            () => {
-                return index < raw.length
-            },
-            (cb) => {
-                option.url = raw[index].link
-                request.get(logger, option, (err, result) => {
-                    if(err){
-                        return cb()
-                    }
-                    const $ = cheerio.load(result.body,{
-                            ignoreWhitespace:true
-                        }),
-                        id = $('#flashbox').attr('data-player-tvid')
-                    this.info(task, {id: id, title: raw[index].title, link: raw[index].link},(err)=>{
-                        index++
-                        cb()
-                    })
-                })
-            },
-            (err, result) => {
-                callback()
-            }
-        )
-    }
-    getList(task, page, callback) {
-        let index = 1
-        const option = {
-            ua: 1,
-            referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
-        }
-        async.whilst(
-            () => {
-                return index <= page
-            },
-            ( cb ) => {
                 option.url = this.api.list[0] + task.id + "&page=" + index
+                option.referer = 'http://www.iqiyi.com/u/' + task.id + "/v"
                 request.get( logger, option, (err,result) => {
                     if(err){
                         return cb()
@@ -281,7 +178,8 @@ class dealWith {
                             ignoreWhitespace:true
                         })
                     if($('.wrap-customAuto-ht li').length === 0){
-                        index++
+                        task.total = 42 * ( index - 1 )
+                        sign = false
                         return cb()
                     }
                     const lis = $('li[tvid]'),ids = [],
