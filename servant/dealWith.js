@@ -1267,7 +1267,7 @@ class DealWith {
                 url: remote
             },
             bid = '', aid = '', options = {}
-        if(host == 'v.mp.uc.cn'){
+        if(host == 'v.mp.uc.cn' || host == 'a.mp.uc.cn'){
             bid = remote.match(/wm_id=\w*/).toString().replace(/wm_id=/,'')
             options.url = 'http://napi.uc.cn/3/classes/article/categories/wemedia/lists/'+ bid +'?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_size=5&_max_pos=&uc_param_str=frdnsnpfvecpntnwprdsssnikt'
             request.get( options, ( err, info ) => {

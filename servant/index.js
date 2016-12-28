@@ -153,6 +153,7 @@ class spiderCore {
             case 'tc.uc.cn':
             case 'm.uczzd.cn':
             case 'v.mp.uc.cn':
+            case 'a.mp.uc.cn':
                 handle.ucHandle( ctx, remote )
                 break
             case 'www.mgtv.com':
