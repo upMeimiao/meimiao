@@ -442,6 +442,9 @@ class dealWith {
                 }
                 type = t_arr.join(',')
             }
+            if(creatTime === 0){
+                creatTime = 1349020800
+            }
             const data = {
                 name: name,
                 desc: desc,
