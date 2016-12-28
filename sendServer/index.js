@@ -176,6 +176,7 @@ class sendServer {
             }catch (e){
                 logger.error(`staging 返回数据 json数据解析失败`)
                 logger.error(result)
+                logger.error(newList)
                 list = null
                 time = null
                 return
