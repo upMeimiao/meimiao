@@ -131,6 +131,8 @@ class spiderCore {
                 break
             case 'www.acfun.tv':
             case 'm.acfun.tv':
+            case 'www.acfun.cn':
+            case 'm.acfun.cn':
                 handle.acfunHandle( ctx, remote )
                 break
             case 'www.weibo.com':

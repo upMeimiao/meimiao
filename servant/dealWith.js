@@ -1051,7 +1051,7 @@ class DealWith {
         let host = URL.parse(data,true).hostname,
             option = {},
             v_id
-        if(host == 'www.acfun.tv'){
+        if(host == 'www.acfun.tv' || host == 'www.acfun.cn'){
             let v_array = URL.parse(data,true).pathname.split('ac')
             v_id = v_array[1]
         }else{
