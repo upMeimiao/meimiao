@@ -182,6 +182,7 @@ class sendServer {
             }
             if(result.errno == 0){
                 //logger.debug('staging back end')
+                logger.debug(result)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
