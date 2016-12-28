@@ -1,6 +1,7 @@
 const app = require('./app')
 const http = require('http')
 const heartbeat = require('./controllers/heartbeat')
+const monitorServer = require('./controllers/monitorServer')
 
 let logger
 class monitor {
@@ -17,6 +18,7 @@ class monitor {
         io.on('connection', function (socket) {
             heartbeat.do(io, socket)
         })
+        monitorServer.start()
         logger.debug('Monitor started on port 3001')
     }}
 
