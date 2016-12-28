@@ -144,7 +144,7 @@ class sendServer {
         if(list.length ==0){
             return
         }
-        let newList = [],length = Math.min(list.length,80)
+        let newList = [],length = Math.min(list.length,60)
         for(let i = 0; i < length; i++){
             newList.push(list[i])
         }
