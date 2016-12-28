@@ -148,7 +148,7 @@ class sendServer {
         for(let i = 0; i < length; i++){
             newList.push(list[i])
         }
-        this.stagingOption.form = {data: newList}
+        this.stagingOption.form = {data: list}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
                 logger.error('staging occur error : ', err)
@@ -170,7 +170,7 @@ class sendServer {
                 time = null
                 return
             }
-            logger.debug(`${newList.length}个视频 staging back end`)
+            logger.debug(`${list.length}个视频 staging back end`)
             // try{
             //     result = JSON.parse(result)
             // }catch (e){
