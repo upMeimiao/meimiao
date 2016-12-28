@@ -242,7 +242,7 @@ class dealWith {
                 title: back.data.title.substr(0,100),
                 desc: back.data.desc.substr(0,100),
                 play_num: back.data.stat.view,
-                save_num: back.data.stat.favorite,
+                save_num: back.data.stat.favorite > 0 ? back.data.stat.favorite : null,
                 comment_num: back.data.stat.reply,
                 forward_num: back.data.stat.share,
                 a_create_time: back.data.pubdate,
@@ -250,6 +250,9 @@ class dealWith {
                 v_img:video.pic,
                 class:back.data.tname,
                 tag:tagStr
+            }
+            if(!media.save_num){
+                delete media.save_num
             }
             this.sendCache( media )
             callback()
