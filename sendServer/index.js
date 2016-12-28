@@ -35,7 +35,7 @@ class sendServer {
         this.emit('get_lists')
         setInterval(() => {
             this.emit('get_lists')
-        }, 800)
+        }, 700)
     }
     start () {
         logger.trace('启动函数')
@@ -88,7 +88,7 @@ class sendServer {
                     this.send(list[i], 0)
                     i++
                     cb()
-                }, 3)
+                }, 2)
             }
         )
     }
@@ -181,7 +181,7 @@ class sendServer {
                 return
             }
             if(result.errno == 0){
-                logger.debug('staging back end')
+                //logger.debug('staging back end')
             }else{
                 //logger.error('staging back error')
                 logger.error(result)

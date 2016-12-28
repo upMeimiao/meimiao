@@ -26,9 +26,9 @@ class dealWith {
 
     getUserInfo( task, callback ){
         let option = {
-            url : this.settings.spiderAPI.weibo.userInfo+task.id
-        },
-        num = 0
+                url : this.settings.spiderAPI.weibo.userInfo+task.id
+            },
+            num = 0
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug(err)
@@ -42,10 +42,10 @@ class dealWith {
                 return callback()
             }
             let user = {
-                    platform: task.p,
-                    bid: task.id,
-                    fans_num: result.followers_count
-                }
+                platform: task.p,
+                bid: task.id,
+                fans_num: result.followers_count
+            }
             // this.sendUser (user)
 
             this.sendStagingUser(user)
@@ -110,36 +110,93 @@ class dealWith {
     }
     getVidTotal( task, data, num, callback ){
         let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
-            option = {
+            option      = {
                 url: this.settings.spiderAPI.weibo.videoList + containerid + "&page=0"
-            }
-        request.get( logger, option, ( err, result ) => {
-            if (err) {
-                if( num == 0 ){
-                    logger.debug(err)
-                    setTimeout(() => {
-                        num++
-                        logger.debug('300毫秒之后重新请求一下')
-                        this.getVidTotal( task, data, callback )
-                        return 
-                    },300)
-                }else{
-                    logger.debug(err)
-                    logger.error( '接口请求错误 : ', err )
-                    return callback(err)
+            },
+            proxyStatus = false,
+            proxy       = '',
+            times       = 0
+        if(proxyStatus && proxy){
+            option.proxy = proxy
+            request.get( logger, option, ( err, result ) => {
+                if (err) {
+                    times++
+                    proxyStatus = false
+                    this.core.proxy.back(proxy,false)
+                    return this.getVidTotal( task, data, num, callback )
                 }
-            }
-            try{
-                result = JSON.parse(result.body)
-            }catch (e){
-                logger.error('json数据解析失败')
-                logger.info(result)
-                return callback(e)
-            }
-            let total = result.cardlistInfo.total
-            task.total = total
-            this.getVidList( task, data, total, callback )
-        })
+                times = 0
+                try{
+                    result = JSON.parse(result.body)
+                }catch (e){
+                    logger.error('json数据解析失败')
+                    logger.info(result)
+                    times++
+                    proxyStatus = false
+                    this.core.proxy.back(proxy,false)
+                    return this.getVidTotal( task, data, num, callback )
+                }
+                time = 0
+                //logger.debug(result.cardlistInfo)
+                if(result.cardlistInfo == undefined){
+                    times++
+                    proxyStatus = false
+                    this.core.proxy.back(proxy,false)
+                    return this.getVidTotal( task, data, num, callback )
+                }
+                times = 0
+                let total = result.cardlistInfo.total
+                task.total = total
+                logger.debug(total)
+                this.getVidList( task, data, total, callback )
+            })
+        }else{
+            this.core.proxy.need(times, (err, _proxy) => {
+                if(err) {
+                    if(err == 'timeout'){
+                        return callback('Get proxy timesout!!')
+                    }
+                    logger.error('Get proxy occur error:', err)
+                    times++
+                    proxyStatus = false
+                    this.core.proxy.back(proxy, false)
+                    return cb()
+                }
+                times = 0
+                option.proxy = _proxy
+                request.get( logger, option, ( err, result ) => {
+                    if (err) {
+                        times++
+                        proxyStatus = false
+                        this.core.proxy.back(proxy,false)
+                        return this.getVidTotal( task, data, num, callback )
+                    }
+                    times = 0
+                    try{
+                        result = JSON.parse(result.body)
+                    }catch (e){
+                        logger.error('json数据解析失败')
+                        logger.info(result)
+                        times++
+                        proxyStatus = false
+                        this.core.proxy.back(proxy,false)
+                        return this.getVidTotal( task, data, num, callback )
+                    }
+                    times = 0
+                    //logger.debug(result.cardlistInfo)
+                    if(result.cardlistInfo == undefined){
+                        times++
+                        proxyStatus = false
+                        this.core.proxy.back(proxy,false)
+                        return this.getVidTotal( task, data, num, callback )
+                    }
+                    times = 0
+                    let total = result.cardlistInfo.total
+                    task.total = total
+                    this.getVidList( task, data, total, callback )
+                })
+            })
+        }
     }
     getVidList( task, data, total, callback ){
         let num         = 0,
@@ -248,14 +305,14 @@ class dealWith {
                         })
                     })
                 }
-                
+
             },
             (err,result) => {
-                logger.debug('没有数据了')            
+                logger.debug('没有数据了')
                 callback()
             }
         )
-            
+
     }
     deal( task, data, user, callback ){
         let index = 0,
@@ -314,15 +371,15 @@ class dealWith {
                 this.sendCache( media, (err,data) => {
                     callback()
                 })
-                
+
             })
         }
     }
     getVideoInfo( id, num, callback ){
         let option = {
-            url:'http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=350a1d30&id='+id
-        },
-        dataTime = ''
+                url:'http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=350a1d30&id='+id
+            },
+            dataTime = ''
         //console.log(option.url+'+++++')
         request.get( logger, option, ( err, result ) => {
             if(err){
@@ -348,11 +405,12 @@ class dealWith {
             }
             dataTime = new Date(result.created_at)
             dataTime = moment(dataTime).unix()
-            result.created_at = dataTime
+            result.created_at = dataTime == NaN ? '' : dataTime
+            logger.debug(result.created_at)
             callback(null,result)
         })
     }
-    
+
     sendCache (media,callback){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
