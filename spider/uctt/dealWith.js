@@ -185,7 +185,7 @@ class dealWith {
         request.get( logger, options, (err,data) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err,{code:102,p:1})
+                return callback(err)
             }
             try{
                 data = JSON.parse(data.body)
@@ -197,9 +197,12 @@ class dealWith {
             contLength = data.data.comments.length
             num = data.data.comment_cnt
             this.getDesc(_id,(err,result) => {
+                if(err){
+                    return callback(err)
+                }
                 let res = {
                     comment_num: num,
-                    desc: result.data != undefined ? '' : result.data.sub_title != undefined ? result.data.sub_title : ''
+                    desc: result.data ? (result.data.sub_title ? result.data.sub_title : '') : ''
                 }
                 callback(null,res)
             })
@@ -214,12 +217,13 @@ class dealWith {
         request.get( logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err,{code:102,p:1})
+                return callback(err)
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
                 logger.debug('UC数据解析失败')
+                return callback(e)
             }
             callback(null,result)
         })
