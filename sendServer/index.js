@@ -170,7 +170,7 @@ class sendServer {
                 time = null
                 return
             }
-            logger.debug(`${list.length}个视频 staging back end`)
+            logger.debug(`${newList.length}个视频 staging back end`)
             try{
                 result = JSON.parse(result)
             }catch (e){
