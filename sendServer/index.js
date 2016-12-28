@@ -101,7 +101,7 @@ class sendServer {
         this.onlineOption.form = media
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
-                logger.error('master occur error : ', err)
+                logger.error('master occur error : ', err.message)
                 logger.error(media)
                 logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
                 time++
@@ -151,7 +151,7 @@ class sendServer {
         this.stagingOption.form = {data: list}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
-                logger.error('staging occur error : ', err)
+                logger.error('staging occur error : ', err.message)
                 time++
                 if(time > 3){
                     list = null
@@ -170,7 +170,7 @@ class sendServer {
                 time = null
                 return
             }
-            logger.debug(`${list.length}个视频 staging back end`)
+            //logger.debug(`${list.length}个视频 staging back end`)
             try{
                 result = JSON.parse(result)
             }catch (e){
@@ -180,14 +180,13 @@ class sendServer {
                 time = null
                 return
             }
-            logger.debug(result)
-            // if(result.errno == 0){
-            //     logger.debug('staging back end')
-            // }else{
-            //     logger.error('staging back error')
-            //     logger.error(result)
-            //     //logger.error('media info: ',list)
-            // }
+            if(result.errno == 0){
+                //logger.debug('staging back end')
+            }else{
+                //logger.error('staging back error')
+                logger.error(result)
+                //logger.error('media info: ',list)
+            }
             list = null
             newList = null
             time = null
