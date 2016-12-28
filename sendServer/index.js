@@ -176,14 +176,14 @@ class sendServer {
             }catch (e){
                 logger.error(`staging 返回数据 json数据解析失败`)
                 logger.error(result)
-                logger.error(JSON.stringify(newList))
+                //logger.error(JSON.stringify(newList))
                 list = null
                 time = null
                 return
             }
             if(result.errno == 0){
                 //logger.debug('staging back end')
-                logger.debug(result.data)
+                //logger.debug(result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
