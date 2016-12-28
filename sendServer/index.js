@@ -171,15 +171,16 @@ class sendServer {
                 return
             }
             logger.debug(`${list.length}个视频 staging back end`)
-            // try{
-            //     result = JSON.parse(result)
-            // }catch (e){
-            //     logger.error(`staging 返回数据 json数据解析失败`)
-            //     logger.error(result)
-            //     list = null
-            //     time = null
-            //     return
-            // }
+            try{
+                result = JSON.parse(result)
+            }catch (e){
+                logger.error(`staging 返回数据 json数据解析失败`)
+                logger.error(result)
+                list = null
+                time = null
+                return
+            }
+            logger.debug(result)
             // if(result.errno == 0){
             //     logger.debug('staging back end')
             // }else{
