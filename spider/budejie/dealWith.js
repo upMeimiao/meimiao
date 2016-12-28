@@ -180,7 +180,7 @@ class dealWith {
                     platform: 18,
                     bid: task.id,
                     aid: video.id,
-                    title: video.text.substr(0,100),
+                    title: video.text ? video.text.substr(0,100) : 'btwk_caihongip',
                     desc: video.text.substr(0,100),
                     play_num: video.video.playcount,
                     forward_num: video.forward,

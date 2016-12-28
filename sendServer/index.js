@@ -144,11 +144,11 @@ class sendServer {
         if(list.length ==0){
             return
         }
-        let newList = [],length = Math.min(list.length,15)
+        let newList = [],length = Math.min(list.length,100)
         for(let i = 0; i < length; i++){
             newList.push(list[i])
         }
-        this.stagingOption.form = {data: list}
+        this.stagingOption.form = {data: newList}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
                 logger.error('staging occur error : ', err.message)
@@ -158,7 +158,7 @@ class sendServer {
                     time = null
                     newList = null
                 }else{
-                    this.emit('send_data_staging', list, time)
+                    this.emit('send_data_staging', newList, time)
                 }
                 return
             }
