@@ -88,32 +88,29 @@ class dealWith {
                 class: result[0].class,
                 tag: result[0].tag,
                 desc: result[0].desc,
-                //support: result[0].singlefeed['11'].num,
                 long_t: result[0].data.duration,
                 v_img: video.capture,
-                //read_num: result[0].singlefeed['20'].view_count,
-                v_url: video.url/*,
-                 a_create_time: video.abstime*/
+                v_url: video.url
             }
             this.sendCache( media )
             callback()
         })
     }
     getVideoInfo( url, callback ){
-        //logger.debug(url)
         let vid    = url.match(/show\/\w*\.html/).toString().replace(/show\//,''),
             option = {
                 url: url,
                 referer: 'http://v.pptv.com/page/'+vid,
                 ua: 1
             }
-        //logger.debug('111')
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
-                callback(err)
+                setTimeout(() => {
+                    this.getVideoInfo( url, callback )
+                },100)
+                return
             }
-            //logger.debug('-----')
             let $ = cheerio.load(result.body),
                 script = $('script')[2].children[0].data,
                 data = script.replace(/[\s\n]/g,'').replace(/varwebcfg=/,'').replace(/;/,''),

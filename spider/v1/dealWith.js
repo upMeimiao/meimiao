@@ -265,12 +265,9 @@ class dealWith {
                     tag: result[1].tag,
                     desc: result[1].desc.substring(0,100),
                     support: result[0].praise,
-                    //step: result.data[0].downCount,
-                    //long_t: result.data[0].timeSpan,
                     forward_num: result[0].forward,
                     v_img: video.pic,
                     play_num: result[0].playNum,
-                    //save_num: result.data[0].favCount,
                     v_url: result[0].wabSiteUrl,
                     a_create_time: moment(video.create_time).format('X')
 
