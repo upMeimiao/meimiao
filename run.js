@@ -279,6 +279,34 @@ const cctv = () => {
     let spider = new (require('./spider/cctv'))(settings)
     spider.start()
 }
+const pptv = () => {
+    let logger = logging.getLogger('pptv',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/pptv'))(settings)
+    spider.start()
+}
+const xinlan = () => {
+    let logger = logging.getLogger('新蓝网',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/xinlan'))(settings)
+    spider.start()
+}
+const v1 = () => {
+    let logger = logging.getLogger('第一视频',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/v1'))(settings)
+    spider.start()
+}
+const fengxing = () => {
+    let logger = logging.getLogger('风行网',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/fengxing'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level)
     settings['logger'] = logger
@@ -391,6 +419,18 @@ switch (options['a']){
         break
     case 'cctv':
         cctv()
+        break
+    case 'pptv':
+        pptv()
+        break
+    case 'xinlan':
+        xinlan()
+        break
+    case 'v1':
+        v1()
+        break
+    case 'fengxing':
+        fengxing()
         break
     case 'test':
         test()

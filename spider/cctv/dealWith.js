@@ -7,7 +7,6 @@ const async = require( 'async' )
 const cheerio = require('cheerio')
 const EventProxy = require( 'eventproxy' )
 const request = require( '../lib/request' )
-const r = require('request')
 const md5 = require('js-md5')
 const jsonp = function(data){
     return data
@@ -229,7 +228,7 @@ class dealWith {
             }
             let media = {
                 author: task.name,
-                platform: 32,
+                platform: task.p,
                 bid: task.id,
                 aid: result.data[0].videoId,
                 title: result.data[0].title,
@@ -243,7 +242,7 @@ class dealWith {
                 v_img: result.data[0].imagePath,
                 play_num: result.data[0].playCount,
                 save_num: result.data[0].favCount,
-                v_url: 'http://xiyou.cctv.com/v-'+result.data[0].videoId+'.html',
+                // v_url: 'http://xiyou.cctv.com/v-'+result.data[0].videoId+'.html',
                 a_create_time: ''
 
             }

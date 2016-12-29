@@ -79,8 +79,8 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('cctv',9, (job,done) => {
-            logger.trace( 'Get cctv task!' )
+        queue.process('xinlan',9, (job,done) => {
+            logger.trace( 'Get xinlan task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
             logger.info( work )

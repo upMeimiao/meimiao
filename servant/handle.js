@@ -283,5 +283,12 @@ class Handle {
             ctx.res.end(JSON.stringify(this.preResult(err,result)))
         })
     }
+    fengxingHandle ( ctx, remote ) {
+        dealWith.fengxing( remote, ( err, result ) => {
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+            ctx.res.writeHead(200)
+            ctx.res.end(JSON.stringify(this.preResult(err,result)))
+        })
+    }
 }
 module.exports = Handle

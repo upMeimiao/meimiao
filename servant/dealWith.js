@@ -1596,5 +1596,75 @@ class DealWith {
             callback(null,res)
         })
     }
+    fengxing( data, callback ){
+        let urlObj    = URL.parse(data,true),
+            host      = urlObj.hostname,
+            path      = urlObj.pathname,
+            bid       = '',
+            encode_id = '',
+            name      = '',
+            option    = {
+                url : data
+            }
+        if(host == 'pm.funshion.com' || host == 'm.fun.tv'){
+            if(urlObj.query.mid == undefined){
+                return callback(null,{id:'',name:'',p:34})
+            }
+            bid = urlObj.query.mid
+        }else{
+            if(path.match(/g-\d*/) == null){
+                bid = path.match(/c-\d*/).toString().replace(/c-/,'')
+                option.url = 'http://www.fun.tv/channel/lists/'+bid+'/'
+                this.getfengxiang('视频号',option,callback)
+            }else{
+                bid = path.match(/g-\d*/).toString().replace('g-','')
+                option.url = 'http://pm.funshion.com/v5/media/profile?cl=iphone&id='+bid+'&si=0&uc=202&ve=3.2.9.2'
+                this.getfengxiang('',option,callback)
+            }
+        }
+    }
+    getfengxiang( video, option, callback ){
+        if(video == '视频号'){
+            request.get( option, (err,result) => {
+                if(err){
+                    logger.error('occur error: ',err)
+                    return callback(err,{code:102,p:34})
+                }
+                let $          = cheerio.load(result.body),
+                    bid        = $('div.ch-info div.info a').attr('data-id'),
+                    name       = $('div.ch-info div.info h1').text()
+                let res = {
+                    id: bid,
+                    name: name,
+                    p: 34
+                }
+                callback(null,res)
+            })
+        }else{
+            request.get( option, (err,result) => {
+                if(err){
+                    logger.error('occur error: ',err)
+                    return callback(err,{code:102,p:34})
+                }
+                if(result.statusCode != 200){
+                    logger.error('风行状态码错误',result.statusCode)
+                    logger.info(result)
+                    return callback(true,{code:102,p:34})
+                }
+                try{
+                    result = JSON.parse(result.body)
+                } catch(e){
+                    logger.debug('风行数据转换失败')
+                    return callback(e,{code:102,p:34})
+                }
+                let res  = {
+                    p: 34,
+                    id: result.id,
+                    name: result.name
+                }
+                callback(null,res)
+            })
+        }
+    }
 }
 module.exports = DealWith

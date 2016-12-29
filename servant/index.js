@@ -181,6 +181,11 @@ class spiderCore {
             case 'm.v1.cn':
                 handle.v1Handle( ctx, remote )
                 break
+            case 'www.fun.tv':
+            case 'pm.funshion.com':
+            case 'm.fun.tv':
+                handle.fengxingHandle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)
