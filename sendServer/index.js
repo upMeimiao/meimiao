@@ -123,7 +123,7 @@ class sendServer {
                 }else{
                     setTimeout(() => {
                         this.send(media, time)
-                    }, 500)
+                    }, 1500)
                 }
                 return
             }
@@ -184,7 +184,7 @@ class sendServer {
                 }else{
                     setTimeout(() => {
                         this.emit('send_data_staging', list, time)
-                    }, 500)
+                    }, 1500)
                 }
                 return
             }
