@@ -24,7 +24,7 @@
     "port": 3001
   },
   "url": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
-  "sendUrl": "http://qiaosuan-intra.caihongip.com/index.php/Spider/video/postVideos/",
+  "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideos/",
   "sendFans": "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
   "update": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
   "interval": 10000,

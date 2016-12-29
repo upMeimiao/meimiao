@@ -17,7 +17,7 @@ class sendServer {
             }
         }
         this.stagingOption = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideosMore/',
+            url: 'http://10.163.174.70/index.php/Spider/video/postVideosMore/',
             headers: {
                 'Content-Type':'application/x-www-form-urlencoded'
             },
