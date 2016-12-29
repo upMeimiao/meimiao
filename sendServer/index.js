@@ -57,7 +57,7 @@ class sendServer {
     }
     getData() {
         const key = [],list = []
-        for( let i = 0; i < 150; i++){
+        for( let i = 0; i < 75; i++){
             key[i] = ['lpop', 'cache']
         }
         this.redis.pipeline(
@@ -142,7 +142,6 @@ class sendServer {
         })
     }
     send_staging(list, time) {
-        logger.debug(process.env.UV_THREADPOOL_SIZE)
         if(list.length ==0){
             list = null
             return
