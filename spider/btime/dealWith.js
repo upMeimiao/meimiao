@@ -122,7 +122,8 @@ class dealWith {
     }
     getList(task ,id ,callback ){
         let sign = 1,
-            isSign = true
+            isSign = true,
+            lastTime = ''
         async.whilst(
             () => {
                 return isSign
@@ -130,7 +131,7 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 let option = {
-                    url: this.settings.medialist + id + '&pageNo=' + sign
+                    url: this.settings.medialist + id + '&pageNo=' + sign + "&lastTime=" + lastTime
                 }
                 request.get( option, (err,result) => {
                     if(err){
@@ -145,6 +146,7 @@ class dealWith {
                         return callback(e)
                     }
                     let list = result.data
+                    lastTime = list[list.length -1].pdate
                     if(list.length >= 20){
                         this.deal(task,list,() => {
                             sign++
@@ -152,7 +154,7 @@ class dealWith {
                         })
                     }else{
                         this.deal(task,list,() => {
-                            task.total = sign * 20
+                            task.total = (sign - 1) * 20 + (list.length)
                             isSign = false
                             cb()
                         })
