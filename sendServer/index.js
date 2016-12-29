@@ -57,7 +57,7 @@ class sendServer {
     }
     getData() {
         const key = [],list = []
-        for( let i = 0; i < 75; i++){
+        for( let i = 0; i < 150; i++){
             key[i] = ['lpop', 'cache']
         }
         this.redis.pipeline(
