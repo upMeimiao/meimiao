@@ -28,6 +28,10 @@ const platformMap = new Map([
     [27,'芒果'],
     [28,'百家'],
     [29,'Qzone'],
+    [30,'CCTV'],
+    [31,'PPTV'],
+    [32,'新蓝网'],
+    [33,'第一视频']
 ])
 const platform = [
     {id:1,name:'优酷'},
@@ -58,7 +62,11 @@ const platform = [
     {id:26,name:'UC头条'},
     {id:27,name:'芒果TV'},
     {id:28,name:'百家号'},
-    {id:29,name:'QQ空间'}
+    {id:29,name:'QQ空间'},
+    {id:30,name:'CCTV'},
+    {id:31,name:'PPTV'},
+    {id:32,name:'新蓝网'},
+    {id:33,name:'第一视频'}
 ]
 const vm = new Vue({
     el: '#app',

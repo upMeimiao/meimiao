@@ -255,8 +255,29 @@ class Handle {
             ctx.res.end(JSON.stringify(this.preResult(err, result)))
         })
     }
-    cctvHandle ( ctx, remote ) {
-        dealWith.cctv( remote, ( err, result ) => {
+    cctvHandle(ctx, remote) {
+        dealWith.cctv(remote, (err, result) => {
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+            ctx.res.writeHead(200)
+            ctx.res.end(JSON.stringify(this.preResult(err,result)))
+        })
+    }
+    pptvHandle(ctx, remote) {
+        dealWith.pptv(remote, (err, result) => {
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+            ctx.res.writeHead(200)
+            ctx.res.end(JSON.stringify(this.preResult(err,result)))
+        })
+    }
+    xinlanHandle(ctx, remote) {
+        dealWith.xinlan(remote, (err, result) => {
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+            ctx.res.writeHead(200)
+            ctx.res.end(JSON.stringify(this.preResult(err,result)))
+        })
+    }
+    v1Handle(ctx, remote) {
+        dealWith.v1(remote, (err, result) => {
             ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
             ctx.res.writeHead(200)
             ctx.res.end(JSON.stringify(this.preResult(err,result)))

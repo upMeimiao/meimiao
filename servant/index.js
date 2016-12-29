@@ -170,6 +170,17 @@ class spiderCore {
             case 'xiyou.cntv.cn':
                 handle.cctvHandle( ctx, remote )
                 break
+            case 'v.pptv.com':
+                handle.pptvHandle( ctx, remote )
+                break
+            case 'm.tv.cztv.com':
+            case 'tv.cztv.com':
+                handle.xinlanHandle( ctx, remote )
+                break
+            case 'www.v1.cn':
+            case 'm.v1.cn':
+                handle.v1Handle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

@@ -1489,5 +1489,112 @@ class DealWith {
             callback(null,res)
         })
     }
+    pptv( data, callback ){
+        let vid    = data.match(/show\/\w*\.html/).toString().replace(/show\//,''),
+            option = {
+                url : data,
+                referer : 'http://v.pptv.com/page/'+vid
+            }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:31})
+            }
+            if(result.statusCode != 200){
+                logger.error('PPTV状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:31})
+            }
+            let $ = cheerio.load(result.body),
+                script = $('script')[2].children[0].data,
+                data = script.replace(/[\s\n]/g,'').replace(/varwebcfg=/,'').replace(/;/,''),
+                name = $('div#video-info .bd>h3').text().split(' ')
+            try{
+                data = JSON.parse(data)
+            }catch(e){
+                logger.debug('PPTV数据转换失败')
+                return callback(e,{code:102,p:31})
+            }
+            let res = {
+                name: name[0],
+                id: data.pid,
+                p: 31,
+                encode_id: data.cat_id
+            }
+            callback(null,res)
+        })
+    }
+    xinlan( data, callback ){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            path     = urlObj.pathname,
+            option   = {
+                url : data
+            }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:32})
+            }
+            if(result.statusCode != 200){
+                logger.error('新蓝网状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:32})
+            }
+            let $ = cheerio.load(result.body),
+                script
+
+            if(host == 'tv.cztv.com'){
+                script = $('script')[3].children[0].data
+            }else{
+                script = $('script')[0].children[0].data
+            }
+            let data = script.replace(/[\s\n]/g,'').replace(/var__INFO__=/,'').replace(/;/,'')
+
+            let res = {
+                name: data.match(/pTitle:"[^\x00-\xff]*/).toString().replace(/pTitle:"/,''),
+                id: data.match(/pid:\d*/).toString().replace(/pid:/,''),
+                p: 32,
+                encode_id: data.match(/vid:\d*/).toString().replace(/vid:/,'')
+            }
+            callback(null,res)
+        })
+    }
+    v1( data, callback ){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            path     = urlObj.pathname,
+            bid      = '',
+            name     = '',
+            vid      = '',
+            option   = {
+                url : data
+            }
+        vid = path.match(/\d*\./).toString().replace(/[\.]/g,'')
+        option.url = 'http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/'+vid+'/pcode/010210000/version/4.5.4.mindex.html'
+        request.get( option, (err, result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:33})
+            }
+            if(result.statusCode != 200){
+                logger.error('v1状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:33})
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch(e){
+                logger.debug('v1数据转换失败')
+                return callback(e,{code:102,p:33})
+            }
+            let res  = {
+                p: 33,
+                id: result.body.obj.videoDetail.userInfo.userId,
+                name: result.body.obj.videoDetail.userInfo.userName
+            }
+            callback(null,res)
+        })
+    }
 }
 module.exports = DealWith
