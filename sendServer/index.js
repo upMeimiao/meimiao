@@ -20,7 +20,8 @@ class sendServer {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideosMore/',
             headers: {
                 'Content-Type':'application/x-www-form-urlencoded'
-            }
+            },
+            timeout: 1500
         }
         this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`,{
             reconnectOnError: function (err) {
@@ -142,6 +143,7 @@ class sendServer {
     }
     send_staging(list, time) {
         if(list.length ==0){
+            list = null
             return
         }
         // let newList = [],length = Math.min(list.length,150)
