@@ -170,7 +170,6 @@ class sendServer {
                 time = null
                 return
             }
-            logger.debug(`${list.length}个视频 staging back end`)
             try{
                 result = JSON.parse(result)
             }catch (e){
@@ -189,6 +188,7 @@ class sendServer {
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
+            //logger.debug(`${list.length}个视频 staging back end`)
             list = null
             // newList = null
             time = null
