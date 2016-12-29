@@ -107,6 +107,11 @@ const vm = new Vue({
         arr27: [],
         arr28: [],
         arr29: [],
+        arr30: [],
+        arr31: [],
+        arr32: [],
+        arr33: [],
+        arr34: [],
         items: [],
         bingo: [],
         infos: []
@@ -232,6 +237,11 @@ const vm = new Vue({
             this.arr27 = []
             this.arr28 = []
             this.arr29 = []
+            this.arr30 = []
+            this.arr31 = []
+            this.arr32 = []
+            this.arr33 = []
+            this.arr34 = []
         },
         dispath: function (p) {
             switch (p){
@@ -321,6 +331,21 @@ const vm = new Vue({
                     break
                 case 29:
                     this.items = this.bingo = this.arr29
+                    break
+                case 30:
+                    this.items = this.bingo = this.arr30
+                    break
+                case 31:
+                    this.items = this.bingo = this.arr31
+                    break
+                case 32:
+                    this.items = this.bingo = this.arr32
+                    break
+                case 33:
+                    this.items = this.bingo = this.arr33
+                    break
+                case 34:
+                    this.items = this.bingo = this.arr34
                     break
             }
         },
@@ -422,6 +447,21 @@ const vm = new Vue({
                             break
                         case 29:
                             this.arr29.push(elem)
+                            break
+                        case 30:
+                            this.arr30.push(elem)
+                            break
+                        case 31:
+                            this.arr31.push(elem)
+                            break
+                        case 32:
+                            this.arr32.push(elem)
+                            break
+                        case 33:
+                            this.arr33.push(elem)
+                            break
+                        case 34:
+                            this.arr34.push(elem)
                             break
                     }
                 }
