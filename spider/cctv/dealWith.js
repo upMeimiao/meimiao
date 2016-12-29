@@ -128,13 +128,19 @@ class dealWith {
     }
     getVidTotal( task, callback ){
         let option = {
-            url: 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-1.html'
+            url: 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-1.html',
+            ua: 1
         },
         sign       = 1
         request.get( logger, option, (err, result) => {
             if (err) {
-                logger.error( '接口请求错误 : ', err )
+                logger.error( '总量接口请求错误 : ', err )
+                setTimeout(() => {
+                    this.getVidTotal(task,callback)
+                },3000)
+                return
             }
+            
             let $          = cheerio.load(result.body),
                 total      = $('li.video strong').text(),
                 page       = $('div.pagetotal span').eq(1).text().replace(/[\s]/g,'').replace('共','').replace('页','')
@@ -161,8 +167,11 @@ class dealWith {
                 }
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
-                        logger.error( '接口请求错误 : ', err )
-                        return callback(err)
+                        logger.error( '列表接口请求错误 : ', err )
+                        setTimeout(() => {
+                            this.getVidList(task,page,sign,callback)
+                        },3000)
+                        return
                     }
                     let $       = cheerio.load(result.body),
                         length  = $('div.shipin_list_boxs>ul>li').length,
@@ -226,6 +235,7 @@ class dealWith {
                 logger.error('数据解析失败')
                 return
             }
+            let time = new Date(result.data[0].uploadTime+ ' 00:00:00')
             let media = {
                 author: task.name,
                 platform: task.p,
@@ -243,10 +253,10 @@ class dealWith {
                 play_num: result.data[0].playCount,
                 save_num: result.data[0].favCount,
                 // v_url: 'http://xiyou.cctv.com/v-'+result.data[0].videoId+'.html',
-                a_create_time: ''
+                a_create_time: moment(time).format('X')
 
             }
-            this.sendCache( media ) 
+            this.sendCache( media )
             callback() 
         })
     }

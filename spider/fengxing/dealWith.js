@@ -171,13 +171,15 @@ class dealWith {
                         aid: video.videoid,
                         title: video.title,
                         comment_num: result[0].comment_num,
-                        class: result[0].class,
+                        class: result[0].channel,
                         long_t: video.raw_dura,
+                        desc: result[0].brief.substring(0,100),
                         v_img: video.still,
                         play_num: video.play_index,
-                        v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.videoid+'/'
+                        v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.videoid+'/',
+                        a_create_time: result[0].release
                     }
-                    //logger.debug(media.comment_num)
+                    //logger.debug(media.desc)
                     this.sendCache( media, () =>{
                         callback()
                     }) 
@@ -204,8 +206,10 @@ class dealWith {
                         long_t: this.getVidTime(video.duration),
                         v_img: video.still,
                         play_num: video.total_vv,
-                        v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.id+'/'
+                        v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.id+'/',
+                        a_create_time: result[0].time
                     }
+                    //logger.debug(media.a_create_time)
                     this.sendCache( media, () =>{
                         callback()
                     }) 
@@ -227,23 +231,125 @@ class dealWith {
     getVideoInfo( task, vid, callback ){
         let option = {}
         if(task.type == '视频号'){
-            option.url= 'http://www.fun.tv/vplay/c-'+task.id+'.h-'+task.h+'.v-'+vid+'/'            
+            option.url= 'http://pv.funshion.com/v5/video/profile?cl=iphone&id='+vid+'&si=0&uc=202&ve=3.2.9.2'
+            async.waterfall(
+                [
+                    (cb) => {
+                        this.getComment(vid,(err,result) => {
+                            cb(null,result)
+                        })
+                    }
+                ],
+                (err,data) => {
+                    request.get( logger, option, (err, result) => {
+                        if (err) {
+                            logger.error( '单个视频接口请求错误 : ', err )
+                            return callback(err)
+                        }
+                        
+                        if(result.statusCode != 200){
+                            logger.error('风行状态码错误',result.statusCode)
+                            logger.info(result)
+                            return callback(true)
+                        }
+                        try{
+                            result = JSON.parse(result.body)
+                        }catch(e){
+                            logger.error('json数据解析失败')
+                            logger.info(result)
+                            return callback(e)
+                        }
+                        result.release = result.release.replace(/[年月]/g,'-').replace('日','')
+                        let time = new Date(result.release+' 00:00:00')
+                        result.release = moment(time).format('X')
+                        result.comment_num = data
+                        callback(null,result)
+                    })
+                }
+            )
         }else{
             option.url= 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+vid+'/'
+            async.waterfall(
+                [
+                    (cb) => {
+                        this.getCreatTime( task.id, vid, (err,result) => {
+                            cb(null,result)
+                        })
+                    }
+                ],
+                (err,data) => {
+                    request.get( logger, option, (err, result) => {
+                    if (err) {
+                        logger.error( '单个DOM接口请求错误 : ', err )
+                        return callback(err)
+                    }
+                    let $ = cheerio.load(result.body),
+                        vidClass = $('div.crumbsline a').eq(1).text(),
+                        comment_num = $('a.commentbtn span.count').text(),
+                        res = {
+                            comment_num: comment_num,
+                            class: vidClass,
+                            time: data
+                        }
+                    callback(null,res)
+                })
+                }
+            )
+        }
+        
+    }
+    getCreatTime( id, vid, callback ){
+        let option = {
+            url : 'http://api1.fun.tv/ajax/new_playinfo/gallery/'+vid+'/?user=funshion&mid='+id
         }
         request.get( logger, option, (err, result) => {
             if (err) {
-                logger.error( '单个DOM接口请求错误 : ', err )
+                logger.error( 'time接口请求错误 : ', err )
                 return callback(err)
             }
-            let $ = cheerio.load(result.body),
-                vidClass = $('div.crumbsline a').eq(1).text(),
-                comment_num = $('a.commentbtn span.count').text(),
-                res = {
-                    comment_num: comment_num,
-                    class: vidClass
-                }
-            callback(null,res)
+            
+            if(result.statusCode != 200){
+                logger.error('风行状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.error('json数据解析失败')
+                logger.info(result)
+                return callback(e)
+            }
+            result.data.number = result.data.number+' 00:00:00'
+            let time = moment(result.data.number,'YYYYMMDD HH:mm:ss').format('X')
+            result.data.number = time
+            callback(null,result.data.number)
+        })
+    }
+    getComment( vid, callback ){
+        let option = {
+            url : 'http://api1.fun.tv/comment/display/video/'+vid+'?pg=1&isajax=1'
+        }
+        request.get( logger, option, (err, result) => {
+            if (err) {
+                logger.error( '评论接口请求错误 : ', err )
+                return callback(err)
+            }
+            
+            if(result.statusCode != 200){
+                logger.error('风行状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true)
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.error('json数据解析失败')
+                logger.info(result)
+                return callback(e)
+            }
+            
+            callback(null,result.data.total_num)
         })
     }
     sendCache (media,callback){
