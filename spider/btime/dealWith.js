@@ -209,7 +209,7 @@ class dealWith {
             media.author = task.name
             media.platform = 15
             media.bid = task.id
-            media.aid = data.id
+            media.aid = data.gid
             media.title = data.title.substr(0,100)
             media.desc = data.description.substr(0,100)
             media.play_num = result[1].play
