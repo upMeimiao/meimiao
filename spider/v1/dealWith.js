@@ -340,7 +340,7 @@ class dealWith {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            logger.debug(`CCTV ${media.aid} 加入缓存队列`)
+            logger.debug(`第一视频 ${media.aid} 加入缓存队列`)
             //callback()
         } )
     }
