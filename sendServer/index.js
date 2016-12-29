@@ -21,7 +21,7 @@ class sendServer {
             headers: {
                 'Content-Type':'application/x-www-form-urlencoded'
             },
-            timeout: 3000
+            timeout: 30000
         }
         this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`,{
             reconnectOnError: function (err) {
