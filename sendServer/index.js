@@ -116,8 +116,15 @@ class sendServer {
             }
             if(res.statusCode != 200){
                 logger.error(`master errorCode: ${res.statusCode}`)
-                media = null
-                time = null
+                time++
+                if(time > 3){
+                    media = null
+                    time = null
+                }else{
+                    setTimeout(() => {
+                        this.send(media, time)
+                    }, 500)
+                }
                 return
             }
             try{
@@ -160,16 +167,25 @@ class sendServer {
                     time = null
                     // newList = null
                 }else{
-                    this.emit('send_data_staging', list, time)
+                    setTimeout(() => {
+                        this.emit('send_data_staging', list, time)
+                    }, 300)
                 }
                 return
             }
             if(res.statusCode != 200){
                 logger.error(`staging errorCode: ${res.statusCode}`)
                 logger.error(result)
-                list = null
-                // newList = null
-                time = null
+                time++
+                if(time > 3){
+                    list = null
+                    time = null
+                    // newList = null
+                }else{
+                    setTimeout(() => {
+                        this.emit('send_data_staging', list, time)
+                    }, 500)
+                }
                 return
             }
             try{
