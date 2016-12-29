@@ -142,6 +142,7 @@ class sendServer {
         })
     }
     send_staging(list, time) {
+        logger.debug(process.env.UV_THREADPOOL_SIZE)
         if(list.length ==0){
             list = null
             return
