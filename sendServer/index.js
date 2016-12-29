@@ -144,11 +144,11 @@ class sendServer {
         if(list.length ==0){
             return
         }
-        let newList = [],length = Math.min(list.length,150)
-        for(let i = 0; i < length; i++){
-            newList.push(list[i])
-        }
-        this.stagingOption.form = {data: newList}
+        // let newList = [],length = Math.min(list.length,150)
+        // for(let i = 0; i < length; i++){
+        //     newList.push(list[i])
+        // }
+        this.stagingOption.form = {data: list}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
                 logger.error('staging occur error : ', err.message)
@@ -156,9 +156,9 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
-                    newList = null
+                    // newList = null
                 }else{
-                    this.emit('send_data_staging', newList, time)
+                    this.emit('send_data_staging', list, time)
                 }
                 return
             }
@@ -166,11 +166,11 @@ class sendServer {
                 logger.error(`staging errorCode: ${res.statusCode}`)
                 logger.error(result)
                 list = null
-                newList = null
+                // newList = null
                 time = null
                 return
             }
-            logger.debug(`${newList.length}个视频 staging back end`)
+            logger.debug(`${list.length}个视频 staging back end`)
             try{
                 result = JSON.parse(result)
             }catch (e){
@@ -190,7 +190,7 @@ class sendServer {
                 //logger.error('media info: ',list)
             }
             list = null
-            newList = null
+            // newList = null
             time = null
         })
     }
