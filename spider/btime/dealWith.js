@@ -184,12 +184,10 @@ class dealWith {
         )
     }
     getVideo(task ,data ,callback ) {
-        let time = data.ctime,
-            a_create_time = moment(time).format('X'),
-            media = {}
+        let media = {}
         async.parallel([
             (cb) => {
-                this.getLong_t(data, (err, result) => {
+                this.getComment(data, (err, result) => {
                     if(err){
                         return cb(err)
                     }
@@ -214,13 +212,13 @@ class dealWith {
             media.aid = data.gid
             media.title = data.title.substr(0,100)
             media.desc = data.description.substr(0,100)
-            media.play_num = result[1].play
-            media.comment_num = result[1].comment
-            media.a_create_time = a_create_time
+            media.play_num = data.click_count
+            media.comment_num = result[0]
+            media.a_create_time = moment(data.ctime).format('X')
             media.support = result[1].ding
             media.v_url = data.gid
             media.v_img = data.image_url
-            media.long_t = result[0]
+            media.long_t = this._long_t(data.duration)
             //logger.debug(media)
             this.sendCache( media )
             callback()
@@ -253,9 +251,9 @@ class dealWith {
             callback(null, data)
         })
     }
-    getLong_t ( info, callback ){
+    getComment( info, callback ){
         let option={
-            url: "http://api.btime.com/video/play?id="+info.gid
+            url: `http://api.app.btime.com/api/commentList?protocol=1&timestamp=${Math.round(new Date().getTime() / 1000)}&url=http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${info.gid}&ver=2.3.0`
         }
         request.get( option, ( err, result ) => {
             if(err){
@@ -272,7 +270,7 @@ class dealWith {
             if(result.errno != 0 ){
                 return callback(true)
             }
-            callback(null,this._long_t(result.data.duration))
+            callback(null,result.data.total)
         })
     }
     _long_t ( time ){
