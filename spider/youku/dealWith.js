@@ -227,8 +227,7 @@ class dealWith {
             qs: {
                 client_id:this.settings.app_key,
                 video_ids:ids
-            },
-            timeout: 3000
+            }
         }
         request( options, ( error, response, body ) => {
             if(error){
