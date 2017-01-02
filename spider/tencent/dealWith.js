@@ -56,7 +56,7 @@ class dealWith {
                 result = JSON.parse(result.body.substring(6, result.body.length - 1))
             } catch (e){
                 logger.error(result.body.substring(6, result.body.length - 1))
-                return(e)
+                return callback(e)
             }
             //logger.debug(result)
             if(result.s != 'o'){
@@ -187,7 +187,8 @@ class dealWith {
                         result = JSON.parse(result.body.substring(6, result.body.length - 1))
                     } catch (e){
                         logger.error(result.body.substring(6, result.body.length - 1))
-                        return(e)
+                        sign++
+                        return cb()
                     }
                     let list = result.videolst
                     // logger.debug('videolst:', data)
