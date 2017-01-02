@@ -52,7 +52,12 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
-            result = eval(result.body)
+            try {
+                result = JSON.parse(result.body.substring(6, result.body.length - 1))
+            } catch (e){
+                logger.error(result.body.substring(6, result.body.length - 1))
+                return(e)
+            }
             //logger.debug(result)
             if(result.s != 'o'){
                 logger.error(`异常错误${result.em}`)
@@ -178,9 +183,14 @@ class dealWith {
                         return cb()
                     }
                     //logger.debug(back.body)
-                    let data = eval(result.body)
+                    try {
+                        result = JSON.parse(result.body.substring(6, result.body.length - 1))
+                    } catch (e){
+                        logger.error(result.body.substring(6, result.body.length - 1))
+                        return(e)
+                    }
+                    let list = result.videolst
                     // logger.debug('videolst:', data)
-                    let list = data.videolst
                     if(list){
                         this.deal(task,list, () => {
                             sign++
