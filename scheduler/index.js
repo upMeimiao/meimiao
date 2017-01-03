@@ -127,7 +127,7 @@ class scheduler {
             user_id: raw.uid
         }).priority('critical').attempts(5).backoff({delay: 60*1000, type:'fixed'}).removeOnComplete(true)
         if(raw.p == 6){
-            job.ttl(43200000)
+            job.ttl(14400000)
         }
         if(!job.data.user_id){
             delete job.data.user_id
