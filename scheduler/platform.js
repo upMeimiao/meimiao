@@ -32,6 +32,7 @@ const platformMap = new Map([
     [31,'pptv'],
     [32,'xinlan'],
     [33,'v1'],
-    [34,'fengxing']
+    [34,'fengxing'],
+    [35,'huashu']
 ])
 module.exports = platformMap

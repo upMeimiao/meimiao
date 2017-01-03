@@ -48,46 +48,22 @@ echo "任务乐视启动完成"
 
 echo "第一优先级任务启动完成"
 
-echo "启动第三级别任务"
+echo "启动第四级别任务"
 
-echo "启动微视"
-pm2 start ~/newStart/weishi.json
-echo "任务微视启动完成"
+echo "启动风行网"
+pm2 start ~/newStart/fengxing.json
+echo "任务风行网启动完成"
 
-echo "启动小影"
-pm2 start ~/newStart/xiaoying.json
-echo "任务小影启动完成"
+echo "启动第一视频"
+pm2 start ~/newStart/v1.json
+echo "任务第一视频启动完成"
 
-echo "启动百思不得姐"
-pm2 start ~/newStart/budejie.json
-echo "任务百思不得姐启动完成"
+echo "启动新蓝网"
+pm2 start ~/newStart/xinlan.json
+echo "任务新蓝网启动完成"
 
-echo "启动内涵段子"
-pm2 start ~/newStart/neihan.json
-echo "任务内涵段子启动完成"
+echo "启动华数TV"
+pm2 start ~/newStart/huashu.json
+echo "任务华数TV启动完成"
 
-echo "启动YY"
-pm2 start ~/newStart/yy.json
-echo "任务YY启动完成"
-
-echo "启动芒果TV"
-pm2 start ~/newStart/mgtv.json
-echo "任务芒果TV启动完成"
-
-echo "启动56视频"
-pm2 start ~/newStart/tv56.json
-echo "任务56视频启动完成"
-
-echo "启动微博"
-pm2 start ~/newStart/weibo.json
-echo "任务微博启动完成"
-
-echo "启动PPTV"
-pm2 start ~/newStart/pptv.json
-echo "任务启动完成"
-
-echo "启动CCTV"
-pm2 start ~/newStart/cctv.json
-echo "任务启动完成"
-
-echo "第三优先级任务启动完成"
+echo "第四优先级任务启动完成"

@@ -307,6 +307,13 @@ const fengxing = () => {
     let spider = new (require('./spider/fengxing'))(settings)
     spider.start()
 }
+const huashu = () => {
+    let logger = logging.getLogger('华数',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/huashu'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level)
     settings['logger'] = logger
@@ -431,6 +438,9 @@ switch (options['a']){
         break
     case 'fengxing':
         fengxing()
+        break
+    case 'huashu':
+        huashu()
         break
     case 'test':
         test()

@@ -1666,5 +1666,49 @@ class DealWith {
             })
         }
     }
+    huashu( data, callback ){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            path     = urlObj.pathname,
+            bid      = path.match(/id\/\d*/).toString().replace(/id\//,''),
+            name     = '',
+            option   = {
+                url : 'http://www.wasu.cn/Play/show/id/'+bid
+            }
+        request.get( option, (err,result) => {
+            if(err){
+                logger.error('视频详情: ',err)
+                return callback(err,{code:102,p:35})
+            }
+            if(result.statusCode != 200){
+                logger.error('视频详情状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:35})
+            }
+            let $ = cheerio.load(result.body)
+            option.url = $('div.play_information_t').eq(0).find(' div.r div.one a').attr('href')
+            request.get( option, (err, result) => {
+                if(err){
+                    logger.error('专辑信息: ',err)
+                    return callback(err,{code:102,p:35})
+                }
+                if(result.statusCode != 200){
+                    logger.error('专辑信息状态码错误',result.statusCode)
+                    logger.info(result)
+                    return callback(true,{code:102,p:35})
+                }
+                let $      = cheerio.load(result.body),
+                    script = $('script')[8].children[0].data,
+                    bid    = script.match(/aggvod\/id\/\d*/).toString().replace('aggvod/id/',''),
+                    name   = $('span.movie_name').text(),
+                    res    = {
+                        id : bid,
+                        name : name,
+                        p : 35
+                    }
+                callback(null,res)
+            })
+        })
+    }
 }
 module.exports = DealWith

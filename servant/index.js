@@ -186,6 +186,9 @@ class spiderCore {
             case 'm.fun.tv':
                 handle.fengxingHandle( ctx, remote )
                 break
+            case 'www.wasu.cn':
+                handle.huashuHandle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

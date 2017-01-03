@@ -32,7 +32,8 @@ const platformMap = new Map([
     [31,'PPTV'],
     [32,'新蓝网'],
     [33,'第一视频'],
-    [34,'风行网']
+    [34,'风行网'],
+    [35,'华数TV']
 ])
 const platform = [
     {id:1,name:'优酷'},
@@ -68,7 +69,8 @@ const platform = [
     {id:31,name:'PPTV'},
     {id:32,name:'新蓝网'},
     {id:33,name:'第一视频'},
-    {id:34,name:'风行网'}
+    {id:34,name:'风行网'},
+    {id:35,name:'华数TV'}
 ]
 const vm = new Vue({
     el: '#app',
@@ -112,6 +114,7 @@ const vm = new Vue({
         arr32: [],
         arr33: [],
         arr34: [],
+        arr35: [],
         items: [],
         bingo: [],
         infos: []
@@ -242,6 +245,7 @@ const vm = new Vue({
             this.arr32 = []
             this.arr33 = []
             this.arr34 = []
+            this.arr35 = []
         },
         dispath: function (p) {
             switch (p){
@@ -346,6 +350,9 @@ const vm = new Vue({
                     break
                 case 34:
                     this.items = this.bingo = this.arr34
+                    break
+                case 35:
+                    this.items = this.bingo = this.arr35
                     break
             }
         },
@@ -462,6 +469,9 @@ const vm = new Vue({
                             break
                         case 34:
                             this.arr34.push(elem)
+                            break
+                        case 35:
+                            this.arr35.push(elem)
                             break
                     }
                 }

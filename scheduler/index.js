@@ -126,9 +126,9 @@ class scheduler {
             type: raw.type,
             user_id: raw.uid
         }).priority('critical').attempts(5).backoff({delay: 60*1000, type:'fixed'}).removeOnComplete(true)
-        // if(!raw.first){
-        //     job.ttl(300000)
-        // }
+        if(raw.p == 6){
+            job.ttl(43200000)
+        }
         if(!job.data.user_id){
             delete job.data.user_id
         }
