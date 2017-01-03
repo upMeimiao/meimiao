@@ -1,7 +1,7 @@
 {
   "name"        : "微博",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","weibo","-a","weibo"],
+  "args"        : ["-i","mater","-a","weibo"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,
