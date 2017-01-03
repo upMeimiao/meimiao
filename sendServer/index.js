@@ -95,7 +95,7 @@ class sendServer {
     }
     send(media, time){
         //logger.debug(media)
-        if(media.platform > 26 || media.platform == 15 || media.platform == 21 || media.platform == 23){
+        if(media.platform > 26 || media.platform == 21 || media.platform == 23){
             media = null
             return
         }
