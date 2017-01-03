@@ -146,7 +146,9 @@ class dealWith {
                         return callback(e)
                     }
                     let list = result.data
-                    lastTime = list[list.length -1].pdate
+                    if(list.length !=0){
+                        lastTime = list[list.length -1].pdate
+                    }
                     if(list.length >= 20){
                         this.deal(task,list,() => {
                             sign++
