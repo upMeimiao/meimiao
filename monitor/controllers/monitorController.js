@@ -39,12 +39,14 @@ const _getFailedTask = () => {
         }
         const filedTask = []
         for (let [index, elem] of body.entries()) {
-            filedTask.push({
-                bid: elem.data.id,
-                bname: elem.data.name,
-                p: Number(elem.data.p),
-                failed_at: elem.failed_at
-            })
+            if(elem.error != 'undefined'){
+                filedTask.push({
+                    bid: elem.data.id,
+                    bname: elem.data.name,
+                    p: Number(elem.data.p),
+                    failed_at: elem.failed_at
+                })
+            }
         }
         _saveFailedLog(filedTask)
     })
