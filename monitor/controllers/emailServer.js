@@ -10,6 +10,20 @@ const transporter= nodemailer.createTransport({
         pass: 'Verona:2319446'
     }
 })
+exports.sendAlarm = (subject, content) => {
+    const mailOptions = {
+        from: '"常君豪" <changjunhao@meimiao.net>', // sender address
+        to: 'changjunhao@meimiao.net', // list of receivers
+        subject: subject, // Subject line
+        text: content, // plaintext body
+        html: content // html body
+    }
+    transporter.sendMail(mailOptions, (error, info) => {
+        if(error){
+
+        }
+    })
+}
 exports.sendEmail = (req, res) => {
     const mailOptions = {
         from: '"常君豪" <changjunhao@meimiao.net>', // sender address

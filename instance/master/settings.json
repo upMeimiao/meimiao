@@ -7,7 +7,8 @@
     "taskDB": 1,
     "jobDB": 2,
     "cache_db": 3,
-    "proxy": 4
+    "proxy": 4,
+    "monitor": 5
   },
   "proxy": {
     "host": "10.251.55.50",
