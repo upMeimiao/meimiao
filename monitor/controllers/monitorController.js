@@ -17,6 +17,37 @@ const monitorClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.
 })
 const failedTaskMonitor = () =>{
     setInterval(_getFailedTask, 60000)
+    setInterval(_getInactiveTask, 60000)
+}
+const _getInactiveTask = () => {
+    const options = {
+        method: 'GET',
+        url: 'http://kue.iapi.site/api/jobs/inactive/0...500/desc',
+        headers: {
+            authorization: 'Basic dmVyb25hOjIzMTk0NDY='
+        }
+    }
+    request(options, (error, response, body) => {
+        if(error){
+            logger.error('get inactive task error:',error.message)
+            return
+        }
+        try {
+            body = JSON.parse(body)
+        } catch (e) {
+            logger.error('inactive task json parse error:',error.message)
+            return
+        }
+        const inactiveTask = []
+        for (let [index, elem] of body.entries()) {
+            inactiveTask.push({
+                bid: elem.data.id,
+                bname: elem.data.name,
+                p: Number(elem.data.p)
+            })
+        }
+        _saveInactiveLog(inactiveTask)
+    })
 }
 const _getFailedTask = () => {
     const options = {
@@ -48,6 +79,40 @@ const _getFailedTask = () => {
         }
         _saveFailedLog(filedTask)
     })
+}
+const _saveInactiveLog = (info) => {
+    let i = 0,task,key,hash
+    async.whilst(
+        () => {
+            return i < info.length
+        },
+        (cb) => {
+            task = info[i]
+            hash = crypto.createHash('md5')
+            hash.update(task.p + ":" + task.bid)
+            key = "inactive:" +hash.digest('hex')
+            monitorClint.hmget(key, (err, result) => {
+                if(result){
+                    if(task.failed_at < result[1]){
+                        monitorClint.hmset(key, 'times', Number(result[0]) + 1, 'firstTime', task.failed_at,'lastTime',result[1])
+                    }else if(task.failed_at > result[2]){
+                        monitorClint.hmset(key, 'times', Number(result[0]) + 1, 'lastTime', task.failed_at)
+                    }else{
+                        monitorClint.hmset(key, 'times', Number(result[0]) + 1)
+                    }
+                    monitorClint.sadd('inactive',JSON.stringify(task))
+                }
+                if(!result[0]){
+                    monitorClint.hmset(key, 'times', 1, 'firstTime', task.failed_at, 'lastTime', task.failed_at)
+                    //monitorClint.expire(key, 200)
+                    monitorClint.expire(key, 86400)
+                    monitorClint.sadd('inactive',JSON.stringify(task))
+                }
+                i++
+                cb()
+            })
+        }
+    )
 }
 const _saveFailedLog = (info) => {
     let i = 0,task,key,hash
