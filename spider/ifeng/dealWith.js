@@ -36,6 +36,9 @@ class dealWith {
                 logger.error('json error: ',result.body)
                 return callback(e)
             }
+            if(!result.infoList[0]){
+                return callback(`line 40,异常错误，${JSON.stringify(result)}`)
+            }
             task.total = result.infoList[0].weMedia.totalNum
             let user = {
                 platform: 15,
