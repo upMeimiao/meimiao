@@ -24,5 +24,12 @@ router.get('/input', (req, res) => {
         }
     })
 })
+router.get('/auth', (req, res) => {
+    res.sendFile('auth.html', options, (err) => {
+        if (err) {
+            res.render('error', {error:err, message: '哦哦，页面飞了'})
+        }
+    })
+})
 
 module.exports = router

@@ -48,6 +48,14 @@ const servant = () => {
     let scheduler = new (require('./servant'))(settings)
     scheduler.start()
 }
+const authenticate = () => {
+    let logger = logging.getLogger('IP认证',options['i'],log_level)
+    settings['logger'] = logger
+    settings[ 'port' ] = 2018//parseInt( options[ 'p' ] )
+    settings['instance'] = options['i']
+    let scheduler = new (require('./authenticate'))(settings)
+    scheduler.start()
+}
 const server = () => {
     let logger = logging.getLogger('数据中心',options['i'],log_level)
     settings['logger'] = logger
@@ -327,6 +335,9 @@ switch (options['a']){
         break
     case 'servant':
         servant()
+        break
+    case 'auth':
+        authenticate()
         break
     case 'server':
         server()
