@@ -9,11 +9,44 @@ const logger = monitorContronller.logger
 const client = monitorContronller.monitorClint
 
 exports.start = () => {
-    const rule = new schedule.RecurrenceRule()
-    rule.minute = [0,30]
-    const j = schedule.scheduleJob(rule, () =>{
+    const failedRule = new schedule.RecurrenceRule()
+    const inactiveRule = new schedule.RecurrenceRule()
+    failedRule.minute = [15,45]
+    inactiveRule.minute = [0,30]
+    schedule.scheduleJob(failedRule, () =>{
         _failedTaskAlarm()
     })
+    schedule.scheduleJob(inactiveRule, () =>{
+        _inactiveTaskAlarm()
+    })
+}
+const _inactiveTaskAlarm = () => {
+    let i = 1,key,inactiveArr = []
+    async.whilst(
+        () => {
+            return i <= 36
+        },
+        (cb) => {
+            key = "inactive:" + i
+            client.hget(key, 'num', (err, result) =>{
+                if(err){
+                    i++
+                    return cb()
+                }
+                if(result > 0){
+                    inactiveArr.push({
+                        p: i,
+                        num: Number(result)
+                    })
+                }
+                i++
+                cb()
+            })
+        },
+        (err, result) => {
+            _inactivePretreatment(inactiveArr)
+        }
+    )
 }
 const _failedTaskAlarm = () => {
     let sign = true, cursor = 0, failedArr = []
@@ -45,13 +78,27 @@ const _failedTaskAlarm = () => {
         }
     )
 }
+const _inactivePretreatment = (info) => {
+    if(info.length === 0){
+        return
+    }
+    let emailContent = ''
+    for (let [index, elem] of info.entries()) {
+        if(elem){
+            emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，未激活个数：${elem.num}</p>`
+        }
+    }
+    if(emailContent != ''){
+        emailServer.sendAlarm('任务未激活',emailContent)
+    }
+}
 const _failedPretreatment = (info) => {
     if(info.length === 0){
         return
     }
     let emailContent = ''
     for (let [index, elem] of info.entries()) {
-        if(elem && elem.p != 6 && elem.p != 14 && elem.p != 23 && elem.p != 24){
+        if(elem && elem.p != 6 && elem.p != 14 && elem.p != 23 && elem.p != 24 && elem.p < 30){
             emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，bid：${elem.bid}，bname：${elem.bname}</p>`
         }
     }
