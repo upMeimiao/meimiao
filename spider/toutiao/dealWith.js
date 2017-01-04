@@ -216,7 +216,6 @@ class dealWith {
                             logger.error('Get proxy occur error:' , err)
                             times++
                             proxyStatus = false
-                            this.core.proxy.back(_proxy, false)
                             return cb()
                         }
                         times = 0
