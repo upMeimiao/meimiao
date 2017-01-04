@@ -11,8 +11,8 @@ const client = monitorContronller.monitorClint
 exports.start = () => {
     const failedRule = new schedule.RecurrenceRule()
     const inactiveRule = new schedule.RecurrenceRule()
-    failedRule.minute = [0,30]
-    inactiveRule.minute = [15,45]
+    failedRule.minute = [15,45]
+    inactiveRule.minute = [0,30]
     schedule.scheduleJob(failedRule, () =>{
         _failedTaskAlarm()
     })
@@ -21,32 +21,30 @@ exports.start = () => {
     })
 }
 const _inactiveTaskAlarm = () => {
-    let sign = true, cursor = 0, inactiveArr = []
+    let i = 1,key,inactiveArr = []
     async.whilst(
         () => {
-            return sign
+            return i <= 36
         },
         (cb) => {
-            client.sscan('inactive', cursor, 'count', 100, (err, result) => {
+            key = "inactive:" + i
+            client.hget(key, 'num', (err, result) =>{
                 if(err){
-                    logger.debug(err)
+                    i++
                     return cb()
                 }
-                if(Number(result[0]) === 0){
-                    sign = false
-                } else {
-                    cursor = result[0]
+                if(result > 0){
+                    inactiveArr.push({
+                        p: i,
+                        num: Number(result)
+                    })
                 }
-                for (let [index, elem] of result[1].entries()) {
-                    inactiveArr.push(JSON.parse(elem))
-                }
+                i++
                 cb()
             })
         },
         (err, result) => {
-            _getInactiveInfo(failedArr,(err, raw) => {
-                _inactivePretreatment(raw)
-            })
+            _inactivePretreatment(inactiveArr)
         }
     )
 }
@@ -86,8 +84,8 @@ const _inactivePretreatment = (info) => {
     }
     let emailContent = ''
     for (let [index, elem] of info.entries()) {
-        if(elem && elem.p != 14 && elem.p != 23){
-            emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，bid：${elem.bid}，bname：${elem.bname}</p>`
+        if(elem){
+            emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，未激活个数：${elem.num}</p>`
         }
     }
     if(emailContent != ''){
@@ -100,39 +98,13 @@ const _failedPretreatment = (info) => {
     }
     let emailContent = ''
     for (let [index, elem] of info.entries()) {
-        if(elem && elem.p != 14 && elem.p != 23){
+        if(elem && elem.p != 14 && elem.p != 23 && elem.p < 30){
             emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，bid：${elem.bid}，bname：${elem.bname}</p>`
         }
     }
     if(emailContent != ''){
         emailServer.sendAlarm('任务失败',emailContent)
     }
-}
-const _getInactiveInfo = (info, callback) => {
-    let hash,key,data
-    const getRedisData = (item, callback) => {
-        hash = crypto.createHash('md5')
-        hash.update(item.p + ":" + item.bid)
-        key = "inactive:" +hash.digest('hex')
-        client.hmget(key, 'times', 'lastTime', (err,result)=>{
-            if(err) return callback(null, null)
-            if(!result[0]){
-                client.srem('inactive', JSON.stringify(item))
-                return callback(null, null)
-            }
-            if(result[1] < new Date().getTime() - 1800000) return callback(null, null)
-            data = {
-                p: item.p,
-                bid: item.bid,
-                bname: item.bname,
-                times: result[0]
-            }
-            callback(null,data)
-        })
-    }
-    async.map(info, getRedisData, (err, results) => {
-        callback(null, results)
-    })
 }
 const _getFailedInfo = (info, callback) => {
     let hash,key,data
