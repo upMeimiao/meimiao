@@ -150,7 +150,7 @@ class dealWith {
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if (err) {
-                proxy = getProxy(callback)
+                proxy = this.getProxy(callback)
                 return this.getVidTotal( task, data, num, proxy, callback )
             }
             try{
@@ -158,11 +158,11 @@ class dealWith {
             }catch (e){
                 logger.error('json数据解析失败')
                 logger.info(result)
-                proxy = getProxy(callback)
+                proxy = this.getProxy(callback)
                 return this.getVidTotal( task, data, num, proxy, callback )
             }
             if(result.cardlistInfo == undefined){
-                proxy = getProxy(callback)
+                proxy = this.getProxy(callback)
                 return this.getVidTotal( task, data, num, proxy, callback )
             }
             let total = result.cardlistInfo.total
@@ -187,7 +187,7 @@ class dealWith {
                 option.proxy = proxy
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
-                        proxy = getProxy(callback)
+                        proxy = this.getProxy(callback)
                         return cb()
                     }
                     try{
@@ -195,12 +195,12 @@ class dealWith {
                     }catch (e){
                         logger.error('json数据解析失败')
                         logger.info(result)
-                        proxy = getProxy(callback)
+                        proxy = this.getProxy(callback)
                         return cb()
                     }
                     if( result.cards == undefined ){
                         logger.debug('当前列表页的结构有问题，重新请求')
-                        proxy = getProxy(callback)
+                        proxy = this.getProxy(callback)
                         return cb()
                     }
                     if( result.cards.length <= 0 ){
@@ -288,7 +288,7 @@ class dealWith {
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if(err){
-                proxy = getProxy(callback)
+                proxy = this.getProxy(callback)
                 return this.getVideoInfo( id, num, proxy, callback)
             }
             try{
@@ -296,7 +296,7 @@ class dealWith {
             } catch(e){
                 logger.error('json数据解析失败')
                 logger.info(result)
-                proxy = getProxy(callback)
+                proxy = this.getProxy(callback)
                 return this.getVideoInfo( id, num, proxy, callback)
             }
             dataTime = new Date(result.created_at)
