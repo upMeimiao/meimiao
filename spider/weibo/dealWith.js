@@ -28,33 +28,87 @@ class dealWith {
         let option = {
                 url : this.settings.spiderAPI.weibo.userInfo+task.id
             },
-            num = 0
-        request.get( logger, option, ( err, result ) => {
-            if(err){
-                logger.debug(err)
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error(`json解析错误`)
-                logger.info(result)
-                return callback()
-            }
-            let user = {
-                platform: task.p,
-                bid: task.id,
-                fans_num: result.followers_count
-            }
-            // this.sendUser (user)
+            num = 0,
+            proxyStatus = false,
+            proxy       = '',
+            times       = 0
+        if(proxyStatus && proxy){
+            option.proxy = proxy
+            request.get( logger, option, ( err, result ) => {
+                if(err){
+                    times++
+                    proxyStatus = false
+                    this.core.proxy.back(proxy,false)
+                    return this.getUserInfo( task, callback )
+                }
+                times = 0
+                try{
+                    result = JSON.parse(result.body)
+                } catch (e){
+                    logger.debug('用户的粉丝数解析失败')
+                    logger.info(result)
+                    times++
+                    proxyStatus = false
+                    this.core.proxy.back(proxy,false)
+                    return this.getUserInfo( task, callback )
+                }
+                times = 0
+                let user = {
+                    platform: task.p,
+                    bid: task.id,
+                    fans_num: result.followers_count
+                }
+                this.sendStagingUser(user)
 
-            this.sendStagingUser(user)
+                this.getVidTotal( task, result, num, (err,data) => {
+                    callback()
+                })
 
-            this.getVidTotal( task, result, num, (err,data) => {
-                callback()
             })
+        }else{
+            this.core.proxy.need(times, (err, _proxy) => {
+                if(err){
+                    if(err == 'timeout'){
+                        return callback('Get proxy timesout!!')
+                    }
+                    logger.error('Get proxy occur error:', err)
+                    times++
+                    proxyStatus = false
+                    this.core.proxy.back(proxy, false)
+                    return this.getUserInfo( task, callback )
+                }
+                times = 0
+                option.proxy = _proxy
+                request.get( logger, option, ( err, result ) => {
+                    if(err){
+                        times++
+                        proxyStatus = false
+                        this.core.proxy.back(proxy,false)
+                        return this.getUserInfo( task, callback )
+                    }
+                    try{
+                        result = JSON.parse(result.body)
+                    } catch (e){
+                        logger.error(`json解析错误`)
+                        logger.info(result)
+                        times++
+                        proxyStatus = false
+                        return this.getUserInfo( task, callback )
+                    }
+                    let user = {
+                        platform: task.p,
+                        bid: task.id,
+                        fans_num: result.followers_count
+                    }
+                    this.sendStagingUser(user)
 
-        })
+                    this.getVidTotal( task, result, num, (err,data) => {
+                        callback()
+                    })
+
+                })
+            })
+        }
     }
     sendUser (user){
         let option = {
@@ -160,7 +214,7 @@ class dealWith {
                     times++
                     proxyStatus = false
                     this.core.proxy.back(proxy, false)
-                    return cb()
+                    return this.getVidTotal( task, data, num, callback )
                 }
                 times = 0
                 option.proxy = _proxy
