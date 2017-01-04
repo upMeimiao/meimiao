@@ -39,7 +39,7 @@ const _getFailedTask = () => {
         }
         const filedTask = []
         for (let [index, elem] of body.entries()) {
-            if(elem.error != 'undefined'){
+            if(elem.error != 'undefined' && elem.error != 'TTL exceeded'){
                 filedTask.push({
                     bid: elem.data.id,
                     bname: elem.data.name,
