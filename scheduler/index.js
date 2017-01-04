@@ -125,7 +125,7 @@ class scheduler {
             encodeId: raw.encodeId,
             type: raw.type,
             user_id: raw.uid
-        }).priority('critical').backoff({delay: 20 * 1000, type:'fixed'}).removeOnComplete(true)
+        }).priority('critical').backoff({delay: 150 * 1000, type:'fixed'}).removeOnComplete(true)
         if(raw.p == 6 || (raw.p == 2 && raw.id == '1060140460')){
             job.ttl(10800000)
         }
