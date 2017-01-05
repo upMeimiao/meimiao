@@ -270,7 +270,7 @@ class dealWith {
                     aid: video.vid,
                     title: video.title,
                     comment_num: result[0].comments,
-                    class: result[0].videoCategory.name,
+                    class: result[0].videoCategory ? result[0].videoCategory.name : '',
                     tag: result[1].tag,
                     desc: result[1].desc.substring(0,100),
                     support: result[2] ? result[2].msg : null,
