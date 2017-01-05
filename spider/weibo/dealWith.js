@@ -35,7 +35,7 @@ class dealWith {
             this.core.proxy.need(times, (err, _proxy) => {
                 if(err){
                     if(err == 'timeout'){
-                        return callback('Get proxy timesout!!')
+                        return callback(null,'timeout')
                     }
                     logger.error('Get proxy occur error:', err)
                     times++
@@ -55,6 +55,9 @@ class dealWith {
             }
 
         this.getProxy((err,proxy) => {
+            if (proxy == 'timeout') {
+                return callback()
+            }
             if(!proxy){
                 return this.getUserInfo(task,callback)
             }
@@ -80,7 +83,7 @@ class dealWith {
                 }
                 this.sendStagingUser(user)
 
-                this.getVidTotal( task, result, proxy, (err,data) => {
+                this.getVidTotal( task, result, proxy, () => {
                     callback()
                 })
 
@@ -151,6 +154,9 @@ class dealWith {
                 logger.debug('视频总量请求错误',err)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
+                    if (proxy == 'timeout') {
+                        return callback()
+                    }
                     this.getVidTotal( task, data, proxy, callback )
                 })
                 return
@@ -162,6 +168,9 @@ class dealWith {
                 logger.info(result)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
+                    if (proxy == 'timeout') {
+                        return callback()
+                    }
                     this.getVidTotal( task, data, proxy, callback )
                 })
                 return
@@ -169,6 +178,9 @@ class dealWith {
             if(result.cardlistInfo == undefined){
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
+                    if (proxy == 'timeout') {
+                        return callback()
+                    }
                     this.getVidTotal( task, data, proxy, callback )
                 })
                 return
@@ -196,6 +208,9 @@ class dealWith {
                         logger.debug('视频列表数据请求错误',err)
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
+                            if (proxy == 'timeout') {
+                                return callback()
+                            }
                             this.getVidList( task, data, total, proxy, callback )
                         })
                         return
@@ -206,6 +221,9 @@ class dealWith {
                         logger.error('json数据解析失败')
                         logger.info(result)
                         this.getProxy((err, proxy) => {
+                            if (proxy == 'timeout') {
+                                return callback()
+                            }
                             this.getVidList( task, data, total, proxy, callback )
                         })
                         return
@@ -213,6 +231,9 @@ class dealWith {
                     if( result.cards == undefined ){
                         logger.debug('当前列表页的结构有问题，重新请求')
                         this.getProxy((err, proxy) => {
+                            if (proxy == 'timeout') {
+                                return callback()
+                            }
                             this.getVidList( task, data, total, proxy, callback )
                         })
                         return
@@ -304,6 +325,9 @@ class dealWith {
                 logger.debug('单个视频信息请求错误',err)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
+                    if (proxy == 'timeout') {
+                        return callback(null,'抛掉当前的')
+                    }
                     this.getVideoInfo( id, proxy, callback )
                 })
                 return
@@ -315,6 +339,9 @@ class dealWith {
                 logger.info(result)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
+                    if (proxy == 'timeout') {
+                        return callback(null,'抛掉当前的')
+                    }
                     this.getVideoInfo( id, proxy, callback )
                 })
                 return
