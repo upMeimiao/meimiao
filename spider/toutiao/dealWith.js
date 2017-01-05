@@ -330,7 +330,7 @@ class dealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        //logger.debug('medis info: ',media)
+        logger.debug('medis info: ',media)
         this.sendCache( media )
         callback()
     }
