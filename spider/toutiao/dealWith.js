@@ -300,45 +300,39 @@ class dealWith {
             logger.debug(video)
             return callback(video)
         }
-        this.getPlayNum( vid, ( err, result ) => {
-            media.author = video.detail_source || video.source || task.name
-            media.platform = 6
-            media.bid = task.id
-            media.aid = vid
-            media.title = video.title || 'btwk_caihongip'
-            media.desc = video.abstract ? video.abstract.substr(0,100) : ''
-            media.comment_num = video.comment_count
-            media.support = video.digg_count || null
-            media.step = video.bury_count || null
-            media.save_num = video.repin_count || null
-            media.a_create_time = video.publish_time
-            media.v_img = this._v_img(video)
-            media.long_t = this.long_t(video.video_duration_str)
-            media.tag = this._tag(video.label)
-            if(!err){
-                media.play_num = result
-            }else{
-                media.play_num = 0
-            }
-            if(!media.support){
-                delete media.support
-            }
-            if(!media.step){
-                delete media.step
-            }
-            if(!media.save_num){
-                delete media.save_num
-            }
-            if(!media.long_t){
-                delete media.long_t
-            }
-            if(!media.v_img){
-                delete media.v_img
-            }
-            //logger.debug('medis info: ',media)
-            this.sendCache( media )
-            callback()
-        })
+        media.author = video.detail_source || video.source || task.name
+        media.platform = 6
+        media.bid = task.id
+        media.aid = vid
+        media.title = video.title || 'btwk_caihongip'
+        media.desc = video.abstract ? video.abstract.substr(0,100) : ''
+        media.play_num = Number(video.list_play_effective_count) + Number(video.detail_play_effective_count)
+        media.comment_num = video.comment_count
+        media.support = video.digg_count || null
+        media.step = video.bury_count || null
+        media.save_num = video.repin_count || null
+        media.a_create_time = video.publish_time
+        media.v_img = this._v_img(video)
+        media.long_t = this.long_t(video.video_duration_str)
+        media.tag = this._tag(video.label)
+        if(!media.support){
+            delete media.support
+        }
+        if(!media.step){
+            delete media.step
+        }
+        if(!media.save_num){
+            delete media.save_num
+        }
+        if(!media.long_t){
+            delete media.long_t
+        }
+        if(!media.v_img){
+            delete media.v_img
+        }
+        //logger.debug('medis info: ',media)
+        this.sendCache( media )
+        callback()
     }
     getPlayNum ( vid, callback ) {
         let option = {
