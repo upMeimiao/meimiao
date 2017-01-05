@@ -399,7 +399,7 @@ class dealWith {
                 return callback(null,null)
             }
             const tagStr = result.v[0].tags_video
-            callback(null,tagStr.replace(/\s+/g,','))
+            callback(null,tagStr)
         })
     }
     time ( string ) {
@@ -426,7 +426,7 @@ class dealWith {
     }
     tags( raw ){
         if(typeof raw == 'string'){
-            return raw
+            return raw.replace(/\s+/g,',').replace(/"/g,'').replace(/\[/g,'').replace(/\]/g,'')
         }
         if(Object.prototype.toString.call(raw) === '[object Array]'){
             return raw.join(',')
