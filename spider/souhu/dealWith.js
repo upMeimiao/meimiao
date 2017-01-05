@@ -287,7 +287,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode != 200){
-                logger.error(`${video.id}状态码错误`)
+                logger.error(`${id}状态码错误`)
                 logger.debug('code:',result.statusCode)
                 return callback(true)
             }
