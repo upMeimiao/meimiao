@@ -12,7 +12,8 @@ kue.createQueue({
 })
 exports.start = () => {
     const rule = new schedule.RecurrenceRule()
-    rule.minute = [30]
+    rule.hour = 8
+    rule.minute = 30
     schedule.scheduleJob(rule, () =>{
         failedJobRemove(0)
     })
