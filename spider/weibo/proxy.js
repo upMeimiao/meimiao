@@ -34,7 +34,7 @@ class proxy{
             setTimeout(() => {
                 logger.debug('setTImeout')
                 return this.need(times + 1, callback)
-            }, 3000)
+            }, 5000)
         })
     }
     back(proxy, status, callback) {
