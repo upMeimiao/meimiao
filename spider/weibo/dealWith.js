@@ -26,12 +26,11 @@ class dealWith {
     }
 
     getProxy(callback){
-        let optionProxy = '',
-            proxyStatus = false,
+        let proxyStatus = false,
             proxy       = '',
             times       = 0
         if(proxyStatus && proxy){
-            optionProxy = proxy
+            callback(null,proxy)
         }else{
             this.core.proxy.need(times, (err, _proxy) => {
                 if(err){
@@ -42,54 +41,51 @@ class dealWith {
                     times++
                     proxyStatus = false
                     this.core.proxy.back(proxy, false)
-                    return false
+                    return callback(null,false)
                 }
                 times = 0
-                optionProxy = _proxy
+                callback(null,_proxy)
             })
         }
-        return optionProxy
     }
 
     getUserInfo( task, callback ){
         let option = {
                 url : this.settings.spiderAPI.weibo.userInfo+task.id
-            },
-            proxy  = ''
+            }
 
-        proxy = this.getProxy(callback)
-        
-        if(!proxy){
-            proxy = this.getProxy(callback)
-        }
-        option.proxy = proxy
-        request.get( logger, option, ( err, result ) => {
-            if(err){
-                this.core.proxy.back(proxy, false)
-                return this.getUserInfo( task, callback )
+        this.getProxy((err,proxy) => {
+            if(!proxy){
+                return this.getUserInfo(task,callback)
             }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error(`json解析错误`)
-                logger.info(result)
-                this.core.proxy.back(proxy, false)
-                return this.getUserInfo( task, callback )
-            }
-            let user = {
-                platform: task.p,
-                bid: task.id,
-                fans_num: result.followers_count
-            }
-            this.core.proxy.back(proxy, true)
-            this.sendStagingUser(user)
+            option.proxy = proxy
+            request.get( logger, option, ( err, result ) => {
+                if(err){
+                    logger.debug('用户的粉丝数请求错误',err)
+                    this.core.proxy.back(proxy, false)
+                    return this.getUserInfo( task, callback )
+                }
+                try{
+                    result = JSON.parse(result.body)
+                } catch (e){
+                    logger.error(`json解析错误`)
+                    logger.info(result)
+                    this.core.proxy.back(proxy, false)
+                    return this.getUserInfo( task, callback )
+                }
+                let user = {
+                    platform: task.p,
+                    bid: task.id,
+                    fans_num: result.followers_count
+                }
+                this.sendStagingUser(user)
 
-            this.getVidTotal( task, result, option.proxy, (err,data) => {
-                callback()
+                this.getVidTotal( task, result, proxy, (err,data) => {
+                    callback()
+                })
+
             })
-
         })
-        
     }
     sendUser (user){
         let option = {
@@ -152,9 +148,12 @@ class dealWith {
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if (err) {
+                logger.debug('视频总量请求错误',err)
                 this.core.proxy.back(proxy, false)
-                proxy = this.getProxy(callback)
-                return this.getVidTotal( task, data, proxy, callback )
+                this.getProxy((err, proxy) => {
+                    this.getVidTotal( task, data, proxy, callback )
+                })
+                return
             }
             try{
                 result = JSON.parse(result.body)
@@ -162,17 +161,20 @@ class dealWith {
                 logger.error('json数据解析失败')
                 logger.info(result)
                 this.core.proxy.back(proxy, false)
-                proxy = this.getProxy(callback)
-                return this.getVidTotal( task, data, proxy, callback )
+                this.getProxy((err, proxy) => {
+                    this.getVidTotal( task, data, proxy, callback )
+                })
+                return
             }
             if(result.cardlistInfo == undefined){
                 this.core.proxy.back(proxy, false)
-                proxy = this.getProxy(callback)
-                return this.getVidTotal( task, data, proxy, callback )
+                this.getProxy((err, proxy) => {
+                    this.getVidTotal( task, data, proxy, callback )
+                })
+                return
             }
             let total = result.cardlistInfo.total
             task.total = total
-            this.core.proxy.back(proxy, true)
             this.getVidList( task, data, total, proxy, callback )
         })
         
@@ -191,24 +193,29 @@ class dealWith {
                 option.proxy = proxy
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
+                        logger.debug('视频列表数据请求错误',err)
                         this.core.proxy.back(proxy, false)
-                        proxy = this.getProxy(callback)
-                        return cb()
+                        this.getProxy((err, proxy) => {
+                            this.getVidList( task, data, total, proxy, callback )
+                        })
+                        return
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
                         logger.error('json数据解析失败')
                         logger.info(result)
-                        this.core.proxy.back(proxy, false)
-                        proxy = this.getProxy(callback)
-                        return cb()
+                        this.getProxy((err, proxy) => {
+                            this.getVidList( task, data, total, proxy, callback )
+                        })
+                        return
                     }
                     if( result.cards == undefined ){
                         logger.debug('当前列表页的结构有问题，重新请求')
-                        this.core.proxy.back(proxy, false)
-                        proxy = this.getProxy(callback)
-                        return cb()
+                        this.getProxy((err, proxy) => {
+                            this.getVidList( task, data, total, proxy, callback )
+                        })
+                        return
                     }
                     if( result.cards.length <= 0 ){
                         pageNum = 0
@@ -217,7 +224,6 @@ class dealWith {
                     this.deal(task,result.cards,data,proxy,() => {
                         task.page++
                         pageNum++
-                        this.core.proxy.back(proxy, true)
                         cb()
                     })
                 })
@@ -295,9 +301,12 @@ class dealWith {
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if(err){
+                logger.debug('单个视频信息请求错误',err)
                 this.core.proxy.back(proxy, false)
-                proxy = this.getProxy(callback)
-                return this.getVideoInfo( id, proxy, callback)
+                this.getProxy((err, proxy) => {
+                    this.getVideoInfo( id, proxy, callback )
+                })
+                return
             }
             try{
                 result = JSON.parse(result.body)
@@ -305,13 +314,14 @@ class dealWith {
                 logger.error('json数据解析失败')
                 logger.info(result)
                 this.core.proxy.back(proxy, false)
-                proxy = this.getProxy(callback)
-                return this.getVideoInfo( id, proxy, callback)
+                this.getProxy((err, proxy) => {
+                    this.getVideoInfo( id, proxy, callback )
+                })
+                return
             }
             dataTime = new Date(result.created_at)
             dataTime = moment(dataTime).unix()
             result.created_at = dataTime == NaN ? '' : dataTime
-            this.core.proxy.back(proxy, true)
             callback(null,result)
         })
     }
