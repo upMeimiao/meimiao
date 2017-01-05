@@ -273,13 +273,15 @@ class dealWith {
                     class: result[0].videoCategory.name,
                     tag: result[1].tag,
                     desc: result[1].desc.substring(0,100),
-                    support: result[2].msg,
+                    support: result[2] ? result[2].msg : null,
                     forward_num: result[0].forward,
                     v_img: video.pic,
                     play_num: result[0].playNum,
                     v_url: result[0].wabSiteUrl,
                     a_create_time: moment(video.create_time).format('X')
-
+                }
+                if(!media.support){
+                    delete media.support
                 }
                 //logger.debug(media.support)
                 this.sendCache( media, () => {
@@ -295,14 +297,14 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('点赞量请求失败')
-                return callback(null,{msg:0})
+                return callback(null, null)
             }
             try{
                 result = eval(result.body)
             }catch(e){
                 logger.debug('点赞量解析失败')
                 logger.info(result)
-                return callback(null,{msg:0})
+                return callback(null, null)
             }
             callback(null,result)
         })
