@@ -2,7 +2,7 @@
  * Created by yunsong on 16/7/28.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 const cheerio = require( 'cheerio' )
 
 let logger
@@ -44,7 +44,7 @@ class dealWith {
         let option = {
             url: this.settings.fansNum + id
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 return callback(err)
             }
@@ -66,9 +66,8 @@ class dealWith {
             url: this.settings.sendToServer[0],
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             try{
@@ -92,9 +91,8 @@ class dealWith {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option,(err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return
             }
             try{
@@ -115,16 +113,13 @@ class dealWith {
     getTotal ( task, id, callback){
         logger.debug('开始获取视频总数')
         let option = {
-            url: this.settings.listNum + id
+            url: this.settings.listNum + id,
+            referer: `http://boke.ku6.com/${task.id}?mode=2`,
+            ua: 1
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
                 return callback(err)
-            }
-            if( result.statusCode != 200 ){
-                logger.debug(`酷6获取视频总数状态码错误:${result.statusCode}`)
-                return callback(true)
             }
             try{
                 result = JSON.parse(result.body)
@@ -162,9 +157,8 @@ class dealWith {
                 option = {
                     url: this.settings.allInfo + task.id + "&pn=" + newSign
                 }
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
-                        logger.error( 'occur error : ' + err )
                         return cb()
                     }
                     try{
@@ -232,7 +226,7 @@ class dealWith {
                 tag: this._tag(data.tag),
                 class: this._class(data.catename)
             }
-        logger.debug(media)
+        //logger.debug(media)
         this.sendCache( media )
         callback()
     }
