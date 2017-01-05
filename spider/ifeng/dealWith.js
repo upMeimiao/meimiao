@@ -199,7 +199,7 @@ class dealWith {
                 bid: task.id,
                 aid: result.itemId,
                 title: result.title ? result.title.substr(0,100) : 'btwk_caihongip',
-                desc: result.abstractDesc ? result.abstractDesc.substr(0,100) : result.name.substr(0,100),
+                desc: result.abstractDesc ? result.abstractDesc.substr(0,100) : (result.name ? result.name.substr(0,100) : ''),
                 play_num: result.playTime,
                 comment_num: result.commentNo,
                 a_create_time: moment(result.createDate).format('X'),
