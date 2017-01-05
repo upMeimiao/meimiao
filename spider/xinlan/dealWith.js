@@ -32,6 +32,7 @@ class dealWith {
         let option = {
             url : this.settings.listVideo+task.encode_id+"&ablumId="+task.id
         }
+        //logger.debug(option)
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '接口请求错误 : ', err )
@@ -76,6 +77,17 @@ class dealWith {
             },
             (cb) => {
                 this.getComment(task,(err,result) => {
+
+                    cb(null,result)
+                })
+            },
+            (cb) => {
+                this.getSupport( video.videoId, (err, result) => {
+                    cb(null,result)
+                })
+            },
+            (cb) => {
+                this.getSava( video.videoId, (err, result) => {
                     cb(null,result)
                 })
             }
@@ -91,15 +103,54 @@ class dealWith {
                 long_t: video.duration,
                 v_img: video.videoImage,
                 v_url: video.videoShareUrl,
-                a_create_time: this.getVidTime(result[0].publishYear),
-                comment_num: result[1]
+                comment_num: result[1].total,
+                support: result[2].supportNumber,
+                save_num: result[3].hasCollect
             }
-            //logger.debug(media.comment_num)
             this.sendCache( media )
             callback()
         })
     }
+    getSava( vid, callback ){
+        let option = {
+            url: 'http://proxy.app.cztv.com/getCollectStatus.do?videoIdList='+vid
+        }
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('收藏量请求失败')
+                return callback(null,{hasCollect:''})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('收藏量解析失败')
+                logger.info(result)
+                return callback(null,{hasCollect:''})
+            }
+            callback(null,result.content.list[0])
+        })
+    }
+    getSupport( vid, callback ){
+        let option = {
+            url: 'http://proxy.app.cztv.com/getSupportStatus.do?videoIdList='+vid
+        }
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('点赞量请求失败')
+                return callback(null,{supportNumber:''})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('点赞量解析失败')
+                logger.info(result)
+                return callback(null,{supportNumber:''})
+            }
+            callback(null,result.content.list[0])
+        })
+    }
     getVidTime( time ){
+        logger.debug(time)
         if(time == ''){
             time = null
         }else{
@@ -109,27 +160,28 @@ class dealWith {
     }
     getComment( task, callback ){
         let option = {
-            url:'http://proxy.app.cztv.com/getCommentList.do?videoId='+task.encode_id+'&page=1&pageSize=20'
+            url:'http://api.my.cztv.com/api/list?xid='+task.id+'&pid=6&type=video&page=1&rows=10&_=1482130451496'
         }
+        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
-                callback(err)
+                callback(null,{comment_count:''})
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('新蓝网单个数据解析失败')
-
-                return
+                return callback(null,{comment_count:''})
             }
-            callback(null,result.content.comment_count)
+            callback(null,result)
         })
     }
     getVideoInfo( task, callback ){
         let option = {
             url: this.settings.videoInfo+task.encode_id
         }
+        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)

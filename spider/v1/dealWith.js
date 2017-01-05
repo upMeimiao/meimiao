@@ -240,20 +240,29 @@ class dealWith {
         )
     }
     getAllInfo( task, video, callback ){
+        let num = 0
         async.parallel(
             [
                 (cb) => {
-                    this.getVidInfo( video.vid, (err,result) => {
+                    this.getVidInfo( video.vid, num, (err,result) => {
                         cb(err,result)
                     })
                 },
                 (cb) => {
-                    this.getVideoInfo( video.vid, (err,result) => {
+                    this.getVideoInfo( video.vid, num, (err,result) => {
+                        cb(err,result)
+                    })
+                },
+                (cb) => {
+                    this.getSupport( video.vid, (err, result) => {
                         cb(err,result)
                     })
                 }
             ],
             (err,result) => {
+                if(result[0] == 'next'){
+                    return callback()
+                }
                 let media = {
                     author: task.name,
                     platform: task.p,
@@ -264,7 +273,7 @@ class dealWith {
                     class: result[0].videoCategory.name,
                     tag: result[1].tag,
                     desc: result[1].desc.substring(0,100),
-                    support: result[0].praise,
+                    support: result[2].msg,
                     forward_num: result[0].forward,
                     v_img: video.pic,
                     play_num: result[0].playNum,
@@ -272,12 +281,33 @@ class dealWith {
                     a_create_time: moment(video.create_time).format('X')
 
                 }
-                this.sendCache( media ) 
-                callback()
+                //logger.debug(media.support)
+                this.sendCache( media, () => {
+                    callback()
+                }) 
             }
         )
     }
-    getVideoInfo( vid, callback ){
+    getSupport( vid, callback ){
+        let option = {
+            url: 'http://user.v1.cn/openapi/getVideoPraise.json?videoId='+vid+'&callback=jsonp'
+        }
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('点赞量请求失败')
+                return callback(null,{msg:0})
+            }
+            try{
+                result = eval(result.body)
+            }catch(e){
+                logger.debug('点赞量解析失败')
+                logger.info(result)
+                return callback(null,{msg:0})
+            }
+            callback(null,result)
+        })
+    }
+    getVideoInfo( vid, num, callback ){
         let option = {
             url: 'http://www.v1.cn/video/v_'+vid+'.jhtml'
         }
@@ -285,16 +315,18 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if (err) {
                 logger.error( '单个DOM接口请求错误 : ', err )
-                return callback(err)
+                if(num <= 1){
+                    return this.getVideoInfo( vid, num++, callback )
+                }
+                return callback(null,{desc:'',tag:'',support:0})
             }
-            let $     = cheerio.load(result.body),
-                tag   = this.getTag($('li.summaryList_item ul.tagList li')),
-                desc  = $('p.summaryList_long').text(),
+            let $       = cheerio.load(result.body),
+                tag     = this.getTag($('li.summaryList_item ul.tagList li')),
+                desc    = $('p.summaryList_long').text(),
                 res   = {
                     desc: desc,
-                    tag: tag
+                    tag: tag,
                 }
-            //logger.debug(desc)
             callback(null,res)
         })
     }
@@ -308,21 +340,19 @@ class dealWith {
             }
         }
         return str
-        //logger.debug(desc.eq(0).text())
     }
-    getVidInfo( vid, callback ){
+    getVidInfo( vid, num, callback ){
         let option = {
             url: 'http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/'+ vid +'/pcode/010210000/version/4.5.4.mindex.html'
         }
+        //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
             if (err) {
                 logger.error( '单个视频接口请求错误 : ', err )
-                return callback(err)
-            }
-            if(result.statusCode != 200){
-                logger.error('单个视频状态码错误',result.statusCode)
-                logger.info(result)
-                return callback(err)
+                if(num <= 1){
+                    return this.getVidInfo( vid, num++, callback )
+                }
+                return callback(null,'next')
             }
             try{
                 result = JSON.parse(result.body)
@@ -341,7 +371,7 @@ class dealWith {
                 return
             }
             logger.debug(`第一视频 ${media.aid} 加入缓存队列`)
-            //callback()
+            callback()
         } )
     }
 }

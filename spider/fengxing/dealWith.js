@@ -179,7 +179,9 @@ class dealWith {
                         v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.videoid+'/',
                         a_create_time: result[0].release
                     }
-                    //logger.debug(media.desc)
+                    logger.debug(media.title)
+                    logger.debug(media.class)
+                    logger.debug(media.play_num)
                     this.sendCache( media, () =>{
                         callback()
                     }) 
@@ -209,7 +211,8 @@ class dealWith {
                         v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.id+'/',
                         a_create_time: result[0].time
                     }
-                    //logger.debug(media.a_create_time)
+                    logger.debug(media.class)
+                    logger.debug(media.play_num)
                     this.sendCache( media, () =>{
                         callback()
                     }) 

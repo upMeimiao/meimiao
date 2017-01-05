@@ -58,12 +58,27 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            this.deal()
+            //this.deal()
+            this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test(){
+        let work = {
+            p:32,
+            name:'飞碟说',
+            id:859,
+            encode_id: 184410
+        }
+        //logger.info( work )
+        this.dealWith.todo(work, (err,total,uid) => {
+            logger.debug(total)
+            logger.debug(uid)
+            logger.debug('end')
+        })
     }
     deal () {
         let queue = kue.createQueue({
