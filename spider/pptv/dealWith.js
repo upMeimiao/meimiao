@@ -92,8 +92,9 @@ class dealWith {
                 v_img: video.capture,
                 v_url: video.url
             }
-            this.sendCache( media )
-            callback()
+            this.sendCache( media, () => {
+                callback()
+            })
         })
     }
     getVideoInfo( url, callback ){
@@ -168,7 +169,7 @@ class dealWith {
                 return
             }
             logger.debug(`PPTV ${media.aid} 加入缓存队列`)
-            //callback()
+            callback()
         } )
     }
 }

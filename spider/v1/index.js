@@ -58,8 +58,8 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            this.deal()
-            //this.test()
+            //this.deal()
+            this.test()
         })
     }
     start () {
@@ -68,9 +68,9 @@ class spiderCore {
     }
     test(){
         let work = {
-            p:38,
-            name:'夏夜暖风',
-            id:8553004
+            p:33,
+            name:'13699099145',
+            id:6046584
         }
         //logger.info( work )
         this.dealWith.todo(work, (err,total,uid) => {
