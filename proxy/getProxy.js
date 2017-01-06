@@ -31,11 +31,12 @@ class getProxy{
             if(body.code != 0){
                 return callback(body.msg)
             }
-            // body.forEach((item) => {
-            //     proxy.push(item.host + ':' + item.port)
-            //     // proxy.push(item.host + ':' + item.port)
-            // })
-            return callback(null, body.data.proxy_list)
+            let itemArr
+            body.data.proxy_list.forEach((item) => {
+                itemArr = item.split(',')
+                proxy.push(itemArr[1].toLowerCase() + '://' + itemArr[0])
+            })
+            return callback(null, proxy)
         })
     }
 }
