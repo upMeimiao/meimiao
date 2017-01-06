@@ -39,28 +39,22 @@ class dealWith {
                 let option = {
                     url : this.settings.listVideo2+task.id+"&start="+start
                 }
-                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
-                        if(num == 0){
+                        if(num < 1){
                             setTimeout(() => {
                                 num++
                                 logger.debug('300毫秒之后重新请求一下当前列表')
                                 return cb()
                             },300)
-                        }else if(num == 1){
-                            setTimeout(() => {
-                                start += 10
-                                num=0
-                                logger.debug('300毫秒之后重新请求下一页列表')
-                                return cb()
-                            },300)
-                        }else{
-                            logger.info(result)
-                            return callback(err)
                         }
-
+                        setTimeout(() => {
+                            start += 10
+                            num=0
+                            logger.debug('300毫秒之后重新请求下一页列表')
+                            return cb()
+                        },300)
                     }
                     try{
                         result = eval(result.body)
@@ -70,36 +64,34 @@ class dealWith {
                         return callback(e)
                     }
                     if(result.data == undefined){
-                        if(Retry == 0){
+                        if(Retry < 1){
                             setTimeout(() => {
                                 Retry++
                                 logger.debug('300毫秒之后重新请求一下')
                                 return cb()
                             },300)
-                        }else{
-                            setTimeout(() => {
-                                Retry=0
-                                start+=10
-                                logger.debug('300毫秒之后重新请求一下')
-                                return cb()
-                            },300)
                         }
+                        setTimeout(() => {
+                            Retry=0
+                            start+=10
+                            logger.debug('300毫秒之后重新请求下一页列表')
+                            return cb()
+                        },300)
                     }
                     if(result.data.friend_data == undefined){
-                        if(Retry == 0){
+                        if(Retry < 1){
                             setTimeout(() => {
                                 Retry++
                                 logger.debug('300毫秒之后重新请求一下')
                                 return cb()
                             },300)
-                        }else{
-                            setTimeout(() => {
-                                Retry=0
-                                start+=10
-                                logger.debug('300毫秒之后重新请求一下')
-                                return cb()
-                            },300)
                         }
+                        setTimeout(() => {
+                            Retry=0
+                            start+=10
+                            logger.debug('300毫秒之后重新请求下一页列表')
+                            return cb()
+                        },300)
                     }
                     let length = result.data.friend_data.length-1
                     task.total += length
@@ -109,7 +101,6 @@ class dealWith {
                         sign++
                         return cb()
                     }
-                    logger.debug(start)
                     this.deal(task,result.data,length,() => {
                         sign++
                         page++
@@ -122,7 +113,6 @@ class dealWith {
                 callback()
             }
         )
-
     }
     deal( task, user, length, callback ){
         let index = 0
@@ -159,10 +149,7 @@ class dealWith {
                 })
             }
         ],(err,result) => {
-            if(err){
-                logger.debug('当前视频解析不了，直接请求下一个视频')
-                return callback()
-            }
+            
             if(result[0] == '抛掉当前的'){
                 logger.debug('直接请求下一个视频')
                 return callback()
@@ -193,7 +180,7 @@ class dealWith {
         })
     }
 
-    getVideoInfo( task, video, num, callback ){
+    getVideoInfo( task, video, callback ){
         let option = {
             url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_"
         }
@@ -201,21 +188,14 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' , err)
-                if(num == 0){
-                    setTimeout(() => {
-                        this.getVideoInfo( task, video, num++, callback )
-                    },300)
-                    return logger.debug('300毫秒之后重新请求一下')
-                }else if(num == 1){
-                    return callback(null,'抛掉当前的')
-                }
+                return callback(null,'抛掉当前的')
             }
             try{
                 result = eval(result.body)
             } catch(e){
                 logger.error('_Callback数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return callback(null,'抛掉当前的')
             }
             if(result.data == undefined){
                 return callback(null,'抛掉当前的')
