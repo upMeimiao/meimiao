@@ -36,13 +36,14 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '接口请求错误 : ', err )
+                return this.getVidList( task, callback )
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
                 logger.info(result)
-                return
+                return this.getVidList( task, callback )
             }
             let length = result.content.list.length
             task.total = length
@@ -69,9 +70,10 @@ class dealWith {
         )
     }
     getAllInfo( task, video, callback ){
+        let num = 0
         async.parallel([
             (cb) => {
-                this.getVideoInfo(task,(err,result) => {
+                this.getVideoInfo(task,num,(err,result) => {
                     cb(null,result)
                 })
             },
@@ -92,6 +94,9 @@ class dealWith {
                 })
             }
         ],(err,result) => {
+            if(result[0] == 'next'){
+                return callback()
+            }
             let media = {
                 author: task.name,
                 platform: task.p,
@@ -107,7 +112,7 @@ class dealWith {
                 support: result[2].supportNumber,
                 save_num: result[3].hasCollect
             }
-            this.sendCache( media )
+            this.sendCache(media)
             callback()
         })
     }
@@ -134,6 +139,7 @@ class dealWith {
         let option = {
             url: 'http://proxy.app.cztv.com/getSupportStatus.do?videoIdList='+vid
         }
+        //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('点赞量请求失败')
@@ -146,17 +152,11 @@ class dealWith {
                 logger.info(result)
                 return callback(null,{supportNumber:''})
             }
+            if(result.content == undefined){
+                return this.getSupport( vid, callback )
+            }
             callback(null,result.content.list[0])
         })
-    }
-    getVidTime( time ){
-        logger.debug(time)
-        if(time == ''){
-            time = null
-        }else{
-            time = moment(time.replace(' ','T') + ".704Z").unix()
-        }
-        return time
     }
     getComment( task, callback ){
         let option = {
@@ -165,39 +165,46 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.debug('单个视频请求失败 ' + err)
+                logger.debug('评论量请求失败 ', err)
                 callback(null,{comment_count:''})
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('新蓝网单个数据解析失败')
+                logger.error('评论量数据解析失败')
                 return callback(null,{comment_count:''})
             }
             callback(null,result)
         })
     }
-    getVideoInfo( task, callback ){
+    getVideoInfo( task, num, callback ){
         let option = {
             url: this.settings.videoInfo+task.encode_id
         }
         //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.debug('单个视频请求失败 ' + err)
-                return callback(err)
+                logger.debug('单个视频请求失败 ', err)
+                if(num <= 1){
+                    return this.getVideoInfo( task, num++, callback )
+                }
+                return callback(null,'next')
             }
+            num = 0
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('新蓝网单个数据解析失败')
-                return callback(e)
+                if(num <= 1){
+                    return this.getVideoInfo( task, num++, callback )
+                }
+                return callback(null,'next')
             }
             callback(null,result.content.list[0])
         })
     }
 
-    sendCache (media,callback){
+    sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
