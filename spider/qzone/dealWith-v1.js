@@ -37,7 +37,7 @@ class dealWith {
             },
             (cb) => {
                 let option = {
-                    url : this.settings.listVideo2+task.id+"&start="+start
+                    url : this.settings.listVideo+task.id+"&start="+start
                 }
                 //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
@@ -109,11 +109,10 @@ class dealWith {
                         sign++
                         return cb()
                     }
-                    logger.debug(start)
                     this.deal(task,result.data,length,() => {
                         sign++
                         page++
-                        start+=20
+                        start+=10
                         cb()
                     })
                 })
@@ -175,21 +174,19 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: result[0].singlefeed['7'].videoid,
-                title: result[0].singlefeed['4'].summary.substring(0,100),
+                title: result[0].singlefeed['4'].summary,
                 support: result[0].singlefeed['11'].num,
                 long_t: result[0].singlefeed['7'].videotime/1000,
                 v_img: result[0].v_img,
                 read_num: result[0].singlefeed['20'].view_count,
                 v_url: result[0].singlefeed['7'].videourl,
                 a_create_time: video.abstime,
-                comment_num: result[1],
-                play_num: result[0].singlefeed['7'].videoplaycnt
+                comment_num: result[1]
             }
-            /*logger.debug(media.title)
-            logger.debug(media.play_num)*/
-            this.sendCache( media, () => {
-                callback()
-            })
+            //logger.debug(media.v_img)
+            //logger.debug(media.comment_num)
+            this.sendCache( media )
+            callback()
         })
     }
 
@@ -210,6 +207,9 @@ class dealWith {
                     return callback(null,'抛掉当前的')
                 }
             }
+            if(result.data == undefined){
+                return callback(null,'抛掉当前的')
+            }
             try{
                 result = eval(result.body)
             } catch(e){
@@ -217,13 +217,7 @@ class dealWith {
                 logger.info(result)
                 return callback(e)
             }
-            if(result.data == undefined){
-                return callback(null,'抛掉当前的')
-            }
             result = result.data.all_videolist_data[0]
-            if(result.singlefeed['1'].user.uin != task.id){
-                return callback(null,'抛掉当前的')
-            }
             if(result.singlefeed['7'].coverurl['0'] == undefined){
                 result.v_img = ''
             }else if(result.singlefeed['7'].coverurl['0'].url == undefined){
@@ -255,14 +249,13 @@ class dealWith {
             callback(null,result.cmtnum)
         })
     }
-    sendCache ( media, callback ){
+    sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return callback(err)
             }
             logger.debug(`qzone ${media.aid} 加入缓存队列`)
-            callback()
         } )
     }
 }
