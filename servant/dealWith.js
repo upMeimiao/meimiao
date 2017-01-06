@@ -1555,7 +1555,7 @@ class DealWith {
                 name: data.match(/pTitle:"[^\x00-\xff]*/).toString().replace(/pTitle:"/,''),
                 id: data.match(/pid:\d*/).toString().replace(/pid:/,''),
                 p: 32,
-                encode_id: data.match(/vid:\d*/).toString().replace(/vid:/,'')
+                encode_id: data.match(/cid:\d*/).toString().replace(/cid:/,'')
             }
             callback(null,res)
         })

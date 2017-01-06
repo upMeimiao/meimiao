@@ -26,13 +26,11 @@ class dealWith {
     }
 
     getVidList( task, callback ){
-        let sign   = 0,
-            start  = 0,
-            page   = 1
+        
         let option = {
-            url : this.settings.listVideo+task.encode_id+"&ablumId="+task.id
+            url : this.settings.listVideo + task.id + "&cid=" + task.encode_id + '&_=' + new Date().getTime(),
+            ua : 1
         }
-        //logger.debug(option)
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '接口请求错误 : ', err )
@@ -45,10 +43,9 @@ class dealWith {
                 logger.info(result)
                 return this.getVidList( task, callback )
             }
-            logger.debug(result)
-            let length = result.content.list.length
+            let length = result.data.length
             task.total = length
-            this.deal(task,result.content,length,() => {
+            this.deal(task,result.data,length,() => {
                 callback()
             })
         })
@@ -60,7 +57,7 @@ class dealWith {
                 return index < length
             },
             (cb) => {
-                this.getAllInfo( task, user.list[index], () => {
+                this.getAllInfo( task, user[index], () => {
                     index++
                     cb()
                 })
@@ -74,7 +71,7 @@ class dealWith {
         let num = 0
         async.parallel([
             (cb) => {
-                this.getVideoInfo(task,num,(err,result) => {
+                this.getVideoInfo(video.vid,num,(err,result) => {
                     cb(null,result)
                 })
             },
@@ -85,12 +82,12 @@ class dealWith {
                 })
             },
             (cb) => {
-                this.getSupport( video.videoId, (err, result) => {
+                this.getSupport( video.vid, (err, result) => {
                     cb(null,result)
                 })
             },
             (cb) => {
-                this.getSava( video.videoId, (err, result) => {
+                this.getSava( video.vid, (err, result) => {
                     cb(null,result)
                 })
             }
@@ -102,13 +99,13 @@ class dealWith {
                 author: task.name,
                 platform: task.p,
                 bid: task.id,
-                aid: video.videoId,
-                title: video.videoTitle,
+                aid: video.vid,
+                title: video.title,
                 desc: result[0].videoBrief,
                 class: result[0].videoTypesDesc,
-                long_t: video.duration,
-                v_img: video.videoImage,
-                v_url: video.videoShareUrl,
+                long_t: video.durationApp,
+                v_img: video.pic,
+                v_url: video.url,
                 comment_num: result[1].total,
                 support: result[2].supportNumber,
                 save_num: result[3].hasCollect
@@ -119,7 +116,8 @@ class dealWith {
     }
     getSava( vid, callback ){
         let option = {
-            url: 'http://proxy.app.cztv.com/getCollectStatus.do?videoIdList='+vid
+            url: 'http://proxy.app.cztv.com/getCollectStatus.do?videoIdList='+vid,
+            authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
         }
         request.get( logger, option, (err, result) => {
             if(err){
@@ -138,7 +136,8 @@ class dealWith {
     }
     getSupport( vid, callback ){
         let option = {
-            url: 'http://proxy.app.cztv.com/getSupportStatus.do?videoIdList='+vid
+            url: 'http://proxy.app.cztv.com/getSupportStatus.do?videoIdList='+vid,
+            authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
         }
         //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
@@ -161,7 +160,8 @@ class dealWith {
     }
     getComment( task, callback ){
         let option = {
-            url:'http://api.my.cztv.com/api/list?xid='+task.id+'&pid=6&type=video&page=1&rows=10&_=1482130451496'
+            url:'http://api.my.cztv.com/api/list?xid='+task.id+'&pid=6&type=video&page=1&rows=10&_='+ new Date().getTime(),
+            authtoken:'103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
         }
         //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
@@ -178,9 +178,10 @@ class dealWith {
             callback(null,result)
         })
     }
-    getVideoInfo( task, num, callback ){
+    getVideoInfo( vid, num, callback ){
         let option = {
-            url: this.settings.videoInfo+task.encode_id
+            url: this.settings.videoInfo+vid,
+            authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
         }
         //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {

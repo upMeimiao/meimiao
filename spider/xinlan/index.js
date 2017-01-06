@@ -71,7 +71,7 @@ class spiderCore {
             p:32,
             name:'飞碟说',
             id:859,
-            encode_id: 184410
+            encode_id: 13
         }
         //logger.info( work )
         this.dealWith.todo(work, (err,total,uid) => {

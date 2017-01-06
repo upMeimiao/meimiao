@@ -25,7 +25,8 @@ exports.get = ( logger, option , callback ) => {
         headers: {
             'Referer': option.referer || null,
             'User-Agent': user_agent,
-            'deviceType': option.deviceType || null
+            'deviceType': option.deviceType || null,
+            'authtoken': option.authtoken || null
         }
     }
     if(!options.proxy){
@@ -39,6 +40,9 @@ exports.get = ( logger, option , callback ) => {
     }
     if(!options.headers.deviceType){
         delete options.headers.deviceType
+    }
+    if(!options.headers.authtoken){
+        delete options.headers.authtoken
     }
     request.get( options , (err,res,body) => {
         if ( err ) {
