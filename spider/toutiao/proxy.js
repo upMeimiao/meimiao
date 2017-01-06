@@ -29,7 +29,7 @@ class proxy{
             }
             if(proxy.proxy){
                 logger.debug(proxy.proxy)
-                return callback(null, proxy.proxy)
+                return callback(null, proxy.proxy.replace('https','http'))
             }
             setTimeout(() => {
                 logger.debug('setTImeout')
