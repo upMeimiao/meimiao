@@ -11,7 +11,7 @@ class sendServer {
         this.settings = settings
         logger = settings.logger
         this.onlineOption = {
-            url: settings.sendUrl,
+            url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
             headers: {
                 'Content-Type':'application/x-www-form-urlencoded'
             }
@@ -47,8 +47,8 @@ class sendServer {
             this.deal_staging()
         })
         this.on('send_data', (raw, time) => {
-            this.deal(raw)
-            //this.send(raw, time)
+            //this.deal(raw)
+            this.sendOnline(raw, time)
         })
         this.on('send_data_staging', (raw, time) => {
             this.send_staging(raw, time)
@@ -92,6 +92,73 @@ class sendServer {
                 }, 5)
             }
         )
+    }
+    sendOnline(list, time){
+        if(list.length ==0){
+            list = null
+            return
+        }
+        let newList = []
+        for (let [index, elem] of list.entries()) {
+            if(elem.platform < 26 && elem.platform != 21 && elem.platform != 23){
+                newList.push(elem)
+            }
+        }
+        this.onlineOption.form = {data: newList}
+        request.post(this.onlineOption, (err, res, result) => {
+            if(err){
+                logger.error('online occur error : ', err.message)
+                time++
+                if(time > 3){
+                    list = null
+                    time = null
+                    newList = null
+                }else{
+                    setTimeout(() => {
+                        this.emit('send_data', list, time)
+                    }, 300)
+                }
+                return
+            }
+            if(res.statusCode != 200){
+                logger.error(`online errorCode: ${res.statusCode}`)
+                logger.error(result)
+                time++
+                if(time > 3){
+                    list = null
+                    time = null
+                    newList = null
+                }else{
+                    setTimeout(() => {
+                        this.emit('send_data', list, time)
+                    }, 1500)
+                }
+                return
+            }
+            try{
+                result = JSON.parse(result)
+            }catch (e){
+                logger.error(`online 返回数据 json数据解析失败`)
+                logger.error(result)
+                //logger.error(JSON.stringify(newList))
+                list = null
+                time = null
+                newList = null
+                return
+            }
+            if(result.errno == 0){
+                //logger.debug('staging back end')
+                //logger.debug(result.data)
+            }else{
+                //logger.error('staging back error')
+                logger.error(result)
+                //logger.error('media info: ',list)
+            }
+            //logger.debug(`${list.length}个视频 staging back end`)
+            list = null
+            newList = null
+            time = null
+        })
     }
     send(media, time){
         //logger.debug(media)
