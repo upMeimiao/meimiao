@@ -9,7 +9,7 @@
     "jobDB": 2,
     "cache_db": 3
   },
-  "listVideo":"http://proxy.app.cztv.com/getPlayList.do?videoId=",
+  "listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
   "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId=",
   "sendToServer": [
     "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",

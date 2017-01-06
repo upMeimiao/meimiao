@@ -25,7 +25,8 @@ exports.get = ( logger, option , callback ) => {
         headers: {
             'Referer': option.referer || null,
             'User-Agent': user_agent,
-            'deviceType': option.deviceType || null
+            'deviceType': option.deviceType || null,
+            'authtoken': option.authtoken || null
         }
     }
     if(!options.proxy){
@@ -81,7 +82,8 @@ exports.post = ( logger, option , callback ) => {
         headers: {
             'content-type': option.contentType || null,
             'Referer': option.referer || null,
-            'User-Agent': user_agent
+            'User-Agent': user_agent,
+            'authtoken': option.authtoken || null
         },
         form : option.data
     }
