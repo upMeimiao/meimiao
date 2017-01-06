@@ -73,6 +73,7 @@ class dealWith {
             /*this.sendUser(user, () => {
                 callback()
             })*/
+            callback()
             this.sendStagingUser(user)
         })
     }
