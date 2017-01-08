@@ -71,7 +71,7 @@ class sendServer {
                    list.push(JSON.parse(elem[1]))
                }
             }
-            this.emit('send_data', list)
+            this.emit('send_data', list, 0)
             this.emit('send_data_staging', list, 0)
         })
     }
