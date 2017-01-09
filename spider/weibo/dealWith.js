@@ -308,10 +308,8 @@ class dealWith {
                     v_url: result[0].page_info == undefined ? null : result[0].page_info.media_info.h5_url
                 }
                 //logger.debug(media.a_create_time)
-                this.sendCache( media, (err,data) => {
-                    callback()
-                })
-
+                this.sendCache(media)
+                callback()
             })
         }
     }
@@ -354,14 +352,13 @@ class dealWith {
         })
     }
 
-    sendCache (media,callback){
+    sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
             logger.debug(`微博 ${media.aid} 加入缓存队列`)
-            callback()
         })
     }
 }
