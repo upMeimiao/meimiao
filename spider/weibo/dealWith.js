@@ -293,7 +293,6 @@ class dealWith {
             },
             dataTime = ''
         option.proxy = proxy
-        logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 this.core.proxy.back(proxy, false)
