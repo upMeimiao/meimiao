@@ -496,7 +496,7 @@ const vm = new Vue({
     },
     created: function () {
         this.refresh()
-        const socket = io.connect('ws://monitor.iapi.site')
+        const socket = io.connect('ws://121.42.164.116:3001/')
         socket.on('cache', (data) => {
             this.$notify.info({
                 title: '暂存队列消息',
