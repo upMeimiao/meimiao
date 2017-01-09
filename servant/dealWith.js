@@ -180,12 +180,40 @@ class DealWith {
                 logger.info(result)
                 return callback(e,{code:102,p:9})
             }
-            let res = {
-                id: result.data.user ? result.data.user.user_id : result.data.user_id,
-                name: result.data.user ? result.data.user.nickname : result.data.director || result.data.album_name,
-                p: 9
+            logger.debug(result)
+            let res,uid = result.data.user ? result.data.user.user_id : result.data.user_id
+            if(result.data.user){
+                let res = {
+                    id: uid,
+                    name: result.data.user.nickname,
+                    p: 9
+                }
+                return callback(null,res)
             }
-            callback(null,res)
+            request.get ({url:`http://api.tv.sohu.com/v4/user/info/${uid}.json?api_key=f351515304020cad28c92f70f002261c&_=${(new Date()).getTime()}`}, ( err, result) => {
+                if (err) {
+                    logger.error('occur error : ', err)
+                    return callback(err, {code: 102, p: 9})
+                }
+                if (result.statusCode != 200) {
+                    logger.error('搜狐状态码错误', result.statusCode)
+                    logger.info(result)
+                    return callback(true, {code: 102, p: 9})
+                }
+                try {
+                    result = JSON.parse(result.body)
+                } catch (e) {
+                    logger.error('搜狐json数据解析失败')
+                    logger.info(result)
+                    return callback(e, {code: 102, p: 9})
+                }
+                let res = {
+                    id: uid,
+                    name: result.data.nickname,
+                    p: 9
+                }
+                return callback(null,res)
+            })
         })
     }
     kuaibao (data,callback){
