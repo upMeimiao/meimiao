@@ -66,4 +66,12 @@ echo "启动华数TV"
 pm2 start ~/newStart/huashu.json
 echo "任务华数TV启动完成"
 
+echo "启动暴风影音"
+pm2 start ~/newStart/baofeng.json
+echo "任务暴风影音启动完成"
+
+echo "启动百度视频"
+pm2 start ~/newStart/baiduVideo.json
+echo "任务百度视频启动完成"
+
 echo "第四优先级任务启动完成"

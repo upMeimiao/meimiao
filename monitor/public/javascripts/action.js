@@ -33,7 +33,9 @@ const platformMap = new Map([
     [32,'新蓝网'],
     [33,'第一视频'],
     [34,'风行网'],
-    [35,'华数TV']
+    [35,'华数TV'],
+    [36,'暴风影音'],
+    [37,'百度视频']
 ])
 const platform = [
     {id:1,name:'优酷'},
@@ -70,7 +72,9 @@ const platform = [
     {id:32,name:'新蓝网'},
     {id:33,name:'第一视频'},
     {id:34,name:'风行网'},
-    {id:35,name:'华数TV'}
+    {id:35,name:'华数TV'},
+    {id:36,name:'暴风影音'},
+    {id:37,name:'百度视频'}
 ]
 const vm = new Vue({
     el: '#app',
@@ -115,6 +119,8 @@ const vm = new Vue({
         arr33: [],
         arr34: [],
         arr35: [],
+        arr36: [],
+        arr37: [],
         items: [],
         bingo: [],
         infos: []
@@ -246,6 +252,8 @@ const vm = new Vue({
             this.arr33 = []
             this.arr34 = []
             this.arr35 = []
+            this.arr36 = []
+            this.arr37 = []
         },
         dispath: function (p) {
             switch (p){
@@ -353,6 +361,12 @@ const vm = new Vue({
                     break
                 case 35:
                     this.items = this.bingo = this.arr35
+                    break
+                case 36:
+                    this.items = this.bingo = this.arr36
+                    break
+                case 37:
+                    this.items = this.bingo = this.arr37
                     break
             }
         },
@@ -472,6 +486,12 @@ const vm = new Vue({
                             break
                         case 35:
                             this.arr35.push(elem)
+                            break
+                        case 36:
+                            this.arr36.push(elem)
+                            break
+                        case 37:
+                            this.arr37.push(elem)
                             break
                     }
                 }

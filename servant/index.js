@@ -189,6 +189,14 @@ class spiderCore {
             case 'www.wasu.cn':
                 handle.huashuHandle( ctx, remote )
                 break
+            case 'www.baofeng.com':
+            case 'm.baofeng.com':
+                handle.baofengHandle( ctx, remote )
+                break
+            case 'baishi.baidu.com':
+            case 'baidu.56.com':
+                handle.baiduHandle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

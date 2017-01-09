@@ -322,6 +322,20 @@ const huashu = () => {
     let spider = new (require('./spider/huashu'))(settings)
     spider.start()
 }
+const baofeng = () => {
+    let logger = logging.getLogger('暴风',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/baofeng'))(settings)
+    spider.start()
+}
+const baiduVideo = () => {
+    let logger = logging.getLogger('百度视频',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/baiduVideo'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level)
     settings['logger'] = logger
@@ -452,6 +466,12 @@ switch (options['a']){
         break
     case 'huashu':
         huashu()
+        break
+    case 'baofeng':
+        baofeng()
+        break
+    case 'baiduVideo':
+        baiduVideo()
         break
     case 'test':
         test()

@@ -1,7 +1,7 @@
 {
-  "name"        : "servant",
+  "name"        : "百度视频",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","master","-a","servant","-p","2017"],
+  "args"        : ["-i","baiduVideo","-a","baiduVideo"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

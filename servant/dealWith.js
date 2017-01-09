@@ -1710,5 +1710,77 @@ class DealWith {
             })
         })
     }
+    baofeng( data, callback ){
+        let urlObj    = URL.parse(data,true),
+            host      = urlObj.hostname,
+            path      = urlObj.pathname,
+            bid       = path.match(/play-\d*/).toString().replace('play-',''),
+            listId    = null,
+            encode_id = '',
+            name      = '',
+            option    = {
+                url : data
+            }
+        request.get( option, (err,result) => {
+            if(err){
+                logger.debug('暴风PC请求失败',err)
+                return callback(err,{code:102,p:36})
+            }
+            if(result.statusCode != 200){
+                logger.debug('暴风PC状态码错误',result.statusCode)
+                return callback(true,{code:102,p:36})
+            }
+            try{
+                let $ = cheerio.load(result.body),
+                    script = $('script')[16].children[0].data.replace(/[\s\n\r]/g,''),
+                    startIndex = script.indexOf('{"info_box_tpl"'),
+                    endIndex = script.indexOf(';varstatic_storm_json')
+                result = JSON.parse(script.substring(startIndex,endIndex))
+            }catch(e){
+                logger.info(result)
+                logger.debug('数据解析失败')
+                return callback(true,{code:102,p:36})
+            }
+            let res = {
+                id: bid,
+                name: result.info_name,
+                p: 36
+            }
+            callback(null,res)
+        })
+    }
+    baidu ( data, callback ){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            path     = urlObj.pathname,
+            bid      = null,
+            name     = '',
+            option   = {
+                url : data
+            }
+        if(host == 'baidu.56.com'){
+            let video = path.match(/\d*\.html/).toString()
+            option.url = 'http://baishi.baidu.com/watch/'+video
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('百度视频请求失败',err)
+                return callback(err,{code:102,p:37})
+            }
+            if(result.statusCode != 200){
+                logger.debug('百度视频的状态码错误',result.statusCode)
+                return callback(true,{code:102,p:37})
+            }
+            let $ = cheerio.load(result.body)
+            bid = result.body.match(/pgcTid: \'\d*/).toString().replace('pgcTid: \'','')
+            name = result.body.match(/pgcName: \'[^\x00-\xff]*/).toString().replace('pgcName: \'','')
+            let res = {
+                id: bid,
+                name: name,
+                p: 37
+            }
+            callback(null,res)
+        })
+    }
 }
 module.exports = DealWith

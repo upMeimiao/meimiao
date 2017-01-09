@@ -24,7 +24,7 @@ const _inactiveTaskAlarm = () => {
     let i = 1,key,inactiveArr = []
     async.whilst(
         () => {
-            return i <= 36
+            return i <= 37
         },
         (cb) => {
             key = "inactive:" + i
