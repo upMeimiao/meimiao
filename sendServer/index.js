@@ -20,8 +20,7 @@ class sendServer {
             url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideosMore/',
             headers: {
                 'Content-Type':'application/x-www-form-urlencoded'
-            },
-            timeout: 30000
+            }
         }
         this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`,{
             reconnectOnError: function (err) {
@@ -148,13 +147,13 @@ class sendServer {
             }
             if(result.errno == 0){
                 //logger.debug('online back end')
-                logger.debug(result.data)
+                //logger.debug(result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
-            logger.debug(`${newList.length}个视频 online back end`)
+            //logger.debug(`${newList.length}个视频 online back end`)
             list = null
             newList = null
             time = null
@@ -266,8 +265,8 @@ class sendServer {
                 return
             }
             if(result.errno == 0){
-                //logger.debug('staging back end')
-                //logger.debug(result.data)
+                logger.debug('staging back end')
+                logger.debug(result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
