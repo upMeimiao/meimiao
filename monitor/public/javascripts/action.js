@@ -359,7 +359,7 @@ const vm = new Vue({
         refresh: function () {
             this.init()
             this.loading = true
-            this.$http.get('http://monitor.iapi.site/api/statusMonitor').then((response) => {
+            this.$http.get('http://121.42.164.116:3001/api/statusMonitor').then((response) => {
                 const result = response.body,
                     infos = result.infos
                 if(infos.length !== result.count){
