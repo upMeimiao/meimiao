@@ -305,7 +305,7 @@ class dealWith {
                     long_t: result[0].page_info == undefined ? null : result[0].page_info.media_info.duration,
                     v_img: result[0].page_info == undefined ? null : result[0].page_info.page_pic,
                     a_create_time: result[0].created_at,
-                    v_url: result[0].page_info == undefined ? null : result[0].page_info.media_info.mp4_sd_url
+                    v_url: result[0].page_info == undefined ? null : result[0].page_info.media_info.h5_url
                 }
                 //logger.debug(media.a_create_time)
                 this.sendCache( media, (err,data) => {
