@@ -103,6 +103,11 @@ class sendServer {
                 newList.push(elem)
             }
         }
+        if(newList.length ==0){
+            list = null
+            newList = null
+            return
+        }
         this.onlineOption.form = {data: newList}
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
