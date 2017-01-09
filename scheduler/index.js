@@ -126,10 +126,10 @@ class scheduler {
             type: raw.type,
             user_id: raw.uid
         }).priority('critical').backoff({delay: 150 * 1000, type:'fixed'}).removeOnComplete(true)
-        if(raw.p == 6 || (raw.p == 2 && raw.id == '1060140460')){
+        if(raw.p == 6 || ((raw.p == 2 && raw.id == '1060140460') || (raw.p == 2 && raw.id == '1045961206'))){
             job.ttl(10800000)
         }
-        if(raw.p != 6 && !(raw.p == 2 && raw.id == '1060140460')){
+        if(raw.p != 6 && !(raw.p == 2 && raw.id == '1060140460') && !(raw.p == 2 && raw.id == '1045961206')){
             job.attempts(5)
         }
         if(!job.data.user_id){
