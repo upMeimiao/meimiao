@@ -298,7 +298,7 @@ class dealWith {
                     aid: video.mblog.id,
                     title: video.mblog.text,
                     desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description,
-                    play_num: result[0].page_info == undefined ? '' : result[0].page_info.media_info.online_users_number,
+                    play_num: result[0].page_info == undefined ? null : result[0].page_info.media_info.online_users_number,
                     comment_num: video.mblog.comments_count,
                     forward_num: video.mblog.reposts_count,
                     support: video.mblog.attitudes_count,
@@ -306,6 +306,9 @@ class dealWith {
                     v_img: result[0].page_info == undefined ? '' : result[0].page_info.page_pic,
                     a_create_time: result[0].created_at,
                     v_url: video.mblog.mblogid
+                }
+                if(!media.play_num){
+                    delete media.play_num
                 }
                 //logger.debug(media.a_create_time)
                 this.sendCache(media)
