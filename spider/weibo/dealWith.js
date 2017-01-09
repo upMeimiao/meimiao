@@ -281,6 +281,7 @@ class dealWith {
             async.series([
                 (cb) => {
                     this.getVideoInfo(video.mblog.mblogid,proxy,(err,result) => {
+                        this.core.proxy.back(proxy, true)
                         cb(null,result)
                     })
                 }
