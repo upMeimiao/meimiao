@@ -4,6 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/request' )
+const cheerio = require('cheerio')
 const _Callback = function(data){
     return data
 }
@@ -37,8 +38,11 @@ class dealWith {
             },
             (cb) => {
                 let option = {
-                    url : this.settings.listVideo2+task.id+"&start="+start
+                    url : this.settings.listVideo+task.id+"&start="+start,
+                    referer : 'https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_module?i_uin='+task.id+'&mode=4&previewV8=1&style=31&version=8&needDelOpr=true&transparence=true&hideExtend=false&showcount=10&MORE_FEEDS_CGI=http%3A%2F%2Fic2.qzone.qq.com%2Fcgi-bin%2Ffeeds%2Ffeeds_html_act_all&refer=2&paramstring=os-win7|100',
+                    ua : 1
                 }
+                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
@@ -132,15 +136,16 @@ class dealWith {
         )
     }
     getAllInfo( task, video, callback ){
+        let $ = cheerio.load(video.html)
+        if(!$('div').hasClass('f-ct-video')){
+            logger.debug('当前的不是视频 ~ next')
+            return callback()
+        }
         let num = 0
         async.parallel([
             (cb) => {
-                this.getVideoInfo(task,video,num,(err,result) => {
-                    if(err){
-                        cb(err)
-                    }else{
-                        cb(null,result)
-                    }
+                this.getVideoInfo(task,video,(err,result) => {
+                    cb(null,result)
                 })
             },
             (cb) => {
@@ -172,8 +177,8 @@ class dealWith {
                 comment_num: result[1],
                 play_num: result[0].singlefeed['7'].videoplaycnt
             }
-            /*logger.debug(media.title)
-            logger.debug(media.play_num)*/
+            //logger.debug(media.title)
+            /*logger.debug(media.play_num)*/
             this.sendCache( media, () => {
                 callback()
             })
@@ -184,7 +189,6 @@ class dealWith {
         let option = {
             url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_"
         }
-        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' , err)
@@ -201,9 +205,7 @@ class dealWith {
                 return callback(null,'抛掉当前的')
             }
             result = result.data.all_videolist_data[0]
-            if(result.singlefeed['1'].user.uin != task.id){
-                return callback(null,'抛掉当前的')
-            }
+            
             if(result.singlefeed['7'].coverurl['0'] == undefined){
                 result.v_img = ''
             }else if(result.singlefeed['7'].coverurl['0'].url == undefined){

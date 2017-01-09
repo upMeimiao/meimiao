@@ -10,7 +10,7 @@
     "cache_db": 3
   },
   "listVideo":"https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_act_all?count=20&hostuin=",
-  "listVideo2":"https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_act_all?scope=0&flag=1&refresh=0&firstGetGroup=0&mixnocache=0&scene=0&begintime=undefined&icServerTime=&count=20&sidomain=qzonestyle.gtimg.cn&useutf8=1&outputhtmlfeed=1&refer=2&r=0.8219647901052831&g_tk=1206869616&hostuin=",
+  "listVideo2":"https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_act_all?scope=0&filter=all&flag=1&refresh=0&firstGetGroup=0&mixnocache=0&scene=0&begintime=undefined&icServerTime=&count=20&sidomain=qzonestyle.gtimg.cn&useutf8=1&outputhtmlfeed=1&refer=2&r=0.8571641726123154&g_tk=569621886&hostuin=",
   "videoInfo":"https://h5.qzone.qq.com/webapp/jsonp/videoRec/getRecommVideoList?scene=2&uin=",
   "sendToServer": [
     "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
