@@ -2,6 +2,15 @@
 
 ------
 
+## 监控系统
+
+[Kue监控](http://spider-kue.caihongip.com/kue) 
+
+[任务状态监控](http://spider-monitor.caihongip.com) 
+
+[认证测试页](http://spider-monitor.caihongip.com/auth) 
+    
+
 ## Git 分支及模块：
 
 > * master：主分支，用于线上环境部署
@@ -42,6 +51,10 @@ https://www.npmjs.com/package/cheerio
 > * moment JavaScript 日期处理类库
 http://momentjs.cn/
 > * eventproxy 事件代理,用于代替node提供的events模块 https://www.npmjs.com/package/eventproxy
+> * nodemailer 用于发送邮件
+> * node-schedule 用于定时执行任务
+> * redis redis数据库连接驱动
+> * ioredis redis集群连接驱动
 
 ## 其他技术
 
