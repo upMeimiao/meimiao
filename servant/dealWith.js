@@ -1823,5 +1823,55 @@ class DealWith {
             callback(null,res)
         })
     }
+    baijia ( data, callback ){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            path     = urlObj.pathname,
+            bid      = null,
+            name     = '',
+            option   = {
+                url : data
+            }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('百度百家视频请求失败',err)
+                return callback(err,{code:102,p:28})
+            }
+            if(result.statusCode != 200){
+                logger.debug('百度百家的状态码错误',result.statusCode)
+                return callback(true,{code:102,p:28})
+            }
+            let $ = cheerio.load(result.body),
+                script = null,
+                startIndex = null,
+                endIndex = null,
+                dataJson = {}
+            if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
+                script = $('script')[14].children[0].data.replace(/[\s\n\r]/g,'')
+                startIndex = script.indexOf('videoData={tplData')
+                endIndex = script.indexOf(',userInfo:')
+                dataJson = script.substring(startIndex+19,endIndex)
+            }else{
+                script = $('script')[11].children[0] == undefined ? $('script')[12].children[0].data.replace(/[\s\n\r]/g,'') : $('script')[11].children[0].data.replace(/[\s\n\r]/g,'')
+                startIndex = script.indexOf('videoData={"id')
+                endIndex = script.indexOf(';window.listInitData')
+                dataJson = script.substring(startIndex+10,endIndex)
+            }
+            try{
+                dataJson = JSON.parse(dataJson)
+            }catch(e){
+                logger.debug('百家号用户数据解析失败')
+                logger.info(dataJson)
+                return callback(true,{code:102,p:28})
+            }
+            let res = {
+                id: dataJson.app.id,
+                name: dataJson.app.name,
+                p: 28
+            }
+            callback(null,res)
+        })
+    }
+
 }
 module.exports = DealWith

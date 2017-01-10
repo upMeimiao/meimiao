@@ -197,6 +197,10 @@ class spiderCore {
             case 'baidu.56.com':
                 handle.baiduHandle( ctx, remote )
                 break
+            case 'po.baidu.com':
+            case 'baijiahao.baidu.com':
+                handle.baijiaHandle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

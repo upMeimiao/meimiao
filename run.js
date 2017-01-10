@@ -336,6 +336,13 @@ const baiduVideo = () => {
     let spider = new (require('./spider/baiduVideo'))(settings)
     spider.start()
 }
+const baijia = () => {
+    let logger = logging.getLogger('百度百家',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/baijia'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level)
     settings['logger'] = logger
@@ -472,6 +479,9 @@ switch (options['a']){
         break
     case 'baiduVideo':
         baiduVideo()
+        break
+    case 'baijia':
+        baijia()
         break
     case 'test':
         test()
