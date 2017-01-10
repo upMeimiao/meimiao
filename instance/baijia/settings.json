@@ -1,0 +1,18 @@
+{
+  "log_level":"TRACE",
+  "redis": {
+    "port": 6379,
+    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
+    "auth": "C19prsPjHs52CHoA0vm",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3
+  },
+  "videoList":"http://baijiahao.baidu.com/api/content/article/listall?sk=super&ak=super&_skip=0&status=in:publish,published&_preload_statistic=1&_timg_cover=50,172,1000&_cache=1&app_id=",
+  "sendFan":"http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
+  "sendToServer": [
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+  ]
+}
