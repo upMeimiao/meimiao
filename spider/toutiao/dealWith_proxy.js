@@ -3,7 +3,7 @@
  */
 const URL = require('url')
 const moment = require('moment')
-const async = require('async')
+const async = require( 'async' )
 const request = require( '../../lib/request' )
 const md5 = require('js-md5')
 
@@ -147,62 +147,130 @@ class dealWith {
             }
         })
     }
-    getList(task, callback) {
-        let index = 0,
+    getList ( task, callback ) {
+        let index = 0,times = 0,proxyStatus = false,proxy = '',
             sign = true,
             option = {
-                headers: {
-                    accept: 'application/json',
-                    'x-requested-with': 'XMLHttpRequest',
-                    referer: `https://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}&to_html=1&refer=default&source=search&version_code=5.9.4&app_name=news_article`,
-                    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.4.1 JsSdk/2.0 NetType/WIFI (News 5.9.4 10.200000)'
-                }
+                ua: 3,
+                own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
             },
-            hot_time = ''
+            hot_time = null
         async.whilst(
             () => {
                 return sign
             },
             (cb) => {
                 const {as, cp} = this.getHoney()
-                option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
-                request.get(logger, option, (err,result) => {
-                    if(err){
-                        return cb()
-                    }
-                    try{
-                        result = JSON.parse(result.body)
-                    }catch (e){
-                        logger.error('json数据解析失败')
-                        logger.error(result.body)
-                        return cb()
-                    }
-                    if(result.has_more === false){
-                        logger.error('被封')
-                        process.exit()
-                        return
-                    }
-                    if(index == 0 && result.data.length > 0){
-                        task.uid = result.data[0].creator_uid
-                    }
-                    if(!result.data || result.data.length == 0){
-                        task.total = 10 * index
-                        sign = false
-                        return cb()
-                    }
-                    hot_time = result.next.max_behot_time
-                    this.deal( task, result.data,(err) => {
-                        index++
-                        cb()
+                if(hot_time){
+                    option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                }else{
+                    option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
+                }
+                if(proxyStatus && proxy){
+                    option.proxy = proxy
+                    request.get( logger, option, (err,result) => {
+                        if(err){
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy, false)
+                            return cb()
+                        }
+                        times = 0
+                        try{
+                            result = JSON.parse(result.body)
+                        }catch (e){
+                            logger.error('json数据解析失败')
+                            logger.error(result.body)
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy, false)
+                            return cb()
+                        }
+                        if(result.has_more === false){
+                            times++
+                            proxyStatus = false
+                            this.core.proxy.back(proxy, false)
+                            return cb()
+                        }
+                        times = 0
+                        if(index == 0 && result.data.length > 0){
+                            task.uid = result.data[0].creator_uid
+                        }
+                        if(!result.data || result.data.length == 0){
+                            task.total = 10 * index
+                            sign = false
+                            return cb()
+                        }
+                        hot_time = result.next.max_behot_time
+                        this.deal( task, result.data,(err) => {
+                            index++
+                            cb()
+                        })
                     })
-                })
+                } else {
+                    this.core.proxy.need(times, (err, _proxy) => {
+                        if(err) {
+                            if(err == 'timeout'){
+                                return callback('Get proxy timesout!!')
+                            }
+                            logger.error('Get proxy occur error:' , err)
+                            times++
+                            proxyStatus = false
+                            return cb()
+                        }
+                        times = 0
+                        option.proxy = _proxy
+                        request.get( logger, option, (err,result) => {
+                            if(err){
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            times = 0
+                            try{
+                                result = JSON.parse(result.body)
+                            }catch (e){
+                                logger.error('json数据解析失败')
+                                logger.error(result.body)
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            if(result.has_more === false){
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            times = 0
+                            proxyStatus = true
+                            proxy = _proxy
+                            if(index == 0 && result.data.length > 0){
+                                task.uid = result.data[0].creator_uid
+                            }
+                            if(!result.data || result.data.length == 0){
+                                task.total = 10 * index
+                                sign = false
+                                return cb()
+                            }
+                            hot_time = result.next.max_behot_time
+                            this.deal( task, result.data,(err) => {
+                                index++
+                                cb()
+                            })
+                        })
+                    })
+                }
             },
             (err,result) => {
+                this.core.proxy.back(proxy, true)
                 callback()
             }
         )
     }
-    deal(task, list, callback){
+    deal( task, list, callback ){
         let index = 0,
             length = list.length
         async.whilst(
@@ -216,13 +284,11 @@ class dealWith {
                 })
             },
             (err,result) => {
-                setTimeout(() => {
-                    callback()
-                }, 1500)
+                callback()
             }
         )
     }
-    getInfo(task, video, callback) {
+    getInfo ( task, video, callback) {
         const media = {}
         let vid
         if(video.str_item_id){
@@ -268,7 +334,29 @@ class dealWith {
         this.sendCache( media )
         callback()
     }
-    _tag(raw) {
+    getPlayNum ( vid, callback ) {
+        let option = {
+            url: `http://m.toutiao.com/i${vid}/info/`,
+        }
+        request.get( logger, option, ( err, result ) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch (e) {
+                logger.error('返回JSON格式不正确')
+                logger.error('info:',result)
+                return callback(e)
+            }
+            let backData = result.data
+            if(!backData){
+                return callback(true)
+            }
+            callback(null,backData.video_play_count)
+        })
+    }
+    _tag ( raw ){
         if(!raw){
             return ''
         }
@@ -281,7 +369,7 @@ class dealWith {
         }
         return ''
     }
-    long_t(time) {
+    long_t( time ){
         if(!time){
             return null
         }
@@ -294,7 +382,7 @@ class dealWith {
         }
         return long_t
     }
-    _v_img(video) {
+    _v_img(video){
         // if(video.cover_image_infos && video.cover_image_infos.length != 0 && video.cover_image_infos[0].width && video.cover_image_infos[0].height){
         //     return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`
         // }
@@ -303,7 +391,7 @@ class dealWith {
         }
         return null
     }
-    sendCache(media) {
+    sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
