@@ -229,7 +229,6 @@ class dealWith {
                 }
             }
         ],(err,result) => {
-            
             let time  = new Date(video.publish_at),
                 media = {
                 author: task.name,
@@ -248,12 +247,10 @@ class dealWith {
                 a_create_time: moment(time).format('X'),
                 play_num: result[0].playNum
             }
-            if(media.play_num == null){
+            if(!media.play_num){
                 delete media.play_num
-                return callback()
-            }else{
-                task.total++
             }
+            task.total++
             //logger.debug(media.a_create_time)
             this.sendCache(media)
             callback()
