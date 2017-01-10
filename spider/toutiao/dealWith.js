@@ -175,7 +175,6 @@ class dealWith {
                             return cb()
                         }else{
                             return setTimeout(()=>{
-                                index++
                                 cb()
                             }, 3000)
                         }
