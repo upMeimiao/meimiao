@@ -9,6 +9,7 @@
     "jobDB": 2,
     "cache_db": 3
   },
+  "concurrency": 9,
   "key": "f351515304020cad28c92f70f002261c",
   "newUser": "http://api.tv.sohu.com/v4/user/info/",
   "userInfo":"http://my.tv.sohu.com/user/media/mobile/userinfo.do?api_key=",
