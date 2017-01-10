@@ -74,4 +74,8 @@ echo "启动百度视频"
 pm2 start ~/newStart/baiduVideo.json
 echo "任务百度视频启动完成"
 
+echo "启动百度百家"
+pm2 start ~/newStart/baijia.json
+echo "任务百度百家启动完成"
+
 echo "第四优先级任务启动完成"
