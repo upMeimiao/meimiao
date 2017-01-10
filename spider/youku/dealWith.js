@@ -129,7 +129,8 @@ class dealWith {
                 qs: { caller: '1', pg: '1', pl: '20', uid: task.encodeId },
                 headers: {
                     'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
-                }
+                },
+                timeout: 5000
             }
         request(options, (error, response, body) => {
             if(error){
@@ -178,7 +179,8 @@ class dealWith {
                     qs: { caller: '1', pg: sign, pl: '20', uid: task.encodeId },
                     headers: {
                         'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
-                    }
+                    },
+                    timeout: 5000
                 }
                 request(options, (error, response, body) => {
                     if(error){
@@ -227,7 +229,8 @@ class dealWith {
             qs: {
                 client_id:this.settings.app_key,
                 video_ids:ids
-            }
+            },
+            timeout: 5000
         }
         request( options, ( error, response, body ) => {
             if(error){
