@@ -69,6 +69,9 @@ class dealWith {
         async.parallel([
             (cb) => {
                 this.getVideoInfo(video.url,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
@@ -78,6 +81,9 @@ class dealWith {
                 })
             }
         ],(err,result) => {
+            if(err){
+                return callback()
+            }
             let media = {
                 author: task.name,
                 platform: task.p,
@@ -92,9 +98,8 @@ class dealWith {
                 v_img: video.capture,
                 v_url: video.url
             }
-            this.sendCache( media, () => {
-                callback()
-            })
+            this.sendCache(media)
+            callback()
         })
     }
     getVideoInfo( url, callback ){
@@ -126,7 +131,7 @@ class dealWith {
                 data = JSON.parse(data)
             } catch(e){
                 logger.error('data数据解析失败')
-                return
+                return callback(e)
             }
             let res = {
                 data: data,
@@ -162,14 +167,13 @@ class dealWith {
         })
     }
 
-    sendCache (media,callback){
+    sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
             logger.debug(`PPTV ${media.aid} 加入缓存队列`)
-            callback()
         } )
     }
 }
