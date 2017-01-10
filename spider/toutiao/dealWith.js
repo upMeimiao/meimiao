@@ -148,7 +148,7 @@ class dealWith {
         })
     }
     getList(task, callback) {
-        let index = 0,
+        let index = 0,times = 0,
             sign = true,
             option = {
                 headers: {
@@ -165,23 +165,22 @@ class dealWith {
             },
             (cb) => {
                 const {as, cp} = this.getHoney()
+                times++
                 option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
-                request.get(logger, option, (err,result) => {
+                this.getListInfo(option, (err, result) => {
                     if(err){
-                        return cb()
+                        if(times > 5){
+                            task.total = 10 * index
+                            sign = false
+                            return cb()
+                        }else{
+                            return setTimeout(()=>{
+                                index++
+                                cb()
+                            }, 3000)
+                        }
                     }
-                    try{
-                        result = JSON.parse(result.body)
-                    }catch (e){
-                        logger.error('json数据解析失败')
-                        logger.error(result.body)
-                        return cb()
-                    }
-                    if(result.has_more === false){
-                        logger.error('被封')
-                        process.exit()
-                        return
-                    }
+                    times = 0
                     if(index == 0 && result.data.length > 0){
                         task.uid = result.data[0].creator_uid
                     }
@@ -202,6 +201,25 @@ class dealWith {
             }
         )
     }
+    getListInfo(option, callback) {
+        request.get(logger, option, (err,result) => {
+            if(err){
+                return callback(err)
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.error(result.body)
+                return callback(e)
+            }
+            if(result.has_more === false){
+                //logger.error(result)
+                return callback('has_more_error')
+            }
+            callback(null, result)
+        })
+    }
     deal(task, list, callback){
         let index = 0,
             length = list.length
@@ -218,7 +236,7 @@ class dealWith {
             (err,result) => {
                 setTimeout(() => {
                     callback()
-                }, 1500)
+                }, 2000)
             }
         )
     }
