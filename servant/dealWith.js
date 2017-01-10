@@ -576,14 +576,18 @@ class DealWith {
     tudou (data,callback) {
         let pathname = URL.parse(data,true).pathname,
             test = pathname.indexOf('html'),
-            option = {}
-        if( test > 0 ){
-            let v_array = pathname.split('/'),
-                v_id = (v_array[v_array.length-1].split('.'))[0]
+            option = {},v_id
+        if(pathname.startsWith('/albumplay') && test> 0){
+            let v_array = pathname.split('/')
+            v_id = (v_array[v_array.length-1].split('.'))[0]
+            option.url = `http://www.tudou.com/tvp/getItemInfo.action?ic=${v_id}&app=5`
+        }else if( test > 0 ){
+            let v_array = pathname.split('/')
+            v_id = (v_array[v_array.length-1].split('.'))[0]
             option.url = api.tudou.url + v_id
         }else{
-            let v_array = pathname.split('/'),
-                v_id = v_array[3]
+            let v_array = pathname.split('/')
+            v_id = v_array[3]
             option.url = api.tudou.url + v_id
         }
         request.get ( option, ( err, result) => {
@@ -603,10 +607,19 @@ class DealWith {
                 logger.info(result)
                 return callback(e,{code:102,p:12})
             }
+            let res
+            if(pathname.startsWith('/albumplay')){
+                res = {
+                    id: result.oid,
+                    name: result.onic,
+                    p: 12
+                }
+                return callback(null,res)
+            }
             if(!result.detail){
                 return callback(true,{code:102,p:12})
             }
-            let res = {
+            res = {
                 id: result.detail.userid,
                 name: result.detail.username,
                 p: 12
