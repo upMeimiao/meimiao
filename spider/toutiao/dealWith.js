@@ -169,14 +169,14 @@ class dealWith {
                 option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
                 this.getListInfo(option, (err, result) => {
                     if(err){
-                        if(times > 5){
+                        if(times > 10){
                             task.total = 10 * index
                             sign = false
                             return cb()
                         }else{
                             return setTimeout(()=>{
                                 cb()
-                            }, 3000)
+                            }, 2000 * times)
                         }
                     }
                     times = 0
