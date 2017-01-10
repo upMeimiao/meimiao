@@ -254,6 +254,10 @@ class dealWith {
                 logger.error(`秒拍getInfo json 解析: ${result.statusCode}`)
                 return callback(e)
             }
+            if(result.status != 200){
+                logger.error(result)
+                return callback(true)
+            }
             dataJson.long_t = result.result.ext.length
             dataJson.v_img  = result.result.pic.base+result.result.pic.m
             dataJson.class  = this._class(result.result.category_info)
