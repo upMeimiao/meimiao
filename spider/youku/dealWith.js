@@ -128,7 +128,7 @@ class dealWith {
                 url: this.settings.list,
                 qs: { caller: '1', pg: '1', pl: '20', uid: task.encodeId },
                 headers: {
-                    'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
+                    'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
                 },
                 timeout: 5000
             }
@@ -176,9 +176,9 @@ class dealWith {
                 options = {
                     method: 'GET',
                     url: this.settings.list,
-                    qs: { caller: '1', pg: sign, pl: '20', uid: task.encodeId },
+                    qs: { caller: '1', pg: sign, pl: '50', uid: task.encodeId },
                     headers: {
-                        'user-agent': 'Youku;5.8;iPhone OS;9.3.5;iPhone8,2'
+                        'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
                     },
                     timeout: 5000
                 }
