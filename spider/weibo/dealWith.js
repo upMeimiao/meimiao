@@ -53,7 +53,6 @@ class dealWith {
         let option = {
                 url : this.settings.spiderAPI.weibo.userInfo+task.id
             }
-
         this.getProxy((err,proxy) => {
             if (proxy == 'timeout') {
                 return callback()
@@ -79,7 +78,7 @@ class dealWith {
                 let user = {
                     platform: task.p,
                     bid: task.id,
-                    fans_num: result.followers_count
+                    fans_num: result.userInfo.followers_count
                 }
                 this.sendStagingUser(user)
 
@@ -98,20 +97,20 @@ class dealWith {
         request.post( logger, option, (err,back) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                logger.info(`返回搜狐视频用户 ${user.bid} 连接服务器失败`)
+                logger.info(`返回微博视频用户 ${user.bid} 连接服务器失败`)
                 return
             }
             try{
                 back = JSON.parse(back.body)
             }catch (e){
-                logger.error(`搜狐视频用户 ${user.bid} json数据解析失败`)
+                logger.error(`微博视频用户 ${user.bid} json数据解析失败`)
                 logger.info(back)
                 return
             }
             if(back.errno == 0){
-                logger.debug("搜狐视频用户:",user.bid + ' back_end')
+                logger.debug("微博视频用户:",user.bid + ' back_end')
             }else{
-                logger.error("搜狐视频用户:",user.bid + ' back_error')
+                logger.error("微博视频用户:",user.bid + ' back_error')
                 logger.info(back)
                 logger.info(`user info: `,user)
             }
