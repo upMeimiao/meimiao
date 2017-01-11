@@ -268,7 +268,7 @@ class dealWith {
                 long_t: result[0].singlefeed['7'].videotime/1000,
                 v_img: result[0].v_img,
                 read_num: result[0].singlefeed['20'].view_count,
-                v_url: result[0].singlefeed['7'].videourl,
+                v_url: result[0].singlefeed['0'].curlikekey,
                 a_create_time: video.abstime,
                 comment_num: result[1],
                 play_num: result[0].singlefeed['7'].videoplaycnt
