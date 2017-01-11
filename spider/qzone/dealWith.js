@@ -47,18 +47,19 @@ class dealWith {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
                         if(num < 1){
-                            setTimeout(() => {
+                            return setTimeout(() => {
                                 num++
                                 logger.debug('300毫秒之后重新请求一下当前列表')
-                                return cb()
+                                cb()
+                            },300)
+                        }else{
+                            return setTimeout(() => {
+                                start += 10
+                                num=0
+                                logger.debug('300毫秒之后重新请求下一页列表')
+                                cb()
                             },300)
                         }
-                        setTimeout(() => {
-                            start += 10
-                            num=0
-                            logger.debug('300毫秒之后重新请求下一页列表')
-                            return cb()
-                        },300)
                     }
                     try{
                         result = eval(result.body)
