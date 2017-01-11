@@ -98,7 +98,7 @@ const _failedPretreatment = (info) => {
     }
     let emailContent = ''
     for (let [index, elem] of info.entries()) {
-        if(elem && elem.p != 6 && elem.p != 14 && elem.p != 23 && elem.p != 24 && elem.p < 30){
+        if(elem && elem.p != 6 && elem.p != 14){
             emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，bid：${elem.bid}，bname：${elem.bname}</p>`
         }
     }
