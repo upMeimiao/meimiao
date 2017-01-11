@@ -4,7 +4,6 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const EventProxy = require( 'eventproxy' )
 const request = require( '../lib/request' )
 const jsonp = function(data){
     return data
@@ -20,10 +19,6 @@ class dealWith {
     todo ( task, callback ) {
         task.total = 0
         task.page = 0
-        task.event = new EventProxy()
-        task.event.once('end', () => {
-            callback(null,task.total)
-        })
         this.getList( task, ( err ) => {
             if(err){
                 return callback( err )
@@ -47,13 +42,14 @@ class dealWith {
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
+                        return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
                         logger.error('json数据解析失败')
                         logger.info(result)
-                        return
+                        return cb()
                     }
                     let length = result.data.length
                     task.total += length
@@ -164,7 +160,7 @@ class dealWith {
             }catch (e){
                 logger.error('单个视频json数据解析失败')
                 logger.info(result)
-                return
+                return callback(null,'没有数据')
             }
             this.getCommentNum(task,_id,result.id,(err,data) => {
                 result.descData = data
@@ -192,7 +188,7 @@ class dealWith {
             }catch(e){
                 logger.debug('UC数据解析失败')
                 logger.info(data)
-                return
+                return callback(e)
             }
             contLength = data.data.comments.length
             num = data.data.comment_cnt
