@@ -152,11 +152,6 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return
             }
-            if(result.statusCode != 200 ){
-                logger.error( `状态码${result.statusCode}` )
-                logger.info( result )
-                return
-            }
             try {
                 result = JSON.parse( result.body )
             } catch (e) {
