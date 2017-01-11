@@ -121,7 +121,7 @@ http://momentjs.cn/
 34. <font color='#FF4949'>风行网</font>
 35. <font color='#FF4949'>华数TV</font>
 36. <font color='#FF4949'>暴风影音</font>
-37. <font color='#FF4949'>百度视频</font>
+37. <font color="#FF4949">百度视频</font>
 
 ## 从服务器拿到的任务信息
 ```
