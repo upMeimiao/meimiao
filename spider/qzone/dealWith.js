@@ -270,7 +270,8 @@ class dealWith {
                 read_num: result[0].singlefeed['20'].view_count,
                 v_url: result[0].singlefeed['0'].curlikekey,
                 a_create_time: video.abstime,
-                comment_num: result[1],
+                comment_num: result[1].cmtnum,
+                forward_num: result[1].fwdnum,
                 play_num: result[0].singlefeed['7'].videoplaycnt
             }
             //logger.debug(media.title)
@@ -314,7 +315,8 @@ class dealWith {
     }
     getVidCom( task, vid, callback ){
         let option = {
-            url : 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin='+task.id+'&tid='+vid+'&pos=0&num=20'
+            //url : 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin='+task.id+'&tid='+vid+'&pos=0&num=20'
+            url : 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin='+task.id+'&tid='+vid+'&t1_source=1&ftype=0&sort=0&pos=0&num=20&code_version=1&format=jsonp&need_private_comment=1'
         }
         //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
@@ -329,7 +331,7 @@ class dealWith {
                 return callback(null,'')
             }
 
-            callback(null,result.cmtnum)
+            callback(null,result)
         })
     }
     sendCache ( media ){
