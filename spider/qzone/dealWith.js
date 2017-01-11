@@ -66,6 +66,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.data.data.total
             }
+            this.sendUser(user)
             this.sendStagingUser(user)
             callback()
         })

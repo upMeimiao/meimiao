@@ -80,6 +80,7 @@ class dealWith {
                     bid: task.id,
                     fans_num: result.userInfo.followers_count
                 }
+                this.sendUser(user)
                 this.sendStagingUser(user)
 
                 this.getVidTotal( task, result, proxy, () => {
