@@ -18,14 +18,110 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
-        this.getVidList( task, ( err ) => {
-            if(err){
-                return callback( err )
+        async.parallel(
+            [
+                (cb) => {
+                    this.getFan( task, ( err ) => {
+                        logger.debug('用户粉丝数请求完成')
+                        cb(null)
+                    })
+                },
+                (cb) => {
+                    this.getVidList( task, ( err ) => {
+                        if(err){
+                            cb( err )
+                        }
+                        logger.debug('用户视频数据请求完成')
+                        cb( null )
+                    })
+                }
+            ],
+            (err, result) => {
+                if(err){
+                    return callback( err )
+                }
+                callback( null, task.total )
             }
-            callback( null, task.total )
+        )
+    }
+    getFan( task, callback ) {
+        let option = {
+            url: 'https://h5.qzone.qq.com/proxy/domain/r.qzone.qq.com/cgi-bin/tfriend/cgi_like_check_and_getfansnum.cgi?uin='+task.id+'&mask=3&fupdate=1',
+            ua: 1
+        }
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('用户粉丝数请求失败')
+                return this.getFan( task, callback )
+            }
+            try{
+                result = eval(result.body)
+            }catch(e){
+                logger.debug('用户粉丝数解析失败')
+                logger.info(result)
+                return getFan( task, callback )
+            }
+            let user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: result.data.data.total
+            }
+            this.sendStagingUser(user)
+            callback()
         })
     }
-
+    sendUser (user){
+        let option = {
+            url: this.settings.sendToServer[2],
+            data: user
+        }
+        request.post( logger, option, (err,back) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                logger.info(`返回QQ空间视频用户 ${user.bid} 连接服务器失败`)
+                return
+            }
+            try{
+                back = JSON.parse(back.body)
+            }catch (e){
+                logger.error(`QQ空间视频用户 ${user.bid} json数据解析失败`)
+                logger.info(back)
+                return
+            }
+            if(back.errno == 0){
+                logger.debug("QQ空间视频用户:",user.bid + ' back_end')
+            }else{
+                logger.error("QQ空间视频用户:",user.bid + ' back_error')
+                logger.info(back)
+                logger.info(`user info: `,user)
+            }
+        })
+    }
+    sendStagingUser (user){
+        let option = {
+            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            data: user
+        }
+        request.post( logger, option,(err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info('send error:',result)
+                return
+            }
+            if(result.errno == 0){
+                logger.debug("用户:",user.bid + ' back_end')
+            }else{
+                logger.error("用户:",user.bid + ' back_error')
+                logger.info(result)
+            }
+        })
+    }
     getVidList( task, callback ){
         let sign   = 0,
             start  = 0,
@@ -47,17 +143,17 @@ class dealWith {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
                         if(num < 1){
-                            setTimeout(() => {
+                            return setTimeout(() => {
                                 num++
                                 logger.debug('300毫秒之后重新请求一下当前列表')
-                                return cb()
+                                cb()
                             },300)
                         }
-                        setTimeout(() => {
+                        return setTimeout(() => {
                             start += 10
                             num=0
                             logger.debug('300毫秒之后重新请求下一页列表')
-                            return cb()
+                            cb()
                         },300)
                     }
                     try{
@@ -69,32 +165,32 @@ class dealWith {
                     }
                     if(result.data == undefined){
                         if(Retry < 1){
-                            setTimeout(() => {
+                            return setTimeout(() => {
                                 Retry++
                                 logger.debug('300毫秒之后重新请求一下')
-                                return cb()
+                                cb()
                             },300)
                         }
-                        setTimeout(() => {
+                        return setTimeout(() => {
                             Retry=0
                             start+=10
                             logger.debug('300毫秒之后重新请求下一页列表')
-                            return cb()
+                            cb()
                         },300)
                     }
                     if(result.data.friend_data == undefined){
                         if(Retry < 1){
-                            setTimeout(() => {
+                            return setTimeout(() => {
                                 Retry++
                                 logger.debug('300毫秒之后重新请求一下')
-                                return cb()
+                                cb()
                             },300)
                         }
-                        setTimeout(() => {
+                        return setTimeout(() => {
                             Retry=0
                             start+=10
                             logger.debug('300毫秒之后重新请求下一页列表')
-                            return cb()
+                            cb()
                         },300)
                     }
                     let length = result.data.friend_data.length-1
