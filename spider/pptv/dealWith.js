@@ -77,6 +77,9 @@ class dealWith {
             },
             (cb) => {
                 this.getTotal(video.id,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             }
@@ -150,13 +153,13 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return
+                return callback(err)
             }
             try {
                 result = JSON.parse( result.body )
             } catch (e) {
                 logger.info( '不符合JSON格式' )
-                return
+                return callback(e)
             }
             callback(null,result.total)
         })
