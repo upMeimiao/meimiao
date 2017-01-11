@@ -484,8 +484,12 @@ class DealWith {
     toutiao (data,callback) {
         let pathname = URL.parse(data,true).pathname,
             v_id, option = {}
-        if(pathname.startsWith('/i')){
-            v_id = pathname.replace(/\//g,'').substring(1)
+        if(pathname.startsWith('/i') || pathname.startsWith('/api/pc')){
+            if(pathname.startsWith('/api/pc')){
+                v_id = pathname.replace(/\//g,'').substring(9)
+            }else{
+                v_id = pathname.replace(/\//g,'').substring(1)
+            }
             option.url = api.toutiao.url + v_id + "/info/"
             request.get(option,(err,result)=>{
                 if(err){
