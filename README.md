@@ -105,23 +105,23 @@ http://momentjs.cn/
 18. 百思不得姐
 19. 内涵段子
 20. YY
-21. <font color='#FF4949'>56视频</font>
+21. 56视频
 22. AcFun
 23. 微博
 24. 凤凰号
 25. 网易号
-26. <font color='#FF4949'>UC头条号 </font>
-27. <font color='#FF4949'>芒果视频</font>
-28. <font color='#FF4949'>百家号</font>
+26. UC头条号 
+27. 芒果视频
+28. 百家号
 29. qq空间
-30. <font color='#FF4949'>央视网-爱西柚</font>
-31. <font color='#FF4949'>PPTV</font>
-32. <font color='#FF4949'>新蓝</font>
-33. <font color='#FF4949'>第一视频</font>
-34. <font color='#FF4949'>风行网</font>
-35. <font color='#FF4949'>华数TV</font>
-36. <font color='#FF4949'>暴风影音</font>
-37. <font color="#FF4949">百度视频</font>
+30. 央视网-爱西柚
+31. PPTV
+32. 新蓝
+33. 第一视频
+34. 风行网
+35. 华数TV
+36. 暴风影音
+37. 百度视频
 
 ## 从服务器拿到的任务信息
 ```
