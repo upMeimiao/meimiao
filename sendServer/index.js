@@ -99,7 +99,7 @@ class sendServer {
         }
         let newList = []
         for (let [index, elem] of list.entries()) {
-            if(elem.platform < 26 && elem.platform != 21 && elem.platform != 23){
+            if((elem.platform < 26 && elem.platform != 21) || elem.platform == 29){
                 newList.push(elem)
             }
         }
