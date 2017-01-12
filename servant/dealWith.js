@@ -487,6 +487,8 @@ class DealWith {
         if(pathname.startsWith('/i') || pathname.startsWith('/api/pc')){
             if(pathname.startsWith('/api/pc')){
                 v_id = pathname.replace(/\//g,'').substring(9)
+            }else if(pathname.startsWith('/item/')){
+                v_id = pathname.replace(/\//g,'').substring(4)
             }else{
                 v_id = pathname.replace(/\//g,'').substring(1)
             }
