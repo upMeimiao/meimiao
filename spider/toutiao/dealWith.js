@@ -176,7 +176,7 @@ class dealWith {
                         }else{
                             return setTimeout(()=>{
                                 cb()
-                            }, 2000 * times)
+                            }, 5000 * times)
                         }
                     }
                     times = 0
@@ -235,7 +235,7 @@ class dealWith {
             (err,result) => {
                 setTimeout(() => {
                     callback()
-                }, 2000)
+                }, 5000)
             }
         )
     }
