@@ -169,22 +169,19 @@ class dealWith {
                         platform: task.p,
                         bid: task.id,
                         aid: video.videoid,
-                        title: video.title,
+                        title: result[0].name,
                         comment_num: result[0].comment_num,
                         class: result[0].channel,
                         long_t: video.raw_dura,
                         desc: result[0].brief.substring(0,100),
                         v_img: video.still,
                         play_num: video.play_index,
-                        v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.videoid+'/',
+                        v_url: result[0].share,
                         a_create_time: result[0].release
                     }
-                    logger.debug(media.title)
-                    logger.debug(media.class)
-                    logger.debug(media.play_num)
-                    this.sendCache( media, () =>{
-                        callback()
-                    }) 
+                    //logger.debug(media)
+                    this.sendCache(media)
+                    callback()
                 }
             )            
         }else{
@@ -211,11 +208,9 @@ class dealWith {
                         v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.id+'/',
                         a_create_time: result[0].time
                     }
-                    logger.debug(media.class)
-                    logger.debug(media.play_num)
-                    this.sendCache( media, () =>{
-                        callback()
-                    }) 
+                    //logger.debug(media)
+                    this.sendCache(media) 
+                    callback()
                 }
             )
         }
@@ -235,6 +230,7 @@ class dealWith {
         let option = {}
         if(task.type == '视频号'){
             option.url= 'http://pv.funshion.com/v5/video/profile?cl=iphone&id='+vid+'&si=0&uc=202&ve=3.2.9.2'
+            //logger.debug(option.url)
             async.waterfall(
                 [
                     (cb) => {
@@ -272,6 +268,7 @@ class dealWith {
             )
         }else{
             option.url= 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+vid+'/'
+            //logger.debug(option.url)
             async.waterfall(
                 [
                     (cb) => {
@@ -305,6 +302,7 @@ class dealWith {
         let option = {
             url : 'http://api1.fun.tv/ajax/new_playinfo/gallery/'+vid+'/?user=funshion&mid='+id
         }
+        //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if (err) {
                 logger.error( 'time接口请求错误 : ', err )
@@ -355,14 +353,13 @@ class dealWith {
             callback(null,result.data.total_num)
         })
     }
-    sendCache (media,callback){
+    sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
             logger.debug(`风行 ${media.aid} 加入缓存队列`)
-            callback()
         } )
     }
 }
