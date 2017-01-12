@@ -183,7 +183,7 @@ class dealWith {
                     if(index == 0 && result.data.length > 0){
                         task.uid = result.data[0].creator_uid
                     }
-                    if(!result.data || result.data.length == 0){
+                    if(!result.data || result.data.length == 0 || index > 500){
                         task.total = 10 * index
                         sign = false
                         return cb()
