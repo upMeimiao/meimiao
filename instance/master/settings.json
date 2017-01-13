@@ -51,7 +51,7 @@
     "weibo": {
       "userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=32b86df0&profile_entry_key=1&user_domain=",
       "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=350a1d30&count=24&containerid="
-    }
+      }
   },
   "servantAPI": {
     "youku": {
