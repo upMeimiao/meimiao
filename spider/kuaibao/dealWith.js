@@ -7,6 +7,7 @@ let logger
 const jsonp = function (data) {
     return data
 }
+const devArr = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 class dealWith {
     constructor ( spiderCore ){
         this.core = spiderCore
@@ -16,6 +17,7 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
+        task.devId = this.getDevId()
         async.parallel({
             user: (callback) => {
                 this.getUser(task,(err)=>{
@@ -37,6 +39,20 @@ class dealWith {
             logger.debug("result:",result)
             callback(null,task.total)
         })
+    }
+    getDevId() {
+        let devId = ''
+        for(let i=0; i < 32; i++){
+            if(i < 7){
+                devId += devArr[Math.floor(Math.random()*10)]
+            }else{
+                devId += devArr[Math.floor(Math.random()*36)]
+            }
+            if(i == 7 || i == 11 || i == 15 || i== 19){
+                devId += '-'
+            }
+        }
+        return devId
     }
     getUser ( task, callback) {
         let option = {
@@ -196,6 +212,7 @@ class dealWith {
                 logger.info(result)
                 return callback(e)
             }
+            //logger.debug(result)
             if(result.newslist.length == 0){return callback()}
             let backData = result.newslist[0],
                 info = {
@@ -227,12 +244,14 @@ class dealWith {
             },
             expr: (callback) => {
                 this.getExpr(info, (err,data) => {
-                    if(err){return callback(err)}
+                    if(err){
+                        return callback(err)
+                    }
                     callback(null,data)
                 })
             },
             play: (callback) => {
-                this.getPlayNum(info, (err,num) => {
+                this.getPlayNum(task,info, (err,num) => {
                     if(err){
                         return callback(err)
                     }
@@ -344,9 +363,9 @@ class dealWith {
             callback(null,data)
         })
     }
-    getPlayNum ( info, callback ) {
+    getPlayNum (task, info, callback ) {
         let option = {
-            url: this.settings.play + '&devid=2699226F-A33E-49B9-A81C-805AB2D78384',
+            url: this.settings.play + '&devid=' + task.devId,
             referer:'http://r.cnews.qq.com/inews/iphone/',
             data: {
                 id: info.id,
@@ -366,6 +385,7 @@ class dealWith {
                 logger.info(result)
                 return callback(e)
             }
+            //logger.debug(result)
             let backData
             if(result.kankaninfo){
                 backData = result.kankaninfo
