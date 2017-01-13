@@ -127,11 +127,14 @@ class dealWith {
                     class: data.category,
                     v_url: data.other_info == undefined ? result.url : data.other_info.video_playurl,
                     a_create_time: moment(data._created_at).unix(),
-                    tag: result.tags,
+                    tag: this._tags(result.tags),
                     desc: result.descData.desc,
                     long_t: result.videos[0] == undefined ? result.content_length/1000 : result.videos[0].length/1000
                 }
                 //logger.debug(media.author)
+                if(!media.support){
+                    delete media.support
+                }
                 this.sendCache( media )
                 callback()
             }
@@ -223,6 +226,15 @@ class dealWith {
             }
             callback(null,result)
         })
+    }
+    _tags(raw){
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]'){
+            return raw.join(',')
+        }
+        return ''
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
