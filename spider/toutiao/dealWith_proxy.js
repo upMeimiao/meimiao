@@ -162,9 +162,9 @@ class dealWith {
             (cb) => {
                 const {as, cp} = this.getHoney()
                 if(hot_time){
-                    option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                    option.url = 'http://ic.snssdk.com' + this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
                 }else{
-                    option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=0"
+                    option.url = 'http://ic.snssdk.com' + this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time="
                 }
                 if(proxyStatus && proxy){
                     option.proxy = proxy
