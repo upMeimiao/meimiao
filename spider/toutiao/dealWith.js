@@ -176,6 +176,9 @@ class dealWith {
                         if(times > 10){
                             task.total = 10 * index
                             sign = false
+                            if(index == 0){
+                                return cb('failed')
+                            }
                             return cb()
                         }else{
                             return setTimeout(()=>{
@@ -200,6 +203,9 @@ class dealWith {
                 })
             },
             (err,result) => {
+                if(err){
+                    return callback(err)
+                }
                 callback()
             }
         )
