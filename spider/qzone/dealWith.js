@@ -59,7 +59,7 @@ class dealWith {
             }catch(e){
                 logger.debug('用户粉丝数解析失败')
                 logger.info(result)
-                return getFan( task, callback )
+                return this.getFan( task, callback )
             }
             let user = {
                 platform: task.p,
