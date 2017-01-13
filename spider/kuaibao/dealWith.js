@@ -346,7 +346,7 @@ class dealWith {
     }
     getPlayNum ( info, callback ) {
         let option = {
-            url: this.settings.play,
+            url: this.settings.play + '&devid=2699226F-A33E-49B9-A81C-805AB2D78384',
             referer:'http://r.cnews.qq.com/inews/iphone/',
             data: {
                 id: info.id,
