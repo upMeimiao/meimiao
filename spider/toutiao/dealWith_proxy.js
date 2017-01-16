@@ -186,7 +186,7 @@ class dealWith {
                             this.core.proxy.back(proxy, false)
                             return cb()
                         }
-                        if(result.has_more === false){
+                        if(result.has_more === false && result.next.max_behot_time !== 0){
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
@@ -238,7 +238,7 @@ class dealWith {
                                 this.core.proxy.back(_proxy, false)
                                 return cb()
                             }
-                            if(result.has_more === false){
+                            if(result.has_more === false && result.next.max_behot_time !== 0){
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
