@@ -45,7 +45,7 @@ const _getInfo = (list, callback) => {
                 is_post: item.is_post,
                 init: result[0],
                 create: result[1],
-                videoNumber: result[2],
+                videoNumber: Number(result[2]).toString() !== 'NaN' ? Number(result[2]) : result[2],
                 update: result[3] || null
             }
             callback(null,info)
