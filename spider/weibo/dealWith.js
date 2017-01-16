@@ -220,6 +220,7 @@ class dealWith {
                     }catch (e){
                         logger.error('json数据解析失败')
                         logger.info(result)
+                        this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
                                 return callback()
@@ -230,6 +231,7 @@ class dealWith {
                     }
                     if( result.cards == undefined ){
                         logger.debug('当前列表页的结构有问题，重新请求')
+                        this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
                                 return callback()
@@ -307,10 +309,8 @@ class dealWith {
                     v_url: video.mblog.mblogid
                 }
                 //logger.debug(media.a_create_time)
-                this.sendCache( media, (err,data) => {
-                    callback()
-                })
-
+                this.sendCache(media)
+                callback()
             })
         }
     }
@@ -353,14 +353,13 @@ class dealWith {
         })
     }
 
-    sendCache (media,callback){
+    sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
             logger.debug(`微博 ${media.aid} 加入缓存队列`)
-            callback()
         })
     }
 }
