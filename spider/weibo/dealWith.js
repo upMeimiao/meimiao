@@ -199,7 +199,9 @@ class dealWith {
             }
             total = result.cardlistInfo.total
             task.total = total
-            this.getVidList( task, data, total, proxy, callback )
+            this.getVidList( task, data, total, proxy, () => {
+                callback()
+            })
         })
     }
     getVidList( task, data, total, proxy, callback ){
@@ -219,6 +221,7 @@ class dealWith {
                     option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
                 }
                 option.proxy = proxy
+                logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.debug('视频列表数据请求错误',err)
@@ -260,7 +263,7 @@ class dealWith {
                         pageNum = 0
                         return cb()
                     }
-                    logger.info(task.page)
+                    //logger.info(task.page)
                     this.deal(task,result.cards,data,proxy,() => {
                         task.page++
                         pageNum++
@@ -328,9 +331,8 @@ class dealWith {
                     v_url: video.mblog.mblogid
                 }
                 //logger.debug(media.a_create_time)
-                this.sendCache( media, (err,data) => {
-                    callback()
-                })
+                this.sendCache(media)
+                callback()
 
             })
         }
@@ -374,14 +376,13 @@ class dealWith {
         })
     }
 
-    sendCache (media,callback){
+    sendCache (media){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
             logger.debug(`微博 ${media.aid} 加入缓存队列`)
-            callback()
         })
     }
 }
