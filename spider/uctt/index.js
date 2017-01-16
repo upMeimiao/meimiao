@@ -65,6 +65,17 @@ class spiderCore {
         logger.trace('启动函数')
         this.assembly()
     }
+    test () {
+        let work = {
+            id: '41ad6b83918746c2ad1a4afbab13e1cd',
+            name: '陈翔六点半',
+            p: 26
+        }
+        this.dealWith.todo( work, (err, total) => {
+            logger.debug(total)
+            logger.debug('end')
+        })
+    }
     deal () {
         let queue = kue.createQueue({
             redis: {
