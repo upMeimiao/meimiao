@@ -13,6 +13,7 @@
   "app_secret": "0fae643f14fc38f49e241328736e16d2",
   "user": "http://yws.youku.com/friendships/js_get_podcast_fans_count.json?callback=jsonp&cid=",
   "videos": "https://openapi.youku.com/v2/videos/by_user.json",
+  "program": "https://openapi.youku.com/v2/playlists/by_user.json",
   "list": "http://mapi.channel.youku.com/feed.stream/show/get_channel_owner_videos.json",
   "newInfo": "https://openapi.youku.com/v2/videos/show.json",
   "info": "http://api.mobile.youku.com/layout/ios5_0/play/detail",
