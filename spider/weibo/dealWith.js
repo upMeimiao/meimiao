@@ -335,7 +335,6 @@ class dealWith {
                 if(!media.play_num){
                     delete media.play_num
                 }
-                task.total++
                 //logger.debug(media.a_create_time)
                 this.sendCache(media)
                 callback()

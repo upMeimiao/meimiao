@@ -33,14 +33,14 @@ class dealWith {
                         callback(null,"视频信息已返回")
                     })
                 },
-                program: (callback) => {
-                    this.core.getProgram.start(task, (err)=>{
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,"专辑信息已返回")
-                    })
-                }
+                // program: (callback) => {
+                //     this.core.getProgram.start(task, (err)=>{
+                //         if(err){
+                //             return callback(err)
+                //         }
+                //         callback(null,"专辑信息已返回")
+                //     })
+                // }
             },
             ( err, result ) => {
                 if(err){

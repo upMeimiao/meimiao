@@ -15,7 +15,7 @@ class spiderCore {
         this.settings = settings
         this.redis = settings.redis
         this.dealWith = new( require('./dealWith'))(this)
-        this.getProgram = new( require('./getProgram'))(this)
+        // this.getProgram = new( require('./getProgram'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
