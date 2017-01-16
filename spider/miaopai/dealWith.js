@@ -208,7 +208,7 @@ class dealWith {
                         platform: 7,
                         bid: task.id,
                         aid:video.channel.scid,
-                        title:video.channel.ext.ft ? video.channel.ext.ft.substr(0,100).replace(/"/g,'') : (video.channel.ext ? video.channel.ext.replace(/"/g,'') :`btwk_caihongip`),
+                        title:video.channel.ext.ft ? video.channel.ext.ft.substr(0,100).replace(/"/g,'') : `btwk_caihongip`,
                         desc: video.channel.ext.t.substr(0,100).replace(/"/g,''),
                         play_num: video.channel.stat.vcnt,
                         comment_num: video.channel.stat.ccnt,
