@@ -135,6 +135,13 @@ const vm = new Vue({
                 type: 'success'
             })
         },
+        show_Number: function (row, colomn) {
+            if(Number(row.videoNumber).toString() === 'NaN'){
+                return row.videoNumber
+            }else{
+                return Number(row.videoNumber)
+            }
+        },
         show_pname: function (row, colomn) {
             return platformMap.get(Number(row.p))
         },
