@@ -53,7 +53,7 @@ class dealWith {
         let option = {
                 url : this.settings.spiderAPI.weibo.userInfo+task.id
             }
-
+        //logger.debug(option.url)
         this.getProxy((err,proxy) => {
             if (proxy == 'timeout') {
                 return callback()
@@ -79,14 +79,20 @@ class dealWith {
                 let user = {
                     platform: task.p,
                     bid: task.id,
-                    fans_num: result.followers_count
+                    fans_num: result.userInfo.followers_count
                 }
                 this.sendStagingUser(user)
-
-                this.getVidTotal( task, result, proxy, () => {
-                    callback()
-                })
-
+                if(result.tabsInfo.tabs[2].title !== '视频'){
+                    task.NoVideo = true
+                    this.getVidTotal( task, result, proxy, () => {
+                        callback()
+                    })
+                }else{
+                    task.NoVideo = false
+                    this.getVidTotal( task, result, proxy, () => {
+                        callback()
+                    })
+                }
             })
         })
     }
@@ -98,20 +104,20 @@ class dealWith {
         request.post( logger, option, (err,back) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                logger.info(`返回搜狐视频用户 ${user.bid} 连接服务器失败`)
+                logger.info(`返回微博视频用户 ${user.bid} 连接服务器失败`)
                 return
             }
             try{
                 back = JSON.parse(back.body)
             }catch (e){
-                logger.error(`搜狐视频用户 ${user.bid} json数据解析失败`)
+                logger.error(`微博视频用户 ${user.bid} json数据解析失败`)
                 logger.info(back)
                 return
             }
             if(back.errno == 0){
-                logger.debug("搜狐视频用户:",user.bid + ' back_end')
+                logger.debug("微博视频用户:",user.bid + ' back_end')
             }else{
-                logger.error("搜狐视频用户:",user.bid + ' back_error')
+                logger.error("微博视频用户:",user.bid + ' back_error')
                 logger.info(back)
                 logger.info(`user info: `,user)
             }
@@ -143,11 +149,17 @@ class dealWith {
         })
     }
     getVidTotal( task, data, proxy, callback ){
-        let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
-            option      = {
-                url: this.settings.spiderAPI.weibo.videoList + containerid + "&page=0"
-            },
-            times       = 0
+        let containerid = '',
+            option      = {},
+            times       = 0,
+            total       = 0
+        if(task.NoVideo){
+            containerid = data.tabsInfo.tabs[1].containerid
+            option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
+        }else{
+            containerid = data.tabsInfo.tabs[2].containerid
+            option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=0"
+        }
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if (err) {
@@ -185,11 +197,12 @@ class dealWith {
                 })
                 return
             }
-            let total = result.cardlistInfo.total
+            total = result.cardlistInfo.total
             task.total = total
-            this.getVidList( task, data, total, proxy, callback )
+            this.getVidList( task, data, total, proxy, () => {
+                callback()
+            })
         })
-        
     }
     getVidList( task, data, total, proxy, callback ){
         let pageNum     = 3
@@ -198,11 +211,17 @@ class dealWith {
                 return task.page < pageNum
             },
             (cb) => {
-                let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
-                    option = {
-                        url: this.settings.spiderAPI.weibo.videoList + containerid + "&page=" + task.page
-                    }
+                let containerid = '',
+                    option = {}
+                if(task.NoVideo){
+                    containerid = data.tabsInfo.tabs[1].containerid
+                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=' + task.page
+                }else{
+                    containerid = data.tabsInfo.tabs[2].containerid
+                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
+                }
                 option.proxy = proxy
+                logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.debug('视频列表数据请求错误',err)
@@ -244,6 +263,7 @@ class dealWith {
                         pageNum = 0
                         return cb()
                     }
+                    //logger.info(task.page)
                     this.deal(task,result.cards,data,proxy,() => {
                         task.page++
                         pageNum++
@@ -278,6 +298,8 @@ class dealWith {
     }
     getAllInfo( task, video, user, proxy, callback ){
         if(video.mblog == undefined){
+            callback()
+        }else if(video.mblog.pic_infos != undefined){
             callback()
         }else{
             async.series([
