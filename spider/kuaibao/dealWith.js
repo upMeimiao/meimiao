@@ -275,7 +275,7 @@ class dealWith {
                 platform: 10,
                 bid: task.id,
                 aid: info.id,
-                title: info.title.substr(0,100),
+                title: info.title.substr(0,100).replace(/"/g,''),
                 play_num: results.play,
                 comment_num: Number(results.comment),
                 support: results.expr.up,

@@ -304,8 +304,8 @@ class dealWith {
         media.platform = 6
         media.bid = task.id
         media.aid = vid
-        media.title = video.title || 'btwk_caihongip'
-        media.desc = video.abstract ? video.abstract.substr(0,100) : ''
+        media.title = video.title.replace(/"/g,'') || 'btwk_caihongip'
+        media.desc = video.abstract ? video.abstract.substr(0,100).replace(/"/g,'') : ''
         media.play_num = Number(video.list_play_effective_count) + Number(video.detail_play_effective_count)
         media.comment_num = video.comment_count
         media.support = video.digg_count || null

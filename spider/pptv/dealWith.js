@@ -92,11 +92,11 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: video.id,
-                title: video.title,
+                title: video.title.replace(/"/g,''),
                 comment_num: result[1],
                 class: result[0].class,
                 tag: result[0].tag,
-                desc: result[0].desc,
+                desc: result[0].desc.replace(/"/g,''),
                 long_t: result[0].data.duration,
                 v_img: video.capture,
                 v_url: video.url

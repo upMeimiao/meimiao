@@ -267,7 +267,7 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: result[0].singlefeed['7'].videoid,
-                title: result[0].singlefeed['4'].summary.substring(0,100),
+                title: result[0].singlefeed['4'].summary.substring(0,100).replace(/"/g,''),
                 support: result[0].singlefeed['11'].num,
                 long_t: result[0].singlefeed['7'].videotime/1000,
                 v_img: result[0].v_img,

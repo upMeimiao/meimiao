@@ -110,12 +110,12 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.vid,
-                    title: video.v_sub_title,
+                    title: video.v_sub_title.substr(0,100).replace(/"/g,''),
                     a_create_time: video.update_time.substring(0,10),
                     long_t: video.video_time/1000,
                     support: result[0].u,
                     step: result[0].d,
-                    desc: result[1].desc,
+                    desc: result[1].desc.substr(0,100).replace(/"/g,''),
                     type: result[1].types
                 }
 

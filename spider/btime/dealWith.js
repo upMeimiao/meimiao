@@ -212,8 +212,8 @@ class dealWith {
             media.platform = 15
             media.bid = task.id
             media.aid = data.gid
-            media.title = data.title.substr(0,100)
-            media.desc = data.description.substr(0,100)
+            media.title = data.title.substr(0,100).replace(/"/g,'')
+            media.desc = data.description.substr(0,100).replace(/"/g,'')
             media.play_num = data.click_count
             media.comment_num = result[0]
             media.a_create_time = moment(data.ctime).format('X')
