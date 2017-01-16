@@ -200,7 +200,9 @@ class dealWith {
             }
             total = result.cardlistInfo.total
             task.total = total
-            this.getVidList( task, data, total, proxy, callback )
+            this.getVidList( task, data, total, proxy, () => {
+                callback()
+            })
         })
     }
     getVidList( task, data, total, proxy, callback ){
@@ -220,6 +222,7 @@ class dealWith {
                     option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
                 }
                 option.proxy = proxy
+                logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.debug('视频列表数据请求错误',err)
@@ -261,7 +264,7 @@ class dealWith {
                         pageNum = 0
                         return cb()
                     }
-                    logger.info(task.page)
+                    //logger.info(task.page)
                     this.deal(task,result.cards,data,proxy,() => {
                         task.page++
                         pageNum++
