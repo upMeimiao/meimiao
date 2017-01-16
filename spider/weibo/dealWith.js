@@ -152,7 +152,8 @@ class dealWith {
     getVidTotal( task, data, proxy, callback ){
         let containerid = '',
             option      = {},
-            times       = 0
+            times       = 0,
+            total       = 0
         if(task.NoVideo){
             containerid = data.tabsInfo.tabs[1].containerid
             option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
@@ -197,16 +198,10 @@ class dealWith {
                 })
                 return
             }
-            let total = null
-            if(task.NoVideo){
-                total = 0
-            }else{
-                total = result.cardlistInfo.total
-            }
-            //task.total = total
+            total = result.cardlistInfo.total
+            task.total = total
             this.getVidList( task, data, total, proxy, callback )
         })
-        
     }
     getVidList( task, data, total, proxy, callback ){
         let pageNum     = 3
@@ -219,10 +214,10 @@ class dealWith {
                     option = {}
                 if(task.NoVideo){
                     containerid = data.tabsInfo.tabs[1].containerid
-                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
+                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=' + task.page
                 }else{
                     containerid = data.tabsInfo.tabs[2].containerid
-                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=0"
+                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
                 }
                 option.proxy = proxy
                 request.get( logger, option, ( err, result ) => {
@@ -266,6 +261,7 @@ class dealWith {
                         pageNum = 0
                         return cb()
                     }
+                    logger.info(task.page)
                     this.deal(task,result.cards,data,proxy,() => {
                         task.page++
                         pageNum++
@@ -322,8 +318,8 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.mblog.id,
-                    title: video.mblog.text,
-                    desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description,
+                    title: video.mblog.text.replace(/"/g,'').substr(0,100),
+                    desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description.replace(/"/g,'').substr(0,100),
                     play_num: result[0].page_info == undefined ? null : result[0].page_info.media_info.online_users_number,
                     comment_num: video.mblog.comments_count,
                     forward_num: video.mblog.reposts_count,
