@@ -261,7 +261,7 @@ class dealWith {
                 platform: 12,
                 bid: task.id,
                 aid: data.code,
-                title: data.title.replace(/"/g,'') || 'btwk_caihongip',
+                title: data.title ? data.title.replace(/"/g,'') : 'btwk_caihongip',
                 desc: data.comments ? data.comments.replace(/"/g,'') : '',
                 play_num: data.playNum,
                 save_num: result[0].favorNum,
