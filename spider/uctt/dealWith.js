@@ -119,7 +119,7 @@ class dealWith {
                     author: task.name,
                     platform: task.p,
                     aid: result.id,
-                    title: data.title,
+                    title: data.title.substr(0,100).replace(/"/g,''),
                     play_num: result.view_cnt,
                     comment_num: result.descData.comment_num,
                     support: data._incrs.liketimes,
@@ -128,7 +128,7 @@ class dealWith {
                     v_url: data.other_info == undefined ? result.url : data.other_info.video_playurl,
                     a_create_time: moment(data._created_at).unix(),
                     tag: this._tags(result.tags),
-                    desc: result.descData.desc,
+                    desc: result.descData.desc.substr(0,100).replace(/"/g,''),
                     long_t: result.videos[0] == undefined ? result.content_length/1000 : result.videos[0].length/1000
                 }
                 logger.debug(media)
