@@ -34,7 +34,7 @@
     "node-schedule": "^1.2.0",
     "nodemailer": "^2.7.0",
     "optimist": "^0.6.1",
-    "redis": "^2.6.4",
+    "redis": "^2.6.5",
     "request": "^2.79.0",
     "restc": "0.0.4",
     "socket.io": "^1.7.2"
