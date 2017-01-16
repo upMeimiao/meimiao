@@ -118,9 +118,12 @@ class scheduler {
         })
     }
     createQueue ( raw ) {
-        if((raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206')){
+        if(raw.p == 2 && raw.id == '1045961206'){
             return
         }
+        // if((raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206')){
+        //     return
+        // }
         let job = this.queue.create( raw.platform , {
             id: raw.id,
             p: raw.p,
