@@ -174,10 +174,6 @@ class dealWith {
                         sign++
                         return cb()
                     }
-                    if(!result.data.vlist || result.data.vlist == 'null'){
-                        logger.debug('已经没有数据')
-                        return this.even.emit('end')
-                    }
                     this.deal(task,result.data.vlist,() => {
                         sign++
                         cb()
