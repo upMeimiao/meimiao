@@ -164,10 +164,10 @@ class dealWith {
             }
             let total = data.total
             task.total = total
-            if(total % 20 != 0){
-                page = Math.ceil(total / 20)
+            if(total % 50 != 0){
+                page = Math.ceil(total / 50)
             }else{
-                page = total / 20
+                page = total / 50
             }
             this.getVideos(task,page, () => {
                 callback()
@@ -178,7 +178,7 @@ class dealWith {
         let sign = 1,options
         async.whilst(
             () => {
-                return sign <= page
+                return sign <= Math.min(page, 25)
             },
             (cb) => {
                 options = {
