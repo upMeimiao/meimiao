@@ -14,8 +14,8 @@
   "video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
   "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk",
   "sendToServer":[
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

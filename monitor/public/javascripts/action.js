@@ -373,7 +373,7 @@ const vm = new Vue({
         refresh: function () {
             this.init()
             this.loading = true
-            this.$http.get('http://spider-monitor.caihongip.com/api/statusMonitor').then((response) => {
+            this.$http.get('http://spider-monitor.meimiaoip.com/api/statusMonitor').then((response) => {
                 const result = response.body,
                     infos = result.infos
                 if(infos.length !== result.count){
@@ -516,7 +516,7 @@ const vm = new Vue({
     },
     created: function () {
         this.refresh()
-        const socket = io.connect('ws://spider-monitor.caihongip.com/')
+        const socket = io.connect('ws://spider-monitor.meimiaoip.com/')
         socket.on('cache', (data) => {
             this.$notify.info({
                 title: '暂存队列消息',

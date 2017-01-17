@@ -4,11 +4,11 @@
 
 ## 监控系统
 
-[Kue监控](http://spider-kue.caihongip.com/kue) 
+[Kue监控](http://spider-kue.meimiaoip.com/kue) 
 
-[任务状态监控](http://spider-monitor.caihongip.com) 
+[任务状态监控](http://spider-monitor.meimiaoip.com) 
 
-[认证测试页](http://spider-monitor.caihongip.com/auth) 
+[认证测试页](http://spider-monitor.meimiaoip.com/auth) 
     
 
 ## Git 分支及模块：

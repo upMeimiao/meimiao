@@ -12,8 +12,8 @@
   "videoList":"http://clientapi.wasu.cn/AggPhone/vodinfo/id/",
   "videoList2":"http://clientapi.wasu.cn/Phone/vodinfo/id/",
   "sendToServer": [
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
   ]
 }

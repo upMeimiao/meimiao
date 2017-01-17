@@ -7,7 +7,7 @@ const emailServer = require('../controllers/emailServer')
 // const apiCon = new ApiController();
 router.use(restc.express())
 router.use(cors({
-    origin: ['http://localhost:3001'],
+    origin: ['http://spider-monitor.meimiaoip.com','http://spider-kue.meimiaoip.com','http://localhost:3001'],
     methods: ['GET', 'POST'],
     alloweHeaders: ['Conten-Type', 'Authorization'],
 }))

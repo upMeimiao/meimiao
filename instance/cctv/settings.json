@@ -12,8 +12,8 @@
   "videoInfo":"http://xiyou.cctv.com/interface/index?videoId=",
   "fans":"http://my.xiyou.cntv.cn/api/user/getuserinfo?&format=json&visit_id=0&snap=30&user_id=",
   "sendToServer": [
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
   ]
 }

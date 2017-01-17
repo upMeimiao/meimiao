@@ -12,7 +12,7 @@
   "listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
   "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId=",
   "sendToServer": [
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

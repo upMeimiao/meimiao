@@ -125,7 +125,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let options = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger, options,(err,res) => {

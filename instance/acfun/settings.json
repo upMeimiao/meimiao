@@ -12,8 +12,8 @@
   "userInfo": "http://api.aixifan.com/users/",
   "media": "http://www.aixifan.com/u/contributeList.aspx?pageSize=10&channelId=0&userId=",
   "sendToServer":[
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

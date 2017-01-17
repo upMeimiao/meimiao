@@ -16,8 +16,8 @@
     "ip":"127.0.0.1",
     "port": 3001
   },
-  "url": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
-  "update": "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
+  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
+  "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
   "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideos/",
   "interval": 10000,
   "servantAPI": {

@@ -11,7 +11,7 @@ const redis = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.r
 })
 
 const _getServerData = (callback) => {
-    request.get('http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
+    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
         if(err){
             return callback(err)
         }

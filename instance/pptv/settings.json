@@ -12,7 +12,7 @@
   "listVideo":"http://apis.web.pptv.com/show/videoList?from=web&version=1.0.0&format=jsonp&vt=22",
   "videoInfo":"https://h5.qzone.qq.com/webapp/jsonp/videoRec/getRecommVideoList?scene=2&uin=",
   "sendToServer": [
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

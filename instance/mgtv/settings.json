@@ -13,7 +13,7 @@
   "listVideo":"http://pcweb.api.mgtv.com/variety/showlist?collection_id=",
   "videoInfo":"http://pcweb.api.mgtv.com/player/video?video_id=",
   "sendToServer": [
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

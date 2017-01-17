@@ -11,8 +11,8 @@
   },
   "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid=",
   "sendToServer": [
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
   ]
 }
