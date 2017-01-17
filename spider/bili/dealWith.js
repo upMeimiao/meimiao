@@ -174,6 +174,11 @@ class dealWith {
                         sign++
                         return cb()
                     }
+                    if(!result.data.vlist || result.data.vlist == 'null'){
+                        logger.debug(result)
+                        sign++
+                        return cb()
+                    }
                     this.deal(task,result.data.vlist,() => {
                         sign++
                         cb()
