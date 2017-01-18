@@ -269,7 +269,7 @@ class dealWith {
             if(err){
                 logger.debug('单个视频请求失败 ', err)
                 if(num <= 1){
-                    return this.getVideoInfo( vid, num++, callback )
+                    return this.getVideoInfo( vid, url, num++, callback )
                 }
                 return callback(null,{long_t:'',a_create_time:'',playNum:''})
             }
