@@ -278,7 +278,9 @@ class dealWith {
             if($('div.item p').eq(0).text() == '视频已失效，请观看其他视频'){
                 return callback(null,{long_t:'',playNum:null})
             }
-
+            if (!$('script')[11].children) {
+                return callback(null,{long_t:'',playNum:null})
+            }
             if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
                 return callback(null,{long_t:'',playNum:null})
             }
