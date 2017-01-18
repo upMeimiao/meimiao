@@ -257,7 +257,7 @@ class dealWith {
             
         })
     }
-    getVideoInfo( vid, url, nul, callback ){
+    getVideoInfo( vid, url, num, callback ){
         let option = {}
         if(vid != null){
             option.url = 'https://baijiahao.baidu.com/po/feed/video?wfr=spider&for=pc&context=%7B%22sourceFrom%22%3A%22bjh%22%2C%22nid%22%3A%22'+vid+'%22%7D'

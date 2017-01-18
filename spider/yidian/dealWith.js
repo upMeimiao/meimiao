@@ -194,6 +194,9 @@ class dealWith {
                     } catch ( e ) {
                         return cb()
                     }
+                    if (!result.result) {
+                        return cb()
+                    }
                     if( result.result.length == 0 ){
                         sign = false
                         task.total = cstart
