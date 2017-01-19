@@ -249,6 +249,9 @@ class dealWith {
             }
             if(!media.play_num){
                 delete media.play_num
+                if(media.play_num === null){
+                    return callback()
+                }
             }
             task.total++
             //logger.debug(media.a_create_time)
