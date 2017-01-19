@@ -17,7 +17,7 @@ class DealWith {
         api = core.settings.servantAPI
         logger.debug('处理器实例化...')
     }
-    youku ( remote, callback ) {
+    youku(remote, callback) {
         let option = {
             url: api.youku.url + '?client_id=' + api.youku.key + "&video_url=" + encodeURIComponent(remote)
         }
@@ -38,14 +38,38 @@ class DealWith {
                 logger.info(result)
                 return callback(e,{code:102,p:1})
             }
-            let user = result.user,
-                res = {
+            let user = result.user
+            option.url = `https://openapi.youku.com/v2/users/show.json`
+            option.data = {
+                client_id: 'c9e697e443715900',
+                user_id: user.id
+            }
+            request.post(option, (err, info) => {
+                if(err){
+                    logger.error( 'occur error : ', err )
+                    return callback(err,{code:102,p:1})
+                }
+                if(info.statusCode != 200 ){
+                    logger.error('优酷状态码错误',info.statusCode)
+                    logger.info(info)
+                    return callback(true,{code:102,p:1})
+                }
+                try{
+                    info = JSON.parse(info.body)
+                } catch (e){
+                    logger.error('优酷json数据解析失败')
+                    logger.info(info)
+                    return callback(e,{code:102,p:1})
+                }
+                let res = {
                     id: user.id,
                     name: user.name,
                     p: 1,
                     encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
+                    avatar: info.avatar_large
                 }
-            callback(null,res)
+                callback(null,res)
+            })
         })
     }
     bili (data,callback) {
