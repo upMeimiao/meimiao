@@ -1847,21 +1847,13 @@ class DealWith {
                 logger.debug('百度百家的状态码错误',result.statusCode)
                 return callback(true,{code:102,p:28})
             }
-            let $ = cheerio.load(result.body),
-                script = null,
-                startIndex = null,
-                endIndex = null,
-                dataJson = {}
+            let $ = cheerio.load(result.body)
+            result = result.body.replace(/[\n\r\s]/g,'')
+            let startIndex = result.indexOf('videoData'),
+                endIndex = result.indexOf(';window.listInitData'),
+                dataJson = result.substring(startIndex+10,endIndex)
             if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
-                script = $('script')[14].children[0].data.replace(/[\s\n\r]/g,'')
-                startIndex = script.indexOf('videoData={tplData')
-                endIndex = script.indexOf(',userInfo:')
-                dataJson = script.substring(startIndex+19,endIndex)
-            }else{
-                script = $('script')[11].children[0] == undefined ? $('script')[12].children[0].data.replace(/[\s\n\r]/g,'') : $('script')[11].children[0].data.replace(/[\s\n\r]/g,'')
-                startIndex = script.indexOf('videoData={"id')
-                endIndex = script.indexOf(';window.listInitData')
-                dataJson = script.substring(startIndex+10,endIndex)
+                dataJson = result.substring(startIndex+19,endIndex)
             }
             try{
                 dataJson = JSON.parse(dataJson)
