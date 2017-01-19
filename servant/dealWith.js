@@ -21,12 +21,12 @@ class DealWith {
         let option = {
             url: api.youku.url + '?client_id=' + api.youku.key + "&video_url=" + encodeURIComponent(remote)
         }
-        request.get (option,(err,result) => {
+        request.get(option, (err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err,{code:102,p:1})
+                logger.error('occur error : ', err)
+                return callback(err, {code:102,p:1})
             }
-            if(result.statusCode != 200 ){
+            if(result.statusCode != 200){
                 logger.error('优酷状态码错误',result.statusCode)
                 logger.info(result)
                 return callback(true,{code:102,p:1})
@@ -72,24 +72,24 @@ class DealWith {
             })
         })
     }
-    bili (data,callback) {
-        let start = data.indexOf('/av'),
-            end = data.indexOf('/',start+1),
+    bili(remote, callback) {
+        let start = remote.indexOf('/av'),
+            end = remote.indexOf('/',start+1),
             id
         if(end == -1){
-            id = data.substring(start+3)
+            id = remote.substring(start+3)
         }else{
-            id = data.substring(start+3,end)
+            id = remote.substring(start+3,end)
         }
         let option = {
             url: api.bili.url + id
         }
-        request.get ( option, ( err, result) => {
+        request.get(option, (err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error('occur error : ', err)
                 return callback(err,{code:102,p:8})
             }
-            if(result.statusCode != 200 ){
+            if(result.statusCode != 200){
                 logger.error('哔哩哔哩状态码错误',result.statusCode)
                 logger.info(result)
                 return callback(true,{code:102,p:8})
@@ -104,6 +104,7 @@ class DealWith {
             let res = {
                 id: result.data.owner.mid,
                 name: result.data.owner.name,
+                avatar: result.data.owner.face,
                 p: 8
             }
             callback(null,res)
