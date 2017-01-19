@@ -32,6 +32,7 @@ class dealWith {
             referer: 'http://baijiahao.baidu.com/u?app_id='+task.id+'&fr=bjhvideo',
             ua: 1
         }
+        //logger.debug(option)
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '总量接口请求错误 : ', err )
@@ -45,6 +46,7 @@ class dealWith {
                 return this.getVidTotal( task, callback )
             }
             let total = result.total
+            //logger.debug(total)
             async.parallel(
                 [
                     (cb) => {
@@ -248,10 +250,9 @@ class dealWith {
                 play_num: result[0].playNum
             }
             if(!media.play_num){
-                delete media.play_num
+                return callback()
             }
             task.total++
-            //logger.debug(media.a_create_time)
             this.sendCache(media)
             callback()
             
@@ -284,7 +285,7 @@ class dealWith {
             if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
                 return callback(null,{long_t:'',playNum:null})
             }
-
+            logger.debug('---')
             let script = $('script')[11].children[0] == undefined ? $('script')[12].children[0].data.replace(/[\s\n\r]/g,'') : $('script')[11].children[0].data.replace(/[\s\n\r]/g,''),
                 startIndex = script.indexOf('videoData={"id'),
                 endIndex = script.indexOf(';window.listInitData'),
@@ -319,7 +320,7 @@ class dealWith {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            logger.debug(`百家号 ${media.aid} 加入缓存队列`)
+            //logger.debug(`百家号 ${media.aid} 加入缓存队列`)
         } )
     }
 }
