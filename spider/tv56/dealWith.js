@@ -4,7 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const fetchUrl = require("fetch").fetchUrl
-const jsonp7 = function(data){
+const jsonp = function(data){
     return data
 }
 
@@ -135,7 +135,7 @@ class dealWith {
     getTotal ( task, callback ) {
         let page = 1,
             option = {
-                url: this.settings.list + `${task.id}&_=${new Date().getTime()}`+'&page='+page,
+                url: this.settings.list + `${task.id}&_=${new Date().getTime()}`+'&pg='+page,
                 ua: 1
             }
         //logger.debug(option.url)
@@ -152,7 +152,7 @@ class dealWith {
             }
             //logger.debug(result)
             let data = result.data,
-                total = data.totalCount
+                total = data.count
             task.total = total
             if(total % 20 != 0){
                 page = Math.ceil(total / 20)
@@ -173,8 +173,7 @@ class dealWith {
                 return sign <= page
             },
             (cb) => {
-                option.url = this.settings.list + `${task.id}&page=${sign}&_=${new Date().getTime()}`
-                    //logger.debug(option.url)
+                option.url = this.settings.list + `${task.id}&pg=${sign}&_=${new Date().getTime()}`
                 request.get( logger, option, (err, result) => {
                     if(err){
                         return callback(err)
@@ -187,7 +186,7 @@ class dealWith {
                         return callback(e)
                     }
                     let data = result.data,
-                        videos = data.videos
+                        videos = data.list
                     if(!videos){
                         return cb()
                     }
@@ -253,14 +252,14 @@ class dealWith {
                     desc: result[0].video_desc.substr(0,100).replace(/"/g,''),
                     play_num: result[0].play_count,
                     long_t:video.videoLength,
-                    v_url: video.url,
-                    v_img: video.cover640,
+                    v_url: 'http://www.56.com/u74/v_' + video.vid56Encode + '.html',
+                    v_img: video.smallCover,
                     class: result[0].first_cate_name,
-                    tag:result[0].keyword,
+                    tag: video.tag,
                     comment_num: result[1],
                     a_create_time: video.uploadTime.toString().substr(0,10)
                 }
-                //logger.debug(media.comment_num)
+                //logger.debug(media)
                 this.sendCache(media)
                 callback()
             }

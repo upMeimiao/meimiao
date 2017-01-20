@@ -10,7 +10,7 @@
     "cache_db": 3
   },
   "userInfo": "http://push.my.tv.sohu.com/user/a/fa/count.do",
-  "list": "http://api.tv.sohu.com/v4/user/videolist.json?api_key=f351515304020cad28c92f70f002261c&plat=6&page_size=20&sort_type=2&is_pgc=1&callback=jsonp7&user_id=",
+  "list": "http://my.tv.sohu.com/user/wm/56ta/v.do?sortType=2&size=20&callback=jsonp&uid=",
   "video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
   "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk",
   "sendToServer":[
