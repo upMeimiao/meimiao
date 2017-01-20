@@ -100,7 +100,7 @@ class dealWith {
                     logger.info(user)
                     //this.sendUser( user )
                     this.sendStagingUser( user )
-                    return 
+                    return callback()
                 }
             }
         })
@@ -224,7 +224,7 @@ class dealWith {
             }catch (e){
                 logger.error('json数据解析失败')
                 logger.info(result)
-                return
+                return callback(e)
             }
             let length  = result.episodes.length,
                 content = result.episodes
