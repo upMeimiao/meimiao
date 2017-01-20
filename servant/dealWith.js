@@ -709,8 +709,32 @@ class DealWith {
         })
     }
     btime ( data, callback) {
-        let pathname = URL.parse(data,true).pathname,option = {}
-      if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
+        let pathname = URL.parse(data,true).pathname,
+            hostname = URL.parse(data,true).hostname,
+            option = {}
+        if(hostname == 'new.item.btime.com'){
+            option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${pathname.replace(/\//g,'')}`
+            return request.get(option, (err,result) => {
+                if(err){
+                    logger.error( 'occur error : ', err )
+                    return callback(err,{code:102,p:15})
+                }
+                try{
+                    result = JSON.parse(result.body)
+                } catch (e){
+                    logger.error('北京时间json数据解析失败')
+                    logger.info('json error: ',result.body)
+                    return callback(e,{code:102,p:15})
+                }
+                let res = {
+                    id: result.data.author_uid,
+                    name: result.data.source,
+                    p: 15
+                }
+                return callback(null,res)
+            })
+        }
+        if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
             return callback(true,{code:101,p:15})
         }
         option.url = data
