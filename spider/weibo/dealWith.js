@@ -222,7 +222,7 @@ class dealWith {
                     option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
                 }
                 option.proxy = proxy
-                logger.debug(option.url)
+                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.debug('视频列表数据请求错误',err)
@@ -321,14 +321,14 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.mblog.id,
-                    title: video.mblog.text.replace(/"/g,'').substr(0,100),
-                    desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description.replace(/"/g,'').substr(0,100),
-                    play_num: result[0].page_info == undefined ? null : result[0].page_info.media_info.online_users_number,
+                    title: video.mblog.text,
+                    desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description,
+                    play_num: result[0].page_info.media_info.online_users_number,
                     comment_num: video.mblog.comments_count,
                     forward_num: video.mblog.reposts_count,
                     support: video.mblog.attitudes_count,
-                    long_t: result[0].page_info == undefined ? '' : result[0].page_info.media_info.duration,
-                    v_img: result[0].page_info == undefined ? '' : result[0].page_info.page_pic,
+                    long_t: result[0].page_info.media_info.duration,
+                    v_img: result[0].page_info.page_pic,
                     a_create_time: result[0].created_at,
                     v_url: video.mblog.mblogid
                 }
@@ -372,6 +372,12 @@ class dealWith {
                     this.getVideoInfo( id, proxy, callback )
                 })
                 return
+            }
+            if(!result.page_info){
+                return callback(null,'抛掉当前的')
+            }
+            if(!result.page_info.media_info){
+                return callback(null,'抛掉当前的')
             }
             dataTime = new Date(result.created_at)
             dataTime = moment(dataTime).unix()

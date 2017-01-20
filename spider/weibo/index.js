@@ -68,7 +68,7 @@ class spiderCore {
         this.assembly()
     }
     test(){
-        let work = { id: '5884829935', p: '23', name: '一色神技能' }
+        let work = { id: '3269153257', p: '23', name: 'Hermlt隐者' }
         this.dealWith.todo(work, (err,total,uid) => {
             logger.debug(total)
             logger.debug(uid)
