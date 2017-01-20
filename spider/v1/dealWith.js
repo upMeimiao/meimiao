@@ -54,9 +54,16 @@ class dealWith {
         )
     }
     getVidNum( task, callback ){
-        let option = {
-            url: 'http://user.v1.cn/his/getAllCountByUserId/'+task.id+'.json',
-            referer: 'http://user.v1.cn/his/video/'+task.id+'.jhtml'
+        let option = {},
+            id = null
+        if(task.id == task.encode_id){
+            id = task.id
+        }else{
+            id = task.encode_id
+        }
+        option = {
+            url: 'http://user.v1.cn/his/getAllCountByUserId/'+id+'.json',
+            referer: 'http://user.v1.cn/his/video/'+id+'.jhtml'
         }
         request.get( logger, option, (err, result)=>{
             if(err){
@@ -74,9 +81,16 @@ class dealWith {
         })
     }
     getFans ( task, callback){
-        let option = {
-            url: 'http://user.v1.cn/his/getAllCountByUserId/'+task.id+'.json',
-            referer: 'http://user.v1.cn/his/video/'+task.id+'.jhtml'
+        let option = {},
+            id = null
+        if(task.id == task.encode_id){
+            id = task.id
+        }else{
+            id = task.encode_id
+        }
+        option = {
+            url: 'http://user.v1.cn/his/getAllCountByUserId/'+id+'.json',
+            referer: 'http://user.v1.cn/his/video/'+id+'.jhtml'
         }
         request.get( logger, option, (err, result)=>{
             if(err){

@@ -1660,12 +1660,33 @@ class DealWith {
                 logger.debug('v1数据转换失败')
                 return callback(e,{code:102,p:33})
             }
-            let res  = {
-                p: 33,
-                id: result.body.obj.videoDetail.userInfo.userId,
-                name: result.body.obj.videoDetail.userInfo.userName
+            this.getenCodeid( data, (err, encodeid) => {
+                let res  = {
+                    p: 33,
+                    id: result.body.obj.videoDetail.userInfo.userId,
+                    name: result.body.obj.videoDetail.userInfo.userName,
+                    encode_id: encodeid
+                }
+                callback(null,res)
+            })           
+        })
+    }
+    getenCodeid( url, callback ){
+        let option = {
+            url: url
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('v1 encodeid 请求失败')
+                return this.getenCodeid(url,callback)
             }
-            callback(null,res)
+            if(result.statusCode != 200){
+                logger.debug('v1 encodeid 状态码错误')
+                return this.getenCodeid(url,callback)
+            }
+            let $ = cheerio.load(result.body),
+                encodeid = $('a.btn_alSub').attr('id').replace('isfocusbtn_','')
+            callback(null,encodeid)
         })
     }
     fengxing( data, callback ){

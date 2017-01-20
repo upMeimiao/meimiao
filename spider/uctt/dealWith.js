@@ -172,12 +172,8 @@ class dealWith {
         })
     }
     getCommentNum( task, _id, id, callback ){
-        let sign         = 1,
-            page         = 2,
-            options      = {},
-            num          = null,
-            contLength   = null
-        
+        let options      = {},
+            num          = null
         options.url = 'http://m.uczzd.cn/iflow/api/v2/cmt/article/'+id+'/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue='
         //logger.debug(options.url)
         request.get( logger, options, (err,data) => {
@@ -192,7 +188,6 @@ class dealWith {
                 logger.info(data)
                 return this.getCommentNum( task, _id, id, callback )
             }
-            contLength = data.data.comments.length
             num = data.data.comment_cnt
             this.getDesc(_id,(err,result) => {
                 if(err){
