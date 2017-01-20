@@ -99,8 +99,10 @@ class dealWith {
                 desc: result[0].desc.replace(/"/g,''),
                 long_t: result[0].data.duration,
                 v_img: video.capture,
-                v_url: video.url
+                v_url: video.url,
+                play_num: video.pv.replace('万','0000')
             }
+            //logger.debug(media)
             this.sendCache(media)
             callback()
         })
@@ -149,7 +151,6 @@ class dealWith {
         let option = {
             url : 'http://apicdn.sc.pptv.com/sc/v3/pplive/ref/vod_'+id+'/feed/list?appplt=web&action=1&pn=0&ps=20'
         }
-        //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
@@ -161,7 +162,7 @@ class dealWith {
                 logger.info( '不符合JSON格式' )
                 return callback(e)
             }
-            callback(null,result.total)
+            callback(null,result.data.total)
         })
     }
 
