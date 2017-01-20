@@ -34,7 +34,24 @@ class dealWith {
                 }
                 let $ = cheerio.load(result.body),
                 vidObj = $('div.mod-wrap-in.mod-li-lay.chan-mgtp>div')
-                this.getVideoList( task, vidObj, callback )
+                async.parallel(
+                    {
+                        user: (cb) => {
+                            this.getFans(task, (err) => {
+                                cb(null,'粉丝数信息已返回')
+                            })
+                        },
+                        media: (cb) => {
+                            this.getVideoList( task, vidObj, (err) => {
+                                cb(null,'视频信息已返回')
+                            })
+                        }
+                    },
+                    (err, result) => {
+                        logger.debug(task.id + '_result',result)
+                        callback(null,task.total)
+                    }
+                )
             })
         }else{
             option.url = 'http://pm.funshion.com/v5/media/episode?cl=iphone&id='+task.id+'&si=0&uc=202&ve=3.2.9.2'
@@ -59,6 +76,87 @@ class dealWith {
                 this.getVidList(task,callback)
             })
         }
+    }
+    getFans( task, callback ){
+        let name = encodeURIComponent(task.name),
+            option = {
+                url: 'http://www.fun.tv/search/?word=' + name + '&type=site'
+            }
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('风行网的粉丝数请求失败')
+                return this.getFans( task, callback )
+            }
+            let $ = cheerio.load(result.body),
+                list = $('div.search-result>div.search-item'),
+                user = {
+                    bid: task.id,
+                    platform: 34
+                }
+            for(let i = 0; i < list.length; i++){
+                let bid = list.eq(i).attr('block').match(/g_\d*/).toString().replace('g_','')
+                if(task.id == bid){
+                    user.fans_num = list.eq(i).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text()
+                    logger.info(user)
+                    //this.sendUser( user )
+                    this.sendStagingUser( user )
+                    return 
+                }
+            }
+        })
+    }
+    sendUser (user,callback){
+        let option = {
+            url: this.settings.sendToServer[2],
+            data: user
+        }
+        request.post(logger, option,(err,back) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                logger.info(`返回风行用户 ${user.bid} 连接服务器失败`)
+                return callback(err)
+            }
+            try{
+                back = JSON.parse(back.body)
+            }catch (e){
+                logger.error(`风行用户 ${user.bid} json数据解析失败`)
+                logger.info(back)
+                return callback(e)
+            }
+            if(back.errno == 0){
+                logger.debug("风行用户:",user.bid + ' back_end')
+            }else{
+                logger.error("风行用户:",user.bid + ' back_error')
+                logger.info(back)
+                logger.info('user info: ',user)
+            }
+            callback()
+        })
+    }
+    sendStagingUser (user){
+        let option = {
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
+            data: user
+        }
+        request.post( logger, option,(err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info('send error:',result)
+                return
+            }
+            if(result.errno == 0){
+                logger.debug("风行用户:",user.bid + ' back_end')
+            }else{
+                logger.error("风行用户:",user.bid + ' back_error')
+                logger.info(result)
+            }
+        })
     }
     getVideoList( task, vidObj, callback ){
         let index  = 0,
