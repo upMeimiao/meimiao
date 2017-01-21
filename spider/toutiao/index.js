@@ -50,6 +50,21 @@ class spiderCore {
                         callback()
                     }
                 )
+            },
+            (callback) => {
+                myRedis.createClient(this.redis.host,
+                    this.redis.port,
+                    '9',
+                    this.redis.auth,
+                    ( err, cli ) => {
+                        if(err){
+                            return callback(err)
+                        }
+                        this.fans_db = cli
+                        logger.debug( "缓存队列数据库连接建立...成功" )
+                        callback()
+                    }
+                )
             }
         ],(err, results) => {
             if ( err ) {

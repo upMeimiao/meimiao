@@ -91,6 +91,12 @@ class dealWith {
                 bid: task.id,
                 fans_num: fans
             }
+            if(task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
+                this.core.fans_db.sadd(task.id, JSON.stringify({
+                    num: fans,
+                    time: new Date().getTime()
+                }))
+            }
             this.sendUser( user, (err) => {
                 callback()
             })
