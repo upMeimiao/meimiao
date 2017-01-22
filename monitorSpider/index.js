@@ -41,23 +41,24 @@ class spiderCore {
                         callback()
                     }
                 )
-            },
-            (callback) => {
-                myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.errDb,
-                    this.redis.auth,
-                    ( err, cli ) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        this.errDb = cli
-                        //用于存储接口错误
-                        logger.debug( "错误存储数据库连接建立...成功" )
-                        callback()
-                    }
-                )
             }
+            // ,
+            // (callback) => {
+            //     myRedis.createClient(this.redis.host,
+            //         this.redis.port,
+            //         this.redis.errDb,
+            //         this.redis.auth,
+            //         ( err, cli ) => {
+            //             if(err){
+            //                 return callback(err)
+            //             }
+            //             this.errDb = cli
+            //             //用于存储接口错误
+            //             logger.debug( "错误存储数据库连接建立...成功" )
+            //             callback()
+            //         }
+            //     )
+            // }
         ],(err, results) => {
             if ( err ) {
                 logger.error( "连接redis数据库出错。错误信息：", err )

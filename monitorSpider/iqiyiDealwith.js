@@ -389,7 +389,7 @@ class iqiyiDeal {
         }
         request.get( logger, option, (err,result) => {
             if(err){
-            	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","Info")
+            	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
                 return callback(err)
             }
             //logger.debug(backData)
@@ -398,7 +398,7 @@ class iqiyiDeal {
                 playData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
-                mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,"iqiyi获取视频信息接口eval错误","doWithResErr","Info")
+                mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,"iqiyi获取视频信息接口eval错误","doWithResErr","info")
                 logger.error(result)
                 return callback(e)
             }
@@ -440,7 +440,7 @@ class iqiyiDeal {
             if(comment < 0){
                 this.getComment(playData.data.qitanId,playData.data.albumId,playData.data.tvId,link,(err,result)=>{
                     if(err){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","Info")
+                    	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
                         return callback(null,data)
                     }
                     data.comment = result
