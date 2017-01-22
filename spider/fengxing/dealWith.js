@@ -271,7 +271,7 @@ class dealWith {
                         comment_num: result[0].comment_num ? result[0].comment_num : '',
                         class: result[0].channel ? result[0].channel : '',
                         long_t: video.raw_dura,
-                        desc: result[0].brief ? result[0].substring(0,100).replace(/"/g,'') : '',
+                        desc: result[0].brief ? result[0].brief.substring(0,100).replace(/"/g,'') : '',
                         v_img: video.still,
                         play_num: video.play_index,
                         v_url: result[0].share ? result[0].share : '',
