@@ -70,6 +70,15 @@ const statusMonitor = () => {
     let spider = new (require('./monitor'))(settings)
     spider.start()
 }
+
+const monitorSpider = () => {
+    let logger = logging.getLogger('接口监控',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./monitorSpider'))(settings)
+    spider.start()
+}
+
 const kueMonitor = () => {
     let logger = logging.getLogger('Kue监控',options['i'],log_level)
     settings['logger'] = logger
@@ -365,6 +374,9 @@ switch (options['a']){
         break
     case 'monitor':
         statusMonitor()
+        break
+    case 'monitorSpider':
+        monitorSpider()
         break
     case 'kue':
         kueMonitor()

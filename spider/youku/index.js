@@ -19,6 +19,7 @@ class spiderCore {
         logger.trace('spiderCore instantiation ...')
     }
     assembly ( ) {
+        //并行，最后传值按task顺序
         async.parallel([
             (callback) => {
                 myRedis.createClient(this.redis.host,
@@ -58,12 +59,23 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            this.deal()
+            //this.deal()
+            this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test() {
+        let work = {
+            p: 1,
+            id: "109607072",
+            name: "淘梦网-Tmeng",
+            encodeId: "UNTMxOTkwNjA0"
+        }
+        this.dealWith.todo(work)
+        console.log("works done")
     }
     deal () {
         let queue = kue.createQueue({
@@ -77,8 +89,10 @@ class spiderCore {
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
         })
+        //不稳定的redis连接监控
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
+        //
         queue.process('youku',10, (job,done) => {
             logger.trace( 'Get youku task!' )
             let work = job.data,

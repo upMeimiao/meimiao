@@ -143,10 +143,10 @@ class dealWith {
             }
             try {
                 body = JSON.parse(body)
-            } catch (e) {
+            } catch (error) {
                 logger.error('json数据解析失败')
                 logger.info('total error:',body)
-                return callback(e)
+                return callback(error)
             }
             let data = body.data
             if(!data){
@@ -302,6 +302,7 @@ class dealWith {
             }
             logger.debug(`优酷视频 ${media.aid} 加入缓存队列`)
         } )
+        logger.debug("~~~~~~~~~~~"+this.core.cache_db.llen("cache")+"~~~~~~~~~")
     }
 }
 module.exports = dealWith
