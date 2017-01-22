@@ -70,6 +70,7 @@ class dealWith {
     }
     getUser ( task, callback ){
         if(!task.user_id || task.user_id == '0'){
+            this.getUserId(task)
             return callback()
         }
         const option = {
@@ -165,6 +166,26 @@ class dealWith {
                 logger.error("用户:",user.bid + ' back_error')
                 logger.info(res)
             }
+        })
+    }
+    getUserId(task) {
+        request.get(logger, {url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`},(err, result)=>{
+            if(err){
+                return
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info('send error:',res)
+                return
+            }
+            if(result.message != 'success'){
+                return
+            }
+            let userId = result.data.user_id,
+                key = task.p + ':' + task.id
+            this.core.taskDB.hmset( key, 'uid', userId )
         })
     }
     getList ( task, callback ) {
