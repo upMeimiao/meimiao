@@ -105,7 +105,7 @@ class iqiyiDeal {
         }
         request.get(logger, option, (err,result) => {
             if(err){
-				mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"total")
+				mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","total")
                 return
             }
             try {
@@ -189,7 +189,7 @@ class iqiyiDeal {
                 option.url = raw[index].link
                 request.get(logger, option, (err, result) => {
                     if(err){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"ids")
+                    	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","ids")
                         return cb()
                     }
                     if(!result.body){
