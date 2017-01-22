@@ -39,7 +39,7 @@ class dealWith {
                     this.getUser(task,(err)=>{
                         if(err){
                             return setTimeout(()=>{
-                                this.get_user(task,()=>{
+                                this.getUser(task,()=>{
                                     return callback(null,"用户信息已返回")
                                 }, 1000)
                             })
