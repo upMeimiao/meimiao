@@ -68,7 +68,7 @@ class dealWith {
         const option = {
             url: this.settings.spiderAPI.toutiao.user + task.user_id,
             ua: 3,
-            own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
+            own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
@@ -91,7 +91,8 @@ class dealWith {
                 bid: task.id,
                 fans_num: fans
             }
-            if(task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
+            logger.debug(user)
+            if(task.id == '6204859881' || task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
                 this.core.fans_db.sadd(task.id, JSON.stringify({
                     num: fans,
                     time: new Date().getTime()
@@ -158,7 +159,7 @@ class dealWith {
             sign = true,
             option = {
                 ua: 3,
-                own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
+                own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
             },
             hot_time = null
         async.whilst(
@@ -185,8 +186,8 @@ class dealWith {
                         try{
                             result = JSON.parse(result.body)
                         }catch (e){
-                            logger.error('json数据解析失败')
-                            logger.error(result.body)
+                            // logger.error('json数据解析失败')
+                            // logger.error(result.body)
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
@@ -403,7 +404,7 @@ class dealWith {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
+            //logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
         })
     }
 }
