@@ -60,7 +60,7 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
 
     }
     //// 如果是响应的error错误，直接存储错误并发报错邮件，返回
-    if(errType == "responseErr"){
+    if(errType == "resultErr" || "doWithResErr"){
         // error类型，直接报错
          MSDB.get(curErrKey,(err,result) => {
             logger.debug("result~~~~~~~~~~",result)
