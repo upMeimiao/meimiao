@@ -283,7 +283,11 @@ class dealWith {
                 logger.error('数据解析失败')
                 return
             }
-            if(!result.info.duration || !result.info){
+            if(!result.info){
+                result.info = {
+                    duration: ''
+                }
+            }else if(!result.info.duration){
                 result.info = {
                     duration: ''
                 }
