@@ -37,6 +37,13 @@ class dealWith {
             {
                 user: (callback) => {
                     this.getUser(task,(err)=>{
+                        if(err){
+                            return setTimeout(()=>{
+                                this.get_user(task,()=>{
+                                    return callback(null,"用户信息已返回")
+                                }, 1000)
+                            })
+                        }
                         callback(null,"用户信息已返回")
                     })
                 },
@@ -57,7 +64,7 @@ class dealWith {
                     task.user_id = task.uid
                 }
                 logger.debug(task.id + "_result:",result)
-                callback(null,task.total,task.user_id)
+                callback(null,task.total,task.user_id || '')
             }
         )
     }
