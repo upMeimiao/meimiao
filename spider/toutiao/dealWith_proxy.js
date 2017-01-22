@@ -83,6 +83,9 @@ class dealWith {
                 return callback('fail')
             }
             let fans = result.data.total_cnt
+            if(Number(fans) === 0 && result.data.users.length !== 0 ){
+                return callback('fail')
+            }
             if( typeof fans == 'string' && fans.indexOf('万') != -1 ){
                 fans = fans.replace('万','') * 10000
             }
