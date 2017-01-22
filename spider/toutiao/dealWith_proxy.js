@@ -60,7 +60,7 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
-                if(!task.user_id && (task.uid != '0' || task.uid != '')){
+                if((!task.user_id || task.user_id == '0') && (task.uid != '0' || task.uid != '')){
                     task.user_id = task.uid
                 }
                 logger.debug(task.id + "_result:",result)
@@ -186,6 +186,7 @@ class dealWith {
             let userId = result.data.user_id,
                 key = task.p + ':' + task.id
             logger.debug(`use id: ${userId}`)
+            task.uid = userId
             this.core.taskDB.hmset( key, 'uid', userId ,(err, res)=>{
                 logger.debug('uid ',res)
             })
@@ -237,11 +238,11 @@ class dealWith {
                             return cb()
                         }
                         times = 0
-                        if(index == 0 && result.data.length > 0){
-                            if(result.data[0].creator_uid != '0'){
-                                task.uid = result.data[0].creator_uid
-                            }
-                        }
+                        // if(index == 0 && result.data.length > 0){
+                        //     if(result.data[0].creator_uid != '0'){
+                        //         task.uid = result.data[0].creator_uid
+                        //     }
+                        // }
                         if(!result.data || result.data.length == 0){
                             task.total = 10 * index
                             sign = false
@@ -293,9 +294,9 @@ class dealWith {
                             times = 0
                             proxyStatus = true
                             proxy = _proxy
-                            if(index == 0 && result.data.length > 0){
-                                task.uid = result.data[0].creator_uid
-                            }
+                            // if(index == 0 && result.data.length > 0){
+                            //     task.uid = result.data[0].creator_uid
+                            // }
                             if(!result.data || result.data.length == 0){
                                 task.total = 10 * index
                                 sign = false
