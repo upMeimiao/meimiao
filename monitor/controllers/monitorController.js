@@ -9,7 +9,7 @@ const logging = require( 'log4js' )
 const logger = logging.getLogger('状态监控')
 
 
-const monitorClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/5`,{
+const monitorClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/5`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -66,7 +66,7 @@ const _getInactiveTask = () => {
 const _getFailedTask = () => {
     const options = {
         method: 'GET',
-        url: 'http://r-m5e43f2043319e64.redis.rds.aliyuncs.com:3000/api/jobs/failed/0...500/desc',
+        url: 'http://127.0.0.1:3000/api/jobs/failed/0...500/desc',
         headers: {
             authorization: 'Basic dmVyb25hOjIzMTk0NDY='
         }
