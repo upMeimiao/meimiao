@@ -119,10 +119,10 @@ exports.errStorage = (core,platform,port,bid,errDesc,errType,urlDesc) => {
             
     }
 */
-exports.errStoraging = (core,platform,port,bid,errDesc,errType,urlDesc) => {
+exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
     let options = {
                 platform: platform,
-                port: port,
+                url: url,
                 bid: bid,
                 errDesc: errDesc,
                 times: 1
@@ -156,14 +156,14 @@ exports.errStoraging = (core,platform,port,bid,errDesc,errType,urlDesc) => {
                         curErrTimes++
                     let newOptions = {
                         platform: options.platform,
-                        port: options.port,
+                        url: options.url,
                         bid: options.bid,
                         errDesc: options.errDesc,
                         times: curErrTimes
                     }
                     pushCurErr(errDb,newOptions)
                     let subject = "接口监控报警",
-                        content = `平台：${options.platform}<br/>接口：${options.port}<br/>用户ID：${options.bid}错误描述：${options.errDesc}<br/>错误次数：${curErrTimes}`;
+                        content = `平台：${options.platform}<br/>接口：${options.url}<br/>用户ID：${options.bid}错误描述：${options.errDesc}<br/>错误次数：${curErrTimes}`;
                     logger.debug("错误内容：",content)
                     emailServerLz.sendAlarm(subject, options)
                 }
@@ -181,13 +181,13 @@ exports.errStoraging = (core,platform,port,bid,errDesc,errType,urlDesc) => {
                     curErrTimes++
                  if(options.times >= 4){
                     let subject = "接口监控报警",
-                        content = `平台：${options.platform}<br/>接口：${options.port}<br/>用户ID：${options.bid}错误描述：${options.errDesc}<br/>错误次数：${options.times}`;
+                        content = `平台：${options.platform}<br/>接口：${options.url}<br/>用户ID：${options.bid}错误描述：${options.errDesc}<br/>错误次数：${options.times}`;
                         emailServerLz.sendAlarm(subject, options)
                         logger.error("邮件信息subject="+subject+"content="+content)
                 }
                 let nweOptions = {
                     platform: options.platform,
-                    port: options.port,
+                    url: options.url,
                     bid: options.bid,
                     errDesc: options.errDesc,
                     times: curErrTimes
@@ -196,48 +196,4 @@ exports.errStoraging = (core,platform,port,bid,errDesc,errType,urlDesc) => {
             }
 
         })
-
-        // errDb.keys(pattern,(err,result) => {
-        //     if(err){
-        //         logger.debug("获取errDb的所有key失败")
-        //     }
-        //     let arrErrKeys = result
-        //     // 取keys，与当前key作比较
-        //     for(let key in arrErrKeys){
-        //         // 若有相同，其times+1
-        //         logger.debug("此错误之前已存储了，times++")
-        //         if(curErrKey = key){
-        //             let curErrTimes = options.times
-        //             if(options.times >= 4){
-        //                 let subject = "接口监控报警",
-        //                         content = `平台：${options.platform}<br/>接口：${options.port}<br/>用户ID：${options.bid}错误描述：${options.errDesc}<br/>错误次数：${options.times}`;
-        //                     emailServerLz.sendAlarm(subject, options)
-        //                     logger.error("邮件信息subject="+subject+"content="+content)
-        //             }
-        //             errDb.set(key, JSON.stringify({
-        //                 platform: options.platform,
-        //                 port: options.port,
-        //                 bid: options.bid,
-        //                 errDesc: options.errDesc,
-        //                 times: curErrTimes + 1
-        //             }),(err,result) => {
-        //                 if(err){
-        //                     logger.debug("当前错误存入errDb失败")
-        //                 }
-        //             })
-        //             logger.debug("nweOptions=",JSON.stringify({
-        //                 platform: options.platform,
-        //                 port: options.port,
-        //                 bid: options.bid,
-        //                 errDesc: options.errDesc,
-        //                 times: curErrTimes + 1
-        //             }))
-        //         } else{
-        //             // 若无相同，直接记录
-        //             // 
-        //             pushCurErr(errDb,options)
-        //             logger.debug("此错误第一次发生，存入redis")
-        //         }
-        //     }
-        // })
 }

@@ -19,21 +19,6 @@ class youkuDealWith {
         api = this.settings.spiderAPI
         logger.debug('处理器实例化...')
     }
-    
-    //接口err或者statusCode不是200，记录错误
-    // judgeRes (platform,port,err,res,callback) {
-    //     logger.trace("开始判断"+platform+port+"的err和res")
-    //     if(err){
-    //         logger.trace("err occur"+err);
-    //         mSpiderController.errStroraging(this.core,platform,port,err)
-    //         return callback(err)
-    //     }
-    //     if(res && res.statusCode != 200){
-    //         logger.trace("res err"+res.statusCode+res.errDesc);
-    //         mSpiderController.errStroraging(this.core,platform,port,res.errDesc)
-    //         return callback()
-    //     }
-    // }
     youku (task,callback) {
         task.total = 0
         async.parallel(
@@ -258,17 +243,5 @@ class youkuDealWith {
             }
         )
     }
-    //将获取到的信息存入数据库,下次获取后进行比较，相同视频ID，数据比较
-    // sendDb(media) {
-    //     let MSDB = this.core.MSDB
-    //     MSDB.hset(`${media.author}${media.aid}`,"play_num",media.play_num,(err,result)=>{
-    //         if ( err ) {
-    //             logger.error( '加入接口监控数据库出现错误：', err )
-    //             return
-    //         }
-    //         logger.debug(`${media.author}视频 ${media.aid} 播放量加入数据库`)
-    //     })
-    //     MSDB.expire(`${media.author}${media.aid}`,10*60) 
-    // }
 }
 module.exports = youkuDealWith

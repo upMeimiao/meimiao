@@ -526,14 +526,5 @@ class iqiyiDeal {
             callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
     }
-    // sendCache ( media ){
-    //     this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-    //         if ( err ) {
-    //             logger.error( '加入缓存队列出现错误：', err )
-    //             return
-    //         }
-    //         logger.debug(`爱奇艺视频 ${media.aid} 加入缓存队列`)
-    //     } )
-    // }
 }
 module.exports = iqiyiDeal
