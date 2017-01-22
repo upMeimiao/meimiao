@@ -1457,7 +1457,8 @@ class DealWith {
         })
     }
     qzone(remote, callback) {
-        let host = URL.parse(remote,true).hostname,
+        let query = URL.parse(remote,true).query,
+            host = URL.parse(remote,true).hostname,
             uin = '',
             tid = '',
             option = {}
@@ -1467,15 +1468,19 @@ class DealWith {
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
             this.getQzone(option,callback)
         }else if(host == 'mobile.qzone.qq.com'){
-            uin = remote.match(/&u=\d*/).toString().replace(/&u=/,'')
-            tid = remote.match(/&i=\w*/).toString().replace(/&i=/,'')
+            if(remote.match(/&u=\d*/) == null){
+                uin = query.res_uin
+                tid = query.cellid
+            }else{
+                uin = query.u
+                tid = query.i
+            }
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
             this.getQzone(option,callback)
         }else if(host == 'h5.qzone.qq.com'){
-            uin = remote.match(/&uin=\d*/).toString().replace(/&uin=/,'')
-            tid = remote.match(/&shuoshuo_id=\w*/).toString().replace(/&shuoshuo_id=/,'')
+            uin = query.uin
+            tid = query.shoushou_id
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
-            logger.debug(option.url)
             this.getQzone(option,callback)
         }else{
             option.url = remote
