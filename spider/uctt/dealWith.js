@@ -167,6 +167,11 @@ class dealWith {
             }
             this.getCommentNum(task,_id,result.id,(err,data) => {
                 result.descData = data
+                if(!result.descData.comment_num){
+                    result.descData.comment_num = ''
+                }else if(!result.descData.desc){
+                    result.descData.desc = ''
+                }
                 callback(null,result)
             })
         })
