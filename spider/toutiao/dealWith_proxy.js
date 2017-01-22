@@ -277,8 +277,8 @@ class dealWith {
                             try{
                                 result = JSON.parse(result.body)
                             }catch (e){
-                                logger.error('json数据解析失败')
-                                logger.error(result.body)
+                                // logger.error('json数据解析失败')
+                                // logger.error(result.body)
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)

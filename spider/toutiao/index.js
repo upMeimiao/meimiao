@@ -119,7 +119,13 @@ class spiderCore {
                         return done(err)
                     }
                     done(null)
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, 'uid', uid )
+                    if(uid == 0){
+                        this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
+                    }else if(work.user_id != '' && work.user_id != '0'){
+                        this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
+                    }else{
+                        this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, 'uid', uid )
+                    }
                     request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )
