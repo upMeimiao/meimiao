@@ -60,23 +60,12 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            //this.deal()
-            this.test()
+            this.deal()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
-    }
-    test() {
-        let work = {
-            p: 1,
-            id: "109607072",
-            name: "淘梦网-Tmeng",
-            encodeId: "UNTMxOTkwNjA0"
-        }
-        this.dealWith.todo(work)
-        console.log("works done")
     }
     deal () {
         let queue = kue.createQueue({

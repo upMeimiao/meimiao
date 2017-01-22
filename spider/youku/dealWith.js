@@ -151,10 +151,10 @@ class dealWith {
             }
             try {
                 body = JSON.parse(body)
-            } catch (error) {
+            } catch (e) {
                 logger.error('json数据解析失败')
                 logger.info('total error:',body)
-                return callback(error)
+                return callback(e)
             }
             let data = body.data
             if(!data){
