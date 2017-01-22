@@ -55,13 +55,13 @@ class youkuDealWith {
             if(!body){
                 logger.error('youku获取用户信息接口发生未知错误')
                 logger.debug('total error:',body)
-                mSpiderController.errStroraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
+                mSpiderController.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
                 return callback()
             }
             let userInfo = body.data,
                 fans_num = userInfo.sumCount
             if(!userInfo || !fans_num){
-                 mSpiderController.errStroraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
+                 mSpiderController.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
             }
         })
     }
@@ -82,14 +82,14 @@ class youkuDealWith {
                 body = JSON.parse(body)
             } catch (e) {
                 logger.error('优酷获取全部视频接口json数据解析失败')
-                mSpiderController.errStroraging(this.core,"youku",options.url,task.id,"优酷获取全部视频接口json数据解析失败","resultErr","total")
+                mSpiderController.errStoraging(this.core,"youku",options.url,task.id,"优酷获取全部视频接口json数据解析失败","resultErr","total")
                 logger.debug('total error:',body)
                 return callback(e)
             }
             let data = body.data
             if(!data){
                 logger.error((body.code+body.desc)||"优酷获取全部视频接口返回内容为空")
-                mSpiderController.errStroraging(this.core,'youku',options.url,task.id,body.desc,"resultErr","total")
+                mSpiderController.errStoraging(this.core,'youku',options.url,task.id,body.desc,"resultErr","total")
                 return callback(true)
             }
             let total = data.total
@@ -136,7 +136,7 @@ class youkuDealWith {
                         body = JSON.parse(body)
                     }catch (e){
                         logger.error('优酷获取单页视频列表接口json数据解析失败')
-                        mSpiderController.errStroraging(this.core,'youku',options.url,task.id,"优酷获取单页视频列表接口json数据解析失败","doWithResErr","videos")
+                        mSpiderController.errStoraging(this.core,'youku',options.url,task.id,"优酷获取单页视频列表接口json数据解析失败","doWithResErr","videos")
                         logger.debug('list error:',body)
                         return cb()
                     }
@@ -152,7 +152,7 @@ class youkuDealWith {
                         this.core.MSDB.hget(`youku${videos[index].videoid}`,"play_num",(err,result)=>{
                             if(result > videos[index].total_vv){
                                 logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
-                                mSpiderController.errStroraging(this.core,"youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"resultErr","videos")
+                                mSpiderController.errStoraging(this.core,"youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"resultErr","videos")
                             }
                         })
                     }
@@ -187,7 +187,7 @@ class youkuDealWith {
                 body = JSON.parse(body)
             } catch (e) {
                 logger.error('优酷获取视频详情接口json数据解析失败')
-                mSpiderController.errStroraging(this.core,'youku',options.url,task.id,"优酷获取视频详情接口json数据解析失败","doWithResErr","info")
+                mSpiderController.errStoraging(this.core,'youku',options.url,task.id,"优酷获取视频详情接口json数据解析失败","doWithResErr","info")
                 logger.debug('info error:',body)
                 return callback(e)
             }
@@ -197,7 +197,7 @@ class youkuDealWith {
             //根据已存redis内容判断body内容是否正确,正确则存入数据库，错误则记录错误
             let videos = body.videos
             if(!body.videos){
-                mSpiderController.errStroraging(this.core,'youku',options.url,task.id,"优酷获取视频详情接口返回数据为空","doWithResErr","info")
+                mSpiderController.errStoraging(this.core,'youku',options.url,task.id,"优酷获取视频详情接口返回数据为空","doWithResErr","info")
                 return callback()
             }
             this.youkuDeal( task, videos, list, () => {
