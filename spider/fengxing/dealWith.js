@@ -30,7 +30,7 @@ class dealWith {
             request.get( logger, option, (err, result) => {
                 if (err) {
                     logger.error( '视频总量接口请求错误 : ', err )
-                    return callback(err)
+                    return this.getVideo(task,callback)
                 }
                 let $ = cheerio.load(result.body),
                 vidObj = $('div.mod-wrap-in.mod-li-lay.chan-mgtp>div')
@@ -58,19 +58,19 @@ class dealWith {
             request.get( logger, option, (err, result) => {
                 if (err) {
                     logger.error( '视频总量接口请求错误 : ', err )
-                    return callback(err)
+                    return this.getVideo(task,callback)
                 }
                 if(result.statusCode != 200){
                     logger.error('风行状态码错误',result.statusCode)
                     logger.info(result)
-                    return callback(true)
+                    return this.getVideo(task,callback)
                 }
                 try{
                     result = JSON.parse(result.body)
                 }catch (e){
                     logger.error('视频总量数据解析失败')
                     logger.info(result)
-                    return
+                    return this.getVideo(task,callback)
                 }
                 task.total = result.total
                 this.getVidList(task,callback)
@@ -173,7 +173,7 @@ class dealWith {
                 request.get( logger, option, (err, result) => {
                     if (err) {
                         logger.error( '视频总量接口请求错误 : ', err )
-                        return callback(err)
+                        return cb()
                     }
                     let $ = cheerio.load(result.body),
                         dataJson = $('script')[6].children[0].data.replace(/[\s\n\r]/g,''),
@@ -185,7 +185,7 @@ class dealWith {
                     }catch(e){
                         logger.debug(dataJson)
                         logger.debug('视频列表解析失败')
-                        return callback(e)
+                        return cb()
                     }
                     let length  = dataJson.dvideos[0].videos.length,
                         content = dataJson.dvideos[0].videos
@@ -212,19 +212,19 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '列表接口请求错误 : ', err )
-                return callback(err)
+                return this.getVideoList(task,callback)
             }
             if(result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
                 logger.info(result)
-                return callback(true)
+                return this.getVideoList(task,callback)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
                 logger.info(result)
-                return callback(e)
+                return this.getVideoList(task,callback)
             }
             let length  = result.episodes.length,
                 content = result.episodes
@@ -267,15 +267,15 @@ class dealWith {
                         platform: task.p,
                         bid: task.id,
                         aid: video.videoid,
-                        title: result[0].name.replace(/"/g,''),
-                        comment_num: result[0].comment_num,
-                        class: result[0].channel,
+                        title: result[0].name ? result[0].name.replace(/"/g,'') : '',
+                        comment_num: result[0].comment_num ? result[0].comment_num : '',
+                        class: result[0].channel ? result[0].channel : '',
                         long_t: video.raw_dura,
-                        desc: result[0].brief.substring(0,100).replace(/"/g,''),
+                        desc: result[0].brief ? result[0].substring(0,100).replace(/"/g,'') : '',
                         v_img: video.still,
                         play_num: video.play_index,
-                        v_url: result[0].share,
-                        a_create_time: result[0].release
+                        v_url: result[0].share ? result[0].share : '',
+                        a_create_time: result[0].release ? result[0].release : ''
                     }
                     //logger.debug(media)
                     this.sendCache(media)
@@ -341,25 +341,25 @@ class dealWith {
                     request.get( logger, option, (err, result) => {
                         if (err) {
                             logger.error( '单个视频接口请求错误 : ', err )
-                            return callback(err)
+                            return this.getVideoInfo(task,vid,callback)
                         }
                         
                         if(result.statusCode != 200){
                             logger.error('风行状态码错误',result.statusCode)
                             logger.info(result)
-                            return callback(true)
+                            return this.getVideoInfo(task,vid,callback)
                         }
                         try{
                             result = JSON.parse(result.body)
                         }catch(e){
                             logger.error('json数据解析失败')
                             logger.info(result)
-                            return callback(e)
+                            return this.getVideoInfo(task,vid,callback)
                         }
                         result.release = result.release.replace(/[年月]/g,'-').replace('日','')
                         let time = new Date(result.release+' 00:00:00')
                         result.release = moment(time).format('X')
-                        result.comment_num = data
+                        result.comment_num = data ? data : ''
                         callback(null,result)
                     })
                 }
@@ -379,15 +379,15 @@ class dealWith {
                     request.get( logger, option, (err, result) => {
                     if (err) {
                         logger.error( '单个DOM接口请求错误 : ', err )
-                        return callback(err)
+                        return this.getVideoInfo(task,vid,callback)
                     }
                     let $ = cheerio.load(result.body),
                         vidClass = $('div.crumbsline a').eq(1).text(),
                         comment_num = $('a.commentbtn span.count').text(),
                         res = {
-                            comment_num: comment_num,
-                            class: vidClass,
-                            time: data
+                            comment_num: comment_num ? comment_num : '',
+                            class: vidClass ? vidClass : '',
+                            time: data ? data : ''
                         }
                     callback(null,res)
                 })
