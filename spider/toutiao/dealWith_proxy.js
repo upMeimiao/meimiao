@@ -86,6 +86,9 @@ class dealWith {
             if( typeof fans == 'string' && fans.indexOf('万') != -1 ){
                 fans = fans.replace('万','') * 10000
             }
+            if(Number(fans) === 0){
+                logger.info('粉丝数发生异常：', result)
+            }
             let user = {
                 platform: task.p,
                 bid: task.id,
