@@ -11,7 +11,7 @@ const redis = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/1`,{
 })
 
 const _getServerData = (callback) => {
-    request.get('http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
+    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
         if(err){
             return callback(err)
         }
@@ -45,7 +45,7 @@ const _getInfo = (list, callback) => {
                 is_post: item.is_post,
                 init: result[0],
                 create: result[1],
-                videoNumber: result[2],
+                videoNumber: Number(result[2]).toString() !== 'NaN' ? Number(result[2]) : result[2],
                 update: result[3] || null
             }
             callback(null,info)

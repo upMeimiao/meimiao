@@ -69,8 +69,8 @@ class spiderCore {
     test(){
         let work = {
             p:39,
-            name:'二更',
-            id:306229
+            name:'飞碟说',
+            id:608
         }
         //logger.info( work )
         this.dealWith.todo(work, (err,total,uid) => {
@@ -93,7 +93,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('fengxing',10, (job,done) => {
+        queue.process('fengxing',9, (job,done) => {
             logger.trace( 'Get fengxing task!' )
             let work = job.data,
                 key = work.p + ':' + work.id

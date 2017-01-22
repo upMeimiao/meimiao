@@ -32,7 +32,15 @@ class dealWith {
                         }
                         callback(null,"视频信息已返回")
                     })
-                }
+                },
+                // program: (callback) => {
+                //     this.core.getProgram.start(task, (err)=>{
+                //         if(err){
+                //             return callback(err)
+                //         }
+                //         callback(null,"专辑信息已返回")
+                //     })
+                // }
             },
             ( err, result ) => {
                 if(err){
@@ -98,7 +106,7 @@ class dealWith {
     sendStagingUser (user){
         let options = {
             method: 'POST',
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             form: user
         }
         request( options,(err,res,body) => {
@@ -156,10 +164,10 @@ class dealWith {
             }
             let total = data.total
             task.total = total
-            if(total % 20 != 0){
-                page = Math.ceil(total / 20)
+            if(total % 50 != 0){
+                page = Math.ceil(total / 50)
             }else{
-                page = total / 20
+                page = total / 50
             }
             this.getVideos(task,page, () => {
                 callback()
@@ -170,7 +178,7 @@ class dealWith {
         let sign = 1,options
         async.whilst(
             () => {
-                return sign <= page
+                return sign <= Math.min(page, 25)
             },
             (cb) => {
                 options = {
@@ -271,8 +279,8 @@ class dealWith {
                     platform: 1,
                     bid: task.id,
                     aid: video.videoid,
-                    title: video.title.substr(0,100),
-                    desc: result.description.substr(0,100),
+                    title: video.title.substr(0,100).replace(/"/g,''),
+                    desc: result.description.substr(0,100).replace(/"/g,''),
                     class: result.category,
                     tag: result.tags,
                     v_img: result.bigThumbnail,

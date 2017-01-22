@@ -54,9 +54,16 @@ class dealWith {
         )
     }
     getVidNum( task, callback ){
-        let option = {
-            url: 'http://user.v1.cn/his/getAllCountByUserId/'+task.id+'.json',
-            referer: 'http://user.v1.cn/his/video/'+task.id+'.jhtml'
+        let option = {},
+            id = null
+        if(task.id == task.encode_id){
+            id = task.id
+        }else{
+            id = task.encode_id
+        }
+        option = {
+            url: 'http://user.v1.cn/his/getAllCountByUserId/'+id+'.json',
+            referer: 'http://user.v1.cn/his/video/'+id+'.jhtml'
         }
         request.get( logger, option, (err, result)=>{
             if(err){
@@ -74,9 +81,16 @@ class dealWith {
         })
     }
     getFans ( task, callback){
-        let option = {
-            url: 'http://user.v1.cn/his/getAllCountByUserId/'+task.id+'.json',
-            referer: 'http://user.v1.cn/his/video/'+task.id+'.jhtml'
+        let option = {},
+            id = null
+        if(task.id == task.encode_id){
+            id = task.id
+        }else{
+            id = task.encode_id
+        }
+        option = {
+            url: 'http://user.v1.cn/his/getAllCountByUserId/'+id+'.json',
+            referer: 'http://user.v1.cn/his/video/'+id+'.jhtml'
         }
         request.get( logger, option, (err, result)=>{
             if(err){
@@ -130,7 +144,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger,option,(err,result) => {
@@ -268,11 +282,11 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.vid,
-                    title: video.title,
+                    title: video.title.replace(/"/g,''),
                     comment_num: result[0].comments,
                     class: result[0].videoCategory ? result[0].videoCategory.name : '',
                     tag: result[1].tag,
-                    desc: result[1].desc.substring(0,100),
+                    desc: result[1].desc.substring(0,100).replace(/"/g,''),
                     support: result[2] ? result[2].msg : null,
                     forward_num: result[0].forward,
                     v_img: video.pic,

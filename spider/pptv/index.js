@@ -59,11 +59,23 @@ class spiderCore {
             }
             logger.debug( '创建数据库连接完毕' )
             this.deal()
+            //this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test () {
+        let work = {
+            id: 8063943,
+            name: '飞碟说',
+            p: 31
+        }
+        this.dealWith.todo( work, (err, total) => {
+            logger.debug(total)
+            logger.debug('end')
+        })
     }
     deal () {
         let queue = kue.createQueue({
@@ -79,7 +91,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('pptv',10, (job,done) => {
+        queue.process('pptv',9, (job,done) => {
             logger.trace( 'Get pptv task!' )
             let work = job.data,
                 key = work.p + ':' + work.id

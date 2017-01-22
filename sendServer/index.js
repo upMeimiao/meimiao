@@ -17,7 +17,7 @@ class sendServer {
             }
         }
         this.stagingOption = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideosMore/',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/video/postVideosMore/',
             headers: {
                 'Content-Type':'application/x-www-form-urlencoded'
             }
@@ -56,7 +56,7 @@ class sendServer {
     }
     getData() {
         const key = [],list = []
-        for( let i = 0; i < 150; i++){
+        for( let i = 0; i < 300; i++){
             key[i] = ['lpop', 'cache']
         }
         this.redis.pipeline(
@@ -99,7 +99,7 @@ class sendServer {
         }
         let newList = []
         for (let [index, elem] of list.entries()) {
-            if((elem.platform < 26 && elem.platform != 21) || elem.platform == 29){
+            if((elem.platform < 27 && elem.platform != 21) || elem.platform == 29){
                 newList.push(elem)
             }
         }

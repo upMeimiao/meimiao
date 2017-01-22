@@ -68,7 +68,7 @@ class spiderCore {
         this.assembly()
     }
     test(){
-        let work = { id: '2815097234', p: '23', name: '内裤都笑飞了' }
+        let work = { id: '3269153257', p: '23', name: 'Hermlt隐者' }
         this.dealWith.todo(work, (err,total,uid) => {
             logger.debug(total)
             logger.debug(uid)
@@ -89,7 +89,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('weibo',10, (job,done) => {
+        queue.process('weibo',9, (job,done) => {
             logger.trace( 'Get weibo task!' )
             let work = job.data,
                 key = work.p + ':' + work.id

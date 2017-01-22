@@ -36,19 +36,23 @@
                 </el-table-column>
                 <el-table-column align="center" prop="bname" width="140"  label="用户名">
                 </el-table-column>
-                <el-table-column align="center" prop="videoNumber" label="视频总数">
+                <el-table-column align="center" prop="videoNumber" sortable label="视频总数">
                 </el-table-column>
-                <el-table-column align="center" prop="post_t" width="110" :formatter="show_s_time" label="服务器发送任务时间">
+                <el-table-column label="服务器时间">
+                    <el-table-column align="center" prop="post_t" sortable width="110" :formatter="show_s_time" label="任务发送">
+                    </el-table-column>
+                    <el-table-column align="center" prop="update_t" sortable width="110" :formatter="show_s_time" label="任务更新">
+                    </el-table-column>
                 </el-table-column>
-                <el-table-column align="center" prop="update_t" width="110" :formatter="show_s_time" label="服务器任务更新时间">
+                <el-table-column label="Spider时间">
+                    <el-table-column align="center" prop="init" sortable width="110" :formatter="show_time" label="任务初始化">
+                    </el-table-column>
+                    <el-table-column align="center" prop="create" sortable width="110" :formatter="show_time" label="任务创建">
+                    </el-table-column>
+                    <el-table-column align="center" prop="update" sortable width="110" :formatter="show_time" label="任务更新">
+                    </el-table-column>
                 </el-table-column>
-                <el-table-column align="center" prop="init" width="110" :formatter="show_time" label="爬虫初始化时间">
-                </el-table-column>
-                <el-table-column align="center" prop="create" width="110" :formatter="show_time" label="爬虫任务创建时间">
-                </el-table-column>
-                <el-table-column align="center" prop="update" width="110" :formatter="show_time" label="爬虫任务更新时间">
-                </el-table-column>
-                <el-table-column align="center" prop="is_post" :formatter="show_status" label="状态" :filters="[{ text: '是', value: 0 }, { text: '否', value: 1 }]" :filter-method="filterStatus">
+                <el-table-column align="center" prop="is_post" sortable :formatter="show_status" label="状态" :filters="[{ text: '是', value: 0 }, { text: '否', value: 1 }]" :filter-method="filterStatus">
                 </el-table-column>
             </el-table>
         </el-row>

@@ -109,7 +109,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger,option,(err,result) => {
@@ -194,6 +194,9 @@ class dealWith {
                     } catch ( e ) {
                         return cb()
                     }
+                    if (!result.result) {
+                        return cb()
+                    }
                     if( result.result.length == 0 ){
                         sign = false
                         task.total = cstart
@@ -231,8 +234,8 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.itemid,
-                    title: video.title ? video.title.substr(0,100) : 'btwk_caihongip',
-                    desc: video.summary ? video.summary.substr(0,100) : '',
+                    title: video.title ? video.title.substr(0,100).replace(/"/g,'') : 'btwk_caihongip',
+                    desc: video.summary ? video.summary.substr(0,100).replace(/"/g,'') : '',
                     class: this._class(video),
                     tag: this._tag(video),
                     v_img: this._v_img(video),

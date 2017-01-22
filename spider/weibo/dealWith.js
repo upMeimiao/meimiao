@@ -53,6 +53,7 @@ class dealWith {
         let option = {
                 url : this.settings.spiderAPI.weibo.userInfo+task.id
             }
+        //logger.debug(option.url)
         this.getProxy((err,proxy) => {
             if (proxy == 'timeout') {
                 return callback()
@@ -82,11 +83,17 @@ class dealWith {
                 }
                 this.sendUser(user)
                 this.sendStagingUser(user)
-
-                this.getVidTotal( task, result, proxy, () => {
-                    callback()
-                })
-
+                if(result.tabsInfo.tabs[2].title !== '视频'){
+                    task.NoVideo = true
+                    this.getVidTotal( task, result, proxy, () => {
+                        callback()
+                    })
+                }else{
+                    task.NoVideo = false
+                    this.getVidTotal( task, result, proxy, () => {
+                        callback()
+                    })
+                }
             })
         })
     }
@@ -119,7 +126,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger, option,(err,result) => {
@@ -143,11 +150,17 @@ class dealWith {
         })
     }
     getVidTotal( task, data, proxy, callback ){
-        let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
-            option      = {
-                url: this.settings.spiderAPI.weibo.videoList + containerid + "&page=0"
-            },
-            times       = 0
+        let containerid = '',
+            option      = {},
+            times       = 0,
+            total       = 0
+        if(task.NoVideo){
+            containerid = data.tabsInfo.tabs[1].containerid
+            option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
+        }else{
+            containerid = data.tabsInfo.tabs[2].containerid
+            option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=0"
+        }
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if (err) {
@@ -185,11 +198,12 @@ class dealWith {
                 })
                 return
             }
-            let total = result.cardlistInfo.total
+            total = result.cardlistInfo.total
             task.total = total
-            this.getVidList( task, data, total, proxy, callback )
+            this.getVidList( task, data, total, proxy, () => {
+                callback()
+            })
         })
-        
     }
     getVidList( task, data, total, proxy, callback ){
         let pageNum     = 3
@@ -198,11 +212,17 @@ class dealWith {
                 return task.page < pageNum
             },
             (cb) => {
-                let containerid = data.tabsInfo.tabs[2].filter_group[0].containerid,
-                    option = {
-                        url: this.settings.spiderAPI.weibo.videoList + containerid + "&page=" + task.page
-                    }
+                let containerid = '',
+                    option = {}
+                if(task.NoVideo){
+                    containerid = data.tabsInfo.tabs[1].containerid
+                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=' + task.page
+                }else{
+                    containerid = data.tabsInfo.tabs[2].containerid
+                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
+                }
                 option.proxy = proxy
+                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.debug('视频列表数据请求错误',err)
@@ -220,6 +240,7 @@ class dealWith {
                     }catch (e){
                         logger.error('json数据解析失败')
                         logger.info(result)
+                        this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
                                 return callback()
@@ -230,6 +251,7 @@ class dealWith {
                     }
                     if( result.cards == undefined ){
                         logger.debug('当前列表页的结构有问题，重新请求')
+                        this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
                                 return callback()
@@ -242,6 +264,7 @@ class dealWith {
                         pageNum = 0
                         return cb()
                     }
+                    //logger.info(task.page)
                     this.deal(task,result.cards,data,proxy,() => {
                         task.page++
                         pageNum++
@@ -277,6 +300,8 @@ class dealWith {
     getAllInfo( task, video, user, proxy, callback ){
         if(video.mblog == undefined){
             callback()
+        }else if(video.mblog.pic_infos != undefined){
+            callback()
         }else{
             async.series([
                 (cb) => {
@@ -298,12 +323,12 @@ class dealWith {
                     aid: video.mblog.id,
                     title: video.mblog.text,
                     desc: video.mblog.user.description == undefined ? '' : video.mblog.user.description,
-                    play_num: result[0].page_info == undefined ? null : result[0].page_info.media_info.online_users_number,
+                    play_num: result[0].page_info.media_info.online_users_number,
                     comment_num: video.mblog.comments_count,
                     forward_num: video.mblog.reposts_count,
                     support: video.mblog.attitudes_count,
-                    long_t: result[0].page_info == undefined ? '' : result[0].page_info.media_info.duration,
-                    v_img: result[0].page_info == undefined ? '' : result[0].page_info.page_pic,
+                    long_t: result[0].page_info.media_info.duration,
+                    v_img: result[0].page_info.page_pic,
                     a_create_time: result[0].created_at,
                     v_url: video.mblog.mblogid
                 }
@@ -347,6 +372,12 @@ class dealWith {
                     this.getVideoInfo( id, proxy, callback )
                 })
                 return
+            }
+            if(!result.page_info){
+                return callback(null,'抛掉当前的')
+            }
+            if(!result.page_info.media_info){
+                return callback(null,'抛掉当前的')
             }
             dataTime = new Date(result.created_at)
             dataTime = moment(dataTime).unix()

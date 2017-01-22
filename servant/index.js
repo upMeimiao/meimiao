@@ -67,6 +67,7 @@ class spiderCore {
             case 'www.toutiao.com':
             case 'toutiao.com':
             case 'm.toutiao.com':
+            case 'www.365yg.com':
                 handle.toutiaoHandle( ctx, remote )
                 break
             case 'www.miaopai.com':
@@ -101,6 +102,7 @@ class spiderCore {
             case 'video.btime.com':
             case 'item.btime.com':
             case 'p.m.btime.com':
+            case 'new.item.btime.com':
                 handle.btimeHandle( ctx, remote )
                 break
             case 'www.weishi.com':

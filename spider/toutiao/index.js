@@ -14,7 +14,7 @@ class spiderCore {
         settings = _settings
         this.settings = settings
         this.redis = settings.redis
-        this.dealWith = new(require('./dealWith'))(this)
+        this.dealWith = new(require('./dealWith_proxy'))(this)
         this.proxy = new(require('./proxy'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
@@ -46,6 +46,21 @@ class spiderCore {
                             return callback(err)
                         }
                         this.cache_db = cli
+                        logger.debug( "缓存队列数据库连接建立...成功" )
+                        callback()
+                    }
+                )
+            },
+            (callback) => {
+                myRedis.createClient(this.redis.host,
+                    this.redis.port,
+                    '9',
+                    this.redis.auth,
+                    ( err, cli ) => {
+                        if(err){
+                            return callback(err)
+                        }
+                        this.fans_db = cli
                         logger.debug( "缓存队列数据库连接建立...成功" )
                         callback()
                     }
@@ -89,7 +104,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('toutiao',10, (job,done) => {
+        queue.process('toutiao',9, (job,done) => {
             logger.trace( 'Get toutiao task!' )
             let work = job.data,
                 key = work.p + ':' + work.id

@@ -125,7 +125,7 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: video.video_id,
-                title: video.t1,
+                title: video.t1.replace(/"/g,''),
                 long_t: result[0].info.duration,
                 v_img: video.img,
                 v_url: "http://www.mgtv.com"+video.url,
@@ -133,10 +133,10 @@ class dealWith {
                 class: result[2].fstlvlName,
                 support: result[4].data.like,
                 step: result[4].data.unlike,
-                desc: result[3] ? result[3].substring(0,100) : '',
+                desc: result[3] ? result[3].substring(0,100).replace(/"/g,'') : '',
                 comment_num: result[5].total_number
             }
-            logger.debug(media.desc)
+            logger.debug(media)
             this.sendCache( media )
             callback()
         })
@@ -160,6 +160,9 @@ class dealWith {
                 logger.error('数据解析失败')
                 return
             }
+            if(!result.total_number){
+                result.total_number = ''
+            }
             callback(null,result)
         })
     }
@@ -181,6 +184,12 @@ class dealWith {
             } catch(e){
                 logger.error('数据解析失败')
                 return
+            }
+            if(!result.data){
+                result.data = {
+                    like: '',
+                    unlike: ''
+                }
             }
             callback(null,result)
         })
@@ -220,6 +229,11 @@ class dealWith {
                 logger.error('数据解析失败')
                 return
             }
+            if(!result.data.fstlvlName){
+                result.data = {
+                    fstlvlName: ''
+                }
+            }
             callback(null,result.data)
         })
     }
@@ -243,6 +257,9 @@ class dealWith {
                 logger.error('数据解析失败')
                 return
             }
+            if(!result.data.all){
+                result.data.all = ''
+            }
             callback(null,result.data)
         })
     }
@@ -250,7 +267,7 @@ class dealWith {
         let option = {
             url: this.settings.videoInfo + video.video_id
         }
-        logger.debug(option.url)
+        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
@@ -265,6 +282,15 @@ class dealWith {
             } catch(e){
                 logger.error('数据解析失败')
                 return
+            }
+            if(!result.info){
+                result.info = {
+                    duration: ''
+                }
+            }else if(!result.info.duration){
+                result.info = {
+                    duration: ''
+                }
             }
             callback(null,result.data)
         })

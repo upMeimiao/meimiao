@@ -17,8 +17,8 @@
   "expr": "http://w.cnews.qq.com/getArticleExprList?appver=9.3.2_qnreading_2.1.1",
   "play": "http://r.cnews.qq.com/getSubNewsContent?appver=9.3.2_qnreading_2.1.1",
   "sendToServer":[
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

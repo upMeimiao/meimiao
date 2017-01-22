@@ -125,7 +125,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let options = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger, options,(err,res) => {
@@ -148,17 +148,19 @@ class dealWith {
         })
     }
     getList(task, callback) {
+        let referer = '/2/user/profile/v3/?to_html=1&refer=default&source=search&version_code=5.9.4&app_name=news_article&vid=AA078A72-B7CD-45CB-8F86-BCDB28C3D6C1&device_id=32511333712&channel=App%20Store&resolution=1242*2208&aid=13&ab_version=95360,100770,100734,101516,101786,101539,101479,101533,100846,101117,101778,97142,90764,101586,101558,92439,101294,100404,100755,100786,101710,98040,100825,101405,101308,101797,100948&ab_feature=z2&ab_group=z2&openudid=2142f5f6a7d2e38576de8383f79ba12ebc56e1b8&live_sdk_version=1.3.0&idfv=AA078A72-B7CD-45CB-8F86-BCDB28C3D6C1&ac=WIFI&os_version=10.2&ssmix=a&device_platform=iphone&iid=7241944320&ab_client=a1,f2,f7,e1&device_type=iPhone%206S%20Plus&idfa=00000000-0000-0000-0000-000000000000'
         let index = 0,times = 0,
             sign = true,
             option = {
                 headers: {
                     accept: 'application/json',
                     'x-requested-with': 'XMLHttpRequest',
-                    referer: `https://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}&to_html=1&refer=default&source=search&version_code=5.9.4&app_name=news_article`,
                     'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.4.1 JsSdk/2.0 NetType/WIFI (News 5.9.4 10.200000)'
                 }
             },
-            hot_time = ''
+            hot_time = '',
+            protocol = ['http://lf.snssdk.com','http://ic.snssdk.com','https://lf.snssdk.com','https://ic.snssdk.com'],
+            protocolNum
         async.whilst(
             () => {
                 return sign
@@ -166,12 +168,17 @@ class dealWith {
             (cb) => {
                 const {as, cp} = this.getHoney()
                 times++
-                option.url = this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                protocolNum = Math.floor(Math.random()*4)
+                option.url = protocol[protocolNum] + this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                option.headers.referer = protocol[protocolNum] + referer + `&media_id=${task.id}`
                 this.getListInfo(option, (err, result) => {
                     if(err){
                         if(times > 10){
                             task.total = 10 * index
                             sign = false
+                            if(index == 0){
+                                return cb('failed')
+                            }
                             return cb()
                         }else{
                             return setTimeout(()=>{
@@ -196,6 +203,9 @@ class dealWith {
                 })
             },
             (err,result) => {
+                if(err){
+                    return callback(err)
+                }
                 callback()
             }
         )
@@ -255,8 +265,8 @@ class dealWith {
         media.platform = 6
         media.bid = task.id
         media.aid = vid
-        media.title = video.title || 'btwk_caihongip'
-        media.desc = video.abstract ? video.abstract.substr(0,100) : ''
+        media.title = video.title.replace(/"/g,'') || 'btwk_caihongip'
+        media.desc = video.abstract ? video.abstract.substr(0,100).replace(/"/g,'') : ''
         media.play_num = Number(video.list_play_effective_count) + Number(video.detail_play_effective_count)
         media.comment_num = video.comment_count
         media.support = video.digg_count || null

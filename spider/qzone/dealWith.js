@@ -59,7 +59,7 @@ class dealWith {
             }catch(e){
                 logger.debug('用户粉丝数解析失败')
                 logger.info(result)
-                return getFan( task, callback )
+                return this.getFan( task, callback )
             }
             let user = {
                 platform: task.p,
@@ -100,7 +100,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger, option,(err,result) => {
@@ -143,7 +143,7 @@ class dealWith {
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
-                        if(num < 1){
+                        if(num <= 1){
                             return setTimeout(() => {
                                 num++
                                 logger.debug('300毫秒之后重新请求一下当前列表')
@@ -152,11 +152,12 @@ class dealWith {
                         }
                         return setTimeout(() => {
                             start += 10
-                            num=0
+                            num = 0
                             logger.debug('300毫秒之后重新请求下一页列表')
                             cb()
                         },300)
                     }
+                    num = 0
                     try{
                         result = eval(result.body)
                     }catch (e){
@@ -165,35 +166,37 @@ class dealWith {
                         return callback(e)
                     }
                     if(result.data == undefined){
-                        if(Retry < 1){
+                        if(num <= 1){
                             return setTimeout(() => {
-                                Retry++
+                                num++
                                 logger.debug('300毫秒之后重新请求一下')
                                 cb()
                             },300)
                         }
                         return setTimeout(() => {
-                            Retry=0
+                            num = 0
                             start+=10
                             logger.debug('300毫秒之后重新请求下一页列表')
                             cb()
                         },300)
                     }
+                    num = 0
                     if(result.data.friend_data == undefined){
-                        if(Retry < 1){
+                        if(num <= 1){
                             return setTimeout(() => {
-                                Retry++
+                                num++
                                 logger.debug('300毫秒之后重新请求一下')
                                 cb()
                             },300)
                         }
                         return setTimeout(() => {
-                            Retry=0
+                            num = 0
                             start+=10
                             logger.debug('300毫秒之后重新请求下一页列表')
                             cb()
                         },300)
                     }
+                    num = 0
                     let length = result.data.friend_data.length-1
                     task.total += length
                     if( length <= 0 ){
@@ -235,7 +238,7 @@ class dealWith {
     getAllInfo( task, video, callback ){
         let $ = cheerio.load(video.html)
         if(!$('div').hasClass('f-ct-video')){
-            logger.debug('当前的不是视频 ~ next')
+            //logger.debug('当前的不是视频 ~ next')
             return callback()
         }
         let num = 0
@@ -264,7 +267,7 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: result[0].singlefeed['7'].videoid,
-                title: result[0].singlefeed['4'].summary.substring(0,100),
+                title: result[0].singlefeed['4'].summary.substring(0,100).replace(/"/g,''),
                 support: result[0].singlefeed['11'].num,
                 long_t: result[0].singlefeed['7'].videotime/1000,
                 v_img: result[0].v_img,
@@ -316,7 +319,6 @@ class dealWith {
     }
     getVidCom( task, vid, callback ){
         let option = {
-            //url : 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin='+task.id+'&tid='+vid+'&pos=0&num=20'
             url : 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin='+task.id+'&tid='+vid+'&t1_source=1&ftype=0&sort=0&pos=0&num=20&code_version=1&format=jsonp&need_private_comment=1'
         }
         //logger.debug(option.url)

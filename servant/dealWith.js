@@ -487,6 +487,8 @@ class DealWith {
         if(pathname.startsWith('/i') || pathname.startsWith('/api/pc')){
             if(pathname.startsWith('/api/pc')){
                 v_id = pathname.replace(/\//g,'').substring(9)
+            }else if(pathname.startsWith('/item/')){
+                v_id = pathname.replace(/\//g,'').substring(4)
             }else{
                 v_id = pathname.replace(/\//g,'').substring(1)
             }
@@ -515,7 +517,7 @@ class DealWith {
                 }
                 callback(null,res)
             })
-        }else if(pathname.startsWith('/a')){
+        }else if(pathname.startsWith('/a') || pathname.startsWith('/group/')){
             r.head(data,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
                 v_id = (res.request.path).replace(/\//g,'').substring(1)
                 option.url = api.toutiao.url + v_id + "/info/"
@@ -707,8 +709,32 @@ class DealWith {
         })
     }
     btime ( data, callback) {
-        let pathname = URL.parse(data,true).pathname,option = {}
-      if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
+        let pathname = URL.parse(data,true).pathname,
+            hostname = URL.parse(data,true).hostname,
+            option = {}
+        if(hostname == 'new.item.btime.com'){
+            option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${pathname.replace(/\//g,'')}`
+            return request.get(option, (err,result) => {
+                if(err){
+                    logger.error( 'occur error : ', err )
+                    return callback(err,{code:102,p:15})
+                }
+                try{
+                    result = JSON.parse(result.body)
+                } catch (e){
+                    logger.error('北京时间json数据解析失败')
+                    logger.info('json error: ',result.body)
+                    return callback(e,{code:102,p:15})
+                }
+                let res = {
+                    id: result.data.author_uid,
+                    name: result.data.source,
+                    p: 15
+                }
+                return callback(null,res)
+            })
+        }
+        if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
             return callback(true,{code:101,p:15})
         }
         option.url = data
@@ -1431,7 +1457,8 @@ class DealWith {
         })
     }
     qzone(remote, callback) {
-        let host = URL.parse(remote,true).hostname,
+        let query = URL.parse(remote,true).query,
+            host = URL.parse(remote,true).hostname,
             uin = '',
             tid = '',
             option = {}
@@ -1441,15 +1468,19 @@ class DealWith {
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
             this.getQzone(option,callback)
         }else if(host == 'mobile.qzone.qq.com'){
-            uin = remote.match(/&u=\d*/).toString().replace(/&u=/,'')
-            tid = remote.match(/&i=\w*/).toString().replace(/&i=/,'')
+            if(remote.match(/&u=\d*/) == null){
+                uin = query.res_uin
+                tid = query.cellid
+            }else{
+                uin = query.u
+                tid = query.i
+            }
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
             this.getQzone(option,callback)
         }else if(host == 'h5.qzone.qq.com'){
-            uin = remote.match(/&uin=\d*/).toString().replace(/&uin=/,'')
-            tid = remote.match(/&shuoshuo_id=\w*/).toString().replace(/&shuoshuo_id=/,'')
+            uin = query.uin
+            tid = query.shoushou_id
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
-            logger.debug(option.url)
             this.getQzone(option,callback)
         }else{
             option.url = remote
@@ -1633,12 +1664,33 @@ class DealWith {
                 logger.debug('v1数据转换失败')
                 return callback(e,{code:102,p:33})
             }
-            let res  = {
-                p: 33,
-                id: result.body.obj.videoDetail.userInfo.userId,
-                name: result.body.obj.videoDetail.userInfo.userName
+            this.getenCodeid( data, (err, encodeid) => {
+                let res  = {
+                    p: 33,
+                    id: result.body.obj.videoDetail.userInfo.userId,
+                    name: result.body.obj.videoDetail.userInfo.userName,
+                    encode_id: encodeid
+                }
+                callback(null,res)
+            })           
+        })
+    }
+    getenCodeid( url, callback ){
+        let option = {
+            url: url
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('v1 encodeid 请求失败')
+                return this.getenCodeid(url,callback)
             }
-            callback(null,res)
+            if(result.statusCode != 200){
+                logger.debug('v1 encodeid 状态码错误')
+                return this.getenCodeid(url,callback)
+            }
+            let $ = cheerio.load(result.body),
+                encodeid = $('a.btn_alSub').attr('id').replace('isfocusbtn_','')
+            callback(null,encodeid)
         })
     }
     fengxing( data, callback ){
@@ -1845,21 +1897,13 @@ class DealWith {
                 logger.debug('百度百家的状态码错误',result.statusCode)
                 return callback(true,{code:102,p:28})
             }
-            let $ = cheerio.load(result.body),
-                script = null,
-                startIndex = null,
-                endIndex = null,
-                dataJson = {}
+            let $ = cheerio.load(result.body)
+            result = result.body.replace(/[\n\r\s]/g,'')
+            let startIndex = result.indexOf('videoData'),
+                endIndex = result.indexOf(';window.listInitData'),
+                dataJson = result.substring(startIndex+10,endIndex)
             if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
-                script = $('script')[14].children[0].data.replace(/[\s\n\r]/g,'')
-                startIndex = script.indexOf('videoData={tplData')
-                endIndex = script.indexOf(',userInfo:')
-                dataJson = script.substring(startIndex+19,endIndex)
-            }else{
-                script = $('script')[11].children[0] == undefined ? $('script')[12].children[0].data.replace(/[\s\n\r]/g,'') : $('script')[11].children[0].data.replace(/[\s\n\r]/g,'')
-                startIndex = script.indexOf('videoData={"id')
-                endIndex = script.indexOf(';window.listInitData')
-                dataJson = script.substring(startIndex+10,endIndex)
+                dataJson = result.substring(startIndex+19,endIndex)
             }
             try{
                 dataJson = JSON.parse(dataJson)

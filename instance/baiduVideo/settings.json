@@ -13,8 +13,8 @@
   "videoList":"http://v.baidu.com/i/albumvideos?type=time&id=",
   "videoInfo":"http://xiyou.cctv.com/interface/index?videoId=",
   "sendToServer": [
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate",
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
   ]
 }

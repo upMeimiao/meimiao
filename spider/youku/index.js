@@ -15,6 +15,7 @@ class spiderCore {
         this.settings = settings
         this.redis = settings.redis
         this.dealWith = new( require('./dealWith'))(this)
+        // this.getProgram = new( require('./getProgram'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
@@ -92,8 +93,7 @@ class spiderCore {
         //不稳定的redis连接监控
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        //
-        queue.process('youku',10, (job,done) => {
+        queue.process('youku',9, (job,done) => {
             logger.trace( 'Get youku task!' )
             let work = job.data,
                 key = work.p + ':' + work.id

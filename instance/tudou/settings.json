@@ -17,8 +17,8 @@
   "mediaTime": "http://www.tudou.com/tvp/getItemInfo.action?app=1&ic=",
   "expr":"http://api.3g.tudou.com/v4_5/video/item_sum?pid=c0637223f8b69b02&item_code=",
   "sendToServer":[
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

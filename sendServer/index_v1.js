@@ -15,7 +15,7 @@ class sendServer {
             url: settings.sendUrl
         }
         this.stagingOption = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/video/postVideos/'
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/video/postVideos/'
         }
         logger.trace('sendServer instantiation ...')
     }

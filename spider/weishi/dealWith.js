@@ -96,7 +96,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( option,(err,result) => {
@@ -197,8 +197,8 @@ class dealWith {
                     platform: 16,
                     bid: task.id,
                     aid: video.id,
-                    title: video.origtext ? video.origtext.substr(0,80) : 'btwk_caihongip',
-                    desc: video.origtext ? video.origtext.substr(0,100) : '',
+                    title: video.origtext ? video.origtext.substr(0,80).replace(/"/g,'') : 'btwk_caihongip',
+                    desc: video.origtext ? video.origtext.substr(0,100).replace(/"/g,'') : '',
                     play_num: video.playCount,
                     forward_num: video.rtcount,
                     comment_num: video.mcount,

@@ -32,6 +32,7 @@ class dealWith {
             referer: 'http://baijiahao.baidu.com/u?app_id='+task.id+'&fr=bjhvideo',
             ua: 1
         }
+        //logger.debug(option)
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '总量接口请求错误 : ', err )
@@ -45,6 +46,7 @@ class dealWith {
                 return this.getVidTotal( task, callback )
             }
             let total = result.total
+            //logger.debug(total)
             async.parallel(
                 [
                     (cb) => {
@@ -147,7 +149,7 @@ class dealWith {
     }
     sendStagingUser( user ){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger, option,(err,result) => {
@@ -235,8 +237,8 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: video.id,
-                title: video.title,
-                desc: video.abstract.substring(0,100),
+                title: video.title.substring(0,100).replace(/"/g,''),
+                desc: video.abstract.substring(0,100).replace(/"/g,''),
                 class: video.domain,
                 tag: video.tag,
                 long_t: result[0].long_t,
@@ -248,16 +250,15 @@ class dealWith {
                 play_num: result[0].playNum
             }
             if(!media.play_num){
-                delete media.play_num
+                return callback()
             }
             task.total++
-            //logger.debug(media.a_create_time)
             this.sendCache(media)
             callback()
             
         })
     }
-    getVideoInfo( vid, url, nul, callback ){
+    getVideoInfo( vid, url, num, callback ){
         let option = {}
         if(vid != null){
             option.url = 'https://baijiahao.baidu.com/po/feed/video?wfr=spider&for=pc&context=%7B%22sourceFrom%22%3A%22bjh%22%2C%22nid%22%3A%22'+vid+'%22%7D'
@@ -269,7 +270,7 @@ class dealWith {
             if(err){
                 logger.debug('单个视频请求失败 ', err)
                 if(num <= 1){
-                    return this.getVideoInfo( vid, num++, callback )
+                    return this.getVideoInfo( vid, url, num++, callback )
                 }
                 return callback(null,{long_t:'',a_create_time:'',playNum:''})
             }
@@ -278,11 +279,13 @@ class dealWith {
             if($('div.item p').eq(0).text() == '视频已失效，请观看其他视频'){
                 return callback(null,{long_t:'',playNum:null})
             }
-
+            if (!$('script')[11].children) {
+                return callback(null,{long_t:'',playNum:null})
+            }
             if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
                 return callback(null,{long_t:'',playNum:null})
             }
-
+            logger.debug('---')
             let script = $('script')[11].children[0] == undefined ? $('script')[12].children[0].data.replace(/[\s\n\r]/g,'') : $('script')[11].children[0].data.replace(/[\s\n\r]/g,''),
                 startIndex = script.indexOf('videoData={"id'),
                 endIndex = script.indexOf(';window.listInitData'),
@@ -317,7 +320,7 @@ class dealWith {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            logger.debug(`百家号 ${media.aid} 加入缓存队列`)
+            //logger.debug(`百家号 ${media.aid} 加入缓存队列`)
         } )
     }
 }

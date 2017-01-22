@@ -105,7 +105,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( logger,option,(err,result) => {
@@ -238,11 +238,11 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: result.data[0].videoId,
-                title: result.data[0].title,
+                title: result.data[0].title.replace(/"/g,''),
                 comment_num: result.data[0].commentCount,
                 class: result.data[0].categoryName,
                 tag: result.data[0].videoTags,
-                desc: result.data[0].videoDetailInfo.replace(/<br\/>/g,'').substring(0,100),
+                desc: result.data[0].videoDetailInfo.replace(/<br\/>/g,'').substring(0,100).replace(/"/g,''),
                 support: result.data[0].upCount,
                 step: result.data[0].downCount,
                 long_t: result.data[0].timeSpan,

@@ -102,7 +102,7 @@ class dealWith {
     }
     sendStagingUser (user){
         let option = {
-            url: 'http://staging-dev.caihongip.com/index.php/Spider/Fans/postFans',
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
         request.post( option,(err,result) => {
@@ -175,8 +175,9 @@ class dealWith {
                         return cb()
                     }
                     if(!result.data.vlist || result.data.vlist == 'null'){
-                        logger.debug('已经没有数据')
-                        return this.even.emit('end')
+                        logger.debug(result)
+                        sign++
+                        return cb()
                     }
                     this.deal(task,result.data.vlist,() => {
                         sign++
@@ -239,8 +240,8 @@ class dealWith {
                 platform: 8,
                 bid: task.id,
                 aid: back.data.aid,
-                title: back.data.title.substr(0,100),
-                desc: back.data.desc.substr(0,100),
+                title: back.data.title.substr(0,100).replace(/"/g,''),
+                desc: back.data.desc.substr(0,100).replace(/"/g,''),
                 play_num: back.data.stat.view,
                 save_num: back.data.stat.favorite > 0 ? back.data.stat.favorite : null,
                 comment_num: back.data.stat.reply,

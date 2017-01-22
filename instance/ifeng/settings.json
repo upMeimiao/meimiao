@@ -12,8 +12,8 @@
   "medialist": "http://vcis.ifeng.com/api/weMediaVideoList?type=new&pageSize=20&weMediaID=",
   "info": "http://vcis.ifeng.com/api/videoGuid?adapterNo=7.1.0&protocol=1.0.0&guid=",
   "sendToServer":[
-    "http://qiaosuan-intra.caihongip.com/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.caihongip.com/index.php/spider/videoO/postVUpdate"
+    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
+    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
   ]
 }

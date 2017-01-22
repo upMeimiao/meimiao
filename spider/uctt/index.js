@@ -59,11 +59,23 @@ class spiderCore {
             }
             logger.debug( '创建数据库连接完毕' )
             this.deal()
+            //this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test () {
+        let work = {
+            id: '41ad6b83918746c2ad1a4afbab13e1cd',
+            name: '陈翔六点半',
+            p: 26
+        }
+        this.dealWith.todo( work, (err, total) => {
+            logger.debug(total)
+            logger.debug('end')
+        })
     }
     deal () {
         let queue = kue.createQueue({
@@ -79,7 +91,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('uctt',10, (job,done) => {
+        queue.process('uctt',9, (job,done) => {
             logger.trace( 'Get uctt task!' )
             let work = job.data,
                 key = work.p + ':' + work.id

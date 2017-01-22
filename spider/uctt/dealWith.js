@@ -119,7 +119,7 @@ class dealWith {
                     author: task.name,
                     platform: task.p,
                     aid: result.id,
-                    title: data.title,
+                    title: data.title.substr(0,100).replace(/"/g,''),
                     play_num: result.view_cnt,
                     comment_num: result.descData.comment_num,
                     support: data._incrs.liketimes,
@@ -127,11 +127,14 @@ class dealWith {
                     class: data.category,
                     v_url: data.other_info == undefined ? result.url : data.other_info.video_playurl,
                     a_create_time: moment(data._created_at).unix(),
-                    tag: result.tags,
-                    desc: result.descData.desc,
+                    tag: this._tags(result.tags),
+                    desc: result.descData.desc.substr(0,100).replace(/"/g,''),
                     long_t: result.videos[0] == undefined ? result.content_length/1000 : result.videos[0].length/1000
                 }
-                //logger.debug(media.author)
+                logger.debug(media)
+                if(!media.support){
+                    delete media.support
+                }
                 this.sendCache( media )
                 callback()
             }
@@ -164,33 +167,32 @@ class dealWith {
             }
             this.getCommentNum(task,_id,result.id,(err,data) => {
                 result.descData = data
+                if(!result.descData.comment_num){
+                    result.descData.comment_num = ''
+                }else if(!result.descData.desc){
+                    result.descData.desc = ''
+                }
                 callback(null,result)
             })
         })
     }
     getCommentNum( task, _id, id, callback ){
-        let sign         = 1,
-            page         = 2,
-            options      = {},
-            hotScore     = '',
-            num          = null,
-            contLength   = null
-        
-        options.url = 'http://m.uczzd.cn/iflow/api/v2/cmt/article/'+id+'/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue='+hotScore
+        let options      = {},
+            num          = null
+        options.url = 'http://m.uczzd.cn/iflow/api/v2/cmt/article/'+id+'/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue='
         //logger.debug(options.url)
         request.get( logger, options, (err,data) => {
             if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
+                logger.error( 'uc头条评论数请求失败 : ', err )
+                return this.getCommentNum( task, _id, id, callback )
             }
             try{
                 data = JSON.parse(data.body)
             }catch(e){
                 logger.debug('UC数据解析失败')
                 logger.info(data)
-                return callback(e)
+                return this.getCommentNum( task, _id, id, callback )
             }
-            contLength = data.data.comments.length
             num = data.data.comment_cnt
             this.getDesc(_id,(err,result) => {
                 if(err){
@@ -223,6 +225,15 @@ class dealWith {
             }
             callback(null,result)
         })
+    }
+    _tags(raw){
+        if(typeof raw == 'string'){
+            return raw
+        }
+        if(Object.prototype.toString.call(raw) === '[object Array]'){
+            return raw.join(',')
+        }
+        return ''
     }
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
