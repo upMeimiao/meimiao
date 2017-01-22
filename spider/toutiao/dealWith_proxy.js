@@ -33,9 +33,6 @@ class dealWith {
     todo ( task, callback) {
         task.total = 0
         task.uid = ''
-        if(task.user_id){
-            task.uid = task.user_id
-        }
         async.parallel(
             {
                 user: (callback) => {
@@ -56,13 +53,16 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
+                if(!task.user_id && task.uid){
+                    task.user_id = task.uid
+                }
                 logger.debug(task.id + "_result:",result)
-                callback(null,task.total,task.uid)
+                callback(null,task.total,task.user_id)
             }
         )
     }
     getUser ( task, callback ){
-        if(!task.user_id){
+        if(!task.user_id || task.user_id == '0'){
             return callback()
         }
         const option = {
