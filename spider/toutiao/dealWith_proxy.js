@@ -60,7 +60,7 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
-                if(!task.user_id && task.uid){
+                if(!task.user_id && (task.uid != '0' || task.uid != '')){
                     task.user_id = task.uid
                 }
                 logger.debug(task.id + "_result:",result)
@@ -185,7 +185,10 @@ class dealWith {
             }
             let userId = result.data.user_id,
                 key = task.p + ':' + task.id
-            this.core.taskDB.hmset( key, 'uid', userId )
+            logger.debug(`use id: ${userId}`)
+            this.core.taskDB.hmset( key, 'uid', userId ,(err, res)=>{
+                logger.debug('uid ',res)
+            })
         })
     }
     getList ( task, callback ) {
@@ -235,7 +238,9 @@ class dealWith {
                         }
                         times = 0
                         if(index == 0 && result.data.length > 0){
-                            task.uid = result.data[0].creator_uid
+                            if(result.data[0].creator_uid != '0'){
+                                task.uid = result.data[0].creator_uid
+                            }
                         }
                         if(!result.data || result.data.length == 0){
                             task.total = 10 * index
