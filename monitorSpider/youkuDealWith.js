@@ -61,8 +61,10 @@ class youkuDealWith {
             let userInfo = body.data,
                 fans_num = userInfo.sumCount
             if(!userInfo || !fans_num){
-                 mSpiderController.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
+                mSpiderController.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
+                return callback()
             }
+            mSpiderController.succStorage(this.core,"youku",options.url,"user")
         })
     }
     youkuGetTotal( task, callback ) {
@@ -99,6 +101,7 @@ class youkuDealWith {
             }else{
                 page = total / 20
             }
+            mSpiderController.succStorage(this.core,"youku",options.url,"total")
             this.youkuGetVideos(task,page, (err,result) => {
                 logger.debug(err,result)
             })
@@ -156,6 +159,7 @@ class youkuDealWith {
                             }
                         })
                     }
+                    mSpiderController.succStorage(this.core,"youku",options.url,"videos")
                     this.youkuInfo(task,videos, () => {
                         sign++
                     })
@@ -200,6 +204,7 @@ class youkuDealWith {
                 mSpiderController.errStoraging(this.core,'youku',options.url,task.id,"优酷获取视频详情接口返回数据为空","doWithResErr","info")
                 return callback()
             }
+            mSpiderController.succStorage(this.core,"youku",options.url,"info")
             this.youkuDeal( task, videos, list, () => {
                 logger.debug(err,result)
             })

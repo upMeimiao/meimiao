@@ -66,6 +66,7 @@ class iqiyiDeal {
                     callback()
                 })
             }
+            mSpiderController.succStorage(this.core,"iqiyi",option.url,"user")
             // const fans = fansDom.attr('data-num'),
             //     user = {
             //         platform: 2,
@@ -95,6 +96,7 @@ class iqiyiDeal {
                     fans_num: fansDom.substring(2)
                 }
             //logger.debug(user)
+            mSpiderController.succStorage(this.core,"iqiyi",option.url,"_user")
         })
     }
     getTotal(task, callback) {
@@ -125,6 +127,7 @@ class iqiyiDeal {
                     callback()
                 })
             }
+            mSpiderController.succStorage(this.core,"iqiyi",option.url,"total")
         })
     }
     getListN(task, callback) {
@@ -165,6 +168,7 @@ class iqiyiDeal {
                         })
                     }
                     //logger.debug(video)
+                    mSpiderController.succStorage(this.core,"iqiyi",option.url,"listN")
                     this.getIds(task, video, (err) => {
                         index++
                         cb()
@@ -202,6 +206,7 @@ class iqiyiDeal {
                         if(!id){
                             mSpiderController.errStoraging(this.core,'iqiyi',DOM,task.id,"iqiyi获取DOM元素中的视频id失败","domBasedErr","ids")
                         }
+                    mSpiderController.succStorage(this.core,"iqiyi",option.url,"ids")
                     this.info(task, {id: id, title: raw[index].title, link: raw[index].link},(err)=>{
                         index++
                         cb()
@@ -266,6 +271,7 @@ class iqiyiDeal {
                         id = id.slice(0,end)
                         links.push(id)
                     }
+                    mSpiderController.succStorage(this.core,"iqiyi",option.url,"list")
                     this.deal(task,ids,titles,links, () => {
                         index++
                         cb()
@@ -437,6 +443,7 @@ class iqiyiDeal {
                 type:type,
                 seconds:seconds
             }
+            mSpiderController.succStorage(this.core,"iqiyi",option.url,"info")
             if(comment < 0){
                 this.getComment(playData.data.qitanId,playData.data.albumId,playData.data.tvId,link,(err,result)=>{
                     if(err){
@@ -475,6 +482,7 @@ class iqiyiDeal {
             if(infoData.code != 'A00000'){
                 return callback(true)
             }
+            mSpiderController.succStorage(this.core,"iqiyi",option.url,"Expr")
             callback(null,infoData)
         })
     }
@@ -499,6 +507,7 @@ class iqiyiDeal {
                 logger.error(result)
                 return callback(e)
             }
+            mSpiderController.succStorage(this.core,"iqiyi",option.url,"play")
             callback(null,infoData[0][id])
         })
     }
@@ -523,6 +532,7 @@ class iqiyiDeal {
                 logger.error(result)
                 return callback(e)
             }
+            mSpiderController.succStorage(this.core,"iqiyi",option.url,"comment")
             callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
     }

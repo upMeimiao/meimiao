@@ -100,13 +100,15 @@ class spiderCore {
         const rule = new schedule.RecurrenceRule();
         switch(platform) {
             case 1:
-                rule.minite = [10,20,30,40,50]
+                logger.debug(platform)
+                rule.minute = [10,30,50]
                 break
             case 2:
-                rule.minite = [5,15,25,35,45,55]
+                logger.debug(platform)
+                rule.minute = [1,21,41]
                 break
             default:
-                rule.minite = [0,5,10,15,20,25,30,35,40,45,50,55]
+                rule.minute = [1,10,21,30,41,50]
         }
         const YOUKU = schedule.scheduleJob(rule, () =>{
             this.youku()

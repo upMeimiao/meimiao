@@ -6,33 +6,60 @@ const platformMap = {
 }
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
-exports.judgeRes = (core,platform,port,bid,err,res,callback,urlDesc) => {
+exports.judgeRes = (core,platform,url,bid,err,res,callback,urlDesc) => {
     if(err){
-        this.errStoraging(core,platform,port,bid,err,"responseErr",urlDesc)
+        this.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
         return callback(err)
     }
     if(res && res.statusCode != 200){
-        this.errStoraging(core,platform,port,res.errDesc,"responseErr",urlDesc)
+        this.errStoraging(core,platform,url,bid,res.errDesc,"responseErr",urlDesc)
         return callback()
     }
 }
 exports.sendDb = (core,media) => {
-let MSDB = core.MSDB,
-    logger = core.settings.logger,
-    curPlatform
-for(let key in platformMap){
-    if(key == media.platform){
-        curPlatform = platformMap[key]
+    let MSDB = core.MSDB,
+        logger = core.settings.logger,
+        curPlatform
+    for(let key in platformMap){
+        if(key == media.platform){
+            curPlatform = platformMap[key]
+        }
     }
+    MSDB.hset(`${curPlatform}:nomal:${media.aid}`,"play_num",media.play_num,(err,result)=>{
+        if ( err ) {
+            logger.error( '加入接口监控数据库出现错误：', err )
+            return
+        }
+        logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
+    })
+    MSDB.expire(`${curPlatform}:${media.aid}`,5*60*60) 
 }
-MSDB.hset(`${curPlatform}:normal:${media.aid}`,"play_num",media.play_num,(err,result)=>{
-    if ( err ) {
-        logger.error( '加入接口监控数据库出现错误：', err )
-        return
-    }
-    logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
-})
-MSDB.expire(`${curPlatform}:${media.aid}`,5*60*60) }
+exports.succStorage = (core,platform,url,urlDesc) => {
+    let logger = core.settings.logger,
+        MSDB = core.MSDB,
+        curSuccKey = `${platform}:success:${urlDesc}`,
+        succTimes
+    logger.debug("~~~~~~~~~~~platform",platform,"url",url,"urlDesc",urlDesc)
+    MSDB.hget(curSuccKey,"succTimes",(err,result) => {
+        if(err){
+            logger.error( '获取接口成功调取次数出现错误', err )
+            return
+        }
+        if (!result) {
+            succTimes = 1
+        }  else {
+            logger.debug("~~~~~~~~~~result=",result)
+            succTimes = Number(result) + 1
+        }
+        logger.debug("~~~~~~~~~~curSuccKey",curSuccKey,"url=",url,"succTimes=",succTimes)
+        MSDB.hset(curSuccKey,"succTimes",succTimes,(err,result) => {
+            if(err){
+                logger.error( '设置接口成功调取次数出现错误', err )
+                return
+            }
+        })
+    })
+}
 exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
     let options = {
             platform: platform,
@@ -59,7 +86,7 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
         logger.debug("错误已存入redis")
 
     }
-    //// 如果是响应的error错误，直接存储错误并发报错邮件，返回
+    //// 如果是接口返回内容错误，直接存储错误并发报错邮件，返回
     if(errType == "resultErr" || "doWithResErr"){
         // error类型，直接报错
          MSDB.get(curErrKey,(err,result) => {

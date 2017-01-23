@@ -7,8 +7,7 @@
 	    "taskDB": 1,
 	    "jobDB": 2,
 	    "cache_db": 3,
-	    "MSDB": 7,
-	    "errDb": 8
+	    "MSDB": 7
   	},
   	"proxy": {
 	    "host": "10.169.16.235",
