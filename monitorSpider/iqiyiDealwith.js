@@ -368,9 +368,6 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
-
-
-                let oldPlayNum
                 this.core.MSDB.hget(`${media.author}${media.aid}`,"play_num",(err,result)=>{
                 	if(err){
                 		if(result > media.play_num){

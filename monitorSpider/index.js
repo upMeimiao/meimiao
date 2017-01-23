@@ -18,6 +18,7 @@ class spiderCore {
         // this.dealWith = new( require('./dealWith'))(this)
         this.youkuDeal = new (require('./youkuDealWith'))(this)
         this.iqiyiDeal = new (require('./iqiyiDealWith'))(this)
+        this.leDeal = new (require('./leDealWith'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
@@ -89,6 +90,11 @@ class spiderCore {
                     this.scheduleTask(2,(err)=>{
                         logger.debug(err)
                     })
+                },
+                le:() => {
+                    this.scheduleTask(3,(err)=>{
+                        logger.debug(err)
+                    })
                 }
             },
             ( err, result ) => {
@@ -101,20 +107,27 @@ class spiderCore {
         switch(platform) {
             case 1:
                 logger.debug(platform)
-                rule.minute = [10,30,50]
+                rule.minute = [10]
                 break
             case 2:
                 logger.debug(platform)
-                rule.minute = [1,21,41]
+                rule.minute = [15]
+                break
+            case 3:
+                logger.debug(platform)
+                rule.minute = [20]
                 break
             default:
-                rule.minute = [1,10,21,30,41,50]
+                rule.minute = [10,15,20]
         }
         const YOUKU = schedule.scheduleJob(rule, () =>{
             this.youku()
         })
         const IQIYI = schedule.scheduleJob(rule, () =>{
             this.iqiyi()
+        })
+        const LE = schedule.scheduleJob(rule, () =>{
+            this.le()
         })
     }
     youku() {
@@ -130,6 +143,14 @@ class spiderCore {
             "name":"iqiyi","platform":2,"id":1036522467,"bname":"笑实验阿拉苏"
         }
         this.iqiyiDeal.iqiyi(work,(err,result) => {
+            logger.debug(err,result)
+        })
+    }
+    le() {
+        let work = {
+            "name":"le","platform":3,"id":115666268,"bname":"女神TV"
+        }
+        this.leDeal.le(work,(err,result) => {
             logger.debug(err,result)
         })
     }

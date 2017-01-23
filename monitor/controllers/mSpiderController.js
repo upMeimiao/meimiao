@@ -1,8 +1,9 @@
 
 const emailServerLz = require('./emailServerLz')
 const platformMap = {
-    "1":"youku",
-    "2":"iqiyi"
+    "1": "youku",
+    "2": "iqiyi",
+    "3": "le"
 }
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
@@ -39,7 +40,6 @@ exports.succStorage = (core,platform,url,urlDesc) => {
         MSDB = core.MSDB,
         curSuccKey = `${platform}:success:${urlDesc}`,
         succTimes
-    logger.debug("~~~~~~~~~~~platform",platform,"url",url,"urlDesc",urlDesc)
     MSDB.hget(curSuccKey,"succTimes",(err,result) => {
         if(err){
             logger.error( '获取接口成功调取次数出现错误', err )
@@ -48,10 +48,8 @@ exports.succStorage = (core,platform,url,urlDesc) => {
         if (!result) {
             succTimes = 1
         }  else {
-            logger.debug("~~~~~~~~~~result=",result)
             succTimes = Number(result) + 1
         }
-        logger.debug("~~~~~~~~~~curSuccKey",curSuccKey,"url=",url,"succTimes=",succTimes)
         MSDB.hset(curSuccKey,"succTimes",succTimes,(err,result) => {
             if(err){
                 logger.error( '设置接口成功调取次数出现错误', err )
@@ -74,6 +72,11 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
         curErrKey = `${platform}:error:${urlDesc}:${errType}`
     logger.debug("有错误发生喽，正在分析与存储~~~~~~")
     // MSDB存数据方法
+    
+    if(options.errDesc.code == "ESOCKETTIMEDOUT" || "ETIMEOUT"){
+        logger.debug(`${platform}平台urlDesc接口：${url}调用超时`)
+        return
+    }
     function pushCurErr(MSDB,options){
         MSDB.set(curErrKey,JSON.stringify(options),(err,result) => {
             if ( err ) {
@@ -90,7 +93,6 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
     if(errType == "resultErr" || "doWithResErr"){
         // error类型，直接报错
          MSDB.get(curErrKey,(err,result) => {
-            logger.debug("result~~~~~~~~~~",result)
             if(err||!result){
                 pushCurErr(MSDB,options)
             }  else{
@@ -116,7 +118,6 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
     logger.debug("开始获取已存储的所有key")
 
     MSDB.get(curErrKey,(err,result) => {
-        logger.debug("result~~~~~~~~~~",result)
         if(err||!result){
             pushCurErr(MSDB,options)
         }  else{
