@@ -12,7 +12,7 @@ class proxy{
         if(times > 4){
             return callback('timeout!')
         }
-        logger.trace('Send a Require command')
+        //logger.trace('Send a Require command')
         request(`http://${settings.proxy.host}:${settings.proxy.port}`,(err, res, body) => {
             if(err){
                 logger.debug('err:',err)
@@ -28,7 +28,7 @@ class proxy{
                 return callback(e.message)
             }
             if(proxy.proxy){
-                logger.debug(proxy.proxy)
+                //logger.debug(proxy.proxy)
                 return callback(null, proxy.proxy)
             }
             setTimeout(() => {

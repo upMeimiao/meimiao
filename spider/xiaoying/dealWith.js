@@ -247,6 +247,9 @@ class dealWith {
                 logger.info('json error: ',result.body)
                 return callback(e)
             }
+            if(!result.videoinfo){
+                return callback('异常错误')
+            }
             let time = result.videoinfo.publishtime,
                 a_create_time = moment(time, ["YYYYMMDDHHmmss"], true).unix(),
                 media = {
