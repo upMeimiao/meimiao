@@ -32,7 +32,6 @@ class dealWith {
     }
     todo ( task, callback) {
         task.total = 0
-        task.uid = ''
         async.parallel(
             {
                 user: (callback) => {
@@ -60,21 +59,18 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
-                if((!task.user_id || task.user_id == '0') && (task.uid != '0' || task.uid != '')){
-                    task.user_id = task.uid
-                }
                 logger.debug(task.id + "_result:",result)
-                callback(null,task.total,task.user_id || '')
+                callback(null,task.total)
             }
         )
     }
     getUser ( task, callback ){
-        if(!task.user_id || task.user_id == '0'){
+        if(!task.encodeId || task.encodeId == '0'){
             this.getUserId(task)
             return callback()
         }
         const option = {
-            url: this.settings.spiderAPI.toutiao.user + task.user_id,
+            url: this.settings.spiderAPI.toutiao.user + task.encodeId,
             ua: 3,
             own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
         }
@@ -105,13 +101,12 @@ class dealWith {
                 bid: task.id,
                 fans_num: fans
             }
-            logger.debug(user)
-            if(task.id == '6204859881' || task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
-                this.core.fans_db.sadd(task.id, JSON.stringify({
-                    num: fans,
-                    time: new Date().getTime()
-                }))
-            }
+            // if(task.id == '6204859881' || task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
+            //     this.core.fans_db.sadd(task.id, JSON.stringify({
+            //         num: fans,
+            //         time: new Date().getTime()
+            //     }))
+            // }
             this.sendUser( user, (err) => {
                 callback()
             })
@@ -183,13 +178,24 @@ class dealWith {
             if(result.message != 'success'){
                 return
             }
-            let userId = result.data.user_id,
-                key = task.p + ':' + task.id
-            logger.debug(`use id: ${userId}`)
-            task.uid = userId
-            this.core.taskDB.hmset( key, 'uid', userId ,(err, res)=>{
-                logger.debug('uid ',res)
-            })
+            let userId = result.data.user_id
+            this.sendUid(task, userId)
+        })
+    }
+    sendUid(task, uid) {
+        let option = {
+            url: 'http://www.meimiaoip.com/index.php/Spider/Incould/update',
+            data: {
+                platform: 6,
+                bid: task.id,
+                encodeId: uid,
+            }
+        }
+        request.post(logger, option, (err, body) => {
+            if(err){
+                return
+            }
+            logger.debug(body.body)
         })
     }
     getList ( task, callback ) {
@@ -238,11 +244,6 @@ class dealWith {
                             return cb()
                         }
                         times = 0
-                        // if(index == 0 && result.data.length > 0){
-                        //     if(result.data[0].creator_uid != '0'){
-                        //         task.uid = result.data[0].creator_uid
-                        //     }
-                        // }
                         if(!result.data || result.data.length == 0){
                             task.total = 10 * index
                             sign = false
@@ -294,9 +295,6 @@ class dealWith {
                             times = 0
                             proxyStatus = true
                             proxy = _proxy
-                            // if(index == 0 && result.data.length > 0){
-                            //     task.uid = result.data[0].creator_uid
-                            // }
                             if(!result.data || result.data.length == 0){
                                 task.total = 10 * index
                                 sign = false

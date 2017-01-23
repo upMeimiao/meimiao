@@ -81,13 +81,14 @@ class scheduler {
             this.dealWith.setCreate( raw )
         })
         this.on( 'task_create', ( raw ) => {
-            if( raw.p == 6){
-                this.getUserId( raw ,( err, result ) => {
-                    this.createQueue( result )
-                })
-            }else{
-                this.createQueue( raw )
-            }
+            this.createQueue( raw )
+            // if( raw.p == 6){
+            //     this.getUserId( raw ,( err, result ) => {
+            //         this.createQueue( result )
+            //     })
+            // }else{
+            //     this.createQueue( raw )
+            // }
         })
         this.on( 'redis_error', ( raw ) => {
             /**
@@ -126,8 +127,8 @@ class scheduler {
             p: raw.p,
             name: raw.name,
             encodeId: raw.encodeId,
-            type: raw.type,
-            user_id: raw.uid
+            type: raw.type
+            // user_id: raw.uid
         }).priority('critical').backoff({delay: 150 * 1000, type:'fixed'}).removeOnComplete(true)
         // if(raw.p == 6 || ((raw.p == 2 && raw.id == '1060140460') || (raw.p == 2 && raw.id == '1045961206'))){
         //     job.ttl(10800000)
@@ -135,9 +136,9 @@ class scheduler {
         if(raw.p != 6 && !(raw.p == 2 && raw.id == '1060140460') && !(raw.p == 2 && raw.id == '1045961206')){
             job.attempts(5)
         }
-        if(!job.data.user_id){
-            delete job.data.user_id
-        }
+        // if(!job.data.user_id){
+        //     delete job.data.user_id
+        // }
         if(job.data.type === 0){
             delete job.data.type
         }
@@ -157,17 +158,17 @@ class scheduler {
             raw = null
         })
     }
-    getUserId ( raw, callback ){
-        const key = raw.p + ':' + raw.id
-        this.taskDB.hget( key, 'uid',(err,result)=>{
-            if( err ){
-                scheduler.emit( 'redis_error', {db: 'taskDB',action: 2})
-                return callback(err,raw)
-            }
-            raw.uid = result
-            callback(null,raw)
-        })
-    }
+    // getUserId ( raw, callback ){
+    //     const key = raw.p + ':' + raw.id
+    //     this.taskDB.hget( key, 'uid',(err,result)=>{
+    //         if( err ){
+    //             scheduler.emit( 'redis_error', {db: 'taskDB',action: 2})
+    //             return callback(err,raw)
+    //         }
+    //         raw.uid = result
+    //         callback(null,raw)
+    //     })
+    // }
     checkKue ( raw ) {
         const key = raw.p + ':' + raw.id
         this.taskDB.hget( key, 'kue_id',(err,result)=>{
