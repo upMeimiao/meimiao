@@ -157,6 +157,9 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
+            if(result.statusCode != 200){
+                return callback(result.statusCode)
+            }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
