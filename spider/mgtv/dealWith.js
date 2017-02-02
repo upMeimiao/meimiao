@@ -247,10 +247,6 @@ class dealWith {
                 logger.debug('视频播放量请求失败 ' + err)
                 callback(err,null)
             }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
-            }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
