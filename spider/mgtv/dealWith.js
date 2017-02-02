@@ -91,35 +91,56 @@ class dealWith {
         async.parallel([
             (cb) => {
                 this.getVideoInfo(task,video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getPlayNum(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getClass(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getDesc(task,video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getLike(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getComNum(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             }
         ],(err,result) => {
+            if(err){
+                return callback(err)
+            }
             let media = {
                 author: task.name,
                 platform: task.p,
@@ -154,7 +175,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.total_number){
                 result.total_number = ''
@@ -175,7 +196,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.data){
                 result.data = {
@@ -215,7 +236,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.data.fstlvlName){
                 result.data = {
@@ -239,7 +260,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.data.all){
                 result.data.all = ''
@@ -261,7 +282,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.info){
                 result.info = {
