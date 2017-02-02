@@ -148,11 +148,7 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('视频评论数请求失败 ' + err)
-                callback(err,null)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
+                return callback(err,null)
             }
             try{
                 result = JSON.parse(result.body)
@@ -259,11 +255,7 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
-                callback(err,null)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
+                return callback(err,null)
             }
             try{
                 result = JSON.parse(result.body)
