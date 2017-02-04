@@ -137,6 +137,7 @@ class DealWith {
             let res = {
                 id: result.user.id,
                 name: result.user.screen_name,
+                avatar: result.user.avatar,
                 p: 5
             }
             callback(null,res)
@@ -175,6 +176,7 @@ class DealWith {
             let res = {
                 id: result.result.ext.owner.suid,
                 name: result.result.ext.owner.nick,
+                avatar: result.result.ext.owner.icon,
                 p: 7
             }
             callback(null,res)
@@ -205,7 +207,7 @@ class DealWith {
                 logger.info(result)
                 return callback(e,{code:102,p:9})
             }
-            logger.debug(result)
+            //logger.debug(result.data)
             let res,uid = result.data.user ? result.data.user.user_id : result.data.user_id
             if(result.data.user){
                 let res = {
@@ -235,6 +237,7 @@ class DealWith {
                 let res = {
                     id: uid,
                     name: result.data.nickname,
+                    avatar: result.data.bg_pic,
                     p: 9
                 }
                 return callback(null,res)
@@ -274,6 +277,7 @@ class DealWith {
                 res = {
                     id: back.chlid,
                     name: back.chlname,
+                    avatar: back.chlsicon,
                     p: 10
                 }
             callback(null,res)
@@ -315,6 +319,7 @@ class DealWith {
                     res = {
                         id: back.data.user.id,
                         name: back.data.user.name,
+                        avatar: back.data.user.avatar,
                         p: 2
                     }
                 callback(null,res)
@@ -358,13 +363,15 @@ class DealWith {
                 }
                 result = eval(result.body)
                 let data = result.data,
-                    name = data ? data.nickname : null
+                    name = data ? data.nickname : null,
+                    avatar = data ? data['pic300*300'] : null
                 // let _$ = cheerio.load(result.body),
                 //     name = _$('.au_info .au_info_name').text()
                 let res ={
                     id: id,
                     name: name,
                     type: 1,
+                    avatar: avatar,
                     p: 3
                 }
                 callback(null,res)
@@ -432,17 +439,24 @@ class DealWith {
                         let $ = cheerio.load(result.body),
                             nameDom = $('h2.user_info_name'),
                             nameDom2 = $('#userInfoNick'),
-                            name
+                            name,
+                            avatar
                         if(nameDom.length == 0){
                             name = nameDom2.text()
                             id = idDom.attr('r-subscribe')
                         }else{
                             name = nameDom.text()
                         }
+                        if(!$('#userAvatar').attr('src')){
+                            avatar = ''
+                        }else{
+                            avatar = $('#userAvatar').attr('src')
+                        }
                         res = {
                             id: id,
                             name: name,
                             type: 2,
+                            avatar: avatar,
                             p: 4
                         }
                         return callback(null,res)
@@ -454,6 +468,7 @@ class DealWith {
                     res = {
                         id: back.vppinfo.euin,
                         name: nameIs,
+                        avatar: back.vppinfo.avatar ? (back.vppinfo.avatar.replace('/60','/0')) : '',
                         type: 1,
                         p: 4
                     }
@@ -495,6 +510,7 @@ class DealWith {
                             res = {
                                 id: id,
                                 name: name,
+                                avatar: $('#userAvatar').attr('src') ? $('#userAvatar').attr('src') : '',
                                 type: 2,
                                 p: 4
                             }
@@ -555,7 +571,7 @@ class DealWith {
                     let res = {
                         id: result.data.media_user.id,
                         name: result.data.media_user.screen_name,
-                        // avatar: result.data.media_user.avatar_url,
+                        avatar: result.data.media_user.avatar_url,
                         p: 6,
                         encode_id: resInfo.data.user_id
                     }
@@ -603,7 +619,7 @@ class DealWith {
                         let res = {
                             id: result.data.media_user.id,
                             name: result.data.media_user.screen_name,
-                            // avatar: result.data.media_user.avatar_url,
+                            avatar: result.data.media_user.avatar_url,
                             p: 6,
                             encode_id: resInfo.data.user_id
                         }
@@ -636,12 +652,47 @@ class DealWith {
             }
             let h_array = href.split('='),
                 v_id = h_array[h_array.length-1],
+                docid = $('.interact>span').eq(0).attr('data-docid'),
                 res = {
                     id: v_id,
                     name: name,
                     p: 11
                 }
-            callback(null,res)
+            this.yidianAvatar( docid, (err, result) => {
+                if(err){
+                    return callback(err,result)
+                }
+                res.avatar = result
+                callback(null,res)
+            })           
+        })
+    }
+    yidianAvatar( docid, callback ){
+        let option = {
+            url: 'https://a1.go2yd.com/Website/contents/content?appid=yidian&cv=4.3.8.1&distribution=com.apple.appstore&docid='+ docid +'&net=wifi&platform=0&recommend_audio=true&related_docs=true&version=020116'
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err,{code:102,p:11})
+            }
+            if(result.statusCode != 200 ){
+                logger.error('一点状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:11})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.error('一点json数据解析失败')
+                logger.info(result)
+                return callback(e,{code:102,p:11})
+            }
+            logger.info(result)
+            if(!result.documents || !result.documents[0].related_wemedia){
+                return callback(null,'')
+            }
+            callback(null,result.documents[0].related_wemedia.media_pic)
         })
     }
     tudou (data,callback) {
@@ -685,7 +736,13 @@ class DealWith {
                     name: result.onic,
                     p: 12
                 }
-                return callback(null,res)
+                return this.tudouAvatar( result.ocode, (err, result) => {
+                    if(err){
+                        callback(err,result)
+                    }
+                    res.avatar = result
+                    callback(null,res)
+                })
             }
             if(!result.detail){
                 return callback(true,{code:102,p:12})
@@ -693,9 +750,34 @@ class DealWith {
             res = {
                 id: result.detail.userid,
                 name: result.detail.username,
+                avatar: result.detail.channel_pic_220_220,
                 p: 12
             }
             callback(null,res)
+        })
+    }
+    tudouAvatar( uidCode, callback ){
+        let option = {
+            url: 'http://www.tudou.com/uis/userStatInfo.action?app=homev2&uidCode='+ uidCode +'&rt=1&_='+ new Date().getTime()
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('土豆的头像请求错误',err)
+                return callback(err,{code:102,p:12})
+            }
+            if(result.statusCode != 200 ){
+                logger.error('土豆状态码错误',result.statusCode)
+                logger.info(result)
+                return callback(true,{code:102,p:12})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('土豆的json数据解析失败')
+                logger.info(result)
+                return callback(true,{code:102,p:12})
+            }
+            callback(null,result.data.userpic)
         })
     }
     baomihua ( data, callback ) {
@@ -737,9 +819,11 @@ class DealWith {
                 logger.info(result)
                 return callback(e,{code:102,p:13})
             }
+            logger.info(result)
             let res = {
                 id: result.result.ChannelInfo.ChannelID,
                 name: result.result.ChannelInfo.ChannelName,
+                avatar: result.result.ChannelInfo.MidPic,
                 p: 13
             }
             callback(null,res)
@@ -765,9 +849,11 @@ class DealWith {
                 logger.info(result)
                 return callback(e,{code:102,p:14})
             }
+            let avatar = result.data.list[0].author.icon.split(';')[0]
             let res = {
                 id: result.data.list[0].author.id,
                 name: result.data.list[0].author.nick,
+                avatar: avatar,
                 p: 14
             }
             callback(null,res)
@@ -794,6 +880,7 @@ class DealWith {
                 let res = {
                     id: result.data.author_uid,
                     name: result.data.source,
+                    avatar: result.data.media.icon,
                     p: 15
                 }
                 return callback(null,res)
@@ -835,6 +922,7 @@ class DealWith {
                         logger.info('json error: ',result.body)
                         return callback(e,{code:102,p:15})
                     }
+                    logger.debug('---')
                     let res = {
                         id: result.data.author_uid,
                         name: result.data.source,
@@ -855,6 +943,7 @@ class DealWith {
                         logger.info('json error: ',result.body)
                         return callback(e,{code:102,p:15})
                     }
+                    logger.info(result)
                     let res = {
                         id: result.data.uid,
                         name: result.data.nickname,
