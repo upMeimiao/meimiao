@@ -33,13 +33,17 @@ class dealWith {
     todo ( task, callback) {
         task.total = 0
         task.uid = ''
-        if(task.user_id){
-            task.uid = task.user_id
-        }
         async.parallel(
             {
                 user: (callback) => {
                     this.getUser(task,(err)=>{
+                        if(err){
+                            return setTimeout(()=>{
+                                this.getUser(task,()=>{
+                                    return callback(null,"用户信息已返回")
+                                }, 1000)
+                            })
+                        }
                         callback(null,"用户信息已返回")
                     })
                 },
@@ -56,19 +60,23 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
+                if((!task.user_id || task.user_id == '0') && (task.uid != '0' || task.uid != '')){
+                    task.user_id = task.uid
+                }
                 logger.debug(task.id + "_result:",result)
-                callback(null,task.total,task.uid)
+                callback(null,task.total,task.user_id || '')
             }
         )
     }
     getUser ( task, callback ){
-        if(!task.user_id){
+        if(!task.user_id || task.user_id == '0'){
+            this.getUserId(task)
             return callback()
         }
         const option = {
             url: this.settings.spiderAPI.toutiao.user + task.user_id,
             ua: 3,
-            own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
+            own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
@@ -83,13 +91,26 @@ class dealWith {
                 return callback('fail')
             }
             let fans = result.data.total_cnt
+            if(Number(fans) === 0 && result.data.users.length !== 0 ){
+                return callback('fail')
+            }
             if( typeof fans == 'string' && fans.indexOf('万') != -1 ){
                 fans = fans.replace('万','') * 10000
+            }
+            if(Number(fans) === 0){
+                logger.info('粉丝数发生异常：', result)
             }
             let user = {
                 platform: task.p,
                 bid: task.id,
                 fans_num: fans
+            }
+            logger.debug(user)
+            if(task.id == '6204859881' || task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
+                this.core.fans_db.sadd(task.id, JSON.stringify({
+                    num: fans,
+                    time: new Date().getTime()
+                }))
             }
             this.sendUser( user, (err) => {
                 callback()
@@ -147,12 +168,36 @@ class dealWith {
             }
         })
     }
+    getUserId(task) {
+        request.get(logger, {url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`},(err, result)=>{
+            if(err){
+                return
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败')
+                logger.info('send error:',res)
+                return
+            }
+            if(result.message != 'success'){
+                return
+            }
+            let userId = result.data.user_id,
+                key = task.p + ':' + task.id
+            logger.debug(`use id: ${userId}`)
+            task.uid = userId
+            this.core.taskDB.hmset( key, 'uid', userId ,(err, res)=>{
+                logger.debug('uid ',res)
+            })
+        })
+    }
     getList ( task, callback ) {
         let index = 0,times = 0,proxyStatus = false,proxy = '',
             sign = true,
             option = {
                 ua: 3,
-                own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
+                own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
             },
             hot_time = null
         async.whilst(
@@ -179,8 +224,8 @@ class dealWith {
                         try{
                             result = JSON.parse(result.body)
                         }catch (e){
-                            logger.error('json数据解析失败')
-                            logger.error(result.body)
+                            // logger.error('json数据解析失败')
+                            // logger.error(result.body)
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
@@ -193,9 +238,11 @@ class dealWith {
                             return cb()
                         }
                         times = 0
-                        if(index == 0 && result.data.length > 0){
-                            task.uid = result.data[0].creator_uid
-                        }
+                        // if(index == 0 && result.data.length > 0){
+                        //     if(result.data[0].creator_uid != '0'){
+                        //         task.uid = result.data[0].creator_uid
+                        //     }
+                        // }
                         if(!result.data || result.data.length == 0){
                             task.total = 10 * index
                             sign = false
@@ -231,8 +278,8 @@ class dealWith {
                             try{
                                 result = JSON.parse(result.body)
                             }catch (e){
-                                logger.error('json数据解析失败')
-                                logger.error(result.body)
+                                // logger.error('json数据解析失败')
+                                // logger.error(result.body)
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
@@ -247,9 +294,9 @@ class dealWith {
                             times = 0
                             proxyStatus = true
                             proxy = _proxy
-                            if(index == 0 && result.data.length > 0){
-                                task.uid = result.data[0].creator_uid
-                            }
+                            // if(index == 0 && result.data.length > 0){
+                            //     task.uid = result.data[0].creator_uid
+                            // }
                             if(!result.data || result.data.length == 0){
                                 task.total = 10 * index
                                 sign = false
@@ -397,7 +444,7 @@ class dealWith {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
+            //logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
         })
     }
 }

@@ -207,10 +207,11 @@ class dealWith {
         )
     }
     getMedia( task, video, callback ){
+        let timeout = 0
         async.series(
             [
                 (cb) => {
-                    this.getVidInfo( video.play_link, (err,result) => {
+                    this.getVidInfo( video.play_link, timeout, (err,result) => {
                         cb(null,result)
                     })
                 }
@@ -244,17 +245,28 @@ class dealWith {
         }
         return long_t;
     }
-    getVidInfo( url, callback ){
+    getVidInfo( url, timeout, callback ){
+        if(!url){
+            return callback(null,'')
+        }
         let option = {
             url : url
         }
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('单个视频Dom请求失败',err)
-                return this.getVidInfo( url, callback )
+                if(timeout < 1){
+                    timeout++
+                    return this.getVidInfo( url, timeout, callback )
+                }
+                timeout = 0
+                return callback(null,'')
             }
             let $ = cheerio.load(result.body),
                 playNum = $('p.title-info .play').text().replace('次','')
+            if(!playNum){
+                return callback(null,'')
+            }
             callback(null,playNum)
         })
     }

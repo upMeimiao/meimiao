@@ -535,14 +535,34 @@ class DealWith {
                     logger.info(result)
                     return callback(e,{code:102,p:6})
                 }
-                let res = {
-                    id: result.data.media_user.id,
-                    name: result.data.media_user.screen_name,
-                    p: 6
-                }
-                callback(null,res)
+                request.get({url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}`},(err,resInfo)=> {
+                    if (err) {
+                        logger.error('occur error : ', err)
+                        return callback(err, {code: 102, p: 6})
+                    }
+                    if (resInfo.statusCode != 200) {
+                        logger.error('头条状态码错误', resInfo.statusCode)
+                        logger.info(resInfo)
+                        return callback(true, {code: 102, p: 6})
+                    }
+                    try {
+                        resInfo = JSON.parse(resInfo.body)
+                    } catch (e) {
+                        logger.error('头条json数据解析失败')
+                        logger.info(resInfo)
+                        return callback(e, {code: 102, p: 6})
+                    }
+                    let res = {
+                        id: result.data.media_user.id,
+                        name: result.data.media_user.screen_name,
+                        // avatar: result.data.media_user.avatar_url,
+                        p: 6,
+                        encode_id: resInfo.data.user_id
+                    }
+                    callback(null,res)
+                })
             })
-        }else if(pathname.startsWith('/a')){
+        }else if(pathname.startsWith('/a') || pathname.startsWith('/group/')){
             r.head(data,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
                 v_id = (res.request.path).replace(/\//g,'').substring(1)
                 option.url = api.toutiao.url + v_id + "/info/"
@@ -563,12 +583,32 @@ class DealWith {
                         logger.info(result)
                         return callback(e,{code:102,p:6})
                     }
-                    let res = {
-                        id: result.data.media_user.id,
-                        name: result.data.media_user.screen_name,
-                        p: 6
-                    }
-                    callback(null,res)
+                    request.get({url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}`},(err,resInfo)=> {
+                        if (err) {
+                            logger.error('occur error : ', err)
+                            return callback(err, {code: 102, p: 6})
+                        }
+                        if (resInfo.statusCode != 200) {
+                            logger.error('头条状态码错误', resInfo.statusCode)
+                            logger.info(resInfo)
+                            return callback(true, {code: 102, p: 6})
+                        }
+                        try {
+                            resInfo = JSON.parse(resInfo.body)
+                        } catch (e) {
+                            logger.error('头条json数据解析失败')
+                            logger.info(resInfo)
+                            return callback(e, {code: 102, p: 6})
+                        }
+                        let res = {
+                            id: result.data.media_user.id,
+                            name: result.data.media_user.screen_name,
+                            // avatar: result.data.media_user.avatar_url,
+                            p: 6,
+                            encode_id: resInfo.data.user_id
+                        }
+                        callback(null,res)
+                    })
                 })
             })
         }
@@ -734,8 +774,32 @@ class DealWith {
         })
     }
     btime ( data, callback) {
-        let pathname = URL.parse(data,true).pathname,option = {}
-      if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
+        let pathname = URL.parse(data,true).pathname,
+            hostname = URL.parse(data,true).hostname,
+            option = {}
+        if(hostname == 'new.item.btime.com'){
+            option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${pathname.replace(/\//g,'')}`
+            return request.get(option, (err,result) => {
+                if(err){
+                    logger.error( 'occur error : ', err )
+                    return callback(err,{code:102,p:15})
+                }
+                try{
+                    result = JSON.parse(result.body)
+                } catch (e){
+                    logger.error('北京时间json数据解析失败')
+                    logger.info('json error: ',result.body)
+                    return callback(e,{code:102,p:15})
+                }
+                let res = {
+                    id: result.data.author_uid,
+                    name: result.data.source,
+                    p: 15
+                }
+                return callback(null,res)
+            })
+        }
+        if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
             return callback(true,{code:101,p:15})
         }
         option.url = data
@@ -1458,7 +1522,8 @@ class DealWith {
         })
     }
     qzone(remote, callback) {
-        let host = URL.parse(remote,true).hostname,
+        let query = URL.parse(remote,true).query,
+            host = URL.parse(remote,true).hostname,
             uin = '',
             tid = '',
             option = {}
@@ -1468,15 +1533,19 @@ class DealWith {
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
             this.getQzone(option,callback)
         }else if(host == 'mobile.qzone.qq.com'){
-            uin = remote.match(/&u=\d*/).toString().replace(/&u=/,'')
-            tid = remote.match(/&i=\w*/).toString().replace(/&i=/,'')
+            if(remote.match(/&u=\d*/) == null){
+                uin = query.res_uin
+                tid = query.cellid
+            }else{
+                uin = query.u
+                tid = query.i
+            }
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
             this.getQzone(option,callback)
         }else if(host == 'h5.qzone.qq.com'){
-            uin = remote.match(/&uin=\d*/).toString().replace(/&uin=/,'')
-            tid = remote.match(/&shuoshuo_id=\w*/).toString().replace(/&shuoshuo_id=/,'')
+            uin = query.uin
+            tid = query.shoushou_id
             option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
-            logger.debug(option.url)
             this.getQzone(option,callback)
         }else{
             option.url = remote
