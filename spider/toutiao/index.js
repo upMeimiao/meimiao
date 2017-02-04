@@ -84,9 +84,8 @@ class spiderCore {
     }
     test(){
         let work = { id: '5567057918', user_id: '5567057918', p: '6', name: '看鉴', type: '0' }
-        this.dealWith.todo(work, (err,total,uid) => {
+        this.dealWith.todo(work, (err,total) => {
             logger.debug(total)
-            logger.debug(uid)
             logger.debug('end')
         })
     }
@@ -114,18 +113,12 @@ class spiderCore {
                 done(err)
             })
             d.run(()=>{
-                this.dealWith.todo(work, (err,total,uid) => {
+                this.dealWith.todo(work, (err,total) => {
                     if(err){
                         return done(err)
                     }
                     done(null)
-                    if(uid == 0){
-                        this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    }else if(work.user_id != '' && work.user_id != '0'){
-                        this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    }else{
-                        this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, 'uid', uid )
-                    }
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
                     request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )
