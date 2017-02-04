@@ -442,7 +442,7 @@ class dealWith {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            //logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
+            logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
         })
     }
 }
