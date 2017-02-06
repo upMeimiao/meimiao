@@ -53,7 +53,6 @@ class dealWith {
         let option = {
                 url : this.settings.spiderAPI.weibo.userInfo+task.id
             }
-        //logger.debug(option.url)
         this.getProxy((err,proxy) => {
             if (proxy == 'timeout') {
                 return callback()
@@ -222,7 +221,6 @@ class dealWith {
                     option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
                 }
                 option.proxy = proxy
-                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.debug('视频列表数据请求错误',err)
@@ -302,6 +300,10 @@ class dealWith {
             callback()
         }else if(video.mblog.pic_infos != undefined){
             callback()
+        }else if(video.mblog.user !== undefined){
+            if(task.id !== video.mblog.user.id){
+                callback()
+            }
         }else{
             async.series([
                 (cb) => {
@@ -335,7 +337,6 @@ class dealWith {
                 if(!media.play_num){
                     delete media.play_num
                 }
-                //logger.debug(media.a_create_time)
                 this.sendCache(media)
                 callback()
             })

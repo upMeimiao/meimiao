@@ -11,7 +11,7 @@
     "monitor": 5
   },
   "proxy": {
-    "host": "10.169.16.235",
+    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
     "port": 3002,
     "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=600&area=%E4%B8%AD%E5%9B%BD&protocol=1&method=1&an_tr=1&an_an=1&an_ha=1&sp1=1&sp2=1&quality=1&f_pr=1&format=json&sep=1",
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
