@@ -16,9 +16,9 @@ class DealWith {
         api = core.settings.servantAPI
         logger.debug('处理器实例化...')
     }
-    youku ( verifyData, callback ) {
-        let verifyCode =verifyData.verifyCode,
-         htmlUrl=verifyData.remote,
+    youku(verifyData, callback) {
+        let verifyCode = verifyData.verifyCode,
+         htmlUrl = verifyData.remote,
             dataJson={},
          options={
             url:htmlUrl
@@ -113,7 +113,7 @@ class DealWith {
         })
         })
     }
-    iqiyi ( verifyData, callback ){
+    iqiyi(verifyData, callback){
         // 输入的地址
         // 输入的评论值
         // 初始化一个对象
@@ -242,7 +242,7 @@ class DealWith {
 
     
     }
-    le ( verifyData, callback ){
+    le(verifyData, callback){
         // 输入的地址
         // 输入的评论值
         // 初始化一个对象
@@ -330,7 +330,7 @@ class DealWith {
         })
     
     }
-    tencent ( verifyData, callback ){
+    tencent(verifyData, callback){
         let verifyCode =verifyData.verifyCode
         let htmlUrl=verifyData.remote,
             dataJson={},
@@ -423,7 +423,7 @@ class DealWith {
             })
         //})
     }
-    meipai ( verifyData, callback ) {
+    meipai( verifyData, callback ) {
         let urlId      = verifyData.remote.match(/media\/\d*/).toString().replace(/media\//,''),
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             sign       = 1,
@@ -478,7 +478,7 @@ class DealWith {
         )
 
     }
-    toutiao ( verifyData, callback ) {
+    toutiao( verifyData, callback ) {
         let groupid    = verifyData.remote.match(/\/a\d*/).toString().replace(/\/a/,''),
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             sign       = 1,
@@ -534,7 +534,7 @@ class DealWith {
         )
         
     }
-    miaopai ( verifyData, callback ) {
+    miaopai( verifyData, callback ) {
         let htmlUrl    = verifyData.remote,
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             scid       = htmlUrl.match(/show\/~*\w*-*\w*/).toString().replace(/show\//,''),
@@ -653,7 +653,7 @@ class DealWith {
         })
 
     }
-    bili ( verifyData, callback ) {
+    bili( verifyData, callback ) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             dataJson={},
@@ -711,7 +711,7 @@ class DealWith {
                 )
 
     }
-    sohu ( verifyData, callback ) {
+    sohu( verifyData, callback ) {
         /*
          * 1、首先在视频网页找到vid
          * 2、吧vid传参给http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=http%3A%2F%2Ftv.sohu.com%2F20150913%2Fn420999556.shtml&topic_source_id="+vid+"&page_size=10借口
@@ -827,7 +827,7 @@ class DealWith {
             })
         })
     }
-    kuaibao ( verifyData, callback ){
+    kuaibao( verifyData, callback ){
         let commentid    = verifyData.remote.match(/commentid=\d*/).toString().replace(/commentid=/,''),
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -897,7 +897,7 @@ class DealWith {
         )
 
     }
-    yidian ( verifyData, callback ) {
+    yidian( verifyData, callback ) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             dataJson={},
@@ -998,7 +998,7 @@ class DealWith {
             })
         })
     }
-    tudou ( verifyData, callback ) {
+    tudou( verifyData, callback ) {
         let htmlUrl      = verifyData.remote,
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -1078,7 +1078,7 @@ class DealWith {
             )
         })
     }
-    baomihua ( verifyData, callback ) {
+    baomihua( verifyData, callback ) {
         let htmlUrl      = verifyData.remote,
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -1156,7 +1156,7 @@ class DealWith {
 
         })
     }
-    ku6 ( verifyData ,callback ) {
+    ku6( verifyData ,callback ) {
         let htmlUrl      = verifyData.remote.match(/show\/\-*\w*\-*\w*\-*\w*\.{2}/).toString().replace(/show\//,''),
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -1218,7 +1218,7 @@ class DealWith {
             }
         )
     }
-    btime ( verifyData, callback) {
+    btime( verifyData, callback) {
         let verifyCode =verifyData.verifyCode
         let htmlUrl=verifyData.remote,
             dataJson={},
@@ -1282,7 +1282,7 @@ class DealWith {
                 )
             })
     }
-    weishi ( verifyData, callback ) {
+    weishi( verifyData, callback ) {
         let _id          = verifyData.remote.match(/\/t\/\d*/).toString().replace(/\/t\//,''),
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -1366,7 +1366,7 @@ class DealWith {
             )
         })
     }
-    xiaoying ( verifyData, callback) {
+    xiaoying( verifyData, callback) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             vid=htmlUrl.match(/\/v\/[\w\d]*/).toString().replace("/v/",""),
@@ -1436,7 +1436,7 @@ class DealWith {
                 }
             )
     }
-    budejie ( verifyData, callback ) {
+    budejie( verifyData, callback ) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             dataJson={},
