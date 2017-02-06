@@ -17,101 +17,58 @@ class DealWith {
         logger.debug('处理器实例化...')
     }
     youku(verifyData, callback) {
-        let verifyCode = verifyData.verifyCode,
-         htmlUrl = verifyData.remote,
-            dataJson={},
-         options={
-            url:htmlUrl
-         };
-        request.get(logger,options, function (err, data) {
-            if(err){
-                logger.error('occur error: ',err)
-                return callback(err,{code:102,p:1})
-            }
-            
-            let $=cheerio.load(data.body)
-            //正则匹配video_id
-            let videoId = htmlUrl.match(/id_[\w]*==/).toString().replace("id_","")
-               var page=1
-            var dataUrl = {
-                url :"https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id="+videoId+"&page="+page+"&count=20&qq-pf-to=pcqq.temporaryc2c"
-            }
-            //logger.debug(dataUrl)
-        request.get(logger,dataUrl, function (err, data) {
-            // 返回的数据转换成json数据
-            // 初始化存储的评论信息数组
-            // 返回的评论信息json
-            //logger.debug(data)
-            if (err) {
-                logger.error( 'occur error : ', err )
-                return callback(err,{code:102,p:1})
-            }
-            
-            let infoArray=[];
-            try {
-                data= JSON.parse(data.body)
-            } catch (e) {
-                logger.error('优酷json数据解析失败')
-                logger.info('json error: ',data)
-                return callback(e,{code:102,p:1})
-            }
-            //获取评论总数
-            let total=  parseInt(data.total),
-                totalPage
-            //logger.debug(total)
-            let comments=data.comments
-            //评论总页数
-            if(total%20 ==0){
-                totalPage=total/20
-            }else{
-                totalPage= Math.ceil(total / 20)
-            }
-
-            async.whilst(
-                function() {
-                    return page <= totalPage
-                },
-                function (cb) {
-                    var newUrl={
-                        url:"https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id="+videoId+"&page="+page+"&count=20&qq-pf-to=pcqq.temporaryc2c"
+        let verifyCode = verifyData.verifyCode, option = {}, page = 1, sign = true, backDate,
+            pathname = URL.parse(verifyData.remote,true).pathname,
+            vid = pathname.substring(pathname.lastIndexOf('/')+4)
+        async.whilst(
+            () => {
+                return sign
+            },
+            (cb) => {
+                option.url = `https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=${vid}&page=${page}&count=100`
+                request.get(logger, option, (err, result) => {
+                    if (err) {
+                        return setTimeout(()=>{
+                            cb()
+                        }, 100)
                     }
-                  request.get(logger,newUrl,function(err,data){
-                      if (err) {
-                          logger.error( 'occur error : ', err )
-                          return callback(err,{code:102,p:1})
-                      }
-                      
-                      try {
-                          data = JSON.parse(data.body)
-                      } catch (e) {
-                          logger.error('优酷json数据解析失败')
-                          logger.info('json error: ',data)
-                          return callback(e,{code:102,p:1})
-                      }
-                      let comments=data.comments
-                      for(let i =0 ; i < comments.length;i++){
-                          if(verifyCode== comments[i].content){
-                              dataJson.p=1
-                              dataJson.name=comments[i].user.name
-                              dataJson.id=comments[i].user.id
-                              return  callback(null,dataJson)
-                          }
-                      }
-                      page ++
-                      return cb()
-                  })
-                },
-                function (err) {
-                    if(err){
-                        logger.debug("err"+err)
-                        return callback(err)
+                    try {
+                        result = JSON.parse(result.body)
+                    } catch (e) {
+                        logger.error('优酷json数据解析失败')
+                        logger.info('json error: ', result)
+                        return setTimeout(()=>{
+                            cb()
+                        }, 100)
                     }
-                    logger.debug("找不到")
+                    let comments = result.comments
+                    if(comments.length == 0){
+                        sign = false
+                        return cb()
+                    }
+                    for(let i = 0 ; i < comments.length;i++){
+                        if(verifyCode == comments[i].content){
+                            backDate = {
+                                p: 1,
+                                name: comments[i].user.name,
+                                id: comments[i].user.id,
+                                encode_id: comments[i].link.substring(comments[i].link.lastIndexOf('/')+1)
+                            }
+                            sign = false
+                            return cb()
+                        }
+                    }
+                    page++
+                    return cb()
+                })
+            },
+            (err, result) =>  {
+                if(err || !backDate){
+                    return callback(`error`,{code:101,p:1})
                 }
-            )
-
-        })
-        })
+                return callback(null, backDate)
+            }
+        )
     }
     iqiyi(verifyData, callback){
         // 输入的地址
