@@ -17,69 +17,94 @@ class DealWith {
         api = core.settings.servantAPI
         logger.debug('处理器实例化...')
     }
-    youku ( remote, callback ) {
+    youku(remote, callback) {
         let option = {
             url: api.youku.url + '?client_id=' + api.youku.key + "&video_url=" + encodeURIComponent(remote)
         }
-        request.get (option,(err,result) => {
+        request.get(option, (err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err,{code:102,p:1})
+                logger.error('occur error : ', err)
+                return callback(err, {code:102,p:1})
             }
-            if(result.statusCode != 200 ){
+            if(result.statusCode != 200){
                 logger.error('优酷状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:1})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('优酷json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:1})
             }
-            let user = result.user,
-                res = {
+            let user = result.user
+            option.url = `https://openapi.youku.com/v2/users/show.json`
+            option.data = {
+                client_id: 'c9e697e443715900',
+                user_id: user.id
+            }
+            request.post(option, (err, info) => {
+                if(err){
+                    logger.error( 'occur error : ', err )
+                    return callback(err,{code:102,p:1})
+                }
+                if(info.statusCode != 200 ){
+                    logger.error('优酷状态码错误',info.statusCode)
+                    logger.info(info)
+                    return callback(true,{code:102,p:1})
+                }
+                try{
+                    info = JSON.parse(info.body)
+                } catch (e){
+                    logger.error('优酷json数据解析失败')
+                    logger.info(info)
+                    return callback(e,{code:102,p:1})
+                }
+                let res = {
                     id: user.id,
                     name: user.name,
                     p: 1,
                     encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
+                    avatar: info.avatar_large
                 }
-            callback(null,res)
+                callback(null,res)
+            })
         })
     }
-    bili (data,callback) {
-        let start = data.indexOf('/av'),
-            end = data.indexOf('/',start+1),
+    bili(remote, callback) {
+        let start = remote.indexOf('/av'),
+            end = remote.indexOf('/',start+1),
             id
         if(end == -1){
-            id = data.substring(start+3)
+            id = remote.substring(start+3)
         }else{
-            id = data.substring(start+3,end)
+            id = remote.substring(start+3,end)
         }
         let option = {
             url: api.bili.url + id
         }
-        request.get ( option, ( err, result) => {
+        request.get(option, (err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error('occur error : ', err)
                 return callback(err,{code:102,p:8})
             }
-            if(result.statusCode != 200 ){
+            if(result.statusCode != 200){
                 logger.error('哔哩哔哩状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:8})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('哔哩哔哩json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:8})
             }
             let res = {
                 id: result.data.owner.mid,
                 name: result.data.owner.name,
+                avatar: result.data.owner.face,
                 p: 8
             }
             callback(null,res)
@@ -99,19 +124,20 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('美拍状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:5})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('美拍json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:5})
             }
             let res = {
                 id: result.user.id,
                 name: result.user.screen_name,
+                avatar: result.user.avatar,
                 p: 5
             }
             callback(null,res)
@@ -137,19 +163,20 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('秒拍状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:7})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('秒拍json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:7})
             }
             let res = {
                 id: result.result.ext.owner.suid,
                 name: result.result.ext.owner.nick,
+                avatar: result.result.ext.owner.icon,
                 p: 7
             }
             callback(null,res)
@@ -170,22 +197,23 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('搜狐状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:9})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('搜狐json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:9})
             }
-            logger.debug(result)
-            let res,uid = result.data.user ? result.data.user.user_id : result.data.user_id
+            //logger.debug(result.data)
+            let uid = result.data.user ? result.data.user.user_id : result.data.user_id
             if(result.data.user){
                 let res = {
                     id: uid,
                     name: result.data.user.nickname,
+                    avatar: result.data.user.bg_pic,
                     p: 9
                 }
                 return callback(null,res)
@@ -197,19 +225,20 @@ class DealWith {
                 }
                 if (result.statusCode != 200) {
                     logger.error('搜狐状态码错误', result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true, {code: 102, p: 9})
                 }
                 try {
                     result = JSON.parse(result.body)
                 } catch (e) {
                     logger.error('搜狐json数据解析失败')
-                    logger.info(result)
+                    
                     return callback(e, {code: 102, p: 9})
                 }
                 let res = {
                     id: uid,
                     name: result.data.nickname,
+                    avatar: result.data.bg_pic,
                     p: 9
                 }
                 return callback(null,res)
@@ -234,14 +263,14 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('天天快报状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:10})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('天天快报json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:10})
             }
             if(result.newslist.length == 0){return callback(true,{code:102,p:10})}
@@ -249,6 +278,7 @@ class DealWith {
                 res = {
                     id: back.chlid,
                     name: back.chlname,
+                    avatar: back.chlsicon,
                     p: 10
                 }
             callback(null,res)
@@ -266,7 +296,7 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('爱奇艺状态码错误1',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:2})
             }
             let $ = cheerio.load(result.body),
@@ -283,13 +313,14 @@ class DealWith {
                 }
                 if(result.statusCode != 200 ){
                     logger.error('爱奇艺状态码错误2',result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:2})
                 }
                 let back = eval(result.body),
                     res = {
                         id: back.data.user.id,
                         name: back.data.user.name,
+                        avatar: back.data.user.avatar,
                         p: 2
                     }
                 callback(null,res)
@@ -308,7 +339,7 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('乐视状态码错误1',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:3})
             }
             let $ = cheerio.load(result.body,{
@@ -333,13 +364,15 @@ class DealWith {
                 }
                 result = eval(result.body)
                 let data = result.data,
-                    name = data ? data.nickname : null
+                    name = data ? data.nickname : null,
+                    avatar = data ? data['pic300*300'] : null
                 // let _$ = cheerio.load(result.body),
                 //     name = _$('.au_info .au_info_name').text()
                 let res ={
                     id: id,
                     name: name,
                     type: 1,
+                    avatar: avatar,
                     p: 3
                 }
                 callback(null,res)
@@ -367,7 +400,7 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('腾讯状态码错误1',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:4})
             }
             let back = eval(result.body)
@@ -380,7 +413,7 @@ class DealWith {
                     }
                     if(result.statusCode != 200 ){
                         logger.error('腾讯状态码错误2',result.statusCode)
-                        logger.info(result)
+                        
                         return callback(true,{code:102,p:4})
                     }
                     let $ = cheerio.load(result.body),
@@ -401,23 +434,30 @@ class DealWith {
                         }
                         if(result.statusCode != 200 ){
                             logger.error('腾讯状态码错误3',result.statusCode)
-                            logger.info(result)
+                            
                             return callback(true,{code:102,p:4})
                         }
                         let $ = cheerio.load(result.body),
                             nameDom = $('h2.user_info_name'),
                             nameDom2 = $('#userInfoNick'),
-                            name
+                            name,
+                            avatar
                         if(nameDom.length == 0){
                             name = nameDom2.text()
                             id = idDom.attr('r-subscribe')
                         }else{
                             name = nameDom.text()
                         }
+                        if(!$('#userAvatar').attr('src')){
+                            avatar = ''
+                        }else{
+                            avatar = $('#userAvatar').attr('src')
+                        }
                         res = {
                             id: id,
                             name: name,
                             type: 2,
+                            avatar: avatar,
                             p: 4
                         }
                         return callback(null,res)
@@ -429,6 +469,7 @@ class DealWith {
                     res = {
                         id: back.vppinfo.euin,
                         name: nameIs,
+                        avatar: back.vppinfo.avatar ? (back.vppinfo.avatar.replace('/60','/0')) : '',
                         type: 1,
                         p: 4
                     }
@@ -442,7 +483,7 @@ class DealWith {
                         }
                         if(result.statusCode != 200 ){
                             logger.error('腾讯状态码错误2',result.statusCode)
-                            logger.info(result)
+                            
                             return callback(true,{code:102,p:4})
                         }
                         let $ = cheerio.load(result.body),
@@ -462,7 +503,7 @@ class DealWith {
                             }
                             if(result.statusCode != 200 ){
                                 logger.error('腾讯状态码错误3',result.statusCode)
-                                logger.info(result)
+                                
                                 return callback(true,{code:102,p:4})
                             }
                             let $ = cheerio.load(result.body),
@@ -470,6 +511,7 @@ class DealWith {
                             res = {
                                 id: id,
                                 name: name,
+                                avatar: $('#userAvatar').attr('src') ? $('#userAvatar').attr('src') : '',
                                 type: 2,
                                 p: 4
                             }
@@ -500,14 +542,14 @@ class DealWith {
                 }
                 if(result.statusCode != 200 ){
                     logger.error('头条状态码错误',result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:6})
                 }
                 try {
                     result = JSON.parse(result.body)
                 } catch (e) {
                     logger.error('头条json数据解析失败')
-                    logger.info(result)
+                    
                     return callback(e,{code:102,p:6})
                 }
                 request.get({url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}`},(err,resInfo)=> {
@@ -530,7 +572,7 @@ class DealWith {
                     let res = {
                         id: result.data.media_user.id,
                         name: result.data.media_user.screen_name,
-                        // avatar: result.data.media_user.avatar_url,
+                        avatar: result.data.media_user.avatar_url,
                         p: 6,
                         encode_id: resInfo.data.user_id
                     }
@@ -548,14 +590,14 @@ class DealWith {
                     }
                     if(result.statusCode != 200 ){
                         logger.error('头条状态码错误',result.statusCode)
-                        logger.info(result)
+                        
                         return callback(true,{code:102,p:6})
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
                         logger.error('头条json数据解析失败')
-                        logger.info(result)
+                        
                         return callback(e,{code:102,p:6})
                     }
                     request.get({url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}`},(err,resInfo)=> {
@@ -578,7 +620,7 @@ class DealWith {
                         let res = {
                             id: result.data.media_user.id,
                             name: result.data.media_user.screen_name,
-                            // avatar: result.data.media_user.avatar_url,
+                            avatar: result.data.media_user.avatar_url,
                             p: 6,
                             encode_id: resInfo.data.user_id
                         }
@@ -599,7 +641,7 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('一点状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:11})
             }
             let $ = cheerio.load(result.body),
@@ -611,12 +653,47 @@ class DealWith {
             }
             let h_array = href.split('='),
                 v_id = h_array[h_array.length-1],
+                docid = $('.interact>span').eq(0).attr('data-docid'),
                 res = {
                     id: v_id,
                     name: name,
                     p: 11
                 }
-            callback(null,res)
+            this.yidianAvatar( docid, (err, result) => {
+                if(err){
+                    return callback(err,result)
+                }
+                res.avatar = result
+                callback(null,res)
+            })           
+        })
+    }
+    yidianAvatar( docid, callback ){
+        let option = {
+            url: 'https://a1.go2yd.com/Website/contents/content?appid=yidian&cv=4.3.8.1&distribution=com.apple.appstore&docid='+ docid +'&net=wifi&platform=0&recommend_audio=true&related_docs=true&version=020116'
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.error( 'occur error : ', err )
+                return callback(err,{code:102,p:11})
+            }
+            if(result.statusCode != 200 ){
+                logger.error('一点状态码错误',result.statusCode)
+                
+                return callback(true,{code:102,p:11})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.error('一点json数据解析失败')
+                
+                return callback(e,{code:102,p:11})
+            }
+            
+            if(!result.documents || !result.documents[0].related_wemedia){
+                return callback(null,'')
+            }
+            callback(null,result.documents[0].related_wemedia.media_pic)
         })
     }
     tudou (data,callback) {
@@ -643,14 +720,14 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('土豆状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:12})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('土豆json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:12})
             }
             let res
@@ -660,7 +737,13 @@ class DealWith {
                     name: result.onic,
                     p: 12
                 }
-                return callback(null,res)
+                return this.tudouAvatar( result.ocode, (err, result) => {
+                    if(err){
+                        callback(err,result)
+                    }
+                    res.avatar = result
+                    callback(null,res)
+                })
             }
             if(!result.detail){
                 return callback(true,{code:102,p:12})
@@ -668,9 +751,34 @@ class DealWith {
             res = {
                 id: result.detail.userid,
                 name: result.detail.username,
+                avatar: result.detail.channel_pic_220_220,
                 p: 12
             }
             callback(null,res)
+        })
+    }
+    tudouAvatar( uidCode, callback ){
+        let option = {
+            url: 'http://www.tudou.com/uis/userStatInfo.action?app=homev2&uidCode='+ uidCode +'&rt=1&_='+ new Date().getTime()
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('土豆的头像请求错误',err)
+                return callback(err,{code:102,p:12})
+            }
+            if(result.statusCode != 200 ){
+                logger.error('土豆状态码错误',result.statusCode)
+                
+                return callback(true,{code:102,p:12})
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('土豆的json数据解析失败')
+                
+                return callback(true,{code:102,p:12})
+            }
+            callback(null,result.data.userpic)
         })
     }
     baomihua ( data, callback ) {
@@ -702,19 +810,21 @@ class DealWith {
             }
             if(result.statusCode != 200 ){
                 logger.error('爆米花状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:13})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('爆米花json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:13})
             }
+            
             let res = {
                 id: result.result.ChannelInfo.ChannelID,
                 name: result.result.ChannelInfo.ChannelName,
+                avatar: result.result.ChannelInfo.MidPic,
                 p: 13
             }
             callback(null,res)
@@ -737,12 +847,14 @@ class DealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('酷6json数据解析失败')
-                logger.info(result)
+                
                 return callback(e,{code:102,p:14})
             }
+            let avatar = result.data.list[0].author.icon.split(';')[0]
             let res = {
                 id: result.data.list[0].author.id,
                 name: result.data.list[0].author.nick,
+                avatar: avatar,
                 p: 14
             }
             callback(null,res)
@@ -769,6 +881,7 @@ class DealWith {
                 let res = {
                     id: result.data.author_uid,
                     name: result.data.source,
+                    avatar: result.data.media.icon,
                     p: 15
                 }
                 return callback(null,res)
@@ -785,7 +898,7 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('北京时间状态码错误:',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:15})
             }
             let $ = cheerio.load(result.body),
@@ -810,9 +923,11 @@ class DealWith {
                         logger.info('json error: ',result.body)
                         return callback(e,{code:102,p:15})
                     }
+                    logger.debug('---')
                     let res = {
                         id: result.data.author_uid,
                         name: result.data.source,
+                        avatar: result.data.media.icon,
                         p: 15
                     }
                     return callback(null,res)
@@ -830,6 +945,7 @@ class DealWith {
                         logger.info('json error: ',result.body)
                         return callback(e,{code:102,p:15})
                     }
+                    
                     let res = {
                         id: result.data.uid,
                         name: result.data.nickname,
@@ -876,7 +992,34 @@ class DealWith {
             res.name = Object.keys(data)[0]
             res.id = data[res.name]
             res.p = 16
-            callback(null,res)
+            this.weishiAvatar( res.id, (err, result) => {
+                if(err){
+                    return callback(err,result)
+                }
+                res.avatar = result
+                callback(null,res)
+            })           
+        })
+    }
+    weishiAvatar( uid, callback ){
+        let option = {
+            url: 'http://weishi.qq.com/u/' + uid
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('微视用户主页请求失败')
+                return callback(err,{code:102,p:16})
+            }
+            if(result.statusCode != 200){
+                logger.debug('微视用户主页状态码错误')
+                return callback(true,{code:102,p:16})
+            }
+            let $ = cheerio.load(result.body),
+                avatar = $('#userpic').attr('src')
+            if(!avatar){
+                return callback(null,'')
+            }
+            callback(null,avatar)
         })
     }
     xiaoying ( data, callback) {
@@ -901,6 +1044,7 @@ class DealWith {
             let res = {
                 id: result.videoinfo.auid,
                 name: result.videoinfo.username,
+                avatar: result.videoinfo.userlogourl,
                 p: 17
             }
             callback(null,res)
@@ -931,6 +1075,16 @@ class DealWith {
                 }
                 break
             case 'm.budejie.com':
+                if(urlObj.query.pid){
+                    v_id = urlObj.query.pid
+                    option.url = `http://www.budejie.com/detail-${v_id}.html`
+                }else{
+                    let start = pathname.lastIndexOf('-'),
+                        end = pathname.indexOf('.')
+                    v_id = pathname.substring(start + 1,end)
+                    option.url = `http://www.budejie.com/detail-${v_id}.html`
+                }
+                break
             case 'a.f.budejie.com':
                 let start = pathname.lastIndexOf('/'),
                     end = pathname.indexOf('.')
@@ -948,7 +1102,7 @@ class DealWith {
                 }
                 if (result.statusCode != 200) {
                     logger.error('不得姐状态码错误1', result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:18})
                 }
                 try {
@@ -961,6 +1115,8 @@ class DealWith {
                 let data = result.data
                 res.id = data.id
                 res.name = data.username
+                res.avatar = data.profile_image_large
+                res.p = 18
                 callback(null,res)
             })
         } else {
@@ -971,16 +1127,18 @@ class DealWith {
                 }
                 if (result.statusCode != 200) {
                     logger.error('不得姐状态码错误2', result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:18})
                 }
                 let $ = cheerio.load(result.body),
                     userNode = $('.u-user-name'),
                     href = userNode.attr('href'),
                     start = href.lastIndexOf('-'),
-                    end = href.indexOf('.')
+                    end = href.indexOf('.'),
+                    avatar = $('img.u-logo').attr('src')
                 res.id = href.substring(start + 1,end)
                 res.name = userNode.text().trim()
+                res.avatar = avatar
                 res.p = 18
                 callback(null,res)
             })
@@ -1012,14 +1170,16 @@ class DealWith {
                 }
                 if (result.statusCode != 200) {
                     logger.error('内涵段子状态码错误', result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:19})
                 }
                 let $ = cheerio.load(result.body,{ignoreWhitespace:true}),
                     name = $('.desc-item .desc-wrapper .name').text(),
+                    avatar = $('.desc-item img.logo').attr('src')
                     res = {
                         name: name,
                         id: id,
+                        avatar: avatar,
                         p: 19
                     }
                 return callback(null,res)
@@ -1034,7 +1194,7 @@ class DealWith {
             }
             if (result.statusCode != 200) {
                 logger.error('内涵段子状态码错误', result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:19})
             }
             let $ = cheerio.load(result.body),
@@ -1045,6 +1205,7 @@ class DealWith {
                 res = {
                     name: name,
                     id: v_id,
+                    avatar: $('#tmplNode img.user-img').attr('src'),
                     p: 19
                 }
             callback(null, res)
@@ -1081,17 +1242,19 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('yy状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:20})
             }
             let $ = cheerio.load(result.body),
                 name = $('.info-txt .nickname a').text(),
                 href = $('.info-txt .nickname a').attr('href'),
+                avatar = $('div.player-info>a.avatar>img').eq(0).attr('src'),
                 h_array = href.split('/'),
                 id = h_array[h_array.length-1],
                 res = {
                     name: name,
                     id: id,
+                    avatar: avatar,
                     p: 20
                 }
             callback(null,res)
@@ -1141,7 +1304,11 @@ class DealWith {
                 reg_id = new RegExp("sohu_user_id:'[0-9]+'"),
                 _id_info = scriptData.match(reg_id),id_info,
                 reg_name = new RegExp("user_name:'[A-Za-z0-9_\u4e00-\u9fa5]+'"),
-                _name_info = scriptData.match(reg_name),name_info
+                _name_info = scriptData.match(reg_name),name_info,
+                dataJson = scriptData.replace(/[\s\n\r]/g,''),
+                startIndex = dataJson.indexOf('sohu_user_photo:'),
+                endIndex = dataJson.indexOf(',ispgc'),
+                avatar = dataJson.substring(startIndex+16,endIndex)
             if(_id_info && _name_info){
                 id_info = _id_info[0]
                 name_info = _name_info[0]
@@ -1153,6 +1320,7 @@ class DealWith {
             res = {
                 id: id,
                 name: name,
+                avatar: avatar,
                 p: 21
             }
             callback(null,res)
@@ -1177,7 +1345,7 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('A站状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:22})
             }
             try {
@@ -1190,6 +1358,7 @@ class DealWith {
             let res = {
                 name: result.data.owner.name,
                 id: result.data.owner.id,
+                avatar: result.data.owner.avatar,
                 p: 22
             }
             callback(null,res)
@@ -1214,7 +1383,7 @@ class DealWith {
                 }
                 if(result.statusCode != 200){
                     logger.error('weibo状态码错误',result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:23})
                 }
                 let $ = cheerio.load(result.body),
@@ -1243,7 +1412,7 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('weibo状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:23})
             }
             try{
@@ -1255,6 +1424,7 @@ class DealWith {
             let res = {
                 name: result.userInfo.screen_name,
                 id: result.userInfo.id,
+                avatar: result.userInfo.profile_image_url,
                 p: 23
             }
             callback(null,res)
@@ -1281,7 +1451,6 @@ class DealWith {
                         script = _$('script')[8].children[0].data,
                         guid = script.match(/\"id\": \"[\d\w-]*/),
                         v_id = guid[0].toString().replace(/\"id\": \"/,"")
-                    //logger.debug(v_id)
                     option.url = api.ifeng.url + v_id
                     request.get( option, (err,result) => {
                         if(err){
@@ -1303,6 +1472,7 @@ class DealWith {
                         let res = {
                             name: result.weMedia.name,
                             id: result.weMedia.id,
+                            avatar: result.weMedia.headPic,
                             p: 24
                         }
                         callback(null,res)
@@ -1323,7 +1493,7 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('凤凰状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:24})
             }
             try {
@@ -1336,6 +1506,7 @@ class DealWith {
             let res = {
                 name: result.weMedia.name,
                 id: result.weMedia.id,
+                avatar: result.weMedia.headPic,
                 p: 24
             }
             callback(null,res)
@@ -1366,6 +1537,7 @@ class DealWith {
             let res = {
                 name: result.videoTopic.tname,
                 id: result.videoTopic.tid,
+                avatar: result.topicImg,
                 p: 25
             }
             //logger.debug(res.name)
@@ -1395,6 +1567,7 @@ class DealWith {
                 let res = {
                     name: info.data[0].wm_name,
                     id: bid,
+                    avatar: info.data[0].avatar_url,
                     p: 26
                 }
                 callback(null,res)
@@ -1407,7 +1580,7 @@ class DealWith {
                 }
                 if(result.statusCode != 200){
                     logger.error('UC状态码错误',result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:26})
                 }
                 let $ = cheerio.load(result.body),
@@ -1419,21 +1592,8 @@ class DealWith {
                 }
                 bid = script.match(/mid=\w*/) == undefined? '': script.match(/mid=\w*/).toString().replace(/mid=/,'')
                 if(bid == ''){
-                    aid = script.match(/aid=\d*/).toString().replace(/aid=/,'')
-                    let bidUrl = {
-                        url : 'http://s4.uczzd.cn/ucnews/video?app=ucnews-iflow&aid='+aid
-                    }, name
-                    request.get( bidUrl, (err,bidInfo) => {
-                        bidInfo = bidInfo.body
-                        bid = bidInfo.match(/mid=\w*/).toString().replace(/mid=/,'')
-                        name = bidInfo.match(/\"source_name\":\"[^\x00-\xff]*/).toString().replace(/\"source_name\":\"/,'')
-                        let res = {
-                            name: name,
-                            id: bid,
-                            p: 26
-                        }
-                        callback(null,res)
-                    })
+                    /*不是认证用户*/
+                    callback(null,{code:103,p:26})
                 }else{
                     options.url = 'http://napi.uc.cn/3/classes/article/categories/wemedia/lists/'+ bid +'?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_size=5&_max_pos=&uc_param_str=frdnsnpfvecpntnwprdsssnikt'
                     request.get( options, ( err, info ) => {
@@ -1450,6 +1610,7 @@ class DealWith {
                         let res = {
                             name: info.data[0].wm_name,
                             id: bid,
+                            avatar: info.data[0].avatar_url,
                             p: 26
                         }
                         callback(null,res)
@@ -1469,7 +1630,6 @@ class DealWith {
             bid = remote.match(/b\/\d*/).toString().replace(/b\//,'')
         }
         option.url = 'http://pcweb.api.mgtv.com/variety/showlist?collection_id='+bid
-        //logger.debug(option.url)
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
@@ -1477,7 +1637,6 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('芒果TV状态码错误',result.statusCode)
-                logger.info(result)
                 return callback(true,{code:102,p:27})
             }
             try{
@@ -1488,12 +1647,39 @@ class DealWith {
             }
             index = result.data.info.title.indexOf(' ')
             index = index == -1 ? result.data.info.title.length : index
-            let res = {
-                name: result.data.info.title.substring(0,index),
-                id: result.data.tab_y[0].id,
-                p: 27
+            this.mgtvAvatar( bid, (err, avatar) => {
+                if(err){
+                    return callback(err,avatar)
+                }
+                let res = {
+                    name: result.data.info.title.substring(0,index),
+                    id: result.data.tab_y[0].id,
+                    avatar: avatar,
+                    p: 27
+                }
+                callback(null,res)
+            })           
+        })
+    }
+    mgtvAvatar( bid, callback ){
+        let option = {
+            url: 'http://www.mgtv.com/h/'+ bid +'.html?fpa=se'
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('芒果TV avatar 请求失败')
+                return this.mgtvAvatar(bid,callback)
             }
-            callback(null,res)
+            if(result.statusCode != 200){
+                logger.error('芒果TV状态码错误',result.statusCode)
+                return this.mgtvAvatar(bid,callback)
+            }
+            let $ = cheerio.load(result.body),
+                avatar = $('a.banner>img').attr('src')
+            if(!avatar){
+                return callback(null,'')
+            }
+            callback(null,avatar)
         })
     }
     qzone(remote, callback) {
@@ -1531,7 +1717,7 @@ class DealWith {
                 }
                 if(result.statusCode != 200){
                     logger.error('网易状态码错误',result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:29})
                 }
                 let $ = cheerio.load(result.body),
@@ -1546,9 +1732,7 @@ class DealWith {
                 option.url = api.qzone.url+"&uin="+data.uin+"&tid="+data.shuoshuo_id
                 this.getQzone(option,callback)
             })
-        }
-        
-        
+        }    
     }
     getQzone( option, callback ){
         request.get( option, (err,result) => {
@@ -1558,7 +1742,6 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('QQ空间状态码错误',result.statusCode)
-                logger.info(result)
                 return callback(true,{code:102,p:29})
             }
             try{
@@ -1567,9 +1750,13 @@ class DealWith {
                 logger.debug('QQ空间数据解析失败')
                 return callback(e,{code:102,p:29})
             }
+            if(!result.usrinfo){
+                return callback(null,{code:103,p:29})
+            }
             let res = {
                 name: result.usrinfo.name,
                 id: result.usrinfo.uin,
+                avatar: 'https://qlogo4.store.qq.com/qzone/'+ result.usrinfo.uin +'/'+ result.usrinfo.uin +'/100?',
                 p: 29
             }
             callback(null,res)
@@ -1581,6 +1768,7 @@ class DealWith {
             path     = urlObj.pathname,
             bid      = '',
             name     = '',
+            avatar   = '',
             option   = {
                 url : data
             }
@@ -1591,16 +1779,21 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('CCTV状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:30})
             }
             let $    = cheerio.load(result.body)
             bid  = $('#userName a').attr('href').match(/\d*\/index/).toString().replace(/\/index/,'')
             name = $('#userName a').text()
+            avatar = $('.user_pic').attr('src')
+            if(!bid && !name && !avatar){
+                return callback(null,{code:103,p:30})
+            }
             let res  = {
                 p: 30,
                 id: bid,
-                name: name
+                name: name,
+                avatar: avatar
             }
             callback(null,res)
         })
@@ -1618,27 +1811,55 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('PPTV状态码错误',result.statusCode)
-                logger.info(result)
                 return callback(true,{code:102,p:31})
             }
             let $ = cheerio.load(result.body),
                 script = $('script')[2].children[0].data,
                 data = script.replace(/[\s\n]/g,'').replace(/varwebcfg=/,'').replace(/;/,''),
-                name = $('div#video-info .bd>h3').text().split(' ')
+                name = $('div#video-info .bd>h3').text().split(' '),
+                imgUrl = $('a.btn_more').attr('href')
             try{
                 data = JSON.parse(data)
             }catch(e){
                 logger.debug('PPTV数据转换失败')
                 return callback(e,{code:102,p:31})
             }
-            let res = {
-                name: name[0],
-                id: data.pid,
-                p: 31,
-                encode_id: data.cat_id
-            }
-            callback(null,res)
+            this.pptvAvatar(imgUrl,(err,result) => {
+                let res = {
+                    name: name[0],
+                    id: data.pid,
+                    p: 31,
+                    encode_id: data.cat_id,
+                    avatar: result
+                }
+                callback(null,res)
+            })  
         })
+    }
+    pptvAvatar( imgUrl, callback ){
+        let option = {}
+        if(!imgUrl){
+                option.url = ''
+            }else{
+                option.url = imgUrl
+            }
+            //logger.debug(option.url)
+            request.get( option, (err, result) => {
+                if(err){
+                    logger.debug('PPTV 头像请求失败')
+                    return pptvAvatar(imgUrl,callback)
+                }
+                if(result.statusCode != 200){
+                    logger.error('PPTV状态码错误',result.statusCode)
+                    return callback(true,{code:102,p:31})
+                }
+                let $ = cheerio.load(result.body),
+                    avatar = $('.cover-a>img').attr('data-src2')
+                if(!avatar){
+                    avatar = $('div.module-dpage-banner>a').eq(0).find('img').attr('src')
+                }
+                callback(null,avatar)
+            })
     }
     xinlan( data, callback ){
         let urlObj   = URL.parse(data,true),
@@ -1654,7 +1875,7 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('新蓝网状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:32})
             }
             let $ = cheerio.load(result.body),
@@ -1673,7 +1894,39 @@ class DealWith {
                 p: 32,
                 encode_id: data.match(/cid:\d*/).toString().replace(/cid:/,'')
             }
-            callback(null,res)
+            this.xinlanAvatar( res.name, (err, result) => {
+                res.avatar = result
+                callback(null,res)
+            }) 
+        })
+    }
+    xinlanAvatar( name, callback ){
+        let option = {
+            url: 'http://so.cztv.com/pc/s?wd='+ encodeURIComponent(name)
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('头图的搜索列表请求失败')
+                return this.xinlanAvatar(name,callback)
+            }
+            if(result.statusCode != 200){
+                logger.error('新蓝网状态码错误',result.statusCode)
+                return this.xinlanAvatar(name,callback)
+            }
+            let $ = cheerio.load(result.body),
+                avatars = $('div.ui-search-results')
+            if(avatars.length <= 0){
+                return callback(null,'')
+            }
+            for(let i = 0; i < avatars.length; i++){
+                let bname = avatars.eq(i).find('li.ui-cf div.ui-fl>img').attr('title'),
+                    avatar = avatars.eq(i).find('li.ui-cf div.ui-fl>img').attr('src')
+                    logger.debug(name)
+                if(name === bname){
+                    return callback(null,avatar)
+                }
+            }
+            callback(null,'')
         })
     }
     v1( data, callback ){
@@ -1695,7 +1948,7 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('v1状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:33})
             }
             try{
@@ -1709,6 +1962,7 @@ class DealWith {
                     p: 33,
                     id: result.body.obj.videoDetail.userInfo.userId,
                     name: result.body.obj.videoDetail.userInfo.userName,
+                    avatar: result.body.obj.videoDetail.userInfo.userImg,
                     encode_id: encodeid
                 }
                 callback(null,res)
@@ -1769,10 +2023,12 @@ class DealWith {
                 }
                 let $          = cheerio.load(result.body),
                     bid        = $('div.ch-info div.info a').attr('data-id'),
-                    name       = $('div.ch-info div.info h1').text()
+                    name       = $('div.ch-info div.info h1').text(),
+                    avatar     = $('div.chan-head-ico>img').attr('src')
                 let res = {
                     id: bid,
                     name: name,
+                    avatar: avatar ? avatar : '',
                     p: 34
                 }
                 callback(null,res)
@@ -1785,7 +2041,7 @@ class DealWith {
                 }
                 if(result.statusCode != 200){
                     logger.error('风行状态码错误',result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:34})
                 }
                 try{
@@ -1797,7 +2053,8 @@ class DealWith {
                 let res  = {
                     p: 34,
                     id: result.id,
-                    name: result.name
+                    name: result.name,
+                    avatar: result.poster
                 }
                 callback(null,res)
             })
@@ -1819,7 +2076,7 @@ class DealWith {
             }
             if(result.statusCode != 200){
                 logger.error('视频详情状态码错误',result.statusCode)
-                logger.info(result)
+                
                 return callback(true,{code:102,p:35})
             }
             let $ = cheerio.load(result.body)
@@ -1831,16 +2088,18 @@ class DealWith {
                 }
                 if(result.statusCode != 200){
                     logger.error('专辑信息状态码错误',result.statusCode)
-                    logger.info(result)
+                    
                     return callback(true,{code:102,p:35})
                 }
                 let $      = cheerio.load(result.body),
                     script = $('script')[8].children[0].data,
                     bid    = script.match(/aggvod\/id\/\d*/).toString().replace('aggvod/id/',''),
                     name   = $('span.movie_name').text(),
+                    avatar = $('div.img_box>img').attr('src'),
                     res    = {
                         id : bid,
                         name : name,
+                        avatar : avatar,
                         p : 35
                     }
                 callback(null,res)
@@ -1874,13 +2133,14 @@ class DealWith {
                     endIndex = script.indexOf(';varstatic_storm_json')
                 result = JSON.parse(script.substring(startIndex,endIndex))
             }catch(e){
-                logger.info(result)
+                
                 logger.debug('数据解析失败')
                 return callback(true,{code:102,p:36})
             }
             let res = {
                 id: bid,
                 name: result.info_name,
+                avatar: result.info_img,
                 p: 36
             }
             callback(null,res)
@@ -1916,7 +2176,34 @@ class DealWith {
                 name: name,
                 p: 37
             }
-            callback(null,res)
+            this.baiduAvatar( res.name, (err, avatar) => {
+                res.avatar = avatar
+                callback(null,res)
+            })
+        })
+    }
+    baiduAvatar( bname, callback ){
+        let option = {
+            url: 'http://v.baidu.com/tagapi?type=2&tag='+ encodeURIComponent(bname) +'&_='+ new Date().getTime()
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('百度视频的头像请求失败')
+                return this.baiduAvatar(bname,callback)
+            }
+            if(result.statusCode != 200){
+                logger.debug('百度视频的状态码错误',result.statusCode)
+                return this.baiduAvatar(bname,callback)
+            }
+            try{
+                result = JSON.parse(result.body)
+            } catch(e){
+                logger.debug('百度视频数据解析失败')
+                logger.info(result)
+                return this.baiduAvatar(bname,callback)
+            }
+            let avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : ''
+            callback(null,avatar)
         })
     }
     baijia ( data, callback ){
@@ -1955,6 +2242,7 @@ class DealWith {
             let res = {
                 id: dataJson.app.id,
                 name: dataJson.app.name,
+                avatar: dataJson.app.avatar,
                 p: 28
             }
             callback(null,res)
