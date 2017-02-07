@@ -208,11 +208,12 @@ class DealWith {
                 return callback(e,{code:102,p:9})
             }
             //logger.debug(result.data)
-            let res,uid = result.data.user ? result.data.user.user_id : result.data.user_id
+            let uid = result.data.user ? result.data.user.user_id : result.data.user_id
             if(result.data.user){
                 let res = {
                     id: uid,
                     name: result.data.user.nickname,
+                    avatar: result.data.user.bg_pic,
                     p: 9
                 }
                 return callback(null,res)
@@ -926,6 +927,7 @@ class DealWith {
                     let res = {
                         id: result.data.author_uid,
                         name: result.data.source,
+                        avatar: result.data.media.icon,
                         p: 15
                     }
                     return callback(null,res)
@@ -1113,6 +1115,8 @@ class DealWith {
                 let data = result.data
                 res.id = data.id
                 res.name = data.username
+                res.avatar = data.profile_image_large
+                res.p = 18
                 callback(null,res)
             })
         } else {
@@ -1171,12 +1175,13 @@ class DealWith {
                 }
                 let $ = cheerio.load(result.body,{ignoreWhitespace:true}),
                     name = $('.desc-item .desc-wrapper .name').text(),
+                    avatar = $('.desc-item img.logo').attr('src')
                     res = {
                         name: name,
                         id: id,
+                        avatar: avatar,
                         p: 19
                     }
-                    logger.debug('---')
                 return callback(null,res)
             })
         }else{
