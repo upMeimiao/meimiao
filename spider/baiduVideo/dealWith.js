@@ -228,7 +228,8 @@ class dealWith {
                     long_t: this.getVidTime(video.duration),
                     v_img: video.image_link,
                     desc: video.sub_title.substring(0,100),
-                    play_num: result[0]
+                    play_num: result[0],
+                    v_url: video.play_link
                 }
                 this.sendCache(media)
                 callback()
