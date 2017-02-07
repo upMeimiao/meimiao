@@ -52,7 +52,7 @@ class DealWith {
                                 p: 1,
                                 name: comments[i].user.name,
                                 id: comments[i].user.id,
-                                encode_id: comments[i].link.substring(comments[i].link.lastIndexOf('/')+1)
+                                encode_id: comments[i].user.link.substring(comments[i].link.lastIndexOf('/')+1)
                             }
                             sign = false
                             return cb()
