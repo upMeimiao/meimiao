@@ -287,8 +287,9 @@ class dealWith {
 
     getVideoInfo( task, video, callback ){
         let option = {
-            url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_"
+            url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_&qua=V1_PC_QZ_1.0.0_0_IDC_B"
         }
+        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' , err)
@@ -305,7 +306,7 @@ class dealWith {
                 return callback(null,'抛掉当前的')
             }
             result = result.data.all_videolist_data[0]
-
+            
             if(result.singlefeed['7'].coverurl['0'] == undefined){
                 result.v_img = ''
             }else if(result.singlefeed['7'].coverurl['0'].url == undefined){
@@ -313,7 +314,6 @@ class dealWith {
             }else{
                 result.v_img = result.singlefeed['7'].coverurl['0'].url
             }
-            //logger.debug(result)
             callback(null,result)
         })
     }

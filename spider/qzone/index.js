@@ -68,8 +68,8 @@ class spiderCore {
     }
     test () {
         let work = {
-            id:1783166215,
-            name:'飞碟说',
+            id:3254445435,
+            name:'迷迭香美食',
             p:29
         }
         this.dealWith.todo(work,(err,total) => {
