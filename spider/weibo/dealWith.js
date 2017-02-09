@@ -344,7 +344,7 @@ class dealWith {
     }
     getVideoInfo( id, proxy, callback ){
         let option = {
-                url:'http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=350a1d30&id='+id
+                url:'http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id='+id
             },
             dataTime = ''
         option.proxy = proxy

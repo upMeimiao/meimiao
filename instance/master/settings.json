@@ -49,8 +49,8 @@
       "contentUrl_old": "https://mp.toutiao.com/statistic/content_article_stat/?"
     },
     "weibo": {
-      "userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=32b86df0&profile_entry_key=1&user_domain=",
-      "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=350a1d30&count=24&containerid="
+      "userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=6dd467f9&profile_entry_key=1&user_domain=",
+      "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=6dd467f9&count=24&containerid="
       }
   },
   "servantAPI": {
