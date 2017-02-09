@@ -266,7 +266,7 @@ class dealWith {
                 author: video.nickname,
                 platform: task.p,
                 bid: task.id,
-                aid: result[0].singlefeed['7'].videoid,
+                aid: video.key,
                 title: result[0].singlefeed['4'].summary.substring(0,100).replace(/"/g,''),
                 support: result[0].singlefeed['11'].num,
                 long_t: result[0].singlefeed['7'].videotime/1000,
