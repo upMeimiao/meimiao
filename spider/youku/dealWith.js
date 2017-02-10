@@ -22,6 +22,13 @@ class dealWith {
             {
                 user: (callback) => {
                     this.getUser(task,(err)=>{
+                        if(err){
+                            return setTimeout(()=>{
+                                this.getUser(task,()=>{
+                                    return callback(null,"用户信息已返回")
+                                })
+                            }, 1000)
+                        }
                         callback(null,"用户信息已返回")
                     })
                 },
@@ -59,7 +66,10 @@ class dealWith {
         request(options,(err,res,body)=>{
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback()
+                return callback(err.message)
+            }
+            if(res.statusCode != 200){
+                return callback(res.statusCode)
             }
             body = eval(body)
             let userInfo = body.data,
