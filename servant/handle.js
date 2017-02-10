@@ -48,7 +48,7 @@ class Handle {
                     bname: result.name,
                     type: result.type ? result.type : 0,
                     encodeId: result.encode_id ? result.encode_id : '',
-                    avatar: result.avatar ? result.avatar : ''
+                    // avatar: result.avatar ? result.avatar : ''
                 }
             }
         }
