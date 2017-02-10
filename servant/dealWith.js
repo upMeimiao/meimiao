@@ -1878,21 +1878,12 @@ class DealWith {
                 
                 return callback(true,{code:102,p:32})
             }
-            let $ = cheerio.load(result.body),
-                script
-
-            if(host == 'tv.cztv.com'){
-                script = $('script')[3].children[0].data
-            }else{
-                script = $('script')[0].children[0].data
-            }
-            let data = script.replace(/[\s\n]/g,'').replace(/var__INFO__=/,'').replace(/;/,'')
-
+            result = result.body.replace(/[\s\n\r]/g,'')
             let res = {
-                name: data.match(/pTitle:"[^\x00-\xff]*/).toString().replace(/pTitle:"/,''),
-                id: data.match(/pid:\d*/).toString().replace(/pid:/,''),
+                name: result.match(/pTitle:"[^\x00-\xff]*/).toString().replace(/pTitle:"/,''),
+                id: result.match(/pid:\d*/).toString().replace(/pid:/,''),
                 p: 32,
-                encode_id: data.match(/cid:\d*/).toString().replace(/cid:/,'')
+                encode_id: result.match(/cid:\d*/).toString().replace(/cid:/,'')
             }
             this.xinlanAvatar( res.name, (err, result) => {
                 res.avatar = result
