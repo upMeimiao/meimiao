@@ -170,7 +170,7 @@ class dealWith {
             if(!data){
                 logger.error('未知错误')
                 logger.error(body)
-                return callback(true)
+                return callback('code-012')
             }
             let total = data.total
             task.total = total
