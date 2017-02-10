@@ -273,6 +273,9 @@ class dealWith {
             if(body.total == 0){
                 return callback()
             }
+            if(!body.videos){
+                return callback()
+            }
             this.deal( task, body.videos, list, () => {
                 callback()
             })
