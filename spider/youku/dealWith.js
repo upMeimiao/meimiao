@@ -224,6 +224,10 @@ class dealWith {
                         return cb()
                     }
                     let videos = data.videos
+                    if(videos.length === 0){
+                        sign++
+                        return cb()
+                    }
                     this.info(task,videos, () => {
                         sign++
                         cb()
