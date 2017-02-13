@@ -37,11 +37,6 @@ class dealWith {
                         }
                         callback(null,"视频信息已返回")
                     })
-                },
-                vidNum : (callback) => {
-                    this.getVidNum(task,(err) => {
-                        callback(null,"视频总量已返回")
-                    })
                 }
             },
             ( err, result ) => {
@@ -53,40 +48,14 @@ class dealWith {
             }
         )
     }
-    getVidNum( task, callback ){
-        let option = {},
-            id = null
-        if(task.id == task.encode_id){
-            id = task.id
-        }else{
-            id = task.encode_id
-        }
-        option = {
-            url: 'http://user.v1.cn/his/getAllCountByUserId/'+id+'.json',
-            referer: 'http://user.v1.cn/his/video/'+id+'.jhtml'
-        }
-        request.get( logger, option, (err, result)=>{
-            if(err){
-                return callback()
-            }
-            try{
-                result = JSON.parse(result.body)
-            }catch (e){
-                logger.error(`v1 json数据解析失败`)
-                logger.error(result)
-                return callback(e)
-            }
-            task.total = result.obj.videoCount
-            callback()
-        })
-    }
+    
     getFans ( task, callback){
         let option = {},
             id = null
-        if(task.id == task.encode_id){
+        if(task.id == task.encodeId){
             id = task.id
         }else{
-            id = task.encode_id
+            id = task.encodeId
         }
         option = {
             url: 'http://user.v1.cn/his/getAllCountByUserId/'+id+'.json',
@@ -108,6 +77,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.obj.fansCount
             }
+            task.total = result.obj.videoCount
             //logger.debug(user)
             /*this.sendUser(user, () => {
                 callback()
@@ -187,7 +157,6 @@ class dealWith {
                 logger.info(result)
                 return
             }
-            task.total = (result.body.page_num-1)*10
             let page   = result.body.page_num
             this.getVidList(task,page,sign,(err) => {
                 callback()
