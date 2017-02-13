@@ -28,7 +28,7 @@ class dealWith {
     getVidList( task, callback ){
         
         let option = {
-            url : this.settings.listVideo + task.id + "&cid=" + task.encode_id + '&_=' + new Date().getTime(),
+            url : this.settings.listVideo + task.id + "&cid=" + task.encodeId + '&_=' + new Date().getTime(),
             ua : 1
         }
         request.get( logger, option, ( err, result ) => {
