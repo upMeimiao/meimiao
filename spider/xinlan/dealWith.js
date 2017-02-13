@@ -43,6 +43,9 @@ class dealWith {
                 logger.info(result)
                 return this.getVidList( task, callback )
             }
+            if(!result.data || !result.data.length){
+                return this.getVidList( task, callback )
+            }
             let length = result.data.length
             task.total = length
             this.deal(task,result.data,length,() => {
