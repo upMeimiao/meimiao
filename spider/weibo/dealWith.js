@@ -19,7 +19,7 @@ class dealWith {
         //logger.debug('---')
         this.getUserInfo( task, ( err ) => {
             if(err){
-                return callback( err )
+                return callback(err.message)
             }
             callback( null, task.total )
         })
@@ -37,7 +37,7 @@ class dealWith {
                     if(err == 'timeout'){
                         return callback(null,'timeout')
                     }
-                    logger.error('Get proxy occur error:', err)
+                    logger.error('Get proxy occur error:', err.message)
                     times++
                     proxyStatus = false
                     this.core.proxy.back(proxy, false)
@@ -51,8 +51,8 @@ class dealWith {
 
     getUserInfo( task, callback ){
         let option = {
-                url : this.settings.spiderAPI.weibo.userInfo+task.id
-            }
+            url : this.settings.spiderAPI.weibo.userInfo+task.id
+        }
         this.getProxy((err,proxy) => {
             if (proxy == 'timeout') {
                 return callback()
@@ -63,7 +63,7 @@ class dealWith {
             option.proxy = proxy
             request.get( logger, option, ( err, result ) => {
                 if(err){
-                    logger.debug('用户的粉丝数请求错误',err)
+                    logger.debug('用户的粉丝数请求错误',err.message)
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
                 }
@@ -103,7 +103,7 @@ class dealWith {
         }
         request.post( logger, option, (err,back) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err.message )
                 logger.info(`返回微博视频用户 ${user.bid} 连接服务器失败`)
                 return
             }
@@ -130,7 +130,7 @@ class dealWith {
         }
         request.post( logger, option,(err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err.message )
                 return
             }
             try{
@@ -163,7 +163,7 @@ class dealWith {
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if (err) {
-                logger.debug('视频总量请求错误',err)
+                logger.debug('视频总量请求错误',err.message)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
@@ -205,10 +205,15 @@ class dealWith {
         })
     }
     getVidList( task, data, total, proxy, callback ){
-        let pageNum     = 3
+        let page
+        if(total % 20 != 0){
+            page = Math.ceil(total / 20)
+        }else{
+            page = total / 20
+        }
         async.whilst(
             () => {
-                return task.page < pageNum
+                return task.page <= page
             },
             (cb) => {
                 let containerid = '',
@@ -223,7 +228,7 @@ class dealWith {
                 option.proxy = proxy
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
-                        logger.debug('视频列表数据请求错误',err)
+                        logger.debug('视频列表数据请求错误',err.message)
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -259,13 +264,11 @@ class dealWith {
                         return
                     }
                     if( result.cards.length <= 0 ){
-                        pageNum = 0
                         return cb()
                     }
                     //logger.info(task.page)
                     this.deal(task,result.cards,data,proxy,() => {
                         task.page++
-                        pageNum++
                         cb()
                     })
                 })
@@ -285,6 +288,7 @@ class dealWith {
                 return index < length
             },
             (cb) => {
+                //logger.debug(data[index])
                 this.getAllInfo( task, data[index], user, proxy, (err) => {
                     index++
                     cb()
@@ -297,13 +301,14 @@ class dealWith {
     }
     getAllInfo( task, video, user, proxy, callback ){
         if(video.mblog == undefined){
+            // logger.debug('eeeeeeeeeeeeeeeeeeee')
             callback()
         }else if(video.mblog.pic_infos != undefined){
+            // logger.debug('fffffffffffffffffffffffffffffff')
             callback()
-        }else if(video.mblog.user !== undefined){
-            if(task.id !== video.mblog.user.id){
-                callback()
-            }
+        }else if(video.mblog.user !== undefined && task.id != video.mblog.user.id){
+            // logger.debug('gggggggggggggggggggggggggg')
+            callback()
         }else{
             async.series([
                 (cb) => {
@@ -314,8 +319,10 @@ class dealWith {
                 }
             ],(err,result) => {
                 if(result[0] == '抛掉当前的'){
+                    // logger.debug('ddddddddddddddddddddddddd')
                     return callback()
                 }else if(video.mblog.user == undefined){
+                    // logger.debug('ccccccccccccccccccccc')
                     return callback()
                 }
                 let media = {
@@ -350,7 +357,7 @@ class dealWith {
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.debug('单个视频信息请求错误',err)
+                logger.debug('单个视频信息请求错误',err.message)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
@@ -364,7 +371,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('json数据解析失败')
-                logger.info(result)
+                // logger.info(result)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
