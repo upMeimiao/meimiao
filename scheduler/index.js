@@ -122,9 +122,6 @@ class scheduler {
         if( (raw.p == 12 && (raw.id == '113077370' || raw.id == '366571453' || raw.id == '120663699'))|| (raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206')){
             return
         }
-        if(raw.p == 23 && raw.id != 2144684673){
-            return
-        }
         let job = this.queue.create( raw.platform , {
             id: raw.id,
             p: raw.p,
