@@ -2,7 +2,7 @@ const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const request = require( '../lib/request' )
-const mSpiderController = require('../monitor/controllers/mSpiderController')
+const storaging = require('./storaging')
 const jsonp = function (data) {
     return data
 }
@@ -52,11 +52,11 @@ class iqiyiDeal {
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
-				mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","user")
+				storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","user")
 				return
             }
             if(!result || !result.body){
-            	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取用户信息接口无返回数据","resultErr","user")
+            	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取用户信息接口无返回数据","resultErr","user")
             	return
             }
             const $ = cheerio.load(result.body),
@@ -66,7 +66,7 @@ class iqiyiDeal {
                     callback()
                 })
             }
-            mSpiderController.succStorage(this.core,"iqiyi",option.url,"user")
+            storaging.succStorage(this.core,"iqiyi",option.url,"user")
             // const fans = fansDom.attr('data-num'),
             //     user = {
             //         platform: 2,
@@ -83,10 +83,10 @@ class iqiyiDeal {
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
-				mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","_user")
+				storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","_user")
             }
             if(!result.body){
-            	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取粉丝接口无返回数据","resultErr","_user")
+            	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取粉丝接口无返回数据","resultErr","_user")
             }
             let $ = cheerio.load(result.body),
                 fansDom = $('h3.tle').text(),
@@ -96,7 +96,7 @@ class iqiyiDeal {
                     fans_num: fansDom.substring(2)
                 }
             //logger.debug(user)
-            mSpiderController.succStorage(this.core,"iqiyi",option.url,"_user")
+            storaging.succStorage(this.core,"iqiyi",option.url,"_user")
         })
     }
     getTotal(task, callback) {
@@ -107,14 +107,14 @@ class iqiyiDeal {
         }
         request.get(logger, option, (err,result) => {
             if(err){
-				mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","total")
+				storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","total")
                 return
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('json数据解析失败')
-                mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取全部视频接口json数据解析失败","doWithResErr","total")
+                storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取全部视频接口json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
             if(result.total !== 0){
@@ -127,7 +127,7 @@ class iqiyiDeal {
                     callback()
                 })
             }
-            mSpiderController.succStorage(this.core,"iqiyi",option.url,"total")
+            storaging.succStorage(this.core,"iqiyi",option.url,"total")
         })
     }
     getListN(task, callback) {
@@ -145,11 +145,11 @@ class iqiyiDeal {
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
                 request.get( logger, option, (err,result) => {
                     if(err){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","listN")
+                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","listN")
                         return cb()
                     }
                     if(!result.body){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频单页列表接口无返回数据","resultErr","listN")
+                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频单页列表接口无返回数据","resultErr","listN")
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
@@ -168,7 +168,7 @@ class iqiyiDeal {
                         })
                     }
                     //logger.debug(video)
-                    mSpiderController.succStorage(this.core,"iqiyi",option.url,"listN")
+                    storaging.succStorage(this.core,"iqiyi",option.url,"listN")
                     this.getIds(task, video, (err) => {
                         index++
                         cb()
@@ -193,20 +193,20 @@ class iqiyiDeal {
                 option.url = raw[index].link
                 request.get(logger, option, (err, result) => {
                     if(err){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","ids")
+                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","ids")
                         return cb()
                     }
                     if(!result.body){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频id列表接口无返回数据","resultErr","ids")
+                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频id列表接口无返回数据","resultErr","ids")
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
                         }),
                         id = $('#flashbox').attr('data-player-tvid')
                         if(!id){
-                            mSpiderController.errStoraging(this.core,'iqiyi',DOM,task.id,"iqiyi获取DOM元素中的视频id失败","domBasedErr","ids")
+                            storaging.errStoraging(this.core,'iqiyi',DOM,task.id,"iqiyi获取DOM元素中的视频id失败","domBasedErr","ids")
                         }
-                    mSpiderController.succStorage(this.core,"iqiyi",option.url,"ids")
+                    storaging.succStorage(this.core,"iqiyi",option.url,"ids")
                     this.info(task, {id: id, title: raw[index].title, link: raw[index].link},(err)=>{
                         index++
                         cb()
@@ -232,14 +232,14 @@ class iqiyiDeal {
                 option.url = api.iqiyi.list[0] + task.id + "&page=" + index
                 request.get( logger, option, (err,result) => {
                     if(err){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","list")
+                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","list")
                         return cb()
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
                         logger.error('json数据解析失败')
-                        mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频列表接口json数据解析失败","doWithResErr","list")
+                        storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频列表接口json数据解析失败","doWithResErr","list")
                         logger.error(result)
                         return cb()
                     }
@@ -255,7 +255,7 @@ class iqiyiDeal {
                         ats = $('a[data-title]'),titles = [],
                         href = $('.site-piclist_info a[title]'),links = []
                     if(!lis || !ats || !href){
-                        mSpiderController.errStoraging(this.core,'iqiyi',DOM,task.id,"iqiyi由DOM获取视频列表信息失败","domBasedErr","list")
+                        storaging.errStoraging(this.core,'iqiyi',DOM,task.id,"iqiyi由DOM获取视频列表信息失败","domBasedErr","list")
                     }
                     for(let i = 0 ;i<lis.length;i++){
                         ids.push(lis[i].attribs.tvid.replace(/,/g,''))
@@ -271,7 +271,7 @@ class iqiyiDeal {
                         id = id.slice(0,end)
                         links.push(id)
                     }
-                    mSpiderController.succStorage(this.core,"iqiyi",option.url,"list")
+                    storaging.succStorage(this.core,"iqiyi",option.url,"list")
                     this.deal(task,ids,titles,links, () => {
                         index++
                         cb()
@@ -319,7 +319,7 @@ class iqiyiDeal {
                 (callback) => {
                     this.getInfo(task,id,link, (err,data) => {
                         if(err){
-                        	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
+                        	storaging.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
                             callback(err)
                         } else {
                             callback(null,data)
@@ -329,7 +329,7 @@ class iqiyiDeal {
                 (callback) => {
                     this.getExpr(task,id,link, (err,data) => {
                         if(err){
-                        	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
+                        	storaging.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
                             callback(err)
                         } else {
                             callback(null,data)
@@ -339,7 +339,7 @@ class iqiyiDeal {
                 (callback) => {
                     this.getPlay(task,id,link, (err,data) => {
                         if(err){
-                        	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
+                        	storaging.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
                             callback(err)
                         } else {
                             callback(null,data)
@@ -368,10 +368,10 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
-                this.core.MSDB.hget(`${media.author}${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
                 	if(err){
                 		if(result > media.play_num){
-                            mSpiderController.errStoraging(this.core,'iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.bid,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
+                            storaging.errStoraging(this.core,'iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.bid,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
                         }
                 	}
                 })
@@ -379,7 +379,7 @@ class iqiyiDeal {
                 if(media.comment_num < 0){
                     delete media.comment_num
                 }
-                mSpiderController.sendDb( this.core,media )
+                storaging.sendDb( this.core,media )
                 callback()
             }
         )
@@ -392,7 +392,7 @@ class iqiyiDeal {
         }
         request.get( logger, option, (err,result) => {
             if(err){
-            	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
+            	storaging.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
                 return callback(err)
             }
             //logger.debug(backData)
@@ -401,7 +401,7 @@ class iqiyiDeal {
                 playData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
-                mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,"iqiyi获取视频信息接口eval错误","doWithResErr","info")
+                storaging.errStoraging(this.core,'iqiyi',link,task.id,"iqiyi获取视频信息接口eval错误","doWithResErr","info")
                 logger.error(result)
                 return callback(e)
             }
@@ -440,11 +440,11 @@ class iqiyiDeal {
                 type:type,
                 seconds:seconds
             }
-            mSpiderController.succStorage(this.core,"iqiyi",option.url,"info")
+            storaging.succStorage(this.core,"iqiyi",option.url,"info")
             if(comment < 0){
                 this.getComment(playData.data.qitanId,playData.data.albumId,playData.data.tvId,link,(err,result)=>{
                     if(err){
-                    	mSpiderController.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
+                    	storaging.errStoraging(this.core,'iqiyi',link,task.id,err,"responseErr","info")
                         return callback(null,data)
                     }
                     data.comment = result
@@ -463,7 +463,7 @@ class iqiyiDeal {
         }
         request.get( logger, option, (err,result) => {
             if(err){
-            	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","Expr")
+            	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","Expr")
                 return callback(err)
             }
             //logger.debug(result)
@@ -472,14 +472,14 @@ class iqiyiDeal {
                 infoData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
-                mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频顶踩信息接口eval错误","doWithResErr","Expr")
+                storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频顶踩信息接口eval错误","doWithResErr","Expr")
                 logger.error(result)
                 return callback(e)
             }
             if(infoData.code != 'A00000'){
                 return callback(true)
             }
-            mSpiderController.succStorage(this.core,"iqiyi",option.url,"Expr")
+            storaging.succStorage(this.core,"iqiyi",option.url,"Expr")
             callback(null,infoData)
         })
     }
@@ -491,7 +491,7 @@ class iqiyiDeal {
         }
         request.get( logger, option, (err,result) => {
             if(err){
-            	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","play")
+            	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","play")
                 return callback(err)
             }
             //logger.debug(result)
@@ -500,11 +500,11 @@ class iqiyiDeal {
                 infoData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
-                mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频播放量接口eval错误","doWithResErr","play")
+                storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频播放量接口eval错误","doWithResErr","play")
                 logger.error(result)
                 return callback(e)
             }
-            mSpiderController.succStorage(this.core,"iqiyi",option.url,"play")
+            storaging.succStorage(this.core,"iqiyi",option.url,"play")
             callback(null,infoData[0][id])
         })
     }
@@ -516,7 +516,7 @@ class iqiyiDeal {
         }
         request.get( logger, option, (err,result) => {
             if(err){
-            	mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","comment")
+            	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","comment")
                 return callback(err)
             }
             //logger.debug(result)
@@ -525,11 +525,11 @@ class iqiyiDeal {
                 infoData = JSON.parse(result.body)
             } catch (e){
                 logger.error('json err:',e)
-                mSpiderController.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取评论信息接口json数据解析失败","doWithResErr","comment")
+                storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取评论信息接口json数据解析失败","doWithResErr","comment")
                 logger.error(result)
                 return callback(e)
             }
-            mSpiderController.succStorage(this.core,"iqiyi",option.url,"comment")
+            storaging.succStorage(this.core,"iqiyi",option.url,"comment")
             callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
     }

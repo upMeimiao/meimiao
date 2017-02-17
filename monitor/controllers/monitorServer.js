@@ -5,8 +5,107 @@ const crypto = require('crypto')
 const platformMap = require('./platform')
 const emailServer = require('./emailServer')
 const monitorContronller = require('./monitorController')
+const Redis = require('ioredis')
 const logger = monitorContronller.logger
 const client = monitorContronller.monitorClint
+
+
+
+
+const moment = require('moment')
+const logging = require( 'log4js' )
+
+const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
+    reconnectOnError: function (err) {
+        if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
+            return true
+        }
+    }
+})
+
+const urlStatusMonitor = () =>{
+    // setInterval(_getErrUrlInfo, 5000)
+    // setInterval(_getSuccUrlInfo, 5000)
+    setInterval(_getKeys, 5000)
+}
+
+
+// 平台 youku iqiyi le ...
+// ,"tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
+                    // ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
+                    // ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
+                    // ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"
+const platformArr = ["youku","iqiyi","le"]
+// 接口描述 Expr list info total play total user Desc videos
+const urlDescArr = ["Expr","list","info","total","play","total","user","Desc","videos"]
+// 错误类型 responseErr resultErr doWithResErr domBasedErr
+// 表名 平台：接口描述
+// succTimes: 24
+// responseErr
+// {
+//     "platform": "youku",
+//     "url": "http://youku.com",
+//     "bid": 12345678,
+//     "errDesc": {
+
+//     }
+//     "firstTime": ""
+//     "times": 2,
+//     "lastTime": ""
+// }
+const _getKeys = () => {
+    let keys,i,j,keyName
+    for(i = 0; i < platformArr.length; i++){
+        for(j = 0; j < urlDescArr.length; j++){
+            keys = `${platformArr[i]}:${urlDescArr[j]}`
+            logger.debug("~~~~~~~~~~~~~~~~~~keys=",keys)
+            mSpiderClient.hmget(keys,"responseErr","resultErr","doWithResErr","domBasedErr","succTimes",(err,result) => {
+                logger.debug("~~~~~~~~~~~~~~~~~~","err=",err,"result=",result)
+                if(err){
+                    logger.debug("读取redis发生错误")
+                    return
+                }
+                if(!result){
+                    logger.debug("redis中没有当前搜索的key")
+                    return
+                }
+                // 有result
+                // responseErr错误类型
+                if(result[0]){
+
+                }
+                // resultErr错误类型
+                if(result[1]){
+                    
+                }
+                // doWithResErr错误类型 
+                if(result[2]){
+                    
+                }
+                // domBasedErr错误类型
+                if(result[3]){
+                    
+                }
+            })
+        }
+    }
+}
+
+// 是否存储有错误 responseErr resultErr doWithResErr domBasedErr
+// 对比错误的lastTime和firstTime
+// 对比成功的次数及失败的次数
+// const _getErrUrlInfo = () => {
+//     mSpiderClient.hget("youku:info","responseErr",(err,result) => {
+//         logger.debug("~~~~~~~~~~~~~~~~~~",err,result)
+//     })
+// }
+
+// const _getSuccUrlInfo = () => {
+//     mSpiderClient.hget("youku:info","succTimes",(err,result) => {
+//         logger.debug("~~~~~~~~~~~~~~~~~~",err,result)
+//     })
+// }
+
 
 exports.start = () => {
     const failedRule = new schedule.RecurrenceRule()
@@ -19,6 +118,7 @@ exports.start = () => {
     schedule.scheduleJob(inactiveRule, () =>{
         _inactiveTaskAlarm()
     })
+    urlStatusMonitor()
 }
 const _inactiveTaskAlarm = () => {
     let i = 1,key,inactiveArr = []

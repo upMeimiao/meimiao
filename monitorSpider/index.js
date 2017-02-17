@@ -107,18 +107,18 @@ class spiderCore {
         switch(platform) {
             case 1:
                 logger.debug(platform)
-                rule.minute = [10]
+                rule.second = [10]
                 break
             case 2:
                 logger.debug(platform)
-                rule.minute = [15]
+                rule.second = [15]
                 break
             case 3:
                 logger.debug(platform)
-                rule.minute = [20]
+                rule.second = [20]
                 break
             default:
-                rule.minute = [10,15,20]
+                rule.second = [10,15,20]
         }
         const YOUKU = schedule.scheduleJob(rule, () =>{
             this.youku()
