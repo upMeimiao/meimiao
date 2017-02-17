@@ -157,8 +157,11 @@ class dealWith {
                 if($('p.info').text() == '文章不存在'){
                     return callback(null,'没有数据')
                 }
-                result = $('script')[0].children[0].data.replace(/var STATIC_HOST = \'\/\/image\.uc\.cn\';/,'').replace(/var xissJsonData = /,'').replace(/;/,'')
-                result = result.replace(/var zzdReadId = \'\w*\';/,'').replace(/;/g,'')
+                result = result.replace(/[\s]/g,'')
+                let startIndex = result.indexOf('xissJsonData='),
+                    endIndex = result.indexOf(';varzzdReadId')
+                result = result.substring(startIndex+13,endIndex)
+                //result = result.replace(/var zzdReadId = \'\w*\';/,'').replace(/;/g,'')
                 result = JSON.parse(result)
             }catch (e){
                 logger.error('单个视频json数据解析失败')
