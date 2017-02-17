@@ -91,35 +91,56 @@ class dealWith {
         async.parallel([
             (cb) => {
                 this.getVideoInfo(task,video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getPlayNum(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getClass(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getDesc(task,video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getLike(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             },
             (cb) => {
                 this.getComNum(video,(err,result) => {
+                    if(err){
+                        return cb(err)
+                    }
                     cb(null,result)
                 })
             }
         ],(err,result) => {
+            if(err){
+                return callback(err)
+            }
             let media = {
                 author: task.name,
                 platform: task.p,
@@ -148,17 +169,13 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('视频评论数请求失败 ' + err)
-                callback(err,null)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
+                return callback(err,null)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.total_number){
                 result.total_number = ''
@@ -173,17 +190,13 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('视频评论数、点赞量、踩请求失败 ' + err)
-                callback(err,null)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
+                return callback(err,null)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.data){
                 result.data = {
@@ -217,17 +230,13 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('视频播放量请求失败 ' + err)
-                callback(err,null)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
+                return callback(err,null)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.data.fstlvlName){
                 result.data = {
@@ -245,17 +254,13 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('视频播放量请求失败 ' + err)
-                callback(err,null)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
+                return callback(err,null)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.data.all){
                 result.data.all = ''
@@ -271,17 +276,13 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
-                callback(err,null)
-            }
-            if(result.statusCode != 200 ){
-                logger.error('芒果状态码错误',result.statusCode)
-                return callback(true,{code:102,p:1})
+                return callback(err,null)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                return
+                return callback(e,null)
             }
             if(!result.info){
                 result.info = {

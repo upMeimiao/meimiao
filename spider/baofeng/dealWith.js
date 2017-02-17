@@ -31,7 +31,7 @@ class dealWith {
             option = {
             url : 'http://www.baofeng.com/detail/'+bid+'/detail-'+task.id+'.html'
         }
-
+        task.bid = bid
         request.get( logger, option, (err,result) => {
 
             if(err){
@@ -116,9 +116,10 @@ class dealWith {
                     support: result[0].u,
                     step: result[0].d,
                     desc: result[1].desc.substr(0,100).replace(/"/g,''),
-                    type: result[1].types
+                    type: result[1].types,
+                    v_url: 'http://www.baofeng.com/play/'+ task.bid +'/play-'+ task.id +'-drama-'+ video.location +'.html'
                 }
-
+                logger.info(media)
                 this.sendCache(media)
                 callback()
             }
@@ -138,8 +139,8 @@ class dealWith {
                 type = $('div.details-info-right a').text(),
                 desc = $('div.play-details-words').text().replace('简介：','').substring(0,100),
                 res = {
-                    type: type,
-                    desc: desc
+                    type: type ? type : '',
+                    desc: desc ? desc : ''
                 }
             callback(null,res)
         })

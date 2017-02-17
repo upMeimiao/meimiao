@@ -98,13 +98,13 @@ class Handle {
             ctx.res.end(JSON.stringify(this.preResult(err,result)))
         })
     }
-    toutiaoHandle ( ctx, verifyData ) {
-        dealWith.toutiao( verifyData, ( err, result ) => {
-            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-            ctx.res.writeHead(200)
-            ctx.res.end(JSON.stringify(this.preResult(err,result)))
-        })
-    }
+    // toutiaoHandle ( ctx, verifyData ) {
+    //     dealWith.toutiao( verifyData, ( err, result ) => {
+    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+    //         ctx.res.writeHead(200)
+    //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
+    //     })
+    // }
     miaopaiHandle ( ctx, verifyData ) {
         //includes需要用数组方法
         let DataUrl = [verifyData.remote]
@@ -141,13 +141,13 @@ class Handle {
             ctx.res.end(JSON.stringify(this.preResult(err,result)))
         })
     }
-    yidianHandle ( ctx, verifyData ) {
-        dealWith.yidian( verifyData, ( err, result ) => {
-            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-            ctx.res.writeHead(200)
-            ctx.res.end(JSON.stringify(this.preResult(err,result)))
-        })
-    }
+    // yidianHandle ( ctx, verifyData ) {
+    //     dealWith.yidian( verifyData, ( err, result ) => {
+    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+    //         ctx.res.writeHead(200)
+    //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
+    //     })
+    // }
     tudouHandle ( ctx, verifyData ) {
         dealWith.tudou( verifyData, ( err, result ) => {
             ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
@@ -267,20 +267,13 @@ class Handle {
             ctx.res.end(JSON.stringify(this.preResult(err,result)))
         })
     }
-    pptvHandle ( ctx, verifyData ) {
-        dealWith.pptv( verifyData, ( err, result ) => {
-            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-            ctx.res.writeHead(200)
-            ctx.res.end(JSON.stringify(this.preResult(err,result)))
-        })
-    }
-    liulianHandle ( ctx, verifyData ) {
-        dealWith.liulian( verifyData, ( err, result ) => {
-            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-            ctx.res.writeHead(200)
-            ctx.res.end(JSON.stringify(this.preResult(err,result)))
-        })
-    }
+    // pptvHandle ( ctx, verifyData ) {
+    //     dealWith.pptv( verifyData, ( err, result ) => {
+    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+    //         ctx.res.writeHead(200)
+    //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
+    //     })
+    // }
     xinlanHandle ( ctx, verifyData ) {
         dealWith.xinlan( verifyData, ( err, result ) => {
             ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
@@ -302,13 +295,13 @@ class Handle {
             ctx.res.end(JSON.stringify(this.preResult(err,result)))
         })
     }
-    fengxingHandle ( ctx, verifyData ) {
-        dealWith.fengxing( verifyData, ( err, result ) => {
-            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-            ctx.res.writeHead(200)
-            ctx.res.end(JSON.stringify(this.preResult(err,result)))
-        })
-    }
+    // fengxingHandle ( ctx, verifyData ) {
+    //     dealWith.fengxing( verifyData, ( err, result ) => {
+    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+    //         ctx.res.writeHead(200)
+    //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
+    //     })
+    // }
     huashuHandle ( ctx, verifyData ) {
         dealWith.huashu( verifyData, ( err, result ) => {
             ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)

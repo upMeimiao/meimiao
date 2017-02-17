@@ -180,11 +180,11 @@ class spiderCore {
             case 'm.v1.cn':
                 handle.v1Handle( ctx, verifyData )
                 break
-            case 'www.fun.tv':
-            case 'pm.funshion.com':
-            case 'm.fun.tv':
-                handle.fengxingHandle( ctx, verifyData )
-                break
+            // case 'www.fun.tv':
+            // case 'pm.funshion.com':
+            // case 'm.fun.tv':
+            //     handle.fengxingHandle( ctx, verifyData )
+            //     break
             case 'www.wasu.cn':
                 handle.huashuHandle( ctx, verifyData )
                 break

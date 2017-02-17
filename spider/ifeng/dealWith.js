@@ -41,7 +41,7 @@ class dealWith {
             }
             task.total = result.infoList[0].weMedia.totalNum
             let user = {
-                platform: 15,
+                platform: task.p,
                 bid: task.id,
                 fans_num: result.infoList[0].weMedia.followNo
             }

@@ -116,3 +116,8 @@ rm -rf *.log
 rm -rf *.log-*
 rm -rf *.log.*.gz
 echo "巧算日志文件清理完毕"
+
+echo "开启pm2日志文件"
+cd /root/.pm2/logs
+rm -rf ./*
+echo "pm2日志文件清理完毕"

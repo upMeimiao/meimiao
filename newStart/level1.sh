@@ -39,16 +39,17 @@ echo "启动天天快报"
 pm2 start ~/newStart/kuaibao.json
 echo "任务天天快报启动完成"
 
-#echo "启动微博"
-#pm2 start ~/newStart/weibo.json
-#echo "任务微博启动完成"
-echo "启动乐视"
-pm2 start ~/newStart/le.json
-echo "任务乐视启动完成"
+echo "启动微博"
+pm2 start ~/newStart/weibo.json
+echo "任务微博启动完成"
 
 echo "第一优先级任务启动完成"
 
 echo "启动第二级别任务"
+
+echo "启动乐视"
+pm2 start ~/newStart/le.json
+echo "任务乐视启动完成"
 
 echo "启动一点资讯"
 pm2 start ~/newStart/yidian.json
@@ -78,16 +79,12 @@ echo "启动凤凰号"
 pm2 start ~/newStart/ifeng.json
 echo "任务凤凰号启动完成"
 
+echo "启动百度百家"
+pm2 start ~/newStart/baijia.json
+echo "任务百度百家启动完成"
+
 echo "启动QQ空间"
 pm2 start ~/newStart/qzone.json
 echo "任务启动QQ空间完成"
-
-echo "启动酷6"
-pm2 start ~/newStart/ku6.json
-echo "任务酷6启动完成"
-
-echo "启动北京时间"
-pm2 start ~/newStart/btime.json
-echo "任务北京时间启动完成"
 
 echo "第二优先级任务启动完成"

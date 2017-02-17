@@ -16,104 +16,61 @@ class DealWith {
         api = core.settings.servantAPI
         logger.debug('处理器实例化...')
     }
-    youku ( verifyData, callback ) {
-        let verifyCode =verifyData.verifyCode,
-         htmlUrl=verifyData.remote,
-            dataJson={},
-         options={
-            url:htmlUrl
-         };
-        request.get(logger,options, function (err, data) {
-            if(err){
-                logger.error('occur error: ',err)
-                return callback(err,{code:102,p:1})
-            }
-            
-            let $=cheerio.load(data.body)
-            //正则匹配video_id
-            let videoId = htmlUrl.match(/id_[\w]*==/).toString().replace("id_","")
-               var page=1
-            var dataUrl = {
-                url :"https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id="+videoId+"&page="+page+"&count=20&qq-pf-to=pcqq.temporaryc2c"
-            }
-            //logger.debug(dataUrl)
-        request.get(logger,dataUrl, function (err, data) {
-            // 返回的数据转换成json数据
-            // 初始化存储的评论信息数组
-            // 返回的评论信息json
-            //logger.debug(data)
-            if (err) {
-                logger.error( 'occur error : ', err )
-                return callback(err,{code:102,p:1})
-            }
-            
-            let infoArray=[];
-            try {
-                data= JSON.parse(data.body)
-            } catch (e) {
-                logger.error('优酷json数据解析失败')
-                logger.info('json error: ',data)
-                return callback(e,{code:102,p:1})
-            }
-            //获取评论总数
-            let total=  parseInt(data.total),
-                totalPage
-            //logger.debug(total)
-            let comments=data.comments
-            //评论总页数
-            if(total%20 ==0){
-                totalPage=total/20
-            }else{
-                totalPage= Math.ceil(total / 20)
-            }
-
-            async.whilst(
-                function() {
-                    return page <= totalPage
-                },
-                function (cb) {
-                    var newUrl={
-                        url:"https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id="+videoId+"&page="+page+"&count=20&qq-pf-to=pcqq.temporaryc2c"
+    youku(verifyData, callback) {
+        let verifyCode = verifyData.verifyCode, option = {}, page = 1, sign = true, backDate,
+            pathname = URL.parse(verifyData.remote,true).pathname,
+            vid = pathname.substring(pathname.lastIndexOf('/')+4)
+        async.whilst(
+            () => {
+                return sign
+            },
+            (cb) => {
+                option.url = `https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=${vid}&page=${page}&count=100`
+                request.get(logger, option, (err, result) => {
+                    if (err) {
+                        return setTimeout(()=>{
+                            cb()
+                        }, 100)
                     }
-                  request.get(logger,newUrl,function(err,data){
-                      if (err) {
-                          logger.error( 'occur error : ', err )
-                          return callback(err,{code:102,p:1})
-                      }
-                      
-                      try {
-                          data = JSON.parse(data.body)
-                      } catch (e) {
-                          logger.error('优酷json数据解析失败')
-                          logger.info('json error: ',data)
-                          return callback(e,{code:102,p:1})
-                      }
-                      let comments=data.comments
-                      for(let i =0 ; i < comments.length;i++){
-                          if(verifyCode== comments[i].content){
-                              dataJson.p=1
-                              dataJson.name=comments[i].user.name
-                              dataJson.id=comments[i].user.id
-                              return  callback(null,dataJson)
-                          }
-                      }
-                      page ++
-                      return cb()
-                  })
-                },
-                function (err) {
-                    if(err){
-                        logger.debug("err"+err)
-                        return callback(err)
+                    try {
+                        result = JSON.parse(result.body)
+                    } catch (e) {
+                        logger.error('优酷json数据解析失败')
+                        logger.info('json error: ', result)
+                        return setTimeout(()=>{
+                            cb()
+                        }, 100)
                     }
-                    logger.debug("找不到")
+                    let comments = result.comments
+                    if(comments.length == 0){
+                        sign = false
+                        return cb()
+                    }
+                    for(let i = 0 ; i < comments.length;i++){
+                        if(verifyCode == comments[i].content){
+                            backDate = {
+                                p: 1,
+                                name: comments[i].user.name,
+                                id: comments[i].user.id,
+                                encode_id: comments[i].user.link.substring(comments[i].user.link.lastIndexOf('/')+1)
+                            }
+                            sign = false
+                            return cb()
+                        }
+                    }
+                    page++
+                    return cb()
+                })
+            },
+            (err, result) =>  {
+                if(err || !backDate){
+                    return callback(`error`,{code:101,p:1})
                 }
-            )
-
-        })
-        })
+                return callback(null, backDate)
+            }
+        )
     }
-    iqiyi ( verifyData, callback ){
+    iqiyi(verifyData, callback){
         // 输入的地址
         // 输入的评论值
         // 初始化一个对象
@@ -207,7 +164,7 @@ class DealWith {
                         }catch(e){
                             logger.error('爱奇艺json数据解析失败')
                             logger.info(data)
-                            return callback(e,{code:102,p:6})
+                            return callback(e,{code:102,p:2})
                         }
                                                     
                         let contents    = data.data.$comment$get_video_comments.data.comments
@@ -242,7 +199,7 @@ class DealWith {
 
     
     }
-    le ( verifyData, callback ){
+    le(verifyData, callback){
         // 输入的地址
         // 输入的评论值
         // 初始化一个对象
@@ -330,7 +287,7 @@ class DealWith {
         })
     
     }
-    tencent ( verifyData, callback ){
+    tencent(verifyData, callback){
         let verifyCode =verifyData.verifyCode
         let htmlUrl=verifyData.remote,
             dataJson={},
@@ -423,7 +380,7 @@ class DealWith {
             })
         //})
     }
-    meipai ( verifyData, callback ) {
+    meipai( verifyData, callback ) {
         let urlId      = verifyData.remote.match(/media\/\d*/).toString().replace(/media\//,''),
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             sign       = 1,
@@ -478,7 +435,7 @@ class DealWith {
         )
 
     }
-    toutiao ( verifyData, callback ) {
+    toutiao( verifyData, callback ) {
         let groupid    = verifyData.remote.match(/\/a\d*/).toString().replace(/\/a/,''),
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             sign       = 1,
@@ -534,7 +491,7 @@ class DealWith {
         )
         
     }
-    miaopai ( verifyData, callback ) {
+    miaopai( verifyData, callback ) {
         let htmlUrl    = verifyData.remote,
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             scid       = htmlUrl.match(/show\/~*\w*-*\w*/).toString().replace(/show\//,''),
@@ -653,7 +610,7 @@ class DealWith {
         })
 
     }
-    bili ( verifyData, callback ) {
+    bili( verifyData, callback ) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             dataJson={},
@@ -711,7 +668,7 @@ class DealWith {
                 )
 
     }
-    sohu ( verifyData, callback ) {
+    sohu( verifyData, callback ) {
         /*
          * 1、首先在视频网页找到vid
          * 2、吧vid传参给http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=http%3A%2F%2Ftv.sohu.com%2F20150913%2Fn420999556.shtml&topic_source_id="+vid+"&page_size=10借口
@@ -802,14 +759,10 @@ class DealWith {
                                   let  comments=data.comments
                                 for(let i= 0; i < comments.length;i++){
                                     if(verifyCode==comments[i].content){
-                                        for(let i= 0; i < comments.length;i++){
-                                            if(verifyCode==comments[i].content){
-                                                dataJson.p="9"
-                                                dataJson.id=comments[i].passport.user_id
-                                                dataJson.name=comments[i].passport.nickname
-                                                return callback(null,dataJson)
-                                            }
-                                        }
+                                        dataJson.p="9"
+                                        dataJson.id=comments[i].passport.user_id
+                                        dataJson.name=comments[i].passport.nickname
+                                        return callback(null,dataJson)
                                     }
                                 }
                                 page++
@@ -827,7 +780,7 @@ class DealWith {
             })
         })
     }
-    kuaibao ( verifyData, callback ){
+    kuaibao( verifyData, callback ){
         let commentid    = verifyData.remote.match(/commentid=\d*/).toString().replace(/commentid=/,''),
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -897,7 +850,7 @@ class DealWith {
         )
 
     }
-    yidian ( verifyData, callback ) {
+    yidian( verifyData, callback ) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             dataJson={},
@@ -907,7 +860,7 @@ class DealWith {
         request.get(logger,options, function (err,data) {
             if(err){
                 logger.error('occur error: ',err)
-                return callback(err,{code:102,p:12})
+                return callback(err,{code:102,p:11})
             }
             
             let $=cheerio.load(data.body),
@@ -922,7 +875,7 @@ class DealWith {
             request.get(logger,option, function (err,data) {
                 if (err) {
                     logger.error( 'occur error : ', err )
-                    return callback(err,{code:102,p:1})
+                    return callback(err,{code:102,p:11})
                 }
                 
                 try {
@@ -930,7 +883,7 @@ class DealWith {
                 } catch (e) {
                     logger.error('一点资讯json数据解析失败')
                     logger.info('json error: ',data)
-                    return callback(e,{code:102,p:12})
+                    return callback(e,{code:102,p:11})
                 }
                   let  comments=data.comments,
                     last_comment_id={
@@ -947,7 +900,7 @@ class DealWith {
                         request.get(logger,dataUrl, function (err, data) {
                             if (err) {
                                 logger.error( 'occur error : ', err )
-                                return callback(err,{code:102,p:12})
+                                return callback(err,{code:102,p:11})
                             }
                             
                             try {
@@ -955,13 +908,13 @@ class DealWith {
                             } catch (e) {
                                 logger.error('一点资讯json数据解析失败')
                                 logger.info('json error: ',data)
-                                return callback(e,{code:102,p:12})
+                                return callback(e,{code:102,p:11})
                             }
                               let  comment=data.comments
                             if(comments.length<30){
                                 for(let i = 0; i <comments.length; i++){
                                     if(verifyCode==comment[i].comment){
-                                        dataJson.P="12"
+                                        dataJson.P=11
                                         dataJson.name=comment[i].nickname
                                         dataJson.name=comment[i].comment_id
                                         logger.debug("找到了")
@@ -974,7 +927,7 @@ class DealWith {
                             }
                             for(let j = 0; j<comment.length;j++){
                                 if(verifyCode==comment[j].comment){
-                                    dataJson.P="12"
+                                    dataJson.P=11
                                     dataJson.name=comment[j].nickname
                                     dataJson.name=comment[j].comment_id
                                     logger.debug("找到了")
@@ -998,11 +951,9 @@ class DealWith {
             })
         })
     }
-    tudou ( verifyData, callback ) {
+    tudou( verifyData, callback ) {
         let htmlUrl      = verifyData.remote,
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
-            sign         = 1,
-            page         = 2,
             options      = {
                 url:htmlUrl
             }
@@ -1042,7 +993,7 @@ class DealWith {
                         } catch (e) {
                             logger.error('土豆json数据解析失败')
                             logger.info(data)
-                            return callback(e,{code:102,p:6})
+                            return callback(e,{code:102,p:12})
                         }
 
                         let content     = data,
@@ -1078,11 +1029,9 @@ class DealWith {
             )
         })
     }
-    baomihua ( verifyData, callback ) {
+    baomihua( verifyData, callback ) {
         let htmlUrl      = verifyData.remote,
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
-            sign         = 1,
-            page         = 2,
             options      = {
                 url:htmlUrl
             }
@@ -1099,7 +1048,7 @@ class DealWith {
 
             if(flvid == undefined){
                 logger.debug('爆米花请求的源码结构发生改变')
-                return callback(e,{code:102,p:6})
+                return callback(e,{code:102,p:13})
             }
 
             let sign       = 1,
@@ -1156,7 +1105,7 @@ class DealWith {
 
         })
     }
-    ku6 ( verifyData ,callback ) {
+    ku6( verifyData ,callback ) {
         let htmlUrl      = verifyData.remote.match(/show\/\-*\w*\-*\w*\-*\w*\.{2}/).toString().replace(/show\//,''),
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -1218,7 +1167,7 @@ class DealWith {
             }
         )
     }
-    btime ( verifyData, callback) {
+    btime( verifyData, callback) {
         let verifyCode =verifyData.verifyCode
         let htmlUrl=verifyData.remote,
             dataJson={},
@@ -1282,7 +1231,7 @@ class DealWith {
                 )
             })
     }
-    weishi ( verifyData, callback ) {
+    weishi( verifyData, callback ) {
         let _id          = verifyData.remote.match(/\/t\/\d*/).toString().replace(/\/t\//,''),
             userVal      = verifyData.verifyCode.replace(/\s/g,""),
             sign         = 1,
@@ -1296,7 +1245,7 @@ class DealWith {
 
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err,{code:102,p:6})
+                return callback(err,{code:102,p:16})
             }
             
             let $           = cheerio.load(htmlData.body),
@@ -1304,7 +1253,7 @@ class DealWith {
 
             if(pagetime == undefined){
                 logger.debug('微视请求的源码结构发生改变')
-                return callback(e,{code:102,p:6})
+                return callback(e,{code:102,p:16})
             }
 
             pagetime    = pagetime.eq(pagetime.length-1).attr('timestamp')
@@ -1323,7 +1272,7 @@ class DealWith {
 
                         if(err){
                             logger.error( 'occur error : ', err )
-                            return callback(err,{code:102,p:6})
+                            return callback(err,{code:102,p:16})
                         }
                         
                         try {
@@ -1331,7 +1280,7 @@ class DealWith {
                         } catch (e) {
                             logger.error('微视json数据解析失败')
                             logger.info(data)
-                            return callback(e,{code:102,p:6})
+                            return callback(e,{code:102,p:16})
                         }
 
                         let content     = data,
@@ -1366,7 +1315,7 @@ class DealWith {
             )
         })
     }
-    xiaoying ( verifyData, callback) {
+    xiaoying( verifyData, callback) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             vid=htmlUrl.match(/\/v\/[\w\d]*/).toString().replace("/v/",""),
@@ -1436,7 +1385,7 @@ class DealWith {
                 }
             )
     }
-    budejie ( verifyData, callback ) {
+    budejie( verifyData, callback ) {
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
             dataJson={},
@@ -1809,6 +1758,72 @@ class DealWith {
                 }
             )
     }
+    weibo(verifyData, callback){
+        let verifyCode   =verifyData.verifyCode,
+            htmlUrl      =verifyData.remote,
+            userVal      = verifyData.verifyCode.replace(/\s/g,""),
+            host         = URL.parse(htmlUrl,true).hostname,
+            vhot         = '',
+            vid          = '',
+            page         = 1,
+            sign         = 2,
+            endPage      = null,
+            contents     = '',
+            contLength   = '',
+            total        = 0,
+            option       = {
+                url:''
+            }
+        if(host == 'm.weibo.cn'){
+            vid = htmlUrl.match(/\/[\d | \w]*\?/).toString().replace(/[\/\?]/g,'')
+            if(vid == 'qq'){
+                vid = htmlUrl.match(/\/\d*qq\?/).toString().replace(/[\/qq\?]/g,'')
+            }
+        }else if(host == 'weibo.com'){
+
+        }
+        async.whilst(
+            () => {
+                return page < sign
+            },
+            (cb) => {
+                option.url = 'http://m.weibo.cn/article/rcMod?id='+vid+'&type=comment&page='+page
+                request.get( logger, option, (err,result) => {
+                    if(err){
+                        logger.error('occur error: ',err)
+                        return callback(err,{code:102,p:23})
+                    }
+
+                    try{
+                        result = JSON.parse(result.body)
+                    }catch(e){
+                        logger.debug('微博数据解析失败')
+                        return callback(e,{code:102,p:23})
+                    }
+
+                    contents = result.data
+                    if(contents == undefined){
+                        sign = 0;
+                        logger.debug('您输入的数据没找到')
+                        callback(null,{code:105,p:23});
+                        return cb()
+                    }
+                    contLength = contents.length
+                    endPage = this.weibodeal(contLength,userVal,contents,endPage,callback)
+                    if(endPage){
+                        sign = 0;
+                        return cb();
+                    }else{
+                        sign++;
+                        page++;
+                        return cb();
+                    }
+
+                })
+            }
+        )
+
+    }
     ifeng(verifyData, callback){
         let verifyCode =verifyData.verifyCode,
             htmlUrl=verifyData.remote,
@@ -2055,71 +2070,59 @@ class DealWith {
             }
         ) 
     }
-    weibo(verifyData, callback){
-        let verifyCode   =verifyData.verifyCode,
-            htmlUrl      =verifyData.remote,
-            userVal      = verifyData.verifyCode.replace(/\s/g,""),
-            host         = URL.parse(htmlUrl,true).hostname,
-            vhot         = '',
-            vid          = '',
-            page         = 1,
-            sign         = 2,
-            endPage      = null,
-            contents     = '',
-            contLength   = '',
-            total        = 0,
-            option       = {
-                url:''
-            }
-        if(host == 'm.weibo.cn'){
-            vid = htmlUrl.match(/\/[\d | \w]*\?/).toString().replace(/[\/\?]/g,'')
-            if(vid == 'qq'){
-                vid = htmlUrl.match(/\/\d*qq\?/).toString().replace(/[\/qq\?]/g,'')
-            }
-        }else if(host == 'weibo.com'){
-            
+    mgtv( verifyData, callback){
+        let htmlUrl    = verifyData.remote,
+            userVal    = verifyData.verifyCode.replace(/\s/g,""),
+            host       = URL.parse(htmlUrl,true).hostname,
+            vid        = '',
+            option     = {},
+            sign       = 1,
+            page       = 2,
+            contLength = '',
+            contents   = '',
+            endPage    = null
+        if(host == 'www.mgtv.com'){
+            vid = htmlUrl.match(/\/\d*\.html/).toString().replace(/[\/\.html]/g,'')
+        }else{
+            vid = htmlUrl.match(/\/\d*\?/).toString().replace(/[\/\?]/g,'')
         }
         async.whilst(
             () => {
-                return page < sign
+                return sign < page
             },
             (cb) => {
-                option.url = 'http://m.weibo.cn/article/rcMod?id='+vid+'&type=comment&page='+page 
+                option.url = 'http://comment.hunantv.com/comment/read?device=iPhone&pageCount=' + sign + '&pageSize=30&videoId='+vid
                 request.get( logger, option, (err,result) => {
                     if(err){
                         logger.error('occur error: ',err)
-                        return callback(err,{code:102,p:23})
+                        return callback(err,{code:102,p:27})
                     }
-                    
+
                     try{
                         result = JSON.parse(result.body)
                     }catch(e){
-                        logger.debug('微博数据解析失败')
-                        return callback(e,{code:102,p:23})
+                        logger.debug('芒果TV数据解析失败')
+                        return callback(e,{code:102,p:27})
                     }
-
-                    contents = result.data
-                    if(contents == undefined){
-                        sign = 0;
-                        logger.debug('您输入的数据没找到')
-                        callback(null,{code:105,p:23});
+                    contents   = result.data;
+                    contLength = result.data.length;
+                    if(contLength <= 0) {
+                        logger.debug('您输入的值没找到')
+                        page = 0
+                        callback(null,{code:105,p:27});
                         return cb()
                     }
-                    contLength = contents.length
-                    endPage = this.weibodeal(contLength,userVal,contents,endPage,callback)
+                    endPage = this.mgdeal(contLength,userVal,contents,endPage,callback)
                     if(endPage){
-                        sign = 0;
-                        return cb();
-                    }else{
-                        sign++;
-                        page++;
+                        page = 0;
                         return cb();
                     }
-                    
+                    sign++;
+                    page++;
+                    return cb();
                 })
             }
         )
-            
     }
     QQqzone( verifyData, callback){
         let htmlUrl    = verifyData.remote,
@@ -2216,59 +2219,89 @@ class DealWith {
             }
         )
     }
-    mgtv( verifyData, callback){
+    cctv( verifyData, callback ){
         let htmlUrl    = verifyData.remote,
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             host       = URL.parse(htmlUrl,true).hostname,
-            vid        = '',
-            option     = {},
-            sign       = 1,
-            page       = 2,
+            path       = URL.parse(htmlUrl,true).pathname,
+            index      = path.indexOf('.html'),
+            vid        = path.substring(3,index),
+            option     = {
+                url : htmlUrl
+            },
+            page       = 1,
             contLength = '',
             contents   = '',
-            endPage    = null
-        if(host == 'www.mgtv.com'){
-            vid = htmlUrl.match(/\/\d*\.html/).toString().replace(/[\/\.html]/g,'')
-        }else{
-            vid = htmlUrl.match(/\/\d*\?/).toString().replace(/[\/\?]/g,'')
-        }
+            endPage    = null,
+            total      = 2,
+            sign       = 1
         async.whilst(
             () => {
-                return sign < page
+                return sign < total
             },
             (cb) => {
-                option.url = 'http://comment.hunantv.com/comment/read?device=iPhone&pageCount=' + sign + '&pageSize=30&videoId='+vid
+                option.url='http://bbs.cntv.cn/api/?module=post&method=getchannelposts&varname=jsonp&channel=xiyou&itemid=video_'+vid+'&page='+page+'&perpage=10&_='+ new Date().getTime()
                 request.get( logger, option, (err,result) => {
                     if(err){
                         logger.error('occur error: ',err)
-                        return callback(err,{code:102,p:27})
+                        return callback(err,{code:102,p:30})
                     }
-                    
+
                     try{
-                        result = JSON.parse(result.body)
+                        result = result.body.replace('var jsonp = ','').replace(';','')
+                        result = JSON.parse(result)
                     }catch(e){
-                        logger.debug('芒果TV数据解析失败')
-                        return callback(e,{code:102,p:27})
+                        logger.debug('CCTV数据解析失败')
+                        return callback(e,{code:102,p:30})
                     }
-                    contents   = result.data;
-                    contLength = result.data.length;
-                    if(contLength <= 0) {
-                        logger.debug('您输入的值没找到')
-                        page = 0
-                        callback(null,{code:105,p:27});
+                    contents    = result.content
+                    contLength  = contents.length
+                    total       = result.total
+                    if(total % 10 == 0){
+                        total = total/10
+                    }else{
+                        total = Math.ceil(total/10)
+                    }
+
+                    endPage = this.cctvdeal(contLength,userVal,contents,endPage,callback)
+                    if(endPage){
+                        sign = total
                         return cb()
                     }
-                    endPage = this.mgdeal(contLength,userVal,contents,endPage,callback)
-                    if(endPage){
-                        page = 0;
-                        return cb();
+                    if (page == total) {
+                        sign = total
+                        return cb()
                     }
-                    sign++;
-                    page++;
-                    return cb();
+                    page++
+                    cb()
                 })
+            },
+            (err,result) => {
+                if(!endPage){
+                    callback(err,{code:105,p:30})
+                }
             }
-        )           
+        )
+
+    }
+    cctvdeal(contLength,userVal,contents,endPage,callback){
+        let dataJson = {}
+        for(let i=0;i<contLength;i++){
+            if(userVal == contents[i].content.replace(/\s/g,'')){
+                dataJson.p      = 30;
+                dataJson.id     = contents[i].pid;
+                dataJson.name   = contents[i].uname;
+                console.log("评论内容："+contents[i].content);
+                console.log("评论用户Id："+contents[i].pid);
+                console.log("评论用户昵称："+contents[i].uname);
+                endPage = true;
+                callback(null,dataJson);
+                break;
+            }else{
+                endPage = false;
+            }
+        }
+        return endPage;
     }
     xinlan( verifyData, callback ){
         let htmlUrl    = verifyData.remote,
@@ -2326,7 +2359,6 @@ class DealWith {
             }
         )
     }
-    
     xinlandeal(contLength,userVal,contents,endPage,callback){
         let dataJson = {}
         for(let i=0;i<contLength;i++){
@@ -2346,89 +2378,78 @@ class DealWith {
         }       
         return endPage;
     }
-    cctv( verifyData, callback ){
+    v1( verifyData, callback ){
         let htmlUrl    = verifyData.remote,
             userVal    = verifyData.verifyCode.replace(/\s/g,""),
             host       = URL.parse(htmlUrl,true).hostname,
             path       = URL.parse(htmlUrl,true).pathname,
-            index      = path.indexOf('.html'),
-            vid        = path.substring(3,index),
-            option     = {
-                url : htmlUrl
-            },
-            page       = 1,
+            vid        = path.match(/\d*\./).toString().replace('.',''),
+            option     = {},
+            page       = 0,
             contLength = '',
             contents   = '',
             endPage    = null,
-            total      = 2,
-            sign       = 1
+            total      = 2
         async.whilst(
             () => {
-                return sign < total
+                return page <= total
             },
             (cb) => {
-                option.url='http://bbs.cntv.cn/api/?module=post&method=getchannelposts&varname=jsonp&channel=xiyou&itemid=video_'+vid+'&page='+page+'&perpage=10&_='+ new Date().getTime()
+                option.url = 'http://dynamic.app.m.v1.cn/www/dynamic.php?mod=mob&ctl=videoComment&act=get&vid='+vid+'&p='+page+'&pcode=010210000&version=4.5.4'
                 request.get( logger, option, (err,result) => {
                     if(err){
                         logger.error('occur error: ',err)
-                        return callback(err,{code:102,p:30})
+                        return callback(err,{code:102,p:33})
                     }
-                    
+
                     try{
                         result = result.body.replace('var jsonp = ','').replace(';','')
                         result = JSON.parse(result)
                     }catch(e){
                         logger.debug('CCTV数据解析失败')
-                        return callback(e,{code:102,p:30})
+                        return callback(e,{code:102,p:33})
                     }
-                    contents    = result.content
-                    contLength  = contents.length
-                    total       = result.total
-                    if(total % 10 == 0){
-                        total = total/10
+                    total = result.body.total
+                    if (total % 20 == 0) {
+                        total = total/20
                     }else{
-                        total = Math.ceil(total/10)
+                        total = Math.ceil(total/20)
                     }
-                    
-                    endPage = this.cctvdeal(contLength,userVal,contents,endPage,callback)
-                    if(endPage){
-                        sign = total
-                        return cb()
-                    }
-                    if (page == total) {
-                        sign = total
-                        return cb()
-                    }
+                    contents = result.body.Comments_list
+                    contLength = contents.length
+                    endPage = this.v1deal(contLength,userVal,contents,endPage,callback)
                     page++
+                    if(endPage){
+                        page = total+1
+                    }
                     cb()
                 })
             },
-            (err,result) => {
+            (err, result) => {
                 if(!endPage){
-                    callback(err,{code:105,p:30})
+                    return callback(err,{code:105,p:33})
                 }
             }
         )
-        
+
     }
-    
-    cctvdeal(contLength,userVal,contents,endPage,callback){
+    v1deal( contLength, userVal, contents, endPage, callback ){
         let dataJson = {}
         for(let i=0;i<contLength;i++){
-            if(userVal == contents[i].content.replace(/\s/g,'')){
-                dataJson.p      = 30;
-                dataJson.id     = contents[i].pid;
-                dataJson.name   = contents[i].uname;
-                console.log("评论内容："+contents[i].content);
-                console.log("评论用户Id："+contents[i].pid);
-                console.log("评论用户昵称："+contents[i].uname);
+            if(userVal == contents[i].comments.replace(/\s/g,'')){
+                dataJson.p      = 33;
+                dataJson.id     = contents[i].userId;
+                dataJson.name   = contents[i].nickname;
+                console.log("评论内容："+contents[i].comments);
+                console.log("评论用户Id："+contents[i].userId);
+                console.log("评论用户昵称："+contents[i].nickname);
                 endPage = true;
                 callback(null,dataJson);
                 break;
             }else{
                 endPage = false;
             }
-        }       
+        }
         return endPage;
     }
     huashu( verifyData, callback ){
@@ -2462,7 +2483,6 @@ class DealWith {
             })
         })
     }
-    
     getHuashuList( userVal, bid, callback ){
         let option   = {
                 url: 'http://clientapi.wasu.cn/AggPhone/vodinfo/id/'+bid
@@ -2563,80 +2583,7 @@ class DealWith {
         }       
         return endPage;
     }
-    v1( verifyData, callback ){
-        let htmlUrl    = verifyData.remote,
-            userVal    = verifyData.verifyCode.replace(/\s/g,""),
-            host       = URL.parse(htmlUrl,true).hostname,
-            path       = URL.parse(htmlUrl,true).pathname,
-            vid        = path.match(/\d*\./).toString().replace('.',''),
-            option     = {},
-            page       = 0,
-            contLength = '',
-            contents   = '',
-            endPage    = null,
-            total      = 2
-        async.whilst(
-            () => {
-                return page <= total
-            },
-            (cb) => {
-                option.url = 'http://dynamic.app.m.v1.cn/www/dynamic.php?mod=mob&ctl=videoComment&act=get&vid='+vid+'&p='+page+'&pcode=010210000&version=4.5.4'
-                request.get( logger, option, (err,result) => {
-                    if(err){
-                        logger.error('occur error: ',err)
-                        return callback(err,{code:102,p:33})
-                    }
-                    
-                    try{
-                        result = result.body.replace('var jsonp = ','').replace(';','')
-                        result = JSON.parse(result)
-                    }catch(e){
-                        logger.debug('CCTV数据解析失败')
-                        return callback(e,{code:102,p:33})
-                    }
-                    total = result.body.total
-                    if (total % 20 == 0) {
-                        total = total/20
-                    }else{
-                        total = Math.ceil(total/20)
-                    }
-                    contents = result.body.Comments_list
-                    contLength = contents.length
-                    endPage = this.v1deal(contLength,userVal,contents,endPage,callback)
-                    page++
-                    if(endPage){
-                        page = total+1
-                    }
-                    cb()
-                })
-            },
-            (err, result) => {
-                if(!endPage){
-                    return callback(err,{code:105,p:33})
-                }
-            }
-        )
-            
-    }
-    v1deal( contLength, userVal, contents, endPage, callback ){
-        let dataJson = {}
-        for(let i=0;i<contLength;i++){
-            if(userVal == contents[i].comments.replace(/\s/g,'')){
-                dataJson.p      = 33;
-                dataJson.id     = contents[i].userId;
-                dataJson.name   = contents[i].nickname;
-                console.log("评论内容："+contents[i].comments);
-                console.log("评论用户Id："+contents[i].userId);
-                console.log("评论用户昵称："+contents[i].nickname);
-                endPage = true;
-                callback(null,dataJson);
-                break;
-            }else{
-                endPage = false;
-            }
-        }       
-        return endPage;
-    }
+
     
     weibodeal(contLength,userVal,contents,endPage,callback){
         let dataJson = {}
@@ -2657,25 +2604,7 @@ class DealWith {
         }       
         return endPage;
     }
-    pptvdeal(contLength,userVal,contents,endPage,callback){
-        let dataJson = {}
-        for(let i=0;i<contLength;i++){
-            if(userVal == contents[i].content.replace(/\s/g,'')){
-                dataJson.p      = 31;
-                dataJson.id     = contents[i].id;
-                dataJson.name   = contents[i].user.nick_name;
-                console.log("评论内容："+contents[i].content);
-                console.log("评论用户Id："+contents[i].id);
-                console.log("评论用户昵称："+contents[i].user.nick_name);
-                endPage = true;
-                callback(null,dataJson);
-                break;
-            }else{
-                endPage = false;
-            }
-        }       
-        return endPage;
-    }
+
     mgdeal(contLength,userVal,contents,endPage,callback){
         let dataJson = {}
         for(let i=0;i<contLength;i++){
@@ -2932,6 +2861,25 @@ class DealWith {
                 endPage = false;
             }
             
+        }
+        return endPage;
+    }
+    pptvdeal(contLength,userVal,contents,endPage,callback){
+        let dataJson = {}
+        for(let i=0;i<contLength;i++){
+            if(userVal == contents[i].content.replace(/\s/g,'')){
+                dataJson.p      = 31;
+                dataJson.id     = contents[i].id;
+                dataJson.name   = contents[i].user.nick_name;
+                console.log("评论内容："+contents[i].content);
+                console.log("评论用户Id："+contents[i].id);
+                console.log("评论用户昵称："+contents[i].user.nick_name);
+                endPage = true;
+                callback(null,dataJson);
+                break;
+            }else{
+                endPage = false;
+            }
         }
         return endPage;
     }

@@ -22,6 +22,13 @@ class dealWith {
             {
                 user: (callback) => {
                     this.getUser(task,(err)=>{
+                        if(err){
+                            return setTimeout(()=>{
+                                this.getUser(task,()=>{
+                                    return callback(null,"用户信息已返回")
+                                })
+                            }, 1000)
+                        }
                         callback(null,"用户信息已返回")
                     })
                 },
@@ -59,7 +66,10 @@ class dealWith {
         request(options,(err,res,body)=>{
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback()
+                return callback(err.message)
+            }
+            if(res.statusCode != 200){
+                return callback(res.statusCode)
             }
             body = eval(body)
             let userInfo = body.data,
@@ -160,7 +170,7 @@ class dealWith {
             if(!data){
                 logger.error('未知错误')
                 logger.error(body)
-                return callback(true)
+                return callback('code-012')
             }
             let total = data.total
             task.total = total
@@ -214,6 +224,10 @@ class dealWith {
                         return cb()
                     }
                     let videos = data.videos
+                    if(videos.length === 0){
+                        sign++
+                        return cb()
+                    }
                     this.info(task,videos, () => {
                         sign++
                         cb()
@@ -257,6 +271,9 @@ class dealWith {
                 return callback(e)
             }
             if(body.total == 0){
+                return callback()
+            }
+            if(!body.videos){
                 return callback()
             }
             this.deal( task, body.videos, list, () => {

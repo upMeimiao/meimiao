@@ -247,7 +247,7 @@ class dealWith {
                 step: result.data[0].downCount,
                 long_t: result.data[0].timeSpan,
                 v_img: result.data[0].imagePath,
-                play_num: result.data[0].playCount,
+                play_num: result.data[0].playCount.replace(/,/g,''),
                 save_num: result.data[0].favCount,
                 // v_url: 'http://xiyou.cctv.com/v-'+result.data[0].videoId+'.html',
                 a_create_time: moment(time).format('X')
