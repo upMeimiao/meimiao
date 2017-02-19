@@ -12,7 +12,7 @@
     "test": "node test/test.js"
   },
   "dependencies": {
-    "async": "^2.1.2",
+    "async": "^2.1.5",
     "basic-auth-connect": "^1.0.0",
     "body-parser": "^1.16.0",
     "cheerio": "^0.22.0",
@@ -37,7 +37,7 @@
     "redis": "^2.6.5",
     "request": "^2.79.0",
     "restc": "0.0.4",
-    "socket.io": "^1.7.2"
+    "socket.io": "^1.7.3"
   },
   "author": {
     "name": "Junhao",
