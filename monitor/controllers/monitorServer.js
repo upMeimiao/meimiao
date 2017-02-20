@@ -19,14 +19,6 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,
         }
     }
 })
-
-const urlStatusMonitor = () =>{
-    // setInterval(_getErrUrlInfo, 5000)
-    // setInterval(_getSuccUrlInfo, 5000)
-    setInterval(_getKeys, 5000)
-}
-
-
 // 平台 youku iqiyi le ...
 // ,"tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
 // ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
@@ -113,15 +105,19 @@ const _getKeys = () => {
 exports.start = () => {
     const failedRule = new schedule.RecurrenceRule()
     const inactiveRule = new schedule.RecurrenceRule()
+    const errReadRule = new schedule.RecurrenceRule()
     failedRule.minute = [15,45]
     inactiveRule.minute = [0,30]
+    errReadRule.second = [15,45]
     schedule.scheduleJob(failedRule, () =>{
         _failedTaskAlarm()
     })
     schedule.scheduleJob(inactiveRule, () =>{
         _inactiveTaskAlarm()
     })
-    urlStatusMonitor()
+    schedule.scheduleJob(errReadRule, () =>{
+        _getKeys()
+    })
 }
 const _inactiveTaskAlarm = () => {
     let i = 1,key,inactiveArr = []

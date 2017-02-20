@@ -48,10 +48,14 @@ class youkuDealWith {
             url: api.youku.user + task.encodeId
         }
         request(options,(err,res,body)=>{
-            //当err或者statusCode不为200
-            storaging.judgeRes (this.core,"youku",options.url,task.id,err,res,callback,"user")
-            //判断body内容
-            logger.debug("body=",body)
+            if(err){
+                storaging.errStoraging(this.core,"youku",options.url,task.id,err,"responseErr","user")
+                return callback(err)
+            }
+            if(res && res.statusCode != 200){
+                storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口状态码错误","responseErr","user")
+                return callback()
+            }
             try{
                 body = eval(body)
             }catch(e){
