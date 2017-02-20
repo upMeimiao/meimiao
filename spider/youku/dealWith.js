@@ -4,9 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( 'request' )
-const jsonp = function (data) {
-    return data
-}
+
 let logger
 
 class dealWith {
@@ -76,7 +74,7 @@ class dealWith {
             }catch (e){
                 return callback(e.message)
             }
-            let userInfo = body.data,
+            let userInfo = body.data.channelOwnerInfo,
                 user = {
                     platform: 1,
                     bid: task.id,
