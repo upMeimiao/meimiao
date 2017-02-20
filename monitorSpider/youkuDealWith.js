@@ -51,7 +51,14 @@ class youkuDealWith {
             //当err或者statusCode不为200
             storaging.judgeRes (this.core,"youku",options.url,task.id,err,res,callback,"user")
             //判断body内容
-            body = eval(body)
+            logger.debug("body=",body)
+            try{
+                body = eval(body)
+            }catch(e){
+                logger.info(body)
+                storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容格式错误","resultErr","user")
+                return
+            }
             if(!body){
                 logger.error('youku获取用户信息接口发生未知错误')
                 logger.debug('total error:',body)
