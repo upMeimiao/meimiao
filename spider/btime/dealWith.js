@@ -59,6 +59,9 @@ class dealWith {
                 logger.info('json error: ',result.body)
                 return callback(e)
             }
+            if(!result.data){
+                return callback(JSON.parse(result))
+            }
             let user = {
                 platform: 15,
                 bid: task.id,
