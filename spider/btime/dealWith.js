@@ -47,7 +47,10 @@ class dealWith {
         request.get( option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                return callback(err)
+                return callback(err.message)
+            }
+            if(result.statusCode != 200){
+                return callback(`200 ${result.body}`)
             }
             try{
                 result = JSON.parse(result.body)
@@ -55,6 +58,9 @@ class dealWith {
                 logger.error('json数据解析失败')
                 logger.info('json error: ',result.body)
                 return callback(e)
+            }
+            if(!result.data){
+                return callback(JSON.parse(result))
             }
             let user = {
                 platform: 15,
