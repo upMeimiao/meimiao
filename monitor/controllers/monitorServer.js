@@ -4,14 +4,11 @@ const request = require('request')
 const crypto = require('crypto')
 const platformMap = require('./platform')
 const emailServer = require('./emailServer')
+const emailServerLz = require('./emailServerLz')
 const monitorContronller = require('./monitorController')
 const Redis = require('ioredis')
 const logger = monitorContronller.logger
 const client = monitorContronller.monitorClint
-
-
-
-
 const moment = require('moment')
 const logging = require( 'log4js' )
 
@@ -32,9 +29,9 @@ const urlStatusMonitor = () =>{
 
 // 平台 youku iqiyi le ...
 // ,"tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
-                    // ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
-                    // ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
-                    // ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"
+// ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
+// ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
+// ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"
 const platformArr = ["youku","iqiyi","le"]
 // 接口描述 Expr list info total play total user Desc videos
 const urlDescArr = ["Expr","list","info","total","play","total","user","Desc","videos"]
@@ -70,43 +67,49 @@ const _getKeys = () => {
                     return
                 }
                 // 有result
-                // responseErr错误类型
+                // responseErr错误类型，一段时间内，无成功的记录
                 if(result[0]){
-
+                    let fstTime = new Date(result[0]["firstTime"]),
+                        lastTime = new Date(result[0]["lastTime"]),
+                        firstTimed = fstTime.getTime(),
+                        lastTimed = lastTime.getTime()
+                    if(!result[4] && (lastTimed-firstTimed >= 30*60*1000)){
+                        emailServerLz.sendAlarm(`${platformArr[i]}:${urlDescArr[j]}发生响应错误`,JSON.parse(result[0]))
+                    }
                 }
-                // resultErr错误类型
-                if(result[1]){
-                    
+                const judgeErr = (n) => {
+                    let fstTime = new Date(result[n]["firstTime"]),
+                        lastTime = new Date(result[n]["lastTime"]),
+                        firstTimed = fstTime.getTime(),
+                        lastTimed = lastTime.getTime(),
+                        errDescript
+                    if(1 == n){
+                        errDescript = "返回数据错误"
+                    } else if(2 == n){
+                        errDescript = "数据解析出错"
+                    } else if(3 == n){
+                        errDescript = "dom数据出错"
+                    }
+                    if(result[4] && result[n]["times"]/result[4] > 0.5 && (lastTimed-firstTimed >= 30*60*1000)){
+                        emailServerLz.sendAlarm(`${platformArr[i]}:${urlDescArr[j]}${errDescript}`,JSON.parse(result[n]))
+                    }
+                } 
+                // resultErr错误类型,一段时间内发生几率
+                if(result[1]){   
+                    judgeErr(1)
                 }
-                // doWithResErr错误类型 
+                // doWithResErr错误类型，一段时间内发生几率
                 if(result[2]){
-                    
+                    judgeErr(2)
                 }
-                // domBasedErr错误类型
+                // domBasedErr错误类型，一段时间内发生几率
                 if(result[3]){
-                    
+                    judgeErr(3)
                 }
             })
         }
     }
 }
-
-// 是否存储有错误 responseErr resultErr doWithResErr domBasedErr
-// 对比错误的lastTime和firstTime
-// 对比成功的次数及失败的次数
-// const _getErrUrlInfo = () => {
-//     mSpiderClient.hget("youku:info","responseErr",(err,result) => {
-//         logger.debug("~~~~~~~~~~~~~~~~~~",err,result)
-//     })
-// }
-
-// const _getSuccUrlInfo = () => {
-//     mSpiderClient.hget("youku:info","succTimes",(err,result) => {
-//         logger.debug("~~~~~~~~~~~~~~~~~~",err,result)
-//     })
-// }
-
-
 exports.start = () => {
     const failedRule = new schedule.RecurrenceRule()
     const inactiveRule = new schedule.RecurrenceRule()
