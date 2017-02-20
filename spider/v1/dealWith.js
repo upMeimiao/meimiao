@@ -1,14 +1,10 @@
 /**
  * Created by junhao on 16/6/21.
  */
-const URL = require('url')
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const EventProxy = require( 'eventproxy' )
 const request = require( '../lib/request' )
-const r = require('request')
-const md5 = require('js-md5')
 const jsonp = function(data){
     return data
 }
@@ -22,7 +18,6 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0
-        task.event = new EventProxy()
         async.parallel(
             {
                 user : (callback) => {
