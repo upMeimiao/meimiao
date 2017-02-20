@@ -7,7 +7,7 @@ const transporter= nodemailer.createTransport({
     service: 'QQex', // no need to set host or port etc.
     auth: {
         user: 'liuze@meimiao.net',
-        pass: 'Verona:2319446'
+        pass: 'Lz0004202215'
     }
 })
 exports.sendAlarm = (subject, content) => {
@@ -20,7 +20,7 @@ exports.sendAlarm = (subject, content) => {
     }
     transporter.sendMail(mailOptions, (error, info) => {
         if(error){
-            console.log("error in sending Email")
+            console.log("error in sending Email",error)
         }
     })
 }

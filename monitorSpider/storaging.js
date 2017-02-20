@@ -58,7 +58,8 @@ exports.succStorage = (core,platform,url,urlDesc) => {
     })
 }
 exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
-    let firstTime = moment().format('MMMM Do YYYY, h:mm:ss a')
+    let firstDate = new Date()
+        firstTime = firstDate.getTime()
         options = {
             platform: platform,
             url: url,
@@ -88,7 +89,8 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
         if(err||!result){
             pushCurErr(MSDB,options)
         }  else{
-            let lastTime = moment().format('MMMM Do YYYY, h:mm:ss a')
+            let lastDate = new Date()
+                lastTime = lastDate.getTime()
                 curErrTimes = JSON.parse(result).times
                 firstTime = JSON.parse(result).firstTime
                 curErrTimes++

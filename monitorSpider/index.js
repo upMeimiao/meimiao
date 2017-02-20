@@ -43,23 +43,6 @@ class spiderCore {
                     }
                 )
             }
-            // ,
-            // (callback) => {
-            //     myRedis.createClient(this.redis.host,
-            //         this.redis.port,
-            //         this.redis.errDb,
-            //         this.redis.auth,
-            //         ( err, cli ) => {
-            //             if(err){
-            //                 return callback(err)
-            //             }
-            //             this.errDb = cli
-            //             //用于存储接口错误
-            //             logger.debug( "错误存储数据库连接建立...成功" )
-            //             callback()
-            //         }
-            //     )
-            // }
         ],(err, results) => {
             if ( err ) {
                 logger.error( "连接redis数据库出错。错误信息：", err )
@@ -78,81 +61,89 @@ class spiderCore {
         
     }
     setTask () {
-        logger.trace('启动函数')
-        async.parallel(
-            {
-                youku:() => {
-                    this.scheduleTask(1,(err)=>{
-                        logger.debug(err)
-                    })
-                },
-                aiqiyi:() => {
-                    this.scheduleTask(2,(err)=>{
-                        logger.debug(err)
-                    })
-                },
-                le:() => {
-                    this.scheduleTask(3,(err)=>{
-                        logger.debug(err)
-                    })
-                }
+        let youku_rule = new schedule.RecurrenceRule(),
+            youku_work = {
+                "name":"youku","platform":1,"id":854459409,"bname":"一色神技能","encodeId":"UMzQxNzgzNzYzNg=="
             },
-            ( err, result ) => {
-                logger.debug(err,result)
+            iqiyi_rule = new schedule.RecurrenceRule(),
+            iqiyi_work = {
+                "name":"iqiyi","platform":2,"id":1036522467,"bname":"笑实验阿拉苏"
+            },
+            le_rule = new schedule.RecurrenceRule(),
+            le_work = {
+                "name":"le","platform":3,"id":115666268,"bname":"女神TV"
             }
-        )
+        youku_rule.second = [1]
+        iqiyi_rule.second = [2]
+        le_rule.second = [3]
+        schedule.scheduleJob(youku_rule,() => {
+            this.youkuDeal.youku(youku_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(iqiyi_rule,() => {
+            this.iqiyiDeal.iqiyi(iqiyi_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(le_rule,() => {
+            this.leDeal.le(le_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        logger.trace('启动函数')
     }
-    scheduleTask (platform) {
-        const rule = new schedule.RecurrenceRule();
-        switch(platform) {
-            case 1:
-                logger.debug(platform)
-                rule.second = [10]
-                break
-            case 2:
-                logger.debug(platform)
-                rule.second = [15]
-                break
-            case 3:
-                logger.debug(platform)
-                rule.second = [20]
-                break
-            default:
-                rule.second = [10,15,20]
-        }
-        const YOUKU = schedule.scheduleJob(rule, () =>{
-            this.youku()
-        })
-        const IQIYI = schedule.scheduleJob(rule, () =>{
-            this.iqiyi()
-        })
-        const LE = schedule.scheduleJob(rule, () =>{
-            this.le()
-        })
-    }
-    youku() {
-        let work = {
-            "name":"youku","platform":1,"id":854459409,"bname":"一色神技能","encodeId":"UMzQxNzgzNzYzNg=="
-        }
-        this.youkuDeal.youku(work,(err,result) => {
-            logger.debug(err,result)
-        })
-    }
-    iqiyi() {
-        let work = {
-            "name":"iqiyi","platform":2,"id":1036522467,"bname":"笑实验阿拉苏"
-        }
-        this.iqiyiDeal.iqiyi(work,(err,result) => {
-            logger.debug(err,result)
-        })
-    }
-    le() {
-        let work = {
-            "name":"le","platform":3,"id":115666268,"bname":"女神TV"
-        }
-        this.leDeal.le(work,(err,result) => {
-            logger.debug(err,result)
-        })
-    }
+    // scheduleTask (platform) {
+    //     const rule = new schedule.RecurrenceRule();
+    //     switch(platform) {
+    //         case 1:
+    //             logger.debug(platform)
+    //             rule.second = [10]
+    //             break
+    //         case 2:
+    //             logger.debug(platform)
+    //             rule.second = [15]
+    //             break
+    //         case 3:
+    //             logger.debug(platform)
+    //             rule.second = [20]
+    //             break
+    //         default:
+    //             rule.second = [10,15,20]
+    //     }
+    //     const YOUKU = schedule.scheduleJob(rule, () =>{
+    //         this.youku()
+    //     })
+    //     const IQIYI = schedule.scheduleJob(rule, () =>{
+    //         this.iqiyi()
+    //     })
+    //     const LE = schedule.scheduleJob(rule, () =>{
+    //         this.le()
+    //     })
+    // }
+    // youku() {
+    //     let work = {
+    //         "name":"youku","platform":1,"id":854459409,"bname":"一色神技能","encodeId":"UMzQxNzgzNzYzNg=="
+    //     }
+    //     this.youkuDeal.youku(work,(err,result) => {
+    //         logger.debug(err,result)
+    //     })
+    // }
+    // iqiyi() {
+    //     let work = {
+    //         "name":"iqiyi","platform":2,"id":1036522467,"bname":"笑实验阿拉苏"
+    //     }
+    //     this.iqiyiDeal.iqiyi(work,(err,result) => {
+    //         logger.debug(err,result)
+    //     })
+    // }
+    // le() {
+    //     let work = {
+    //         "name":"le","platform":3,"id":115666268,"bname":"女神TV"
+    //     }
+    //     this.leDeal.le(work,(err,result) => {
+    //         logger.debug(err,result)
+    //     })
+    // }
 }
 module.exports = spiderCore

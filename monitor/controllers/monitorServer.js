@@ -61,19 +61,15 @@ const _getKeys = () => {
                 // 有result
                 // responseErr错误类型，一段时间内，无成功的记录
                 if(result[0]){
-                    let fstTime = new Date(result[0]["firstTime"]),
-                        lastTime = new Date(result[0]["lastTime"]),
-                        firstTimed = fstTime.getTime(),
-                        lastTimed = lastTime.getTime()
-                    if(!result[4] && (lastTimed-firstTimed >= 30*60*1000)){
+                    let fstTime = result[0]["firstTime"],
+                        lastTime = result[0]["lastTime"]
+                    if(!result[4] && (lastTime - fstTime >= 30*60*1000)){
                         emailServerLz.sendAlarm(`${platformArr[i]}:${urlDescArr[j]}发生响应错误`,JSON.parse(result[0]))
                     }
                 }
                 const judgeErr = (n) => {
-                    let fstTime = new Date(result[n]["firstTime"]),
-                        lastTime = new Date(result[n]["lastTime"]),
-                        firstTimed = fstTime.getTime(),
-                        lastTimed = lastTime.getTime(),
+                    let fstTime = result[n]["firstTime"],
+                        lastTime = result[n]["lastTime"]
                         errDescript
                     if(1 == n){
                         errDescript = "返回数据错误"
@@ -82,7 +78,7 @@ const _getKeys = () => {
                     } else if(3 == n){
                         errDescript = "dom数据出错"
                     }
-                    if(result[4] && result[n]["times"]/result[4] > 0.5 && (lastTimed-firstTimed >= 30*60*1000)){
+                    if(result[4] && result[n]["times"]/result[4] > 0.5 && (lastTime - fstTime >= 30*60*1000)){
                         emailServerLz.sendAlarm(`${platformArr[i]}:${urlDescArr[j]}${errDescript}`,JSON.parse(result[n]))
                     }
                 } 
