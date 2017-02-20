@@ -134,7 +134,7 @@ class dealWith {
             }
             if( result.statusCode != 200){
                 logger.error('获取total code error：',result.statusCode)
-                return callback(error)
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
