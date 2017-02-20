@@ -156,8 +156,8 @@ class dealWith {
                     }
                     let list = result.data.data
                     if(list.length != 0){
-                        this.deal( task, list, () => {
-                            time = list[list.length-1].group.online_time
+                        this.deal(task, list, () => {
+                            time = list[list.length-1].group ? list[list.length-1].group.online_time : list[list.length-1].online_time
                             sign++
                             cb()
                         })
