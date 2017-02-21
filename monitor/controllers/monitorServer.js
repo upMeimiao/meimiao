@@ -26,7 +26,7 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64
 // ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"
 const platformArr = ["youku","iqiyi","le"]
 // 接口描述 Expr list info total play total user Desc videos
-const urlDescArr = ["Expr","list","info","total","play","total","user","Desc","videos"]
+const urlDescArr = ["Expr","list","info","total","play","total","user","Desc","videos","view","comment","commentNum","vidTag"]
 // 错误类型 responseErr resultErr doWithResErr domBasedErr
 // 表名 平台：接口描述
 // succTimes: 24
@@ -63,6 +63,7 @@ const _getKeys = () => {
                 if(result[0]){
                     let fstTime = result[0]["firstTime"],
                         lastTime = result[0]["lastTime"]
+                        logger.debug("时间间隔（毫秒）=",lastTime - fstTime)
                     if(!result[4] && (lastTime - fstTime >= 30*60*1000)){
                         emailServerLz.sendAlarm(`${platformArr[i]}:${urlDescArr[j]}发生响应错误`,JSON.parse(result[0]))
                     }
@@ -71,6 +72,7 @@ const _getKeys = () => {
                     let fstTime = result[n]["firstTime"],
                         lastTime = result[n]["lastTime"]
                         errDescript
+                        logger.debug("时间间隔（毫秒）=",lastTime - fstTime)
                     if(1 == n){
                         errDescript = "返回数据错误"
                     } else if(2 == n){

@@ -7,7 +7,7 @@ const request = require('request')
 const myRedis = require( '../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
-var schedule = require('node-schedule');
+const schedule = require('node-schedule');
 
 let logger,settings
 class spiderCore {
@@ -19,6 +19,7 @@ class spiderCore {
         this.youkuDeal = new (require('./youkuDealWith'))(this)
         this.iqiyiDeal = new (require('./iqiyiDealWith'))(this)
         this.leDeal = new (require('./leDealWith'))(this)
+        this.tencentDeal = new (require('./tencentDealWith'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
@@ -72,10 +73,16 @@ class spiderCore {
             le_rule = new schedule.RecurrenceRule(),
             le_work = {
                 "name":"le","platform":3,"id":115666268,"bname":"女神TV"
+            },
+            tencent_rule = new schedule.RecurrenceRule(),
+            tencent_work = {
+                "name":"tencent","platform":4,"id":"59d7fb0813b0bdf6d5b0b89a1ce27006","bname":"飞碟说"
             }
         youku_rule.second = [1]
         iqiyi_rule.second = [2]
         le_rule.second = [3]
+        tencent_rule.second = [4]
+
         schedule.scheduleJob(youku_rule,() => {
             this.youkuDeal.youku(youku_work,(err,result) => {
                 logger.debug(err,result)
@@ -88,6 +95,11 @@ class spiderCore {
         })
         schedule.scheduleJob(le_rule,() => {
             this.leDeal.le(le_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(tencent_rule,() => {
+            this.tencentDeal.tencent(tencent_work,(err,result) => {
                 logger.debug(err,result)
             })
         })

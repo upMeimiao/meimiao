@@ -50,6 +50,13 @@
   			"info":"http://v.stat.letv.com/vplay/getIdsInfo?type=vlist&ids=",
   			"time":"http://api.my.le.com/vcm/api/list?type=video&rows=20&page=1&sort=&source=1&xid=",
   			"desc": "http://d.api.m.le.com/apiplay/dynamicCard?type=introduction%2Crecommend&vid="
+		},
+		"tencent":{
+			"user": "http://c.v.qq.com/followcount?low_login=1&otype=json&callback=jsonp&euin=",
+			"videoList": "http://c.v.qq.com/vchannelinfo?otype=json&qm=1&sorttype=0&orderflag=0&callback=jsonp&low_login=1&num=25&uin=",
+			"commentId": "http://ncgi.video.qq.com/fcgi-bin/video_comment_id?op=1&otype=json&callback=jsonp&vid=",
+			"commentNum": "http://coral.qq.com/article/",
+			"view": "http://data.video.qq.com/fcgi-bin/data?tid=376&appid=10001007&appkey=e075742beb866145&callback=jsonp&low_login=1&otype=json&idlist="
 		}
 	}
 }

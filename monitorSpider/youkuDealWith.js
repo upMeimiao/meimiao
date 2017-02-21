@@ -163,7 +163,11 @@ class youkuDealWith {
                     //根据已存redis内容判断body内容是否正确
                     let videos = data.videos
                     for(let index in videos){
-                        this.core.MSDB.hget(`youku${videos[index].videoid}`,"play_num",(err,result)=>{
+                        this.core.MSDB.hget(`youku:${videos[index].videoid}`,"play_num",(err,result)=>{
+                            if(err){
+                                logger.debug("读取redis出错")
+                                return
+                            }
                             if(result > videos[index].total_vv){
                                 logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
                                 storaging.errStoraging(this.core,"youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"resultErr","videos")

@@ -64,7 +64,7 @@ class leDealWith {
                 return sign <= page
             },
             ( cb ) => {
-                logger.debug("开始获取第"+ sign +"页视频列表")
+                logger.debug("开始获取第"+ sign +"页le视频列表")
                 option.url = api.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=" + sign + "&_="+ (new Date()).getTime()
                 request.get( logger, option, (err,result) => {
                     if(err){
@@ -167,11 +167,13 @@ class leDealWith {
                     delete media.class
                 }
 
-                this.core.MSDB.hget(`${media.author}${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
                     if(err){
-                        if(result > media.play_num){
-                            storaging.errStoraging(this.core,'le',`${api.le.info}${media.aid}?callback=jsonp`,task.bid,`乐视视频${media.aid}播放量减少`,"resultErr","info")
-                        }
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        storaging.errStoraging(this.core,'le',`${api.le.info}${media.aid}?callback=jsonp`,task.bid,`乐视视频${media.aid}播放量减少`,"resultErr","info")
                     }
                 })
                 storaging.sendDb( this.core,media )

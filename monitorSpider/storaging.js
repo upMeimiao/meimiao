@@ -2,7 +2,8 @@ const moment = require("moment")
 const platformMap = {
     "1": "youku",
     "2": "iqiyi",
-    "3": "le"
+    "3": "le",
+    "4": "tencent"
 }
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复

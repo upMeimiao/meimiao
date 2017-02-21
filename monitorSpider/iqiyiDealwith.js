@@ -369,11 +369,13 @@ class iqiyiDeal {
                     class: result[0].type
                 }
                 this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
-                	if(err){
-                		if(result > media.play_num){
-                            storaging.errStoraging(this.core,'iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.bid,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
-                        }
-                	}
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                	if(result > media.play_num){
+                        storaging.errStoraging(this.core,'iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.bid,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
+                    }
                 })
 
                 if(media.comment_num < 0){
