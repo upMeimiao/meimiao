@@ -69,10 +69,10 @@ class spiderCore {
     test(){
         let work = {
             p:33,
-            name:'13699099145',
-            id:6046584
+            name:'2762414443@qq.com',
+            id:6046584,
+            encodeId: 6046601
         }
-        //logger.info( work )
         this.dealWith.todo(work, (err,total,uid) => {
             logger.debug(total)
             logger.debug(uid)
