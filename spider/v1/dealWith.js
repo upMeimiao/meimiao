@@ -73,7 +73,7 @@ class dealWith {
                 fans_num: result.obj.fansCount
             }
             task.total = result.obj.videoCount
-            //logger.debug(user)
+            //logger.debug(task.total)
             /*this.sendUser(user, () => {
                 callback()
             })*/

@@ -102,6 +102,11 @@ class dealWith {
                     this.getDesc( task.id, index, (err, result) => {
                         cb(null,result)
                     })
+                },
+                (cb) => {
+                    this.getComment( video.vid, (err, result) => {
+                        cb(null,result)
+                    })
                 }
             ],
             (err,result) => {
@@ -117,9 +122,10 @@ class dealWith {
                     step: result[0].d,
                     desc: result[1].desc.substr(0,100).replace(/"/g,''),
                     type: result[1].types,
-                    v_url: 'http://www.baofeng.com/play/'+ task.bid +'/play-'+ task.id +'-drama-'+ video.location +'.html'
+                    v_url: 'http://www.baofeng.com/play/'+ task.bid +'/play-'+ task.id +'-drama-'+ video.location +'.html',
+                    comment_num: result[2]
                 }
-                logger.info(media)
+                //logger.info(media.comment_num)
                 this.sendCache(media)
                 callback()
             }
@@ -161,6 +167,24 @@ class dealWith {
                 return callback(null,{u:'',d:''})
             }
             callback(null,result.data)
+        })
+    }
+    getComment( vid, callback ){
+        let option = {
+            url: 'http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&xid='+ vid +'&page=1&pagesize=6'
+        }
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('暴风评论量请求错误')
+                return callback(null,'0')
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                logger.debug('评论量解析失败')
+                return callback(null,'1')
+            }
+            return callback(null,result.total)
         })
     }
     sendCache (media){

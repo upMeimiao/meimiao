@@ -69,8 +69,8 @@ class spiderCore {
     test(){
         let work = {
             p:35,
-            name:'陈翔六点半',
-            id:63201
+            name:'二更视频',
+            id:40235
         }
         //logger.info( work )
         this.dealWith.todo(work, (err,total,uid) => {

@@ -4,9 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( 'request' )
-const jsonp = function (data) {
-    return data
-}
+
 let logger
 
 class dealWith {
@@ -61,7 +59,7 @@ class dealWith {
     getUser ( task, callback) {
         let options = {
             method: 'GET',
-            url: this.settings.user + task.encodeId
+            url: 'https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid=' + task.encodeId
         }
         request(options,(err,res,body)=>{
             if(err){
@@ -71,13 +69,18 @@ class dealWith {
             if(res.statusCode != 200){
                 return callback(res.statusCode)
             }
-            body = eval(body)
-            let userInfo = body.data,
+            try {
+                body = JSON.parse(body)
+            }catch (e){
+                return callback(e.message)
+            }
+            let userInfo = body.data.channelOwnerInfo,
                 user = {
                     platform: 1,
                     bid: task.id,
-                    fans_num: userInfo.sumCount
+                    fans_num: userInfo.followerNum
                 }
+                logger.debug(user)
             this.sendUser ( user,(err,result) => {
                 callback()
             })

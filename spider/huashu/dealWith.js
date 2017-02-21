@@ -150,6 +150,7 @@ class dealWith {
                         comment_num: result[1]
                     }
                 }
+                //logger.debug(media.title + '---' + media.play_num)
                 this.sendCache(media)
                 callback()
             }

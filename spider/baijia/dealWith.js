@@ -105,6 +105,7 @@ class dealWith {
                     platform: task.p,
                     fans_num: dataJson.app.fans_cnt
                 }
+                logger.info(user)
                 this.sendStagingUser(user)
                 callback()
             })
@@ -249,10 +250,11 @@ class dealWith {
                 a_create_time: moment(time).format('X'),
                 play_num: result[0].playNum
             }
-            if(!media.play_num){
+            if(!media.play_num && media.play_num !== 0){
                 return callback()
             }
             task.total++
+            logger.debug(media.title+'---'+task.total)
             this.sendCache(media)
             callback()
             
@@ -265,7 +267,6 @@ class dealWith {
         }else{
             option.url = url
         }
-        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ', err)
@@ -279,17 +280,10 @@ class dealWith {
             if($('div.item p').eq(0).text() == '视频已失效，请观看其他视频'){
                 return callback(null,{long_t:'',playNum:null})
             }
-            if (!$('script')[11].children) {
-                return callback(null,{long_t:'',playNum:null})
-            }
-            if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
-                return callback(null,{long_t:'',playNum:null})
-            }
-            logger.debug('---')
-            let script = $('script')[11].children[0] == undefined ? $('script')[12].children[0].data.replace(/[\s\n\r]/g,'') : $('script')[11].children[0].data.replace(/[\s\n\r]/g,''),
-                startIndex = script.indexOf('videoData={"id'),
-                endIndex = script.indexOf(';window.listInitData'),
-                dataJson = script.substring(startIndex+10,endIndex)
+            let dataJson = result.body.replace(/[\s\n\r]/g,''),
+                startIndex = dataJson.indexOf('videoData={"id') == -1 ? dataJson.indexOf('={tplData:{') : dataJson.indexOf('videoData={"id'),
+                endIndex = dataJson.indexOf(';window.listInitData') == -1 ? dataJson.indexOf(',userInfo:') : dataJson.indexOf(';window.listInitData')
+                dataJson = dataJson.substring(startIndex+10,endIndex)
             try{
                 dataJson = JSON.parse(dataJson)
             }catch(e){
@@ -297,14 +291,26 @@ class dealWith {
                 logger.info(dataJson)
                 return callback(null,{long_t:'',a_create_time:'',playNum:''})
             }
+            let time = dataJson.video ? dataJson.video.time_length : 'json' + dataJson.article.content
             let res = {
-                long_t: this.getVidTime(dataJson.video.time_length),
-                playNum: dataJson.video.playcnt
+                long_t: this.getVidTime(time),
+                playNum: dataJson.video ? dataJson.video.playcnt : dataJson.article.read_amount
             } 
             callback(null,res)
         })
     }
     getVidTime( time ){
+        let json = time.substring(0,4)
+        if(json == 'json'){
+            time = time.replace(/json\[/,'').replace(/\]/,'')
+            try{
+                time = JSON.parse(time)
+            }catch(e){
+                logger.debug('视频时长解析失败')
+                logger.info(time)
+            }
+            return time.long
+        }
         let timeArr = time.split(':'),
             long_t  = '';
         if(timeArr.length == 2){
@@ -320,7 +326,7 @@ class dealWith {
                 logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            //logger.debug(`百家号 ${media.aid} 加入缓存队列`)
+            logger.debug(`百家号 ${media.aid} 加入缓存队列`)
         } )
     }
 }
