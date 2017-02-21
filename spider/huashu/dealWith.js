@@ -193,6 +193,7 @@ class dealWith {
         })
     }
     sendCache (media,callback){
+        logger.info(media)
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
