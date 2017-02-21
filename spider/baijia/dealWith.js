@@ -250,11 +250,11 @@ class dealWith {
                 a_create_time: moment(time).format('X'),
                 play_num: result[0].playNum
             }
-            if(!media.play_num){
+            if(!media.play_num && media.play_num !== 0){
                 return callback()
             }
             task.total++
-            //logger.debug(media.title+'---'+task.total)
+            logger.debug(media.title+'---'+task.total)
             this.sendCache(media)
             callback()
             
@@ -267,7 +267,6 @@ class dealWith {
         }else{
             option.url = url
         }
-        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ', err)
