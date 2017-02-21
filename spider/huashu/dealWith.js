@@ -189,7 +189,7 @@ class dealWith {
                 logger.debug('评论数解析失败')
                 return callback(e)
             }
-            callback(null,result)
+            callback(null,result.cmt_sum)
         })
     }
     sendCache (media,callback){
