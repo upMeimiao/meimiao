@@ -60,7 +60,7 @@ class dealWith {
                 return callback(e)
             }
             if(!result.data){
-                return callback(JSON.parse(result))
+                return callback(JSON.stringify(result))
             }
             let user = {
                 platform: 15,
