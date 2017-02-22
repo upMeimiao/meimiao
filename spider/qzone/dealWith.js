@@ -29,7 +29,7 @@ class dealWith {
                 (cb) => {
                     this.getVidList( task, ( err ) => {
                         if(err){
-                            cb( err )
+                            return cb( err )
                         }
                         logger.debug('用户视频数据请求完成')
                         cb( null )

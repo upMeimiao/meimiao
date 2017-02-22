@@ -189,10 +189,11 @@ class dealWith {
                 logger.debug('评论数解析失败')
                 return callback(e)
             }
-            callback(null,result)
+            callback(null,result.cmt_sum)
         })
     }
     sendCache (media,callback){
+        logger.info(media)
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )

@@ -19,7 +19,7 @@ class dealWith {
             user: (callback) => {
                 this.getUser(task , task.id, (err) => {
                     if(err){
-                        return callback(err)
+                        return callback(null,'用户信息获取失败')
                     }
                     callback(null,'用户信息已返回')
                 })
