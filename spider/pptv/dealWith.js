@@ -33,13 +33,14 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '接口请求错误 : ', err )
+                return callback(err.message)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
                 logger.info(result)
-                return
+                return callback(e.message)
             }
             let length = result.data.list.length
             task.total = result.data.total
