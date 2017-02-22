@@ -22,16 +22,13 @@ class iqiyiDeal {
         async.parallel(
             {
                 user: (callback) => {
-                    this.getUser(task,(err)=>{
-                        callback(null,"用户信息已返回")
+                    this.getUser(task,(err,result)=>{
+                        logger.debug(err,result)
                     })
                 },
                 media: (callback) => {
-                    this.getTotal(task,(err)=>{
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,"视频信息已返回")
+                    this.getTotal(task,(err,result)=>{
+                        logger.debug(err,result)
                     })
                 }
             },
@@ -51,13 +48,18 @@ class iqiyiDeal {
             ua: 2
         }
         request.get( logger, option, ( err, result ) => {
-            if(err){
-				storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","user")
-				return
-            }
-            if(!result || !result.body){
-            	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取用户信息接口无返回数据","resultErr","user")
-            	return
+    //         if(err){
+				// storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","user")
+				// return
+    //         }
+    //         if(!result || !result.body){
+    //         	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取用户信息接口无返回数据","resultErr","user")
+    //         	return
+    //         }
+
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"user")
+            if(!result){
+                return 
             }
             const $ = cheerio.load(result.body),
                 fansDom = $('span.c-num-fans')
@@ -82,11 +84,18 @@ class iqiyiDeal {
             ua: 2
         }
         request.get( logger, option, ( err, result ) => {
-            if(err){
-				storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","_user")
-            }
-            if(!result.body){
-            	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取粉丝接口无返回数据","resultErr","_user")
+    //         if(err){
+				// storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","_user")
+    //             return
+    //         }
+    //         if(!result.body){
+    //         	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取粉丝接口无返回数据","resultErr","_user")
+    //             return
+    //         }
+
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"_user")
+            if(!result){
+                return 
             }
             let $ = cheerio.load(result.body),
                 fansDom = $('h3.tle').text(),
@@ -106,12 +115,16 @@ class iqiyiDeal {
             referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
         }
         request.get(logger, option, (err,result) => {
-            if(err){
-				storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","total")
-                return
+    //         if(err){
+				// storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","total")
+    //             return
+    //         }
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"total")
+            if(!result){
+                return 
             }
             try {
-                result = JSON.parse(result.body)
+                result = JSON.parse(result?result.body:null)
             } catch (e) {
                 logger.error('json数据解析失败')
                 storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取全部视频接口json数据解析失败","doWithResErr","total")
@@ -150,6 +163,7 @@ class iqiyiDeal {
                     }
                     if(!result.body){
                     	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频单页列表接口无返回数据","resultErr","listN")
+                        return
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true

@@ -20,6 +20,12 @@ class spiderCore {
         this.iqiyiDeal = new (require('./iqiyiDealWith'))(this)
         this.leDeal = new (require('./leDealWith'))(this)
         this.tencentDeal = new (require('./tencentDealWith'))(this)
+        this.meipaiDeal = new (require('./meipaiDealWith'))(this)
+        //this.toutiaoDeal = new (require('./toutiaoDealWith'))(this)
+        this.miaopaiDeal = new (require('./miaopaiDealWith'))(this)
+        this.biliDeal = new (require('./biliDealWith'))(this)
+        this.souhuDeal = new (require('./souhuDealWith'))(this)
+        this.kuaibaoDeal = new (require('./kuaibaoDealWith'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
@@ -77,11 +83,42 @@ class spiderCore {
             tencent_rule = new schedule.RecurrenceRule(),
             tencent_work = {
                 "name":"tencent","platform":4,"id":"59d7fb0813b0bdf6d5b0b89a1ce27006","bname":"飞碟说"
+            },
+            meipai_rule = new schedule.RecurrenceRule(),
+            meipai_work = {
+                "name":"meipai","platform":5,"id":1000001181,"bname":"暴走漫画"
+            },
+            // toutiao_rule = new schedule.RecurrenceRule(),
+            // toutiao_work = {
+            //     "name":"toutiao","platform":6,"id":3164006864,"bname":"V电影"
+            // }
+            miaopai_rule = new schedule.RecurrenceRule(),
+            miaopai_work = {
+                "name":"miaopai","platform":7,"id":"-fbM2XIO6WEsMCR-","bname":"DS女老诗"
+            },
+            bili_rule = new schedule.RecurrenceRule(),
+            bili_work = {
+                "name":"bili","platform":8,"id":11058749,"bname":"一风之音"
+            },
+            souhu_rule = new schedule.RecurrenceRule(),
+            souhu_work = {
+                "name":"souhu","platform":9,"id":12303675,"bname":"起小点"
+            },
+            kuaibao_rule = new schedule.RecurrenceRule(),
+            kuaibao_work = {
+                "name":"kuaibao","platform":10,"id":5005354,"bname":"微在涨姿势"
             }
-        youku_rule.second = [1]
-        iqiyi_rule.second = [2]
-        le_rule.second = [3]
-        tencent_rule.second = [4]
+
+        youku_rule.second = [1,31,51]
+        iqiyi_rule.second = [2,32,52]
+        le_rule.second = [3,33,53]
+        tencent_rule.second = [4,34,53]
+        meipai_rule.second = [5,35,55]
+        // toutiao_rule.second = [6,36,56]
+        miaopai_rule.second = [7,37,57]
+        bili_rule.second = [8,38,58]
+        souhu_rule.second = [9,39,59]
+        kuaibao_rule.second = [0,10,40]
 
         schedule.scheduleJob(youku_rule,() => {
             this.youkuDeal.youku(youku_work,(err,result) => {
@@ -103,59 +140,37 @@ class spiderCore {
                 logger.debug(err,result)
             })
         })
+        schedule.scheduleJob(meipai_rule,() => {
+            this.meipaiDeal.meipai(meipai_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        // schedule.scheduleJob(toutiao_rule,() => {
+        //     this.toutiao_ruleDeal.toutiao(toutiao_rule_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
+        schedule.scheduleJob(miaopai_rule,() => {
+            this.miaopaiDeal.miaopai(miaopai_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(bili_rule,() => {
+            this.biliDeal.bili(bili_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(souhu_rule,() => {
+            this.souhuDeal.souhu(souhu_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(kuaibao_rule,() => {
+            this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
         logger.trace('启动函数')
     }
-    // scheduleTask (platform) {
-    //     const rule = new schedule.RecurrenceRule();
-    //     switch(platform) {
-    //         case 1:
-    //             logger.debug(platform)
-    //             rule.second = [10]
-    //             break
-    //         case 2:
-    //             logger.debug(platform)
-    //             rule.second = [15]
-    //             break
-    //         case 3:
-    //             logger.debug(platform)
-    //             rule.second = [20]
-    //             break
-    //         default:
-    //             rule.second = [10,15,20]
-    //     }
-    //     const YOUKU = schedule.scheduleJob(rule, () =>{
-    //         this.youku()
-    //     })
-    //     const IQIYI = schedule.scheduleJob(rule, () =>{
-    //         this.iqiyi()
-    //     })
-    //     const LE = schedule.scheduleJob(rule, () =>{
-    //         this.le()
-    //     })
-    // }
-    // youku() {
-    //     let work = {
-    //         "name":"youku","platform":1,"id":854459409,"bname":"一色神技能","encodeId":"UMzQxNzgzNzYzNg=="
-    //     }
-    //     this.youkuDeal.youku(work,(err,result) => {
-    //         logger.debug(err,result)
-    //     })
-    // }
-    // iqiyi() {
-    //     let work = {
-    //         "name":"iqiyi","platform":2,"id":1036522467,"bname":"笑实验阿拉苏"
-    //     }
-    //     this.iqiyiDeal.iqiyi(work,(err,result) => {
-    //         logger.debug(err,result)
-    //     })
-    // }
-    // le() {
-    //     let work = {
-    //         "name":"le","platform":3,"id":115666268,"bname":"女神TV"
-    //     }
-    //     this.leDeal.le(work,(err,result) => {
-    //         logger.debug(err,result)
-    //     })
-    // }
 }
 module.exports = spiderCore

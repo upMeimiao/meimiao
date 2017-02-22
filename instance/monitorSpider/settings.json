@@ -1,7 +1,7 @@
 {
 	"redis":{
 	    "port": 6379,
-	    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
+	    "host": "127.0.0.1",
 	    "auth": "C19prsPjHs52CHoA0vm",
 	    "userDB": 0,
 	    "taskDB": 1,
@@ -57,6 +57,47 @@
 			"commentId": "http://ncgi.video.qq.com/fcgi-bin/video_comment_id?op=1&otype=json&callback=jsonp&vid=",
 			"commentNum": "http://coral.qq.com/article/",
 			"view": "http://data.video.qq.com/fcgi-bin/data?tid=376&appid=10001007&appkey=e075742beb866145&callback=jsonp&low_login=1&otype=json&idlist="
+		},
+		"meipai":{
+			"userInfo": "https://newapi.meipai.com/users/show.json?id=",
+  			"mediaList": "https://newapi.meipai.com/medias/user_timeline.json?uid=",
+  			"media": "https://newapi.meipai.com/medias/show.json?id="
+		},
+		"toutiao": {
+	      "user": "http://is.snssdk.com/user/followed/?version_code=5.9.5&app_name=news_article&openudid=2142f5f6a7d2e38576de8383f79ba12ebc56e1c8&live_sdk_version=1.6.5&count=50&offset=0&user_id=",
+	      "newList": "/pgc/ma/?page_type=0&output=json&is_json=1&count=10&version=2&media_id=",
+	      "list": "http://toutiao.com/ma_mobile/?page_type=0&count=10&version=2&media_id=",
+	      "info_old": "http://is.snssdk.com/2/article/information/v14/?aggr_type=2&group_id=",
+	      "info": "http://a3.pstatp.com/article/full/12/2/",
+	      "contentUrl_old": "https://mp.toutiao.com/statistic/content_article_stat/?"
+	    },
+		"miaopai":{
+			"api": "http://api.miaopai.com/m/shot_channel.json?version=6.3.7&os=ios&page="
+		},
+		"bili":{
+			"userInfo": "http://space.bilibili.com/ajax/member/GetInfo",
+  			"mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
+  			"media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid="
+		},
+		"souhu":{
+			"concurrency": 9,
+			"key": "f351515304020cad28c92f70f002261c",
+			"newUser": "http://api.tv.sohu.com/v4/user/info/",
+			"userInfo":"http://my.tv.sohu.com/user/media/mobile/userinfo.do?api_key=",
+			"newList": "http://api.tv.sohu.com/v4/user/videolist.json?api_key=f351515304020cad28c92f70f002261c&plat=3&sver=6.1&page_size=20&sort_type=2&user_id=",
+			"videoList":"http://api.tv.sohu.com/v4/user/video.json?page_size=20&with_fee_video=2&page=",
+			"videoInfo": "http://s1.api.tv.itc.cn/v4/video/info/",
+			"digg":"http://score.my.tv.sohu.com/digg/get.do?type=9001&callback=jsonp&vid=",
+			"comment":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=&page_size=1&topic_source_id=bk"
+		},
+		"kuaibao":{
+			"user": "http://r.cnews.qq.com/getSubItem?chlid=",
+			"news": "http://r.cnews.qq.com/getSubNewsIndex",
+			"video": "http://r.cnews.qq.com/getVideoNewsIndex",
+			"list": "http://r.cnews.qq.com/getSubNewsListItems",
+			"comment": "http://r.cnews.qq.com/getQQNewsComment",
+			"expr": "http://w.cnews.qq.com/getArticleExprList?appver=9.3.2_qnreading_2.1.1",
+			"play": "http://r.cnews.qq.com/getSubNewsContent?appver=9.3.2_qnreading_2.1.1"
 		}
 	}
 }

@@ -45,23 +45,23 @@ class youkuDealWith {
     youkuGetUser ( task, callback) {
         let options = {
             method: 'GET',
-            url: api.youku.user + task.encodeId
+            url: 'https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid=' + task.encodeId
         }
         request(options,(err,res,body)=>{
             if(err){
                 storaging.errStoraging(this.core,"youku",options.url,task.id,err,"responseErr","user")
-                return callback(err)
+                return callback(err.message)
             }
             if(res && res.statusCode != 200){
                 storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口状态码错误","responseErr","user")
-                return callback()
+                return callback(res.statusCode)
             }
             try{
-                body = eval(body)
+                body = JSON.parse(body)
             }catch(e){
                 logger.info(body)
                 storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容格式错误","resultErr","user")
-                return
+                return callback(e.message)
             }
             if(!body){
                 logger.error('youku获取用户信息接口发生未知错误')
@@ -69,12 +69,13 @@ class youkuDealWith {
                 storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
                 return callback()
             }
-            let userInfo = body.data,
-                fans_num = userInfo.sumCount
-            if(!userInfo || !fans_num){
-                storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
-                return callback()
-            }
+            let userInfo = body.data.channelOwnerInfo,
+                user = {
+                    platform: 1,
+                    bid: task.id,
+                    fans_num: userInfo.followerNum
+                }
+            logger.debug(user)
             storaging.succStorage(this.core,"youku",options.url,"user")
         })
     }
@@ -91,6 +92,9 @@ class youkuDealWith {
             }
         request(options, (error, response, body) => {
             storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,callback,"total")
+            if(!(body||response)){
+                return 
+            }
             try {
                 body = JSON.parse(body)
             } catch (e) {
@@ -202,6 +206,9 @@ class youkuDealWith {
         }
         request( options, ( error, response, body ) => {
             storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,callback,"info")
+            if(!(body||response)){
+                return 
+            }
             try{
                 body = JSON.parse(body)
             } catch (e) {
@@ -210,7 +217,7 @@ class youkuDealWith {
                 logger.debug('info error:',body)
                 return callback(e)
             }
-            if(body.total == 0){
+            if(body && body.total == 0){
                 return callback()
             }
             //根据已存redis内容判断body内容是否正确,正确则存入数据库，错误则记录错误

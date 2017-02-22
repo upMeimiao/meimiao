@@ -3,7 +3,13 @@ const platformMap = {
     "1": "youku",
     "2": "iqiyi",
     "3": "le",
-    "4": "tencent"
+    "4": "tencent",
+    "5": "meipai",
+    //"6": "toutiao",
+    "7": "miaopai",
+    "8": "bili",
+    "9": "souhu",
+    "10": "kuaibao"
 }
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
@@ -12,9 +18,13 @@ exports.judgeRes = (core,platform,url,bid,err,res,callback,urlDesc) => {
         this.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
         return callback(err)
     }
+    if(!res){
+        storaging.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
+        return callback()
+    }
     if(res && res.statusCode != 200){
         this.errStoraging(core,platform,url,bid,res.errDesc,"responseErr",urlDesc)
-        return callback()
+        return callback(true)
     }
 }
 exports.sendDb = (core,media) => {

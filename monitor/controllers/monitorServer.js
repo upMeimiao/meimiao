@@ -12,7 +12,7 @@ const client = monitorContronller.monitorClint
 const moment = require('moment')
 const logging = require( 'log4js' )
 
-const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
+const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -24,9 +24,9 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64
 // ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
 // ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
 // ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"
-const platformArr = ["youku","iqiyi","le"]
-// 接口描述 Expr list info total play total user Desc videos
-const urlDescArr = ["Expr","list","info","total","play","total","user","Desc","videos","view","comment","commentNum","vidTag"]
+const platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"]
+// 接口描述
+const urlDescArr = ["Expr","list","info","total","play","total","user","_user","Desc","videos","view","comment","commentNum","vidTag","digg","field"]
 // 错误类型 responseErr resultErr doWithResErr domBasedErr
 // 表名 平台：接口描述
 // succTimes: 24
@@ -42,6 +42,24 @@ const urlDescArr = ["Expr","list","info","total","play","total","user","Desc","v
 //     "times": 2,
 //     "lastTime": ""
 // }
+ const judgeIsErr = (result,n) => {
+    let results = JSON.parse(result[n]),
+        fstTime = results["firstTime"],
+        lastTime = results["lastTime"],
+        errDesc = results["errDesc"],
+        errDescript
+        logger.debug("时间间隔（毫秒）=",lastTime - fstTime)
+    if(1 == n){
+        errDescript = "返回数据错误"
+    } else if(2 == n){
+        errDescript = "数据解析出错"
+    } else if(3 == n){
+        errDescript = "dom数据出错"
+    }
+    if(result[4] && results["times"]/(+result[4]) > 0.5 && (Number(lastTime) - Number(fstTime) >= 5*60*60*1000)){
+        emailServerLz.sendAlarm(`${errDesc}${errDescript}`,result[n])
+    }
+} 
 const _getKeys = () => {
     let keys,i,j,keyName
     for(i = 0; i < platformArr.length; i++){
@@ -49,7 +67,6 @@ const _getKeys = () => {
             keys = `${platformArr[i]}:${urlDescArr[j]}`
             logger.debug("~~~~~~~~~~~~~~~~~~keys=",keys)
             mSpiderClient.hmget(keys,"responseErr","resultErr","doWithResErr","domBasedErr","succTimes",(err,result) => {
-                logger.debug("~~~~~~~~~~~~~~~~~~","err=",err,"result=",result)
                 if(err){
                     logger.debug("读取redis发生错误")
                     return
@@ -61,40 +78,30 @@ const _getKeys = () => {
                 // 有result
                 // responseErr错误类型，一段时间内，无成功的记录
                 if(result[0]){
-                    let fstTime = result[0]["firstTime"],
-                        lastTime = result[0]["lastTime"]
-                        logger.debug("时间间隔（毫秒）=",lastTime - fstTime)
-                    if(!result[4] && (lastTime - fstTime >= 30*60*1000)){
-                        emailServerLz.sendAlarm(`${platformArr[i]}:${urlDescArr[j]}发生响应错误`,JSON.parse(result[0]))
+                    let resultZero = JSON.parse(result[0]),
+                        fstTime = resultZero["firstTime"],
+                        lastTime = resultZero["lastTime"],
+                        errDesc = resultZero["errDesc"]
+                    logger.debug("result[0]",result[0])
+                    logger.debug("0时间间隔（毫秒）=",lastTime,fstTime)
+                    if(!result[4] && (lastTime - fstTime >= 5*60*60*1000)){
+                        emailServerLz.sendAlarm(`${errDesc}发生响应错误`,result[0])
                     }
                 }
-                const judgeErr = (n) => {
-                    let fstTime = result[n]["firstTime"],
-                        lastTime = result[n]["lastTime"]
-                        errDescript
-                        logger.debug("时间间隔（毫秒）=",lastTime - fstTime)
-                    if(1 == n){
-                        errDescript = "返回数据错误"
-                    } else if(2 == n){
-                        errDescript = "数据解析出错"
-                    } else if(3 == n){
-                        errDescript = "dom数据出错"
-                    }
-                    if(result[4] && result[n]["times"]/result[4] > 0.5 && (lastTime - fstTime >= 30*60*1000)){
-                        emailServerLz.sendAlarm(`${platformArr[i]}:${urlDescArr[j]}${errDescript}`,JSON.parse(result[n]))
-                    }
-                } 
                 // resultErr错误类型,一段时间内发生几率
                 if(result[1]){   
-                    judgeErr(1)
+                    logger.debug("result[1]",result[1])
+                    judgeIsErr(result,1)
                 }
                 // doWithResErr错误类型，一段时间内发生几率
                 if(result[2]){
-                    judgeErr(2)
+                    logger.debug("result[2]",result[2])
+                    judgeIsErr(result,2)
                 }
                 // domBasedErr错误类型，一段时间内发生几率
                 if(result[3]){
-                    judgeErr(3)
+                    logger.debug("result[3]",result[3])
+                    judgeIsErr(result,3)
                 }
             })
         }
@@ -106,7 +113,7 @@ exports.start = () => {
     const errReadRule = new schedule.RecurrenceRule()
     failedRule.minute = [15,45]
     inactiveRule.minute = [0,30]
-    errReadRule.second = [15,45]
+    errReadRule.second = [15,30,45]
     schedule.scheduleJob(failedRule, () =>{
         _failedTaskAlarm()
     })

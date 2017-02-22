@@ -20,11 +20,8 @@ class leDealWith {
     }
     le ( task, callback ) {
         task.total = 0
-        this.getTotal( task, ( err ) => {
-            if(err){
-                return callback( err )
-            }
-            return callback(null,task.total)
+        this.getTotal( task, ( err,result ) => {
+            logger.debug(err,result)
         })
     }
     getTotal ( task, callback ) {
