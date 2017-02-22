@@ -2,7 +2,7 @@
 
 ------
 
-> README只提供有限的信息，更详细的资料请查阅[WIKI](http://git.meimiao.net/qiaosuan_spider/code/wiki)
+> README只提供有限的信息，更详细的资料请查阅[WIKI](http://git.meimiao.net/qiaosuan_spider/code/wikis)
 
 ## 监控系统
 
