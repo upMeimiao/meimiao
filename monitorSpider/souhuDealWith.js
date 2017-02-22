@@ -260,7 +260,7 @@ class souhuDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    storaging.errStoraging(this.core,'souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.bid,`搜狐${media.aid}播放量减少`,"resultErr","info")
+                    storaging.errStoraging(this.core,'souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少`,"resultErr","info")
                 }
             })
             storaging.sendDb(this.core,media)

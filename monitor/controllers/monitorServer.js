@@ -12,7 +12,7 @@ const client = monitorContronller.monitorClint
 const moment = require('moment')
 const logging = require( 'log4js' )
 
-const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
+const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -26,7 +26,7 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,
 // ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"
 const platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"]
 // 接口描述
-const urlDescArr = ["Expr","list","info","total","play","total","user","_user","Desc","videos","view","comment","commentNum","vidTag","digg","field"]
+const urlDescArr = ["Expr","list","info","total","play","total","user","_user","Desc","videos","view","comment","commentNum","vidTag","digg","field","userId"]
 // 错误类型 responseErr resultErr doWithResErr domBasedErr
 // 表名 平台：接口描述
 // succTimes: 24

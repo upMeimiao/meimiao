@@ -263,7 +263,7 @@ class meipaiDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    storaging.errStoraging(this.core,'meipai',`${api.meipai.media}${media.aid}`,task.bid,`美拍${media.aid}播放量减少`,"resultErr","videos")
+                    storaging.errStoraging(this.core,'meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍${media.aid}播放量减少`,"resultErr","videos")
                 }
             })
             storaging.sendDb(this.core,media)

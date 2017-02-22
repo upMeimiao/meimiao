@@ -5,7 +5,7 @@ const platformMap = {
     "3": "le",
     "4": "tencent",
     "5": "meipai",
-    //"6": "toutiao",
+    "6": "toutiao",
     "7": "miaopai",
     "8": "bili",
     "9": "souhu",

@@ -254,7 +254,7 @@ class tencentDealWith {
                         return
                     }
                     if(result > media.play_num){
-                        storaging.errStoraging(this.core,'tencent',`${api.tencent.view}${media.aid}`,task.bid,`腾讯视频${media.aid}播放量减少`,"resultErr","view")
+                        storaging.errStoraging(this.core,'tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"resultErr","view")
                     }
                 })
                 storaging.sendDb(this.core,media)

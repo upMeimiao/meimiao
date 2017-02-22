@@ -205,7 +205,7 @@ class miaopaiDealWith {
                             return
                         }
                         if(result > data.play_num){
-                            storaging.errStoraging(this.core,'miaopai',`http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+${media.aid}+"&vend=miaopai`,task.bid,`秒拍${data.aid}播放量减少`,"resultErr","videos")
+                            storaging.errStoraging(this.core,'miaopai',`http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+${media.aid}+"&vend=miaopai`,task.id,`秒拍${data.aid}播放量减少`,"resultErr","videos")
                         }
                     })
                     storaging.sendDb(this.core,data)

@@ -241,9 +241,9 @@ class kuaibaoDealWith {
                 title: info.title.substr(0,100).replace(/"/g,''),
                 play_num: results.play,
                 comment_num: Number(results.comment),
-                support: results.expr.up,
-                step: results.expr.down,
-                save_num: results.expr.like,
+                support: results.expr ? results.expr.up : null,
+                step: results.expr ? results.expr.down : null,
+                save_num:  results.expr ? results.expr.like : null,
                 a_create_time: info.time,
                 long_t: results.newField ? results.newField.long_t : null,
                 v_img: results.newField ? results.newField.v_img : null,
@@ -268,7 +268,7 @@ class kuaibaoDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    storaging.errStoraging(this.core,'kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.bid,`搜狐${media.aid}播放量减少`,"resultErr","play")
+                    storaging.errStoraging(this.core,'kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报${media.aid}播放量减少`,"resultErr","play")
                 }
             })
             storaging.sendDb(this.core,media)

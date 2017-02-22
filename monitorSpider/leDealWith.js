@@ -170,7 +170,7 @@ class leDealWith {
                         return
                     }
                     if(result > media.play_num){
-                        storaging.errStoraging(this.core,'le',`${api.le.info}${media.aid}?callback=jsonp`,task.bid,`乐视视频${media.aid}播放量减少`,"resultErr","info")
+                        storaging.errStoraging(this.core,'le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频${media.aid}播放量减少`,"resultErr","info")
                     }
                 })
                 storaging.sendDb( this.core,media )

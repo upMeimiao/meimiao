@@ -21,11 +21,12 @@ class spiderCore {
         this.leDeal = new (require('./leDealWith'))(this)
         this.tencentDeal = new (require('./tencentDealWith'))(this)
         this.meipaiDeal = new (require('./meipaiDealWith'))(this)
-        //this.toutiaoDeal = new (require('./toutiaoDealWith'))(this)
+        this.toutiaoDeal = new (require('./toutiaoDealWith'))(this)
         this.miaopaiDeal = new (require('./miaopaiDealWith'))(this)
         this.biliDeal = new (require('./biliDealWith'))(this)
         this.souhuDeal = new (require('./souhuDealWith'))(this)
         this.kuaibaoDeal = new (require('./kuaibaoDealWith'))(this)
+        this.proxy = new (require('./proxy'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
@@ -88,10 +89,10 @@ class spiderCore {
             meipai_work = {
                 "name":"meipai","platform":5,"id":1000001181,"bname":"暴走漫画"
             },
-            // toutiao_rule = new schedule.RecurrenceRule(),
-            // toutiao_work = {
-            //     "name":"toutiao","platform":6,"id":3164006864,"bname":"V电影"
-            // }
+            toutiao_rule = new schedule.RecurrenceRule(),
+            toutiao_work = {
+                "name":"toutiao","platform":6,"id":3164006864,"bname":"V电影"
+            },
             miaopai_rule = new schedule.RecurrenceRule(),
             miaopai_work = {
                 "name":"miaopai","platform":7,"id":"-fbM2XIO6WEsMCR-","bname":"DS女老诗"
@@ -114,7 +115,7 @@ class spiderCore {
         le_rule.second = [3,33,53]
         tencent_rule.second = [4,34,53]
         meipai_rule.second = [5,35,55]
-        // toutiao_rule.second = [6,36,56]
+        toutiao_rule.second = [6,36,56]
         miaopai_rule.second = [7,37,57]
         bili_rule.second = [8,38,58]
         souhu_rule.second = [9,39,59]
@@ -145,11 +146,11 @@ class spiderCore {
                 logger.debug(err,result)
             })
         })
-        // schedule.scheduleJob(toutiao_rule,() => {
-        //     this.toutiao_ruleDeal.toutiao(toutiao_rule_work,(err,result) => {
-        //         logger.debug(err,result)
-        //     })
-        // })
+        schedule.scheduleJob(toutiao_rule,() => {
+            this.toutiaoDeal.toutiao(toutiao_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
         schedule.scheduleJob(miaopai_rule,() => {
             this.miaopaiDeal.miaopai(miaopai_work,(err,result) => {
                 logger.debug(err,result)
