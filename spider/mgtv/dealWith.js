@@ -45,7 +45,9 @@ class dealWith {
                     }catch (e){
                         logger.error('json数据解析失败')
                         logger.info(result)
-                        return
+                        sign++
+                        page++
+                        return cb()
                     }
                     let length = result.data.list.length
                     task.total += length
