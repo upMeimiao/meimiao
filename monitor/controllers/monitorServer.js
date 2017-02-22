@@ -56,7 +56,7 @@ const urlDescArr = ["Expr","list","info","total","play","total","user","_user","
     } else if(3 == n){
         errDescript = "dom数据出错"
     }
-    if(result[4] && results["times"]/(+result[4]) > 0.5 && (Number(lastTime) - Number(fstTime) >= 5*60*60*1000)){
+    if(result[4] && results["times"]/(+result[4]) > 0.5 && (Number(lastTime) - Number(fstTime) >= 15*60*60*1000)){
         emailServerLz.sendAlarm(`${errDesc}${errDescript}`,result[n])
     }
 } 
@@ -84,7 +84,7 @@ const _getKeys = () => {
                         errDesc = resultZero["errDesc"]
                     logger.debug("result[0]",result[0])
                     logger.debug("0时间间隔（毫秒）=",lastTime,fstTime)
-                    if(!result[4] && (lastTime - fstTime >= 5*60*60*1000)){
+                    if(!result[4] && (lastTime - fstTime >= 15*60*60*1000)){
                         emailServerLz.sendAlarm(`${errDesc}发生响应错误`,result[0])
                     }
                 }
@@ -113,7 +113,7 @@ exports.start = () => {
     const errReadRule = new schedule.RecurrenceRule()
     failedRule.minute = [15,45]
     inactiveRule.minute = [0,30]
-    errReadRule.second = [15,30,45]
+    errReadRule.minute = [15,30,45]
     schedule.scheduleJob(failedRule, () =>{
         _failedTaskAlarm()
     })
