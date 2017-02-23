@@ -205,7 +205,8 @@ class dealWith {
                 a_create_time: moment(result.createDate).format('X'),
                 v_img: result.image,
                 long_t: result.duration,
-                tag: video.tag
+                tag: video.tag,
+                v_url: video.memberItem.pcUrl
             }
             this.sendCache(media)
             callback()
