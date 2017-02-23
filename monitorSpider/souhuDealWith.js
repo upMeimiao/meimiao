@@ -382,7 +382,7 @@ class souhuDealWith {
             }catch (e){
                 logger.error('json数据解析失败')
                 storaging.errStoraging(this.core,'souhu',option.url,task.id,"搜狐获取commentNum接口json数据解析失败","doWithResErr","commentNum")
-                return callback(e)
+                return
             }
             storaging.succStorage(this.core,"souhu",option.url,"commentNum")
             callback(null,result.cmt_sum)
