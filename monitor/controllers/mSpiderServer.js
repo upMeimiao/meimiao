@@ -102,7 +102,7 @@ const _getKeys = () => {
         urlDescArr = ["Expr","list","videos","info","total","play","total","user","_user","Desc","view","comment","commentNum","vidTag","digg","field","userId"]
     for(i = 0; i < platformArr.length; i++){
         for(j = 0; j < urlDescArr.length; j++){
-            keys = `${platformArr[i]}:${urlDescArr[j]}`
+            keys = `apiMonitor:${platformArr[i]}:${urlDescArr[j]}`
             mSpiderClient.hmget(keys,"responseErr","resultErr","doWithResErr","domBasedErr","succTimes",(err,result) => {
                 if(err){
                     logger.debug("读取redis发生错误")

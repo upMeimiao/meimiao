@@ -251,7 +251,7 @@ class tencentDealWith {
                     long_t: this.long_t(data.duration),
                     tag: this.tags(result[2])
                 }
-                this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:${media.author}:${media.aid}`,"play_num",(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return

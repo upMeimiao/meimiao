@@ -1,16 +1,4 @@
-const moment = require("moment")
-const platformMap = {
-    "1": "youku",
-    "2": "iqiyi",
-    "3": "le",
-    "4": "tencent",
-    "5": "meipai",
-    "6": "toutiao",
-    "7": "miaopai",
-    "8": "bili",
-    "9": "souhu",
-    "10": "kuaibao"
-}
+
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
 exports.judgeRes = (core,platform,url,bid,err,res,callback,urlDesc) => {
@@ -19,7 +7,7 @@ exports.judgeRes = (core,platform,url,bid,err,res,callback,urlDesc) => {
         return
     }
     if(!res){
-        storaging.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
+        this.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
         return
     }
     if(res && res.statusCode != 200){
@@ -29,26 +17,27 @@ exports.judgeRes = (core,platform,url,bid,err,res,callback,urlDesc) => {
 }
 exports.sendDb = (core,media) => {
     let MSDB = core.MSDB,
+        platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"],
         logger = core.settings.logger,
-        curPlatform
-    for(let key in platformMap){
-        if(key == media.platform){
-            curPlatform = platformMap[key]
+        curPlatform,i
+    for(i = 0; i < platformArr.length; i++){
+        if(i == media.platform){
+            curPlatform = platformArr[i]
         }
     }
-    MSDB.hset(`${curPlatform}:${media.aid}`,"play_num",media.play_num,(err,result)=>{
+    MSDB.hset(`apiMonitor:${curPlatform}:${media.aid}`,"play_num",media.play_num,(err,result)=>{
         if ( err ) {
             logger.error( '加入接口监控数据库出现错误：', err )
             return
         }
         logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
     })
-    MSDB.expire(`${curPlatform}:${media.aid}`,6*60*60) 
+    MSDB.expire(`apiMonitor:${curPlatform}:${media.aid}`,6*60*60) 
 }
 exports.succStorage = (core,platform,url,urlDesc) => {
     let logger = core.settings.logger,
         MSDB = core.MSDB,
-        curSuccKey = `${platform}:${urlDesc}`,
+        curSuccKey = `apiMonitor:${platform}:${urlDesc}`,
         succTimes
     MSDB.hget(curSuccKey,"succTimes",(err,result) => {
         if(err){
@@ -69,8 +58,8 @@ exports.succStorage = (core,platform,url,urlDesc) => {
     })
 }
 exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
-    let firstDate = new Date()
-        firstTime = firstDate.getTime()
+    let firstDate = new Date(),
+        firstTime = firstDate.getTime(),
         options = {
             "platform": platform,
             "url": url,
@@ -84,7 +73,7 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
         logger = core.settings.logger,
         MSDB = core.MSDB,
         currentErr = JSON.stringify(options),
-        curErrKey = `${platform}:${urlDesc}`
+        curErrKey = `apiMonitor:${platform}:${urlDesc}`
     logger.debug("有错误发生喽，正在分析与存储~~~~~~")
     function pushCurErr(MSDB,options){
         MSDB.hset(curErrKey,errType,JSON.stringify(options),(err,result) => {
