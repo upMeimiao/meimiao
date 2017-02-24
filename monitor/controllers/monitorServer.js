@@ -5,12 +5,8 @@ const crypto = require('crypto')
 const platformMap = require('./platform')
 const emailServer = require('./emailServer')
 const monitorContronller = require('./monitorController')
-
-const Redis = require('ioredis')
 const logger = monitorContronller.logger
 const client = monitorContronller.monitorClint
-const moment = require('moment')
-const logging = require( 'log4js' )
 
 exports.start = () => {
     const failedRule = new schedule.RecurrenceRule()

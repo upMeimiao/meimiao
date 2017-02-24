@@ -48,7 +48,7 @@ const judgeIsErr = (result,n) => {
                     errDescript = (results["errDesc"] 
                             && results["errDesc"]["code"] 
                             && results["errDesc"]["code"] == "ESOCKETTIMEDOUT" || "ETIMEDOUT") 
-                            ? "请求超时" : "接口报错"
+                            ? "请求超时" : "接口报错",
                     emailContentsZ =  `<p>平台：${resultZero.platform}</p>
                                       <p>接口：${resultZero.url}</p>
                                       <p>接口功能描述：${resultZero.urlDesc}</p>

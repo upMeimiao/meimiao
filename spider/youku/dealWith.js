@@ -80,7 +80,7 @@ class dealWith {
                     bid: task.id,
                     fans_num: userInfo.followerNum
                 }
-                logger.debug(user)
+            logger.debug(user)
             this.sendUser ( user,(err,result) => {
                 callback()
             })
@@ -330,7 +330,6 @@ class dealWith {
             }
             logger.debug(`优酷视频 ${media.aid} 加入缓存队列`)
         } )
-        logger.debug("~~~~~~~~~~~"+this.core.cache_db.llen("cache")+"~~~~~~~~~")
     }
 }
 module.exports = dealWith
