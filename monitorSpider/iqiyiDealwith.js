@@ -56,7 +56,7 @@ class iqiyiDeal {
     //         	return
     //         }
 
-            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,"user")
             if(!result){
                 return 
             }
@@ -92,7 +92,7 @@ class iqiyiDeal {
     //             return
     //         }
 
-            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"_user")
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,"_user")
             if(!result || !result.body){
                 return 
             }
@@ -122,7 +122,7 @@ class iqiyiDeal {
 				// storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","total")
     //             return
     //         }
-            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"total")
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,"total")
             if(!result){
                 return 
             }

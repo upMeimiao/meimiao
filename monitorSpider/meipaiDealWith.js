@@ -56,7 +56,7 @@ class meipaiDealWith {
             //     return callback()
 
             // }
-            storaging.judgeRes (this.core,"meipai",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"meipai",option.url,task.id,err,result,"user")
             if(!result){
                 return
             }
@@ -94,7 +94,7 @@ class meipaiDealWith {
             //     storaging.errStoraging(this.core,'meipai',option.url,task.id,"美拍获取total code error","responseErr","total")
             //     return callback(result.statusCode)
             // }
-            storaging.judgeRes (this.core,"meipai",option.url,task.id,err,result,callback,"total")
+            storaging.judgeRes (this.core,"meipai",option.url,task.id,err,result,"total")
             if(!result){
                 return 
             }
@@ -206,7 +206,7 @@ class meipaiDealWith {
             //     storaging.errStoraging(this.core,'meipai',option.url,task.id,"美拍获取info code error","responseErr","info")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"meipai",option.url,task.id,err,result,callback,"info")
+            storaging.judgeRes (this.core,"meipai",option.url,task.id,err,result,"info")
             if(!result){
                 return 
             }

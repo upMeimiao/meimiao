@@ -1,7 +1,7 @@
 
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
-exports.judgeRes = (core,platform,url,bid,err,res,callback,urlDesc) => {
+exports.judgeRes = (core,platform,url,bid,err,res,urlDesc) => {
     if(err){
         this.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
         return

@@ -64,7 +64,7 @@ class kuaibaoDealWith {
             //     logger.error('获取粉丝code error：',result.statusCode)
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"user")
             if(!result){
                 return
             }
@@ -107,7 +107,7 @@ class kuaibaoDealWith {
             // if(result.statusCode != 200){
             //     return callback(result.statusCode)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"videos")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"videos")
             if(!result){
                 return 
             }
@@ -157,7 +157,7 @@ class kuaibaoDealWith {
             }
         }
         request.post( option, (err,result) => {
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"info")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"info")
             // // if(err){
             // //     logger.error( 'occur error : ', err )
             // //     return callback(err)
@@ -291,7 +291,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"commentNum")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return
             }
@@ -325,7 +325,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"Expr")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"Expr")
             if(!result){
                 return
             }
@@ -361,7 +361,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"play")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"play")
             if(!result){
                 return 
             }
@@ -394,7 +394,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"field")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"field")
             if(!result){
                 return 
             }

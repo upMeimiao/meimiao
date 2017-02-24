@@ -61,7 +61,7 @@ class tencentDealWith {
             //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","total")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"total")
+            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"total")
             if(!result || !result.body){
                 return 
             }
@@ -109,7 +109,7 @@ class tencentDealWith {
             //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","user")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"user")
             if(!result || !result.body){
                 return 
             }
@@ -286,7 +286,7 @@ class tencentDealWith {
             //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取视频播放量接口状态码错误","responseErr","view")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"view")
+            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"view")
             if(!result){
                 return
             }
@@ -319,7 +319,7 @@ class tencentDealWith {
             //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取评论接口状态码错误","responseErr","comment")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"comment")
+            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"comment")
             if(!result){
                 return 
             }
@@ -363,7 +363,7 @@ class tencentDealWith {
             //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","commentNum")
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"commentNum")
+            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return 
             }
@@ -392,7 +392,7 @@ class tencentDealWith {
             //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","vidTag")
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"vidTag")
+            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"vidTag")
             if(!result){
                 return 
             }

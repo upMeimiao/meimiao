@@ -55,7 +55,7 @@ class miaopaiDealWith {
             //     storaging.errStoraging(this.core,'miaopai',option.url,task.id,"秒拍获取粉丝code error","responseErr","user")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,"user")
             if(!result){
                 return 
             }
@@ -237,7 +237,7 @@ class miaopaiDealWith {
             //     storaging.errStoraging(this.core,'miaopai',option.url,task.id,"秒拍获取info code error","responseErr","info")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,callback,"info")
+            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,"info")
             if(!result){
                 return
             }

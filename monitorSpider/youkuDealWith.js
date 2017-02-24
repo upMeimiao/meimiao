@@ -91,7 +91,7 @@ class youkuDealWith {
                 timeout: 5000
             }
         request(options, (error, response, body) => {
-            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,callback,"total")
+            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,"total")
             if(!(body||response)){
                 return 
             }
@@ -207,7 +207,7 @@ class youkuDealWith {
             timeout: 5000
         }
         request( options, ( error, response, body ) => {
-            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,callback,"info")
+            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,"info")
             if(!(body||response)){
                 return 
             }

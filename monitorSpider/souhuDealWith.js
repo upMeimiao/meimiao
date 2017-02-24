@@ -55,7 +55,7 @@ class souhuDealWith {
             //     storaging.errStoraging(this.core,'souhu',option.url,task.id,"搜狐获取粉丝code error","responseErr","user")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,"user")
             if(!result){
                 return 
             }
@@ -94,7 +94,7 @@ class souhuDealWith {
             //     storaging.errStoraging(this.core,'souhu',option.url,task.id,"搜狐获取total接口code error","responseErr","total")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,callback,"total")
+            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,"total")
             if(!result){
                 return 
             }
@@ -287,7 +287,7 @@ class souhuDealWith {
             //     logger.debug('code:',result.statusCode)
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,callback,"info")
+            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,"info")
             if(!result){
                 return
             }
@@ -340,7 +340,7 @@ class souhuDealWith {
             //     logger.debug('code:',back.statusCode)
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,back,callback,"digg")
+            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,back,"digg")
             if(!back){
                 return
             }
@@ -373,7 +373,7 @@ class souhuDealWith {
             //     logger.debug('code:',result.statusCode)
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,callback,"commentNum")
+            storaging.judgeRes (this.core,"souhu",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return 
             }

@@ -60,7 +60,7 @@ class billDealWith {
             //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取粉丝code error","responseErr","user")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"bili",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"bili",option.url,task.id,err,result,"user")
             if(!result){
                 return 
             }
@@ -99,7 +99,7 @@ class billDealWith {
             //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取total接口code error","responseErr","total")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"bili",option.url,task.id,err,result,callback,"total")
+            storaging.judgeRes (this.core,"bili",option.url,task.id,err,result,"total")
             if(!result){
                 return 
             }
@@ -212,7 +212,7 @@ class billDealWith {
             //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取info code error","responseErr","info")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"bili",option.url,task.id,err,back,callback,"info")
+            storaging.judgeRes (this.core,"bili",option.url,task.id,err,back,"info")
             if(!back){
                 return 
             }
