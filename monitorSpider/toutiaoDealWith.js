@@ -37,20 +37,20 @@ class toutiaoDealWith {
         async.parallel(
             {
                 user: (callback) => {
-                    this.getUser(task,(err)=>{
+                    this.getUser(task,(err,result)=>{
                         if(err){
                             return setTimeout(()=>{
                                 this.getUser(task,(err,result)=>{
-                                    logger.debug(err,result)
+                                    return callback(err,result)
                                 }, 1000)
                             })
                         }
-                        callback(null,"用户信息已返回")
+                        callback(err,result)
                     })
                 },
                 media: (callback) => {
                     this.getList(task,(err,result)=>{
-                        logger.debug(err,result)
+                        callback(err,result)
                     })
                 }
             },
@@ -58,8 +58,7 @@ class toutiaoDealWith {
                 if(err){
                     return callback(err)
                 }
-                logger.debug(task.id + "_result:",result)
-                callback(null,task.total)
+                callback(err,result)
             }
         )
     }
@@ -101,7 +100,6 @@ class toutiaoDealWith {
                 fans = fans.replace('万','') * 10000
             }
             if(Number(fans) === 0){
-                logger.info('粉丝数发生异常：', result)
                 storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取粉丝接口粉丝数发生异常：","responseErr","user")
                 return
             }
@@ -131,7 +129,6 @@ class toutiaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                logger.info('send error:',res)
                 storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取粉丝Id接口json数据解析失败","doWithResErr","userId")
                 return
             }
@@ -325,7 +322,6 @@ class toutiaoDealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        logger.info('media info: ',media)
         this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")

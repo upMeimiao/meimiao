@@ -21,20 +21,19 @@ class souhuDealWith {
         async.parallel({
             user: (callback) => {
                 this.getUser(task,(err,result)=>{
-                    logger.debug(err,result)
+                    callback(err,result)
                 })
             },
             media: (callback) => {
                 this.getTotal(task,(err,result)=>{
-                    logger.debug(err,result)
+                    callback(err,result)
                 })
             }
         }, ( err, result ) => {
             if ( err ) {
                 return callback(err)
             }
-            logger.debug("result:",result)
-            callback(null,task.total)
+            callback(err,result)
         })
     }
     getUser ( task, callback) {

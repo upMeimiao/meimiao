@@ -23,12 +23,12 @@ class tencentDealWith {
             {
                 user: (callback) => {
                     this.getUser(task,(err,res)=>{
-                        logger.debug(err,res)
+                        callback(err,res)
                     })
                 },
                 media: (callback) => {
                     this.getTotal(task,(err,res)=>{
-                        logger.debug(err,res)
+                        callback(err,res)
                     })
                 }
             },
@@ -36,8 +36,7 @@ class tencentDealWith {
                 if(err){
                     return callback(err)
                 }
-                logger.debug(task.id + "_result:",result)
-                callback(null,task.total)
+                callback(err,result)
             }
         )
     }

@@ -23,12 +23,12 @@ class iqiyiDeal {
             {
                 user: (callback) => {
                     this.getUser(task,(err,result)=>{
-                        logger.debug(err,result)
+                        callback(err,result)
                     })
                 },
                 media: (callback) => {
                     this.getTotal(task,(err,result)=>{
-                        logger.debug(err,result)
+                        callback(err,result)
                     })
                 }
             },
@@ -36,8 +36,7 @@ class iqiyiDeal {
                 if(err){
                     return callback(err)
                 }
-                logger.debug(task.id + "_result:",result)
-                callback(null,task.total)
+                callback(err,result)
             }
         )
     }

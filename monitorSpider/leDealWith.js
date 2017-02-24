@@ -21,7 +21,7 @@ class leDealWith {
     le ( task, callback ) {
         task.total = 0
         this.getTotal( task, ( err,result ) => {
-            logger.debug(err,result)
+            callback(err,result)
         })
     }
     getTotal ( task, callback ) {

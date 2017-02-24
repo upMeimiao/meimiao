@@ -43,7 +43,7 @@ exports.sendDb = (core,media) => {
         }
         logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
     })
-    MSDB.expire(`${curPlatform}:${media.aid}`,12*60*60) 
+    MSDB.expire(`${curPlatform}:${media.aid}`,6*60*60) 
 }
 exports.succStorage = (core,platform,url,urlDesc) => {
     let logger = core.settings.logger,

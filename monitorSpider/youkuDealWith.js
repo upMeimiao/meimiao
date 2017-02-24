@@ -25,12 +25,12 @@ class youkuDealWith {
             {
                 user: (callback) => {
                     this.youkuGetUser(task,(err,result)=>{
-                        logger.debug(err,result)
+                        callback(err,result)
                     })
                 },
                 media: (callback) => {
                     this.youkuGetTotal(task,(err,result)=>{
-                        logger.debug(err,result)
+                        callback(err,result)
                     })
                 }
             },
@@ -38,7 +38,7 @@ class youkuDealWith {
                 if(err){
                     return callback(err)
                 }
-                callback(null,task.total)
+                callback(err, result)
             }
         )
     }
