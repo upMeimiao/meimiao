@@ -20,7 +20,6 @@ class spiderCore {
         logger.trace('spiderCore instantiation ...')
     }
     assembly ( ) {
-        //并行，最后传值按task顺序
         async.parallel([
             (callback) => {
                 myRedis.createClient(this.redis.host,
@@ -79,7 +78,6 @@ class spiderCore {
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
         })
-        //不稳定的redis连接监控
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
         queue.process('youku',9, (job,done) => {
