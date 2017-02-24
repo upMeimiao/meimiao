@@ -39,7 +39,7 @@ const urlDescArr = ["Expr","list","videos","info","total","play","total","user",
     // 无成功记录
     // platform url urlDesc bid errDesc  firstTime times lastTime
     if(!result[4] 
-        && (Number(lastTime) - Number(fstTime) >= 2*60*60*1000)){
+        && (Number(lastTime) - Number(fstTime) >= 60*60*1000)){
         emailServerLz.sendAlarm(`接口监控：${platform}平台${urlDesc}接口一小时内无成功记录`,`${platform}平台${urlDesc}接口一小时内无成功记录`)
     }
     // 有成功记录，失败次数与成功次数作比较
@@ -48,10 +48,8 @@ const urlDescArr = ["Expr","list","videos","info","total","play","total","user",
         // 如果有responseErr
         if(resultZero){
             //错误描述含有TIMEOUT字段，超时率过80%，发报错邮件
-            if(resultZero["errDesc"] && resultZero["errDesc"]["code"]
-            && resultZero["errDesc"]["code"] == "ESOCKETTIMEDOUT"
-            && errTimes/(errTimes + succTimes) > 0.8
-            && (Number(lastTime) - Number(fstTime) >= 2*60*60*1000)){
+            if(errTimes/(errTimes + succTimes) > 0.8
+            && (Number(lastTime) - Number(fstTime) >= 60*60*1000)){
                 let resultZeroFstTime = new Date(resultZero.firstTime),
                     resultZeroLastTime = new Date(resultZero.lastTime),
                     resultZeroErrDesc = JSON.stringify(resultZero.errDesc),
@@ -73,7 +71,7 @@ const urlDescArr = ["Expr","list","videos","info","total","play","total","user",
         } else {
             // 如果不是responseErr,一小时内错误率达到30%则邮件报错
             if(errTimes/(errTimes + succTimes) > 0.3 
-                && (Number(lastTime) - Number(fstTime) >= 30*60*1000)){
+                && (Number(lastTime) - Number(fstTime) >= 60*60*1000)){
                 let resultN = JSON.parse(result[n]),
                 resultNFstTime = new Date(resultN.firstTime),
                 resultNLastTime = new Date(resultN.lastTime),

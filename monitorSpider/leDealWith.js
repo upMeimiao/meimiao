@@ -293,7 +293,7 @@ class leDealWith {
             }
             result = result.data.introduction
             if(!result){
-                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频描述信息接口返回结果为空","doWithResErr","Desc")
+                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频描述信息接口返回结果为空","resultErr","Desc")
                 return callback(null,null)
             }
             let backData = {
