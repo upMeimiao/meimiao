@@ -94,12 +94,16 @@ class iqiyiDeal {
     //         }
 
             storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"_user")
-            if(!result){
+            if(!result || !result.body){
                 return 
             }
             let $ = cheerio.load(result.body),
-                fansDom = $('h3.tle').text(),
-                user = {
+                fansDom = $('h3.tle').text()
+                if(!fansDom){
+                    storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取粉丝dom获取错误","domBasedErr","_user")
+                    return
+                }
+            let user = {
                     platform: 2,
                     bid: task.id,
                     fans_num: fansDom.substring(2)
@@ -158,12 +162,12 @@ class iqiyiDeal {
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
                 request.get( logger, option, (err,result) => {
                     if(err){
-                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","listN")
+                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","list")
                         return cb()
                     }
-                    if(!result.body){
-                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频单页列表接口无返回数据","resultErr","listN")
-                        return
+                    if(!result || !result.body){
+                    	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频单页列表接口无返回数据","resultErr","list")
+                        return cb()
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
@@ -182,7 +186,7 @@ class iqiyiDeal {
                         })
                     }
                     //logger.debug(video)
-                    storaging.succStorage(this.core,"iqiyi",option.url,"listN")
+                    storaging.succStorage(this.core,"iqiyi",option.url,"list")
                     this.getIds(task, video, (err) => {
                         index++
                         cb()
@@ -210,8 +214,9 @@ class iqiyiDeal {
                     	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","ids")
                         return cb()
                     }
-                    if(!result.body){
+                    if(!result || !result.body){
                     	storaging.errStoraging(this.core,'iqiyi',option.url,task.id,"iqiyi获取视频id列表接口无返回数据","resultErr","ids")
+                        return cb()
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
@@ -219,6 +224,7 @@ class iqiyiDeal {
                         id = $('#flashbox').attr('data-player-tvid')
                         if(!id){
                             storaging.errStoraging(this.core,'iqiyi',DOM,task.id,"iqiyi获取DOM元素中的视频id失败","domBasedErr","ids")
+                            return
                         }
                     storaging.succStorage(this.core,"iqiyi",option.url,"ids")
                     this.info(task, {id: id, title: raw[index].title, link: raw[index].link},(err)=>{
@@ -270,6 +276,7 @@ class iqiyiDeal {
                         href = $('.site-piclist_info a[title]'),links = []
                     if(!lis || !ats || !href){
                         storaging.errStoraging(this.core,'iqiyi',DOM,task.id,"iqiyi由DOM获取视频列表信息失败","domBasedErr","list")
+                        return
                     }
                     for(let i = 0 ;i<lis.length;i++){
                         ids.push(lis[i].attribs.tvid.replace(/,/g,''))
@@ -389,6 +396,7 @@ class iqiyiDeal {
                     }
                 	if(result > media.play_num){
                         storaging.errStoraging(this.core,'iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.bid,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
+                        return
                     }
                 })
 
@@ -418,7 +426,6 @@ class iqiyiDeal {
             } catch (e){
                 logger.error('eval错误:',e)
                 storaging.errStoraging(this.core,'iqiyi',link,task.id,"iqiyi获取视频信息接口eval错误","doWithResErr","info")
-                logger.error(result)
                 return callback(e)
             }
             if(playData.code != 'A00000'){

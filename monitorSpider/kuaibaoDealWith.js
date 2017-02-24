@@ -362,7 +362,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"playNum")
+            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,callback,"play")
             if(!result){
                 return 
             }
@@ -381,7 +381,7 @@ class kuaibaoDealWith {
             } else {
                 callback(true)
             }
-            storaging.succStorage(this.core,"kuaibao",option.url,"playNum")
+            storaging.succStorage(this.core,"kuaibao",option.url,"play")
 
         })
     }

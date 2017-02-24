@@ -110,16 +110,16 @@ class spiderCore {
                 "name":"kuaibao","platform":10,"id":5005354,"bname":"微在涨姿势"
             }
 
-        youku_rule.minite = [1,31]
-        iqiyi_rule.minite = [2,32]
-        le_rule.minite = [3,33]
-        tencent_rule.minite = [4,34]
-        meipai_rule.minite = [5,35]
-        toutiao_rule.minite = [6,36]
-        miaopai_rule.minite = [7,37]
-        bili_rule.minite = [8,38]
-        souhu_rule.minite = [9,39]
-        kuaibao_rule.minite = [0,30]
+        youku_rule.minute = [1]
+        iqiyi_rule.minute = [2]
+        le_rule.minute = [3]
+        tencent_rule.minute = [4]
+        meipai_rule.minute = [5]
+        toutiao_rule.minute = [6]
+        miaopai_rule.minute = [7]
+        bili_rule.minute = [8]
+        souhu_rule.minute = [9]
+        kuaibao_rule.minute = [10]
 
         schedule.scheduleJob(youku_rule,() => {
             this.youkuDeal.youku(youku_work,(err,result) => {

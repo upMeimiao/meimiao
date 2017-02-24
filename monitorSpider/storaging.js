@@ -16,15 +16,15 @@ const platformMap = {
 exports.judgeRes = (core,platform,url,bid,err,res,callback,urlDesc) => {
     if(err){
         this.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
-        return callback(err)
+        return
     }
     if(!res){
         storaging.errStoraging(core,platform,url,bid,err,"responseErr",urlDesc)
-        return callback()
+        return
     }
     if(res && res.statusCode != 200){
         this.errStoraging(core,platform,url,bid,res.errDesc,"responseErr",urlDesc)
-        return callback(true)
+        return
     }
 }
 exports.sendDb = (core,media) => {
@@ -72,13 +72,14 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
     let firstDate = new Date()
         firstTime = firstDate.getTime()
         options = {
-            platform: platform,
-            url: url,
-            bid: bid,
-            errDesc: errDesc,
-            firstTime: firstTime,
-            times: 1,
-            lastTime: firstTime
+            "platform": platform,
+            "url": url,
+            "urlDesc": urlDesc,
+            "bid": bid,
+            "errDesc": errDesc,
+            "firstTime": firstTime,
+            "times": 1,
+            "lastTime": firstTime
         },
         logger = core.settings.logger,
         MSDB = core.MSDB,
@@ -106,13 +107,14 @@ exports.errStoraging = (core,platform,url,bid,errDesc,errType,urlDesc) => {
                 firstTime = JSON.parse(result).firstTime
                 curErrTimes++
             let newOptions = {
-                    platform: options.platform,
-                    url: options.url,
-                    bid: options.bid,
-                    errDesc: options.errDesc,
-                    firstTime: firstTime,
-                    times: curErrTimes ? curErrTimes : 1,
-                    lastTime: lastTime
+                    "platform": options.platform,
+                    "url": options.url,
+                    "urlDesc": options.urlDesc,
+                    "bid": options.bid,
+                    "errDesc": options.errDesc,
+                    "firstTime": firstTime,
+                    "times": curErrTimes ? curErrTimes : 1,
+                    "lastTime": lastTime
                 }
             logger.debug("newOptions=",newOptions)
             pushCurErr(MSDB,newOptions)

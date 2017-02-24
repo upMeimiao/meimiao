@@ -45,7 +45,7 @@ class toutiaoDealWith {
                                 }, 1000)
                             })
                         }
-                        callback(null,"ÓÃ»§ĞÅÏ¢ÒÑ·µ»Ø")
+                        callback(null,"ç”¨æˆ·ä¿¡æ¯å·²è¿”å›")
                     })
                 },
                 media: (callback) => {
@@ -79,17 +79,17 @@ class toutiaoDealWith {
                 return callback(err)
             }
             if(!result){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡·ÛË¿½Ó¿ÚÎŞ·µ»ØÖµ","responseErr","user")
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–ç²‰ä¸æ¥å£æ— è¿”å›å€¼","responseErr","user")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡·ÛË¿jsonÊı¾İ½âÎöÊ§°Ü","doWithResErr","user")
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–ç²‰ä¸jsonæ•°æ®è§£æå¤±è´¥","doWithResErr","user")
                 return callback(e)
             }
             if( result.message != 'success' || !result.data ){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,`½ñÈÕÍ·Ìõ»ñÈ¡·ÛË¿½Ó¿Ú·¢Éú´íÎó${result.message}`,"responseErr","user")
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,`ä»Šæ—¥å¤´æ¡è·å–ç²‰ä¸æ¥å£å‘ç”Ÿé”™è¯¯${result.message}`,"responseErr","user")
 
                 return callback('fail')
             }
@@ -97,13 +97,13 @@ class toutiaoDealWith {
             if(Number(fans) === 0 && result.data.users.length !== 0 ){
                 return callback('fail')
             }
-            if( typeof fans == 'string' && fans.indexOf('Íò') != -1 ){
-                fans = fans.replace('Íò','') * 10000
+            if( typeof fans == 'string' && fans.indexOf('ä¸‡') != -1 ){
+                fans = fans.replace('ä¸‡','') * 10000
             }
             if(Number(fans) === 0){
-                logger.info('·ÛË¿Êı·¢ÉúÒì³££º', result)
-
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡·ÛË¿½Ó¿Ú·ÛË¿Êı·¢ÉúÒì³££º","responseErr","user")
+                logger.info('ç²‰ä¸æ•°å‘ç”Ÿå¼‚å¸¸ï¼š', result)
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–ç²‰ä¸æ¥å£ç²‰ä¸æ•°å‘ç”Ÿå¼‚å¸¸ï¼š","responseErr","user")
+                return
             }
             let user = {
                 platform: task.p,
@@ -130,13 +130,13 @@ class toutiaoDealWith {
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('jsonÊı¾İ½âÎöÊ§°Ü')
+                logger.error('jsonæ•°æ®è§£æå¤±è´¥')
                 logger.info('send error:',res)
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡·ÛË¿Id½Ó¿ÚjsonÊı¾İ½âÎöÊ§°Ü","doWithResErr","userId")
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–ç²‰ä¸Idæ¥å£jsonæ•°æ®è§£æå¤±è´¥","doWithResErr","userId")
                 return
             }
             if(result.message != 'success'){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,`½ñÈÕÍ·Ìõ»ñÈ¡·ÛË¿Id½Ó¿Ú·¢Éú´íÎó${result.message}`,"responseErr","userId")
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,`ä»Šæ—¥å¤´æ¡è·å–ç²‰ä¸Idæ¥å£å‘ç”Ÿé”™è¯¯${result.message}`,"responseErr","userId")
                 return
             }
             //let userId = result.data.user_id
@@ -176,9 +176,9 @@ class toutiaoDealWith {
                         try{
                             result = JSON.parse(result.body)
                         }catch (e){
-                            // logger.error('jsonÊı¾İ½âÎöÊ§°Ü')
+                            // logger.error('jsonæ•°æ®è§£æå¤±è´¥')
                             // logger.error(result.body)
-                            storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡list½Ó¿ÚjsonÊı¾İ½âÎöÊ§°Ü","doWithResErr","list")
+                            storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–åˆ—è¡¨æ¥å£jsonæ•°æ®è§£æå¤±è´¥","doWithResErr","list")
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
@@ -227,9 +227,9 @@ class toutiaoDealWith {
                             try{
                                 result = JSON.parse(result.body)
                             }catch (e){
-                                // logger.error('jsonÊı¾İ½âÎöÊ§°Ü')
+                                // logger.error('jsonæ•°æ®è§£æå¤±è´¥')
                                 // logger.error(result.body)
-                                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡list½Ó¿ÚjsonÊı¾İ½âÎöÊ§°Ü","doWithResErr","list")
+                                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–listæ¥å£jsonæ•°æ®è§£æå¤±è´¥","doWithResErr","list")
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
@@ -328,11 +328,12 @@ class toutiaoDealWith {
         logger.info('media info: ',media)
         this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
             if(err){
-                logger.debug("¶ÁÈ¡redis³ö´í")
+                logger.debug("è¯»å–rediså‡ºé”™")
                 return
             }
             if(result > media.play_num){
-                storaging.errStoraging(this.core,'toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`Í·Ìõ${media.aid}²¥·ÅÁ¿¼õÉÙ`,"resultErr","play")
+                storaging.errStoraging(this.core,'toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`å¤´æ¡${media.aid}æ’­æ”¾é‡å‡å°‘`,"resultErr","play")
+                return
             }
         })
         storaging.sendDb(this.core,media)
@@ -349,14 +350,14 @@ class toutiaoDealWith {
             try{
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('·µ»ØJSON¸ñÊ½²»ÕıÈ·')
+                logger.error('è¿”å›JSONæ ¼å¼ä¸æ­£ç¡®')
                 logger.error('info:',result)
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡playNum½Ó¿Ú·µ»ØJSON¸ñÊ½²»ÕıÈ·","doWithResErr","play")
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–playNumæ¥å£è¿”å›JSONæ ¼å¼ä¸æ­£ç¡®","doWithResErr","play")
                 return callback(e)
             }
             let backData = result.data
             if(!backData){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"½ñÈÕÍ·Ìõ»ñÈ¡playNum½Ó¿Ú·µ»ØÊı¾İÎª¿Õ","doWithResErr","play")
+                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"ä»Šæ—¥å¤´æ¡è·å–playNumæ¥å£è¿”å›æ•°æ®ä¸ºç©º","doWithResErr","play")
                 return callback(true)
             }
             storaging.succStorage(this.core,"toutiao",option.url,"play")

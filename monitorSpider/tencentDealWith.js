@@ -63,7 +63,7 @@ class tencentDealWith {
             //     return callback()
             // }
             storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"total")
-            if(!result){
+            if(!result || !result.body){
                 return 
             }
             try {
@@ -111,7 +111,7 @@ class tencentDealWith {
             //     return callback()
             // }
             storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,callback,"user")
-            if(!result){
+            if(!result || !result.body){
                 return 
             }
             try {
@@ -154,6 +154,10 @@ class tencentDealWith {
                         return cb()
                     }
                     //logger.debug(back.body)
+                    if(!result || !result.body){
+                        storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频list接口无返回数据","responseErr","list")
+                        return cb()
+                    }
                     try {
                         result = JSON.parse(result.body.substring(6, result.body.length - 1))
                     } catch (e){
@@ -255,6 +259,7 @@ class tencentDealWith {
                     }
                     if(result > media.play_num){
                         storaging.errStoraging(this.core,'tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"resultErr","view")
+                        return
                     }
                 })
                 storaging.sendDb(this.core,media)

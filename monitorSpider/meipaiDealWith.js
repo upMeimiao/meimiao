@@ -148,12 +148,12 @@ class meipaiDealWith {
                         result = JSON.parse(result.body)
                     } catch (e) {
                         logger.error('json数据解析失败')
-                        storaging.errStoraging(this.core,'meipai',option.url,task.id,"美拍获取videos接口json数据解析失败","resultErr","videos")
+                        storaging.errStoraging(this.core,'meipai',option.url,task.id,"美拍获取videos接口json数据解析失败","doWithResErr","videos")
                         return cb()
                     }
                     if(!result || result.length == 0){
                         logger.error('数据解析异常失败')
-                        storaging.errStoraging(this.core,'meipai',option.url,task.id,"美拍获取videos接口json数据解析异常失败","resultErr","videos")
+                        storaging.errStoraging(this.core,'meipai',option.url,task.id,"美拍获取videos接口无返回数据","resultErr","videos")
                         logger.error(result)
                         sign++
                         return cb()
@@ -264,6 +264,7 @@ class meipaiDealWith {
                 }
                 if(result > media.play_num){
                     storaging.errStoraging(this.core,'meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍${media.aid}播放量减少`,"resultErr","videos")
+                    return
                 }
             })
             storaging.sendDb(this.core,media)

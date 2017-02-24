@@ -68,11 +68,15 @@ class leDealWith {
                         storaging.errStoraging(this.core,'le',option.url,task.id,err,"responseErr","list")
                         return cb()
                     }
+                    if(!result || !result.body){
+                        storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频列表接口无返回数据","responseErr","list")
+                        return
+                    }
                     try {
                         result = eval("("+result.body+")")
                     } catch (e){
                         logger.error(`jsonp解析错误`)
-                        storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频列表接口jsonp解析错误","doWithResErr","total")
+                        storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频列表接口jsonp解析错误","doWithResErr","list")
                         logger.info(result)
                         return cb()
                     }
@@ -147,11 +151,11 @@ class leDealWith {
                     aid: id,
                     title: video.title.substr(0,100).replace(/"/g,''),
                     desc: result[2] ? result[2].desc.substr(0,100).replace(/"/g,'') : null,
-                    play_num: result[0].play_count,
-                    comment_num: result[0].vcomm_count,
-                    support: result[0].up,
-                    step: result[0].down,
-                    a_create_time: moment(result[1].time).unix(),
+                    play_num: result[0] ? result[0].play_count : null,
+                    comment_num: result[0] ? result[0].vcomm_count : null,
+                    support: result[0] ? result[0].up : null,
+                    step: result[0] ? result[0].down : null,
+                    a_create_time: moment(result[1] ? result[1].time : null).unix(),
                     long_t: this.long_t(video.duration),
                     v_img: video.videoPic,
                     class: result[2] ? result[2].class : null
@@ -171,6 +175,7 @@ class leDealWith {
                     }
                     if(result > media.play_num){
                         storaging.errStoraging(this.core,'le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频${media.aid}播放量减少`,"resultErr","info")
+                        return
                     }
                 })
                 storaging.sendDb( this.core,media )
@@ -195,13 +200,13 @@ class leDealWith {
                 backData = JSON.parse(result.body)
             } catch (e){
                 logger.error(`getInfo json error: `,e)
-                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频信息接口json解析错误","doWithResErr","total")
+                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频信息接口json解析错误","doWithResErr","info")
                 logger.error(result.body)
                 return callback(e)
             }
             if(!backData || backData.length === 0){
                 logger.error(`getInfo 异常`)
-                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频信息接口返回数据为空","resultErr","total")
+                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频信息接口返回数据为空","resultErr","info")
                 return callback(true)
             }
             //logger.debug('188: ',backData)
@@ -282,13 +287,13 @@ class leDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频描述信息json解析错误","doWithResErr","total")
+                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频描述信息json解析错误","doWithResErr","Desc")
                 logger.info(result)
                 return callback(null,null)
             }
             result = result.data.introduction
             if(!result){
-                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频描述信息接口返回结果为空","doWithResErr","total")
+                storaging.errStoraging(this.core,'le',option.url,task.id,"le获取视频描述信息接口返回结果为空","doWithResErr","Desc")
                 return callback(null,null)
             }
             let backData = {
