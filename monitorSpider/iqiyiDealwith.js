@@ -56,7 +56,7 @@ class iqiyiDeal {
     //         	return
     //         }
 
-            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,"user")
             if(!result){
                 return 
             }
@@ -92,7 +92,7 @@ class iqiyiDeal {
     //             return
     //         }
 
-            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"_user")
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,"_user")
             if(!result || !result.body){
                 return 
             }
@@ -122,7 +122,7 @@ class iqiyiDeal {
 				// storaging.errStoraging(this.core,'iqiyi',option.url,task.id,err,"responseErr","total")
     //             return
     //         }
-            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,callback,"total")
+            storaging.judgeRes (this.core,"iqiyi",option.url,task.id,err,result,"total")
             if(!result){
                 return 
             }
@@ -388,7 +388,7 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
-                this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:${media.author}:${media.aid}`,"play_num",(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return

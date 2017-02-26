@@ -91,7 +91,7 @@ class youkuDealWith {
                 timeout: 5000
             }
         request(options, (error, response, body) => {
-            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,callback,"total")
+            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,"total")
             if(!(body||response)){
                 return 
             }
@@ -168,7 +168,7 @@ class youkuDealWith {
                     //根据已存redis内容判断body内容是否正确
                     let videos = data.videos
                     for(let index in videos){
-                        this.core.MSDB.hget(`youku:${videos[index].videoid}`,"play_num",(err,result)=>{
+                        this.core.MSDB.hget(`apiMonitor:youku:${videos[index].videoid}`,"play_num",(err,result)=>{
                             if(err){
                                 logger.debug("读取redis出错")
                                 return
@@ -207,7 +207,7 @@ class youkuDealWith {
             timeout: 5000
         }
         request( options, ( error, response, body ) => {
-            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,callback,"info")
+            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,"info")
             if(!(body||response)){
                 return 
             }

@@ -322,7 +322,7 @@ class toutiaoDealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        this.core.MSDB.hget(`${media.author}:${media.aid}`,"play_num",(err,result)=>{
+        this.core.MSDB.hget(`apiMonitor:${media.author}:${media.aid}`,"play_num",(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")
                 return

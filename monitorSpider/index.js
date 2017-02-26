@@ -7,7 +7,7 @@ const request = require('request')
 const myRedis = require( '../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
-const schedule = require('node-schedule');
+const schedule = require('node-schedule')
 
 let logger,settings
 class spiderCore {

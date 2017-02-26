@@ -55,7 +55,7 @@ class miaopaiDealWith {
             //     storaging.errStoraging(this.core,'miaopai',option.url,task.id,"秒拍获取粉丝code error","responseErr","user")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,callback,"user")
+            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,"user")
             if(!result){
                 return 
             }
@@ -198,7 +198,7 @@ class miaopaiDealWith {
                     }
                     // logger.debug(data.title+'标题')
                     // logger.debug(data.desc+'描述')
-                    this.core.MSDB.hget(`${data.author}:${data.aid}`,"play_num",(err,result)=>{
+                    this.core.MSDB.hget(`apiMonitor:${data.author}:${data.aid}`,"play_num",(err,result)=>{
                         if(err){
                             logger.debug("读取redis出错")
                             return
@@ -237,7 +237,7 @@ class miaopaiDealWith {
             //     storaging.errStoraging(this.core,'miaopai',option.url,task.id,"秒拍获取info code error","responseErr","info")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,callback,"info")
+            storaging.judgeRes (this.core,"miaopai",option.url,task.id,err,result,"info")
             if(!result){
                 return
             }
