@@ -168,7 +168,7 @@ class youkuDealWith {
                     //根据已存redis内容判断body内容是否正确
                     let videos = data.videos
                     for(let index in videos){
-                        this.core.MSDB.hget(`apiMonitor:youku:${videos[index].videoid}`,"play_num",(err,result)=>{
+                        this.core.MSDB.hget(`apiMonitor:youku:play_num:${videos[index].videoid}`,"play_num",(err,result)=>{
                             if(err){
                                 logger.debug("读取redis出错")
                                 return

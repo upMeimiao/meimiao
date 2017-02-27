@@ -36,7 +36,7 @@ class storage{
 	            curPlatform = platformArr[i]
 	        }
 	    }
-	    mSpiderClint.hset(`apiMonitor:${curPlatform}:${media.aid}`,"play_num",media.play_num,(err,result)=>{
+	    mSpiderClint.hset(`apiMonitor:${curPlatform}:play_num:${media.aid}`,"play_num",media.play_num,(err,result)=>{
 	        if ( err ) {
 	            logger.error( '加入接口监控数据库出现错误：', err )
 	            return

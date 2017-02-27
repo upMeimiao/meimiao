@@ -388,7 +388,7 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
-                this.core.MSDB.hget(`apiMonitor:${media.author}:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return
