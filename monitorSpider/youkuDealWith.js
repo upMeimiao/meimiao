@@ -4,7 +4,6 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( 'request' )
-const storaging = require('./storaging')
 const jsonp = function (data) {
     return data
 }
@@ -14,6 +13,7 @@ class youkuDealWith {
     constructor(core){
         this.core = core
         this.settings = core.settings
+        this.storaging = new (require('./storaging'))(this)
         errDb = this.core.errDb
         logger = this.settings.logger
         api = this.settings.spiderAPI
@@ -49,24 +49,24 @@ class youkuDealWith {
         }
         request(options,(err,res,body)=>{
             if(err){
-                storaging.errStoraging(this.core,"youku",options.url,task.id,err,"responseErr","user")
+                this.storaging.errStoraging("youku",options.url,task.id,err,"responseErr","user")
                 return callback(err.message)
             }
             if(res && res.statusCode != 200){
-                storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口状态码错误","responseErr","user")
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口状态码错误","responseErr","user")
                 return callback(res.statusCode)
             }
             try{
                 body = JSON.parse(body)
             }catch(e){
                 logger.info(body)
-                storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口json数据解析失败","doWithResErr","user")
                 return callback(e.message)
             }
             if(!body){
                 logger.error('youku获取用户信息接口发生未知错误')
                 logger.debug('total error:',body)
-                storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
                 return callback()
             }
             let userInfo = body.data.channelOwnerInfo,
@@ -76,7 +76,7 @@ class youkuDealWith {
                     fans_num: userInfo.followerNum
                 }
             logger.debug(user)
-            storaging.succStorage(this.core,"youku",options.url,"user")
+            this.storaging.succStorage("youku",options.url,"user")
         })
     }
     youkuGetTotal( task, callback ) {
@@ -91,7 +91,7 @@ class youkuDealWith {
                 timeout: 5000
             }
         request(options, (error, response, body) => {
-            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,"total")
+            this.storaging.judgeRes ("youku",options.url,task.id,error,response,"total")
             if(!(body||response)){
                 return 
             }
@@ -99,14 +99,14 @@ class youkuDealWith {
                 body = JSON.parse(body)
             } catch (e) {
                 logger.error('优酷获取全部视频接口json数据解析失败')
-                storaging.errStoraging(this.core,"youku",options.url,task.id,"优酷获取全部视频接口json数据解析失败","resultErr","total")
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取全部视频接口json数据解析失败","resultErr","total")
                 logger.debug('total error:',body)
                 return callback(e)
             }
             let data = body.data
             if(!data){
                 logger.error((body.code+body.desc)||"优酷获取全部视频接口返回内容为空")
-                storaging.errStoraging(this.core,'youku',options.url,task.id,body.desc,"resultErr","total")
+                this.storaging.errStoraging('youku',options.url,task.id,body.desc,"resultErr","total")
                 return callback(true)
             }
             let total = data.total
@@ -116,7 +116,7 @@ class youkuDealWith {
             }else{
                 page = total / 20
             }
-            storaging.succStorage(this.core,"youku",options.url,"total")
+            this.storaging.succStorage("youku",options.url,"total")
             this.youkuGetVideos(task,page, (err,result) => {
                 logger.debug(err,result)
             })
@@ -144,7 +144,7 @@ class youkuDealWith {
                 request(options, (error, response, body) => {
                     if(error){
                         logger.error( 'occur error : ', error )
-                        storaging.errStoraging(this.core,'youku',options.url,task.id,error,"responseErr","videos")
+                        this.storaging.errStoraging('youku',options.url,task.id,error,"responseErr","videos")
                         return cb()
                     }
                     if(response.statusCode != 200){
@@ -155,7 +155,7 @@ class youkuDealWith {
                         body = JSON.parse(body)
                     }catch (e){
                         logger.error('优酷获取单页视频列表接口json数据解析失败')
-                        storaging.errStoraging(this.core,'youku',options.url,task.id,"优酷获取单页视频列表接口json数据解析失败","doWithResErr","videos")
+                        this.storaging.errStoraging('youku',options.url,task.id,"优酷获取单页视频列表接口json数据解析失败","doWithResErr","videos")
                         logger.debug('list error:',body)
                         return cb()
                     }
@@ -175,12 +175,12 @@ class youkuDealWith {
                             }
                             if(result > videos[index].total_vv){
                                 logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
-                                storaging.errStoraging(this.core,"youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"resultErr","videos")
+                                this.storaging.errStoraging("youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"resultErr","videos")
                                 return
                             }
                         })
                     }
-                    storaging.succStorage(this.core,"youku",options.url,"videos")
+                    this.storaging.succStorage("youku",options.url,"videos")
                     this.youkuInfo(task,videos, () => {
                         sign++
                     })
@@ -207,7 +207,7 @@ class youkuDealWith {
             timeout: 5000
         }
         request( options, ( error, response, body ) => {
-            storaging.judgeRes (this.core,"youku",options.url,task.id,error,response,"info")
+            this.storaging.judgeRes ("youku",options.url,task.id,error,response,"info")
             if(!(body||response)){
                 return 
             }
@@ -215,7 +215,7 @@ class youkuDealWith {
                 body = JSON.parse(body)
             } catch (e) {
                 logger.error('优酷获取视频详情接口json数据解析失败')
-                storaging.errStoraging(this.core,'youku',options.url,task.id,"优酷获取视频详情接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('youku',options.url,task.id,"优酷获取视频详情接口json数据解析失败","doWithResErr","info")
                 logger.debug('info error:',body)
                 return callback(e)
             }
@@ -225,10 +225,10 @@ class youkuDealWith {
             //根据已存redis内容判断body内容是否正确,正确则存入数据库，错误则记录错误
             let videos = body.videos
             if(!body.videos){
-                storaging.errStoraging(this.core,'youku',options.url,task.id,"优酷获取视频详情接口返回数据为空","resultErr","info")
+                this.storaging.errStoraging('youku',options.url,task.id,"优酷获取视频详情接口返回数据为空","resultErr","info")
                 return callback()
             }
-            storaging.succStorage(this.core,"youku",options.url,"info")
+            this.storaging.succStorage("youku",options.url,"info")
             this.youkuDeal( task, videos, list, () => {
                 logger.debug(err,result)
             })
@@ -263,7 +263,7 @@ class youkuDealWith {
                     step: result.down_count,
                     a_create_time: video.publishtime
                 }
-                storaging.sendDb(this.core,media)
+                this.storaging.sendDb(media)
                 index++
                 cb()
             },

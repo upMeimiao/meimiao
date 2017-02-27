@@ -4,12 +4,12 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/req' )
-const storaging = require('./storaging')
 let logger,api
 class billDealWith {
     constructor ( spiderCore ) {
         this.core = spiderCore
         this.settings = spiderCore.settings
+        this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
         logger.trace('DealWith instantiation ...')
@@ -48,19 +48,19 @@ class billDealWith {
         request.post (option,(err,result)=>{
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,err,"responseErr","user")
+            //     this.storaging.errStoraging('bili',option.url,task.id,err,"responseErr","user")
             //     return callback(err)
             // }
             // if(!result){
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取粉丝接口无返回内容","resultErr","user")
+            //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取粉丝接口无返回内容","resultErr","user")
             //     return callback()
             // }
             // if( result.statusCode != 200){
             //     logger.error('获取粉丝code error：',result.statusCode)
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取粉丝code error","responseErr","user")
+            //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取粉丝code error","responseErr","user")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"bili",option.url,task.id,err,result,"user")
+            this.storaging.judgeRes ("bili",option.url,task.id,err,result,"user")
             if(!result){
                 return 
             }
@@ -68,7 +68,7 @@ class billDealWith {
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取粉丝json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取粉丝json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             // let userInfo = result.data,
@@ -77,7 +77,7 @@ class billDealWith {
             //         bid: userInfo.mid,
             //         fans_num: userInfo.fans
             //     }
-            storaging.succStorage(this.core,"bili",option.url,"user")
+            this.storaging.succStorage("bili",option.url,"user")
         })
     }
     getTotal ( task, callback) {
@@ -87,19 +87,19 @@ class billDealWith {
         request.get(option, (err,result) => {
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,err,"responseErr","total")
+            //     this.storaging.errStoraging('bili',option.url,task.id,err,"responseErr","total")
             //     return callback(err)
             // }
             // if(!result){
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取total接口无返回内容","resultErr","total")
+            //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口无返回内容","resultErr","total")
             //     return callback()
             // }
             // if( result.statusCode != 200){
             //     logger.error('获取total接口code error：',result.statusCode)
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取total接口code error","responseErr","total")
+            //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口code error","responseErr","total")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"bili",option.url,task.id,err,result,"total")
+            this.storaging.judgeRes ("bili",option.url,task.id,err,result,"total")
             if(!result){
                 return 
             }
@@ -107,11 +107,11 @@ class billDealWith {
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取total接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
             task.total = result.data.count
-            storaging.succStorage(this.core,"bili",option.url,"total")
+            this.storaging.succStorage("bili",option.url,"total")
             this.getVideos( task, result.data.pages, () => {
                 callback()
             })
@@ -130,23 +130,23 @@ class billDealWith {
                 request.get(option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
-                        storaging.errStoraging(this.core,'bili',option.url,task.id,err,"responseErr","videos")
+                        this.storaging.errStoraging('bili',option.url,task.id,err,"responseErr","videos")
                         return cb()
                     }
                     if(!result){
-                        storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取videos接口无返回内容","resultErr","videos")
+                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口无返回内容","resultErr","videos")
                         return cb()
                     }
                     if( result.statusCode != 200){
                         logger.error('获取total接口code error：',result.statusCode)
-                        storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取videos接口code error","responseErr","videos")
+                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口code error","responseErr","videos")
                         return cb()
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e){
                         logger.error('json数据解析失败')
-                        storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取videos接口json数据解析失败","doWithResErr","videos")
+                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口json数据解析失败","doWithResErr","videos")
                         return cb()
                     }
                     if(!result.data){
@@ -159,7 +159,7 @@ class billDealWith {
                         sign++
                         return cb()
                     }
-                    storaging.succStorage(this.core,"bili",option.url,"videos")
+                    this.storaging.succStorage("bili",option.url,"videos")
                     this.deal(task,result.data.vlist,() => {
                         sign++
                         cb()
@@ -200,19 +200,19 @@ class billDealWith {
         request.get(option, (err,back) => {
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,err,"responseErr","info")
+            //     this.storaging.errStoraging('bili',option.url,task.id,err,"responseErr","info")
             //     return callback(err)
             // }
             // if(!back){
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取info接口无返回内容","resultErr","info")
+            //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取info接口无返回内容","resultErr","info")
             //     return callback()
             // }
             // if(back.statusCode != 200){
             //     logger.error(`秒拍getInfo code error: ${result.statusCode}`)
-            //     storaging.errStoraging(this.core,'bili',option.url,task.id,"哔哩哔哩获取info code error","responseErr","info")
+            //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取info code error","responseErr","info")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"bili",option.url,task.id,err,back,"info")
+            this.storaging.judgeRes ("bili",option.url,task.id,err,back,"info")
             if(!back){
                 return 
             }
@@ -220,7 +220,7 @@ class billDealWith {
                 back = JSON.parse(back.body)
             } catch (e){
                 logger.error('哔哩哔哩获取info接口json数据解析失败')
-                storaging.errStoraging(this.core,'bili',option.url,task.id,`哔哩哔哩获取info接口json数据解析失败`,"doWithResErr","info")
+                this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取info接口json数据解析失败`,"doWithResErr","info")
                 return callback(e)
             }
             if(back.code != 0){
@@ -230,7 +230,7 @@ class billDealWith {
             if(back.data.tags && back.data.tags.length != 0){
                 tagStr = back.data.tags.join(',')
             }
-            storaging.succStorage(this.core,"bili",option.url,"info")
+            this.storaging.succStorage("bili",option.url,"info")
             let media = {
                 author: back.data.owner.name,
                 platform: 8,
@@ -257,10 +257,10 @@ class billDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    storaging.errStoraging(this.core,'miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少`,"resultErr","videos")
+                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少`,"resultErr","videos")
                 }
             })
-            storaging.sendDb(this.core,media)
+            this.storaging.sendDb(media)
             callback()
         })
     }

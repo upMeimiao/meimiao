@@ -5,7 +5,6 @@ const URL = require('url')
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/request' )
-const storaging = require('./storaging')
 const md5 = require('js-md5')
 
 let logger,api
@@ -13,6 +12,7 @@ class toutiaoDealWith {
     constructor(spiderCore) {
         this.core = spiderCore
         this.settings = spiderCore.settings
+        this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
         logger.trace('DealWith instantiation ...')
@@ -78,17 +78,17 @@ class toutiaoDealWith {
                 return callback(err)
             }
             if(!result){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取粉丝接口无返回值","responseErr","user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口无返回值","responseErr","user")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取粉丝json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             if( result.message != 'success' || !result.data ){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,`今日头条获取粉丝接口发生错误${result.message}`,"responseErr","user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取粉丝接口发生错误${result.message}`,"responseErr","user")
 
                 return callback('fail')
             }
@@ -100,7 +100,7 @@ class toutiaoDealWith {
                 fans = fans.replace('万','') * 10000
             }
             if(Number(fans) === 0){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取粉丝接口粉丝数发生异常：","responseErr","user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口粉丝数发生异常：","responseErr","user")
                 return
             }
             let user = {
@@ -114,7 +114,7 @@ class toutiaoDealWith {
             //         time: new Date().getTime()
             //     }))
             // }
-            storaging.succStorage(this.core,"toutiao",option.url,"user")
+            this.storaging.succStorage("toutiao",option.url,"user")
         })
     }
     getUserId(task) {
@@ -129,15 +129,15 @@ class toutiaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取粉丝Id接口json数据解析失败","doWithResErr","userId")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝Id接口json数据解析失败","doWithResErr","userId")
                 return
             }
             if(result.message != 'success'){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,`今日头条获取粉丝Id接口发生错误${result.message}`,"responseErr","userId")
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取粉丝Id接口发生错误${result.message}`,"responseErr","userId")
                 return
             }
             //let userId = result.data.user_id
-            storaging.succStorage(this.core,"toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
+            this.storaging.succStorage("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
         })
     }
     getList ( task, callback ) {
@@ -175,7 +175,7 @@ class toutiaoDealWith {
                         }catch (e){
                             // logger.error('json数据解析失败')
                             // logger.error(result.body)
-                            storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取列表接口json数据解析失败","doWithResErr","list")
+                            this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取列表接口json数据解析失败","doWithResErr","list")
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
@@ -198,7 +198,7 @@ class toutiaoDealWith {
                             index++
                             cb()
                         })
-                        storaging.succStorage(this.core,"toutiao",option.url,"list")
+                        this.storaging.succStorage("toutiao",option.url,"list")
                     })
                 } else {
                     this.core.proxy.need(times, (err, _proxy) => {
@@ -226,7 +226,7 @@ class toutiaoDealWith {
                             }catch (e){
                                 // logger.error('json数据解析失败')
                                 // logger.error(result.body)
-                                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取list接口json数据解析失败","doWithResErr","list")
+                                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取list接口json数据解析失败","doWithResErr","list")
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
@@ -251,7 +251,7 @@ class toutiaoDealWith {
                                 index++
                                 cb()
                             })
-                            storaging.succStorage(this.core,"toutiao",option.url,"list")
+                            this.storaging.succStorage("toutiao",option.url,"list")
                         })
                     })
                 }
@@ -328,11 +328,11 @@ class toutiaoDealWith {
                 return
             }
             if(result > media.play_num){
-                storaging.errStoraging(this.core,'toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"resultErr","play")
+                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"resultErr","play")
                 return
             }
         })
-        storaging.sendDb(this.core,media)
+        this.storaging.sendDb(media)
         callback()
     }
     getPlayNum ( vid, callback ) {
@@ -348,15 +348,15 @@ class toutiaoDealWith {
             } catch (e) {
                 logger.error('返回JSON格式不正确')
                 logger.error('info:',result)
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取playNum接口返回JSON格式不正确","doWithResErr","play")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取playNum接口返回JSON格式不正确","doWithResErr","play")
                 return callback(e)
             }
             let backData = result.data
             if(!backData){
-                storaging.errStoraging(this.core,'toutiao',option.url,task.id,"今日头条获取playNum接口返回数据为空","doWithResErr","play")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取playNum接口返回数据为空","doWithResErr","play")
                 return callback(true)
             }
-            storaging.succStorage(this.core,"toutiao",option.url,"play")
+            this.storaging.succStorage("toutiao",option.url,"play")
             callback(null,backData.video_play_count)
         })
     }

@@ -2,7 +2,6 @@
  * Created by junhao on 16/6/20.
  */
 const async = require( 'async' )
-const storaging = require('./storaging')
 const request = require( '../lib/req' )
 let logger,api
 const jsonp = function (data) {
@@ -13,6 +12,7 @@ class kuaibaoDealWith {
     constructor ( spiderCore ){
         this.core = spiderCore
         this.settings = spiderCore.settings
+        this.storaging = new (require('./storaging'))(this)
         api = this.settings.spiderAPI
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
@@ -64,7 +64,7 @@ class kuaibaoDealWith {
             //     logger.error('获取粉丝code error：',result.statusCode)
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"user")
+            this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"user")
             if(!result){
                 return
             }
@@ -72,13 +72,13 @@ class kuaibaoDealWith {
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取粉丝json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取粉丝json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             let userInfo = result.channelInfo
             if(!userInfo){
                 logger.error('userInfo异常错误')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取粉丝userInfo异常错误","doWithResErr","user")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取粉丝userInfo异常错误","doWithResErr","user")
                 logger.error(result)
                 return callback()
             }
@@ -87,7 +87,7 @@ class kuaibaoDealWith {
             //     bid: task.id,
             //     fans_num: userInfo.subCount
             // }
-            storaging.succStorage(this.core,"kuaibao",option.url,"user")
+            this.storaging.succStorage("kuaibao",option.url,"user")
         })
     }
     getVideos ( task, callback ) {
@@ -107,7 +107,7 @@ class kuaibaoDealWith {
             // if(result.statusCode != 200){
             //     return callback(result.statusCode)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"videos")
+            this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"videos")
             if(!result){
                 return 
             }
@@ -115,11 +115,11 @@ class kuaibaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取videos接口json数据解析失败","doWithResErr","videos")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取videos接口json数据解析失败","doWithResErr","videos")
                 return callback(e)
             }
             task.total = result.ids.length
-            storaging.succStorage(this.core,"kuaibao",option.url,"videos")
+            this.storaging.succStorage("kuaibao",option.url,"videos")
 
             this.deal(task,result.ids, () => {
                 callback()
@@ -157,7 +157,7 @@ class kuaibaoDealWith {
             }
         }
         request.post( option, (err,result) => {
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"info")
+            this.storaging.judgeRes("kuaibao",option.url,task.id,err,result,"info")
             // // if(err){
             // //     logger.error( 'occur error : ', err )
             // //     return callback(err)
@@ -169,7 +169,7 @@ class kuaibaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取info接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取info接口json数据解析失败","doWithResErr","info")
                 return callback(e)
             }
             //logger.debug(result)
@@ -184,7 +184,7 @@ class kuaibaoDealWith {
                     time: backData.timestamp,
                     vid: backData.video_channel.video.vid
                 }
-            storaging.succStorage(this.core,"kuaibao",option.url,"info")
+            this.storaging.succStorage("kuaibao",option.url,"info")
 
             this.getDetail(task,info, (err) => {
                 if(err){
@@ -267,10 +267,10 @@ class kuaibaoDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    storaging.errStoraging(this.core,'kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报${media.aid}播放量减少`,"resultErr","play")
+                    this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报${media.aid}播放量减少`,"resultErr","play")
                 }
             })
-            storaging.sendDb(this.core,media)
+            this.storaging.sendDb(media)
             callback()
         })
     }
@@ -291,7 +291,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"commentNum")
+            this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return
             }
@@ -299,7 +299,7 @@ class kuaibaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取commentNum接口json数据解析失败","doWithResErr","commentNum")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取commentNum接口json数据解析失败","doWithResErr","commentNum")
                 return callback(e)
             }
             if(result.comments){
@@ -307,7 +307,7 @@ class kuaibaoDealWith {
             }else{
                 callback(true)
             }
-            storaging.succStorage(this.core,"kuaibao",option.url,"commentNum")
+            this.storaging.succStorage("kuaibao",option.url,"commentNum")
 
         })
     }
@@ -325,7 +325,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"Expr")
+            this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"Expr")
             if(!result){
                 return
             }
@@ -333,7 +333,7 @@ class kuaibaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取Expr接口json数据解析失败","doWithResErr","Expr")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取Expr接口json数据解析失败","doWithResErr","Expr")
                 return callback(e)
             }
             let data = {
@@ -341,7 +341,7 @@ class kuaibaoDealWith {
                 up: result.expr_info.list[0].count || null,
                 down: result.expr_info.list[1].count || null
             }
-            storaging.succStorage(this.core,"kuaibao",option.url,"Expr")
+            this.storaging.succStorage("kuaibao",option.url,"Expr")
 
             callback(null,data)
         })
@@ -361,7 +361,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"play")
+            this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"play")
             if(!result){
                 return 
             }
@@ -369,7 +369,7 @@ class kuaibaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取playNum接口json数据解析失败","doWithResErr","play")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取playNum接口json数据解析失败","doWithResErr","play")
                 return callback(e)
             }
             //logger.debug(result)
@@ -380,7 +380,7 @@ class kuaibaoDealWith {
             } else {
                 callback(true)
             }
-            storaging.succStorage(this.core,"kuaibao",option.url,"play")
+            this.storaging.succStorage("kuaibao",option.url,"play")
 
         })
     }
@@ -394,7 +394,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"kuaibao",option.url,task.id,err,result,"field")
+            this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"field")
             if(!result){
                 return 
             }
@@ -402,7 +402,7 @@ class kuaibaoDealWith {
                 result = eval(result.body)
             }catch (e){
                 logger.error('jsonp数据解析失败')
-                storaging.errStoraging(this.core,'kuaibao',option.url,task.id,"快报获取field接口json数据解析失败","doWithResErr","field")
+                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口json数据解析失败","doWithResErr","field")
                 logger.error(result)
                 return callback(e)
             }
@@ -415,7 +415,7 @@ class kuaibaoDealWith {
                 tag: this._tag(result.video.tags),
                 class: this._class(result.video.ctypename)
             }
-            storaging.succStorage(this.core,"kuaibao",option.url,"field")
+            this.storaging.succStorage("kuaibao",option.url,"field")
             callback(null,backData)
         })
     }

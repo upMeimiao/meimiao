@@ -4,7 +4,6 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/req' )
-const storaging = require('./storaging')
 const jsonp = function (data) {
     return data
 }
@@ -13,6 +12,7 @@ class tencentDealWith {
     constructor (spiderCore){
         this.core = spiderCore
         this.settings = spiderCore.settings
+        this.storaging = new (require('./storaging'))(this)
         api = this.settings.spiderAPI
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
@@ -49,19 +49,19 @@ class tencentDealWith {
 
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","total")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","total")
             //     return callback(err)
             // }
             // if(!result){
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取视频总数接口无返回内容","resultErr","total")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频总数接口无返回内容","resultErr","total")
             //     return
             // }
             // if(result.statusCode != 200){
             //     logger.error('tencent code error: ',result.statusCode)
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","total")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","total")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"total")
+            this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"total")
             if(!result || !result.body){
                 return 
             }
@@ -69,18 +69,18 @@ class tencentDealWith {
                 result = JSON.parse(result.body.substring(6, result.body.length - 1))
             } catch (e){
                 logger.error(result.body.substring(6, result.body.length - 1))
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取视频总数接口JSON数据解析错误","doWithResErr","total")
+                this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频总数接口JSON数据解析错误","doWithResErr","total")
                 return callback(e)
             }
             //logger.debug(result)
             if(result.s != 'o'){
                 logger.error(`异常错误${result.em}`)
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,`腾讯视频获取视频总数接口发生异常错误${result.em}`,"doWithResErr","total")
+                this.storaging.errStoraging('tencent',option.url,task.id,`腾讯视频获取视频总数接口发生异常错误${result.em}`,"doWithResErr","total")
                 return callback(result.em)
             }
             if(!result.vtotal){
                 logger.error(`异常错误`)
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,`腾讯视频获取视频总数接口发生异常错误${result.em}`,"doWithResErr","total")
+                this.storaging.errStoraging('tencent',option.url,task.id,`腾讯视频获取视频总数接口发生异常错误${result.em}`,"doWithResErr","total")
                 return callback(true)
             }
             task.total = result.vtotal
@@ -90,7 +90,7 @@ class tencentDealWith {
                 }
                 callback()
             })
-            storaging.succStorage(this.core,"tencent",option.url,"total")
+            this.storaging.succStorage("tencent",option.url,"total")
         })
     }
     getUser (task,callback) {
@@ -101,15 +101,15 @@ class tencentDealWith {
         request.get( option, (err,result)=>{
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","user")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","user")
             //     return callback()
             // }
             // if(result.statusCode != 200){
             //     logger.error('tencent code error: ',result.statusCode)
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","user")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","user")
             //     return callback()
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"user")
+            this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"user")
             if(!result || !result.body){
                 return 
             }
@@ -117,7 +117,7 @@ class tencentDealWith {
                 result = eval(result.body)
             } catch (e){
                 logger.error('tencent jsonp error: ',result)
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取用户信息接口返回数据错误","resultErr","user")
+                this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取用户信息接口返回数据错误","resultErr","user")
                 return callback()
             }
             //let user = {
@@ -125,7 +125,7 @@ class tencentDealWith {
                 //bid: task.id,
                 //fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g,'')) * 10000
             //}
-            storaging.succStorage(this.core,"tencent",option.url,"user")
+            this.storaging.succStorage("tencent",option.url,"user")
         })
     }
     getList ( task, total, callback ) {
@@ -149,12 +149,12 @@ class tencentDealWith {
                 request.get( option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
-                        storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","list")
+                        this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","list")
                         return cb()
                     }
                     //logger.debug(back.body)
                     if(!result || !result.body){
-                        storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频list接口无返回数据","responseErr","list")
+                        this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频list接口无返回数据","responseErr","list")
                         return cb()
                     }
                     try {
@@ -177,7 +177,7 @@ class tencentDealWith {
                     }
 
                 })
-                storaging.succStorage(this.core,"tencent",option.url,"list")
+                this.storaging.succStorage("tencent",option.url,"list")
             },
             (err,result) => {
                 callback()
@@ -257,11 +257,11 @@ class tencentDealWith {
                         return
                     }
                     if(result > media.play_num){
-                        storaging.errStoraging(this.core,'tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"resultErr","view")
+                        this.storaging.errStoraging('tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"resultErr","view")
                         return
                     }
                 })
-                storaging.sendDb(this.core,media)
+                this.storaging.sendDb(media)
                 if(!media.comment_num){
                     delete media.comment_num
                 }
@@ -278,22 +278,22 @@ class tencentDealWith {
         request.get( option, ( err, result ) => {
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","view")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","view")
             //     return callback(err)
             // }
             // if(result.statusCode != 200){
             //     logger.error(`状态码错误,${result.statusCode}`)
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取视频播放量接口状态码错误","responseErr","view")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频播放量接口状态码错误","responseErr","view")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"view")
+            this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"view")
             if(!result){
                 return
             }
             let backData =eval(result.body),
                 back = backData.results
             if(!back){
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取视频播放量接口返回数据错误","responseErr","view")
+                this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频播放量接口返回数据错误","responseErr","view")
                 return
             }
             if(back[0].fields){
@@ -301,7 +301,7 @@ class tencentDealWith {
             }else{
                 callback(null,0)
             }
-            storaging.succStorage(this.core,"tencent",option.url,"view")
+            this.storaging.succStorage("tencent",option.url,"view")
         })
     }
     getComment ( task, id, callback ) {
@@ -311,15 +311,15 @@ class tencentDealWith {
         request.get( option, ( err, result ) => {
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","comment")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","comment")
             //     return callback(err)
             // }
             // if( result.statusCode != 200){
             //     logger.error( '腾讯获取评论数code错误 : ', result.statusCode )
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取评论接口状态码错误","responseErr","comment")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取评论接口状态码错误","responseErr","comment")
             //     return callback(true)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"comment")
+            this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"comment")
             if(!result){
                 return 
             }
@@ -328,13 +328,13 @@ class tencentDealWith {
                 backData = eval(result.body)
             } catch (e) {
                 logger.error('腾讯获取评论数jsonp解析失败')
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯获取评论jsonp解析失败","doWithResErr","comment")
+                this.storaging.errStoraging('tencent',option.url,task.id,"腾讯获取评论jsonp解析失败","doWithResErr","comment")
                 logger.error(result.body)
                 return callback(e)
             }
             if(!backData.result){
                 logger.error( '腾讯获取评论数异常错误' )
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯获取评论异常错误","resultErr","comment")
+                this.storaging.errStoraging('tencent',option.url,task.id,"腾讯获取评论异常错误","resultErr","comment")
                 logger.error(backData)
                 return callback(true)
             }
@@ -348,7 +348,7 @@ class tencentDealWith {
             }else{
                 callback(true)
             }
-            storaging.succStorage(this.core,"tencent",option.url,"comment")
+            this.storaging.succStorage("tencent",option.url,"comment")
         })
     }
     getCommentNum ( task, id, callback ) {
@@ -360,10 +360,10 @@ class tencentDealWith {
         request.get(option, (err,result) => {
             // if(err){
             //     logger.error( 'occur error : ', err )
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","commentNum")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","commentNum")
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"commentNum")
+            this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return 
             }
@@ -371,7 +371,7 @@ class tencentDealWith {
                 result = JSON.parse(result.body)
             } catch ( e ) {
                 logger.error(`获取视频${id}评论解析JSON错误`)
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,`获取视频${id}评论解析JSON错误`,"doWithResErr","commentNum")
+                this.storaging.errStoraging('tencent',option.url,task.id,`获取视频${id}评论解析JSON错误`,"doWithResErr","commentNum")
                 logger.info(result)
                 return callback(null,null)
             }
@@ -380,7 +380,7 @@ class tencentDealWith {
             } else {
                 callback(null,null)
             }
-            storaging.succStorage(this.core,"tencent",option.url,"commentNum")
+            this.storaging.succStorage("tencent",option.url,"commentNum")
         })
     }
     getVidTag( task, vid, callback ){
@@ -389,24 +389,24 @@ class tencentDealWith {
         }
         request.get( option, ( err, result ) => {
             // if(err){
-            //     storaging.errStoraging(this.core,'tencent',option.url,task.id,err,"responseErr","vidTag")
+            //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","vidTag")
             //     return callback(err)
             // }
-            storaging.judgeRes (this.core,"tencent",option.url,task.id,err,result,"vidTag")
+            this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"vidTag")
             if(!result){
                 return 
             }
             try{
                 result = eval(result.body)
             } catch (e){
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取视频信息接口eval错误","doWithResErr","vidTag")
+                this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频信息接口eval错误","doWithResErr","vidTag")
                 return callback(null,null)
             }
             if(!result.v || result.v.length == 0){
-                storaging.errStoraging(this.core,'tencent',option.url,task.id,"腾讯视频获取视频信息接口返回数据错误","resultErr","vidTag")
+                this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频信息接口返回数据错误","resultErr","vidTag")
                 return callback(null,null)
             }
-            storaging.succStorage(this.core,"tencent",option.url,"vidTag")
+            this.storaging.succStorage("tencent",option.url,"vidTag")
             const tagStr = result.v[0].tags_video
             callback(null,tagStr)
         })
