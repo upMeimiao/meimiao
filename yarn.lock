@@ -1059,16 +1059,16 @@ kind-of@^3.0.2:
   dependencies:
     is-buffer "^1.0.2"
 
-kue-ui-client@~1.0.2:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/kue-ui-client/-/kue-ui-client-1.0.3.tgz#34f75c760962b36a114c708c97555e6c0204175e"
+kue-ui-client@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/kue-ui-client/-/kue-ui-client-1.1.0.tgz#1e158ceb84fc9d3c74cd21029d7b0a91ca9de874"
 
-kue-ui-express@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/kue-ui-express/-/kue-ui-express-1.0.1.tgz#9dcf02fcd357e441d675a1e4afaeeea2d9fe6b8b"
+kue-ui-express@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/kue-ui-express/-/kue-ui-express-1.0.2.tgz#c27428930a425a1b1af4b681bb3bb56901468f0e"
   dependencies:
     jsdom "^9.11.0"
-    kue-ui-client "~1.0.2"
+    kue-ui-client "^1.1.0"
     serve-static "^1.11.2"
 
 kue@^0.11.5:
