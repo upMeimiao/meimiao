@@ -113,6 +113,17 @@ class dealWith {
                     this.getComment(vidInfo.video_sid,(err,result) => {
                         cb(err,result)
                     })
+                },
+                (cb) => {
+                    if(task.type == 'list2'){
+                        this.getPlay( video.episodeid, (err,result) => {
+                            cb(err,result)
+                        })
+                    }else{
+                        this.getPlay( video.assetid, (err,result) => {
+                            cb(err,result)
+                        })
+                    }
                 }
             ],
             (err,result) => {
@@ -130,7 +141,7 @@ class dealWith {
                         class: vidInfo.class,
                         long_t: result[0].duration,
                         a_create_time: result[0].updatetime,
-                        play_num: result[0].hits,
+                        play_num: result[2],
                         comment_num: result[1]
                     }
                 }else{
@@ -146,7 +157,7 @@ class dealWith {
                         class: result[0].class,
                         long_t: result[0].duration,
                         a_create_time: result[0].updatetime,
-                        play_num: result[0].hits,
+                        play_num: result[2],
                         comment_num: result[1]
                     }
                 }
@@ -192,8 +203,19 @@ class dealWith {
             callback(null,result.cmt_sum)
         })
     }
+    getPlay( vid, callback ){
+        let option = {
+            url: `http://uc.wasu.cn/Ajax/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}`
+        }
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('播放量请求失败',err)
+                return this.getPlay( vid, callback )            }
+            result = result.body ? Number(result.body.replace(/,/g,'')) : ''
+            callback(null,result)
+        })
+    }
     sendCache (media,callback){
-        logger.info(media)
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
                 logger.error( '加入缓存队列出现错误：', err )
