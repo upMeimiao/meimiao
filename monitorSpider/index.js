@@ -110,16 +110,16 @@ class spiderCore {
                 "name":"kuaibao","platform":10,"id":5005354,"bname":"微在涨姿势"
             }
 
-        youku_rule.minute = [1]
-        iqiyi_rule.minute = [2]
-        le_rule.minute = [3]
-        tencent_rule.minute = [4]
-        meipai_rule.minute = [5]
-        toutiao_rule.minute = [6]
-        miaopai_rule.minute = [7]
-        bili_rule.minute = [8]
-        souhu_rule.minute = [9]
-        kuaibao_rule.minute = [10]
+        youku_rule.second = [1,21,41]
+        iqiyi_rule.second = [2,22,42]
+        le_rule.second = [3,23,43]
+        tencent_rule.second = [4]
+        meipai_rule.second = [5]
+        toutiao_rule.second = [6]
+        miaopai_rule.second = [7]
+        bili_rule.second = [8]
+        souhu_rule.second = [9]
+        kuaibao_rule.second = [10]
 
         schedule.scheduleJob(youku_rule,() => {
             this.youkuDeal.youku(youku_work,(err,result) => {
@@ -136,41 +136,41 @@ class spiderCore {
                 logger.debug(err,result)
             })
         })
-        schedule.scheduleJob(tencent_rule,() => {
-            this.tencentDeal.tencent(tencent_work,(err,result) => {
-                logger.debug(err,result)
-            })
-        })
-        schedule.scheduleJob(meipai_rule,() => {
-            this.meipaiDeal.meipai(meipai_work,(err,result) => {
-                logger.debug(err,result)
-            })
-        })
-        schedule.scheduleJob(toutiao_rule,() => {
-            this.toutiaoDeal.toutiao(toutiao_work,(err,result) => {
-                logger.debug(err,result)
-            })
-        })
-        schedule.scheduleJob(miaopai_rule,() => {
-            this.miaopaiDeal.miaopai(miaopai_work,(err,result) => {
-                logger.debug(err,result)
-            })
-        })
-        schedule.scheduleJob(bili_rule,() => {
-            this.biliDeal.bili(bili_work,(err,result) => {
-                logger.debug(err,result)
-            })
-        })
-        schedule.scheduleJob(souhu_rule,() => {
-            this.souhuDeal.souhu(souhu_work,(err,result) => {
-                logger.debug(err,result)
-            })
-        })
-        schedule.scheduleJob(kuaibao_rule,() => {
-            this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
-                logger.debug(err,result)
-            })
-        })
+        // schedule.scheduleJob(tencent_rule,() => {
+        //     this.tencentDeal.tencent(tencent_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
+        // schedule.scheduleJob(meipai_rule,() => {
+        //     this.meipaiDeal.meipai(meipai_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
+        // schedule.scheduleJob(toutiao_rule,() => {
+        //     this.toutiaoDeal.toutiao(toutiao_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
+        // schedule.scheduleJob(miaopai_rule,() => {
+        //     this.miaopaiDeal.miaopai(miaopai_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
+        // schedule.scheduleJob(bili_rule,() => {
+        //     this.biliDeal.bili(bili_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
+        // schedule.scheduleJob(souhu_rule,() => {
+        //     this.souhuDeal.souhu(souhu_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
+        // schedule.scheduleJob(kuaibao_rule,() => {
+        //     this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
+        //         logger.debug(err,result)
+        //     })
+        // })
         logger.trace('启动函数')
     }
 }

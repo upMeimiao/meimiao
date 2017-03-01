@@ -31,8 +31,18 @@ class leDealWith {
         option.referer = `http://chuang.le.com/u/${task.id}/videolist`
         option.ua = 1
         request.get( logger, option, (err,result) => {
+            this.storaging.totalStorage ("le",option.url,"total")
             if(err){
-                this.storaging.errStoraging('le',option.url,task.id,err,"responseErr","total")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+
+                this.storaging.errStoraging('le',option.url,task.id,err,errType,"total")
                 return callback(err)
             }
             try {
@@ -45,7 +55,7 @@ class leDealWith {
             }
             let page = result.data.totalPage
             task.total = page * 48
-            this.storaging.succStorage("le",option.url,"total")
+            // this.storaging.succStorage("le",option.url,"total")
             this.getList(task,page, () => {
                 callback()
             })
@@ -64,8 +74,17 @@ class leDealWith {
                 logger.debug("开始获取第"+ sign +"页le视频列表")
                 option.url = api.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=" + sign + "&_="+ (new Date()).getTime()
                 request.get( logger, option, (err,result) => {
+                    this.storaging.totalStorage ("le",option.url,"list")
                     if(err){
-                        this.storaging.errStoraging('le',option.url,task.id,err,"responseErr","list")
+                        logger.error(err,err.code,err.Error)
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                        logger.error(errType)
+                        this.storaging.errStoraging('le',option.url,task.id,err,errType,"list")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -82,7 +101,7 @@ class leDealWith {
                     }
                     let backList = result.data.list
                     //logger.debug(backList)
-                    this.storaging.succStorage("le",option.url,"list")
+                    // this.storaging.succStorage("le",option.url,"list")
                     this.deal(task,backList, () => {
                         sign++
                         cb()
@@ -190,8 +209,18 @@ class leDealWith {
             ua: 1
         }
         request.get( logger, option, ( err, result ) => {
+            this.storaging.totalStorage ("le",option.url,"info")
             if(err){
-                this.storaging.errStoraging('le',option.url,id,err,"responseErr","info")
+                logger.error(err,err.code,err.Error)
+                let errType 
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+
+                this.storaging.errStoraging('le',option.url,id,err,errType,"info")
                 return callback(err)
             }
             //logger.debug(result.body)
@@ -211,7 +240,7 @@ class leDealWith {
             }
             //logger.debug('188: ',backData)
             let info = backData[0]
-            this.storaging.succStorage("le",option.url,"info")
+            // this.storaging.succStorage("le",option.url,"info")
             callback(null,info)
         })
     }
@@ -221,8 +250,17 @@ class leDealWith {
             ua: 1
         }
         request.get( logger, option, ( err, result ) => {
+            this.storaging.totalStorage ("le",option.url,"Expr")
             if(err){
-                this.storaging.errStoraging('le',option.url,id,err,"responseErr","Expr")
+                logger.error(err,err.code,err.Error)
+                let errType 
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+                this.storaging.errStoraging('le',option.url,id,err,errType,"Expr")
                 return callback( err )
             }
             const $ = cheerio.load(result.body),
@@ -247,7 +285,7 @@ class leDealWith {
                 time = timeDom3.text()
                 desc = descDom3.attr('title') || ''
             }
-            this.storaging.succStorage("le",option.url,"Expr")
+            // this.storaging.succStorage("le",option.url,"Expr")
             // logger.debug(timeDom.text())
             // logger.debug(descDom.attr('title'))
             callback(null,{time:time,desc:desc})
@@ -279,8 +317,17 @@ class leDealWith {
             referer: 'http://m.le.com/vplay_' + id +'.html'
         }
         request.get( logger, option, (err,result) => {
+            this.storaging.totalStorage ("le",option.url,"Desc")
             if(err){
-                this.storaging.errStoraging('le',option.url,id,err,"responseErr","Desc")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+                this.storaging.errStoraging('le',option.url,id,err,errType,"Desc")
                 return callback(null,null)
             }
             try{
@@ -300,7 +347,7 @@ class leDealWith {
                 desc: result.video_description || '',
                 class: result.style
             }
-            this.storaging.succStorage("le",option.url,"Desc")
+            // this.storaging.succStorage("le",option.url,"Desc")
             callback(null,backData)
         })
     }

@@ -55,7 +55,7 @@ class iqiyiDeal {
     //         	this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取用户信息接口无返回数据","resultErr","user")
     //         	return
     //         }
-
+            this.storaging.totalStorage ("iqiyi",option.url,"user")
             this.storaging.judgeRes ("iqiyi",option.url,task.id,err,result,"user")
             if(!result){
                 return 
@@ -67,7 +67,7 @@ class iqiyiDeal {
                     callback()
                 })
             }
-            this.storaging.succStorage("iqiyi",option.url,"user")
+            // this.storaging.succStorage("iqiyi",option.url,"user")
             // const fans = fansDom.attr('data-num'),
             //     user = {
             //         platform: 2,
@@ -91,7 +91,7 @@ class iqiyiDeal {
     //         	this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取粉丝接口无返回数据","resultErr","_user")
     //             return
     //         }
-
+            this.storaging.totalStorage ("iqiyi",option.url,"_user")
             this.storaging.judgeRes ("iqiyi",option.url,task.id,err,result,"_user")
             if(!result || !result.body){
                 return 
@@ -108,7 +108,7 @@ class iqiyiDeal {
                     fans_num: fansDom.substring(2)
                 }
             //logger.debug(user)
-            this.storaging.succStorage("iqiyi",option.url,"_user")
+            // this.storaging.succStorage("iqiyi",option.url,"_user")
         })
     }
     getTotal(task, callback) {
@@ -122,6 +122,7 @@ class iqiyiDeal {
 				// this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","total")
     //             return
     //         }
+            this.storaging.totalStorage ("iqiyi",option.url,"total")
             this.storaging.judgeRes ("iqiyi",option.url,task.id,err,result,"total")
             if(!result){
                 return 
@@ -143,7 +144,7 @@ class iqiyiDeal {
                     callback()
                 })
             }
-            this.storaging.succStorage("iqiyi",option.url,"total")
+            // this.storaging.succStorage("iqiyi",option.url,"total")
         })
     }
     getListN(task, callback) {
@@ -160,8 +161,17 @@ class iqiyiDeal {
             ( cb ) => {
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
                 request.get( logger, option, (err,result) => {
+                    this.storaging.totalStorage ("iqiyi",option.url,"list")
                     if(err){
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","list")
+                        logger.error(err,err.code,err.Error)
+                        let errType 
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"list")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -185,7 +195,7 @@ class iqiyiDeal {
                         })
                     }
                     //logger.debug(video)
-                    this.storaging.succStorage("iqiyi",option.url,"list")
+                    // this.storaging.succStorage("iqiyi",option.url,"list")
                     this.getIds(task, video, (err) => {
                         index++
                         cb()
@@ -209,8 +219,17 @@ class iqiyiDeal {
             (cb) => {
                 option.url = raw[index].link
                 request.get(logger, option, (err, result) => {
+                    this.storaging.totalStorage ("iqiyi",option.url,"ids")
                     if(err){
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","ids")
+                        logger.error(err,err.code,err.Error)
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"ids")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -225,7 +244,7 @@ class iqiyiDeal {
                             this.storaging.errStoraging('iqiyi',DOM,task.id,"iqiyi获取DOM元素中的视频id失败","domBasedErr","ids")
                             return
                         }
-                    this.storaging.succStorage("iqiyi",option.url,"ids")
+                    // this.storaging.succStorage("iqiyi",option.url,"ids")
                     this.info(task, {id: id, title: raw[index].title, link: raw[index].link},(err)=>{
                         index++
                         cb()
@@ -250,8 +269,17 @@ class iqiyiDeal {
             ( cb ) => {
                 option.url = api.iqiyi.list[0] + task.id + "&page=" + index
                 request.get( logger, option, (err,result) => {
+                    this.storaging.totalStorage ("iqiyi",option.url,"list")
                     if(err){
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","list")
+                        logger.error(err,err.code,err.Error)
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"list")
                         return cb()
                     }
                     try {
@@ -291,7 +319,7 @@ class iqiyiDeal {
                         id = id.slice(0,end)
                         links.push(id)
                     }
-                    this.storaging.succStorage("iqiyi",option.url,"list")
+                    // this.storaging.succStorage("iqiyi",option.url,"list")
                     this.deal(task,ids,titles,links, () => {
                         index++
                         cb()
@@ -339,7 +367,6 @@ class iqiyiDeal {
                 (callback) => {
                     this.getInfo(task,id,link, (err,data) => {
                         if(err){
-                        	this.storaging.errStoraging('iqiyi',link,task.id,err,"responseErr","info")
                             callback(err)
                         } else {
                             callback(null,data)
@@ -349,7 +376,6 @@ class iqiyiDeal {
                 (callback) => {
                     this.getExpr(task,id,link, (err,data) => {
                         if(err){
-                        	this.storaging.errStoraging('iqiyi',link,task.id,err,"responseErr","info")
                             callback(err)
                         } else {
                             callback(null,data)
@@ -359,7 +385,6 @@ class iqiyiDeal {
                 (callback) => {
                     this.getPlay(task,id,link, (err,data) => {
                         if(err){
-                        	this.storaging.errStoraging('iqiyi',link,task.id,err,"responseErr","info")
                             callback(err)
                         } else {
                             callback(null,data)
@@ -414,8 +439,17 @@ class iqiyiDeal {
             ua: 1
         }
         request.get( logger, option, (err,result) => {
+            this.storaging.totalStorage ("iqiyi",option.url,"info")
             if(err){
-            	this.storaging.errStoraging('iqiyi',link,task.id,err,"responseErr","info")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+            	this.storaging.errStoraging('iqiyi',link,task.id,err,errType,"info")
                 return callback(err)
             }
             //logger.debug(backData)
@@ -462,11 +496,10 @@ class iqiyiDeal {
                 type:type,
                 seconds:seconds
             }
-            this.storaging.succStorage("iqiyi",option.url,"info")
+            // this.storaging.succStorage("iqiyi",option.url,"info")
             if(comment < 0){
                 this.getComment(playData.data.qitanId,playData.data.albumId,playData.data.tvId,link,(err,result)=>{
                     if(err){
-                    	this.storaging.errStoraging('iqiyi',link,task.id,err,"responseErr","info")
                         return callback(null,data)
                     }
                     data.comment = result
@@ -484,8 +517,17 @@ class iqiyiDeal {
             ua: 1
         }
         request.get( logger, option, (err,result) => {
+            this.storaging.totalStorage ("iqiyi",option.url,"Expr")
             if(err){
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","Expr")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"Expr")
                 return callback(err)
             }
             //logger.debug(result)
@@ -501,7 +543,7 @@ class iqiyiDeal {
             if(infoData.code != 'A00000'){
                 return callback(true)
             }
-            this.storaging.succStorage("iqiyi",option.url,"Expr")
+            // this.storaging.succStorage("iqiyi",option.url,"Expr")
             callback(null,infoData)
         })
     }
@@ -512,8 +554,18 @@ class iqiyiDeal {
             ua: 1
         }
         request.get( logger, option, (err,result) => {
+            this.storaging.totalStorage ("iqiyi",option.url,"play")
             if(err){
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","play")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"play")
                 return callback(err)
             }
             //logger.debug(result)
@@ -526,7 +578,7 @@ class iqiyiDeal {
                 logger.error(result)
                 return callback(e)
             }
-            this.storaging.succStorage("iqiyi",option.url,"play")
+            // this.storaging.succStorage("iqiyi",option.url,"play")
             callback(null,infoData[0][id])
         })
     }
@@ -537,8 +589,18 @@ class iqiyiDeal {
             ua: 1
         }
         request.get( logger, option, (err,result) => {
+            this.storaging.totalStorage ("iqiyi",option.url,"comment")
             if(err){
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","comment")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"comment")
                 return callback(err)
             }
             //logger.debug(result)
@@ -551,7 +613,7 @@ class iqiyiDeal {
                 logger.error(result)
                 return callback(e)
             }
-            this.storaging.succStorage("iqiyi",option.url,"comment")
+            // this.storaging.succStorage("iqiyi",option.url,"comment")
             callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
     }
