@@ -51,7 +51,7 @@ class storage{
 	        }
 	        logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:${curPlatform}:${media.aid}`,6*60*60) 
+	    mSpiderClint.expire(`apiMonitor:${curPlatform}:${media.aid}`,12*60*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),

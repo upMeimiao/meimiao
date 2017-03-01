@@ -15,7 +15,7 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64
 
 exports.start = () => {
     const errReadRule = new schedule.RecurrenceRule()
-        errReadRule.second = [1]
+        errReadRule.minute = [10,20,30,40,50]
     schedule.scheduleJob(errReadRule, () =>{
         _errorJudge(()=>{
             logger.debug("开始错误分析~")

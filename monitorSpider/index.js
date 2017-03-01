@@ -110,16 +110,16 @@ class spiderCore {
                 "name":"kuaibao","platform":10,"id":5005354,"bname":"微在涨姿势"
             }
 
-        youku_rule.second = [1,21,41]
-        iqiyi_rule.second = [2,22,42]
-        le_rule.second = [3,23,43]
-        tencent_rule.second = [4]
-        meipai_rule.second = [5]
-        toutiao_rule.second = [6]
-        miaopai_rule.second = [7]
-        bili_rule.second = [8]
-        souhu_rule.second = [9]
-        kuaibao_rule.second = [10]
+        youku_rule.minute = [1,21,41]
+        iqiyi_rule.minute = [2,22,42]
+        le_rule.minute = [3,23,43]
+        tencent_rule.minute = [4]
+        meipai_rule.minute = [5]
+        toutiao_rule.minute = [6]
+        miaopai_rule.minute = [7]
+        bili_rule.minute = [8]
+        souhu_rule.minute = [9]
+        kuaibao_rule.minute = [10]
 
         schedule.scheduleJob(youku_rule,() => {
             this.youkuDeal.youku(youku_work,(err,result) => {
