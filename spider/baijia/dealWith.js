@@ -28,7 +28,7 @@ class dealWith {
 
     getVidTotal( task, callback ){
         let option = {
-            url: this.settings.videoList + task.id + "&_limit=100",
+            url: this.settings.videoList + task.id + "&_limit=200",
             referer: 'http://baijiahao.baidu.com/u?app_id='+task.id+'&fr=bjhvideo',
             ua: 1
         }
@@ -97,7 +97,7 @@ class dealWith {
                     dataJson = JSON.parse(dataJson)
                 }catch(e){
                     logger.debug('百家号用户数据解析失败')
-                    logger.info(dataJson)
+                    index++
                     return Fan( vid )
                 }
                 let user = {
@@ -105,7 +105,6 @@ class dealWith {
                     platform: task.p,
                     fans_num: dataJson.app.fans_cnt
                 }
-                logger.info(user)
                 this.sendStagingUser(user)
                 callback()
             })
@@ -113,7 +112,7 @@ class dealWith {
         for (let i = 0; i < data.length; i++) {
             if(data[i].type == 'video' && data[i].feed_id != ''){
                 arr.push(data[i].feed_id)
-                if(arr.length > 3){
+                if(arr.length >= 2){
                     Fan(arr)
                     return
                 }
