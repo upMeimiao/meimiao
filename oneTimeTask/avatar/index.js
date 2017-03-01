@@ -4,6 +4,15 @@
 const request = require('request')
 const log4js = require('log4js')
 const handle = require('./handle')
+const Redis = require('ioredis')
+
+const redis = new Redis(`redis://:@127.0.0.1:6379/10`,{
+    reconnectOnError: function (err) {
+        if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
+            return true
+        }
+    }
+})
 
 log4js.configure({
     "appenders" : [
@@ -19,6 +28,18 @@ log4js.configure({
 })
 let logger = log4js.getLogger('avatar')
 logger.setLevel('TRACE')
+
+const redisUser = () => {
+    return new Promise((resolve, reject) => {
+        redis.smembers('error', (err, result) => {
+            if (err) {
+                reject(err.message)
+            } else {
+                resolve(result)
+            }
+        })
+    })
+}
 
 const getUser = () => {
     return new Promise((resolve, reject)=>{
@@ -45,33 +66,33 @@ const getUser = () => {
 async function getID(user) {
     let info = {}
     switch (Number(user.platform)){
-        // case 1:
-        //     info = await handle.youku(user)
-        //     break
+        case 1:
+            info = await handle.youku(user)
+            break
         case 2:
             info = await handle.iqiyi(user)
             break
-        // case 3:
-        //     info = await handle.le(user)
-        //     break
+        case 3:
+            info = await handle.le(user)
+            break
         case 4:
             info = await handle.tencent(user)
             break
         case 5:
             info = await handle.meipai(user)
             break
-        // case 6:
-        //     info = await handle.toutiao(user)
-        //     break
+        case 6:
+            info = await handle.toutiao(user)
+            break
         case 7:
             info = await handle.miaopai(user)
             break
         case 8:
             info = await handle.bili(user)
             break
-        // case 9:
-        //     info = await handle.sohu(user)
-        //     break
+        case 9:
+            info = await handle.sohu(user)
+            break
         case 10:
             info = await handle.kuaibao(user)
             break
@@ -159,21 +180,68 @@ async function getID(user) {
     }
     return info
 }
-
+const send = (info) => {
+    return new Promise((resolve, reject)=>{
+        if(!info.avatar){
+            return reject(info)
+        }
+        let options = {
+            method: 'POST',
+            url: `http://www.meimiaoip.com/index.php/spider/imgSave/update`,
+            form: {
+                p: info.p,
+                bid: info.id,
+                avatar: info.avatar || ''
+            }
+        }
+        request(options, (error, response, body) => {
+            if(error){
+                return reject(error.message)
+            }
+            if(response.statusCode !== 200){
+                return reject(response.statusCode)
+            }
+            try{
+                body = JSON.parse(body)
+            } catch (e){
+                return reject(e.message)
+            }
+            if(body.errno != 0){
+                return reject(body)
+            }
+            resolve(body)
+        })
+    })
+}
 async function start() {
-    let users,result, infos = []
+    let users,result, infos = [], ok
     users = await getUser()
+    //users = await redisUser()
     for (const user of users) {
+        // if((user.platform < 24) || user.platform == 30 || user.platform > 31){
+        //     continue
+        // }
         try {
             result = await getID(user)
         } catch (e){
             if(e !== '未完成'){
-                console.log(e)
+                logger.error(e)
+                //redis.sadd('error', user)
+                redis.sadd('error', JSON.stringify(user))
             }
             continue
         }
         logger.debug(result)
-        infos.push(result)
+        try {
+            ok = await send(result)
+        } catch (e){
+            if(!e.errno){
+                redis.sadd('error', JSON.stringify(user))
+            }
+            continue
+        }
+        //redis.srem('error10',user)
+        infos.push(ok)
     }
     return infos
 }
@@ -181,6 +249,7 @@ async function start() {
 start()
     .then((result)=>{
         logger.debug(result.length)
+        redis.quit()
     })
     .catch((err)=>{
         logger.error('error',err)
