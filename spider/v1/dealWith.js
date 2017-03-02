@@ -172,12 +172,12 @@ class dealWith {
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '列表接口请求错误 : ', err )
-                        return callback(err)
+                        return cb()
                     }
                     if(result.statusCode != 200){
                         logger.error('v1状态码错误',result.statusCode)
                         logger.info(result)
-                        return callback(true)
+                        return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
