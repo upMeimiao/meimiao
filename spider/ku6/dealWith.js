@@ -150,7 +150,7 @@ class dealWith {
         }
         async.whilst(
             () => {
-                return sign <= page
+                return sign <= Math.min(page,500)
             },
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')

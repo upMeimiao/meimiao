@@ -56,7 +56,7 @@ class dealWith {
         option.ua = 1
         async.whilst(
             () => {
-                return sign <= page
+                return sign <= Math.min(page, 208)
             },
             ( cb ) => {
                 logger.debug("开始获取第"+ sign +"页视频列表")

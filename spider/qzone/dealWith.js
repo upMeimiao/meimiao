@@ -131,7 +131,7 @@ class dealWith {
             Retry  = 0
         async.whilst(
             () => {
-                return sign < page
+                return sign < Math.min(page,500)
             },
             (cb) => {
                 let option = {
