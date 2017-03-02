@@ -41,7 +41,7 @@ const _getInactiveTask = () => {
         }
         const inactiveTask = []
         for (let [index, elem] of body.entries()) {
-            if(moment().valueOf() - elem.created_at < 30){
+            if(moment().valueOf() - elem.created_at < 30 * 60 * 1000){
                 if(moment().minute() > 30){
                     if(moment(elem.created_at).minute() > 30){
                         inactiveTask.push({
@@ -98,7 +98,7 @@ const _getFailedTask = () => {
 }
 const _saveInactiveLog = (info) => {
     let numArr = []
-    for(let i = 0; i< 37; i++){
+    for(let i = 0; i < 37; i++){
         numArr[i] = 0
     }
     for (let [index, item] of info.entries()) {
