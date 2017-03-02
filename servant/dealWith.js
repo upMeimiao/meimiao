@@ -2220,7 +2220,12 @@ class DealWith {
             let startIndex = result.indexOf('videoData'),
                 endIndex = result.indexOf(';window.listInitData'),
                 dataJson = result.substring(startIndex+10,endIndex)
-            if($('script')[11].children[0] == undefined && $('script')[12].children[0] == undefined){
+            if(startIndex === -1 || endIndex === -1){
+                startIndex = result.indexOf('videoData={tplData:')
+                endIndex = result.indexOf(',userInfo:')
+                dataJson = result.substring(startIndex+19,endIndex)
+            }
+            if(!$('script')[11].children[0] && !$('script')[12].children[0]){
                 dataJson = result.substring(startIndex+19,endIndex)
             }
             try{

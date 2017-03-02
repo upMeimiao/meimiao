@@ -131,7 +131,7 @@ class dealWith {
                     desc: result.descData.desc.substr(0,100).replace(/"/g,''),
                     long_t: result.videos[0] == undefined ? result.content_length/1000 : result.videos[0].length/1000
                 }
-                logger.debug(media)
+                //logger.debug(media)
                 if(!media.support){
                     delete media.support
                 }
@@ -202,7 +202,7 @@ class dealWith {
                     return callback(err)
                 }
                 let res = {
-                    comment_num: num,
+                    comment_num: num ? num : '',
                     desc: result.data ? (result.data.sub_title ? result.data.sub_title : '') : ''
                 }
                 callback(null,res)
