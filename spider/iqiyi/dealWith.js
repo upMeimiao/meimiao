@@ -179,7 +179,7 @@ class dealWith {
         })
     }
     getListN(task, callback) {
-        let index = 1,
+        let index = 1,flag = 0,
             sign = true
         const option = {
             ua: 1,
@@ -193,7 +193,14 @@ class dealWith {
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
                 request.get( logger, option, (err,result) => {
                     if(err){
-                        return cb()
+                        return setTimeout(()=>{
+                            if(flag > 2){
+                                task.total = 24 * (index -1)
+                                sign = false
+                            }
+                            flag++
+                            cb()
+                        }, 3000)
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
@@ -201,7 +208,7 @@ class dealWith {
                         titleDom = $('p.mod-piclist_info_title a'),
                         video = []
                     if(titleDom.length === 0){
-                        task.total = 20 * (index -1)
+                        task.total = 24 * (index -1)
                         sign = false
                         return cb()
                     }
