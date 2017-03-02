@@ -198,7 +198,7 @@ class miaopaiDealWith {
                     }
                     // logger.debug(data.title+'标题')
                     // logger.debug(data.desc+'描述')
-                    this.core.MSDB.hget(`apiMonitor:${data.author}:${data.aid}`,"play_num",(err,result)=>{
+                    this.core.MSDB.hget(`apiMonitor:${data.author}:play_num:${data.aid}`,"play_num",(err,result)=>{
                         if(err){
                             logger.debug("读取redis出错")
                             return

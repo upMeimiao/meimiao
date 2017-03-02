@@ -256,7 +256,7 @@ class meipaiDealWith {
                 tag: _tags.join(','),
                 class: tags
             }
-            this.core.MSDB.hget(`apiMonitor:${media.author}:${media.aid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return

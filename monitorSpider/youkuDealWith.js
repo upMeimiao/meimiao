@@ -48,8 +48,17 @@ class youkuDealWith {
             url: 'https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid=' + task.encodeId
         }
         request(options,(err,res,body)=>{
+            this.storaging.totalStorage ("youku",options.url,"user")
             if(err){
-                this.storaging.errStoraging("youku",options.url,task.id,err,"responseErr","user")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+                this.storaging.errStoraging("youku",options.url,task.id,err,errType,"user")
                 return callback(err.message)
             }
             if(res && res.statusCode != 200){
@@ -76,7 +85,7 @@ class youkuDealWith {
                     fans_num: userInfo.followerNum
                 }
             logger.debug(user)
-            this.storaging.succStorage("youku",options.url,"user")
+            // this.storaging.succStorage("youku",options.url,"user")
         })
     }
     youkuGetTotal( task, callback ) {
@@ -91,6 +100,7 @@ class youkuDealWith {
                 timeout: 5000
             }
         request(options, (error, response, body) => {
+            this.storaging.totalStorage ("youku",options.url,"total")
             this.storaging.judgeRes ("youku",options.url,task.id,error,response,"total")
             if(!(body||response)){
                 return 
@@ -116,7 +126,7 @@ class youkuDealWith {
             }else{
                 page = total / 20
             }
-            this.storaging.succStorage("youku",options.url,"total")
+            // this.storaging.succStorage("youku",options.url,"total")
             this.youkuGetVideos(task,page, (err,result) => {
                 logger.debug(err,result)
             })
@@ -142,9 +152,17 @@ class youkuDealWith {
                 }
                 //logger.debug("++++++++++++++++++",options)
                 request(options, (error, response, body) => {
+                    this.storaging.totalStorage ("youku",options.url,"videos")
                     if(error){
-                        logger.error( 'occur error : ', error )
-                        this.storaging.errStoraging('youku',options.url,task.id,error,"responseErr","videos")
+                        logger.error(error,error.code,error.Error)
+                        let errType 
+                        if(error.code && error.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
+                        this.storaging.errStoraging('youku',options.url,task.id,error,errType,"videos")
                         return cb()
                     }
                     if(response.statusCode != 200){
@@ -168,7 +186,7 @@ class youkuDealWith {
                     //根据已存redis内容判断body内容是否正确
                     let videos = data.videos
                     for(let index in videos){
-                        this.core.MSDB.hget(`apiMonitor:youku:${videos[index].videoid}`,"play_num",(err,result)=>{
+                        this.core.MSDB.hget(`apiMonitor:youku:play_num:${videos[index].videoid}`,"play_num",(err,result)=>{
                             if(err){
                                 logger.debug("读取redis出错")
                                 return
@@ -180,7 +198,7 @@ class youkuDealWith {
                             }
                         })
                     }
-                    this.storaging.succStorage("youku",options.url,"videos")
+                    // this.storaging.succStorage("youku",options.url,"videos")
                     this.youkuInfo(task,videos, () => {
                         sign++
                     })
@@ -207,7 +225,8 @@ class youkuDealWith {
             timeout: 5000
         }
         request( options, ( error, response, body ) => {
-            this.storaging.judgeRes ("youku",options.url,task.id,error,response,"info")
+            this.storaging.totalStorage ("youku",options.url,"info")
+            this.storaging.judgeRes("youku",options.url,task.id,error,response,"info")
             if(!(body||response)){
                 return 
             }
@@ -228,7 +247,7 @@ class youkuDealWith {
                 this.storaging.errStoraging('youku',options.url,task.id,"优酷获取视频详情接口返回数据为空","resultErr","info")
                 return callback()
             }
-            this.storaging.succStorage("youku",options.url,"info")
+            // this.storaging.succStorage("youku",options.url,"info")
             this.youkuDeal( task, videos, list, () => {
                 logger.debug(err,result)
             })
