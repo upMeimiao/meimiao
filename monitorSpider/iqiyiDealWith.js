@@ -171,7 +171,7 @@ class iqiyiDeal {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"list")
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -229,7 +229,7 @@ class iqiyiDeal {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"ids")
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"ids")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -279,7 +279,7 @@ class iqiyiDeal {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"list")
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
                     try {
@@ -419,7 +419,7 @@ class iqiyiDeal {
                         return
                     }
                 	if(result > media.play_num){
-                        this.storaging.errStoraging('iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.bid,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
+                        this.storaging.errStoraging('iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.id,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
                         return
                     }
                 })
@@ -449,7 +449,7 @@ class iqiyiDeal {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-            	this.storaging.errStoraging('iqiyi',link,task.id,err,errType,"info")
+            	this.storaging.errStoraging('iqiyi',link,task.id,err.code || err,errType,"info")
                 return callback(err)
             }
             //logger.debug(backData)
@@ -527,7 +527,7 @@ class iqiyiDeal {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"Expr")
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"Expr")
                 return callback(err)
             }
             //logger.debug(result)
@@ -565,7 +565,7 @@ class iqiyiDeal {
                 }
                 logger.error(errType)
 
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"play")
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"play")
                 return callback(err)
             }
             //logger.debug(result)
@@ -600,7 +600,7 @@ class iqiyiDeal {
                 }
                 logger.error(errType)
 
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err,errType,"comment")
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"comment")
                 return callback(err)
             }
             //logger.debug(result)

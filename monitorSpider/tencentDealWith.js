@@ -61,6 +61,7 @@ class tencentDealWith {
             //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","total")
             //     return callback()
             // }
+            this.storaging.totalStorage ("tencent",option.url,"total")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"total")
             if(!result || !result.body){
                 return 
@@ -90,7 +91,7 @@ class tencentDealWith {
                 }
                 callback()
             })
-            this.storaging.succStorage("tencent",option.url,"total")
+            // this.storaging.succStorage("tencent",option.url,"total")
         })
     }
     getUser (task,callback) {
@@ -109,6 +110,7 @@ class tencentDealWith {
             //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取用户信息接口状态码错误","responseErr","user")
             //     return callback()
             // }
+            this.storaging.totalStorage ("tencent",option.url,"user")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"user")
             if(!result || !result.body){
                 return 
@@ -125,7 +127,7 @@ class tencentDealWith {
                 //bid: task.id,
                 //fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g,'')) * 10000
             //}
-            this.storaging.succStorage("tencent",option.url,"user")
+            // this.storaging.succStorage("tencent",option.url,"user")
         })
     }
     getList ( task, total, callback ) {
@@ -147,9 +149,17 @@ class tencentDealWith {
                     url: api.tencent.videoList + task.id + "&pagenum="+sign
                 }
                 request.get( option, (err,result) => {
+                    this.storaging.totalStorage ("tencent",option.url,"list")
                     if(err){
-                        logger.error( 'occur error : ', err )
-                        this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","list")
+                        logger.error(err,err.code,err.Error)
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
+                        this.storaging.errStoraging('tencent',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
                     //logger.debug(back.body)
@@ -177,7 +187,7 @@ class tencentDealWith {
                     }
 
                 })
-                this.storaging.succStorage("tencent",option.url,"list")
+                // this.storaging.succStorage("tencent",option.url,"list")
             },
             (err,result) => {
                 callback()
@@ -286,6 +296,7 @@ class tencentDealWith {
             //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频播放量接口状态码错误","responseErr","view")
             //     return callback(true)
             // }
+            this.storaging.totalStorage ("tencent",option.url,"view")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"view")
             if(!result){
                 return
@@ -301,7 +312,7 @@ class tencentDealWith {
             }else{
                 callback(null,0)
             }
-            this.storaging.succStorage("tencent",option.url,"view")
+            // this.storaging.succStorage("tencent",option.url,"view")
         })
     }
     getComment ( task, id, callback ) {
@@ -319,6 +330,7 @@ class tencentDealWith {
             //     this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取评论接口状态码错误","responseErr","comment")
             //     return callback(true)
             // }
+            this.storaging.totalStorage ("tencent",option.url,"comment")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"comment")
             if(!result){
                 return 
@@ -348,7 +360,7 @@ class tencentDealWith {
             }else{
                 callback(true)
             }
-            this.storaging.succStorage("tencent",option.url,"comment")
+            // this.storaging.succStorage("tencent",option.url,"comment")
         })
     }
     getCommentNum ( task, id, callback ) {
@@ -363,6 +375,7 @@ class tencentDealWith {
             //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","commentNum")
             //     return callback(err)
             // }
+            this.storaging.totalStorage ("tencent",option.url,"commentNum")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return 
@@ -380,7 +393,7 @@ class tencentDealWith {
             } else {
                 callback(null,null)
             }
-            this.storaging.succStorage("tencent",option.url,"commentNum")
+            // this.storaging.succStorage("tencent",option.url,"commentNum")
         })
     }
     getVidTag( task, vid, callback ){
@@ -392,6 +405,7 @@ class tencentDealWith {
             //     this.storaging.errStoraging('tencent',option.url,task.id,err,"responseErr","vidTag")
             //     return callback(err)
             // }
+            this.storaging.totalStorage ("tencent",option.url,"vidTag")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"vidTag")
             if(!result){
                 return 
@@ -406,7 +420,7 @@ class tencentDealWith {
                 this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取视频信息接口返回数据错误","resultErr","vidTag")
                 return callback(null,null)
             }
-            this.storaging.succStorage("tencent",option.url,"vidTag")
+            // this.storaging.succStorage("tencent",option.url,"vidTag")
             const tagStr = result.v[0].tags_video
             callback(null,tagStr)
         })

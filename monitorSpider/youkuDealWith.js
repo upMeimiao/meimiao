@@ -58,7 +58,7 @@ class youkuDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging("youku",options.url,task.id,err,errType,"user")
+                this.storaging.errStoraging("youku",options.url,task.id,err.code || err,errType,"user")
                 return callback(err.message)
             }
             if(res && res.statusCode != 200){
@@ -109,7 +109,7 @@ class youkuDealWith {
                 body = JSON.parse(body)
             } catch (e) {
                 logger.error('优酷获取全部视频接口json数据解析失败')
-                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取全部视频接口json数据解析失败","resultErr","total")
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取全部视频接口json数据解析失败","doWithResErr","total")
                 logger.debug('total error:',body)
                 return callback(e)
             }
@@ -162,7 +162,7 @@ class youkuDealWith {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                        this.storaging.errStoraging('youku',options.url,task.id,error,errType,"videos")
+                        this.storaging.errStoraging('youku',options.url,task.id,error.code || error,errType,"videos")
                         return cb()
                     }
                     if(response.statusCode != 200){

@@ -56,6 +56,7 @@ class meipaiDealWith {
             //     return callback()
 
             // }
+            this.storaging.totalStorage ("meipai",option.url,"user")
             this.storaging.judgeRes ("meipai",option.url,task.id,err,result,"user")
             if(!result){
                 return
@@ -72,7 +73,7 @@ class meipaiDealWith {
             //     bid: result.id,
             //     fans_num: result.followers_count
             // }
-            this.storaging.succStorage("meipai",option.url,"user")
+            // this.storaging.succStorage("meipai",option.url,"user")
         })
     }
     getTotal ( task,callback ) {
@@ -94,6 +95,7 @@ class meipaiDealWith {
             //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取total code error","responseErr","total")
             //     return callback(result.statusCode)
             // }
+            this.storaging.totalStorage ("meipai",option.url,"total")
             this.storaging.judgeRes ("meipai",option.url,task.id,err,result,"total")
             if(!result){
                 return 
@@ -115,7 +117,7 @@ class meipaiDealWith {
             this.getVideos(task,page, () => {
                 callback()
             })
-            this.storaging.succStorage("meipai",option.url,"total")
+            // this.storaging.succStorage("meipai",option.url,"total")
         })
     }
     getVideos ( task,page,callback ) {
@@ -129,9 +131,17 @@ class meipaiDealWith {
                     url: api.meipai.mediaList + task.id + "&max_id=" + maxId
                 }
                 request.get(option,(err,result) => {
+                    this.storaging.totalStorage ("meipai",option.url,"videos")
                     if(err){
-                        logger.error( 'occur error : ', err )
-                        this.storaging.errStoraging('meipai',option.url,task.id,err,"responseErr","videos")
+                        logger.error(err,err.code,err.Error)
+                    let errType
+                    if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                    logger.error(errType)
+                        this.storaging.errStoraging('meipai',option.url,task.id,err.code || err,errType,"videos")
                         return cb()
                     }
                     if(!result){
@@ -162,7 +172,7 @@ class meipaiDealWith {
                         sign++
                         cb()
                     })
-                    this.storaging.succStorage("meipai",option.url,"videos")
+                    // this.storaging.succStorage("meipai",option.url,"videos")
                 })
             },
             function (err,result) {
@@ -206,6 +216,7 @@ class meipaiDealWith {
             //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info code error","responseErr","info")
             //     return callback()
             // }
+            this.storaging.totalStorage ("meipai",option.url,"info")
             this.storaging.judgeRes ("meipai",option.url,task.id,err,result,"info")
             if(!result){
                 return 
@@ -220,7 +231,7 @@ class meipaiDealWith {
             if(result.lives){
                 return callback()
             }
-            this.storaging.succStorage("meipai",option.url,"info")
+            // this.storaging.succStorage("meipai",option.url,"info")
             let title,_tags = [],__tags = [],tags = '',tagArr
             if(result.caption && result.caption != ''){
                 title = result.caption.substr(0,100)

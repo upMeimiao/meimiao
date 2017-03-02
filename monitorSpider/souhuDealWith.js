@@ -55,6 +55,7 @@ class souhuDealWith {
             //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝code error","responseErr","user")
             //     return callback()
             // }
+            this.storaging.totalStorage ("souhu",option.url,"user")
             this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"user")
             if(!result){
                 return 
@@ -72,7 +73,7 @@ class souhuDealWith {
             //         bid: userInfo.user_id,
             //         fans_num: userInfo.total_fans_count
             //     }
-            this.storaging.succStorage("souhu",option.url,"user")
+            // this.storaging.succStorage("souhu",option.url,"user")
         })
     }
     getTotal ( task, callback ) {
@@ -94,6 +95,7 @@ class souhuDealWith {
             //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取total接口code error","responseErr","total")
             //     return callback()
             // }
+            this.storaging.totalStorage ("souhu",option.url,"total")
             this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"total")
             if(!result){
                 return 
@@ -109,7 +111,7 @@ class souhuDealWith {
             //logger.debug(back)
             let total  = result.data.totalCount
             task.total = total
-            this.storaging.succStorage("souhu",option.url,"total")
+            // this.storaging.succStorage("souhu",option.url,"total")
             this.getList(task,total, () => {
                 callback()
             })
@@ -131,9 +133,17 @@ class souhuDealWith {
                     url: api.souhu.newList + task.id + "&page=" + index + "&_=" + new Date().getTime()
                 }
                 request.get(option, (err,result) => {
+                    this.storaging.totalStorage ("souhu",option.url,"list")
                     if(err){
-                        logger.error( 'occur error : ', err )
-                        this.storaging.errStoraging('souhu',option.url,task.id,err,"responseErr","list")
+                        logger.error(err,err.code,err.Error)
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
+                        this.storaging.errStoraging('souhu',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -159,7 +169,7 @@ class souhuDealWith {
                         index++
                         return cb()
                     }
-                    this.storaging.succStorage("souhu",option.url,"list")
+                    // this.storaging.succStorage("souhu",option.url,"list")
                     this.deal(task,data, () => {
                         index++
                         cb()
@@ -287,6 +297,7 @@ class souhuDealWith {
             //     logger.debug('code:',result.statusCode)
             //     return callback(true)
             // }
+            this.storaging.totalStorage ("souhu",option.url,"info")
             this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"info")
             if(!result){
                 return
@@ -316,7 +327,7 @@ class souhuDealWith {
                 seconds : backData.total_duration,
                 picurl : this._picUrl(backData)
             }
-            this.storaging.succStorage("souhu",option.url,"info")
+            // this.storaging.succStorage("souhu",option.url,"info")
             callback(null,data)
         })
     }
@@ -340,6 +351,7 @@ class souhuDealWith {
             //     logger.debug('code:',back.statusCode)
             //     return callback(true)
             // }
+            this.storaging.totalStorage ("souhu",option.url,"digg")
             this.storaging.judgeRes ("souhu",option.url,task.id,err,back,"digg")
             if(!back){
                 return
@@ -349,7 +361,7 @@ class souhuDealWith {
                     up: backInfo.upCount,
                     down: backInfo.downCount
                 }
-            this.storaging.succStorage("souhu",option.url,"digg")
+            // this.storaging.succStorage("souhu",option.url,"digg")
             callback(null,data)
         })
     }
@@ -373,6 +385,7 @@ class souhuDealWith {
             //     logger.debug('code:',result.statusCode)
             //     return callback(true)
             // }
+            this.storaging.totalStorage ("souhu",option.url,"commentNum")
             this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return 
@@ -384,7 +397,7 @@ class souhuDealWith {
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取commentNum接口json数据解析失败","doWithResErr","commentNum")
                 return
             }
-            this.storaging.succStorage("souhu",option.url,"commentNum")
+            // this.storaging.succStorage("souhu",option.url,"commentNum")
             callback(null,result.cmt_sum)
         })
     }

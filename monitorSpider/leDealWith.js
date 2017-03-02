@@ -42,7 +42,7 @@ class leDealWith {
                 }
                 logger.error(errType)
 
-                this.storaging.errStoraging('le',option.url,task.id,err,errType,"total")
+                this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"total")
                 return callback(err)
             }
             try {
@@ -79,12 +79,12 @@ class leDealWith {
                         logger.error(err,err.code,err.Error)
                         let errType
                         if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
-                } else{
-                    errType = "responseErr"
-                }
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
                         logger.error(errType)
-                        this.storaging.errStoraging('le',option.url,task.id,err,errType,"list")
+                        this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -220,7 +220,7 @@ class leDealWith {
                 }
                 logger.error(errType)
 
-                this.storaging.errStoraging('le',option.url,id,err,errType,"info")
+                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"info")
                 return callback(err)
             }
             //logger.debug(result.body)
@@ -260,7 +260,7 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,id,err,errType,"Expr")
+                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"Expr")
                 return callback( err )
             }
             const $ = cheerio.load(result.body),
@@ -327,7 +327,7 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,id,err,errType,"Desc")
+                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"Desc")
                 return callback(null,null)
             }
             try{
