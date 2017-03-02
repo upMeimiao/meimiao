@@ -31,7 +31,7 @@ const failedJobRemove = (num) => {
             return
         }
         jobs.forEach((job) => {
-            if(Number(job.data.p) < 28 && (moment().valueOf() - job.created_at > 86400000)){
+            if(moment().valueOf() - job.created_at > 86400000){
                 job.remove()
             }
         })
