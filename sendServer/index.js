@@ -74,41 +74,23 @@ class sendServer {
             this.emit('send_data_staging', list, 0)
         })
     }
-    deal(list){
-        let i = 0, length = list.length
-        async.whilst(
-            () => {
-                return i < length
-            },
-            (cb) => {
-                // this.send(list[i], 0)
-                // i++
-                // cb()
-                setTimeout(() => {
-                    this.send(list[i], 0)
-                    i++
-                    cb()
-                }, 5)
-            }
-        )
-    }
     sendOnline(list, time){
         if(list.length ==0){
             list = null
             return
         }
-        let newList = []
-        for (let [index, elem] of list.entries()) {
-            if(elem.platform < 32 || elem.platform == 34){
-                newList.push(elem)
-            }
-        }
-        if(newList.length ==0){
-            list = null
-            newList = null
-            return
-        }
-        this.onlineOption.form = {data: newList}
+        // let newList = []
+        // for (let [index, elem] of list.entries()) {
+        //     if(elem.platform < 32 || elem.platform == 34){
+        //         newList.push(elem)
+        //     }
+        // }
+        // if(newList.length ==0){
+        //     list = null
+        //     newList = null
+        //     return
+        // }
+        this.onlineOption.form = {data: list}
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
                 logger.error('online occur error : ', err.message)
@@ -116,7 +98,7 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
-                    newList = null
+                    // newList = null
                 }else{
                     setTimeout(() => {
                         this.emit('send_data', list, time)
@@ -131,7 +113,7 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
-                    newList = null
+                    // newList = null
                 }else{
                     setTimeout(() => {
                         this.emit('send_data', list, time)
@@ -147,7 +129,7 @@ class sendServer {
                 //logger.error(JSON.stringify(newList))
                 list = null
                 time = null
-                newList = null
+                // newList = null
                 return
             }
             if(result.errno == 0){
@@ -160,62 +142,7 @@ class sendServer {
             }
             //logger.debug(`${newList.length}个视频 online back end`)
             list = null
-            newList = null
-            time = null
-        })
-    }
-    send(media, time){
-        //logger.debug(media)
-        if(media.platform > 26 || media.platform == 21 || media.platform == 23){
-            media = null
-            return
-        }
-        this.onlineOption.form = media
-        request.post(this.onlineOption, (err, res, result) => {
-            if(err){
-                logger.error('master occur error : ', err.message)
-                logger.error(media)
-                logger.info(`返回平台${media.platform}视频 ${media.aid} 连接服务器失败`)
-                time++
-                if(time > 3){
-                    media = null
-                    time = null
-                }else{
-                    this.send(media, time)
-                }
-                return
-            }
-            if(res.statusCode != 200){
-                logger.error(`master errorCode: ${res.statusCode}`)
-                time++
-                if(time > 3){
-                    media = null
-                    time = null
-                }else{
-                    setTimeout(() => {
-                        this.send(media, time)
-                    }, 1500)
-                }
-                return
-            }
-            try{
-                result = JSON.parse(result)
-            }catch (e){
-                logger.error(`平台${media.platform}视频 ${media.aid} json数据解析失败`)
-                logger.error(result)
-                media = null
-                time = null
-                return
-            }
-            if(result.errno == 0){
-                //logger.debug(`平台${media.platform}:`,media.aid + ' back end')
-                //logger.info(result)
-            }else{
-                logger.error(`平台${media.platform}:`,media.aid + ' back error')
-                logger.error(result)
-                logger.error('media info: ',media)
-            }
-            media = null
+            // newList = null
             time = null
         })
     }
