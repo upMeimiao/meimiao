@@ -244,14 +244,14 @@ class dealWith {
                     cb(null,result)
                 })
             },
-            (cb) => {
-                this.getVideoTime(data.code,(err,backData) => {
-                    if(err){
-                        return cb(err)
-                    }
-                    cb(null,backData)
-                })
-            }
+            // (cb) => {
+            //     this.getVideoTime(data.code,(err,backData) => {
+            //         if(err){
+            //             return cb(err)
+            //         }
+            //         cb(null,backData)
+            //     })
+            // }
         ],(err,result) => {
             if(err){
                 return callback(err)
@@ -270,16 +270,16 @@ class dealWith {
                 step: result[0].buryNum,
                 v_img: data.picurl,
                 long_t: this.long_t(data.formatTotalTime),
-                class: result[1].class,
-                tag: result[1].tag,
+                // class: result[1].class,
+                // tag: result[1].tag,
                 a_create_time: data.pubDate.toString().substring(0,10)
             }
-            if(!media.class){
-                delete media.class
-            }
-            if(!media.tag){
-                delete media.tag
-            }
+            // if(!media.class){
+            //     delete media.class
+            // }
+            // if(!media.tag){
+            //     delete media.tag
+            // }
             //logger.debug(media)
             this.sendCache( media )
             callback()
