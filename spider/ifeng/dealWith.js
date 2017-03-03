@@ -126,7 +126,7 @@ class dealWith {
         }
         async.whilst(
             () => {
-                return index <= page
+                return index <= Math.min(page,500)
             },
             (cb) => {
                 logger.debug('开始获取第' + index + '页视频列表')
