@@ -28,6 +28,9 @@ class spiderCore {
         this.kuaibaoDeal = new (require('./kuaibaoDealWith'))(this)
         this.yidianDeal = new (require('./yidianDealWith'))(this)
         this.tudouDeal = new (require('./tudouDealWith'))(this)
+        this.baomihuaDeal = new (require('./baomihuaDealWith'))(this)
+        this.ku6Deal = new (require('./ku6DealWith'))(this)
+        this.btimeDeal = new (require('./btimeDealWith'))(this)
         this.proxy = new (require('./proxy'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
@@ -118,20 +121,35 @@ class spiderCore {
             tudou_rule = new schedule.RecurrenceRule(),
             tudou_work = {
                 "name":"tudou","platform":12,"id":109218404,"bname":"辛巴达解说"
+            },
+            baomihua_rule = new schedule.RecurrenceRule(),
+            baomihua_work = {
+                "name":"baomihua","platform":13,"id":23603,"bname":"一风之音"
+            },
+            ku6_rule = new schedule.RecurrenceRule(),
+            ku6_work = {
+                "name":"ku6","platform":14,"id":19665704,"bname":"淘梦网"
+            },
+            btime_rule = new schedule.RecurrenceRule(),
+            btime_work = {
+                "name":"btime","platform":15,"id":84626,"bname":"陈翔六点半"
             }
 
-        youku_rule.second = [1]
-        iqiyi_rule.second = [2]
-        le_rule.second = [3]
-        tencent_rule.second = [4]
-        meipai_rule.second = [5]
-        toutiao_rule.second = [6]
-        miaopai_rule.second = [7]
-        bili_rule.second = [8]
-        souhu_rule.second = [9]
-        kuaibao_rule.second = [10]
-        yidian_rule.second = [11]
-        tudou_rule.second = [12]
+        youku_rule.minute = [1]
+        iqiyi_rule.minute = [2]
+        le_rule.minute = [3]
+        tencent_rule.minute = [4]
+        meipai_rule.minute = [5]
+        toutiao_rule.minute = [6]
+        miaopai_rule.minute = [7]
+        bili_rule.minute = [8]
+        souhu_rule.minute = [9]
+        kuaibao_rule.minute = [10]
+        yidian_rule.minute = [11]
+        tudou_rule.minute = [12]
+        baomihua_rule.minute = [13]
+        ku6_rule.minute = [14]
+        btime_rule.minute = [15]
         schedule.scheduleJob(youku_rule,() => {
             this.youkuDeal.youku(youku_work,(err,result) => {
                 logger.debug(err,result)
@@ -189,6 +207,21 @@ class spiderCore {
         })
         schedule.scheduleJob(tudou_rule,() => {
             this.tudouDeal.tudou(tudou_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(baomihua_rule,() => {
+            this.baomihuaDeal.baomihua(baomihua_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(ku6_rule,() => {
+            this.ku6Deal.ku6(ku6_work,(err,result) => {
+                logger.debug(err,result)
+            })
+        })
+        schedule.scheduleJob(btime_rule,() => {
+            this.btimeDeal.btime(btime_work,(err,result) => {
                 logger.debug(err,result)
             })
         })

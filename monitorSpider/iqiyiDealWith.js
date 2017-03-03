@@ -5,14 +5,13 @@ const request = require( '../lib/request' )
 const jsonp = function (data) {
     return data
 }
-let logger,api,settings,errDb
+let logger,api,settings
 
 class iqiyiDeal {
     constructor(core){
         this.core = core
         this.settings = core.settings
         this.storaging = new (require('./storaging'))(this)
-        errDb = this.core.errDb
         logger = this.settings.logger
         api = this.settings.spiderAPI
         logger.debug('处理器实例化...')
@@ -60,8 +59,15 @@ class iqiyiDeal {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return 
+            }
             const $ = cheerio.load(result.body),
                 fansDom = $('span.c-num-fans')
+            if(!fansDom){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取粉丝dom获取错误","domBasedErr","user")
+                return
+            }
             if(fansDom.length === 0){
                 return this.get_user(task,function () {
                     callback()
@@ -148,7 +154,7 @@ class iqiyiDeal {
         })
     }
     getListN(task, callback) {
-        let index = 1,
+        let index = 1,flag = 0,
             sign = true
         const option = {
             ua: 1,
@@ -161,22 +167,15 @@ class iqiyiDeal {
             ( cb ) => {
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
                 request.get( logger, option, (err,result) => {
-                    this.storaging.totalStorage ("iqiyi",option.url,"list")
                     if(err){
-                        logger.error(err,err.code,err.Error)
-                        let errType 
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
-                        } else{
-                            errType = "responseErr"
-                        }
-                        logger.error(errType)
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"list")
-                        return cb()
-                    }
-                    if(!result || !result.body){
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取视频单页列表接口无返回数据","resultErr","list")
-                        return cb()
+                        return setTimeout(()=>{
+                            if(flag > 2){
+                                task.total = 24 * (index -1)
+                                sign = false
+                            }
+                            flag++
+                            cb()
+                        }, 3000)
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
@@ -184,7 +183,7 @@ class iqiyiDeal {
                         titleDom = $('p.mod-piclist_info_title a'),
                         video = []
                     if(titleDom.length === 0){
-                        task.total = 20 * (index -1)
+                        task.total = 24 * (index -1)
                         sign = false
                         return cb()
                     }
@@ -195,7 +194,6 @@ class iqiyiDeal {
                         })
                     }
                     //logger.debug(video)
-                    // this.storaging.succStorage("iqiyi",option.url,"list")
                     this.getIds(task, video, (err) => {
                         index++
                         cb()

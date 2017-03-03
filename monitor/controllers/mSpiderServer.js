@@ -5,7 +5,7 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
-const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
+const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -15,7 +15,7 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,
 
 exports.start = () => {
     const errReadRule = new schedule.RecurrenceRule()
-        errReadRule.second = [1]
+        errReadRule.minute = [1,31]
     schedule.scheduleJob(errReadRule, () =>{
         _errorJudge(()=>{
             logger.debug("开始错误分析~")
@@ -73,6 +73,18 @@ const _errorJudge = (callback) => {
             tudou: (callback) => {
                 getTudouError()
                 callback()
+            },
+            baomihua: (callback) => {
+                getBaomihuaError()
+                callback()
+            },
+            ku6: (callback) => {
+                getKusixError()
+                callback()
+            },
+            ku6: (callback) => {
+                getBtimeError()
+                callback()
             }
         },( err, result ) => {
                 if(err){
@@ -81,6 +93,33 @@ const _errorJudge = (callback) => {
                 callback()
         }
     )
+}
+const getBtimeError = () => {
+    logger.debug("getBtimeError")
+    let urlDescArr = ["user","list","info","comment"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("btime",urlDesc)
+    }
+}
+const getKusixError = () => {
+    logger.debug("getKusixError")
+    let urlDescArr = ["user","total","list"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("ku6",urlDesc)
+    }
+}
+const getBaomihuaError = () => {
+    logger.debug("getBaomihuaError")
+    let urlDescArr = ["user","list","Expr","playNum","ExprPC"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("baomihua",urlDesc)
+    }
 }
 const getTudouError = () => {
     logger.debug("getTudouError")
@@ -286,12 +325,138 @@ const getErr = (platform,urlDesc) => {
                         case "tudou":
                             tudouJudgeErr(options)
                             break
+                        case "baomihua":
+                            baomihuaJudgeErr(options)
+                            break
+                        case "ku6":
+                            kusixJudgeErr(options)
+                            break
+                        case "btime":
+                            btimeJudgeErr(options)
+                            break
                     }
                 })
             })
         }
     })
 }  
+const btimeJudgeErr = (options) => {
+    //["user","list","info","comment"]
+    logger.debug("btimeJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "btime",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "user":
+            emailOptions.urlDesc = "user"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "info":
+            emailOptions.urlDesc = "info"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "comment":
+            emailOptions.urlDesc = "comment"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+}
+const kusixJudgeErr = (options) => {
+    //
+    logger.debug("kusixJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "ku6",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "user":
+            emailOptions.urlDesc = "user"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "total":
+            emailOptions.urlDesc = "total"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+}
+const baomihuaJudgeErr = (options) => {
+    //["user","list","Expr","playNum","ExprPC"]
+    logger.debug("baomihuaJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "baomihua",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "user":
+            emailOptions.urlDesc = "user"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "Expr":
+            emailOptions.urlDesc = "Expr"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "ExprPC":
+            emailOptions.urlDesc = "ExprPC"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "playNum":
+            emailOptions.urlDesc = "playNum"
+            numberArr = [0.4,0.4,0.4,0.4,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+}
 const tudouJudgeErr = (options) => {
     //["user","fans","total","list","videoTime","Expr"]
     logger.debug("yidianJudgeErr  options=================",options)

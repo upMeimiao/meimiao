@@ -1,5 +1,5 @@
 const async = require( 'async' )
-const request = require( 'request' )
+const request = require( '../lib/request' )
 const cheerio = require('cheerio')
 const moment = require('moment')
 let logger,api
@@ -149,6 +149,7 @@ class dealWith {
                     url: api.tudou.newList + `&uid=${task.id}&page=${sign}`
                 }
                 request.get(logger,option, (err,result) => {
+                    this.storaging.totalStorage ("tudou",option.url,"list")
                     if(err){
                         logger.error(err,err.code,err.Error)
                         let errType 
@@ -184,6 +185,26 @@ class dealWith {
                     }
                     let list = result.data.data
                     if(list){
+                        for(let index in list){
+                            this.core.MSDB.hget(`apiMonitor:tudou:play_num:${list[index].code}`,"play_num",(err,result)=>{
+                                if(err){
+                                    logger.debug("读取redis出错")
+                                    return
+                                }
+                                if(result > list[index].playNum){
+                                    this.storaging.errStoraging("tudou",option.url,task.id,`土豆${list[index].code}播放量减少`,"resultErr","list")
+                                    return
+                                }
+                            })
+                            let media = {
+                                    "author": task.name,
+                                    "platform": task.platform,
+                                    "aid": list[index].code,
+                                    "bid": task.id,
+                                    "play_num": list[index].playNum
+                                }
+                            this.storaging.sendDb(media)
+                        }
                         this.deal(task,list, () => {
                             sign++
                             cb()
@@ -219,7 +240,7 @@ class dealWith {
     getInfo ( task, index, data, callback ) {
         async.parallel([
             (cb) => {
-                this.getExpr( data.code,(err,result) => {
+                this.getExpr( task,data.code,(err,result) => {
                     if(err){
                         return cb(err)
                     }
@@ -227,7 +248,7 @@ class dealWith {
                 })
             },
             (cb) => {
-                this.getVideoTime(data.code,(err,backData) => {
+                this.getVideoTime(task,data.code,(err,backData) => {
                     if(err){
                         return cb(err)
                     }
@@ -262,21 +283,10 @@ class dealWith {
             if(!media.tag){
                 delete media.tag
             }
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('tudou',`${api.tudou.newList}&uid=${task.id}&page=${index}`,task.id,`土豆视频${media.aid}播放量减少`,"resultErr","list")
-                    return
-                }
-            })
-            this.storaging.sendDb( media )
             callback()
         })
     }
-    getVideoTime ( id, callback){
+    getVideoTime ( task,id, callback){
         let option = {
             url: api.tudou.mediaTime + id
         }
@@ -303,7 +313,7 @@ class dealWith {
             callback(null,data)
         })
     }
-    getExpr ( code,callback) {
+    getExpr ( task,code,callback) {
         let option = {
             url: api.tudou.expr + code
         }

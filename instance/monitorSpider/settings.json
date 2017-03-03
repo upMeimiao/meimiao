@@ -1,7 +1,7 @@
 {
 	"redis":{
 	    "port": 6379,
-	    "host": "127.0.0.1",
+	    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
 	    "auth": "C19prsPjHs52CHoA0vm",
 	    "userDB": 0,
 	    "taskDB": 1,
@@ -12,7 +12,7 @@
 	    "MSDB": 7
   	},
   	"proxy": {
-	    "host": "127.0.0.1",
+	    "host": "10.169.16.235",
 	    "port": 3002,
 	    "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=600&area=%E4%B8%AD%E5%9B%BD&protocol=1&method=1&an_tr=1&an_an=1&an_ha=1&sp1=1&sp2=1&quality=1&f_pr=1&format=json&sep=1",
 	    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
@@ -113,6 +113,23 @@
 			"media": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid=",
 			"mediaTime": "http://www.tudou.com/tvp/getItemInfo.action?app=1&ic=",
 			"expr":"http://api.3g.tudou.com/v4_5/video/item_sum?pid=c0637223f8b69b02&item_code="
+		},
+		"baomihua":{
+			"userInfo": "http://m.interface.baomihua.com/interfaces/userchannel.ashx?type=channelinfo&channelid=",
+			"mediaList": "http://m.interface.baomihua.com/interfaces/userchannel.ashx?type=channelvideo&channelid=",
+			"expr_m": "http://m.interface.baomihua.com/Interfaces/getlist.ashx?appid=5&vs=36&sys=ios&type=action&objid=",
+			"expr_pc": "http://www.baomihua.com/interfaces/GetPrColInfo.ashx?datatype=GetCollNum&jsoncallback=jsonp&isshowtruepv=1&videoid=",
+			"play": "http://action.interface.baomihua.com/AppInfoApi.asmx/GetAppInfo?jsoncallback=jsonp&appid="
+		},
+		"ku6":{
+			"allInfo": "http://new.ku6.com/mobile/getuploadedvideos?rn=20&uid=",
+  			"listNum": "http://my.ku6.com/channel/getuploadvideos?channel=",
+  			"fansNum": "http://boke.ku6.com/"
+		},
+		"btime":{
+			"userInfo": "http://record.btime.com/getUserChannel?uid=",
+		    "medialist": "http://record.btime.com/getNews?tab=video&pageRow=20&uid=",
+		    "info": "http://api.btime.com/news/detail?nid="
 		}
 	}
 }

@@ -270,7 +270,11 @@ class leDealWith {
                 descDom2 = $('li.li_04 p'),
                 timeDom3 = $('li.li_04 em'),
                 descDom3 = $('li_08 em p')
-            if(timeDom.length === 0 && timeDom2.length === 0 && timeDom3.length === 0){
+            if(!timeDom.length && !timeDom2.length && !timeDom3.length){
+                this.storaging.errStoraging('le',option.url,id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
+                return callback(true)
+            }
+            if(!descDom.length && !descDom2.length && !descDom3.length){
                 this.storaging.errStoraging('le',option.url,id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
                 return callback(true)
             }
