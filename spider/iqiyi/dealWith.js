@@ -190,8 +190,9 @@ class dealWith {
                 return sign
             },
             ( cb ) => {
-                if(index > 417){
+                if(index > 300){
                     sign = false
+                    task.total = 24 * (index -1)
                     return cb()
                 }
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
