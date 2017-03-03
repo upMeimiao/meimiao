@@ -152,7 +152,7 @@ class dealWith {
         }
         async.whilst(
             () => {
-                return index <= page
+                return index <= Math.min(page, 500)
             },
             (cb) => {
                 option = {

@@ -190,6 +190,10 @@ class dealWith {
                 return sign
             },
             ( cb ) => {
+                if(index > 417){
+                    sign = false
+                    return cb()
+                }
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
                 request.get( logger, option, (err,result) => {
                     if(err){
@@ -268,7 +272,7 @@ class dealWith {
         }
         async.whilst(
             () => {
-                return index <= page
+                return index <= Math.min(page, 238)  //限制视频数1万
             },
             ( cb ) => {
                 option.url = this.api.list[0] + task.id + "&page=" + index

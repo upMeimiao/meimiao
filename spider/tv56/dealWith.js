@@ -170,7 +170,7 @@ class dealWith {
         option.ua = 1
         async.whilst(
             () => {
-                return sign <= page
+                return sign <= Math.min(page,500)
             },
             (cb) => {
                 option.url = this.settings.list + `${task.id}&pg=${sign}&_=${new Date().getTime()}`

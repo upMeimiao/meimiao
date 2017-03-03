@@ -151,7 +151,7 @@ class dealWith {
         let option,sign = 1
         async.whilst(
             () => {
-                return sign <= pages
+                return sign <= Math.min(pages, 334)
             },
             (cb) => {
                 option = {
