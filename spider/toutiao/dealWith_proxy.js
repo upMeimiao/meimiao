@@ -211,6 +211,10 @@ class dealWith {
                 return sign
             },
             (cb) => {
+                if(index > 500){
+                    sign = false
+                    return cb()
+                }
                 const {as, cp} = this.getHoney()
                 if(hot_time){
                     option.url = 'http://ic.snssdk.com' + this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
