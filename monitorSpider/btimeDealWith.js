@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/1.
  */
 const async = require('async')
-const request = require( '../lib/request' )
+const request = require( '../spider/lib/req' )
 const moment = require('moment')
 
 let logger,api
@@ -36,17 +36,17 @@ class dealWith {
         let option = {
             url: api.btime.userInfo + id
         }
-        request.get( logger, option, (err,result) => {
+        request.get(option, (err,result) => {
             this.storaging.totalStorage ("btime",option.url,"user")
             if(err){
-                logger.error(err,err.code,err.Error)
+                // logger.error(err,err.code,err.Error)
                 let errType 
                 if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                     errType = "timeoutErr"
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
+                // logger.error(errType)
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || err,errType,"user")
                 return callback(err.message)
             }
@@ -84,17 +84,17 @@ class dealWith {
                 let option = {
                     url: api.btime.medialist + id + '&pageNo=' + sign + "&lastTime=" + lastTime
                 }
-                request.get( logger, option, (err,result) => {
+                request.get(option, (err,result) => {
                     this.storaging.totalStorage ("btime",option.url,"list")
                     if(err){
-                        logger.error(err,err.code,err.Error)
+                        // logger.error(err,err.code,err.Error)
                         let errType 
                         if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                             errType = "timeoutErr"
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
+                        // logger.error(errType)
                         this.storaging.errStoraging('btime',option.url,task.id,err.code || err,errType,"list")
                         return callback(err)
                     }
@@ -208,7 +208,7 @@ class dealWith {
         const option = {
             url: api.btime.info + info.gid + "&timestamp=" + Math.round(new Date().getTime() / 1000)
         }
-        request.get(logger, option, (err, result) => {
+        request.get(option, (err, result) => {
             this.storaging.totalStorage ("btime",option.url,"info")
             if(err){
                 logger.error(err,err.code,err.Error)
@@ -255,7 +255,7 @@ class dealWith {
         let option={
             url: `http://api.app.btime.com/api/commentList?protocol=1&timestamp=${Math.round(new Date().getTime() / 1000)}&url=http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${info.gid}&ver=2.3.0`
         }
-        request.get( logger, option, ( err, result ) => {
+        request.get(option, ( err, result ) => {
             this.storaging.totalStorage ("btime",option.url,"comment")
             if(err){
                 logger.error(err,err.code,err.Error)

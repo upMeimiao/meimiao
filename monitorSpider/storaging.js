@@ -16,14 +16,14 @@ class storage{
     }
     judgeRes(platform,url,bid,err,res,urlDesc){
 	    if(err){
-	    	logger.error(err,err.code,err.Error)
+	    	// logger.error(err,err.code,err.Error)
 	    	let errType
 	    	if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                     errType = "timeoutErr"
                 } else{
                     errType = "responseErr"
                 }
-            logger.error(errType)
+            // logger.error(errType)
 	        this.errStoraging(platform,url,bid,err.code || err,errType,urlDesc)
 	        return
 	    }
@@ -38,8 +38,8 @@ class storage{
     }
     sendDb (media){
 	    let   platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
-                  ,"yidian","tudou","baomihua","ku6","btime"/*,"weishi","xiaoying","budejie","neihan","yy"
-                  ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
+                  ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
+                  ,"tv56"/*,"acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
                   ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"*/],
 	        curPlatform,i
 	    for(i = 0; i < platformArr.length; i++){

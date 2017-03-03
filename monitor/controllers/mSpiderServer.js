@@ -85,6 +85,30 @@ const _errorJudge = (callback) => {
             btime: (callback) => {
                 getBtimeError()
                 callback()
+            },
+            weishi: (callback) => {
+                getWeishiError()
+                callback()
+            },
+            xiaoying: (callback) => {
+                getXiaoyingError()
+                callback()
+            },
+            budejie: (callback) => {
+                getBudejieError()
+                callback()
+            },
+            neihan: (callback) => {
+                getNeihanError()
+                callback()
+            },
+            yy: (callback) => {
+                getYyError()
+                callback()
+            },
+            tv56: (callback) => {
+                getTv56Error()
+                callback()
             }
         },( err, result ) => {
                 if(err){
@@ -93,6 +117,60 @@ const _errorJudge = (callback) => {
                 callback()
         }
     )
+}
+const getTv56Error = () => {
+    // logger.debug("getTv56Error")
+    let urlDescArr = ["user","total","videos","info","comment"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("tv56",urlDesc)
+    }
+}
+const getYyError = () => {
+    // logger.debug("getYyError")
+    let urlDescArr = ["total","live","slist","dlist","list"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("yy",urlDesc)
+    }
+}
+const getNeihanError = () => {
+    // logger.debug("getNeihanError")
+    let urlDescArr = ["user","list"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("neihan",urlDesc)
+    }
+}
+const getBudejieError = () => {
+    // logger.debug("getBudejieError")
+    let urlDescArr = ["user","list"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("budejie",urlDesc)
+    }
+}
+const getXiaoyingError = () => {
+    // logger.debug("getXiaoyingError")
+    let urlDescArr = ["info","list","total"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("xiaoying",urlDesc)
+    }
+}
+const getWeishiError = () => {
+    // logger.debug("getWeishiError")
+    let urlDescArr = ["user","list"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("weishi",urlDesc)
+    }
 }
 const getBtimeError = () => {
     // logger.debug("getBtimeError")
@@ -269,7 +347,7 @@ const getErr = (platform,urlDesc) => {
                 let　 errResult = result,
                       options
                 // 获取当前url对应的全部请求次数
-                logger.debug("errResult~~~~~~~~~~~~~~~~~",errResult)
+                // logger.debug("errResult~~~~~~~~~~~~~~~~~",errResult)
                 mSpiderClient.hget(`apiMonitor:${platform}:${urlDesc}:total:${hourStr}`,curUrl,(err,result) => {
                     // logger.debug("获取当前url对应的全部请求次数=",curKey,curUrl,result)
                     if(err){
@@ -334,12 +412,239 @@ const getErr = (platform,urlDesc) => {
                         case "btime":
                             btimeJudgeErr(options)
                             break
+                        case "weishi":
+                            weishiJudgeErr(options)
+                            break
+                        case "xiaoying":
+                            xiaoyingJudgeErr(options)
+                            break
+                        case "budejie":
+                            budejieJudgeErr(options)
+                            break
+                        case "neihan":
+                            neihanJudgeErr(options)
+                            break
+                        case "yy":
+                            yyJudgeErr(options)
+                            break
+                        case "tv56":
+                            tv56JudgeErr(options)
+                            break
                     }
                 })
             })
         }
     })
-}  
+} 
+const tv56JudgeErr = (options) => {
+    //["user","total","videos","info","comment"]
+    // logger.debug("tv56JudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "tv56",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "user":
+            emailOptions.urlDesc = "user"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "total":
+            emailOptions.urlDesc = "total"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "videos":
+            emailOptions.urlDesc = "videos"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "info":
+            emailOptions.urlDesc = "info"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "comment":
+            emailOptions.urlDesc = "comment"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+} 
+const yyJudgeErr = (options) => {
+    //["total","live","slist","dlist","list"]
+    // logger.debug("yyJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "yy",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "total":
+            emailOptions.urlDesc = "total"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "live":
+            emailOptions.urlDesc = "live"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "slist":
+            emailOptions.urlDesc = "slist"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "dlist":
+            emailOptions.urlDesc = "dlist"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+} 
+const neihanJudgeErr = (options) => {
+    //["","",""]
+    // logger.debug("neihanJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "neihan",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "user":
+            emailOptions.urlDesc = "user"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+} 
+const budejieJudgeErr = (options) => {
+    //["","",""]
+    // logger.debug("budejieJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "budejie",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "user":
+            emailOptions.urlDesc = "user"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+} 
+const xiaoyingJudgeErr = (options) => {
+    //["info","list","total"]
+    // logger.debug("xiaoyingJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "xiaoying",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "info":
+            emailOptions.urlDesc = "info"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "total":
+            emailOptions.urlDesc = "total"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+}
+const weishiJudgeErr = (options) => {
+    //
+    // logger.debug("weishiJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "weishi",
+            "urlDesc": "",
+            "curUrl": options.curUrl,
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "user":
+            emailOptions.urlDesc = "user"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.4,0.4,0.4,0.5,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+}
 const btimeJudgeErr = (options) => {
     //["user","list","info","comment"]
     // logger.debug("btimeJudgeErr  options=================",options)

@@ -62,7 +62,7 @@ class dealWith {
             }catch (e){
                 logger.error('json数据解析失败')
                 this.storaging.errStoraging('iqiyi',option.url,task.id,"爆米花获取user接口json数据解析失败","doWithResErr","user")
-                logger.info(result)
+                // logger.info(result)
                 return callback(e)
             }
             result = result.result
@@ -87,14 +87,14 @@ class dealWith {
                 }
                 request.get( logger,option, ( err, result ) => {
                     if(err){
-                        logger.error(err,err.code,err.Error)
+                        // logger.error(err,err.code,err.Error)
                         let errType 
                         if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                             errType = "timeoutErr"
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
+                        // logger.error(errType)
                         this.storaging.errStoraging('baomihua',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
@@ -115,7 +115,7 @@ class dealWith {
                     }
                     result = result.result
                     if(!result.VideoList || result.VideoList == 'null'){
-                        logger.debug('已经没有数据')
+                        // logger.debug('已经没有数据')
                         sign = false
                         return cb()
                     }

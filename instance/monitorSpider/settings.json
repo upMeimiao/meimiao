@@ -12,7 +12,7 @@
 	    "MSDB": 7
   	},
   	"proxy": {
-	    "host": "10.169.16.235",
+	    "host": "127.0.0.1",
 	    "port": 3002,
 	    "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=600&area=%E4%B8%AD%E5%9B%BD&protocol=1&method=1&an_tr=1&an_an=1&an_ha=1&sp1=1&sp2=1&quality=1&f_pr=1&format=json&sep=1",
 	    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
@@ -130,6 +130,35 @@
 			"userInfo": "http://record.btime.com/getUserChannel?uid=",
 		    "medialist": "http://record.btime.com/getNews?tab=video&pageRow=20&uid=",
 		    "info": "http://api.btime.com/news/detail?nid="
+		},
+		"weishi":{
+			"userInfo": "http://wsm.qq.com/weishi/user/getUserInfo.php?v=w&g_tk=&ukey=147010735534085719&uid=",
+            "list": "http://wsm.qq.com/weishi/t/other.php?v=p&reqnum=20&pageflag=2&uid="
+		},
+		"xiaoying":{
+			"userInfo": "https://w.api.xiaoying.co/webapi2/rest/user/detail?appkey=30000000&auid=",
+		    "videoInfo": "https://w.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&puid=",
+		    "List": "http://v.api.xiaoying.co/api/rest/v/vq"
+		},
+		"budejie":{
+			"userInfo": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid=",
+  			"medialist": "http://s.budejie.com/topic/user-topic/"
+		},
+		"neihan":{
+			"userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?user_id=",
+  			"medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id="
+		},
+		"yy":{
+			"userInfo": "http://www.yy.com/u/",
+		    "shenquList": "http://www.yy.com/u/works/s?yyno=",
+		    "duanpaiList": "http://www.yy.com/u/works/d?yyno=",
+		    "liveList": "http://www.yy.com/u/live/queryPlayback.json?pageSize=20&yy="
+		},
+		"tv56":{
+			"userInfo": "http://push.my.tv.sohu.com/user/a/fa/count.do",
+  			"list": "http://my.tv.sohu.com/user/wm/56ta/v.do?sortType=2&size=20&callback=jsonp&uid=",
+  			"video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
+  			"comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk"
 		}
 	}
 }
