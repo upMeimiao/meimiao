@@ -1813,53 +1813,74 @@ class DealWith {
                 logger.error('PPTV状态码错误',result.statusCode)
                 return callback(true,{code:102,p:31})
             }
-            let $ = cheerio.load(result.body),
-                script = $('script')[2].children[0].data,
-                data = script.replace(/[\s\n]/g,'').replace(/varwebcfg=/,'').replace(/;/,''),
-                name = $('div#video-info .bd>h3').text().split(' '),
-                imgUrl = $('a.btn_more').attr('href')
-            try{
-                data = JSON.parse(data)
-            }catch(e){
-                logger.debug('PPTV数据转换失败')
-                return callback(e,{code:102,p:31})
-            }
-            this.pptvAvatar(imgUrl,(err,result) => {
-                let res = {
-                    name: name[0],
-                    id: data.pid,
-                    p: 31,
-                    encode_id: data.cat_id,
-                    avatar: result
-                }
-                callback(null,res)
-            })  
+            result = result.body.replace(/[\s\n\r]/g,'')
+            let vid = result.match(/varwebcfg={"id":\d+/).toString().replace('varwebcfg={"id":','')
+            return this.pptvInfo(vid, data, (err, result) => {
+                callback(null,result)
+            })
+            
         })
     }
-    pptvAvatar( imgUrl, callback ){
-        let option = {}
-        if(!imgUrl){
-                option.url = ''
-            }else{
-                option.url = imgUrl
+    pptvInfo( vid, url, callback ){
+        let option = {
+            url: `http://epg.api.pptv.com/detail.api?auth=1&format=jsonp&cb=jsonp&vid=${vid}&_=${new Date().getTime()}`
+        }
+        request.get( option, (err, result) => {
+            if(err){
+                logger.error('occur error: ',err)
+                return callback(err,{code:102,p:31})
             }
-            //logger.debug(option.url)
-            request.get( option, (err, result) => {
-                if(err){
-                    logger.debug('PPTV 头像请求失败')
-                    return pptvAvatar(imgUrl,callback)
+            if(result.statusCode != 200){
+                logger.error('PPTV状态码错误',result.statusCode)
+                return callback(true,{code:102,p:31})
+            }
+            try{
+                result = eval(result.body)
+            }catch(e){
+                logger.debug('PPTV数据解析失败')
+                return callback(e,{code:102,p:31})
+            }
+            let dataName = result
+            if(!result.v.traceName){
+                option.url = url
+                request.get( option, (err, result) => {
+                    if(err){
+                        logger.error('occur error: ',err)
+                        return callback(err,{code:102,p:31})
+                    }
+                    if(result.statusCode != 200){
+                        logger.error('PPTV状态码错误',result.statusCode)
+                        return callback(true,{code:102,p:31})
+                    }
+                    let $ = cheerio.load(result.body),
+                        script = $('script')[2].children[0].data.replace(/[\s\n\r]/g,''),
+                        dataJson = script.replace(/varwebcfg=/,'').replace(/;/,'')
+                    try{
+                        dataJson = JSON.parse(dataJson)
+                    }catch(e){
+                        logger.debug(dataJson)
+                        return
+                    }
+                    let res = {
+                        name: dataJson.p_title,
+                        id: dataJson.pid,
+                        p: 31,
+                        encode_id: dataJson.cat_id,
+                        avatar: dataName.v.imgurl
+                    }
+                    return callback(null,res)
+                })
+            }else{
+                let res = {
+                    name: result.v.traceName,
+                    id: result.v.traceId,
+                    p: 31,
+                    encode_id: result.v.type,
+                    avatar: result.v.imgurl
                 }
-                if(result.statusCode != 200){
-                    logger.error('PPTV状态码错误',result.statusCode)
-                    return callback(true,{code:102,p:31})
-                }
-                let $ = cheerio.load(result.body),
-                    avatar = $('.cover-a>img').attr('data-src2')
-                if(!avatar){
-                    avatar = $('div.module-dpage-banner>a').eq(0).find('img').attr('src')
-                }
-                callback(null,avatar)
-            })
+                callback(null,res)
+            }   
+        })
     }
     xinlan( data, callback ){
         let urlObj   = URL.parse(data,true),
