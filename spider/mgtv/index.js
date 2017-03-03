@@ -91,7 +91,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('mgtv',9, (job,done) => {
+        queue.process('mgtv',8, (job,done) => {
             logger.trace( 'Get mgtv task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
