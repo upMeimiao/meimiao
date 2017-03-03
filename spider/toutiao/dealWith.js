@@ -166,6 +166,10 @@ class dealWith {
                 return sign
             },
             (cb) => {
+                if(index > 500){
+                    sign = false
+                    return cb()
+                }
                 const {as, cp} = this.getHoney()
                 times++
                 protocolNum = Math.floor(Math.random()*4)

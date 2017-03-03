@@ -97,7 +97,7 @@ class dealWith {
                 comment_num: result[1],
                 class: result[0].class,
                 tag: result[0].tag,
-                desc: result[0].desc.replace(/"/g,''),
+                desc: result[0].desc.replace(/"[\s\n\r]/g,''),
                 long_t: result[0].data.duration,
                 v_img: video.capture,
                 v_url: video.url,
