@@ -15,7 +15,7 @@ class toutiaoDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('toutiaoDealWith instantiation ...')
     }
     getHoney() {
         const t = Math.floor((new Date).getTime() / 1e3),
@@ -73,8 +73,17 @@ class toutiaoDealWith {
             own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
         }
         request.get( logger, option, ( err, result ) => {
-
+            this.storaging.totalStorage ("toutiao",option.url,"user")
             if(err){
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || err,errType,"user")
                 return callback(err)
             }
             if(!result){
@@ -114,12 +123,22 @@ class toutiaoDealWith {
             //         time: new Date().getTime()
             //     }))
             // }
-            this.storaging.succStorage("toutiao",option.url,"user")
+            // this.storaging.succStorage("toutiao",option.url,"user")
         })
     }
     getUserId(task) {
         request.get(logger, {url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`},(err, result)=>{
+            this.storaging.totalStorage ("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
             if(err){
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+                this.storaging.errStoraging("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,err.code || err,errType,"userId")
                 return
             }
             if(!result){
@@ -129,19 +148,18 @@ class toutiaoDealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝Id接口json数据解析失败","doWithResErr","userId")
+                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,"今日头条获取粉丝Id接口json数据解析失败","doWithResErr","userId")
                 return
             }
             if(result.message != 'success'){
-                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取粉丝Id接口发生错误${result.message}`,"responseErr","userId")
+                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,`今日头条获取粉丝Id接口发生错误${result.message}`,"responseErr","userId")
                 return
             }
             //let userId = result.data.user_id
-            this.storaging.succStorage("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
+            // this.storaging.succStorage("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
         })
     }
     getList ( task, callback ) {
-
         let index = 0,times = 0,proxyStatus = false,proxy = '',
             sign = true,
             option = {
@@ -163,6 +181,7 @@ class toutiaoDealWith {
                 if(proxyStatus && proxy){
                     option.proxy = proxy
                     request.get( logger, option, (err,result) => {
+                        this.storaging.totalStorage ("toutiao",option.url,"list")
                         if(err){
                             times++
                             proxyStatus = false
@@ -198,15 +217,19 @@ class toutiaoDealWith {
                             index++
                             cb()
                         })
-                        this.storaging.succStorage("toutiao",option.url,"list")
+                        // this.storaging.succStorage("toutiao",option.url,"list")
                     })
                 } else {
                     this.core.proxy.need(times, (err, _proxy) => {
+                        this.storaging.totalStorage ("toutiao",option.url,"list")
                         if(err) {
                             if(err == 'timeout'){
+                                logger.error(err,err.code,err.Error)
+                                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || err,"timeoutErr","list")
                                 return callback('Get proxy timesout!!')
                             }
                             logger.error('Get proxy occur error:' , err)
+                            this.storaging.errStoraging("toutiao",options.url,task.id,err,"responseErr","list")
                             times++
                             proxyStatus = false
                             return cb()
@@ -251,7 +274,7 @@ class toutiaoDealWith {
                                 index++
                                 cb()
                             })
-                            this.storaging.succStorage("toutiao",option.url,"list")
+                            // this.storaging.succStorage("toutiao",option.url,"list")
                         })
                     })
                 }
@@ -289,7 +312,7 @@ class toutiaoDealWith {
             let query = URL.parse(video.app_url,true).query
             vid = query.item_id
         }else{
-            logger.debug(video)
+            // logger.debug(video)
             return callback(video)
         }
         media.author = video.detail_source || video.source || task.name
@@ -340,6 +363,7 @@ class toutiaoDealWith {
             url: `http://m.toutiao.com/i${vid}/info/`,
         }
         request.get( logger, option, ( err, result ) => {
+            this.storaging.totalStorage ("toutiao",option.url,"play")
             if(err){
                 return callback(err)
             }
@@ -356,7 +380,7 @@ class toutiaoDealWith {
                 this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取playNum接口返回数据为空","doWithResErr","play")
                 return callback(true)
             }
-            this.storaging.succStorage("toutiao",option.url,"play")
+            // this.storaging.succStorage("toutiao",option.url,"play")
             callback(null,backData.video_play_count)
         })
     }

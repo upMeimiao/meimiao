@@ -24,11 +24,11 @@ class storage{
                     errType = "responseErr"
                 }
             logger.error(errType)
-	        this.errStoraging(platform,url,bid,err,errType,urlDesc)
+	        this.errStoraging(platform,url,bid,err.code || err,errType,urlDesc)
 	        return
 	    }
 	    if(!res){
-	        this.errStoraging(platform,url,bid,err,"responseErr",urlDesc)
+	        this.errStoraging(platform,url,bid,`返回数据为空`,"responseErr",urlDesc)
 	        return
 	    }
 	    if(res && res.statusCode != 200){
@@ -37,7 +37,10 @@ class storage{
 	    }
     }
     sendDb (media){
-	    let platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"],
+	    let   platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
+                  ,"yidian","tudou","baomihua","ku6","btime"/*,"weishi","xiaoying","budejie","neihan","yy"
+                  ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
+                  ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"*/],
 	        curPlatform,i
 	    for(i = 0; i < platformArr.length; i++){
 	        if(i + 1 == media.platform){
@@ -49,9 +52,9 @@ class storage{
 	            logger.error( '加入接口监控数据库出现错误：', err )
 	            return
 	        }
-	        logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
+	        // logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:${curPlatform}:${media.aid}`,12*60*60) 
+	    mSpiderClint.expire(`apiMonitor:${curPlatform}:play_num:${media.aid}`,12*60*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
@@ -81,6 +84,7 @@ class storage{
 	                return
 	            }
 	        })
+	        mSpiderClint.expire(curKey,12*60*60) 
 	    })
 	}
 	errStoraging (platform,url,bid,errDesc,errType,urlDesc){
@@ -124,7 +128,7 @@ class storage{
 						"desc": ""
 					}
 				},
-	        	logger.debug("result  errObj errType urlDesc platform",result,errObj,errType,urlDesc,platform)
+	        	// logger.debug("result  errObj errType urlDesc platform",result,errObj,errType,urlDesc,platform)
 	            errObj[errType]["times"] = 1
 	            errObj[errType]["desc"] = errDesc
 	        }  else {
@@ -138,81 +142,9 @@ class storage{
 	                logger.error( '设置接口成功调取次数出现错误', err )
 	                return
 	            }
+	            mSpiderClint.expire(curKey,12*60*60) 
 	        })
 	    })
 	}
-
-	// succStorage (platform,url,urlDesc){
-	//     let curSuccKey = `apiMonitor:${platform}:${urlDesc}`,
-	//         succTimes
-	//     mSpiderClint.hget(curSuccKey,"succTimes",(err,result) => {
-	//         if(err){
-	//             logger.error( '获取接口成功调取次数出现错误', err )
-	//             return
-	//         }
-	//         if (!result) {
-	//             succTimes = 1
-	//         }  else {
-	//             succTimes = Number(result) + 1
-	//         }
-	//         mSpiderClint.hset(curSuccKey,"succTimes",succTimes,(err,result) => {
-	//             if(err){
-	//                 logger.error( '设置接口成功调取次数出现错误', err )
-	//                 return
-	//             }
-	//         })
-	//     })
-	// }
-	// errStoraging (platform,url,bid,errDesc,errType,urlDesc){
-	//     let firstDate = new Date(),
-	//         firstTime = firstDate.getTime(),
-	//         options = {
-	//             "platform": platform,
-	//             "url": url,
-	//             "urlDesc": urlDesc,
-	//             "bid": bid,
-	//             "errDesc": errDesc,
-	//             "firstTime": firstTime,
-	//             "times": 1,
-	//             "lastTime": firstTime
-	//         }
-	//     let currentErr = JSON.stringify(options),
-	//         curErrKey = `apiMonitor:${platform}:${urlDesc}`
-	//     logger.debug("有错误发生喽，正在分析与存储~~~~~~")
-	//     function pushCurErr(options){
-	//         mSpiderClint.hset(curErrKey,errType,JSON.stringify(options),(err,result) => {
-	//             if ( err ) {
-	//                 logger.error( '错误信息加入数据库失败出现错误：', err )
-	//                 return
-	//             }
-	//             logger.debug(`错误信息已加入数据库`)
-	//         })
-	//         logger.debug("错误已存入redis")
-	//     }
-	//      mSpiderClint.hget(curErrKey,errType,(err,result) => {
-	//         logger.debug("result=",result)
-	//         if(err||!result){
-	//             pushCurErr(options)
-	//         }  else{
-	//             let lastDate = new Date(),
-	//                 lastTime = lastDate.getTime(),
-	//                 curErrTimes = JSON.parse(result).times,
-	//             	firstTime = JSON.parse(result).firstTime
-	//             curErrTimes++
-	//             let newOptions = {
-	//                     "platform": options.platform,
-	//                     "url": options.url,
-	//                     "urlDesc": options.urlDesc,
-	//                     "bid": options.bid,
-	//                     "errDesc": options.errDesc,
-	//                     "firstTime": firstTime,
-	//                     "times": curErrTimes ? curErrTimes : 1,
-	//                     "lastTime": lastTime
-	//                 }
-	//             logger.debug("newOptions=",newOptions)
-	//             pushCurErr(newOptions)
-	//         }
-	//     })
-	// }
 }
 module.exports = storage

@@ -32,7 +32,7 @@ class proxy{
                 return callback(null, proxy.proxy)
             }
             setTimeout(() => {
-                logger.debug('setTImeout')
+                // logger.debug('setTImeout')
                 return this.need(times + 1, callback)
             }, 3000)
         })

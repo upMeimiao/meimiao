@@ -12,7 +12,7 @@ class billDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('billDealWith instantiation ...')
     }
     bili ( task, callback) {
         task.total = 0
@@ -60,6 +60,7 @@ class billDealWith {
             //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取粉丝code error","responseErr","user")
             //     return callback()
             // }
+            this.storaging.totalStorage ("bili",option.url,"user")
             this.storaging.judgeRes ("bili",option.url,task.id,err,result,"user")
             if(!result){
                 return 
@@ -77,7 +78,7 @@ class billDealWith {
             //         bid: userInfo.mid,
             //         fans_num: userInfo.fans
             //     }
-            this.storaging.succStorage("bili",option.url,"user")
+            // this.storaging.succStorage("bili",option.url,"user")
         })
     }
     getTotal ( task, callback) {
@@ -99,6 +100,7 @@ class billDealWith {
             //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口code error","responseErr","total")
             //     return callback()
             // }
+            this.storaging.totalStorage ("bili",option.url,"total")
             this.storaging.judgeRes ("bili",option.url,task.id,err,result,"total")
             if(!result){
                 return 
@@ -111,7 +113,7 @@ class billDealWith {
                 return callback(e)
             }
             task.total = result.data.count
-            this.storaging.succStorage("bili",option.url,"total")
+            // this.storaging.succStorage("bili",option.url,"total")
             this.getVideos( task, result.data.pages, () => {
                 callback()
             })
@@ -128,9 +130,15 @@ class billDealWith {
                     url: api.bili.mediaList + task.id + "&page=" + sign + "&pagesize=30"
                 }
                 request.get(option, (err,result) => {
+                    this.storaging.totalStorage ("bili",option.url,"videos")
                     if(err){
-                        logger.error( 'occur error : ', err )
-                        this.storaging.errStoraging('bili',option.url,task.id,err,"responseErr","videos")
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        this.storaging.errStoraging('bili',option.url,task.id,err.code || err,errType,"videos")
                         return cb()
                     }
                     if(!result){
@@ -150,16 +158,16 @@ class billDealWith {
                         return cb()
                     }
                     if(!result.data){
-                        logger.debug(result)
+                        // logger.debug(result)
                         sign++
                         return cb()
                     }
                     if(!result.data.vlist || result.data.vlist == 'null'){
-                        logger.debug(result)
+                        // logger.debug(result)
                         sign++
                         return cb()
                     }
-                    this.storaging.succStorage("bili",option.url,"videos")
+                    // this.storaging.succStorage("bili",option.url,"videos")
                     this.deal(task,result.data.vlist,() => {
                         sign++
                         cb()
@@ -212,6 +220,7 @@ class billDealWith {
             //     this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取info code error","responseErr","info")
             //     return callback(true)
             // }
+            this.storaging.totalStorage ("bili",option.url,"info")
             this.storaging.judgeRes ("bili",option.url,task.id,err,back,"info")
             if(!back){
                 return 
@@ -230,7 +239,7 @@ class billDealWith {
             if(back.data.tags && back.data.tags.length != 0){
                 tagStr = back.data.tags.join(',')
             }
-            this.storaging.succStorage("bili",option.url,"info")
+            // this.storaging.succStorage("bili",option.url,"info")
             let media = {
                 author: back.data.owner.name,
                 platform: 8,

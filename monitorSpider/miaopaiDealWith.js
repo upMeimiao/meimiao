@@ -11,7 +11,7 @@ class miaopaiDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('miaopaiDealWith instantiation ...')
     }
     miaopai (task,callback) {
         task.total = 0
@@ -55,6 +55,7 @@ class miaopaiDealWith {
             //     this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝code error","responseErr","user")
             //     return callback()
             // }
+            this.storaging.totalStorage ("miaopai",option.url,"user")
             this.storaging.judgeRes ("miaopai",option.url,task.id,err,result,"user")
             if(!result){
                 return 
@@ -72,7 +73,7 @@ class miaopaiDealWith {
             //         bid: userInfo.suid,
             //         fans_num: userInfo.eventCnt.fans
             //     }
-            this.storaging.succStorage("miaopai",option.url,"user")
+            // this.storaging.succStorage("miaopai",option.url,"user")
         })
     }
     getTotal ( task, callback ) {
@@ -80,8 +81,17 @@ class miaopaiDealWith {
             url: api.miaopai.api + "1&per=20&suid=" +task.id
         }
         request.get( option, (err,result) => {
+            this.storaging.totalStorage ("miaopai",option.url,"total")
             if(err){
-                this.storaging.errStoraging('miaopai',option.url,task.id,err,"responseErr","total")
+                logger.error(err,err.code,err.Error)
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                logger.error(errType)
+                this.storaging.errStoraging('miaopai',option.url,task.id,err.code || err,errType,"total")
                 if(task.id == 'mEpTsCBR3q2uyDUc'){
                     return callback()
                 }
@@ -104,7 +114,7 @@ class miaopaiDealWith {
                 result = JSON.parse(result.body)
             } catch (e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取total接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('miaopai',option.url,task.id,"json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
             let videos_count = result.total,page
@@ -117,7 +127,7 @@ class miaopaiDealWith {
             this.getVideos(task,page, () => {
                 callback()
             })
-            this.storaging.succStorage("miaopai",option.url,"total")
+            // this.storaging.succStorage("miaopai",option.url,"total")
         })
     }
     getVideos ( task, page, callback ) {
@@ -130,11 +140,19 @@ class miaopaiDealWith {
                 option = {
                     url: api.miaopai.api + sign + "&per=20&suid=" + task.id
                 }
-                logger.debug(option.url)
+                // logger.debug(option.url)
                 request.get(option, (err,result) => {
+                    this.storaging.totalStorage ("miaopai",option.url,"videos")
                     if(err){
-                        logger.error( 'occur error : ', err )
-                        this.storaging.errStoraging('miaopai',option.url,task.id,err,"responseErr","videos")
+                        logger.error(err,err.code,err.Error)
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
+                        this.storaging.errStoraging('miaopai',option.url,task.id,err.code || err,errType,"videos")
                         return cb()
                     }
                     if(!result){
@@ -150,7 +168,7 @@ class miaopaiDealWith {
                         result = JSON.parse(result.body)
                     } catch (e){
                         logger.error('json数据解析失败')
-                        this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos接口json数据解析失败","resultErr","videos")
+                        this.storaging.errStoraging('miaopai',option.url,task.id,"json数据解析失败","resultErr","videos")
                         return cb()
                     }
                     let videos = result.result
@@ -158,7 +176,7 @@ class miaopaiDealWith {
                         sign++
                         cb()
                     })
-                    this.storaging.succStorage("miaopai",option.url,"videos")
+                    // this.storaging.succStorage("miaopai",option.url,"videos")
                 })
             },
             (err,result) => {
@@ -237,6 +255,7 @@ class miaopaiDealWith {
             //     this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取info code error","responseErr","info")
             //     return callback(true)
             // }
+            this.storaging.totalStorage ("miaopai",option.url,"info")
             this.storaging.judgeRes ("miaopai",option.url,task.id,err,result,"info")
             if(!result){
                 return
@@ -245,7 +264,7 @@ class miaopaiDealWith {
                 result = JSON.parse(result.body)
             } catch ( e ){
                 logger.error(`秒拍getInfo json 解析: ${result.statusCode}`)
-                this.storaging.errStoraging('miaopai',option.url,task.id,`秒拍获取info接口json数据解析失败${result.statusCode}`,"doWithResErr","info")
+                this.storaging.errStoraging('miaopai',option.url,task.id,`json数据解析失败${result.statusCode}`,"doWithResErr","info")
                 return callback(e)
             }
             if(result.status != 200){
@@ -256,7 +275,7 @@ class miaopaiDealWith {
             dataJson.v_img  = result.result.pic.base+result.result.pic.m
             dataJson.class  = this._class(result.result.category_info)
             dataJson.tag    = this._tag(result.result.topicinfo)
-            this.storaging.succStorage("miaopai",option.url,"info")
+            // this.storaging.succStorage("miaopai",option.url,"info")
             callback(null,dataJson)
         })
     }

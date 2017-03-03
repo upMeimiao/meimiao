@@ -16,7 +16,7 @@ class leDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('leDealWith instantiation ...')
     }
     le ( task, callback ) {
         task.total = 0
@@ -25,7 +25,7 @@ class leDealWith {
         })
     }
     getTotal ( task, callback ) {
-        logger.debug("开始获取视频总页数")
+        // logger.debug("开始获取视频总页数")
         let option = {}
         option.url = api.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=1&_="+ (new Date()).getTime()
         option.referer = `http://chuang.le.com/u/${task.id}/videolist`
@@ -42,7 +42,7 @@ class leDealWith {
                 }
                 logger.error(errType)
 
-                this.storaging.errStoraging('le',option.url,task.id,err,errType,"total")
+                this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"total")
                 return callback(err)
             }
             try {
@@ -71,7 +71,7 @@ class leDealWith {
                 return sign <= page
             },
             ( cb ) => {
-                logger.debug("开始获取第"+ sign +"页le视频列表")
+                // logger.debug("开始获取第"+ sign +"页le视频列表")
                 option.url = api.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=" + sign + "&_="+ (new Date()).getTime()
                 request.get( logger, option, (err,result) => {
                     this.storaging.totalStorage ("le",option.url,"list")
@@ -79,12 +79,12 @@ class leDealWith {
                         logger.error(err,err.code,err.Error)
                         let errType
                         if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
-                } else{
-                    errType = "responseErr"
-                }
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
                         logger.error(errType)
-                        this.storaging.errStoraging('le',option.url,task.id,err,errType,"list")
+                        this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -220,7 +220,7 @@ class leDealWith {
                 }
                 logger.error(errType)
 
-                this.storaging.errStoraging('le',option.url,id,err,errType,"info")
+                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"info")
                 return callback(err)
             }
             //logger.debug(result.body)
@@ -260,7 +260,7 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,id,err,errType,"Expr")
+                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"Expr")
                 return callback( err )
             }
             const $ = cheerio.load(result.body),
@@ -270,7 +270,11 @@ class leDealWith {
                 descDom2 = $('li.li_04 p'),
                 timeDom3 = $('li.li_04 em'),
                 descDom3 = $('li_08 em p')
-            if(timeDom.length === 0 && timeDom2.length === 0 && timeDom3.length === 0){
+            if(!timeDom.length && !timeDom2.length && !timeDom3.length){
+                this.storaging.errStoraging('le',option.url,id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
+                return callback(true)
+            }
+            if(!descDom.length && !descDom2.length && !descDom3.length){
                 this.storaging.errStoraging('le',option.url,id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
                 return callback(true)
             }
@@ -327,7 +331,7 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,id,err,errType,"Desc")
+                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"Desc")
                 return callback(null,null)
             }
             try{

@@ -15,7 +15,7 @@ class kuaibaoDealWith {
         this.storaging = new (require('./storaging'))(this)
         api = this.settings.spiderAPI
         logger = this.settings.logger
-        logger.trace('DealWith instantiation ...')
+        logger.trace('kuaibaoDealWith instantiation ...')
     }
     kuaibao ( task, callback ) {
         task.total = 0
@@ -64,6 +64,7 @@ class kuaibaoDealWith {
             //     logger.error('获取粉丝code error：',result.statusCode)
             //     return callback()
             // }
+            this.storaging.totalStorage ("kuaibao",option.url,"user")
             this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"user")
             if(!result){
                 return
@@ -87,7 +88,7 @@ class kuaibaoDealWith {
             //     bid: task.id,
             //     fans_num: userInfo.subCount
             // }
-            this.storaging.succStorage("kuaibao",option.url,"user")
+            // this.storaging.succStorage("kuaibao",option.url,"user")
         })
     }
     getVideos ( task, callback ) {
@@ -107,6 +108,7 @@ class kuaibaoDealWith {
             // if(result.statusCode != 200){
             //     return callback(result.statusCode)
             // }
+            this.storaging.totalStorage ("kuaibao",option.url,"videos")
             this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"videos")
             if(!result){
                 return 
@@ -119,7 +121,7 @@ class kuaibaoDealWith {
                 return callback(e)
             }
             task.total = result.ids.length
-            this.storaging.succStorage("kuaibao",option.url,"videos")
+            // this.storaging.succStorage("kuaibao",option.url,"videos")
 
             this.deal(task,result.ids, () => {
                 callback()
@@ -157,6 +159,7 @@ class kuaibaoDealWith {
             }
         }
         request.post( option, (err,result) => {
+            this.storaging.totalStorage ("kuaibao",option.url,"info")
             this.storaging.judgeRes("kuaibao",option.url,task.id,err,result,"info")
             // // if(err){
             // //     logger.error( 'occur error : ', err )
@@ -184,7 +187,7 @@ class kuaibaoDealWith {
                     time: backData.timestamp,
                     vid: backData.video_channel.video.vid
                 }
-            this.storaging.succStorage("kuaibao",option.url,"info")
+            // this.storaging.succStorage("kuaibao",option.url,"info")
 
             this.getDetail(task,info, (err) => {
                 if(err){
@@ -291,6 +294,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
+            this.storaging.totalStorage ("kuaibao",option.url,"commentNum")
             this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return
@@ -307,7 +311,7 @@ class kuaibaoDealWith {
             }else{
                 callback(true)
             }
-            this.storaging.succStorage("kuaibao",option.url,"commentNum")
+            // this.storaging.succStorage("kuaibao",option.url,"commentNum")
 
         })
     }
@@ -325,6 +329,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
+            this.storaging.totalStorage ("kuaibao",option.url,"Expr")
             this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"Expr")
             if(!result){
                 return
@@ -341,7 +346,7 @@ class kuaibaoDealWith {
                 up: result.expr_info.list[0].count || null,
                 down: result.expr_info.list[1].count || null
             }
-            this.storaging.succStorage("kuaibao",option.url,"Expr")
+            // this.storaging.succStorage("kuaibao",option.url,"Expr")
 
             callback(null,data)
         })
@@ -361,6 +366,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
+            this.storaging.totalStorage ("kuaibao",option.url,"play")
             this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"play")
             if(!result){
                 return 
@@ -380,7 +386,7 @@ class kuaibaoDealWith {
             } else {
                 callback(true)
             }
-            this.storaging.succStorage("kuaibao",option.url,"play")
+            // this.storaging.succStorage("kuaibao",option.url,"play")
 
         })
     }
@@ -394,6 +400,7 @@ class kuaibaoDealWith {
             //     logger.error( 'occur error : ', err )
             //     return callback(err)
             // }
+            this.storaging.totalStorage ("kuaibao",option.url,"field")
             this.storaging.judgeRes ("kuaibao",option.url,task.id,err,result,"field")
             if(!result){
                 return 
@@ -415,7 +422,7 @@ class kuaibaoDealWith {
                 tag: this._tag(result.video.tags),
                 class: this._class(result.video.ctypename)
             }
-            this.storaging.succStorage("kuaibao",option.url,"field")
+            // this.storaging.succStorage("kuaibao",option.url,"field")
             callback(null,backData)
         })
     }
