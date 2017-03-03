@@ -15,7 +15,7 @@ class toutiaoDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('toutiaoDealWith instantiation ...')
     }
     getHoney() {
         const t = Math.floor((new Date).getTime() / 1e3),
@@ -312,7 +312,7 @@ class toutiaoDealWith {
             let query = URL.parse(video.app_url,true).query
             vid = query.item_id
         }else{
-            logger.debug(video)
+            // logger.debug(video)
             return callback(video)
         }
         media.author = video.detail_source || video.source || task.name

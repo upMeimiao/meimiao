@@ -13,7 +13,7 @@ class dealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('yidianDealWith instantiation ...')
     }
     yidian (task,callback) {
         task.total = 0

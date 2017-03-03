@@ -13,7 +13,7 @@ class dealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('btimeDealWith instantiation ...')
     }
     btime( task, callback) {
         task.total = 0
@@ -80,7 +80,7 @@ class dealWith {
                 return isSign
             },
             (cb) => {
-                logger.debug('开始获取第' + sign + '页视频列表')
+                // logger.debug('开始获取第' + sign + '页视频列表')
                 let option = {
                     url: api.btime.medialist + id + '&pageNo=' + sign + "&lastTime=" + lastTime
                 }

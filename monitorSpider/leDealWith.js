@@ -16,7 +16,7 @@ class leDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('leDealWith instantiation ...')
     }
     le ( task, callback ) {
         task.total = 0
@@ -25,7 +25,7 @@ class leDealWith {
         })
     }
     getTotal ( task, callback ) {
-        logger.debug("开始获取视频总页数")
+        // logger.debug("开始获取视频总页数")
         let option = {}
         option.url = api.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=1&_="+ (new Date()).getTime()
         option.referer = `http://chuang.le.com/u/${task.id}/videolist`
@@ -71,7 +71,7 @@ class leDealWith {
                 return sign <= page
             },
             ( cb ) => {
-                logger.debug("开始获取第"+ sign +"页le视频列表")
+                // logger.debug("开始获取第"+ sign +"页le视频列表")
                 option.url = api.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=" + sign + "&_="+ (new Date()).getTime()
                 request.get( logger, option, (err,result) => {
                     this.storaging.totalStorage ("le",option.url,"list")

@@ -14,7 +14,7 @@ class souhuDealWith {
         this.storaging = new (require('./storaging'))(this)
         api = this.settings.spiderAPI
         logger = this.settings.logger
-        logger.trace('DealWith instantiation ...')
+        logger.trace('souhuDealWith instantiation ...')
     }
     souhu ( task, callback ) {
         task.total = 0
@@ -103,9 +103,9 @@ class souhuDealWith {
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
+                // logger.error('json数据解析失败')
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取total接口json数据解析失败","doWithResErr","total")
-                logger.debug('getTotal:',result)
+                // logger.debug('getTotal:',result)
                 return callback(e)
             }
             //logger.debug(back)
@@ -142,7 +142,7 @@ class souhuDealWith {
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
+                        // logger.error(errType)
                         this.storaging.errStoraging('souhu',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
@@ -151,17 +151,17 @@ class souhuDealWith {
                         return cb()
                     }
                     if(result.statusCode != 200){
-                        logger.error(`${index}状态码错误`)
+                        // logger.error(`${index}状态码错误`)
                         this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${index}状态码错误`,"responseErr","list")
-                        logger.debug('code:',result.statusCode)
+                        // logger.debug('code:',result.statusCode)
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
-                        logger.error('json数据解析失败')
+                        // logger.error('json数据解析失败')
                         this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口json数据解析失败","doWithResErr","list")
-                        logger.debug('list:',result)
+                        // logger.debug('list:',result)
                         return cb()
                     }
                     let data = result.data.videos
@@ -307,7 +307,7 @@ class souhuDealWith {
             }catch (e){
                 logger.error('json数据解析失败')
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口json数据解析失败","doWithResErr","info")
-                logger.debug('info',result)
+                // logger.debug('info',result)
                 return callback(e)
             }
             if(result.status != 200){

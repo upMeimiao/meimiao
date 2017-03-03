@@ -15,7 +15,7 @@ class tencentDealWith {
         this.storaging = new (require('./storaging'))(this)
         api = this.settings.spiderAPI
         logger = this.settings.logger
-        logger.trace('DealWith instantiation ...')
+        logger.trace('tencentDealWith instantiation ...')
     }
     tencent (task,callback) {
         task.total = 0
@@ -41,7 +41,7 @@ class tencentDealWith {
         )
     }
     getTotal (task,callback) {
-        logger.debug("开始获取视频总数")
+        // logger.debug("开始获取视频总数")
         let option = {
             url: api.tencent.videoList + task.id + "&pagenum=1"
         }
@@ -144,7 +144,7 @@ class tencentDealWith {
                 return sign <= page
             },
             (cb) => {
-                logger.debug("开始获取第"+ sign +"页tencent视频列表")
+                // logger.debug("开始获取第"+ sign +"页tencent视频列表")
                 option = {
                     url: api.tencent.videoList + task.id + "&pagenum="+sign
                 }

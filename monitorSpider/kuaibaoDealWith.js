@@ -15,7 +15,7 @@ class kuaibaoDealWith {
         this.storaging = new (require('./storaging'))(this)
         api = this.settings.spiderAPI
         logger = this.settings.logger
-        logger.trace('DealWith instantiation ...')
+        logger.trace('kuaibaoDealWith instantiation ...')
     }
     kuaibao ( task, callback ) {
         task.total = 0

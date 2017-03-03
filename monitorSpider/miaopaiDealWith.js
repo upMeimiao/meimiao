@@ -11,7 +11,7 @@ class miaopaiDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('miaopaiDealWith instantiation ...')
     }
     miaopai (task,callback) {
         task.total = 0
@@ -140,7 +140,7 @@ class miaopaiDealWith {
                 option = {
                     url: api.miaopai.api + sign + "&per=20&suid=" + task.id
                 }
-                logger.debug(option.url)
+                // logger.debug(option.url)
                 request.get(option, (err,result) => {
                     this.storaging.totalStorage ("miaopai",option.url,"videos")
                     if(err){

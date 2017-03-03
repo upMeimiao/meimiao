@@ -10,6 +10,7 @@ class dealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
+        logger.trace('tudouDealWith instantiation ...')
     }
     tudou (task,callback) {
         task.total = 0
@@ -42,7 +43,7 @@ class dealWith {
             url: `http://www.tudou.com/home/_${task.id}/`,
             ua:2
         }
-        logger.debug("tudou getUser option",option)
+        // logger.debug("tudou getUser option",option)
         request.get(logger,option,(err,result)=>{
             this.storaging.totalStorage ("tudou",option.url,"user")
             this.storaging.judgeRes ("tudou",option.url,task.id,err,result,"user")
@@ -100,11 +101,11 @@ class dealWith {
         })
     }
     getTotal (task,callback){
-        logger.debug('开始获取视频总数')
+        // logger.debug('开始获取视频总数')
         let option = {
             url: api.tudou.userInfo + task.id
         }
-        logger.debug("tudou getTotal option",option)
+        // logger.debug("tudou getTotal option",option)
         request.get( logger, option,(err,result) => {
             this.storaging.totalStorage ("tudou",option.url,"total")
             this.storaging.judgeRes ("tudou",option.url,task.id,err,result,"total")
@@ -144,7 +145,7 @@ class dealWith {
                 return sign <= page
             },
             (cb) => {
-                logger.debug('开始获取第' + sign + '页视频列表')
+                // logger.debug('开始获取第' + sign + '页视频列表')
                 option = {
                     url: api.tudou.newList + `&uid=${task.id}&page=${sign}`
                 }

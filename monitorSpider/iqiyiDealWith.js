@@ -14,7 +14,7 @@ class iqiyiDeal {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.debug('处理器实例化...')
+        logger.debug('iqiyiDeal...')
     }
     iqiyi(task,callback){
     	task.total = 0

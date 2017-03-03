@@ -16,7 +16,7 @@ class dealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('baomihuaDealWith instantiation ...')
     }
     baomihua ( task, callback ) {
         task.total = 0

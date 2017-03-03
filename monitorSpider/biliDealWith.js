@@ -12,7 +12,7 @@ class billDealWith {
         this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
         api = this.settings.spiderAPI
-        logger.trace('DealWith instantiation ...')
+        logger.trace('billDealWith instantiation ...')
     }
     bili ( task, callback) {
         task.total = 0
@@ -158,12 +158,12 @@ class billDealWith {
                         return cb()
                     }
                     if(!result.data){
-                        logger.debug(result)
+                        // logger.debug(result)
                         sign++
                         return cb()
                     }
                     if(!result.data.vlist || result.data.vlist == 'null'){
-                        logger.debug(result)
+                        // logger.debug(result)
                         sign++
                         return cb()
                     }
