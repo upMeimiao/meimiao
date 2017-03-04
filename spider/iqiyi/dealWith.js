@@ -190,7 +190,7 @@ class dealWith {
                 return sign
             },
             ( cb ) => {
-                if(index > 300){
+                if(index > 260){
                     sign = false
                     task.total = 24 * (index -1)
                     return cb()

@@ -53,7 +53,7 @@ class dealWith {
         let index = 0
         async.whilst(
             () => {
-                return index < length
+                return index < Math.min(length,10000)
             },
             (cb) => {
                 this.getAllInfo( task, user.list[index], () => {
