@@ -114,7 +114,7 @@ then
     esac
 elif [ $1 == 'sp' ]
 then
-    for loop in ${spider_0} {spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6} ${spider_7} ${spider_8} ${spider_9}
+    for loop in ${spider_0} ${spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6} ${spider_7} ${spider_8} ${spider_9}
         do
             echo
             echo "--------------$loop--------------"
