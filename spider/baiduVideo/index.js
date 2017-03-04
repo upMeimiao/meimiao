@@ -91,7 +91,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('baiduVideo',5, (job,done) => {
+        queue.process('baiduVideo',6, (job,done) => {
             logger.trace( 'Get baidu task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
