@@ -79,7 +79,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('iqiyi',6, (job,done) => {
+        queue.process('iqiyi',5, (job,done) => {
             logger.trace( 'Get iqiyi task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
