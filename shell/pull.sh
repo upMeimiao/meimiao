@@ -40,13 +40,7 @@ case $1 in
     done
     ;;
 'update')
-    echo "--------------中控服务器pm2 update--------------"
-    echo
-    echo "--------------$scheduler_1--------------"
-    pm2 update
-    echo "-------------- $scheduler_1 pm2 update完成--------------"
-    echo
-    for loop in ${scheduler_2} ${send_1} ${send_2} ${spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6}
+    for loop in ${send_1} ${send_2} ${spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6} ${scheduler_2}
     do
         echo
         echo "--------------$loop--------------"
@@ -58,5 +52,11 @@ case $1 in
         echo "--------------pm2 update完成，退出服务器$loop --------------"
         echo
     done
+    echo "--------------中控服务器pm2 update--------------"
+    echo
+    echo "--------------$scheduler_1--------------"
+    pm2 update
+    echo "-------------- $scheduler_1 pm2 update完成--------------"
+    echo
     ;;
 esac
