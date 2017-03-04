@@ -190,7 +190,7 @@ class dealWith {
                 return sign
             },
             ( cb ) => {
-                if(index > 260){
+                if(index > 400){
                     sign = false
                     task.total = 24 * (index -1)
                     return cb()
@@ -248,6 +248,10 @@ class dealWith {
                 option.url = raw[index].link
                 request.get(logger, option, (err, result) => {
                     if(err){
+                        if(err.statusCode){
+                            index++
+                            return cb()
+                        }
                         return cb()
                     }
                     const $ = cheerio.load(result.body,{
