@@ -5,6 +5,7 @@ const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const request = require( '../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const jsonp = function(data){
     return data
 }
@@ -93,15 +94,15 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: video.id,
-                title: video.title.replace(/"/g,''),
+                title: spiderUtils.stringHandling(video.title),
                 comment_num: result[1],
                 class: result[0].class,
                 tag: result[0].tag,
-                desc: result[0].desc.replace(/"[\s\n\r]/g,''),
-                long_t: result[0].data.duration,
+                desc: spiderUtils.stringHandling(result[0].desc),
+                long_t: result[0].time,
                 v_img: video.capture,
                 v_url: video.url,
-                play_num: video.pv.replace('万','0000')
+                play_num: spiderUtils.numberHandling(video.pv)
             }
             //logger.debug(media)
             this.sendCache(media)
@@ -124,8 +125,8 @@ class dealWith {
                 return
             }
             let $ = cheerio.load(result.body),
-                script = $('script')[2].children[0].data,
-                data = script.replace(/[\s\n]/g,'').replace(/varwebcfg=/,'').replace(/;/,''),
+                //script = $('script')[2].children[0].data,
+                time = result.body.match(/"duration":\d+/).toString().replace('"duration":','') ,
                 tags = '',
                 tag = $('div#video-info .bd .tabs a'),
                 desc = $('div#video-info .bd ul>li').eq(2).find('span,a').empty()
@@ -133,17 +134,11 @@ class dealWith {
             for(let i=0;i<tag.length;i++){
                 tags += tag.eq(i).text()+","
             }
-            try{
-                data = JSON.parse(data)
-            } catch(e){
-                logger.error('data数据解析失败')
-                return callback(e)
-            }
             let res = {
-                data: data,
                 class: $('div#video-info .bd .crumbs a').text(),
                 tag: tags,
-                desc: desc
+                desc: desc,
+                time: time
             }
             callback(null,res)
         })
