@@ -166,7 +166,7 @@ class dealWith {
         })
     }
     getVideos ( task, page, callback ) {
-        let sign = 1,option = {}
+        let sign = 1,option = {},flag = 0
         option.ua = 1
         async.whilst(
             () => {
@@ -176,6 +176,10 @@ class dealWith {
                 option.url = this.settings.list + `${task.id}&pg=${sign}&_=${new Date().getTime()}`
                 request.get( logger, option, (err, result) => {
                     if(err){
+                        flag++
+                        if (flag > 4){
+                            sign++
+                        }
                         return callback(err)
                     }
                     try {
@@ -183,8 +187,13 @@ class dealWith {
                     } catch (e) {
                         logger.error('json数据解析失败')
                         logger.info('list error:',result)
+                        flag++
+                        if (flag > 4){
+                            sign++
+                        }
                         return callback(e)
                     }
+                    flag = 0
                     let data = result.data,
                         videos = data.list
                     if(!videos){
