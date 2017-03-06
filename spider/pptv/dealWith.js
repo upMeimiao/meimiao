@@ -126,14 +126,15 @@ class dealWith {
             }
             let $ = cheerio.load(result.body),
                 //script = $('script')[2].children[0].data,
-                time = result.body.match(/"duration":\d+/).toString().replace('"duration":','') ,
+                time = result.body.match(/"duration":\d+/) ? result.body.match(/"duration":\d+/).toString().replace('"duration":','') : '',
                 tags = '',
                 tag = $('div#video-info .bd .tabs a'),
                 desc = $('div#video-info .bd ul>li').eq(2).find('span,a').empty()
             desc = $('div#video-info .bd ul>li').eq(2).text()
             for(let i=0;i<tag.length;i++){
-                tags += tag.eq(i).text()+","
+                tags += ","+tag.eq(i).text()
             }
+            tags.replace(',','')
             let res = {
                 class: $('div#video-info .bd .crumbs a').text(),
                 tag: tags,
