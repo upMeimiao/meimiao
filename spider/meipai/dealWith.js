@@ -169,7 +169,7 @@ class dealWith {
                     if(err){
                         logger.error( 'occur error : ', err )
                         flag++
-                        if(logger > 5){
+                        if(flag > 5){
                             sign++
                         }
                         return cb()
@@ -177,11 +177,12 @@ class dealWith {
                     if( result.statusCode != 200){
                         logger.error('获取videos code error：',result.statusCode)
                         flag++
-                        if(logger > 5){
+                        if(flag > 5){
                             sign++
                         }
                         return cb()
                     }
+                    flag = 0
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {

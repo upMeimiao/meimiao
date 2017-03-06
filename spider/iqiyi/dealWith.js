@@ -236,7 +236,7 @@ class dealWith {
         )
     }
     getIds(task, raw, callback) {
-        let index = 0
+        let index = 0,flag = 0
         const option = {
             ua: 1
         }
@@ -248,9 +248,13 @@ class dealWith {
                 option.url = raw[index].link
                 request.get(logger, option, (err, result) => {
                     if(err){
-                        index++
+                        flag++
+                        if(flag > 2){
+                            index++
+                        }
                         return cb()
                     }
+                    flag = 0
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
                         }),
