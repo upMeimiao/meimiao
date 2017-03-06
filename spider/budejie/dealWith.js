@@ -164,6 +164,9 @@ class dealWith {
         )
     }
     deal ( task, list, callback ) {
+        if(!list || !list.length){
+            return callback()
+        }
         let index = 0,video,media
         async.whilst(
             () => {
