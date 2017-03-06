@@ -248,10 +248,7 @@ class dealWith {
                 option.url = raw[index].link
                 request.get(logger, option, (err, result) => {
                     if(err){
-                        if(err.statusCode){
-                            index++
-                            return cb()
-                        }
+                        index++
                         return cb()
                     }
                     const $ = cheerio.load(result.body,{
