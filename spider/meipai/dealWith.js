@@ -156,7 +156,7 @@ class dealWith {
         })
     }
     getVideos ( task,page,callback ) {
-        let maxId = '',sign = 1,option
+        let maxId = '',sign = 1,option, flag = 0
         async.whilst(
             () => {
                 return sign <= page
@@ -168,11 +168,18 @@ class dealWith {
                 request.get(option,(err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
+                        flag++
+                        if(logger > 5){
+                            sign++
+                        }
                         return cb()
                     }
                     if( result.statusCode != 200){
                         logger.error('获取videos code error：',result.statusCode)
-                        sign++
+                        flag++
+                        if(logger > 5){
+                            sign++
+                        }
                         return cb()
                     }
                     try {
