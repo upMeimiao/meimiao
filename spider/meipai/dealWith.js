@@ -172,6 +172,7 @@ class dealWith {
                     }
                     if( result.statusCode != 200){
                         logger.error('获取videos code error：',result.statusCode)
+                        sign++
                         return cb()
                     }
                     try {
@@ -179,6 +180,7 @@ class dealWith {
                     } catch (e) {
                         logger.error('json数据解析失败')
                         logger.info(result)
+                        sign++
                         return cb()
                     }
                     if(!result || result.length == 0){
