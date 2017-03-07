@@ -6,6 +6,9 @@ const async = require( 'async' )
 const cheerio = require('cheerio')
 const request = require( '../../lib/request' )
 const spiderUtils = require('../../lib/spiderUtils')
+const jsonp = function(data){
+    return data
+}
 
 let logger
 class dealWith {
@@ -25,9 +28,34 @@ class dealWith {
         })
     }
 
+    getppi(callback){
+        let option = {
+            url: 'http://tools.aplusapi.pptv.com/get_ppi?cb=jsonp'
+        }
+        request.get(logger, option, (err, result) => {
+            if(err){
+                logger.debug('获取cookie值出错')
+                return callback(err)
+            }
+            try{
+                result = eval(result.body)
+            }catch(e){
+                logger.debug('cookie数据解析失败')
+                return callback(e)
+            }
+            if(!result.ppi){
+                return callback('cookie数据获取有问题')
+            }
+            callback(null,result.ppi)
+        })
+    }
+
     getVidList( task, callback ){
         let option = {
-            url : this.settings.spiderAPI.pptv.listVideo+"&pid="+task.id+"&cat_id="+task.encodeId
+            url : this.settings.spiderAPI.pptv.listVideo+"&pid="+task.id+"&cat_id="+task.encodeId,
+            ua: 3,
+            own_ua: 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+            Cookie:  `ppi=${this.core.ppi}`
         }
         request.get( logger, option, ( err, result ) => {
             if (err) {

@@ -95,7 +95,7 @@ class dealWith {
             url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回YY用户 ${user.bid} 连接服务器失败`)
