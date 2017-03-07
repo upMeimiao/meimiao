@@ -1,7 +1,7 @@
 {
   "name"        : "Kue监控",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","scheduler","-a","kue"],
+  "args"        : ["-i","master","-a","kue"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

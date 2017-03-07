@@ -1,7 +1,7 @@
 {
   "name"        : "秒拍",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","miaopai","-a","miaopai"],
+  "args"        : ["-i","master","-a","miaopai"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,
