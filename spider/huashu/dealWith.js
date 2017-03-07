@@ -2,10 +2,9 @@
  * Created by junhao on 16/6/21.
  */
 const async = require( 'async' )
-const request = require( '../lib/request' )
-const jsonp = function(data){
-    return data
-}
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
+
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -25,7 +24,7 @@ class dealWith {
     }
     getVidList( task, callback ){
         let option   = {
-            url : this.settings.videoList + task.id
+            url : this.settings.spiderAPI.huashu.videoList + task.id
         }
         request.get( logger, option, (err,result) => {
             if(err){
@@ -55,9 +54,8 @@ class dealWith {
     }
     getVideoList( task, callback ){
         let option   = {
-                url: this.settings.videoList2 + task.listid
+                url: this.settings.spiderAPI.huashu.videoList2 + task.listid
             }
-        //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
             if(err){
                 logger.debug('视频列表请求失败')
@@ -161,8 +159,7 @@ class dealWith {
                         comment_num: result[1]
                     }
                 }
-                //logger.debug(media.title + '---' + media.play_num)
-                this.sendCache(media)
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media ) 
                 callback()
             }
         )
@@ -214,16 +211,6 @@ class dealWith {
             result = result.body ? Number(result.body.replace(/,/g,'')) : ''
             callback(null,result)
         })
-    }
-    sendCache (media,callback){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`华数TV ${media.aid} 加入缓存队列`)
-            //callback()
-        } )
     }
 }
 module.exports = dealWith

@@ -6,11 +6,9 @@ const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const EventProxy = require( 'eventproxy' )
-const request = require( '../lib/request' )
-const md5 = require('js-md5')
-const jsonp = function(data){
-    return data
-}
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
+
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -51,7 +49,7 @@ class dealWith {
     
     getFans ( task, callback){
         let option = {
-            url: this.settings.fans + task.id + "&_=" + new Date().getTime()
+            url: this.settings.spiderAPI.cctv.fans + task.id + "&_=" + new Date().getTime()
         }
         request.get( logger, option, (err, result)=>{
             if(err){
@@ -79,7 +77,7 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[2],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger,option,(err,result) => {
@@ -108,7 +106,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( logger,option,(err,result) => {
+        request.post( logger, option, (err,result) => {
             if(err){
                 return
             }
@@ -146,7 +144,6 @@ class dealWith {
                 total      = $('li.video strong').text(),
                 page       = $('div.pagetotal span').eq(1).text().replace(/[\s]/g,'').replace('共','').replace('页','')
                 task.total = total
-            //logger.debug(total)
             if(total == 0){
                 setTimeout(() => {
                     this.getVidTotal(task,callback)
@@ -158,14 +155,16 @@ class dealWith {
     }
     
     getVidList( task,  page, sign, callback ){
+        let option = {},
+            $ = null,
+            length = null,
+            content = null
         async.whilst(
             () => {
                 return sign <= Math.min(page,500)
             },
             (cb) => {
-                let option = {
-                    url : 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-'+sign+'.html'
-                }
+                option.url = 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-'+sign+'.html'
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '列表接口请求错误 : ', err )
@@ -174,16 +173,15 @@ class dealWith {
                         },3000)
                         return
                     }
-                    let $       = cheerio.load(result.body),
-                        length  = $('div.shipin_list_boxs>ul>li').length,
-                        content = $('div.shipin_list_boxs>ul')
+                    $       = cheerio.load(result.body)
+                    length  = $('div.shipin_list_boxs>ul>li').length
+                    content = $('div.shipin_list_boxs>ul')
                     if(length == 0){
                         setTimeout(() => {
                             this.getVidList(task,page,sign,callback)
                         },300)
                         return
                     }
-                    //logger.debug(length+' | '+sign)
                     this.deal(task,content,length,() => {
                         sign++
                         cb()
@@ -219,7 +217,7 @@ class dealWith {
             vid = vid.replace('/v-','').replace('.html','')
         
         let option = {
-            url: this.settings.videoInfo+vid
+            url: this.settings.spiderAPI.cctv.videoInfo+vid
         }
         request.get( logger, option, (err, result) => {
             if(err){
@@ -238,7 +236,7 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: result.data[0].videoId,
-                title: result.data[0].title.replace(/"/g,''),
+                title: spiderUtils.stringHandling(result.data[0].title,100),
                 comment_num: result.data[0].commentCount,
                 class: result.data[0].categoryName,
                 tag: result.data[0].videoTags,
@@ -249,23 +247,12 @@ class dealWith {
                 v_img: result.data[0].imagePath,
                 play_num: result.data[0].playCount.replace(/,/g,''),
                 save_num: result.data[0].favCount,
-                // v_url: 'http://xiyou.cctv.com/v-'+result.data[0].videoId+'.html',
                 a_create_time: moment(time).format('X')
 
             }
-            this.sendCache( media )
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback() 
         })
-    }
-    sendCache (media,callback){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`CCTV ${media.aid} 加入缓存队列`)
-            //callback()
-        } )
     }
 }
 module.exports = dealWith

@@ -2,7 +2,8 @@
  * Created by yunsong on 16/8/3.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const moment = require( 'moment' )
 const newRequest = require( 'request' )
 
@@ -56,9 +57,9 @@ class dealWith {
     getTotal (task,callback){
         logger.debug('开始获取视频总数')
         let option = {
-            url: this.settings.userInfo + task.id
+            url: this.settings.spiderAPI.xiaoying.userInfo + task.id
         }
-        request.get(option,(err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -102,10 +103,10 @@ class dealWith {
     }
     sendUser ( user,callback ){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回小影用户 ${user.bid} 连接服务器失败`)
@@ -133,7 +134,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -169,7 +170,7 @@ class dealWith {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 let options = {
                     method: 'POST',
-                    url: this.settings.List,
+                    url: this.settings.spiderAPI.xiaoying.List,
                     headers:{
                         'content-type': 'application/x-www-form-urlencoded',
                         'user-agent': 'XiaoYing/5.0.5 (iPhone; iOS 9.3.3; Scale/3.00)'
@@ -233,9 +234,9 @@ class dealWith {
     }
     getInfo ( task, data, callback ) {
         let option = {
-            url: this.settings.videoInfo + data.l
+            url: this.settings.spiderAPI.xiaoying.videoInfo + data.l
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ' + err )
                 return callback(err)
@@ -268,18 +269,9 @@ class dealWith {
                     support: result.videoinfo.likecount,
                     a_create_time: a_create_time
                 }
-            this.sendCache( media )
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`小影 ${media.aid} 加入缓存队列`)
-        } )
     }
     long_t( time ){
         let timeArr = time.split(':'),

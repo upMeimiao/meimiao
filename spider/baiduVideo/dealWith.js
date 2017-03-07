@@ -4,10 +4,9 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require( '../lib/request' )
-const jsonp = function(data){
-    return data
-}
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
+
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -26,11 +25,9 @@ class dealWith {
         })
         
     }
-    
-    
     getVidTotal( task, callback ){
         let option = {
-            url : this.settings.videoAlbum + task.id
+            url : this.settings.spiderAPI.baidu.videoAlbum + task.id
         }
         request.get( logger, option, (err, result) => {
             if(err){
@@ -51,7 +48,6 @@ class dealWith {
                     fans_num: fan
                 }
             task.total = $('div.num-sec').eq(1).find('p.num').text()
-            //logger.debug(task.total)
             async.parallel(
                 [
                     (cb) => {
@@ -75,7 +71,7 @@ class dealWith {
     }
     sendUser (user){
         let option = {
-            url: this.settings.sendToServer[2],
+            url: this.settings.sendFans,
             data: user
         }
         request.post( logger, option, (err,back) => {
@@ -155,7 +151,7 @@ class dealWith {
                 return index < length
             },
             (cb) => {
-                option.url = this.settings.videoList + listVid + '&page=' + page + '&_=' + new Date().getTime()
+                option.url = this.settings.spiderAPI.baidu.videoList + listVid + '&page=' + page + '&_=' + new Date().getTime()
                 request.get( logger, option, (err, result) => {
                     if(err){
                         logger.debug('当前的视频列表请求失败',err)
@@ -222,29 +218,19 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.id,
-                    title: video.title.substr(0,100).replace(/"/g,''),
-                    tag: video.tag.replace(/\$/g,''),
+                    title: spiderUtils.stringHandling(video.title,100),
+                    tag: video.tag.replace(/\$/g,',').replace(/,,/g,','),
                     a_create_time: video.pub_time,
-                    long_t: this.getVidTime(video.duration),
+                    long_t: spiderUtils.longTime(video.duration),
                     v_img: video.image_link,
-                    desc: video.sub_title.substring(0,100),
+                    desc: spiderUtils.stringHandling(video.sub_title,100),
                     play_num: result[0],
                     v_url: video.play_link
                 }
-                this.sendCache(media)
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
-    }
-    getVidTime( time ){
-        let timeArr = time.split(':'),
-            long_t  = '';
-        if(timeArr.length == 2){
-            long_t = parseInt(timeArr[0]*60) + parseInt(timeArr[1])
-        }else if(timeArr.length == 3){
-            long_t = parseInt((timeArr[0]*60)*60) + parseInt(timeArr[1]*60) + parseInt(timeArr[2])
-        }
-        return long_t;
     }
     getVidInfo( url, timeout, callback ){
         if(!url){
@@ -270,16 +256,6 @@ class dealWith {
             }
             callback(null,playNum)
         })
-    }
-
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`百度视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

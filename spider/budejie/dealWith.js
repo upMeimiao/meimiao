@@ -1,6 +1,7 @@
 const async = require( 'async' )
 const moment = require('moment')
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 
@@ -22,9 +23,9 @@ class dealWith {
     }
     getUser ( task, callback) {
         let option = {
-            url : this.settings.userInfo + task.id
+            url : this.settings.spiderAPI.budejie.userInfo + task.id
         }
-        request.get( option, ( err, result) => {
+        request.get(logger, option, ( err, result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -69,10 +70,10 @@ class dealWith {
     }
     sendUser ( user,callback ){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error('occur error:',err)
                 logger.info(`返回百思不得姐用户 ${user.bid} 连接服务器失败`)
@@ -100,7 +101,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option,(err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -135,8 +136,8 @@ class dealWith {
             },
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
-                option.url = `${this.settings.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`
-                request.get(option, (err,result) => {
+                option.url = `${this.settings.spiderAPI.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ' + err )
                         sign++
@@ -184,7 +185,7 @@ class dealWith {
                     bid: task.id,
                     aid: video.id,
                     title: video.text ? video.text.substr(0,100).replace(/"/g,'') : 'btwk_caihongip',
-                    desc: video.text.substr(0,100).replace(/"/g,''),
+                    desc: spiderUtils.stringHandling(video.text,100),
                     play_num: video.video.playcount,
                     forward_num: video.forward,
                     comment_num: video.comment,
@@ -195,7 +196,7 @@ class dealWith {
                     v_img: this._v_img(video.video.thumbnail),
                     tag: this._tag(video.tags)
                 }
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 index++
                 cb()
             },
@@ -234,15 +235,6 @@ class dealWith {
             return raw[0]
         }
         return ''
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`百思不得姐 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

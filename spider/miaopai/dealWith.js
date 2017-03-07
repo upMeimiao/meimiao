@@ -2,7 +2,8 @@
  * Created by junhao on 16/6/22.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 class dealWith {
     constructor (spiderCore){
@@ -40,9 +41,9 @@ class dealWith {
     }
     getUser (task,callback){
         let option = {
-            url: this.settings.api + "1&per=20&suid=" + task.id
+            url: this.settings.spiderAPI.miaopai.api + "1&per=20&suid=" + task.id
         }
-        request.get(option,(err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback()
@@ -68,10 +69,10 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回秒拍用户 ${user.bid} 连接服务器失败`)
@@ -99,7 +100,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -121,9 +122,9 @@ class dealWith {
     }
     getTotal ( task, callback ) {
         let option = {
-            url: this.settings.api + "1&per=20&suid=" +task.id
+            url: this.settings.spiderAPI.miaopai.api + "1&per=20&suid=" +task.id
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 if(task.id == 'mEpTsCBR3q2uyDUc'){
                     return callback()
@@ -158,17 +159,16 @@ class dealWith {
         })
     }
     getVideos ( task, page, callback ) {
-        let sign = 1,option
+        let sign = 1,option, videos
         async.whilst(
             () => {
                 return sign <= page
             },
             (cb) => {
                 option = {
-                    url: this.settings.api + sign + "&per=20&suid=" + task.id
+                    url: this.settings.spiderAPI.miaopai.api + sign + "&per=20&suid=" + task.id
                 }
-                logger.debug(option.url)
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
                         return cb()
@@ -180,7 +180,7 @@ class dealWith {
                         logger.info(result.body)
                         return cb()
                     }
-                    let videos = result.result
+                    videos = result.result
                     this.deal(task,videos, () => {
                         sign++
                         cb()
@@ -222,9 +222,7 @@ class dealWith {
                         data.class = result.class
                         data.tag = result.tag
                     }
-                    // logger.debug(data.title+'标题')
-                    // logger.debug(data.desc+'描述')
-                    this.sendCache( data )
+                    spiderUtils.saveCache( this.core.cache_db, 'cache', data )
                     index++
                     cb()
                 })
@@ -239,7 +237,7 @@ class dealWith {
             url : "http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+id+"&vend=miaopai"
         }
         let dataJson = {}
-        request.get( option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             if(err){
                 logger.error('秒拍getInfo error')
                 return callback(err)
@@ -292,15 +290,6 @@ class dealWith {
             return raw.categoryName
         }
         return ''
-    }
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`秒拍 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

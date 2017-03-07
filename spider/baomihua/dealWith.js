@@ -3,6 +3,7 @@
  */
 const async = require( 'async' )
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const jsonp = function (data) {
     return data
 }
@@ -44,7 +45,7 @@ class dealWith {
     }
     getUser ( task, callback ) {
         let option = {
-            url: this.settings.userInfo + task.id
+            url: this.settings.spiderAPI.baomihua.userInfo + task.id
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
@@ -71,7 +72,7 @@ class dealWith {
     }
     sendUser ( user, callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post( logger,option, ( err, back ) => {
@@ -127,9 +128,9 @@ class dealWith {
             },
             (cb) => {
                 if(minid){
-                    option.url = this.settings.mediaList + task.id + `&minid=${minid}`
+                    option.url = this.settings.spiderAPI.baomihua.mediaList + task.id + `&minid=${minid}`
                 }else{
-                    option.url = this.settings.mediaList + task.id
+                    option.url = this.settings.spiderAPI.baomihua.mediaList + task.id
                 }
                 request.get( logger,option, ( err, result ) => {
                     if(err){
@@ -219,8 +220,8 @@ class dealWith {
                 platform: 13,
                 bid: task.id,
                 aid: id,
-                title: video.OBJTITLE.substr(0,100).replace(/"/g,''),
-                desc: video.OBJDESC.substr(0,100).replace(/"/g,''),
+                title: spiderUtils.stringHandling(video.OBJTITLE,100),
+                desc: spiderUtils.stringHandling(video.OBJDESC,100),
                 play_num: Number(result[2]),
                 comment_num: Number(result[0].reviewCount),
                 forward_num: Number(result[0].shareCount),
@@ -228,13 +229,13 @@ class dealWith {
                 save_num: Number(result[0].collectCount) + Number(result[1].CollectionCount),
                 v_img: video.IMGURL
             }
-            this.sendCache( media )
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
     getExpr ( id, callback ) {
         let option = {
-            url: this.settings.expr_m + id,
+            url: this.settings.spiderAPI.baomihua.expr_m + id,
             ua: 3,
             own_ua:'BMHVideo/3.3.3 (iPhone; iOS 10.1.1; Scale/3.00)'
         }
@@ -254,7 +255,7 @@ class dealWith {
     }
     getExprPC ( id, callback ) {
         let option = {
-            url: this.settings.expr_pc + id + '&_=' + (new Date()).getTime()
+            url: this.settings.spiderAPI.baomihua.expr_pc + id + '&_=' + (new Date()).getTime()
         }
         request.get( logger,option, ( err, result ) => {
             if(err){
@@ -276,7 +277,7 @@ class dealWith {
     }
     getPlayNum (task, id, callback ) {
         let option = {
-            url: this.settings.play + `${task.id}&flvid=` + id
+            url: this.settings.spiderAPI.baomihua.play + `${task.id}&flvid=` + id
         }
         request.get( logger,option, ( err, result ) => {
             if(err){
@@ -285,15 +286,6 @@ class dealWith {
             result = eval(result.body)
             callback(null,result.appinfo[0].playCount)
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`爆米花视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

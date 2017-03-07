@@ -2,7 +2,8 @@
  * Created by qingyu on 16/12/2.
  */
 const async = require( 'async' )
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const moment = require('moment')
 const videoList = function (data){
     return data
@@ -44,7 +45,7 @@ class dealWith {
     }
     getUser (task,callback){
         let option = {
-            url: this.settings.userInfo + task.id+".html"
+            url: this.settings.spiderAPI.wangyi.userInfo + task.id+".html"
         }
         request.get( logger, option, (err,result) => {
             if(err){
@@ -74,7 +75,7 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post( logger, option, (err,back) => {
@@ -135,9 +136,8 @@ class dealWith {
             },
             (cb) => {
                 let option = {
-                    url: this.settings.videoInfo + task.id+"/video/"+page+"-20.html"
+                    url: this.settings.spiderAPI.wangyi.videoInfo + task.id+"/video/"+page+"-20.html"
                 }
-                logger.debug(option.url)
                 request.get( logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
@@ -162,7 +162,6 @@ class dealWith {
                         return cb()
                     }
                     task.total+=result.tab_list.length
-                    //logger.debug(+"总共视频记录"+task.total)
                     if(result.tab_list.length <= 0){
                         sign=0
                     }
@@ -230,8 +229,7 @@ class dealWith {
                     play_num: result[0].hits,
                     v_url: result[1].vurl
                 }
-                //logger.debug(media.author)
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
@@ -283,15 +281,6 @@ class dealWith {
             }
             callback(null,result.info)
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`网易视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith
