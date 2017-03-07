@@ -1,7 +1,7 @@
 {
   "name"        : "华数",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","huashu","-a","huashu"],
+  "args"        : ["-i","master","-a","huashu"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,
