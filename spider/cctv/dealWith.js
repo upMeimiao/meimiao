@@ -67,11 +67,9 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.data.fans_count
             }
-            //logger.debug(user)
-            /*this.sendUser(user, () => {
+            this.sendUser(user, () => {
                 callback()
-            })*/
-            callback()
+            })
             this.sendStagingUser(user)
         })
     }
@@ -127,7 +125,7 @@ class dealWith {
     }
     getVidTotal( task, callback ){
         let option = {
-            url: 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-1.html',
+            url: 'http://my.xiyou.cntv.cn/'+task.id+'/video-1-1.html',
             ua: 1
         },
         sign       = 1
@@ -164,7 +162,7 @@ class dealWith {
                 return sign <= Math.min(page,500)
             },
             (cb) => {
-                option.url = 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-'+sign+'.html'
+                option.url = 'http://my.xiyou.cntv.cn/'+task.id+'/video-1-'+sign+'.html'
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '列表接口请求错误 : ', err )
