@@ -3,7 +3,8 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const jsonp = function (data) {
     return data
 }
@@ -45,9 +46,9 @@ class dealWith {
     getTotal (task,callback) {
         logger.debug("开始获取视频总数")
         let option = {
-            url: this.settings.videoList + task.id + "&pagenum=1"
+            url: this.settings.spiderAPI.tencent.videoList + task.id + "&pagenum=1"
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -58,7 +59,6 @@ class dealWith {
                 logger.error(result.body.substring(6, result.body.length - 1))
                 return callback(e)
             }
-            //logger.debug(result)
             if(result.s != 'o'){
                 logger.error(`异常错误${result.em}`)
                 return callback(result.em)
@@ -78,9 +78,9 @@ class dealWith {
     }
     getUser (task,callback) {
         let option = {
-            url: this.settings.user + task.id + "&_=" + new Date().getTime()
+            url: this.settings.spiderAPI.tencent.user + task.id + "&_=" + new Date().getTime()
         }
-        request.get( option, (err,result)=>{
+        request.get(logger, option, (err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback()
@@ -108,10 +108,10 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post( option, ( err, back ) => {
+        request.post(logger, option, ( err, back ) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回腾讯视频用户 ${user.bid} 连接服务器失败`)
@@ -139,7 +139,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option,(err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -162,7 +162,8 @@ class dealWith {
     getList ( task, total, callback ) {
         let sign = 1,
             page,
-            option
+            option,
+            list
         if(total % 25 == 0){
             page = total / 25
         }else{
@@ -175,14 +176,13 @@ class dealWith {
             (cb) => {
                 logger.debug("开始获取第"+ sign +"页视频列表")
                 option = {
-                    url: this.settings.videoList + task.id + "&pagenum="+sign
+                    url: this.settings.spiderAPI.tencent.videoList + task.id + "&pagenum="+sign
                 }
-                request.get( option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
                         return cb()
                     }
-                    //logger.debug(back.body)
                     try {
                         result = JSON.parse(result.body.substring(6, result.body.length - 1))
                     } catch (e){
@@ -190,8 +190,7 @@ class dealWith {
                         sign++
                         return cb()
                     }
-                    let list = result.videolst
-                    // logger.debug('videolst:', data)
+                    list = result.videolst
                     if(list){
                         this.deal(task,list, () => {
                             sign++
@@ -281,24 +280,15 @@ class dealWith {
                 if(!media.tag){
                     delete media.tag
                 }
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             })
     }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`腾讯视频 ${media.aid} 加入缓存队列`)
-        } )
-    }
     getView ( id, callback ) {
         let option = {
-            url: this.settings.view + id
+            url: this.settings.spiderAPI.tencent.view + id
         }
-        request.get( option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -321,9 +311,9 @@ class dealWith {
     }
     getComment ( id, callback ) {
         let option = {
-            url: this.settings.commentId + id
+            url: this.settings.spiderAPI.tencent.commentId + id
         }
-        request.get( option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -359,11 +349,11 @@ class dealWith {
     }
     getCommentNum ( id, callback ) {
         let option = {
-            url: this.settings.commentNum + id + "/commentnum?_=" + new Date().getTime(),
+            url: this.settings.spiderAPI.tencent.commentNum + id + "/commentnum?_=" + new Date().getTime(),
             referer: 'https://v.qq.com/txyp/coralComment_yp_1.0.htm',
             ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36'
         }
-        request.get(option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -386,7 +376,7 @@ class dealWith {
         const option = {
             url : "http://c.v.qq.com/videoinfo?otype=json&callback=jsonp&low_login=1&vid="+vid+"&fields=recommend%7Cedit%7Cdesc%7Cnick%7Cplaycount"
         }
-        request.get( option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             if(err){
                 return callback(err)
             }

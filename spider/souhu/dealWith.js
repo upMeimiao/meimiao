@@ -2,7 +2,8 @@
  * Created by junhao on 16/6/21.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const jsonp = function (data) {
     return data
 }
@@ -40,9 +41,9 @@ class dealWith {
     }
     getUser ( task, callback) {
         let option ={
-            url: this.settings.newUser + task.id + ".json?api_key=" + this.settings.key +  "&_=" + (new Date()).getTime()
+            url: this.settings.spiderAPI.souhu.newUser + task.id + ".json?api_key=" + this.settings.spiderAPI.souhu.key +  "&_=" + (new Date()).getTime()
         }
-        request.get ( option,(err,result)=>{
+        request.get (logger, option,(err,result)=>{
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback()
@@ -68,10 +69,10 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post( option, (err,back) => {
+        request.post(logger, option, (err,back) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回搜狐视频用户 ${user.bid} 连接服务器失败`)
@@ -99,7 +100,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option,(err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -121,9 +122,9 @@ class dealWith {
     }
     getTotal ( task, callback ) {
         let option = {
-            url: this.settings.newList + task.id + "&page=1&_=" + new Date().getTime()
+            url: this.settings.spiderAPI.souhu.newList + task.id + "&page=1&_=" + new Date().getTime()
         }
-        request.get(option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -135,7 +136,6 @@ class dealWith {
                 logger.debug('getTotal:',result)
                 return callback(e)
             }
-            //logger.debug(back)
             let total  = result.data.totalCount
             task.total = total
             this.getList(task,total, () => {
@@ -144,7 +144,7 @@ class dealWith {
         })
     }
     getList ( task, total, callback ) {
-        let index = 1, page, option
+        let index = 1, page, option, data
         if(total % 20 != 0){
             page = Math.ceil(total / 20)
         }else{
@@ -156,9 +156,9 @@ class dealWith {
             },
             (cb) => {
                 option = {
-                    url: this.settings.newList + task.id + "&page=" + index + "&_=" + new Date().getTime()
+                    url: this.settings.spiderAPI.souhu.newList + task.id + "&page=" + index + "&_=" + new Date().getTime()
                 }
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
                         return cb()
@@ -175,7 +175,7 @@ class dealWith {
                         logger.debug('list:',result)
                         return cb()
                     }
-                    let data = result.data.videos
+                    data = result.data.videos
                     if(!data){
                         index++
                         return cb()
@@ -199,11 +199,6 @@ class dealWith {
                 return index < length
             },
             (cb) => {
-                // let video = list[index]
-                // video = {
-                //     aid: video.aid,
-                //     id: video.vid
-                // }
                 this.info(task,list[index].id, (err) => {
                     if(err){
                         index++
@@ -249,7 +244,6 @@ class dealWith {
                 }
             ],
             (err,result) => {
-                //logger.debug(result)
                 if(err){
                     return callback(err)
                 }
@@ -273,15 +267,15 @@ class dealWith {
                 if(!media.class){
                     delete media.class
                 }
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             })
     }
     getInfo ( id, callback ) {
         let option = {
-            url: this.settings.videoInfo + id + ".json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0"
+            url: this.settings.spiderAPI.souhu.videoInfo + id + ".json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0"
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -302,7 +296,6 @@ class dealWith {
                 logger.error(`${result.statusText},${result.request}`)
                 return callback(result.status)
             }
-            //logger.debug('debug info message:',result)
             let backData  = result.data
             let data = {
                 title: backData.video_name,
@@ -319,9 +312,9 @@ class dealWith {
     }
     getDigg ( id, callback ) {
         let option = {
-                url: this.settings.digg + id + "&_=" + (new Date()).getTime()
+                url: this.settings.spiderAPI.souhu.digg + id + "&_=" + (new Date()).getTime()
             }
-        request.get(option, (err,back) => {
+        request.get(logger, option, (err,back) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -341,9 +334,9 @@ class dealWith {
     }
     getCommentNum ( id, callback ) {
         let option = {
-            url: this.settings.comment + id
+            url: this.settings.spiderAPI.souhu.comment + id
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -387,15 +380,6 @@ class dealWith {
         if(raw.hor_big_pic){
             return raw.hor_big_pic
         }
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`搜狐视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

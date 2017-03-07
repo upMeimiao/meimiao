@@ -3,7 +3,8 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const _Callback = function(data){
     return data
 }
@@ -28,7 +29,7 @@ class dealWith {
     getVidList( task, callback ){
         
         let option = {
-            url : this.settings.listVideo + task.id + "&cid=" + task.encodeId + '&_=' + new Date().getTime(),
+            url : this.settings.spiderAPI.xinlan.listVideo + task.id + "&cid=" + task.encodeId + '&_=' + new Date().getTime(),
             ua : 1
         }
         request.get( logger, option, ( err, result ) => {
@@ -113,7 +114,7 @@ class dealWith {
                 support: result[2].supportNumber,
                 save_num: result[3].hasCollect
             }
-            this.sendCache(media)
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
@@ -166,7 +167,6 @@ class dealWith {
             url:'http://api.my.cztv.com/api/list?xid='+task.id+'&pid=6&type=video&page=1&rows=10&_='+ new Date().getTime(),
             authtoken:'103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
         }
-        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('评论量请求失败 ', err)
@@ -183,10 +183,9 @@ class dealWith {
     }
     getVideoInfo( vid, num, callback ){
         let option = {
-            url: this.settings.videoInfo+vid,
+            url: this.settings.spiderAPI.xinlan.videoInfo+vid,
             authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
         }
-        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ', err)
@@ -207,16 +206,6 @@ class dealWith {
             }
             callback(null,result.content.list[0])
         })
-    }
-
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`新蓝网 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

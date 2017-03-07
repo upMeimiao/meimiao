@@ -5,6 +5,7 @@ const URL = require('url')
 const moment = require('moment')
 const async = require('async')
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const md5 = require('js-md5')
 
 let logger
@@ -295,8 +296,7 @@ class dealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        //logger.debug('medis info: ',media)
-        this.sendCache( media )
+        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
         callback()
     }
     _tag(raw) {

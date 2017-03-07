@@ -2,7 +2,8 @@
  * Created by yunsong on 16/7/28.
  */
 const async = require( 'async' )
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const cheerio = require( 'cheerio' )
 
 let logger
@@ -42,7 +43,7 @@ class dealWith {
     }
     getUser ( task, id, callback){
         let option = {
-            url: this.settings.fansNum + id
+            url: this.settings.spiderAPI.ku6.fansNum + id
         }
         request.get(logger, option, (err,result) => {
             if(err){
@@ -63,7 +64,7 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger, option, (err,result) => {
@@ -113,7 +114,7 @@ class dealWith {
     getTotal ( task, id, callback){
         logger.debug('开始获取视频总数')
         let option = {
-            url: this.settings.listNum + id,
+            url: this.settings.spiderAPI.ku6.listNum + id,
             referer: `http://boke.ku6.com/${task.id}?mode=2`,
             ua: 1
         }
@@ -142,7 +143,8 @@ class dealWith {
         let sign = 1,
             newSign = 0,
             page,
-            option
+            option,
+            list
         if(total % 20 == 0 ){
             page = total / 20
         }else{
@@ -155,7 +157,7 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 option = {
-                    url: this.settings.allInfo + task.id + "&pn=" + newSign
+                    url: this.settings.spiderAPI.ku6.allInfo + task.id + "&pn=" + newSign
                 }
                 request.get(logger, option, (err,result) => {
                     if(err){
@@ -170,7 +172,7 @@ class dealWith {
                         newSign++
                         return cb()
                     }
-                    let list = result.data
+                    list = result.data
                     if(list){
                         this.deal( task,list, () => {
                             sign++
@@ -207,7 +209,6 @@ class dealWith {
         )
     }
     getInfo ( task, data, callback ) {
-        //logger.debug(data)
         let time = data.uploadtime,
             a_create_time = time.substring(0,10),
             media = {
@@ -226,8 +227,7 @@ class dealWith {
                 tag: this._tag(data.tag),
                 class: this._class(data.catename)
             }
-        //logger.debug(media)
-        this.sendCache( media )
+        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
         callback()
     }
     _tag ( raw ){
@@ -261,15 +261,6 @@ class dealWith {
             return 'http://'+raw
         }
         return raw
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`酷6视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

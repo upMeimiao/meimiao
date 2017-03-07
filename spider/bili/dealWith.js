@@ -3,7 +3,8 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 class dealWith {
@@ -42,15 +43,15 @@ class dealWith {
     }
     getUser ( task, callback) {
         let option = {
-            url: this.settings.userInfo,
+            url: this.settings.spiderAPI.bili.userInfo,
             referer: `http://space.bilibili.com/${task.id}/`,
             data: {
                 mid: task.id
             }
         }
-        request.post (option,(err,result)=>{
+        request.post (logger, option, (err, result)=>{
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( '用户信息 : ', err )
                 return callback(err)
             }
             try {
@@ -74,10 +75,10 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,back) => {
+        request.post(logger, option, (err,back) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回哔哩哔哩用户 ${user.bid} 连接服务器失败`)
@@ -105,7 +106,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post( logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -127,11 +128,11 @@ class dealWith {
     }
     getTotal ( task, callback) {
         let option = {
-            url: this.settings.mediaList + task.id + "&pagesize=30"
+            url: this.settings.spiderAPI.bili.mediaList + task.id + "&pagesize=30"
         }
-        request.get(option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( '获取视频总量 : ', err )
                 return callback(err)
             }
             try {
@@ -155,11 +156,11 @@ class dealWith {
             },
             (cb) => {
                 option = {
-                    url: this.settings.mediaList + task.id + "&page=" + sign + "&pagesize=30"
+                    url: this.settings.spiderAPI.bili.mediaList + task.id + "&page=" + sign + "&pagesize=30"
                 }
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
-                        logger.error( 'occur error : ', err )
+                        logger.error( '视频列表 : ', err )
                         return cb()
                     }
                     try {
@@ -214,11 +215,11 @@ class dealWith {
     }
     getInfo ( task,video,callback ) {
         let option = {
-            url: this.settings.media + video.aid
+            url: this.settings.spiderAPI.bili.media + video.aid
         }
-        request.get(option, (err,back) => {
+        request.get(logger, option, (err,back) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( '单个视频详细信息 : ', err )
                 return callback(err)
             }
             try {
@@ -240,14 +241,14 @@ class dealWith {
                 platform: 8,
                 bid: task.id,
                 aid: back.data.aid,
-                title: back.data.title.substr(0,100).replace(/"/g,''),
-                desc: back.data.desc.substr(0,100).replace(/"/g,''),
+                title: spiderUtils.stringHandling(back.data.title,100),
+                desc: spiderUtils.stringHandling(back.data.desc,100),
                 play_num: back.data.stat.view,
                 save_num: back.data.stat.favorite > 0 ? back.data.stat.favorite : null,
                 comment_num: back.data.stat.reply,
                 forward_num: back.data.stat.share,
                 a_create_time: back.data.pubdate,
-                long_t:this.long_t(video.length),
+                long_t: spiderUtils.longTime(video.length),
                 v_img:video.pic,
                 class:back.data.tname,
                 tag:tagStr
@@ -255,28 +256,10 @@ class dealWith {
             if(!media.save_num){
                 delete media.save_num
             }
-            this.sendCache( media )
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`哔哩哔哩 ${media.aid} 加入缓存队列`)
-        } )
-    }
-    long_t( time ){
-        let timeArr = time.split(':'),
-            long_t  = ''
-        if(timeArr.length == 2){
-            long_t = moment.duration( `00:${time}`).asSeconds()
-        }else if(timeArr.length == 3){
-            long_t = moment.duration(time).asSeconds()
-        }
-        return long_t
-    }
+    
 }
 module.exports = dealWith

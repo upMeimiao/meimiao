@@ -3,8 +3,9 @@
  */
 const async = require( 'async' )
 const cheerio = require( 'cheerio' )
-const request = require('../lib/request.js')
+const request = require('../../lib/request.js')
 const channels = require('./channels')
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 class dealWith {
@@ -43,7 +44,7 @@ class dealWith {
     }
     getUser ( task, callback){
         let option = {
-            url: this.settings.userInfo + task.id,
+            url: this.settings.spiderAPI.acfun.userInfo + task.id,
             referer: `http://m.acfun.tv/details?upid=${task.id}`,
             deviceType: 2,
             ua: 2
@@ -73,7 +74,7 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post( logger, option,(err,result) => {
@@ -125,7 +126,7 @@ class dealWith {
     getTotal ( task, callback){
         logger.debug('开始获取视频总数')
         let option = {
-            url: this.settings.media + `${task.id}&pageNo=1`,
+            url: this.settings.spiderAPI.acfun.media + `${task.id}&pageNo=1`,
             referer: `http://www.aixifan.com/u/${task.id}.aspx`,
             ua: 1
         }
@@ -160,7 +161,7 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 option = {
-                    url: this.settings.media + `${task.id}&pageNo=${sign}`,
+                    url: this.settings.spiderAPI.acfun.media + `${task.id}&pageNo=${sign}`,
                     referer: `http://www.aixifan.com/u/${task.id}.aspx`,
                     ua: 1
                 }
@@ -220,8 +221,8 @@ class dealWith {
                 platform: 22,
                 bid: task.id,
                 aid: data.aid,
-                title: data.title.substr(0,100).replace(/"/g,''),
-                desc: data.description.substr(0,100).replace(/"/g,''),
+                title: spiderUtils.stringHandling(data.title,100),
+                desc: spiderUtils.stringHandling(data.description,100),
                 play_num: data.views,
                 save_num: data.stows,
                 comment_num: data.comments,
@@ -231,7 +232,7 @@ class dealWith {
                 tag: this._tags(data.tags),
                 class: channels.get(Number(data.channelId))
             }
-        this.sendCache( media )
+        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
         callback()
     }
     _tags( raw ){
@@ -242,15 +243,6 @@ class dealWith {
             return raw.join(',')
         }
         return ''
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`A站视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

@@ -4,10 +4,9 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require( '../lib/request' )
-const _Callback = function(data){
-    return data
-}
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
+
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -28,11 +27,10 @@ class dealWith {
 
     getVidTotal( task, callback ){
         let option = {
-            url: this.settings.videoList + task.id + "&_limit=200",
+            url: this.settings.spiderAPI.baijia.videoList + task.id + "&_limit=200",
             referer: 'http://baijiahao.baidu.com/u?app_id='+task.id+'&fr=bjhvideo',
             ua: 1
         }
-        //logger.debug(option)
         request.get( logger, option, ( err, result ) => {
             if (err) {
                 logger.error( '总量接口请求错误 : ', err )
@@ -46,7 +44,6 @@ class dealWith {
                 return this.getVidTotal( task, callback )
             }
             let total = result.total
-            //logger.debug(total)
             async.parallel(
                 [
                     (cb) => {
@@ -66,8 +63,6 @@ class dealWith {
                     callback()
                 }
             )
-                
-                
         })
     }
     getFan( task, data, callback ){
@@ -174,7 +169,7 @@ class dealWith {
     }
     getVidList( task, total, callback ){
         let option = {
-            url: this.settings.videoList + task.id + "&_limit=" + total,
+            url: this.settings.spiderAPI.baijia.videoList + task.id + "&_limit=" + total,
             referer: 'http://baijiahao.baidu.com/u?app_id='+task.id+'&fr=bjhvideo',
             ua: 1
         }
@@ -237,8 +232,8 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 aid: video.id,
-                title: video.title.substring(0,100).replace(/"/g,''),
-                desc: video.abstract.substring(0,100).replace(/"/g,''),
+                title: spiderUtils.stringHandling(video.title,100),
+                desc: spiderUtils.stringHandling(video.abstract,100),
                 class: video.domain,
                 tag: video.tag,
                 long_t: result[0].long_t,
@@ -253,8 +248,7 @@ class dealWith {
                 return callback()
             }
             task.total++
-            logger.debug(media.title+'---'+task.total)
-            this.sendCache(media)
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
             
         })
@@ -318,15 +312,6 @@ class dealWith {
             long_t = parseInt((timeArr[0]*60)*60) + parseInt(timeArr[1]*60) + parseInt(timeArr[2])
         }
         return long_t;
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`百家号 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

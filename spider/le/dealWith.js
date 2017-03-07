@@ -5,6 +5,7 @@ const async = require( 'async' )
 const moment = require('moment')
 const cheerio = require('cheerio')
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 const jsonp = function (data) {
     return data
@@ -28,7 +29,7 @@ class dealWith {
     getTotal ( task, callback ) {
         logger.debug("开始获取视频总页数")
         let option = {}
-        option.url = this.settings.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=1&_="+ (new Date()).getTime()
+        option.url = this.settings.spiderAPI.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=1&_="+ (new Date()).getTime()
         option.referer = `http://chuang.le.com/u/${task.id}/videolist`
         option.ua = 1
         request.get( logger, option, (err,result) => {
@@ -51,7 +52,8 @@ class dealWith {
     }
     getList ( task, page, callback ) {
         let sign = 1,
-            option = {}
+            option = {},
+            backList
         option.referer = `http://chuang.le.com/u/${task.id}/videolist`
         option.ua = 1
         async.whilst(
@@ -60,7 +62,7 @@ class dealWith {
             },
             ( cb ) => {
                 logger.debug("开始获取第"+ sign +"页视频列表")
-                option.url = this.settings.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=" + sign + "&_="+ (new Date()).getTime()
+                option.url = this.settings.spiderAPI.le.newList + task.id + "/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=" + sign + "&_="+ (new Date()).getTime()
                 request.get( logger, option, (err,result) => {
                     if(err){
                         return cb()
@@ -72,8 +74,7 @@ class dealWith {
                         logger.info(result)
                         return cb()
                     }
-                    let backList = result.data.list
-                    //logger.debug(backList)
+                    backList = result.data.list
                     this.deal(task,backList, () => {
                         sign++
                         cb()
@@ -157,14 +158,14 @@ class dealWith {
                 if(!media.class){
                     delete media.class
                 }
-                this.sendCache(media)
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
     }
     getInfo ( id, callback ) {
         let option = {
-            url: this.settings.info + id + "&_=" + (new Date()).getTime(),
+            url: this.settings.spiderAPI.le.info + id + "&_=" + (new Date()).getTime(),
             referer:`http://www.le.com/ptv/vplay/${id}.html`,
             ua: 1
         }
@@ -172,7 +173,6 @@ class dealWith {
             if(err){
                 return callback(err)
             }
-            //logger.debug(result.body)
             let backData
             try {
                 backData = JSON.parse(result.body)
@@ -185,7 +185,6 @@ class dealWith {
                 logger.error(`getInfo 异常`)
                 return callback(true)
             }
-            //logger.debug('188: ',backData)
             let info = backData[0]
             callback(null,info)
         })
@@ -220,34 +219,12 @@ class dealWith {
                 time = timeDom3.text()
                 desc = descDom3.attr('title') || ''
             }
-            // logger.debug(timeDom.text())
-            // logger.debug(descDom.attr('title'))
             callback(null,{time:time,desc:desc})
         })
     }
-    // getTime ( id, callback ) {
-    //     let option = {
-    //         url: this.settings.time + id
-    //     }
-    //     request.get( option, ( err, result) => {
-    //         if(err){
-    //             logger.error( 'occur error : ', err )
-    //             return callback(err)
-    //         }
-    //         try {
-    //             result = JSON.parse(result.body)
-    //         } catch (e) {
-    //             logger.error('json数据解析失败')
-    //             logger.info(result)
-    //             return callback(e)
-    //         }
-    //         let time = result.version_time
-    //         callback(null,moment(time).unix())
-    //     })
-    // }
     getDesc ( id, callback ) {
         let option = {
-            url: this.settings.desc + id,
+            url: this.settings.spiderAPI.le.desc + id,
             referer: 'http://m.le.com/vplay_' + id +'.html'
         }
         request.get( logger, option, (err,result) => {
@@ -281,15 +258,6 @@ class dealWith {
             long_t = moment.duration(time).asSeconds()
         }
         return long_t
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`乐视视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

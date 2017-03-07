@@ -4,6 +4,7 @@
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 const jsonp = function (data) {
     return data
@@ -410,7 +411,7 @@ class dealWith {
                 if(media.comment_num < 0){
                     delete media.comment_num
                 }
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
@@ -550,15 +551,6 @@ class dealWith {
             }
             callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`爱奇艺视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

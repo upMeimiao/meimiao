@@ -3,7 +3,8 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const cheerio = require('cheerio')
 const _Callback = function(data){
     return data
@@ -73,7 +74,7 @@ class dealWith {
     }
     sendUser (user){
         let option = {
-            url: this.settings.sendToServer[2],
+            url: this.settings.sendFans,
             data: user
         }
         request.post( logger, option, (err,back) => {
@@ -135,11 +136,10 @@ class dealWith {
             },
             (cb) => {
                 let option = {
-                    url : this.settings.listVideo+task.id+"&start="+start,
+                    url : this.settings.spiderAPI.qzone.listVideo+task.id+"&start="+start,
                     referer : 'https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_module?i_uin='+task.id+'&mode=4&previewV8=1&style=31&version=8&needDelOpr=true&transparence=true&hideExtend=false&showcount=10&MORE_FEEDS_CGI=http%3A%2F%2Fic2.qzone.qq.com%2Fcgi-bin%2Ffeeds%2Ffeeds_html_act_all&refer=2&paramstring=os-win7|100',
                     ua : 1
                 }
-                //logger.debug(option.url)
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
                         logger.error( '接口请求错误 : ', err )
@@ -238,7 +238,6 @@ class dealWith {
     getAllInfo( task, video, callback ){
         let $ = cheerio.load(video.html)
         if(!$('div').hasClass('f-ct-video')){
-            //logger.debug('当前的不是视频 ~ next')
             return callback()
         }
         let num = 0
@@ -278,18 +277,15 @@ class dealWith {
                 forward_num: result[1].fwdnum,
                 play_num: result[0].singlefeed['7'].videoplaycnt
             }
-            //logger.debug(media.title)
-            /*logger.debug(media.play_num)*/
-            this.sendCache(media)
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
 
     getVideoInfo( task, video, callback ){
         let option = {
-            url: this.settings.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_&qua=V1_PC_QZ_1.0.0_0_IDC_B"
+            url: this.settings.spiderAPI.qzone.videoInfo+task.id+"&appid="+video.appid+"&tid="+video.key+"&ugckey="+task.id+"_"+video.appid+"_"+video.key+"_&qua=V1_PC_QZ_1.0.0_0_IDC_B"
         }
-        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' , err)
@@ -321,7 +317,6 @@ class dealWith {
         let option = {
             url : 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin='+task.id+'&tid='+vid+'&t1_source=1&ftype=0&sort=0&pos=0&num=20&code_version=1&format=jsonp&need_private_comment=1'
         }
-        //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
             if(err){
                 logger.debug('评论总量请求失败')
@@ -333,18 +328,8 @@ class dealWith {
                 logger.debug('评论量数据解析失败')
                 return callback(null,'')
             }
-
             callback(null,result)
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`qzone ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

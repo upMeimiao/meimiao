@@ -4,7 +4,8 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const jsonp = function(data){
     return data
 }
@@ -73,17 +74,15 @@ class dealWith {
                 fans_num: result.obj.fansCount
             }
             task.total = result.obj.videoCount
-            //logger.debug(task.total)
-            /*this.sendUser(user, () => {
+            this.sendUser(user, () => {
                 callback()
-            })*/
+            })
             this.sendStagingUser(user)
-            callback()
         })
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[2],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger,option,(err,result) => {
@@ -133,7 +132,7 @@ class dealWith {
     }
     getVidTotal( task, callback ){
         let option = {
-            url: this.settings.videoList + task.id + "&p=1"
+            url: this.settings.spiderAPI.v1.videoList + task.id + "&p=1"
         },
         sign       = 0
         request.get( logger, option, (err, result) => {
@@ -157,17 +156,18 @@ class dealWith {
                 callback()
             })
         })
-        //logger.debug('进入成功')
     }
     
     getVidList( task,  page, sign, callback ){
+        let length = null,
+            content = null
         async.whilst(
             () => {
                 return sign < page
             },
             (cb) => {
                 let option = {
-                    url : this.settings.videoList + task.id + "&p=" + sign
+                    url : this.settings.spiderAPI.v1.videoList + task.id + "&p=" + sign
                 }
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
@@ -186,8 +186,8 @@ class dealWith {
                         logger.info(result)
                         return
                     }
-                    let length  = result.body.data.length,
-                        content = result.body.data
+                    length  = result.body.data.length
+                    content = result.body.data
                     this.deal(task,content,length,() => {
                         sign++
                         cb()
@@ -261,10 +261,8 @@ class dealWith {
                 if(!media.support){
                     delete media.support
                 }
-                //logger.debug(media.support)
-                this.sendCache( media, () => {
-                    callback()
-                }) 
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
+                callback()
             }
         )
     }
@@ -291,7 +289,6 @@ class dealWith {
         let option = {
             url: 'http://www.v1.cn/video/v_'+vid+'.jhtml'
         }
-        //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if (err) {
                 logger.error( '单个DOM接口请求错误 : ', err )
@@ -325,7 +322,6 @@ class dealWith {
         let option = {
             url: 'http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/'+ vid +'/pcode/010210000/version/4.5.4.mindex.html'
         }
-        //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
             if (err) {
                 logger.error( '单个视频接口请求错误 : ', err )
@@ -343,16 +339,6 @@ class dealWith {
             }
             callback(null,result.body.obj.videoDetail)
         })
-    }
-    sendCache (media,callback){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`第一视频 ${media.aid} 加入缓存队列`)
-            callback()
-        } )
     }
 }
 module.exports = dealWith

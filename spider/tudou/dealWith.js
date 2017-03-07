@@ -1,5 +1,6 @@
 const async = require( 'async' )
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const cheerio = require('cheerio')
 const moment = require('moment')
 let logger
@@ -66,7 +67,7 @@ class dealWith {
     }
     getFans ( task, uidCode, callback){
         let option = {
-            url: this.settings.fans + uidCode
+            url: this.settings.spiderAPI.tudou.fans + uidCode
         }
         request.get( logger, option, (err, result)=>{
             if(err){
@@ -84,7 +85,6 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.data.subedNum
             }
-            //logger.debug(user)
             this.sendUser(user, () => {
                 callback()
             })
@@ -94,7 +94,7 @@ class dealWith {
     getTotal (task,callback){
         logger.debug('开始获取视频总数')
         let option = {
-            url: this.settings.userInfo + task.id
+            url: this.settings.spiderAPI.tudou.userInfo + task.id
         }
         request.get( logger, option,(err,result) => {
             if(err){
@@ -111,14 +111,14 @@ class dealWith {
             this.getList( task, result.video_count, (err) => {
                 if(err){
                     return callback(err)
-                }
+                } 
                 callback()
             })
         })
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger,option,(err,result) => {
@@ -169,7 +169,8 @@ class dealWith {
     getList ( task, total, callback ) {
         let sign = 1,
             page,
-            option
+            option,
+            list
         if(total % 40 == 0 ){
             page = total / 40
         }else{
@@ -182,7 +183,7 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 option = {
-                    url: this.settings.newList + `&uid=${task.id}&page=${sign}`
+                    url: this.settings.spiderAPI.tudou.newList + `&uid=${task.id}&page=${sign}`
                 }
                 request.get(logger,option, (err,result) => {
                     if(err){
@@ -200,7 +201,7 @@ class dealWith {
                         sign++
                         return cb()
                     }
-                    let list = result.data.data
+                    list = result.data.data
                     if(list){
                         this.deal(task,list, () => {
                             sign++
@@ -243,15 +244,7 @@ class dealWith {
                     }
                     cb(null,result)
                 })
-            },
-            // (cb) => {
-            //     this.getVideoTime(data.code,(err,backData) => {
-            //         if(err){
-            //             return cb(err)
-            //         }
-            //         cb(null,backData)
-            //     })
-            // }
+            }
         ],(err,result) => {
             if(err){
                 return callback(err)
@@ -270,55 +263,16 @@ class dealWith {
                 step: result[0].buryNum,
                 v_img: data.picurl,
                 long_t: this.long_t(data.formatTotalTime),
-                // class: result[1].class,
-                // tag: result[1].tag,
                 a_create_time: data.pubDate.toString().substring(0,10)
             }
-            // if(!media.class){
-            //     delete media.class
-            // }
-            // if(!media.tag){
-            //     delete media.tag
-            // }
-            //logger.debug(media)
-            this.sendCache( media )
+            
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
-        })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`土豆视频 ${media.aid} 加入缓存队列`)
-        } )
-    }
-    getVideoTime ( id, callback){
-        let option = {
-            url: this.settings.mediaTime + id
-        }
-        request.get( logger, option, (err,result) => {
-            if(err){
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e){
-                logger.error('json数据解析失败')
-                logger.info('backData:',result)
-                return callback(e)
-            }
-            const data = {
-                tag: result.tag,
-                class: result.cname
-            }
-            callback(null,data)
         })
     }
     getExpr ( code,callback) {
         let option = {
-            url: this.settings.expr + code
+            url: this.settings.spiderAPI.tudou.expr + code
         }
         request.get( logger, option, (err,result) => {
             if(err){

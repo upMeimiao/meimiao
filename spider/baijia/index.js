@@ -4,7 +4,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
