@@ -76,10 +76,11 @@ class dealWith {
                 bid: task.id,
                 fans_num: fans_num
             }
-            this.sendUser ( user,(err,result) => {
+            /*this.sendUser ( user,(err,result) => {
                 callback()
-            })
+            })*/
             this.sendStagingUser(user)
+            callback()
         })
     }
     sendUser (user,callback){
@@ -234,7 +235,7 @@ class dealWith {
                     author: task.name,
                     platform: task.p,
                     bid: task.id,
-                    aid: video.itemid,
+                    aid: video.itemid ? video.itemid : video.docid,
                     title: video.title ? video.title.substr(0,100).replace(/"/g,'') : 'btwk_caihongip',
                     desc: video.summary ? video.summary.substr(0,100).replace(/"/g,'') : '',
                     class: this._class(video),
