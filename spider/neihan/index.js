@@ -4,7 +4,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -58,12 +58,24 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            this.deal()
+            //this.deal()
+            this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test () {
+        let work = {
+            id: '6101391014',
+            name: '关爱八卦成长协会',
+            p: 19
+        }
+        this.dealWith.todo( work, (err, total) => {
+            logger.debug(total)
+            logger.debug('end')
+        })
     }
     deal () {
         let queue = kue.createQueue({

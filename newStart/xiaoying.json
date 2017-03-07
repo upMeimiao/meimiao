@@ -1,7 +1,7 @@
 {
   "name"        : "小影",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","xiaoying","-a","xiaoying"],
+  "args"        : ["-i","master","-a","xiaoying"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

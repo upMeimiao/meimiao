@@ -4,11 +4,12 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
 const spiderUtils = require('../../lib/spiderUtils')
 const jsonp = function(data){
     return data
 }
+
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -27,9 +28,34 @@ class dealWith {
         })
     }
 
+    getppi(callback){
+        let option = {
+            url: 'http://tools.aplusapi.pptv.com/get_ppi?cb=jsonp'
+        }
+        request.get(logger, option, (err, result) => {
+            if(err){
+                logger.debug('获取cookie值出错')
+                return callback(err)
+            }
+            try{
+                result = eval(result.body)
+            }catch(e){
+                logger.debug('cookie数据解析失败')
+                return callback(e)
+            }
+            if(!result.ppi){
+                return callback('cookie数据获取有问题')
+            }
+            callback(null,result.ppi)
+        })
+    }
+
     getVidList( task, callback ){
         let option = {
-            url : this.settings.listVideo+"&pid="+task.id+"&cat_id="+task.encodeId
+            url : this.settings.spiderAPI.pptv.listVideo+"&pid="+task.id+"&cat_id="+task.encodeId,
+            ua: 3,
+            own_ua: 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+            Cookie:  `ppi=${this.core.ppi}`
         }
         request.get( logger, option, ( err, result ) => {
             if (err) {
@@ -104,8 +130,7 @@ class dealWith {
                 v_url: video.url,
                 play_num: spiderUtils.numberHandling(video.pv)
             }
-            //logger.debug(media)
-            this.sendCache(media)
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
@@ -161,16 +186,6 @@ class dealWith {
             }
             callback(null,result.data.total)
         })
-    }
-
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`PPTV ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

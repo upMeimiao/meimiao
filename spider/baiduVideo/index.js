@@ -4,7 +4,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -58,8 +58,8 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' )
-            this.deal()
-            //this.test()
+            //this.deal()
+            this.test()
         })
     }
     start () {

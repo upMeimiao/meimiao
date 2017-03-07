@@ -3,6 +3,7 @@
  */
 const async = require( 'async' )
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const moment = require('moment')
 
 let logger
@@ -42,7 +43,7 @@ class dealWith {
     }
     getUser (task,callback){
         let option = {
-            url: this.settings.userInfo + task.id,
+            url: this.settings.spiderAPI.yidian.userInfo + task.id,
             ua: 3,
             own_ua: "yidian/4.3.4.4 (iPhone; iOS 10.1.1; Scale/3.00)"
         }
@@ -83,7 +84,7 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger,option,(err,back) => {
@@ -133,7 +134,7 @@ class dealWith {
     }
     getInterestId ( task, callback ) {
         const option = {
-            url: `${this.settings.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=0&cend=10`,
+            url: `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=0&cend=10`,
             referer: `http://www.yidianzixun.com/home?page=channel&id=${task.id}`,
             ua: 1
         }
@@ -178,9 +179,9 @@ class dealWith {
             },
             ( cb ) => {
                 if(type == 'video'){
-                    option.url = `${this.settings.list}&path=channel|news-list-for-vertical&interest_id=${task.interest_id}&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`
+                    option.url = `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-vertical&interest_id=${task.interest_id}&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`
                 }else{
-                    option.url = `${this.settings.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`
+                    option.url = `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`
                 }
                 option.referer = `http://www.yidianzixun.com/home?page=channel&id=${task.id}`
                 request.get( logger, option, ( err, result ) => {
@@ -258,7 +259,7 @@ class dealWith {
                 if(!media.v_img){
                     delete media.v_img
                 }
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 index++
                 cb()
             },
@@ -303,15 +304,6 @@ class dealWith {
             vsctStr = raw.vsct[0].replace(/vsct\/\//g,'').replace(/\//g,',')
         }
         return vsctStr
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`一点资讯视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

@@ -4,7 +4,8 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 class dealWith {
@@ -98,30 +99,30 @@ class dealWith {
                 if(task.id == bid){
                     user.fans_num = list.eq(i).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text()
                     logger.info(user)
-                    //this.sendUser( user )
+                    this.sendUser( user )
                     this.sendStagingUser( user )
                     return callback()
                 }
             }
         })
     }
-    sendUser (user,callback){
+    sendUser (user){
         let option = {
-            url: this.settings.sendToServer[2],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger, option,(err,back) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回风行用户 ${user.bid} 连接服务器失败`)
-                return callback(err)
+                return
             }
             try{
                 back = JSON.parse(back.body)
             }catch (e){
                 logger.error(`风行用户 ${user.bid} json数据解析失败`)
                 logger.info(back)
-                return callback(e)
+                return
             }
             if(back.errno == 0){
                 logger.debug("风行用户:",user.bid + ' back_end')
@@ -130,7 +131,6 @@ class dealWith {
                 logger.info(back)
                 logger.info('user info: ',user)
             }
-            callback()
         })
     }
     sendStagingUser (user){
@@ -159,27 +159,34 @@ class dealWith {
         })
     }
     getVideoList( task, vidObj, callback ){
-        let index  = 0,
-            length = vidObj.length,
-            option = {}
-            task.type = '视频号'
+        let index      = 0,
+            vidlength     = vidObj.length,
+            option     = {},
+            h          = null,
+            $          = null,
+            dataJson   = null,
+            startIndex = null,
+            endIndex   = null,
+            length     = null,
+            content    = null
+        task.type      = '视频号'
         async.whilst(
             () => {
-                return index < length
+                return index < vidlength
             },
             (cb) => {
-                let h = vidObj.eq(index).find('a').attr('data-id')
+                h = vidObj.eq(index).find('a').attr('data-id')
                 option.url = 'http://www.fun.tv/vplay/c-'+task.id+'.h-'+h+'/'
                 request.get( logger, option, (err, result) => {
                     if (err) {
                         logger.error( '视频总量接口请求错误 : ', err )
                         return cb()
                     }
-                    let $ = cheerio.load(result.body),
-                        dataJson = $('script')[6].children[0].data.replace(/[\s\n\r]/g,''),
-                        startIndex = dataJson.indexOf('{"dvideos":'),
-                        endIndex = dataJson.indexOf(';window.shareInfo')
-                        dataJson = dataJson.substring(startIndex,endIndex)
+                    $ = cheerio.load(result.body),
+                    dataJson = $('script')[6].children[0].data.replace(/[\s\n\r]/g,'')
+                    startIndex = dataJson.indexOf('{"dvideos":')
+                    endIndex = dataJson.indexOf(';window.shareInfo')
+                    dataJson = dataJson.substring(startIndex,endIndex)
                     try{
                         dataJson = JSON.parse(dataJson)
                     }catch(e){
@@ -187,11 +194,10 @@ class dealWith {
                         logger.debug('视频列表解析失败')
                         return cb()
                     }
-                    let length  = dataJson.dvideos[0].videos.length,
-                        content = dataJson.dvideos[0].videos
+                    length  = dataJson.dvideos[0].videos.length,
+                    content = dataJson.dvideos[0].videos
                     task.h = h
                     task.total += length
-                    //logger.debug(index)
                     this.deal(task,content,length,() => {
                         index++
                         cb()
@@ -277,8 +283,7 @@ class dealWith {
                         v_url: result[0].share ? result[0].share : '',
                         a_create_time: result[0].release ? result[0].release : ''
                     }
-                    //logger.debug(media)
-                    this.sendCache(media)
+                    spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                     callback()
                 }
             )            
@@ -306,8 +311,7 @@ class dealWith {
                         v_url: 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+video.id+'/',
                         a_create_time: result[0].time
                     }
-                    //logger.debug(media)
-                    this.sendCache(media) 
+                    spiderUtils.saveCache( this.core.cache_db, 'cache', media ) 
                     callback()
                 }
             )
@@ -328,7 +332,6 @@ class dealWith {
         let option = {}
         if(task.type == '视频号'){
             option.url= 'http://pv.funshion.com/v5/video/profile?cl=iphone&id='+vid+'&si=0&uc=202&ve=3.2.9.2'
-            //logger.debug(option.url)
             async.waterfall(
                 [
                     (cb) => {
@@ -366,7 +369,6 @@ class dealWith {
             )
         }else{
             option.url= 'http://www.fun.tv/vplay/g-'+task.id+'.v-'+vid+'/'
-            //logger.debug(option.url)
             async.waterfall(
                 [
                     (cb) => {
@@ -400,7 +402,6 @@ class dealWith {
         let option = {
             url : 'http://api1.fun.tv/ajax/new_playinfo/gallery/'+vid+'/?user=funshion&mid='+id
         }
-        //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if (err) {
                 logger.error( 'time接口请求错误 : ', err )
@@ -450,15 +451,6 @@ class dealWith {
             
             callback(null,result.data.total_num)
         })
-    }
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`风行 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

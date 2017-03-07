@@ -1,5 +1,6 @@
 const async = require('async')
 const request = require('../../lib/request')
+const spiderUtils = require('../../lib/spiderUtils')
 const moment = require('moment')
 
 let logger
@@ -21,7 +22,7 @@ class dealWith {
     }
     getTotal(task, callback){
         let option = {
-            url: this.settings.medialist + task.id + '&pageNo=1',
+            url: this.settings.spiderAPI.ifeng.medialist + task.id + '&pageNo=1',
             ua: 3,
             own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
         }
@@ -71,7 +72,7 @@ class dealWith {
     }
     sendUser( user,callback ){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
         request.post(logger, option, (err,result) => {
@@ -123,14 +124,15 @@ class dealWith {
         let index = 1,option = {
             ua: 3,
             own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
-        }
+        },
+            list = null
         async.whilst(
             () => {
                 return index <= Math.min(page,500)
             },
             (cb) => {
                 logger.debug('开始获取第' + index + '页视频列表')
-                option.url = this.settings.medialist + task.id + '&pageNo=' + index
+                option.url = this.settings.spiderAPI.ifeng.medialist + task.id + '&pageNo=' + index
                 request.get(logger, option, (err,result) => {
                     if(err){
                         return cb()
@@ -147,7 +149,7 @@ class dealWith {
                         index++
                         return cb()
                     }
-                    let list =result.infoList[0].bodyList
+                    list =result.infoList[0].bodyList
                     this.deal(task,list,() => {
                         index++
                         cb()
@@ -178,7 +180,7 @@ class dealWith {
     }
     getVideo(task, video, callback){
         let option = {
-            url: this.settings.info + video.memberItem.guid,
+            url: this.settings.spiderAPI.ifeng.info + video.memberItem.guid,
             ua: 3,
             own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
         },media
@@ -208,18 +210,9 @@ class dealWith {
                 tag: video.tag,
                 v_url: video.memberItem.pcUrl
             }
-            this.sendCache(media)
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误', err )
-                return
-            }
-            logger.debug(`凤凰视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

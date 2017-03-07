@@ -4,7 +4,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -73,7 +73,6 @@ class spiderCore {
             id:859,
             encodeId: 13
         }
-        //logger.info( work )
         this.dealWith.todo(work, (err,total,uid) => {
             logger.debug(total)
             logger.debug(uid)

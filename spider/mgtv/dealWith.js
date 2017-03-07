@@ -3,9 +3,9 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
 const cheerio = require('cheerio')
-
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 class dealWith {
     constructor ( spiderCore ){
@@ -34,7 +34,7 @@ class dealWith {
             },
             (cb) => {
                 let option = {
-                    url : this.settings.listVideo + task.id + "&month="+ month + "&_=" + (new Date()).getTime()
+                    url : this.settings.spiderAPI.mgtv.listVideo + task.id + "&month="+ month + "&_=" + (new Date()).getTime()
                 }
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
@@ -159,8 +159,7 @@ class dealWith {
                 desc: result[3] ? result[3].substring(0,100).replace(/"/g,'') : '',
                 comment_num: result[5].total_number
             }
-            logger.debug(media)
-            this.sendCache( media )
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
@@ -251,7 +250,7 @@ class dealWith {
     getPlayNum( video, callback ){
         let option = {
             //用户的信息后边参数是cid,播放量是vid
-            url: this.settings.userInfo + "vid=" + video.video_id
+            url: this.settings.spiderAPI.mgtv.userInfo + "vid=" + video.video_id
         }
         request.get( logger, option, ( err, result ) => {
             if(err){
@@ -272,9 +271,8 @@ class dealWith {
     }
     getVideoInfo( task, video, callback ){
         let option = {
-            url: this.settings.videoInfo + video.video_id
+            url: this.settings.spiderAPI.mgtv.videoInfo + video.video_id
         }
-        //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('单个视频请求失败 ' + err)
@@ -297,16 +295,6 @@ class dealWith {
             }
             callback(null,result.data)
         })
-    }
-
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`芒果TV ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

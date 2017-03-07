@@ -4,6 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 class dealWith {
@@ -16,7 +17,6 @@ class dealWith {
     todo ( task, callback ) {
         task.total = 0
         task.page = 1
-        //logger.debug('---')
         this.getUserInfo( task, ( err ) => {
             if(err){
                 return callback(err.message)
@@ -344,7 +344,7 @@ class dealWith {
                 if(!media.play_num){
                     delete media.play_num
                 }
-                this.sendCache(media)
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             })
         }
@@ -371,7 +371,6 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('json数据解析失败')
-                // logger.info(result)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
@@ -391,16 +390,6 @@ class dealWith {
             dataTime = moment(dataTime).unix()
             result.created_at = dataTime == NaN ? '' : dataTime
             callback(null,result)
-        })
-    }
-
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`微博 ${media.aid} 加入缓存队列`)
         })
     }
 }

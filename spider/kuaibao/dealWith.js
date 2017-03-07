@@ -2,7 +2,9 @@
  * Created by junhao on 16/6/20.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+//const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 const jsonp = function (data) {
     return data
@@ -56,9 +58,9 @@ class dealWith {
     }
     getUser ( task, callback) {
         let option = {
-            url: this.settings.user + task.id
+            url: this.settings.spiderAPI.kuaibao.user + task.id
         }
-        request.get ( option, ( err, result )=>{
+        request.get (logger, option, ( err, result )=>{
             if(err){
                 return callback()
             }
@@ -92,10 +94,10 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post( option, (err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error('occur error:',err)
                 logger.info(`返回天天快报用户 ${user.bid} 连接服务器失败`)
@@ -123,7 +125,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option,(err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -145,14 +147,14 @@ class dealWith {
     }
     getVideos ( task, callback ) {
         let option = {
-            url: this.settings.video,
+            url: this.settings.spiderAPI.kuaibao.video,
             referer:'http://r.cnews.qq.com/inews/iphone/',
             data: {
                 chlid: task.id,
                 is_video: 1
             }
         }
-        request.post( option,  (err,result) => {
+        request.post(logger, option,  (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -198,12 +200,12 @@ class dealWith {
     getInfo ( task, id, callback ) {
         let option = {
             referer:'http://r.cnews.qq.com/inews/iphone/',
-            url: this.settings.list,
+            url: this.settings.spiderAPI.kuaibao.list,
             data: {
                 ids: id
             }
         }
-        request.post( option, (err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -302,13 +304,13 @@ class dealWith {
             if(!media.long_t){
                 delete media.long_t
             }
-            this.sendCache( media )
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
     getCommentNum ( info, callback ) {
         let option = {
-            url: this.settings.comment,
+            url: this.settings.spiderAPI.kuaibao.comment,
             referer:'http://r.cnews.qq.com/inews/iphone/',
             data: {
                 chlid: "media_article",
@@ -318,7 +320,7 @@ class dealWith {
                 page: 1
             }
         }
-        request.post( option, (err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -339,14 +341,14 @@ class dealWith {
     }
     getExpr ( info, callback ) {
         let option = {
-            url: this.settings.expr,
+            url: this.settings.spiderAPI.kuaibao.expr,
             referer:'http://r.cnews.qq.com/inews/iphone/',
             data: {
                 id: info.id,
                 chlid: "media_article"
             }
         }
-        request.post( option, ( err, result ) => {
+        request.post(logger, option, ( err, result ) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -368,7 +370,7 @@ class dealWith {
     }
     getPlayNum (task, info, callback ) {
         let option = {
-            url: this.settings.play + '&devid=' + task.devId,
+            url: this.settings.spiderAPI.kuaibao.play + '&devid=' + task.devId,
             referer:'http://r.cnews.qq.com/inews/iphone/',
             data: {
                 id: info.id,
@@ -376,7 +378,7 @@ class dealWith {
                 articletype: info.type
             }
         }
-        request.post( option, (err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -403,7 +405,7 @@ class dealWith {
             url: "http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid="+info.vid+"&plat=5&pver=0&otype=json&callback=jsonp",
             referer:'http://r.cnews.qq.com/inews/iphone/'
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -454,15 +456,6 @@ class dealWith {
             return raw.tag
         }
         return ''
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`天天快报 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

@@ -3,7 +3,7 @@
  * Created by junhao on 16/6/20.
  */
 const kue = require('kue')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const request = require('request')
 const async = require( 'async' )
 const domain = require('domain')
@@ -59,11 +59,23 @@ class spiderCore {
             }
             logger.debug( '创建数据库连接完毕' )
             this.deal()
+            //this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test () {
+        let work = {
+            id: '348785',
+            name: '粉字菌Vickydai',
+            p: 8
+        }
+        this.dealWith.todo(work, (err, total) => {
+            logger.debug(total)
+            logger.debug('end')
+        })
     }
     deal () {
         let queue = kue.createQueue({

@@ -2,7 +2,8 @@
  * Created by yunsong on 16/8/4.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 class dealWith {
     constructor (spiderCore){
@@ -37,9 +38,9 @@ class dealWith {
     }
     getUser (task,callback){
         let option = {
-            url: this.settings.userInfo + task.id
+            url: this.settings.spiderAPI.neihan.userInfo + task.id
         }
-        request.get(option,(err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback()
@@ -64,10 +65,10 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回内涵段子用户 ${user.bid} 连接服务器失败`)
@@ -95,7 +96,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -128,14 +129,14 @@ class dealWith {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 if(!time){
                     option = {
-                        url: this.settings.medialist + task.id + '&min_time=0'
+                        url: this.settings.spiderAPI.neihan.medialist + task.id + '&min_time=0'
                     }
                 }else{
                     option = {
-                        url: this.settings.medialist + task.id + "&max_time=" + time
+                        url: this.settings.spiderAPI.neihan.medialist + task.id + "&max_time=" + time
                     }
                 }
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ' + err )
                         return cb()
@@ -237,7 +238,7 @@ class dealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        this.sendCache( media )
+        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
         callback()
     }
     long_t ( raw ){
@@ -260,15 +261,6 @@ class dealWith {
             return raw.medium_cover.url_list[0].url
         }
         return ''
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`内涵段子 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

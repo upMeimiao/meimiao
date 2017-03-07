@@ -2,8 +2,8 @@
  * Created by ifable on 16/9/8.
  */
 const kue = require( 'kue' )
-const request = require('../lib/request.js')
-const myRedis = require( '../lib/myredis.js' )
+const request = require('../../lib/request.js')
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
