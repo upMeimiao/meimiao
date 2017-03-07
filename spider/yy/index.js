@@ -49,7 +49,7 @@ class spiderCore {
                         callback()
                     }
                 )
-            }
+            } 
         ],(err, results) => {
             if ( err ) {
                 logger.error( "连接redis数据库出错。错误信息：", err )
