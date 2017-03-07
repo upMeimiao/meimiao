@@ -67,7 +67,6 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.data.fans_count
             }
-            //logger.debug(user)
             this.sendUser(user, () => {
                 callback()
             })
