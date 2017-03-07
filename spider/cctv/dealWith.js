@@ -129,7 +129,7 @@ class dealWith {
     }
     getVidTotal( task, callback ){
         let option = {
-            url: 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-1.html',
+            url: 'http://my.xiyou.cntv.cn/'+task.id+'/video-1-1.html',
             ua: 1
         },
         sign       = 1
@@ -164,7 +164,7 @@ class dealWith {
             },
             (cb) => {
                 let option = {
-                    url : 'http://my.xiyou.cntv.cn/'+task.id+'/video-2-'+sign+'.html'
+                    url : 'http://my.xiyou.cntv.cn/'+task.id+'/video-1-'+sign+'.html'
                 }
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
