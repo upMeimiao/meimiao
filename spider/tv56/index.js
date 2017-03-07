@@ -107,7 +107,7 @@ class spiderCore {
                     }
                     done(null)
                     this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    request.post( logger, {url:settings.sendToServer[2], data:{platform:work.p,bid: work.id}},(err,result) => {
+                    request.post( logger, {url:settings.update, data:{platform:work.p,bid: work.id}},(err,result) => {
                         if(err){
                             return
                         }
