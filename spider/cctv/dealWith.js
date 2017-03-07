@@ -160,7 +160,7 @@ class dealWith {
     getVidList( task,  page, sign, callback ){
         async.whilst(
             () => {
-                return sign <= page
+                return sign <= Math.min(page,500)
             },
             (cb) => {
                 let option = {
