@@ -1,6 +1,6 @@
 const async = require( 'async' )
 const moment = require('moment')
-const request = require( '../spider/lib/req' )
+const request = require( '../lib/req' )
 
 let logger,api
 
@@ -188,15 +188,6 @@ class dealWith {
             return raw[0]
         }
         return ''
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`百思不得姐 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

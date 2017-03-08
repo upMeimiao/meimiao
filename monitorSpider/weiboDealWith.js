@@ -3,7 +3,7 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 
 let logger,api
 class dealWith {
@@ -331,7 +331,7 @@ class dealWith {
                         return
                     }
                 })
-                logger.debug("weibo media==============",media)
+                // logger.debug("weibo media==============",media)
                 this.storaging.sendDb(media)
                 callback()
             })

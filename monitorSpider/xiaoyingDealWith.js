@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/3.
  */
 const async = require( 'async' )
-const request = require( '../spider/lib/req' )
+const request = require( '../lib/req' )
 const moment = require( 'moment' )
 const newRequest = require( 'request' )
 
@@ -200,7 +200,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("xiaoying media==============",media)
+            // logger.debug("xiaoying media==============",media)
             this.storaging.sendDb(media)
             callback()
         })

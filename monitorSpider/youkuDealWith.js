@@ -73,7 +73,7 @@ class youkuDealWith {
             }
             if(!body){
                 logger.error('youku获取用户信息接口发生未知错误')
-                logger.debug('total error:',body)
+                // logger.debug('total error:',body)
                 this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
                 return callback()
             }

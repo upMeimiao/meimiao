@@ -4,7 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const jsonp = function(data){
     return data
 }
@@ -200,7 +200,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("uctt media==============",media)
+            // logger.debug("uctt media==============",media)
             this.storaging.sendDb(media)
             this.getCommentNum(task,_id,result.id,(err,data) => {
                 result.descData = data

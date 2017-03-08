@@ -2,7 +2,7 @@
  * Created by junhao on 16/6/21.
  */
 const async = require( 'async' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const jsonp = function(data){
     return data
 }
@@ -261,7 +261,7 @@ class dealWith {
                         return
                     }
                 })
-                logger.debug("huashu media==============",media)
+                // logger.debug("huashu media==============",media)
                 this.storaging.sendDb(media)
             callback(null,result)
         })

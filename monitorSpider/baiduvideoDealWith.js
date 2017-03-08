@@ -4,7 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const jsonp = function(data){
     return data
 }
@@ -212,7 +212,7 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("baiduvideo",option.url,"info")
             if(err){
-                logger.debug('单个视频Dom请求失败',err)
+                // logger.debug('单个视频Dom请求失败',err)
                 let errType
                 if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                     errType = "timeoutErr"
@@ -253,7 +253,7 @@ class dealWith {
                         return
                     }
                 })
-            logger.debug("baiduvideo media==============",media)
+            // logger.debug("baiduvideo media==============",media)
             this.storaging.sendDb(media)
             callback(null,playNum)
         })

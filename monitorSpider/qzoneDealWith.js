@@ -3,7 +3,7 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const cheerio = require('cheerio')
 const _Callback = function(data){
     return data
@@ -303,7 +303,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("qzone media==============",media)
+            // logger.debug("qzone media==============",media)
             this.storaging.sendDb(media)
             callback(null,result)
         })

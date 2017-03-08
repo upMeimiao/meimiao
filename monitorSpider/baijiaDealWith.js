@@ -4,7 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const _Callback = function(data){
     return data
 }
@@ -235,7 +235,7 @@ class dealWith {
                 return callback()
             }
             task.total++
-            logger.debug(media.title+'---'+task.total)
+            // logger.debug(media.title+'---'+task.total)
             callback()
             
         })
@@ -302,7 +302,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("baijia media==============",media)
+            // logger.debug("baijia media==============",media)
             this.storaging.sendDb(media)
             callback(null,res)
         })

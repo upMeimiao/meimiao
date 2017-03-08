@@ -6,7 +6,7 @@ const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const EventProxy = require( 'eventproxy' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const md5 = require('js-md5')
 const jsonp = function(data){
     return data
@@ -261,7 +261,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("btime media==============",media)
+            // logger.debug("btime media==============",media)
             this.storaging.sendDb(media)
             callback() 
         })

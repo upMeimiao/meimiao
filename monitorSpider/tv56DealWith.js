@@ -228,7 +228,7 @@ class dealWith {
                         return
                     }
                 })
-                logger.debug("tv56 media==============",media)
+                // logger.debug("tv56 media==============",media)
                 this.storaging.sendDb(media)
                 //logger.debug(media)
                 callback()

@@ -3,7 +3,7 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const _Callback = function(data){
     return data
 }
@@ -171,7 +171,7 @@ class dealWith {
                 "aid": vid,
                 "play_num": result.content.list[0].hasCollect
             }
-            logger.debug("xinlan +++++++++++++++++++++++++++++++++++++++++++result result.content.list",result,result.content.list)
+            // logger.debug("xinlan +++++++++++++++++++++++++++++++++++++++++++result result.content.list",result,result.content.list)
             this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${vid}`,"play_num",(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
@@ -182,7 +182,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("xinlan media==============",media)
+            // logger.debug("xinlan media==============",media)
             this.storaging.sendDb(media)
             if(!result.content){
                 return

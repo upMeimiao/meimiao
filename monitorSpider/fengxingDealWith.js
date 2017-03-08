@@ -4,7 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 
 let logger,api
 class dealWith {
@@ -183,7 +183,7 @@ class dealWith {
                     try{
                         dataJson = JSON.parse(dataJson)
                     }catch(e){
-                        logger.debug(dataJson)
+                        // logger.debug(dataJson)
                         this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取list接口json数据解析失败","doWithResErr","list")
                         return cb()
                     }
@@ -259,7 +259,7 @@ class dealWith {
                         return
                     }
                 })
-                logger.debug("pptv media==============",media)
+                // logger.debug("pptv media==============",media)
                 this.storaging.sendDb(media)
             }
             this.deal(task,content,length,() => {

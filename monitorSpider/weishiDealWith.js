@@ -1,5 +1,5 @@
 const async = require( 'async' )
-const request = require( '../spider/lib/req' )
+const request = require( '../lib/req' )
 
 let logger,api
 class dealWith {

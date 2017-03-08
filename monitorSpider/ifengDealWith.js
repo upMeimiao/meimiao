@@ -1,6 +1,6 @@
 const async = require('async')
 const moment = require('moment')
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 
 let logger,api
 class dealWith {
@@ -189,7 +189,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("ifeng media==============",media)
+            // logger.debug("ifeng media==============",media)
             this.storaging.sendDb(media)
             callback()
         })

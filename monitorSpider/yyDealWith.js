@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/5.
  */
 const async = require( 'async' )
-const request = require( '../spider/lib/req' )
+const request = require( '../lib/req' )
 const cheerio = require( 'cheerio' )
 const moment = require( 'moment' )
 
@@ -86,7 +86,7 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
-                logger.debug('result : ',result)
+                // logger.debug('result : ',result)
                 callback()
             })
         })

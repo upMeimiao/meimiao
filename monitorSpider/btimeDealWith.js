@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/1.
  */
 const async = require('async')
-const request = require( '../spider/lib/req' )
+const request = require( '../lib/req' )
 const moment = require('moment')
 
 let logger,api
@@ -204,7 +204,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("btime media==============",media)
+            // logger.debug("btime media==============",media)
             this.storaging,sendDb(media)
             callback()
         })

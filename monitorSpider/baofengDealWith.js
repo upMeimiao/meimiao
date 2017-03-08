@@ -4,7 +4,7 @@
 
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 
 let logger,api
 class dealWith {

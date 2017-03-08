@@ -3,7 +3,7 @@
  */
 const async = require( 'async' )
 const cheerio = require( 'cheerio' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const channels = require('../spider/acfun/channels')
 
 let logger,api
@@ -74,7 +74,7 @@ class dealWith {
         })
     }
     getTotal ( task, callback){
-        logger.debug('开始获取视频总数')
+        // logger.debug('开始获取视频总数')
         let option = {
             url: api.acfun.media + `${task.id}&pageNo=1`,
             referer: `http://www.aixifan.com/u/${task.id}.aspx`,

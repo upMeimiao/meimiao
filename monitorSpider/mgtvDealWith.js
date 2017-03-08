@@ -3,7 +3,7 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const cheerio = require('cheerio')
 
 let logger,api
@@ -315,7 +315,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("mgtv media==============",media)
+            // logger.debug("mgtv media==============",media)
             this.storaging.sendDb(media)
             callback(null,result.data)
         })

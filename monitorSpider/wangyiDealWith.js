@@ -2,7 +2,7 @@
  * Created by qingyu on 16/12/2.
  */
 const async = require( 'async' )
-const request = require('../spider/lib/request.js')
+const request = require('../lib/request.js')
 const moment = require('moment')
 const videoList = function (data){
     return data
@@ -263,7 +263,7 @@ class dealWith {
                 "aid": vid,
                 "play_num": result.info.hits
             }
-            logger.debug("wangyi result result.info++*+*****+*++*+*+*+*+******+*+*+*+*+*+***+",result,result.info)
+            // logger.debug("wangyi result result.info++*+*****+*++*+*+*+*+******+*+*+*+*+*+***+",result,result.info)
             this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
@@ -274,7 +274,7 @@ class dealWith {
                     return
                 }
             })
-            logger.debug("wangyi media==============",media)
+            // logger.debug("wangyi media==============",media)
             this.storaging.sendDb(media)
             callback(null,result.info)
         })
