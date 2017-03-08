@@ -79,7 +79,7 @@ const _getFailedTask = () => {
         try {
             body = JSON.parse(body)
         } catch (e) {
-            logger.error('failed task json parse error:',error.message)
+            logger.error('failed task json parse error:',e.message)
             return
         }
         const filedTask = []
