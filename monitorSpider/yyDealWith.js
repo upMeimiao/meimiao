@@ -54,7 +54,7 @@ class dealWith {
             }
             task.total = Number(live_num) + Number(sq_num) + Number(dp_num)
             if(!task.total){
-                api.yy.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
+                this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
                 return
             }
             async.parallel({

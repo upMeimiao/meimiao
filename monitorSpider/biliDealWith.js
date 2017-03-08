@@ -153,7 +153,7 @@ class billDealWith {
                     }
                     if( result.statusCode != 200){
                         logger.error('获取total接口code error：',result.statusCode)
-                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口code error","responseErr","videos")
+                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口code error","statusErr","videos")
                         return cb()
                     }
                     try {
