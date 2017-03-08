@@ -453,7 +453,7 @@ const getMeipaiError = () => {
 }
 const getMiaopaiError = () => {
     // logger.debug("进入getMiaopaiError")
-    let urlDescArr = ["","","",""],
+    let urlDescArr = ["user","total","videos","info"],
         urlDesc,i
     for(i = 0; i < urlDescArr.length; i++){
         urlDesc = urlDescArr[i]
