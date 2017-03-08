@@ -245,7 +245,7 @@ class dealWith {
                 video = content[i]
                 playNum = video.play_index
                 media = {
-                    "author": "pptv",
+                    "author": "fengxing",
                     "aid": video.videoid,
                     "play_num": playNum
                 }
