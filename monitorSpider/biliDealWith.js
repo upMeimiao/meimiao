@@ -272,7 +272,7 @@ class billDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少`,"playNumErr","videos")
+                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","videos")
                 }
             })
             this.storaging.sendDb(media)

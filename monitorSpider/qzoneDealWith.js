@@ -299,7 +299,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('qzone',`${option.url}`,task.id,`qzone  ${media.aid}播放量减少`,"playNumErr","info")
+                    this.storaging.errStoraging('qzone',`${option.url}`,task.id,`qzone  ${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","info")
                     return
                 }
             })

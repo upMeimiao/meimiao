@@ -1316,7 +1316,7 @@ const acfunJudgeErr = (options) => {
     // logger.debug("acfunJudgeErr  options=================",options)
     let errObj = JSON.parse(options.result),
         emailOptions = {
-            "platform": "acfn",
+            "platform": "acfun",
             "urlDesc": "",
             "curUrl": options.curUrl,
             "bid": errObj.bid,

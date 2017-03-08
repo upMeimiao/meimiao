@@ -277,7 +277,7 @@ class tencentDealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"playNumErr","view")
+                        this.storaging.errStoraging('tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","view")
                         return
                     }
                 })

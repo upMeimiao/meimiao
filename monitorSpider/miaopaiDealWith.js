@@ -229,7 +229,7 @@ class miaopaiDealWith {
                             return
                         }
                         if(result > data.play_num){
-                            this.storaging.errStoraging('miaopai',`http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+${data.aid}+"&vend=miaopai`,task.id,`秒拍${data.aid}播放量减少`,"playNumErr","videos")
+                            this.storaging.errStoraging('miaopai',`http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+${data.aid}+"&vend=miaopai`,task.id,`秒拍${data.aid}播放量减少${result}(纪录)/${data.play_num}(本次)`,"playNumErr","videos")
                         }
                     })
                     this.storaging.sendDb(data)

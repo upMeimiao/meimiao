@@ -346,11 +346,11 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('v1',`${option.url}`,task.id,`v1视频${media.aid}播放量减少`,"playNumErr","vidInfo")
+                    this.storaging.errStoraging('v1',`${option.url}`,task.id,`v1视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","vidInfo")
                     return
                 }
             })
-            logger.debug("v1 media==============",media)
+            // logger.debug("v1 media==============",media)
             this.storaging.sendDb(media)
             callback(null,result.body.obj.videoDetail)
         })

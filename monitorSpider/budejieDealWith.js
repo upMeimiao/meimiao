@@ -145,7 +145,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('budejie',`${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`,task.id,`budejie视频${media.aid}播放量减少`,"playNumErr","list")
+                        this.storaging.errStoraging('budejie',`${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`,task.id,`budejie视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","list")
                         return
                     }
                 })

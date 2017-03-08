@@ -192,7 +192,7 @@ class youkuDealWith {
                             }
                             if(result > videos[index].total_vv){
                                 // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
-                                this.storaging.errStoraging("youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"playNumErr","videos")
+                                this.storaging.errStoraging("youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少${result}(纪录)/${videos[index].total_vv}(本次)`,"playNumErr","videos")
                                 return
                             }
                         })

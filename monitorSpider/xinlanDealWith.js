@@ -177,8 +177,8 @@ class dealWith {
                     logger.debug("读取redis出错")
                     return
                 }
-                if(result > media.save_num){
-                    this.storaging.errStoraging('xinlan',`${option.url}`,task.id,`mgtv视频${vid}保存量减少`,"playNumErr","save")
+                if(result > media.play_num){
+                    this.storaging.errStoraging('xinlan',`${option.url}`,task.id,`mgtv视频${vid}保存量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","save")
                     return
                 }
             })

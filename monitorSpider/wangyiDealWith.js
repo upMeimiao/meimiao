@@ -270,7 +270,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`wangyi视频${media.aid}播放量减少`,"playNumErr","paly")
+                    this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`wangyi视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","paly")
                     return
                 }
             })

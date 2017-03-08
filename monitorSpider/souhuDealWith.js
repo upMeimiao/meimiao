@@ -279,7 +279,7 @@ class souhuDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少`,"playNumErr","info")
+                    this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","info")
                     return
                 }
             })
