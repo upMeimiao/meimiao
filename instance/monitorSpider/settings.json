@@ -159,6 +159,69 @@
   			"list": "http://my.tv.sohu.com/user/wm/56ta/v.do?sortType=2&size=20&callback=jsonp&uid=",
   			"video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
   			"comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk"
+		},
+		"acfun":{
+			"userInfo": "http://api.aixifan.com/users/",
+  			"media": "http://www.aixifan.com/u/contributeList.aspx?pageSize=10&channelId=0&userId="
+		},
+		"weibo":{
+			"userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=32b86df0&profile_entry_key=1&user_domain=",
+  			"videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=350a1d30&count=24&containerid="
+		},
+		"ifeng":{
+			"medialist": "http://vcis.ifeng.com/api/weMediaVideoList?type=new&pageSize=20&weMediaID=",
+			"info": "http://vcis.ifeng.com/api/videoGuid?adapterNo=7.1.0&protocol=1.0.0&guid="
+		},
+		"wangyi":{
+			"userInfo": "http://c.m.163.com/nc/topicset/home/android/",
+  			"videoInfo": "http://c.m.163.com/nc/subscribe/list/"
+		},
+		"uctt":{
+
+		},
+		"mgtv":{
+			"userInfo":"http://vc.mgtv.com/v2/dynamicinfo?",
+  			"listVideo":"http://pcweb.api.mgtv.com/variety/showlist?collection_id=",
+  			"videoInfo":"http://pcweb.api.mgtv.com/player/video?video_id="
+		},
+		"baijia":{
+			"videoList":"http://baijiahao.baidu.com/api/content/article/listall?sk=super&ak=super&_skip=0&status=in:publish,published&_preload_statistic=1&_timg_cover=50,172,1000&_cache=1&app_id=",
+  			"sendFan":"http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
+		},
+		"qzone":{
+			"listVideo":"https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_act_all?count=20&hostuin=",
+  			"listVideo2":"https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_act_all?scope=0&filter=all&flag=1&refresh=0&firstGetGroup=0&mixnocache=0&scene=0&begintime=undefined&icServerTime=&count=20&sidomain=qzonestyle.gtimg.cn&useutf8=1&outputhtmlfeed=1&refer=2&r=0.8571641726123154&g_tk=569621886&hostuin=",
+  			"videoInfo":"https://h5.qzone.qq.com/webapp/jsonp/videoRec/getRecommVideoList?scene=2&uin="
+		},
+		"cctv":{
+			"videoInfo":"http://xiyou.cctv.com/interface/index?videoId=",
+  			"fans":"http://my.xiyou.cntv.cn/api/user/getuserinfo?&format=json&visit_id=0&snap=30&user_id="
+		},
+		"pptv":{
+			"listVideo":"http://apis.web.pptv.com/show/videoList?from=web&version=1.0.0&format=jsonp&vt=22",
+  			"videoInfo":"https://h5.qzone.qq.com/webapp/jsonp/videoRec/getRecommVideoList?scene=2&uin="
+		},
+		"xinlan":{
+			"listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
+  			"videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId="
+		},
+		"v1":{
+			"videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid="
+		},
+		"fengxing":{
+			"videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid="
+		},
+		"huashu":{
+			"videoList":"http://clientapi.wasu.cn/AggPhone/vodinfo/id/",
+  			"videoList2":"http://clientapi.wasu.cn/Phone/vodinfo/id/"
+		},
+		"baofeng":{
+
+		},
+		"baiduvideo":{
+			"videoAlbum":"http://v.baidu.com/i/albumlist?type=2&id=",
+  			"videoList":"http://v.baidu.com/i/albumvideos?type=time&id=",
+  			"videoInfo":"http://xiyou.cctv.com/interface/index?videoId="
 		}
 	}
 }

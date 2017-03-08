@@ -191,7 +191,7 @@ class dealWith {
         let time = data.uploadtime,
             a_create_time = time.substring(0,10),
             media = {
-                author: data.nick,
+                author: task.name,
                 platform: 14,
                 bid: task.id,
                 aid: data.vid,
@@ -212,7 +212,7 @@ class dealWith {
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频${media.aid}播放量减少`,"resultErr","info")
+                this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频${media.aid}播放量减少`,"playNumErr","info")
                 return
             }
         })

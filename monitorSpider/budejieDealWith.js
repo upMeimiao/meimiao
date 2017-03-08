@@ -85,6 +85,10 @@ class dealWith {
                         sign++
                         return cb()
                     }
+                    if(!result){
+                        this.storaging.errStoraging('btime',option.url,task.id,"budejielist接口无返回结果","resultErr","list")
+                        return cb()
+                    }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
@@ -95,7 +99,7 @@ class dealWith {
                     }
                     let data = result.list
                     np = result.info.np
-                    this.deal( task, data, () => {
+                    this.deal( task, data, np,() => {
                         sign++
                         cb()
                     })
@@ -106,7 +110,7 @@ class dealWith {
             }
         )
     }
-    deal ( task, list, callback ) {
+    deal ( task, list, np, callback ) {
         let index = 0,video,media
         async.whilst(
             () => {
@@ -119,7 +123,7 @@ class dealWith {
                     return cb()
                 }
                 media = {
-                    author: video.u.name,
+                    author: task.name,
                     platform: 18,
                     bid: task.id,
                     aid: video.id,
@@ -141,7 +145,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('budejie',`${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`,task.id,`budejie视频${media.aid}播放量减少`,"resultErr","list")
+                        this.storaging.errStoraging('budejie',`${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`,task.id,`budejie视频${media.aid}播放量减少`,"playNumErr","list")
                         return
                     }
                 })

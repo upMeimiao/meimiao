@@ -45,6 +45,14 @@ class leDealWith {
                 this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"total")
                 return callback(err)
             }
+            if(!result){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口无返回数据","resultErr","total")
+                return callback()
+            }
+            if(!result.body){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口返回数据为空","resultErr","total")
+                return callback()
+            }
             try {
                 result = eval("("+result.body+")")
             } catch (e){
@@ -87,8 +95,12 @@ class leDealWith {
                         this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
-                    if(!result || !result.body){
-                        this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口无返回数据","responseErr","list")
+                    if(!result){
+                        this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口无返回数据","resultErr","list")
+                        return
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口无返回数据","resultErr","list")
                         return
                     }
                     try {
@@ -136,7 +148,7 @@ class leDealWith {
         async.parallel(
             [
                 ( callback ) => {
-                    this.getInfo( id, ( err, data ) =>{
+                    this.getInfo( task, id, ( err, data ) =>{
                         if(err){
                             return callback(err)
                         }
@@ -144,7 +156,7 @@ class leDealWith {
                     })
                 },
                 ( callback ) => {
-                    this.getExpr( id, ( err, time ) => {
+                    this.getExpr( task, id, ( err, time ) => {
                         if(err){
                             return callback(err)
                         }
@@ -152,7 +164,7 @@ class leDealWith {
                     })
                 },
                 ( callback ) => {
-                    this.getDesc( id, ( err, data ) => {
+                    this.getDesc( task, id, ( err, data ) => {
                         if(err){
                             return callback(err)
                         }
@@ -193,7 +205,7 @@ class leDealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频${media.aid}播放量减少`,"resultErr","info")
+                        this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频${media.aid}播放量减少`,"playNumErr","info")
                         return
                     }
                 })
@@ -202,7 +214,7 @@ class leDealWith {
             }
         )
     }
-    getInfo ( id, callback ) {
+    getInfo ( task, id, callback ) {
         let option = {
             url: api.le.info + id + "&_=" + (new Date()).getTime(),
             referer:`http://www.le.com/ptv/vplay/${id}.html`,
@@ -224,6 +236,7 @@ class leDealWith {
                 return callback(err)
             }
             //logger.debug(result.body)
+            
             let backData
             try {
                 backData = JSON.parse(result.body)
@@ -244,7 +257,7 @@ class leDealWith {
             callback(null,info)
         })
     }
-    getExpr ( id, callback ) {
+    getExpr ( task, id, callback ) {
         const option = {
             url: `http://www.le.com/ptv/vplay/${id}.html`,
             ua: 1
@@ -260,8 +273,16 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"Expr")
+                this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"Expr")
                 return callback( err )
+            }
+            if(!result){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取Expr接口无返回结果","resultErr","Expr")
+                return callback()
+            }
+            if(!result.body){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取Expr接口返回结果为空","resultErr","Expr")
+                return callback()
             }
             const $ = cheerio.load(result.body),
                 timeDom = $('p.p_02 b.b_02'),
@@ -271,11 +292,11 @@ class leDealWith {
                 timeDom3 = $('li.li_04 em'),
                 descDom3 = $('li_08 em p')
             if(!timeDom.length && !timeDom2.length && !timeDom3.length){
-                this.storaging.errStoraging('le',option.url,id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
+                this.storaging.errStoraging('le',option.url,task.id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
                 return callback(true)
             }
             if(!descDom.length && !descDom2.length && !descDom3.length){
-                this.storaging.errStoraging('le',option.url,id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
+                this.storaging.errStoraging('le',option.url,task.id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
                 return callback(true)
             }
             let time,desc
@@ -315,7 +336,7 @@ class leDealWith {
     //         callback(null,moment(time).unix())
     //     })
     // }
-    getDesc ( id, callback ) {
+    getDesc ( task, id, callback ) {
         let option = {
             url: api.le.desc + id,
             referer: 'http://m.le.com/vplay_' + id +'.html'
@@ -331,8 +352,16 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"Desc")
+                this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"Desc")
                 return callback(null,null)
+            }
+            if(!result){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取Desc接口无返回结果","resultErr","Desc")
+                return callback()
+            }
+            if(!result.body){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取Desc接口返回结果为空","resultErr","Desc")
+                return callback()
             }
             try{
                 result = JSON.parse(result.body)
@@ -344,8 +373,7 @@ class leDealWith {
             }
             result = result.data.introduction
             if(!result){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取视频描述信息接口返回结果为空","resultErr","Desc")
-                return callback(null,null)
+                return
             }
             let backData = {
                 desc: result.video_description || '',

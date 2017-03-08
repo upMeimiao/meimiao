@@ -205,7 +205,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('baomihua',`${api.baomihua.playNum}${task.id}&flvid=${media.aid}`,task.id,`爆米花视频${media.aid}播放量减少`,"resultErr","playNum")
+                    this.storaging.errStoraging('baomihua',`${api.baomihua.playNum}${task.id}&flvid=${media.aid}`,task.id,`爆米花视频${media.aid}播放量减少`,"playNumErr","playNum")
                     return
                 }
             })

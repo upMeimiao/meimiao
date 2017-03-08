@@ -53,6 +53,9 @@ class dealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return 
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e){
@@ -60,7 +63,7 @@ class dealWith {
                 return callback(e)
             }
             if( result.status != 'success'){
-                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取user接口返回信息状态码错误","responseErr","user")
+                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取user接口返回信息状态码错误","statusErr","user")
                 return callback(true)
             }
             let fans_str = result.result.channels[task.id].replace('人订阅',''),
@@ -94,6 +97,9 @@ class dealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return 
+            }
             try{
                 result = JSON.parse( result.body )
             } catch (e){
@@ -101,7 +107,7 @@ class dealWith {
                 return callback(e)
             }
             if( result.status != 'success' ){
-                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取interestId接口返回信息状态码错误","responseErr","interestId")
+                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取interestId接口返回信息状态码错误","statusErr","interestId")
                 return callback(result.status)
             }
             if( result.result.length == 0){

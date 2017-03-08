@@ -87,7 +87,11 @@ class toutiaoDealWith {
                 return callback(err)
             }
             if(!result){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口无返回值","responseErr","user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口无返回值","resultErr","user")
+                return callback()
+            }
+            if(!result.body){
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口无返回值","resultErr","user")
                 return callback()
             }
             try{
@@ -142,6 +146,11 @@ class toutiaoDealWith {
                 return
             }
             if(!result){
+                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","userId")
+                return
+            }
+            if(!result.body){
+                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","userId")
                 return
             }
             try{
@@ -186,6 +195,14 @@ class toutiaoDealWith {
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
+                            return cb()
+                        }
+                        if(!result){
+                            this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
+                            return cb()
+                        }
+                        if(!result.body){
+                            this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
                             return cb()
                         }
                         times = 0
@@ -241,6 +258,14 @@ class toutiaoDealWith {
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
+                                return cb()
+                            }
+                            if(!result){
+                                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
+                                return cb()
+                            }
+                            if(!result.body){
+                                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
                                 return cb()
                             }
                             times = 0
@@ -315,7 +340,7 @@ class toutiaoDealWith {
             // logger.debug(video)
             return callback(video)
         }
-        media.author = video.detail_source || video.source || task.name
+        media.author = task.name
         media.platform = 6
         media.bid = task.id
         media.aid = vid
@@ -351,7 +376,7 @@ class toutiaoDealWith {
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"resultErr","play")
+                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"playNumErr","play")
                 return
             }
         })
@@ -366,6 +391,14 @@ class toutiaoDealWith {
             this.storaging.totalStorage ("toutiao",option.url,"play")
             if(err){
                 return callback(err)
+            }
+            if(!result){
+                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao play接口无返回数据","resultErr","play")
+                return callback()
+            }
+            if(!result.body){
+                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao play接口无返回数据","resultErr","play")
+                return callback()
             }
             try{
                 result = JSON.parse(result.body)

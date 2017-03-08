@@ -63,8 +63,11 @@ class tencentDealWith {
             // }
             this.storaging.totalStorage ("tencent",option.url,"total")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"total")
-            if(!result || !result.body){
+            if(!result){
                 return 
+            }
+            if(!result.body){
+                return
             }
             try {
                 result = JSON.parse(result.body.substring(6, result.body.length - 1))
@@ -112,8 +115,11 @@ class tencentDealWith {
             // }
             this.storaging.totalStorage ("tencent",option.url,"user")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"user")
-            if(!result || !result.body){
+            if(!result){
                 return 
+            }
+            if(!result.body){
+                return
             }
             try {
                 result = eval(result.body)
@@ -163,8 +169,12 @@ class tencentDealWith {
                         return cb()
                     }
                     //logger.debug(back.body)
-                    if(!result || !result.body){
+                    if(!result){
                         this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频list接口无返回数据","responseErr","list")
+                        return cb()
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频list接口返回数据为空","responseErr","list")
                         return cb()
                     }
                     try {
@@ -267,7 +277,7 @@ class tencentDealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"resultErr","view")
+                        this.storaging.errStoraging('tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"playNumErr","view")
                         return
                     }
                 })
@@ -299,6 +309,9 @@ class tencentDealWith {
             this.storaging.totalStorage ("tencent",option.url,"view")
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"view")
             if(!result){
+                return
+            }
+            if(!result.body){
                 return
             }
             let backData =eval(result.body),
@@ -334,6 +347,9 @@ class tencentDealWith {
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"comment")
             if(!result){
                 return 
+            }
+            if(!result.body){
+                return
             }
             let backData
             try {
@@ -380,6 +396,9 @@ class tencentDealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return
+            }
             try {
                 result = JSON.parse(result.body)
             } catch ( e ) {
@@ -409,6 +428,9 @@ class tencentDealWith {
             this.storaging.judgeRes ("tencent",option.url,task.id,err,result,"vidTag")
             if(!result){
                 return 
+            }
+            if(!result.body){
+                return
             }
             try{
                 result = eval(result.body)

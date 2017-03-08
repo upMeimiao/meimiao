@@ -1,7 +1,7 @@
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
 const Redis = require('ioredis')
-const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
+const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -28,25 +28,26 @@ class storage{
 	        return
 	    }
 	    if(!res){
-	        this.errStoraging(platform,url,bid,`返回数据为空`,"responseErr",urlDesc)
+	        this.errStoraging(platform,url,bid,`返回数据为空`,"resultErr",urlDesc)
 	        return
 	    }
-	    if(res && res.statusCode != 200){
-	        this.errStoraging(platform,url,bid,res.errDesc,"responseErr",urlDesc)
+	    if(res && res.statusCode && res.statusCode != 200 || res && res.status && res.status != 200){
+	        this.errStoraging(platform,url,bid,res.errDesc,"statusErr",urlDesc)
 	        return
 	    }
     }
     sendDb (media){
-	    let   platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
-                  ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
-                  ,"tv56"/*,"acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
-                  ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"*/],
-	        curPlatform,i
-	    for(i = 0; i < platformArr.length; i++){
-	        if(i + 1 == media.platform){
-	            curPlatform = platformArr[i]
-	        }
-	    }
+	    // let   platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
+     //              ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
+     //              ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
+     //              ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"],
+	    //     curPlatform,i
+	    // for(i = 0; i < platformArr.length; i++){
+	    //     if(i + 1 == media.platform){
+	    //         curPlatform = platformArr[i]
+	    //     }
+	    // }
+	    let curPlatform = media.author
 	    mSpiderClint.hset(`apiMonitor:${curPlatform}:play_num:${media.aid}`,"play_num",media.play_num,(err,result)=>{
 	        if ( err ) {
 	            logger.error( '加入接口监控数据库出现错误：', err )
@@ -124,6 +125,14 @@ class storage{
 						"desc": ""
 					},
 					"timeoutErr":{
+						"times": 0,
+						"desc": ""
+					},
+					"playNumErr":{
+						"times": 0,
+						"desc": ""
+					},
+					"statusErr":{
 						"times": 0,
 						"desc": ""
 					}

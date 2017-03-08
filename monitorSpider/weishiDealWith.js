@@ -93,8 +93,16 @@ class dealWith {
                         sign++
                         return cb()
                     }
+                    if(!result){
+                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口无返回数据","resultErr","list")
+                        return cb()
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口无返回数据","resultErr","list")
+                        return cb()
+                    }
                     if(result.statusCode != 200){
-                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口状态码错误","responseErr","list")
+                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口状态码错误","statusErr","list")
                         sign++
                         return cb()
                     }
@@ -142,7 +150,7 @@ class dealWith {
             (cb) => {
                 video = list[index]
                 media = {
-                    author: video.name,
+                    author: task.name,
                     platform: 16,
                     bid: task.id,
                     aid: video.id,
@@ -176,7 +184,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('weishi',`${url}`,task.id,`微视视频${media.aid}播放量减少`,"resultErr","list")
+                        this.storaging.errStoraging('weishi',`${url}`,task.id,`微视视频${media.aid}播放量减少`,"playNumErr","list")
                         return
                     }
                 })

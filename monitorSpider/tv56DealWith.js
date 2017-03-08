@@ -224,10 +224,11 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('tv56',api.tv56.video + `${id}&_=${new Date().getTime()}`,task.id,`tv56 ${media.aid}播放量减少`,"resultErr","info")
+                        this.storaging.errStoraging('tv56',api.tv56.video + `${id}&_=${new Date().getTime()}`,task.id,`tv56 ${media.aid}播放量减少`,"playNumErr","info")
                         return
                     }
                 })
+                logger.debug("tv56 media==============",media)
                 this.storaging.sendDb(media)
                 //logger.debug(media)
                 callback()
@@ -253,9 +254,13 @@ class dealWith {
                 this.storaging.errStoraging('tv56',option.url,task.id,err.code || err,errType,"info")
                 return callback(error)
             }
+            if(!meta){
+                this.storaging.errStoraging('tv56',option.url,task.id,"tv56 info接口无返回数据","responseErr","info")
+                return callback()
+            }
             if(meta.status != 200){
                 logger.error(`getInfo请求状态有误: ${meta.status}`)
-                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取info接口请求状态有误","responseErr","info")
+                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取info接口请求状态有误","statusErr","info")
                 return callback(true)
             }
             try {

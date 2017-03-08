@@ -95,6 +95,14 @@ class dealWith {
                         this.storaging.errStoraging('neihan',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
+                    if(!result){
+                        this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取list接口无返回内容","responseErr","list")
+                        return cb()
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取list接口无返回内容","responseErr","list")
+                        return cb()
+                    }
                     if(result.statusCode != 200){
                         this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子list接口状态码错误","list")
                         return cb()
@@ -167,7 +175,7 @@ class dealWith {
             title = 'btwk_caihongip'
         }
         let media = {
-            author: group.user.name,
+            author: task.name,
             platform: 19,
             bid: task.id,
             aid: group.id_str,
@@ -196,7 +204,7 @@ class dealWith {
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('neihan',`${url}`,task.id,`内涵段子${media.aid}播放量减少`,"resultErr","list")
+                this.storaging.errStoraging('neihan',`${url}`,task.id,`内涵段子${media.aid}播放量减少`,"playNumErr","list")
                 return
             }
         })

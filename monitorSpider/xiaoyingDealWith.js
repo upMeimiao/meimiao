@@ -101,8 +101,12 @@ class dealWith {
                             errType = "responseErr"
                         }
                         // logger.error(errType)
-                        this.storaging.errStoraging('xiaoying',option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging('xiaoying',options.url,task.id,err.code || err,errType,"list")
                         return callback(err);
+                    }
+                    if(!response || !body){
+                        this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取list接口无返回数据","responseErr","list")
+                        return callback()
                     }
                     try{
                         body = JSON.parse(body);
@@ -155,6 +159,9 @@ class dealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return
+            }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
@@ -168,7 +175,7 @@ class dealWith {
             let time = result.videoinfo.publishtime,
                 a_create_time = moment(time, ["YYYYMMDDHHmmss"], true).unix(),
                 media = {
-                    author: result.videoinfo.username,
+                    author: task.name,
                     platform: 17,
                     bid: task.id,
                     aid: result.videoinfo.puid,
@@ -189,10 +196,11 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('xiaoying',`${option.url}`,task.id,`爱奇艺视频${media.aid}播放量减少`,"resultErr","info")
+                    this.storaging.errStoraging('xiaoying',`${option.url}`,task.id,`爱奇艺视频${media.aid}播放量减少`,"playNumErr","info")
                     return
                 }
             })
+            logger.debug("xiaoying media==============",media)
             this.storaging.sendDb(media)
             callback()
         })

@@ -39,7 +39,7 @@ class dealWith {
                 return 
             }
             if(result.statusCode != 200){
-                this.storaging.errStoraging('yy',option.url,task.id,"yy获取total接口状态码错误","doWithResErr","total")
+                this.storaging.errStoraging('yy',option.url,task.id,"yy获取total接口状态码错误","statusErr","total")
                 return callback(true)
             }
             let $ = cheerio.load(result.body),
@@ -119,6 +119,14 @@ class dealWith {
                         this.storaging.errStoraging('yy',option.url,task.id,err.code || err,errType,"live")
                         return cb()
                     }
+                    if(!result){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取live接口无返回数据","resultErr","live")
+                        return cb()
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取live接口无返回数据","resultErr","live")
+                        return cb()
+                    }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
@@ -174,6 +182,14 @@ class dealWith {
                         this.storaging.errStoraging('yy',option.url,task.id,err.code || err,errType,"slist")
                         return cb()
                     }
+                    if(!result){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取slist接口无返回数据","resultErr","slist")
+                        return cb()
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取slist接口无返回数据","resultErr","slist")
+                        return cb()
+                    }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
@@ -227,6 +243,14 @@ class dealWith {
                         }
                         // logger.error(errType)
                         this.storaging.errStoraging('yy',option.url,task.id,err.code || err,errType,"dlist")
+                        return cb()
+                    }
+                    if(!result){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取dlist接口无返回数据","resultErr","dlist")
+                        return cb()
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取dlist接口无返回数据","resultErr","dlist")
                         return cb()
                     }
                     try{
@@ -302,7 +326,7 @@ class dealWith {
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频${media.aid}播放量减少`,"resultErr","list")
+                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频${media.aid}播放量减少`,"playNumErr","list")
                 return
             }
         })
@@ -328,7 +352,7 @@ class dealWith {
         let time = data.addtime,
             a_create_time = moment(time).format('X'),
             media = {
-                author: data.ownername,
+                author: task.name,
                 platform: 20,
                 bid: task.id,
                 aid: data.resid,
