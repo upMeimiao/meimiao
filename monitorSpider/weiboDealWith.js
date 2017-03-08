@@ -218,7 +218,7 @@ class dealWith {
                         result = JSON.parse(result.body)
                     }catch (e){
                         logger.error('json数据解析失败')
-                        this.storaging.errStoraging('list',option.url,task.id,"微博list接口json解析错误","doWithResErr","list")
+                        this.storaging.errStoraging('weibo',option.url,task.id,"微博list接口json解析错误","doWithResErr","list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -230,7 +230,7 @@ class dealWith {
                     }
                     if( result.cards == undefined ){
                         logger.debug('当前列表页的结构有问题，重新请求')
-                        this.storaging.errStoraging('list',option.url,task.id,"微博list接口返回的列表页的结构有问题","resultErr","list")
+                        this.storaging.errStoraging('weibo',option.url,task.id,"微博list接口返回的列表页的结构有问题","resultErr","list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
