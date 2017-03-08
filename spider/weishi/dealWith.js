@@ -1,5 +1,6 @@
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 class dealWith {
@@ -20,10 +21,10 @@ class dealWith {
     }
     getUser ( task, callback ) {
         let option = {
-            url: this.settings.userInfo + task.id,
+            url: this.settings.spiderAPI.weishi.userInfo + task.id,
             referer: `http://weishi.qq.com/u/${task.id}`
         }
-        request.get( option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -68,10 +69,10 @@ class dealWith {
     }
     sendUser (user,callback){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回微视用户 ${user.bid} 连接服务器失败`)
@@ -99,7 +100,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -122,7 +123,9 @@ class dealWith {
     getList ( task, total, callback ) {
         let sign = 1,lastid,pagetime,
             page,
-            option = {}
+            option = {},
+            r_data,
+            data
         if(total % 20 == 0 ){
             page = total / 20
         }else{
@@ -135,12 +138,12 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 if(!lastid){
-                    option.url = this.settings.list + `${task.id}&_=${new Date().getTime()}`
+                    option.url = this.settings.spiderAPI.weishi.list + `${task.id}&_=${new Date().getTime()}`
                 }else{
-                    option.url = this.settings.list + `${task.id}&lastid=${lastid}&pagetime=${pagetime}&_=${new Date().getTime()}`
+                    option.url = this.settings.spiderAPI.weishi.list + `${task.id}&lastid=${lastid}&pagetime=${pagetime}&_=${new Date().getTime()}`
                 }
                 option.referer = `http://weishi.qq.com/u/${task.id}`
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ' + err )
                         sign++
@@ -165,8 +168,8 @@ class dealWith {
                         sign++
                         return cb()
                     }
-                    let r_data = result.data,
-                        data = r_data.info
+                    r_data = result.data
+                    data = r_data.info
                     if(Object.prototype.toString.call(data) !== '[object Array]'){
                         sign++
                         return cb()
@@ -221,7 +224,7 @@ class dealWith {
                 if(!media.tag){
                     delete media.tag
                 }
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 index++
                 cb()
             },
@@ -266,15 +269,6 @@ class dealWith {
             return _classArr.join(',')
         }
         return ''
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`微视 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

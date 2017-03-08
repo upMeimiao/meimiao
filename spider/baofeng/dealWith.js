@@ -4,7 +4,8 @@
 
 const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require( '../lib/request' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 class dealWith {
@@ -115,18 +116,17 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.vid,
-                    title: video.v_sub_title.substr(0,100).replace(/"/g,''),
+                    title: spiderUtils.stringHandling(video.v_sub_title,100),
                     a_create_time: video.update_time.substring(0,10),
                     long_t: video.video_time/1000,
                     support: result[0].u,
                     step: result[0].d,
-                    desc: result[1].desc.substr(0,100).replace(/"/g,''),
+                    desc: spiderUtils.stringHandling(result[1].desc,100),
                     type: result[1].types,
                     v_url: 'http://www.baofeng.com/play/'+ task.bid +'/play-'+ task.id +'-drama-'+ video.location +'.html',
                     comment_num: result[2]
                 }
-                //logger.info(media.comment_num)
-                this.sendCache(media)
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
@@ -186,15 +186,6 @@ class dealWith {
             }
             return callback(null,result.total)
         })
-    }
-    sendCache (media){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`暴风影音 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

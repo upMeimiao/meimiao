@@ -2,8 +2,8 @@
  * Created by ifable on 16/9/8.
  */
 const kue = require( 'kue' )
-const request = require('../lib/request.js')
-const myRedis = require( '../lib/myredis.js' )
+const request = require('../../lib/request.js')
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -91,7 +91,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('tv56',8, (job,done) => {
+        queue.process('tv56',this.settings.concurrency, (job,done) => {
             logger.trace( 'Get tv56 task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
@@ -107,7 +107,7 @@ class spiderCore {
                     }
                     done(null)
                     this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    request.post( logger, {url:settings.sendToServer[2], data:{platform:work.p,bid: work.id}},(err,result) => {
+                    request.post( logger, {url:settings.update, data:{platform:work.p,bid: work.id}},(err,result) => {
                         if(err){
                             return
                         }

@@ -4,7 +4,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -103,7 +103,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('toutiao',8, (job,done) => {
+        queue.process('toutiao',this.settings.concurrency, (job,done) => {
             logger.trace( 'Get toutiao task!' )
             let work = job.data,
                 key = work.p + ':' + work.id

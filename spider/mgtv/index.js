@@ -4,7 +4,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -59,7 +59,7 @@ class spiderCore {
             }
             logger.debug( '创建数据库连接完毕' )
             this.deal()
-            //this.test()
+            // this.test()
         })
     }
     start () {
@@ -91,7 +91,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('mgtv',8, (job,done) => {
+        queue.process('mgtv',this.settings.concurrency, (job,done) => {
             logger.trace( 'Get mgtv task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
@@ -107,7 +107,7 @@ class spiderCore {
                     }
                     done(null)
                     this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    request.post( settings.sendToServer[1], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+                    request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )
                             return

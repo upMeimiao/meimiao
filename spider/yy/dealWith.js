@@ -2,7 +2,8 @@
  * Created by yunsong on 16/8/5.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 const cheerio = require( 'cheerio' )
 const moment = require( 'moment' )
 
@@ -26,9 +27,9 @@ class dealWith {
     getTotal (task,callback){
         logger.debug('开始获取视频总数')
         let option = {
-            url: this.settings.userInfo + task.id
+            url: this.settings.spiderAPI.yy.userInfo + task.id
         }
-        request.get(option,(err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err)
@@ -91,10 +92,10 @@ class dealWith {
     }
     sendUser ( user,callback ){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post(option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 logger.info(`返回YY用户 ${user.bid} 连接服务器失败`)
@@ -122,7 +123,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -157,8 +158,8 @@ class dealWith {
             },
             (cb) => {
                 logger.debug('开始获取第' + sign + '页直播回放列表')
-                option.url = this.settings.liveList + task.id + "&pageNum=" + sign
-                request.get( option, (err,result) => {
+                option.url = this.settings.spiderAPI.yy.liveList + task.id + "&pageNum=" + sign
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error('occur error: ',err)
                         return cb()
@@ -204,9 +205,9 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页神曲视频列表')
                 option = {
-                    url: this.settings.shenquList + task.id + "&p=" + sign
+                    url: this.settings.spiderAPI.yy.shenquList + task.id + "&p=" + sign
                 }
-                request.get( option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error('occur error: ',err)
                         return cb()
@@ -252,9 +253,9 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页短拍视频列表')
                 option = {
-                    url: this.settings.duanpaiList + task.id + "&p=" + sign
+                    url: this.settings.spiderAPI.yy.duanpaiList + task.id + "&p=" + sign
                 }
-                request.get( option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error('occur error: ',err)
                         return cb()
@@ -326,7 +327,7 @@ class dealWith {
             v_img: data.imageUrl,
             class: type
         }
-        this.sendCache( media )
+        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
         callback()
     }
     getInfo ( task, type, data, callback ) {
@@ -368,17 +369,9 @@ class dealWith {
         if(!media.long_t){
             delete media.long_t
         }
-        this.sendCache( media )
+        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
         callback()
     }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`yy ${media.aid} 加入缓存队列`)
-        } )
-    }
+    
 }
 module.exports = dealWith

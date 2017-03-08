@@ -4,7 +4,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -14,6 +14,7 @@ class spiderCore {
         settings = _settings
         this.settings = settings
         this.redis = settings.redis
+        this.ppi = ''
         this.dealWith = new( require('./dealWith'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
@@ -64,13 +65,28 @@ class spiderCore {
     }
     start () {
         logger.trace('启动函数')
-        this.assembly()
+        this.getppi(() => {
+            this.assembly()
+        })
+        
+    }
+    getppi (callback) {
+        this.dealWith.getppi((err, result) => {
+            if(err){
+                return
+            }
+            this.ppi = result
+            if(callback){
+                callback()
+            }
+        })
     }
     test () {
         let work = {
-            id: 8063943,
-            name: '飞碟说',
-            p: 31
+            id: 8059501,
+            name: 'WWE中文字幕',
+            p: 31,
+            encodeId: 5
         }
         this.dealWith.todo( work, (err, total) => {
             logger.debug(total)
@@ -91,7 +107,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('pptv',8, (job,done) => {
+        queue.process('pptv',this.settings.concurrency, (job,done) => {
             logger.trace( 'Get pptv task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
@@ -107,7 +123,7 @@ class spiderCore {
                     }
                     done(null)
                     this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    request.post( settings.sendToServer[1], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+                    request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )
                             return

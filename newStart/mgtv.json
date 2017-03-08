@@ -1,7 +1,7 @@
 {
   "name"        : "芒果TV",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","mgtv","-a","mgtv"],
+  "args"        : ["-i","master","-a","mgtv"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

@@ -3,7 +3,7 @@
  */
 const kue = require( 'kue' )
 const request = require('request')
-const myRedis = require( '../lib/myredis.js' )
+const myRedis = require( '../../lib/myredis.js' )
 const async = require( 'async' )
 const domain = require('domain')
 
@@ -58,11 +58,23 @@ class spiderCore {
             }
             logger.debug( '创建数据库连接完毕' )
             this.deal()
+            //this.test()
         })
     }
     start () {
         logger.trace('启动函数')
         this.assembly()
+    }
+    test () {
+        let work = {
+            id:'T1431656944632',
+            name:'关爱八卦成长协会',
+            p:25
+        }
+        this.dealWith.todo(work,(err,total) => {
+            logger.debug(total)
+            logger.debug('end')
+        })
     }
     deal () {
         let queue = kue.createQueue({
@@ -78,7 +90,7 @@ class spiderCore {
         })
         queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('wangyi',8,(job,done) => {
+        queue.process('wangyi', this.settings.concurrency, (job,done) => {
             logger.trace( 'Get wangyi task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
@@ -94,7 +106,7 @@ class spiderCore {
                     }
                     done(null)
                     this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                    request.post( settings.sendToServer[2], {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+                    request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )
                             return

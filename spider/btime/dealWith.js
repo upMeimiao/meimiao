@@ -2,8 +2,9 @@
  * Created by yunsong on 16/8/1.
  */
 const async = require('async')
-const request = require('../lib/req')
 const moment = require('moment')
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 
 let logger
 class dealWith {
@@ -42,9 +43,9 @@ class dealWith {
     }
     getUser(task, id, callback){
         let option = {
-            url: this.settings.userInfo + id
+            url: this.settings.spiderAPI.btime.userInfo + id
         }
-        request.get( option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return callback(err.message)
@@ -75,10 +76,10 @@ class dealWith {
     }
     sendUser( user,callback ){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        request.post( option, (err,result) => {
+        request.post(logger, option, (err,result) => {
             if (err) {
                 logger.error('occur error:',err)
                 logger.info(`返回北京时间用户 ${user.bid} 连接服务器失败`)
@@ -106,7 +107,7 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         }
-        request.post( option,(err,result) => {
+        request.post(logger, option,(err,result) => {
             if(err){
                 logger.error( 'occur error : ', err )
                 return
@@ -137,9 +138,9 @@ class dealWith {
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
                 let option = {
-                    url: this.settings.medialist + id + '&pageNo=' + sign + "&lastTime=" + lastTime
+                    url: this.settings.spiderAPI.btime.medialist + id + '&pageNo=' + sign + "&lastTime=" + lastTime
                 }
-                request.get( option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
                         return callback(err)
@@ -218,25 +219,24 @@ class dealWith {
             media.platform = 15
             media.bid = task.id
             media.aid = data.gid
-            media.title = data.title.substr(0,100).replace(/"/g,'')
-            media.desc = data.description.substr(0,100).replace(/"/g,'')
+            media.title = spiderUtils.stringHandling(data.title,100)
+            media.desc = spiderUtils.stringHandling(data.description,100)
             media.play_num = data.click_count
             media.comment_num = result[0]
             media.a_create_time = moment(data.ctime).format('X')
             media.support = result[1].ding
             media.v_url = data.gid
             media.v_img = data.image_url
-            media.long_t = this._long_t(data.duration)
-            //logger.debug(media)
-            this.sendCache( media )
+            media.long_t = spiderUtils.longTime(data.duration)
+            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
     }
     getInfo(info, callback) {
         const option = {
-            url: this.settings.info + info.gid + "&timestamp=" + Math.round(new Date().getTime() / 1000)
+            url: this.settings.spiderAPI.btime.info + info.gid + "&timestamp=" + Math.round(new Date().getTime() / 1000)
         }
-        request.get(option, (err, result) => {
+        request.get(logger, option, (err, result) => {
             if(err){
                 return callback(err)
             }
@@ -263,7 +263,7 @@ class dealWith {
         let option={
             url: `http://api.app.btime.com/api/commentList?protocol=1&timestamp=${Math.round(new Date().getTime() / 1000)}&url=http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${info.gid}&ver=2.3.0`
         }
-        request.get( option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             if(err){
                 return callback(err)
             }
@@ -293,15 +293,6 @@ class dealWith {
             long_t = moment.duration(time).asSeconds()
         }
         return long_t
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`北京时间 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

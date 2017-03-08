@@ -4,6 +4,7 @@
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 const jsonp = function (data) {
     return data
@@ -190,8 +191,9 @@ class dealWith {
                 return sign
             },
             ( cb ) => {
-                if(index > 417){
+                if(index > 209){
                     sign = false
+                    task.total = 24 * (index -1)
                     return cb()
                 }
                 option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
@@ -235,7 +237,7 @@ class dealWith {
         )
     }
     getIds(task, raw, callback) {
-        let index = 0
+        let index = 0,flag = 0
         const option = {
             ua: 1
         }
@@ -247,8 +249,13 @@ class dealWith {
                 option.url = raw[index].link
                 request.get(logger, option, (err, result) => {
                     if(err){
+                        flag++
+                        if(flag > 2){
+                            index++
+                        }
                         return cb()
                     }
+                    flag = 0
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
                         }),
@@ -408,7 +415,7 @@ class dealWith {
                 if(media.comment_num < 0){
                     delete media.comment_num
                 }
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
@@ -548,15 +555,6 @@ class dealWith {
             }
             callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`爱奇艺视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

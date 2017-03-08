@@ -213,6 +213,7 @@ class dealWith {
             (cb) => {
                 if(index > 500){
                     sign = false
+                    task.total = 10 * index
                     return cb()
                 }
                 const {as, cp} = this.getHoney()

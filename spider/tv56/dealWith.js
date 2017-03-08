@@ -4,6 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const fetchUrl = require("fetch").fetchUrl
+const spiderUtils = require('../../lib/spiderUtils')
 const jsonp = function(data){
     return data
 }
@@ -47,7 +48,7 @@ class dealWith {
     }
     getUser ( task, callback ) {
         let option = {
-            url: this.settings.userInfo + `?uids=${task.id}&_=${new Date().getTime()}`,
+            url: this.settings.spiderAPI.tv56.userInfo + `?uids=${task.id}&_=${new Date().getTime()}`,
             ua: 1
         }
         request.get( logger, option, (err, result)=>{
@@ -61,7 +62,6 @@ class dealWith {
                 logger.error(result)
                 return callback(e)
             }
-            //logger.debug(result)
             let userInfo = result.data,user
             if(userInfo.length === 0){
                 logger.error('异常')
@@ -72,20 +72,18 @@ class dealWith {
                 bid: task.id,
                 fans_num: userInfo[0].fansCount
             }
-            /*this.sendUser ( user,(err,result) => {
+            this.sendUser ( user,(err,result) => {
              callback()
-             })*/
+            })
 
             this.sendStagingUser(user)
-            callback()
         })
     }
     sendUser ( user,callback ){
         let option = {
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             data: user
         }
-        //logger.debug(option)
         request.post( logger, option,(err,result) => {
             if(err){
                 logger.debug('发送失败')
@@ -135,10 +133,9 @@ class dealWith {
     getTotal ( task, callback ) {
         let page = 1,
             option = {
-                url: this.settings.list + `${task.id}&_=${new Date().getTime()}`+'&pg='+page,
+                url: this.settings.spiderAPI.tv56.list + `${task.id}&_=${new Date().getTime()}`+'&pg='+page,
                 ua: 1
             }
-        //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if(err){
                 return callback(err)
@@ -150,7 +147,6 @@ class dealWith {
                 logger.info('total error:',result)
                 return callback(e)
             }
-            //logger.debug(result)
             let data = result.data,
                 total = data.count
             task.total = total
@@ -159,23 +155,26 @@ class dealWith {
             }else{
                 page = total / 20
             }
-            //logger.debug(page)
             this.getVideos(task,page, () => {
                 callback()
             })
         })
     }
     getVideos ( task, page, callback ) {
-        let sign = 1,option = {}
+        let sign = 1,option = {},flag = 0
         option.ua = 1
         async.whilst(
             () => {
                 return sign <= Math.min(page,500)
             },
             (cb) => {
-                option.url = this.settings.list + `${task.id}&pg=${sign}&_=${new Date().getTime()}`
+                option.url = this.settings.spiderAPI.tv56.list + `${task.id}&pg=${sign}&_=${new Date().getTime()}`
                 request.get( logger, option, (err, result) => {
                     if(err){
+                        flag++
+                        if (flag > 4){
+                            sign++
+                        }
                         return callback(err)
                     }
                     try {
@@ -183,8 +182,13 @@ class dealWith {
                     } catch (e) {
                         logger.error('json数据解析失败')
                         logger.info('list error:',result)
+                        flag++
+                        if (flag > 4){
+                            sign++
+                        }
                         return callback(e)
                     }
+                    flag = 0
                     let data = result.data,
                         videos = data.list
                     if(!videos){
@@ -259,8 +263,7 @@ class dealWith {
                     comment_num: result[1],
                     a_create_time: video.uploadTime.toString().substr(0,10)
                 }
-                //logger.debug(media)
-                this.sendCache(media)
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
@@ -271,7 +274,7 @@ class dealWith {
                 "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
             }
         }
-        fetchUrl(this.settings.video + `${id}&_=${new Date().getTime()}`, options, (error, meta, body) => {
+        fetchUrl(this.settings.spiderAPI.tv56.video + `${id}&_=${new Date().getTime()}`, options, (error, meta, body) => {
             if(error){
                 logger.error( 'getInfo occur error : ', error )
                 return callback(error)
@@ -287,13 +290,12 @@ class dealWith {
                 logger.info('info error:',body)
                 return callback(e)
             }
-            //logger.debug(body)
             callback(null,body.data)
         })
     }
     getComment ( id, callback ){
         let option = {
-            url: this.settings.comment + `${id}&_=${new Date().getTime()}`,
+            url: this.settings.spiderAPI.tv56.comment + `${id}&_=${new Date().getTime()}`,
         }
         request.get( logger, option, (err, result) => {
             if(err){
@@ -308,15 +310,6 @@ class dealWith {
             }
             callback(null,result.cmt_sum)
         })
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`56视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

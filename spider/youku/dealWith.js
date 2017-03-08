@@ -4,7 +4,7 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( 'request' )
-
+const spiderUtils = require('../../lib/spiderUtils')
 let logger
 
 class dealWith {
@@ -80,7 +80,6 @@ class dealWith {
                     bid: task.id,
                     fans_num: userInfo.followerNum
                 }
-            logger.debug(user)
             this.sendUser ( user,(err,result) => {
                 callback()
             })
@@ -90,7 +89,7 @@ class dealWith {
     sendUser ( user,callback ){
         let options = {
             method: 'POST',
-            url: this.settings.sendToServer[0],
+            url: this.settings.sendFans,
             form: user
         }
         request(options,(err,res,body) => {
@@ -146,7 +145,7 @@ class dealWith {
         let page,
             options = {
                 method: 'GET',
-                url: this.settings.list,
+                url: this.settings.spiderAPI.youku.list,
                 qs: { caller: '1', pg: '1', pl: '20', uid: task.encodeId },
                 headers: {
                     'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
@@ -196,7 +195,7 @@ class dealWith {
             (cb) => {
                 options = {
                     method: 'GET',
-                    url: this.settings.list,
+                    url: this.settings.spiderAPI.youku.list,
                     qs: { caller: '1', pg: sign, pl: '50', uid: task.encodeId },
                     headers: {
                         'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
@@ -221,8 +220,6 @@ class dealWith {
                     }
                     let data = body.data
                     if(!data){
-                        // logger.error('body data : ',sign)
-                        // logger.error(body)
                         sign++
                         return cb()
                     }
@@ -252,7 +249,7 @@ class dealWith {
             method: 'GET',
             url: 'https://openapi.youku.com/v2/videos/show_batch.json',
             qs: {
-                client_id:this.settings.app_key,
+                client_id:this.settings.spiderAPI.youku.app_key,
                 video_ids:ids
             },
             timeout: 5000
@@ -312,8 +309,7 @@ class dealWith {
                     step: result.down_count,
                     a_create_time: video.publishtime
                 }
-                //logger.debug(media)
-                this.sendCache( media )
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 index++
                 cb()
             },
@@ -321,15 +317,6 @@ class dealWith {
                 callback()
             }
         )
-    }
-    sendCache ( media ){
-        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
-            if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
-                return
-            }
-            logger.debug(`优酷视频 ${media.aid} 加入缓存队列`)
-        } )
     }
 }
 module.exports = dealWith

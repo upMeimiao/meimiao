@@ -1,7 +1,7 @@
 {
   "name"        : "状态监控",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","scheduler","-a","monitor"],
+  "args"        : ["-i","master","-a","monitor"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,
