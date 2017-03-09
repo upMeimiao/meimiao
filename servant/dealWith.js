@@ -2159,12 +2159,15 @@ class DealWith {
         })
     }
     baidu ( data, callback ){
-        let urlObj   = URL.parse(data,true),
-            host     = urlObj.hostname,
-            path     = urlObj.pathname,
-            bid      = null,
-            name     = '',
-            option   = {
+        let urlObj     = URL.parse(data,true),
+            host       = urlObj.hostname,
+            path       = urlObj.pathname,
+            bid        = null,
+            name       = '',
+            startIndex = null,
+            endIndex   = null,
+            dataJson   = null,
+            option     = {
                 url : data
             }
         if(host == 'baidu.56.com'){
@@ -2180,16 +2183,21 @@ class DealWith {
                 logger.debug('百度视频的状态码错误',result.statusCode)
                 return callback(true,{code:102,p:37})
             }
-            let $ = cheerio.load(result.body)
-            bid = result.body.match(/pgcTid: \'\d*/).toString().replace('pgcTid: \'','')
-            name = result.body.match(/pgcName: \'[^\x00-\xff]*/).toString().replace('pgcName: \'','')
-            if(!name){
-                name = result.body.match(/pgcName: \'\w*/).toString().replace('pgcName: \'','')
+            result = result.body.replace(/[\s\n\r]/g,'')
+            startIndex = result.indexOf('{pgcName')
+            endIndex = result.indexOf(');}();!function(){varadmis')
+            dataJson = result.substring(startIndex,endIndex)
+            try{
+                dataJson.replace('{','{"').replace(/\'/g,'"').replace(',',',"').replace(/:/g,'":')
+                dataJson = JSON.parse(dataJson)
+            }catch (e){
+                logger.debug('百度视频bid解析失败')
+                logger.info(dataJson)
+                return callback(err,{code:102,p:37})
             }
-            logger.debug(name)
             let res = {
-                id: bid,
-                name: name,
+                id: dataJson.pgcTid,
+                name: dataJson.pgcName,
                 p: 37
             }
             this.baiduAvatar( res.name, (err, avatar) => {
@@ -2199,10 +2207,8 @@ class DealWith {
         })
     }
     baiduAvatar( bname, callback ){
-        let reg = new RegExp(/\w*/)
-        bname = reg.test(bname) ? bname : encodeURIComponent(bname)
         let option = {
-            url: 'http://v.baidu.com/tagapi?type=2&tag='+ bname +'&_='+ new Date().getTime()
+            url: 'http://v.baidu.com/tagapi?type=2&tag='+ encodeURIComponent(bname) +'&_='+ new Date().getTime()
         }
         request.get( option, (err, result) => {
             if(err){
