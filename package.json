@@ -35,8 +35,8 @@
     "nodemailer": "^2.7.2",
     "optimist": "^0.6.1",
     "redis": "^2.6.5",
-    "request": "^2.80.0",
-    "restc": "0.0.4",
+    "request": "^2.81.0",
+    "restc": "0.0.6",
     "socket.io": "^1.7.3"
   },
   "author": {
