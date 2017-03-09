@@ -176,19 +176,15 @@ const vm = new Vue({
         gotoList:function(val){
             let p = val.p
             let aid = val.aid
-            console.log(p)
-            console.log(aid)
-            window.open('/comment/'+p+'/'+aid)
+            window.open('/comment/'+p+'/'+aid, 'meimiaoip_comment_list')
         },
         refresh: function () {
             this.loading = true
             this.$http.get('/api/aid?p='+this.radio).then((response) => {
-                console.log(response)
                 const result = response.body
                 this.items = result.aidList
                 this.loading = false
             }, (response) => {
-                console.log(222)
                 this.loading = false
                 this.items = this.bingo = []
                 this.$message({

@@ -174,18 +174,14 @@ const vm = new Vue({
             })
         },
         refresh: function () {
-            console.log(window.location.href)
             let a=location.href.split('comment/')
             let b=a[1].split('/')
-            console.log(b)
             this.loading = true
             this.$http.get('/api/commentList?p='+b[0]+'&aid='+b[1]).then((response) => {
-                console.log(response)
                 const result = response.body
                 this.items = result.commentsList
                 this.loading = false
             }, (response) => {
-                console.log(222)
                 this.loading = false
                 this.items = this.bingo = []
                 this.$message({
