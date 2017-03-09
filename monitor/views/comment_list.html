@@ -33,11 +33,13 @@
                 </el-table-column>
                 <el-table-column align="center" prop="cid" width="110"  label="cid">
                 </el-table-column>
-                <el-table-column align="center" prop="support" width="109"  label="顶量">
+                <el-table-column align="center" prop="support" width="82"  label="顶量">
                 </el-table-column>
-                <el-table-column align="center" prop="step" width="109"  label="踩量">
+                <el-table-column align="center" prop="step" width="82"  label="踩量">
                 </el-table-column>
-                <el-table-column align="center" prop="ctime" width="190"  label="创建时间">
+                <el-table-column align="center" prop="reply" width="82"  label="回复数">
+                </el-table-column>
+                <el-table-column align="center" prop="ctime" width="190" :formatter="show_s_time"  label="创建时间">
                 </el-table-column>
                 <el-table-column align="center" prop="content" width="200"  label="评论">
                 </el-table-column>
