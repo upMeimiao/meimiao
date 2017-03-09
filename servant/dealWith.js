@@ -2204,7 +2204,6 @@ class DealWith {
         let option = {
             url: 'http://v.baidu.com/tagapi?type=2&tag='+ bname +'&_='+ new Date().getTime()
         }
-        logger.debug(option.url)
         request.get( option, (err, result) => {
             if(err){
                 logger.debug('百度视频的头像请求失败')
