@@ -32,6 +32,7 @@ class dealWith {
             option = {
             url : 'http://www.baofeng.com/detail/'+bid+'/detail-'+task.id+'.html'
         }
+        //logger.debug(bid)
         task.bid = bid
         request.get( logger, option, (err,result) => {
 
@@ -40,8 +41,10 @@ class dealWith {
                 return callback(err)
             }
             let $ = cheerio.load(result.body),
+                aid = $('div.episodes.clearfix').attr('m_aid')
+            if(!aid){
                 aid = $('div.enc-episodes-detail').attr('m_aid')
-
+            }
             this.getVidList( task, aid, (err) => {
                 if(err){
                     return callback(err)
