@@ -2183,6 +2183,10 @@ class DealWith {
             let $ = cheerio.load(result.body)
             bid = result.body.match(/pgcTid: \'\d*/).toString().replace('pgcTid: \'','')
             name = result.body.match(/pgcName: \'[^\x00-\xff]*/).toString().replace('pgcName: \'','')
+            if(!name){
+                name = result.body.match(/pgcName: \'\w*/).toString().replace('pgcName: \'','')
+            }
+            logger.debug(name)
             let res = {
                 id: bid,
                 name: name,
@@ -2195,9 +2199,12 @@ class DealWith {
         })
     }
     baiduAvatar( bname, callback ){
+        let reg = new RegExp(/\w*/)
+        bname = reg.test(bname) ? bname : encodeURIComponent(bname)
         let option = {
-            url: 'http://v.baidu.com/tagapi?type=2&tag='+ encodeURIComponent(bname) +'&_='+ new Date().getTime()
+            url: 'http://v.baidu.com/tagapi?type=2&tag='+ bname +'&_='+ new Date().getTime()
         }
+        logger.debug(option.url)
         request.get( option, (err, result) => {
             if(err){
                 logger.debug('百度视频的头像请求失败')
@@ -2214,6 +2221,7 @@ class DealWith {
                 logger.info(result)
                 return this.baiduAvatar(bname,callback)
             }
+            logger.debug(result)
             let avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : ''
             callback(null,avatar)
         })
