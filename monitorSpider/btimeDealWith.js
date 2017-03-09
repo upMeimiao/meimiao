@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/1.
  */
 const async = require('async')
-const request = require( '../lib/request' )
+const request = require( '../lib/req' )
 const moment = require('moment')
 
 let logger,api
@@ -36,22 +36,26 @@ class dealWith {
         let option = {
             url: api.btime.userInfo + id
         }
-        request.get( logger, option, (err,result) => {
+        request.get(option, (err,result) => {
             this.storaging.totalStorage ("btime",option.url,"user")
             if(err){
-                logger.error(err,err.code,err.Error)
+                // logger.error(err,err.code,err.Error)
                 let errType 
                 if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                     errType = "timeoutErr"
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
+                // logger.error(errType)
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || err,errType,"user")
                 return callback(err.message)
             }
+            if(!result){
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口无返回结果","resultErr","user")
+                return callback()
+            }
             if(result.statusCode != 200){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口状态码错误","responseErr","user")
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口状态码错误","statusErr","user")
                 return callback(`200 ${result.body}`)
             }
             try{
@@ -84,17 +88,17 @@ class dealWith {
                 let option = {
                     url: api.btime.medialist + id + '&pageNo=' + sign + "&lastTime=" + lastTime
                 }
-                request.get( logger, option, (err,result) => {
+                request.get(option, (err,result) => {
                     this.storaging.totalStorage ("btime",option.url,"list")
                     if(err){
-                        logger.error(err,err.code,err.Error)
+                        // logger.error(err,err.code,err.Error)
                         let errType 
                         if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                             errType = "timeoutErr"
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
+                        // logger.error(errType)
                         this.storaging.errStoraging('btime',option.url,task.id,err.code || err,errType,"list")
                         return callback(err)
                     }
@@ -196,10 +200,11 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('btime',`${api.btime.medialist}&pageNo=${index}&lastTime=`,task.id,`北京时间视频${media.aid}播放量减少`,"resultErr","list")
+                    this.storaging.errStoraging('btime',`${api.btime.medialist}&pageNo=${index}&lastTime=`,task.id,`北京时间视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","list")
                     return
                 }
             })
+            // logger.debug("btime media==============",media)
             this.storaging,sendDb(media)
             callback()
         })
@@ -208,7 +213,7 @@ class dealWith {
         const option = {
             url: api.btime.info + info.gid + "&timestamp=" + Math.round(new Date().getTime() / 1000)
         }
-        request.get(logger, option, (err, result) => {
+        request.get(option, (err, result) => {
             this.storaging.totalStorage ("btime",option.url,"info")
             if(err){
                 logger.error(err,err.code,err.Error)
@@ -227,7 +232,7 @@ class dealWith {
                 return callback()
             }
             if(result.statusCode != 200){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口状态码错误","responseErr","info")
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口状态码错误","statusErr","info")
                 return callback(true)
             }
             if(!result.body){
@@ -255,7 +260,7 @@ class dealWith {
         let option={
             url: `http://api.app.btime.com/api/commentList?protocol=1&timestamp=${Math.round(new Date().getTime() / 1000)}&url=http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${info.gid}&ver=2.3.0`
         }
-        request.get( logger, option, ( err, result ) => {
+        request.get(option, ( err, result ) => {
             this.storaging.totalStorage ("btime",option.url,"comment")
             if(err){
                 logger.error(err,err.code,err.Error)
@@ -269,8 +274,12 @@ class dealWith {
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || err,errType,"comment")
                 return callback(err)
             }
+            if(!result){
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口无返回结果","resultErr","comment")
+                return callback()
+            }
             if(result.statusCode != 200){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口状态码错误","responseErr","comment")
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口状态码错误","statusErr","comment")
                 return callback(true)
             }
             if(!result.body){

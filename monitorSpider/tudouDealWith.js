@@ -193,7 +193,7 @@ class dealWith {
                                     return
                                 }
                                 if(result > list[index].playNum){
-                                    this.storaging.errStoraging("tudou",option.url,task.id,`土豆${list[index].code}播放量减少`,"resultErr","list")
+                                    this.storaging.errStoraging("tudou",option.url,task.id,`土豆${list[index].code}播放量减少${result}(纪录)/${list[index].playNum}(本次)`,"playNumErr","list")
                                     return
                                 }
                             })

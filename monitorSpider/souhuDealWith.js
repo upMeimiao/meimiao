@@ -60,6 +60,9 @@ class souhuDealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -99,6 +102,9 @@ class souhuDealWith {
             this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"total")
             if(!result){
                 return 
+            }
+            if(!result.body){
+                return
             }
             try{
                 result = JSON.parse(result.body)
@@ -150,9 +156,13 @@ class souhuDealWith {
                         this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口无返回内容","resultErr","list")
                         return cb()
                     }
+                    if(!result.body){
+                        this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口无返回内容","resultErr","list")
+                        return cb()
+                    }
                     if(result.statusCode != 200){
                         // logger.error(`${index}状态码错误`)
-                        this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${index}状态码错误`,"responseErr","list")
+                        this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${index}状态码错误`,"info","list")
                         // logger.debug('code:',result.statusCode)
                         return cb()
                     }
@@ -269,7 +279,7 @@ class souhuDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少`,"resultErr","info")
+                    this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","info")
                     return
                 }
             })
@@ -302,6 +312,9 @@ class souhuDealWith {
             if(!result){
                 return
             }
+            if(!result.body){
+                return
+            }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
@@ -312,7 +325,7 @@ class souhuDealWith {
             }
             if(result.status != 200){
                 logger.error(`${result.statusText},${result.request}`)
-                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${id}状态码错误`,"responseErr","info")
+                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${id}状态码错误`,"info","info")
                 return callback(result.status)
             }
             //logger.debug('debug info message:',result)
@@ -356,6 +369,10 @@ class souhuDealWith {
             if(!back){
                 return
             }
+            if(!back.body){
+                return
+            }
+            logger.debug("back.body=================",back.body)
             let backInfo = eval(back.body),
                 data = {
                     up: backInfo.upCount,
@@ -389,6 +406,9 @@ class souhuDealWith {
             this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"commentNum")
             if(!result){
                 return 
+            }
+            if(!result.body){
+                return
             }
             try{
                 result = JSON.parse(result.body)

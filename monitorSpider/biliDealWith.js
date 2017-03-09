@@ -65,6 +65,9 @@ class billDealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return 
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -103,6 +106,9 @@ class billDealWith {
             this.storaging.totalStorage ("bili",option.url,"total")
             this.storaging.judgeRes ("bili",option.url,task.id,err,result,"total")
             if(!result){
+                return 
+            }
+            if(!result.body){
                 return 
             }
             try {
@@ -147,7 +153,7 @@ class billDealWith {
                     }
                     if( result.statusCode != 200){
                         logger.error('获取total接口code error：',result.statusCode)
-                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口code error","responseErr","videos")
+                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口code error","statusErr","videos")
                         return cb()
                     }
                     try {
@@ -241,7 +247,7 @@ class billDealWith {
             }
             // this.storaging.succStorage("bili",option.url,"info")
             let media = {
-                author: back.data.owner.name,
+                author: task.name,
                 platform: 8,
                 bid: task.id,
                 aid: back.data.aid,
@@ -266,7 +272,7 @@ class billDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少`,"resultErr","videos")
+                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","videos")
                 }
             })
             this.storaging.sendDb(media)

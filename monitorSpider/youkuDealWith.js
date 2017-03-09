@@ -49,19 +49,19 @@ class youkuDealWith {
         request(options,(err,res,body)=>{
             this.storaging.totalStorage ("youku",options.url,"user")
             if(err){
-                logger.error(err,err.code,err.Error)
+                //logger.error(err,err.code,err.Error)
                 let errType
                 if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                     errType = "timeoutErr"
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
+                //logger.error(errType)
                 this.storaging.errStoraging("youku",options.url,task.id,err.code || err,errType,"user")
                 return callback(err.message)
             }
             if(res && res.statusCode != 200){
-                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口状态码错误","responseErr","user")
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口状态码错误","statusErr","user")
                 return callback(res.statusCode)
             }
             try{
@@ -73,7 +73,7 @@ class youkuDealWith {
             }
             if(!body){
                 logger.error('youku获取用户信息接口发生未知错误')
-                logger.debug('total error:',body)
+                // logger.debug('total error:',body)
                 this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
                 return callback()
             }
@@ -165,7 +165,7 @@ class youkuDealWith {
                         return cb()
                     }
                     if(response.statusCode != 200){
-                        logger.error(`list error code: ${response.statusCode}`)
+                        this.storaging.errStoraging('youku',options.url,task.id,"优酷获取单页视频列表接口状态码错误","statusErr","videos")
                         return cb()
                     }
                     try{
@@ -192,7 +192,7 @@ class youkuDealWith {
                             }
                             if(result > videos[index].total_vv){
                                 // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
-                                this.storaging.errStoraging("youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"resultErr","videos")
+                                this.storaging.errStoraging("youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少${result}(纪录)/${videos[index].total_vv}(本次)`,"playNumErr","videos")
                                 return
                             }
                         })

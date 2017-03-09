@@ -3,25 +3,27 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( '../../lib/request' )
-const spiderUtils = require('../../lib/spiderUtils')
+const request = require('../lib/request.js')
 
-let logger
+let logger,api
 class dealWith {
     constructor ( spiderCore ){
         this.core = spiderCore
         this.settings = spiderCore.settings
+        this.storaging = new (require('./storaging'))(this)
         logger = this.settings.logger
-        logger.trace('DealWith instantiation ...')
+        api = this.settings.spiderAPI
+        logger.trace('weiboDealWith instantiation ...')
     }
     weibo ( task, callback ) {
         task.total = 0
         task.page = 1
-        this.getUserInfo( task, ( err ) => {
+        //logger.debug('---')
+        this.getUserInfo( task, ( err,result ) => {
             if(err){
                 return callback(err.message)
             }
-            callback( null, task.total )
+            callback(err,result)
         })
     }
 
@@ -51,7 +53,7 @@ class dealWith {
 
     getUserInfo( task, callback ){
         let option = {
-            url : this.settings.spiderAPI.weibo.userInfo+task.id
+            url : api.weibo.userInfo+task.id
         }
         this.getProxy((err,proxy) => {
             if (proxy == 'timeout') {
@@ -62,8 +64,21 @@ class dealWith {
             }
             option.proxy = proxy
             request.get( logger, option, ( err, result ) => {
+                this.storaging.totalStorage ("weibo",option.url,"user")
                 if(err){
-                    logger.debug('用户的粉丝数请求错误',err.message)
+                    let errType
+                    if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                    //logger.error(errType)
+                    this.storaging.errStoraging("weibo",option.url,task.id,err.code || err,errType,"user")
+                    this.core.proxy.back(proxy, false)
+                    return this.getUserInfo( task, callback )
+                }
+                if(!result || (result && !result.body)){
+                    this.storaging.errStoraging('weibo',option.url,task.id,"微博user接口无返回结果","resultErr","user")
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
                 }
@@ -71,17 +86,20 @@ class dealWith {
                     result = JSON.parse(result.body)
                 } catch (e){
                     logger.error(`json解析错误`)
-                    logger.info(result)
+                    this.storaging.errStoraging('weibo',option.url,task.id,"微博user接口json解析错误","doWithResErr","user")
+                    this.core.proxy.back(proxy, false)
+                    return this.getUserInfo( task, callback )
+                }
+                if(result.errno == -200){
+                    this.storaging.errStoraging('weibo',option.url,task.id,result.msg || "微博user账号有问题","responseErr","user")
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
                 }
                 let user = {
-                    platform: task.p,
+                    platform: task.platform,
                     bid: task.id,
                     fans_num: result.userInfo.followers_count
                 }
-                this.sendUser(user)
-                this.sendStagingUser(user)
                 if(result.tabsInfo.tabs[2].title !== '视频'){
                     task.NoVideo = true
                     this.getVidTotal( task, result, proxy, () => {
@@ -96,58 +114,6 @@ class dealWith {
             })
         })
     }
-    sendUser (user){
-        let option = {
-            url: this.settings.sendFans,
-            data: user
-        }
-        request.post( logger, option, (err,back) => {
-            if(err){
-                logger.error( 'occur error : ', err.message )
-                logger.info(`返回微博视频用户 ${user.bid} 连接服务器失败`)
-                return
-            }
-            try{
-                back = JSON.parse(back.body)
-            }catch (e){
-                logger.error(`微博视频用户 ${user.bid} json数据解析失败`)
-                logger.info(back)
-                return
-            }
-            if(back.errno == 0){
-                logger.debug("微博视频用户:",user.bid + ' back_end')
-            }else{
-                logger.error("微博视频用户:",user.bid + ' back_error')
-                logger.info(back)
-                logger.info(`user info: `,user)
-            }
-        })
-    }
-    sendStagingUser (user){
-        let option = {
-            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
-            data: user
-        }
-        request.post( logger, option,(err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err.message )
-                return
-            }
-            try{
-                result = JSON.parse(result.body)
-            }catch (e){
-                logger.error('json数据解析失败')
-                logger.info('send error:',result)
-                return
-            }
-            if(result.errno == 0){
-                logger.debug("用户:",user.bid + ' back_end')
-            }else{
-                logger.error("用户:",user.bid + ' back_error')
-                logger.info(result)
-            }
-        })
-    }
     getVidTotal( task, data, proxy, callback ){
         let containerid = '',
             option      = {},
@@ -155,16 +121,17 @@ class dealWith {
             total       = 0
         if(task.NoVideo){
             containerid = data.tabsInfo.tabs[1].containerid
-            option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
+            option.url  = api.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
         }else{
             containerid = data.tabsInfo.tabs[2].containerid
-            option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=0"
+            option.url  = api.weibo.videoList + containerid + "_time&page=0"
         }
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
+            this.storaging.totalStorage ("weibo",option.url,"user")
             if (err) {
-                logger.debug('视频总量请求错误',err.message)
                 this.core.proxy.back(proxy, false)
+                this.storaging.errStoraging('weibo',option.url,task.id,err.message || "微博total接口请求错误","responseErr","total")
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
                         return callback()
@@ -177,7 +144,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                logger.info(result)
+                this.storaging.errStoraging('weibo',option.url,task.id,"微博total接口json解析错误","doWithResErr","total")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
@@ -220,15 +187,16 @@ class dealWith {
                     option = {}
                 if(task.NoVideo){
                     containerid = data.tabsInfo.tabs[1].containerid
-                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=' + task.page
+                    option.url  = api.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=' + task.page
                 }else{
                     containerid = data.tabsInfo.tabs[2].containerid
-                    option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
+                    option.url  = api.weibo.videoList + containerid + "_time&page=" + task.page
                 }
                 option.proxy = proxy
                 request.get( logger, option, ( err, result ) => {
+                    this.storaging.totalStorage ("weibo",option.url,"list")
                     if (err) {
-                        logger.debug('视频列表数据请求错误',err.message)
+                        this.storaging.errStoraging('weibo',option.url,task.id,err.message || "微博list接口请求错误","responseErr","list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -238,11 +206,19 @@ class dealWith {
                         })
                         return
                     }
+                    if(!result){
+                        this.storaging.errStoraging('weibo',option.url,task.id,"weibo获取list接口无返回数据","resultErr","list")
+                        return
+                    }
+                    if(!result.body){
+                        this.storaging.errStoraging('weibo',option.url,task.id,"weibo获取list接口无返回数据","resultErr","list")
+                        return
+                    }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
                         logger.error('json数据解析失败')
-                        logger.info(result)
+                        this.storaging.errStoraging('weibo',option.url,task.id,"微博list接口json解析错误","doWithResErr","list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -254,6 +230,7 @@ class dealWith {
                     }
                     if( result.cards == undefined ){
                         logger.debug('当前列表页的结构有问题，重新请求')
+                        this.storaging.errStoraging('weibo',option.url,task.id,"微博list接口返回的列表页的结构有问题","resultErr","list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -312,7 +289,7 @@ class dealWith {
         }else{
             async.series([
                 (cb) => {
-                    this.getVideoInfo(video.mblog.mblogid,proxy,(err,result) => {
+                    this.getVideoInfo(task,video.mblog.mblogid,proxy,(err,result) => {
                         this.core.proxy.back(proxy, true)
                         cb(null,result)
                     })
@@ -327,7 +304,7 @@ class dealWith {
                 }
                 let media = {
                     author: task.name,
-                    platform: task.p,
+                    platform: task.platform,
                     bid: task.id,
                     aid: video.mblog.id,
                     title: video.mblog.text.substr(0,80).replace(/"/g,''),
@@ -344,26 +321,50 @@ class dealWith {
                 if(!media.play_num){
                     delete media.play_num
                 }
-                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
+                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('weibo',`http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${video.mblog.mblogid}`,task.id,`weibo视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","list")
+                        return
+                    }
+                })
+                // logger.debug("weibo media==============",media)
+                this.storaging.sendDb(media)
                 callback()
             })
         }
     }
-    getVideoInfo( id, proxy, callback ){
+    getVideoInfo( task, id, proxy, callback ){
         let option = {
                 url:'http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id='+id
             },
             dataTime = ''
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
+            this.storaging.totalStorage ("weibo",option.url,"info")
             if(err){
                 logger.debug('单个视频信息请求错误',err.message)
+                this.storaging.errStoraging('weibo',option.url,task.id,err.message || "微博info接口请求错误","responseErr","info")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
                         return callback(null,'抛掉当前的')
                     }
-                    this.getVideoInfo( id, proxy, callback )
+                    this.getVideoInfo( task, id, proxy, callback )
+                })
+                return
+            }
+            if(!result || (result && !result.body)){
+                this.storaging.errStoraging('weibo',option.url,task.id,"weibo获取info接口无返回数据","resultErr","info")
+                this.core.proxy.back(proxy, false)
+                this.getProxy((err, proxy) => {
+                    if (proxy == 'timeout') {
+                        return callback(null,'抛掉当前的')
+                    }
+                    this.getVideoInfo( task, id, proxy, callback )
                 })
                 return
             }
@@ -371,12 +372,13 @@ class dealWith {
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('json数据解析失败')
+                this.storaging.errStoraging('weibo',option.url,task.id,"微博info接口json数据解析失败","doWithResErr","info")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
                         return callback(null,'抛掉当前的')
                     }
-                    this.getVideoInfo( id, proxy, callback )
+                    this.getVideoInfo( task, id, proxy, callback )
                 })
                 return
             }

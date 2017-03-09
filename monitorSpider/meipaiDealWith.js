@@ -61,6 +61,9 @@ class meipaiDealWith {
             if(!result){
                 return
             }
+            if(!result.body){
+                return 
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -100,6 +103,9 @@ class meipaiDealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return 
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -134,13 +140,13 @@ class meipaiDealWith {
                     this.storaging.totalStorage ("meipai",option.url,"videos")
                     if(err){
                         logger.error(err,err.code,err.Error)
-                    let errType
-                    if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                        errType = "timeoutErr"
-                    } else{
-                        errType = "responseErr"
-                    }
-                    logger.error(errType)
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        logger.error(errType)
                         this.storaging.errStoraging('meipai',option.url,task.id,err.code || err,errType,"videos")
                         return cb()
                     }
@@ -148,9 +154,13 @@ class meipaiDealWith {
                         this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos接口无返回内容","resultErr","videos")
                         return cb()
                     }
+                    if(!result.body){
+                        this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos接口返回内容为空","resultErr","videos")
+                        return cb()
+                    }
                     if( result.statusCode != 200){
                         logger.error('获取videos code error：',result.statusCode)
-                        this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos code error","responseErr","videos")
+                        this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos code error","statusErr","videos")
                         return cb()
                     }
                     try {
@@ -221,6 +231,9 @@ class meipaiDealWith {
             if(!result){
                 return 
             }
+            if(!result.body){
+                return 
+            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -251,7 +264,7 @@ class meipaiDealWith {
                 title = 'btwk_caihongip'
             }
             let media = {
-                author: result.user.screen_name,
+                author: task.name,
                 platform: 5,
                 bid: task.id,
                 aid: result.id,
@@ -273,7 +286,7 @@ class meipaiDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍${media.aid}播放量减少`,"resultErr","videos")
+                    this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","videos")
                     return
                 }
             })

@@ -236,7 +236,7 @@ class kuaibaoDealWith {
                 return callback(err)
             }
             let media = {
-                author: info.author,
+                author: task.name,
                 platform: 10,
                 bid: task.id,
                 aid: info.id,
@@ -270,7 +270,7 @@ class kuaibaoDealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报${media.aid}播放量减少`,"resultErr","play")
+                    this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","play")
                 }
             })
             this.storaging.sendDb(media)

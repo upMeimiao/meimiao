@@ -68,7 +68,7 @@ class dealWith {
         })
     }
     getTotal ( task, id, callback){
-        logger.debug('开始获取视频总数')
+        // logger.debug('开始获取视频总数')
         let option = {
             url: api.ku6.listNum + id,
             referer: `http://boke.ku6.com/${task.id}?mode=2`,
@@ -115,21 +115,21 @@ class dealWith {
                 return sign <= page
             },
             (cb) => {
-                logger.debug('开始获取第' + sign + '页视频列表')
+                // logger.debug('开始获取第' + sign + '页视频列表')
                 option = {
                     url: api.ku6.allInfo + task.id + "&pn=" + newSign
                 }
                 request.get(logger, option, (err,result) => {
                     this.storaging.totalStorage ("ku6",option.url,"list")
                     if(err){
-                        logger.error(err,err.code,err.Error)
+                        // logger.error(err,err.code,err.Error)
                         let errType 
                         if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                             errType = "timeoutErr"
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
+                        // logger.error(errType)
                         this.storaging.errStoraging('ku6',option.url,task.id,err.code || err,errType,"list")
                         return cb()
                     }
@@ -191,7 +191,7 @@ class dealWith {
         let time = data.uploadtime,
             a_create_time = time.substring(0,10),
             media = {
-                author: data.nick,
+                author: task.name,
                 platform: 14,
                 bid: task.id,
                 aid: data.vid,
@@ -212,7 +212,7 @@ class dealWith {
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频${media.aid}播放量减少`,"resultErr","info")
+                this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","info")
                 return
             }
         })
