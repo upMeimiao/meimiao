@@ -9,7 +9,7 @@
 <body>
 <div id="app">
     <template>
-        <!--<el-row style="width: 1260px;margin: 20px auto;">-->
+        <el-row style="width: 1260px;margin: 20px auto;">
             <!--<el-col :span="7">-->
                 <!--<el-input placeholder="请输入内容" v-model="input" @keyup.enter.native="search" style="width: 300px;">-->
                     <!--<el-select v-model="select" slot="prepend" placeholder="请选择">-->
@@ -19,10 +19,10 @@
                     <!--<el-button slot="append" icon="search" @click="search"></el-button>-->
                 <!--</el-input>-->
             <!--</el-col>-->
-            <!--<el-col :span="3">-->
-                <!--<el-button type="success" @click="refresh">数据刷新</el-button>-->
-            <!--</el-col>-->
-        <!--</el-row>-->
+            <el-col :span="3">
+                <el-button type="success" @click="refresh">数据刷新</el-button>
+            </el-col>
+        </el-row>
         <el-row style="width: 1260px;margin: 0 auto;">
             <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="width: 100%;">
                 <el-table-column align="center" prop="platform"  :formatter="show_pname" width="120" label="平台">
