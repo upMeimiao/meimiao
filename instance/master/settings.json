@@ -24,7 +24,7 @@
     "ip":"127.0.0.1",
     "port": 3001
   },
-  "concurrency": 7,
+  "concurrency": 8,
   "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
   "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideos/",
   "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
