@@ -97,39 +97,8 @@ const vm = new Vue({
         show_pname: function (row, colomn) {
             return platformMap.get(Number(row.platform))
         },
-        show_s_time: function (row, column) {
-            if(column.property == 'post_t'){
-                if(!row.post_t){
-                    return '-'
-                }
-                return moment(moment.unix(row.post_t)).format('YYYY-MM-D H:mm:ss')
-            }
-            if(column.property == 'update_t'){
-                if(!row.update_t){
-                    return '-'
-                }
-                return moment(moment.unix(row.update_t)).format('YYYY-MM-D H:mm:ss')
-            }
-        },
         show_time: function (row, column) {
-            if(column.property == 'init'){
-                if(!row.update){
-                    return '-'
-                }
-                return moment(moment.unix(row.init/1000)).format('YYYY-MM-D H:mm:ss')
-            }
-            if(column.property == 'create'){
-                if(!row.update){
-                    return '-'
-                }
-                return moment(moment.unix(row.create/1000)).format('YYYY-MM-D H:mm:ss')
-            }
-            if(column.property == 'update'){
-                if(!row.update){
-                    return '-'
-                }
-                return moment(moment.unix(row.update/1000)).format('YYYY-MM-D H:mm:ss')
-            }
+            return moment(moment.unix(row.ctime)).format('YYYY-MM-D H:mm:ss')
         },
         show_status: function (row, column) {
             if(row.is_post == 0){
