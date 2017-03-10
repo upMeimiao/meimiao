@@ -5,11 +5,11 @@ const async = require( 'async' )
 const request = require( '../../lib/request' )
 const spiderUtils = require('../../lib/spiderUtils')
 let logger
-const classification = ['搞笑','明星名人','女神','舞蹈','音乐','美食','美妆','男神','宝宝','宠物','直播','热门']
 class dealWith {
     constructor (spiderCore){
         this.core = spiderCore
         this.settings = spiderCore.settings
+        this.classification = ['热门','直播','搞笑','明星名人','明星','女神','舞蹈','音乐','美食','美妆','男神','宝宝','宠物','吃秀','手工','游戏']
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
     }
@@ -64,6 +64,7 @@ class dealWith {
                 bid: result.id,
                 fans_num: result.followers_count
             }
+            result = null
             this.sendUser (user,(err,result)=>{
                 callback()
             })
@@ -150,21 +151,20 @@ class dealWith {
             }else{
                 page = Math.floor(videos_count/20)+1
             }
+            result = null
             this.getVideos(task,page, () => {
                 callback()
             })
         })
     }
     getVideos ( task,page,callback ) {
-        let maxId = '',sign = 1,option, flag = 0
+        let maxId = '',sign = 1,option = {}, flag = 0
         async.whilst(
             () => {
                 return sign <= page
             },
             (cb) => {
-                option = {
-                    url: this.settings.spiderAPI.meipai.mediaList + task.id + "&max_id=" + maxId
-                }
+                option.url = this.settings.spiderAPI.meipai.mediaList + task.id + "&max_id=" + maxId
                 request.get(logger, option,(err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
@@ -210,14 +210,15 @@ class dealWith {
         )
     }
     deal ( task, list, callback ) {
-        let index = 0,
+        let index = 0, id,
             length = list.length
         async.whilst(
             () => {
                 return index < length
             },
             (cb) => {
-                this.getInfo(task,list[index].id,function (err) {
+                id = list[index].id
+                this.getInfo(task,id,function (err) {
                     index++
                     cb()
                 })
@@ -231,12 +232,14 @@ class dealWith {
         let option = {
             url: this.settings.spiderAPI.meipai.media + id
         }
+        let title,_tags = [],__tags = [],tags = '',tagArr
         request.get(logger, option, (err,result) => {
             if(err){
                 return callback(err)
             }
             if( result.statusCode != 200){
                 logger.error('获取info code error：',result.statusCode)
+                result = null
                 return callback()
             }
             try {
@@ -244,12 +247,13 @@ class dealWith {
             } catch (e) {
                 logger.error('json数据解析失败')
                 logger.info(result.body)
+                result = null
                 return callback(e)
             }
             if(result.lives){
+                result = null
                 return callback()
             }
-            let title,_tags = [],__tags = [],tags = '',tagArr
             if(result.caption && result.caption != ''){
                 title = result.caption.substr(0,100)
                 tagArr = result.caption.match(/#[^0-9a-zA-Z\x00-\xff]+#/ig)
@@ -257,7 +261,7 @@ class dealWith {
                     _tags.push(tagArr[i].replace(/#/g,''))
                 }
                 for( let i in _tags){
-                    if(classification.includes(_tags[i])){
+                    if(this.classification.includes(_tags[i])){
                         __tags.push(_tags[i])
                     }
                 }
@@ -284,6 +288,7 @@ class dealWith {
                 tag: _tags.join(','),
                 class: tags
             }
+            result = null
             spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
