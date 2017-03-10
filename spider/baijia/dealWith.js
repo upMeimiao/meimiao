@@ -47,7 +47,7 @@ class dealWith {
             }catch(e){
                 logger.debug('百家号用户数据解析失败')
                 index++
-                return Fan( vid )
+                return
             }
             let user = {
                 bid: task.id,
