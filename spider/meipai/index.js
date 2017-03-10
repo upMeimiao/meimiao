@@ -90,7 +90,7 @@ class spiderCore {
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
         })
-        queue.watchStuckJobs( 1000 )
+        // queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
         queue.process('meipai',this.settings.concurrency, (job,done) => {
             logger.trace( 'Get meipai task!' )
@@ -106,9 +106,8 @@ class spiderCore {
                     if(err){
                         return done(err)
                     }
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
-                        done(null)
-                    })
+                    done(null)
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
                     request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )

@@ -232,7 +232,7 @@ class dealWith {
         let option = {
             url: this.settings.spiderAPI.meipai.media + id
         }
-        let title,_tags = [],__tags = [],tags = '',tagArr
+        let title = '',_tags = [],__tags = [],tags = '',tagArr
         request.get(logger, option, (err,result) => {
             if(err){
                 return callback(err)
@@ -268,6 +268,7 @@ class dealWith {
                 if(__tags.length != 0){
                     tags = __tags.join(',')
                 }
+                __tags = []
             }else{
                 title = 'btwk_caihongip'
             }
@@ -288,6 +289,10 @@ class dealWith {
                 tag: _tags.join(','),
                 class: tags
             }
+            title = ''
+            _tags = []
+            tags = ''
+            tagArr = null
             result = null
             spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
