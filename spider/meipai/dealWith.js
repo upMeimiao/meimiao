@@ -210,16 +210,17 @@ class dealWith {
         )
     }
     deal ( task, list, callback ) {
-        let index = 0, id,
-            length = list.length
+        let id,sign = true
         async.whilst(
             () => {
-                return index < length
+                return sign
             },
             (cb) => {
-                id = list[index].id
-                this.getInfo(task,id,function (err) {
-                    index++
+                id = list.shift().id
+                this.getInfo(task,id, (err) => {
+                    if(list.length === 0){
+                        sign = false
+                    }
                     cb()
                 })
             },
@@ -268,7 +269,6 @@ class dealWith {
                 if(__tags.length != 0){
                     tags = __tags.join(',')
                 }
-                __tags = []
             }else{
                 title = 'btwk_caihongip'
             }
@@ -289,11 +289,12 @@ class dealWith {
                 tag: _tags.join(','),
                 class: tags
             }
-            title = ''
-            _tags = []
-            tags = ''
+            title = null
+            _tags = null
+            tags = null
             tagArr = null
             result = null
+            __tags = null
             spiderUtils.saveCache( this.core.cache_db, 'cache', media )
             callback()
         })
