@@ -48,31 +48,32 @@ class dealWith {
                 [
                     (cb) => {
                         this.getFan(task,result.items,() => {
-                            logger.debug('用户粉丝数请求完成')
-                            cb(null,null)
+                            logger.debug()
+                            cb(null,'用户粉丝数请求完成')
                         })
                     },
                     (cb) => {
                         this.getVidList(task,total,() => {
-                            logger.debug('视频请求完成')
-                            cb(null,null)
+                            cb(null,'视频请求完成')
                         })
                     }
                 ],
                 (err,result) => {
+                    logger.debug('result: ',result)
                     callback()
                 }
             )
         })
     }
     getFan( task, data, callback ){
-        let arr = [],index = 0
+        let arr = []
         const Fan = ( vid ) => {
             if(vid == null){
                 return callback()
             }
+            vid = vid.length >= 2 ? vid[1] : vid[0]
             let option = {
-                url : 'https://baijiahao.baidu.com/po/feed/video?wfr=spider&for=pc&context=%7B%22sourceFrom%22%3A%22bjh%22%2C%22nid%22%3A%22'+vid[index]+'%22%7D'
+                url : 'https://baijiahao.baidu.com/po/feed/video?wfr=spider&for=pc&context=%7B%22sourceFrom%22%3A%22bjh%22%2C%22nid%22%3A%22'+vid+'%22%7D'
             }
             request.get( logger, option, (err, result) => {
                 if(err){
@@ -84,10 +85,10 @@ class dealWith {
                     index++
                     return Fan( vid )
                 }
-                let script = $('script')[11].children[0] == undefined ? $('script')[12].children[0].data.replace(/[\s\n\r]/g,'') : $('script')[11].children[0].data.replace(/[\s\n\r]/g,''),
-                    startIndex = script.indexOf('videoData={"id'),
-                    endIndex = script.indexOf(';window.listInitData'),
-                    dataJson = script.substring(startIndex+10,endIndex)
+                result = result.body.replace(/[\s\n\r]/g,'')
+                let startIndex = result.indexOf('videoData={"id'),
+                    endIndex = result.indexOf(';window.listInitData'),
+                    dataJson = result.substring(startIndex+10,endIndex)
                 try{
                     dataJson = JSON.parse(dataJson)
                 }catch(e){
@@ -108,13 +109,9 @@ class dealWith {
         for (let i = 0; i < data.length; i++) {
             if(data[i].type == 'video' && data[i].feed_id != ''){
                 arr.push(data[i].feed_id)
-                if(arr.length >= 2){
-                    Fan(arr)
-                    return
-                }
             }
         }
-        Fan(null)
+        Fan(arr)
     }
     sendUser (user){
         let option = {
@@ -296,7 +293,7 @@ class dealWith {
     getVidTime( time ){
         let json = time.substring(0,4)
         if(json == 'json'){
-            time = time.replace(/json\[/,'').replace(/\]/,'')
+            time = time.replace(/json\[/,'').replace(/\]/g,'')
             try{
                 time = JSON.parse(time)
             }catch(e){
