@@ -149,7 +149,7 @@ class souhuDealWith {
                             errType = "responseErr"
                         }
                         // logger.error(errType)
-                        this.storaging.errStoraging('souhu',option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -273,7 +273,7 @@ class souhuDealWith {
             if(!media.class){
                 delete media.class
             }
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return
@@ -372,7 +372,7 @@ class souhuDealWith {
             if(!back.body){
                 return
             }
-            logger.debug("back.body=================",back.body)
+            // logger.debug("back.body=================",back.body)
             let backInfo = eval(back.body),
                 data = {
                     up: backInfo.upCount,

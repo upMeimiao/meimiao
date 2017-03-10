@@ -42,7 +42,7 @@ class leDealWith {
                 }
                 logger.error(errType)
 
-                this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"total")
+                this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"total")
                 return callback(err)
             }
             if(!result){
@@ -92,7 +92,7 @@ class leDealWith {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                        this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -199,7 +199,7 @@ class leDealWith {
                     delete media.class
                 }
 
-                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return
@@ -232,7 +232,7 @@ class leDealWith {
                 }
                 logger.error(errType)
 
-                this.storaging.errStoraging('le',option.url,id,err.code || err,errType,"info")
+                this.storaging.errStoraging('le',option.url,id,err.code || "error",errType,"info")
                 return callback(err)
             }
             //logger.debug(result.body)
@@ -273,7 +273,7 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"Expr")
+                this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"Expr")
                 return callback( err )
             }
             if(!result){
@@ -352,7 +352,7 @@ class leDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('le',option.url,task.id,err.code || err,errType,"Desc")
+                this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"Desc")
                 return callback(null,null)
             }
             if(!result){

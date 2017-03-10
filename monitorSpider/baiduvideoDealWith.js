@@ -109,7 +109,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         //logger.error(errType)
-                        this.storaging.errStoraging("baiduvideo",option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging("baiduvideo",option.url,task.id,err.code || "error",errType,"list")
                         if(num <= 1){
                             return cb()
                         }
@@ -220,7 +220,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("baiduvideo",option.url,task.id,err.code || err,errType,"info")
+                this.storaging.errStoraging("baiduvideo",option.url,task.id,err.code || "error",errType,"info")
                 if(timeout < 1){
                     timeout++
                     return this.getVidInfo( task, video, timeout, callback )
@@ -243,7 +243,7 @@ class dealWith {
                     "aid": video.id,
                     "play_num": playNum
                 }
-                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return

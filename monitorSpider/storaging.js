@@ -24,7 +24,7 @@ class storage{
                     errType = "responseErr"
                 }
             // logger.error(errType)
-	        this.errStoraging(platform,url,bid,err.code || err,errType,urlDesc)
+	        this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
 	        return
 	    }
 	    if(!res){
@@ -37,39 +37,30 @@ class storage{
 	    }
     }
     sendDb (media){
-	    // let   platformArr = ["youku","iqiyi","le","tencent","meipai","toutiao","miaopai","bili","souhu","kuaibao"
-     //              ,"yidian","tudou","baomihua","ku6","btime","weishi","xiaoying","budejie","neihan","yy"
-     //              ,"tv56","acfun","weibo","ifeng","wangyi","uctt","mgtv","baijia","qzone","cctv"
-     //              ,"pptv","xinlan","v1","fengxing","huashu","baofeng","baiduvideo"],
-	    //     curPlatform,i
-	    // for(i = 0; i < platformArr.length; i++){
-	    //     if(i + 1 == media.platform){
-	    //         curPlatform = platformArr[i]
-	    //     }
-	    // }
 	    let curPlatform = media.author
-	    mSpiderClint.hset(`apiMonitor:${curPlatform}:play_num:${media.aid}`,"play_num",media.play_num,(err,result)=>{
+	    mSpiderClint.hset(`apiMonitor:play_num`,`${curPlatform}_${media.aid}`,media.play_num,(err,result)=>{
 	        if ( err ) {
 	            logger.error( '加入接口监控数据库出现错误：', err )
 	            return
 	        }
 	        // logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:${curPlatform}:play_num:${media.aid}`,12*60*60) 
+	    mSpiderClint.expire(`apiMonitor:play_num`,12*60*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
 			hour = nowDate.getHours(),
 			hourStr,
-			urlStr = encodeURIComponent(url), 
+			urlStr = url, 
 	        times
 	    if(hour >= 10){
 	    	hourStr = "" + hour
 	    }else{
 	    	hourStr = "0" + hour
 	    }
-		let	curKey = `apiMonitor:${platform}:${urlDesc}:total:${hourStr}`
-	    mSpiderClint.hget(curKey,urlStr,(err,result) => {
+		let	curKey = `apiMonitor:all`,
+			field = `${platform}_${urlDesc}_${hourStr}`
+	    mSpiderClint.hget(curKey,field,(err,result) => {
 	        if(err){
 	            logger.error( '获取接口成功调取次数出现错误', err )
 	            return
@@ -79,74 +70,103 @@ class storage{
 	        }  else {
 	            times = Number(result) + 1
 	        }
-	        mSpiderClint.hset(curKey,urlStr,times,(err,result) => {
+	        mSpiderClint.hset(curKey,field,times,(err,result) => {
 	            if(err){
 	                logger.error( '设置接口成功调取次数出现错误', err )
 	                return
 	            }
 	        })
-	        mSpiderClint.expire(curKey,12*60*60) 
+	        mSpiderClint.expire(curKey,12*60*60)  
 	    })
 	}
 	errStoraging (platform,url,bid,errDesc,errType,urlDesc){
 	    let nowDate = new Date(),
 			hour = nowDate.getHours(),
 			hourStr,
-			urlStr = encodeURIComponent(url),
-	        times,errObj
+			urlStr = url,
+	        times,errObj = {}
 	    if(hour >= 10){
 	    	hourStr = "" + hour
 	    }else{
 	    	hourStr = "0" + hour
 	    }
-		let	curKey = `apiMonitor:${platform}:${urlDesc}:error:${hourStr}`
-	    mSpiderClint.hget(curKey,urlStr,(err,result) => {
+		let	curKey = `apiMonitor:error:${platform}:${urlDesc}:${hourStr}`,
+			i
+	    mSpiderClint.get(curKey,(err,result) => {
 	        if(err){
 	            logger.error( '获取接口成功调取次数出现错误', err )
 	            return
 	        }
+	        // 若没有当前key的错误记录
+	        // errtype times =1 ...
+	        // 若有当前key的错误记录，查看errtype，若有times++，没有times=1
+	        
 	        if (!result || !result.length) {
 	        	errObj = {
 					"bid": bid,
 					"responseErr": {
 						"times": 0,
-						"desc": ""
+						"desc": "",
+						"errUrls": []
 					},
 					"resultErr": {
 						"times": 0,
-						"desc": ""
+						"desc": "",
+						"errUrls": []
 					},
 					"doWithResErr": {
 						"times": 0,
-						"desc": ""
+						"desc": "",
+						"errUrls": []
 					},
 					"domBasedErr": {
 						"times": 0,
-						"desc": ""
+						"desc": "",
+						"errUrls": []
 					},
 					"timeoutErr":{
 						"times": 0,
-						"desc": ""
+						"desc": "",
+						"errUrls": []
 					},
 					"playNumErr":{
 						"times": 0,
-						"desc": ""
+						"desc": "",
+						"errUrls": []
 					},
 					"statusErr":{
 						"times": 0,
-						"desc": ""
+						"desc": "",
+						"errUrls": []
 					}
 				},
 	        	// logger.debug("result  errObj errType urlDesc platform",result,errObj,errType,urlDesc,platform)
 	            errObj[errType]["times"] = 1
-	            errObj[errType]["desc"] = errDesc
 	        }  else {
 	        	errObj = JSON.parse(result)
 	            errObj[errType]["times"] += 1
-	            errObj[errType]["desc"] = errDesc
+	        }
+	        errObj[errType]["desc"] = errDesc
+	        let errArr = errObj[errType]["errUrls"],
+	        	length,
+	        	bool
+	        // logger.debug("errArr++++++++++++++++++++++++++++++++++",errArr,urlStr)
+
+	        if(!errArr || !errArr.length){
+	        	errArr.push(urlStr)
+	        } else{
+	        	length = errArr.length
+	        	for(i = 0; i < length; i++){
+	        		if(errArr[i] == urlStr){
+	        			bool = true
+	        		}
+	        	}
+	        	if(!bool){
+	        		errArr.push(urlStr)
+	        	}
 	        }
 	        let errString = JSON.stringify(errObj)
-	        mSpiderClint.hset(curKey,urlStr,errString,(err,result) => {
+	        mSpiderClint.set(curKey,errString,(err,result) => {
 	            if(err){
 	                logger.error( '设置接口成功调取次数出现错误', err )
 	                return

@@ -45,7 +45,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("baijia",option.url,task.id,err.code || err,errType,"total")
+                this.storaging.errStoraging("baijia",option.url,task.id,err.code || "error",errType,"total")
                 return this.getVidTotal( task, callback )
             }
             if(!result){
@@ -100,7 +100,7 @@ class dealWith {
                         errType = "responseErr"
                     }
                     //logger.error(errType)
-                    this.storaging.errStoraging("baijia",option.url,task.id,err.code || err,errType,"fan")
+                    this.storaging.errStoraging("baijia",option.url,task.id,err.code || "error",errType,"fan")
                     return Fan( vid )
                 }
                 if(!result){
@@ -158,7 +158,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("baijia",option.url,task.id,err.code || err,errType,"list")
+                this.storaging.errStoraging("baijia",option.url,task.id,err.code || "error",errType,"list")
                 return this.getVidList( task, total, callback )
             }
             if(!result){
@@ -257,7 +257,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("baijia",option.url,task.id,err.code || err,errType,"info")
+                this.storaging.errStoraging("baijia",option.url,task.id,err.code || "error",errType,"info")
                 if(num <= 1){
                     return this.getVideoInfo( task, vid, url, num++, callback )
                 }
@@ -287,12 +287,15 @@ class dealWith {
                 long_t: this.getVidTime(time),
                 playNum: dataJson.video ? dataJson.video.playcnt : dataJson.article.read_amount
             } 
+            if(!vid){
+                return
+            }
             let media = {
                 "author": "baijia",
                 "aid": vid,
                 "play_num": res.playNum
             }
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return

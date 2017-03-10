@@ -226,7 +226,7 @@ class spiderCore {
             },
             v1_rule = new schedule.RecurrenceRule(),
             v1_work = {
-                "name":"v1","platform":33,"id":6046584,"bname":"2762414443@qq.com"
+                "name":"v1","platform":33,"id":6046584,"bname":"2762414443@qq.com","encodeId":2666584
             },
             fengxing_rule = new schedule.RecurrenceRule(),
             fengxing_work = {

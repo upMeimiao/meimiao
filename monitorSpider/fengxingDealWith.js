@@ -39,7 +39,7 @@ class dealWith {
                         errType = "responseErr"
                     }
                     //logger.error(errType)
-                    this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"video")
+                    this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"video")
                     return this.getVideo(task,callback)
                 }
                 if(!result){
@@ -82,7 +82,7 @@ class dealWith {
                         errType = "responseErr"
                     }
                     //logger.error(errType)
-                    this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"video")
+                    this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"video")
                     return this.getVideo(task,callback)
                 }
                 if(!result){
@@ -121,7 +121,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"fans")
+                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"fans")
                 return this.getFans( task, callback )
             }
             if(!result){
@@ -168,7 +168,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         //logger.error(errType)
-                        this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -219,7 +219,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"vidList")
+                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"vidList")
                 return this.getVideoList(task,callback)
             }
             if(!result){
@@ -249,7 +249,7 @@ class dealWith {
                     "aid": video.videoid,
                     "play_num": playNum
                 }
-                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return
@@ -381,7 +381,7 @@ class dealWith {
                                 errType = "responseErr"
                             }
                             //logger.error(errType)
-                            this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"info")
+                            this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"info")
                             return this.getVideoInfo(task,vid,callback)
                         }
                         if(!result){
@@ -430,7 +430,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         //logger.error(errType)
-                        this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"info")
+                        this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"info")
                         return this.getVideoInfo(task,vid,callback)
                     }
                     let $ = cheerio.load(result.body),
@@ -463,7 +463,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"creatTime")
+                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"creatTime")
                 return callback(err)
             }
             if(!result){
@@ -502,7 +502,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || err,errType,"comment")
+                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"comment")
                 return callback(err)
             }
             if(!result){

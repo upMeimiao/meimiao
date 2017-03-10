@@ -162,7 +162,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("baofeng",option.url,task.id,err.code || err,errType,"desc")
+                this.storaging.errStoraging("baofeng",option.url,task.id,err.code || "error",errType,"desc")
                 return callback(null,{type:'',desc:''})
             }
             if(!result){
@@ -203,7 +203,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("baofeng",option.url,task.id,err.code || err,errType,"support")
+                this.storaging.errStoraging("baofeng",option.url,task.id,err.code || "error",errType,"support")
                 return callback(null,{u:'',d:''})
             }
             if(!result){
@@ -232,7 +232,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("baofeng",option.url,task.id,err.code || err,errType,"comment")
+                this.storaging.errStoraging("baofeng",option.url,task.id,err.code || "error",errType,"comment")
                 return callback(null,'0')
             }
             if(!result){

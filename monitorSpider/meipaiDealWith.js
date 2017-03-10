@@ -147,7 +147,7 @@ class meipaiDealWith {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                        this.storaging.errStoraging('meipai',option.url,task.id,err.code || err,errType,"videos")
+                        this.storaging.errStoraging('meipai',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }
                     if(!result){
@@ -280,7 +280,7 @@ class meipaiDealWith {
                 tag: _tags.join(','),
                 class: tags
             }
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return

@@ -73,7 +73,7 @@ class dealWith {
                         errType = "responseErr"
                     }
                     //logger.error(errType)
-                    this.storaging.errStoraging("weibo",option.url,task.id,err.code || err,errType,"user")
+                    this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"user")
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
                 }
@@ -98,9 +98,9 @@ class dealWith {
                 let user = {
                     platform: task.platform,
                     bid: task.id,
-                    fans_num: result.userInfo.followers_count
+                    fans_num: result.userInfo && result.userInfo.followers_count
                 }
-                if(result.tabsInfo.tabs[2].title !== '视频'){
+                if(result.tabsInfo && result.tabsInfo.tabs[2].title !== '视频'){
                     task.NoVideo = true
                     this.getVidTotal( task, result, proxy, () => {
                         callback()
@@ -196,7 +196,14 @@ class dealWith {
                 request.get( logger, option, ( err, result ) => {
                     this.storaging.totalStorage ("weibo",option.url,"list")
                     if (err) {
-                        this.storaging.errStoraging('weibo',option.url,task.id,err.message || "微博list接口请求错误","responseErr","list")
+                        let errType
+                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                            errType = "timeoutErr"
+                        } else{
+                            errType = "responseErr"
+                        }
+                        // logger.error(errType)
+                        this.storaging.errStoraging('weibo',option.url,task.id,err.code || "error",errType,"list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -321,7 +328,7 @@ class dealWith {
                 if(!media.play_num){
                     delete media.play_num
                 }
-                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return
