@@ -182,7 +182,7 @@ class dealWith {
                         }
                         return cb()
                     }
-                    flag = 0
+                    flag = null
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
