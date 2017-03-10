@@ -63,7 +63,7 @@
       "videoInfo":"http://xiyou.cctv.com/interface/index?videoId="
     },
     "baijia": {
-      "videoList":"http://baijiahao.baidu.com/api/content/article/listall?sk=super&ak=super&_skip=0&status=in:publish,published&_preload_statistic=1&_timg_cover=50,172,1000&_cache=1&app_id=",
+      "videoList":"http://baijiahao.baidu.com/api/content/article/listall?sk=super&ak=super&status=in:publish,published&_preload_statistic=1&_timg_cover=50,172,1000&_cache=1&app_id=",
       "sendFan":"http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
     },
     "baomihua": {
