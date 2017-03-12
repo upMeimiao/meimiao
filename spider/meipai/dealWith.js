@@ -258,17 +258,28 @@ class dealWith {
             if(result.caption && result.caption != ''){
                 title = result.caption.substr(0,100)
                 tagArr = result.caption.match(/#[^0-9a-zA-Z\x00-\xff]+#/ig)
-                for( let i in tagArr){
-                    _tags.push(tagArr[i].replace(/#/g,''))
-                }
-                for( let i in _tags){
-                    if(this.classification.includes(_tags[i])){
-                        __tags.push(_tags[i])
+                if(tagArr){
+                    for (let [index, elem] of tagArr.entries()) {
+                        _tags.push(elem.replace(/#/g,''))
+                        if(this.classification.includes(elem.replace(/#/g,''))){
+                            __tags.push(elem.replace(/#/g,''))
+                        }
+                    }
+                    if(__tags.length != 0){
+                        tags = __tags.join(',')
                     }
                 }
-                if(__tags.length != 0){
-                    tags = __tags.join(',')
-                }
+                // for( let i in tagArr){
+                //     _tags.push(tagArr[i].replace(/#/g,''))
+                // }
+                // for( let i in _tags){
+                //     if(this.classification.includes(_tags[i])){
+                //         __tags.push(_tags[i])
+                //     }
+                // }
+                // if(__tags.length != 0){
+                //     tags = __tags.join(',')
+                // }
             }else{
                 title = 'btwk_caihongip'
             }
