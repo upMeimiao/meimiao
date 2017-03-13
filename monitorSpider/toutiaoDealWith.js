@@ -83,7 +83,7 @@ class toutiaoDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || err,errType,"user")
+                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || "error",errType,"user")
                 return callback(err)
             }
             if(!result){
@@ -142,7 +142,7 @@ class toutiaoDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,err.code || err,errType,"userId")
+                this.storaging.errStoraging("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,err.code || "error",errType,"userId")
                 return
             }
             if(!result){
@@ -242,7 +242,7 @@ class toutiaoDealWith {
                         if(err) {
                             if(err == 'timeout'){
                                 logger.error(err,err.code,err.Error)
-                                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || err,"timeoutErr","list")
+                                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || "error","timeoutErr","list")
                                 return callback('Get proxy timesout!!')
                             }
                             logger.error('Get proxy occur error:' , err)
@@ -370,7 +370,7 @@ class toutiaoDealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")
                 return

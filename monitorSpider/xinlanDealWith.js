@@ -43,7 +43,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || err,errType,"list")
+                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"list")
                 return this.getVidList( task, callback )
             }
             if(!result){
@@ -145,7 +145,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || err,errType,"save")
+                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"save")
                 return callback(null,{hasCollect:''})
             }
             if(!result){
@@ -172,7 +172,7 @@ class dealWith {
                 "play_num": result.content.list[0].hasCollect
             }
             // logger.debug("xinlan +++++++++++++++++++++++++++++++++++++++++++result result.content.list",result,result.content.list)
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${vid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${vid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return
@@ -206,7 +206,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || err,errType,"suport")
+                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"suport")
                 return callback(null,{supportNumber:''})
             }
             if(!result || (result && !result.body)){
@@ -242,7 +242,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || err,errType,"comment")
+                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"comment")
                 callback(null,{comment_count:''})
             }
             if(!result){
@@ -278,7 +278,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || err,errType,"info")
+                this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"info")
                 if(num <= 1){
                     return this.getVideoInfo( task, vid, num++, callback )
                 }

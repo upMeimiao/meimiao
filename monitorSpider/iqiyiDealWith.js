@@ -235,7 +235,7 @@ class iqiyiDeal {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"ids")
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"ids")
                         return cb()
                     }
                     if(!result || !result.body){
@@ -289,7 +289,7 @@ class iqiyiDeal {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"list")
+                    	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -431,7 +431,7 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
-                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return
@@ -467,7 +467,7 @@ class iqiyiDeal {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-            	this.storaging.errStoraging('iqiyi',link,task.id,err.code || err,errType,"info")
+            	this.storaging.errStoraging('iqiyi',link,task.id,err.code || "error",errType,"info")
                 return callback(err)
             }
             //logger.debug(backData)
@@ -549,7 +549,7 @@ class iqiyiDeal {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"Expr")
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"Expr")
                 return callback(err)
             }
             if(!result){
@@ -591,7 +591,7 @@ class iqiyiDeal {
                 }
                 logger.error(errType)
 
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"play")
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"play")
                 return callback(err)
             }
             if(!result){
@@ -630,7 +630,7 @@ class iqiyiDeal {
                 }
                 logger.error(errType)
 
-            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || err,errType,"comment")
+            	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"comment")
                 return callback(err)
             }
             if(!result){

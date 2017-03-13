@@ -160,7 +160,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                        this.storaging.errStoraging('tudou',option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -187,7 +187,7 @@ class dealWith {
                     let list = result.data.data
                     if(list){
                         for(let index in list){
-                            this.core.MSDB.hget(`apiMonitor:tudou:play_num:${list[index].code}`,"play_num",(err,result)=>{
+                            this.core.MSDB.hget(`apiMonitor:play_num`,`tudou_${list[index].code}`,(err,result)=>{
                                 if(err){
                                     logger.debug("读取redis出错")
                                     return

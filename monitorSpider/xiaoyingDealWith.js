@@ -101,7 +101,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         // logger.error(errType)
-                        this.storaging.errStoraging('xiaoying',options.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging('xiaoying',options.url,task.id,err.code || "error",errType,"list")
                         return callback(err);
                     }
                     if(!response || !body){
@@ -190,7 +190,7 @@ class dealWith {
                     support: result.videoinfo.likecount,
                     a_create_time: a_create_time
                 }
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return

@@ -130,7 +130,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         // logger.error(errType)
-                        this.storaging.errStoraging('ku6',option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging('ku6',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -206,7 +206,7 @@ class dealWith {
                 tag: this._tag(data.tag),
                 class: this._class(data.catename)
             }
-        this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")
                 return

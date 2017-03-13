@@ -59,7 +59,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("qzone",option.url,task.id,err.code || err,errType,"fan")
+                this.storaging.errStoraging("qzone",option.url,task.id,err.code || "error",errType,"fan")
                 return this.getFan( task, callback )
             }
             if(!result){
@@ -111,7 +111,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         //logger.error(errType)
-                        this.storaging.errStoraging("qzone",option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging("qzone",option.url,task.id,err.code || "error",errType,"list")
                         if(num <= 1){
                             return setTimeout(() => {
                                 num++
@@ -293,7 +293,7 @@ class dealWith {
                 "aid": video.key,
                 "play_num": result.singlefeed['7'].videoplaycnt
             }
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return

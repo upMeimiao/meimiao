@@ -96,7 +96,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         //logger.error(errType)
-                        this.storaging.errStoraging("wangyi",option.url,task.id,err.code || err,errType,"list")
+                        this.storaging.errStoraging("wangyi",option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(!result){
@@ -213,7 +213,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("wangyi",option.url,task.id,err.code || err,errType,"video")
+                this.storaging.errStoraging("wangyi",option.url,task.id,err.code || "error",errType,"video")
             }
             if(!result){
                 this.storaging.errStoraging("wangyi",option.url,task.id,"wangyi获取video接口无返回结果","responseErr","video")
@@ -264,7 +264,7 @@ class dealWith {
                 "play_num": result.info.hits
             }
             // logger.debug("wangyi result result.info++*+*****+*++*+*+*+*+******+*+*+*+*+*+***+",result,result.info)
-            this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return

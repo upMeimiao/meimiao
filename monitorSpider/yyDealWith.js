@@ -116,7 +116,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         // logger.error(errType)
-                        this.storaging.errStoraging('yy',option.url,task.id,err.code || err,errType,"live")
+                        this.storaging.errStoraging('yy',option.url,task.id,err.code || "error",errType,"live")
                         return cb()
                     }
                     if(!result){
@@ -179,7 +179,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         // logger.error(errType)
-                        this.storaging.errStoraging('yy',option.url,task.id,err.code || err,errType,"slist")
+                        this.storaging.errStoraging('yy',option.url,task.id,err.code || "error",errType,"slist")
                         return cb()
                     }
                     if(!result){
@@ -242,7 +242,7 @@ class dealWith {
                             errType = "responseErr"
                         }
                         // logger.error(errType)
-                        this.storaging.errStoraging('yy',option.url,task.id,err.code || err,errType,"dlist")
+                        this.storaging.errStoraging('yy',option.url,task.id,err.code || "error",errType,"dlist")
                         return cb()
                     }
                     if(!result){
@@ -320,7 +320,7 @@ class dealWith {
             v_img: data.imageUrl,
             class: type
         }
-        this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")
                 return

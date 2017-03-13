@@ -94,7 +94,7 @@ class miaopaiDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging('miaopai',option.url,task.id,err.code || err,errType,"total")
+                this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"total")
                 if(task.id == 'mEpTsCBR3q2uyDUc'){
                     return callback()
                 }
@@ -155,7 +155,7 @@ class miaopaiDealWith {
                             errType = "responseErr"
                         }
                         logger.error(errType)
-                        this.storaging.errStoraging('miaopai',option.url,task.id,err.code || err,errType,"videos")
+                        this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }
                     if(!result){
@@ -223,7 +223,7 @@ class miaopaiDealWith {
                     }
                     // logger.debug(data.title+'标题')
                     // logger.debug(data.desc+'描述')
-                    this.core.MSDB.hget(`apiMonitor:${data.author}:play_num:${data.aid}`,"play_num",(err,result)=>{
+                    this.core.MSDB.hget(`apiMonitor:play_num`,`${data.author}_${data.aid}`,(err,result)=>{
                         if(err){
                             logger.debug("读取redis出错")
                             return

@@ -218,7 +218,7 @@ class dealWith {
                     comment_num: result[1],
                     a_create_time: video.uploadTime.toString().substr(0,10)
                 }
-                this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return
