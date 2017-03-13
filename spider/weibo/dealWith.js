@@ -78,9 +78,8 @@ class dealWith {
                 let user = {
                     platform: task.p,
                     bid: task.id,
-                    fans_num: result.userInfo.followers_count
+                    fans_num: result.userInfo ? (result.userInfo.followers_count ? result.userInfo.followers_count : '') : ''
                 }
-                this.sendUser(user)
                 this.sendStagingUser(user)
                 if(result.tabsInfo.tabs[2].title !== '视频'){
                     task.NoVideo = true
@@ -205,12 +204,14 @@ class dealWith {
         })
     }
     getVidList( task, data, total, proxy, callback ){
-        let page
+        let page,
+            num = 0
         if(total % 20 != 0){
             page = Math.ceil(total / 20)
         }else{
             page = total / 20
         }
+        //logger.debug(page)
         async.whilst(
             () => {
                 return task.page <= Math.min(page, 200)
@@ -225,6 +226,7 @@ class dealWith {
                     containerid = data.tabsInfo.tabs[2].containerid
                     option.url  = this.settings.spiderAPI.weibo.videoList + containerid + "_time&page=" + task.page
                 }
+                logger.debug(option.url,'+++')
                 option.proxy = proxy
                 request.get( logger, option, ( err, result ) => {
                     if (err) {
@@ -264,6 +266,10 @@ class dealWith {
                         return
                     }
                     if( result.cards.length <= 0 ){
+                        num++
+                        if(num > 1){
+                            task.page += 200
+                        }
                         return cb()
                     }
                     //logger.info(task.page)
@@ -301,13 +307,10 @@ class dealWith {
     }
     getAllInfo( task, video, user, proxy, callback ){
         if(video.mblog == undefined){
-            // logger.debug('eeeeeeeeeeeeeeeeeeee')
             callback()
         }else if(video.mblog.pic_infos != undefined){
-            // logger.debug('fffffffffffffffffffffffffffffff')
             callback()
         }else if(video.mblog.user !== undefined && task.id != video.mblog.user.id){
-            // logger.debug('gggggggggggggggggggggggggg')
             callback()
         }else{
             async.series([
@@ -319,10 +322,8 @@ class dealWith {
                 }
             ],(err,result) => {
                 if(result[0] == '抛掉当前的'){
-                    // logger.debug('ddddddddddddddddddddddddd')
                     return callback()
                 }else if(video.mblog.user == undefined){
-                    // logger.debug('ccccccccccccccccccccc')
                     return callback()
                 }
                 let media = {
@@ -355,9 +356,10 @@ class dealWith {
             },
             dataTime = ''
         option.proxy = proxy
+        logger.debug(option.url,'---')
         request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.debug('单个视频信息请求错误',err.message)
+                logger.debug('单个视频信息请求错误',err)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
