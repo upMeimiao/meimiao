@@ -23,7 +23,7 @@ exports.start = () => {
         })
     })
     const errReadRule = new schedule.RecurrenceRule()
-        errReadRule.minute = [15,30,45,59]
+        errReadRule.minute = [21,41,59]
     schedule.scheduleJob(errReadRule, () =>{
         sendWarnEmail(()=>{
             logger.debug("开始读取错误列表发送邮件~")
@@ -71,27 +71,42 @@ const sendWarnEmail = (callback) => {
             hourStr = "0" + hour
         }
         let subject = `接口监控：${year}年${month}月${day}日 ${hourStr}时接口报警报表`,
-            tableBody,j,length = result.length,index = 0,
+            tableBody,j = 0,length = result.length,
             tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
         //遍历key，获取所有错误信息，发送邮件
-        for(j = 0; j < length; j++){
-            mSpiderClient.hget(key,result[j],(err,result) => {
-                result = JSON.parse(result)
-                // logger.debug("resultJ====================",resultJ)
-                platform = result["platform"]
-                bid = result["bid"]
-                urlDesc = result["urlDesc"]
-                totalTimes = result["totalTimes"]
-                errObj = result["errObj"]
-                errType = result["errType"]
-                errDesc = JSON.stringify(result["errDesc"])
-                errTimes = result["errTimes"]
-                tableBody += `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
-                content = `<table style= 'border-collapse:collapse;border:1px solid #333;'>${subject}${tableHead}${tableBody}</table>`
-                // logger.debug("subject content++++++++++++++++++++++++++++++++++++",subject,content)
+        //for(j = 0; j < length; j++){
+            
+        //}
+        //
+        logger.debug("即将进入循环",subject)
+        async.whilst(
+            () => {
+                return j < length
+            },
+            (cb) => {
+                mSpiderClient.hget(key,result[j],(err,result) => {
+                    result = JSON.parse(result)
+                    // logger.debug("resultJ====================",resultJ)
+                    platform = result["platform"]
+                    bid = result["bid"]
+                    urlDesc = result["urlDesc"]
+                    totalTimes = result["totalTimes"]
+                    errObj = result["errObj"]
+                    errType = result["errType"]
+                    errDesc = JSON.stringify(result["errDesc"])
+                    errTimes = result["errTimes"]
+                    tableBody += `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
+                    content = `<style>table{border-collapse:collapse;}table,th, td{border: 1px solid black;}</style><table>${tableHead}${tableBody}</table>`
+                    //emailServerLz.sendAlarm(subject,content)
+                    j++
+                    cb()
+                })
+            },
+            (err, result) => {
+                // logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
                 emailServerLz.sendAlarm(subject,content)
-            })
-        }
+            }
+        )
     })
 }
 const getErr = (platform,urlDesc) => {
@@ -120,13 +135,13 @@ const getErr = (platform,urlDesc) => {
             // let urls = result[i]
             // 获取当前接口对应的错误记录
             mSpiderClient.get(curKey,(err,result) => {
-                logger.debug("获取当前接口对应的错误记录=",curKey,result)
+                // logger.debug("获取当前接口对应的错误记录=",curKey,result)
                 if(err){
                     logger.debug("读取redis发生错误")
                     return
                 }
                 if(!result){
-                    logger.debug(`暂无${platform}:${urlDesc}的错误记录`)
+                    // logger.debug(`暂无${platform}:${urlDesc}的错误记录`)
                     return
                 }
                 let　 errResult = result,
@@ -134,13 +149,13 @@ const getErr = (platform,urlDesc) => {
                 // 获取当前url对应的全部请求次数
                 // logger.debug("errResult~~~~~~~~~~~~~~~~~",errResult)
                 mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}_${hourStr}`,(err,result) => {
-                    logger.debug("获取当前url对应的全部请求次数=",curKey,result)
+                    // logger.debug("获取当前url对应的全部请求次数=",curKey,result)
                     if(err){
                         logger.debug("读取redis发生错误")
                         return
                     }
                     if(!result){
-                        logger.debug(`暂无${platform}:${urlDesc}的请求记录`)
+                        // logger.debug(`暂无${platform}:${urlDesc}的请求记录`)
                         return
                     }
                     options = {

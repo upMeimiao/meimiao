@@ -123,7 +123,7 @@ class dealWith {
             containerid = data.tabsInfo.tabs[1].containerid
             option.url  = api.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
         }else{
-            containerid = data.tabsInfo.tabs[2].containerid
+            containerid = data.tabsInfo && data.tabsInfo.tabs[2].containerid
             option.url  = api.weibo.videoList + containerid + "_time&page=0"
         }
         option.proxy = proxy
