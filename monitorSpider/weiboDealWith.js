@@ -123,7 +123,7 @@ class dealWith {
             containerid = data.tabsInfo.tabs[1].containerid
             option.url  = api.weibo.videoList + containerid + '_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=0'
         }else{
-            containerid = data.tabsInfo.tabs[2].containerid
+            containerid = data.tabsInfo && data.tabsInfo.tabs[2].containerid
             option.url  = api.weibo.videoList + containerid + "_time&page=0"
         }
         option.proxy = proxy
@@ -334,7 +334,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('weibo',`http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${video.mblog.mblogid}`,task.id,`weibo视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","list")
+                        this.storaging.errStoraging('weibo',`http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${video.mblog.mblogid}`,task.id,`weibo视频${media.aid}播放量减少`,"playNumErr","list")
                         return
                     }
                 })

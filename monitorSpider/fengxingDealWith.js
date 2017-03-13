@@ -255,7 +255,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('fengxing',`${option.url}`,task.id,`pptv视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","list")
+                        this.storaging.errStoraging('fengxing',`${option.url}`,task.id,`pptv视频${media.aid}播放量减少`,"playNumErr","list")
                         return
                     }
                 })

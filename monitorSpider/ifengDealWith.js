@@ -185,7 +185,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('acfun',`${option.url}`,task.id,`ifeng视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","video")
+                    this.storaging.errStoraging('acfun',`${option.url}`,task.id,`ifeng视频${media.aid}播放量减少`,"playNumErr","video")
                     return
                 }
             })
