@@ -1861,6 +1861,9 @@ class DealWith {
                         logger.debug(dataJson)
                         return
                     }
+                    if(!dataJson.p_title.replace(/[\s\n\r]/g)){
+                        return this.pptvInfo( vid, url, callback )
+                    }
                     let res = {
                         name: dataJson.p_title,
                         id: dataJson.pid,
