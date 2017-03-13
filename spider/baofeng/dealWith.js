@@ -12,6 +12,7 @@ class dealWith {
     constructor ( spiderCore ){
         this.core = spiderCore
         this.settings = spiderCore.settings
+        this.aidUrl = ''
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
     }
@@ -45,6 +46,15 @@ class dealWith {
             if(!aid){
                 aid = $('div.enc-episodes-detail').attr('m_aid')
             }
+            if(!aid){
+                this.aidUrl = $('ul.hot-pic-list li').eq(0).find('a').attr('href')
+                return this.getAid( task,(err) => {
+                    if(err){
+                        return callback(err)
+                    }
+                    callback()
+                })
+            }
             this.getVidList( task, aid, (err) => {
                 if(err){
                     return callback(err)
@@ -53,11 +63,28 @@ class dealWith {
             })
         })
     }
-    
+    getAid( task, callback ){
+        if(!this.aidUrl)
+            return callback('结构出错，没有获取到播放详情页地址')
+        let option = {
+            url: 'http://www.baofeng.com/'+ this.aidUrl
+        }
+        request.get(logger, option, (err, result) => {
+            if(err){
+                return this.getAid( task, callback )
+            }
+            result = result.body
+            let aid = result.match(/"aid":"\d+/).toString().replace(/"aid":"/,'')
+            this.getVidList( task, aid, (err) => {
+                callback()
+            })
+        })
+    }
     getVidList( task, aid, callback ){
         let option = {
             url: 'http://minfo.baofeng.net/asp_c/13/124/'+aid+'-n-100-r-50-s-1-p-1.json?_random=false'
         }
+        logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('视频列表请求失败',err)

@@ -68,9 +68,9 @@ class spiderCore {
     }
     test () {
         let work = {
-            id: 805373,
+            id: 814408,
             p: 36,
-            name: '二更视频'
+            name: '小伶玩具双人游戏'
         }
         this.dealWith.todo(work, (err, total) => {
             logger.debug(total)
