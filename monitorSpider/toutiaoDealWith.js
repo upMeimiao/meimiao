@@ -376,7 +376,7 @@ class toutiaoDealWith {
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","play")
+                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"playNumErr","play")
                 return
             }
         })

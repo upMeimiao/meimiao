@@ -196,7 +196,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('xiaoying',`${option.url}`,task.id,`爱奇艺视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","info")
+                    this.storaging.errStoraging('xiaoying',`${option.url}`,task.id,`爱奇艺视频${media.aid}播放量减少`,"playNumErr","info")
                     return
                 }
             })

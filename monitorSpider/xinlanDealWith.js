@@ -178,7 +178,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('xinlan',`${option.url}`,task.id,`mgtv视频${vid}保存量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","save")
+                    this.storaging.errStoraging('xinlan',`${option.url}`,task.id,`mgtv视频${vid}保存量减少`,"playNumErr","save")
                     return
                 }
             })

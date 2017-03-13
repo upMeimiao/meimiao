@@ -311,7 +311,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('mgtv',`${option.url}`,task.id,`mgtv视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","paly")
+                    this.storaging.errStoraging('mgtv',`${option.url}`,task.id,`mgtv视频${media.aid}播放量减少`,"playNumErr","paly")
                     return
                 }
             })

@@ -200,7 +200,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('btime',`${api.btime.medialist}&pageNo=${index}&lastTime=`,task.id,`北京时间视频${media.aid}播放量减少${result}(纪录)/${media.play_num}(本次)`,"playNumErr","list")
+                    this.storaging.errStoraging('btime',`${api.btime.medialist}&pageNo=${index}&lastTime=`,task.id,`北京时间视频${media.aid}播放量减少`,"playNumErr","list")
                     return
                 }
             })
