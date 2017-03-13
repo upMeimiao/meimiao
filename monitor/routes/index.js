@@ -31,5 +31,18 @@ router.get('/auth', (req, res) => {
         }
     })
 })
-
+router.get('/comment', (req, res) => {
+    res.sendFile('comment_video.html', options, (err) => {
+        if (err) {
+            res.render('error', {error:err, message: '哦哦，页面飞了'})
+        }
+    })
+})
+router.get('/comment/:p/:aid', (req, res) => {
+    res.sendFile('comment_list.html', options, (err) => {
+        if (err) {
+            res.render('error', {error:err, message: '哦哦，页面飞了'})
+        }
+    })
+})
 module.exports = router

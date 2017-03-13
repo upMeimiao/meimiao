@@ -7,8 +7,6 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 
 const logger = logging.getLogger('状态监控')
-
-
 const monitorClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/5`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
@@ -79,7 +77,7 @@ const _getFailedTask = () => {
         try {
             body = JSON.parse(body)
         } catch (e) {
-            logger.error('failed task json parse error:',error.message)
+            logger.error('failed task json parse error:',e.message)
             return
         }
         const filedTask = []

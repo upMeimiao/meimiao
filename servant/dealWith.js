@@ -2159,12 +2159,15 @@ class DealWith {
         })
     }
     baidu ( data, callback ){
-        let urlObj   = URL.parse(data,true),
-            host     = urlObj.hostname,
-            path     = urlObj.pathname,
-            bid      = null,
-            name     = '',
-            option   = {
+        let urlObj     = URL.parse(data,true),
+            host       = urlObj.hostname,
+            path       = urlObj.pathname,
+            bid        = null,
+            name       = '',
+            startIndex = null,
+            endIndex   = null,
+            dataJson   = null,
+            option     = {
                 url : data
             }
         if(host == 'baidu.56.com'){
@@ -2180,12 +2183,21 @@ class DealWith {
                 logger.debug('百度视频的状态码错误',result.statusCode)
                 return callback(true,{code:102,p:37})
             }
-            let $ = cheerio.load(result.body)
-            bid = result.body.match(/pgcTid: \'\d*/).toString().replace('pgcTid: \'','')
-            name = result.body.match(/pgcName: \'[^\x00-\xff]*/).toString().replace('pgcName: \'','')
+            result = result.body.replace(/[\s\n\r]/g,'')
+            startIndex = result.indexOf('{pgcName')
+            endIndex = result.indexOf(');}();!function(){varadmis')
+            dataJson = result.substring(startIndex,endIndex)
+            try{
+                dataJson.replace('{','{"').replace(/\'/g,'"').replace(',',',"').replace(/:/g,'":')
+                dataJson = JSON.parse(dataJson)
+            }catch (e){
+                logger.debug('百度视频bid解析失败')
+                logger.info(dataJson)
+                return callback(err,{code:102,p:37})
+            }
             let res = {
-                id: bid,
-                name: name,
+                id: dataJson.pgcTid,
+                name: dataJson.pgcName,
                 p: 37
             }
             this.baiduAvatar( res.name, (err, avatar) => {
@@ -2214,6 +2226,7 @@ class DealWith {
                 logger.info(result)
                 return this.baiduAvatar(bname,callback)
             }
+            logger.debug(result)
             let avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : ''
             callback(null,avatar)
         })

@@ -14,7 +14,7 @@ class dealWith {
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
     }
-    weibo ( task, callback ) {
+    todo ( task, callback ) {
         task.total = 0
         task.page = 1
         this.getUserInfo( task, ( err ) => {
@@ -213,7 +213,7 @@ class dealWith {
         }
         async.whilst(
             () => {
-                return task.page <= page
+                return task.page <= Math.min(page, 200)
             },
             (cb) => {
                 let containerid = '',
