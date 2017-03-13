@@ -78,7 +78,11 @@ const sendWarnEmail = (callback) => {
             
         //}
         //
-        logger.debug("即将进入循环",subject)
+        // logger.debug("即将进入循环",subject)
+        if(length < 1){
+            logger.debug("获取的错误内容为空，不发邮件") 
+            return
+        }
         async.whilst(
             () => {
                 return j < length
@@ -122,17 +126,6 @@ const getErr = (platform,urlDesc) => {
     }
     let curKey = `apiMonitor:error:${platform}:${urlDesc}:${hourStr}`,
         i
-    // mSpiderClient.keys(curKey,(err,result) => {
-    //     if(err){
-    //         logger.debug("读取redis发生错误")
-    //         return
-    //     }
-    //     if(!result){
-    //         return
-    //     }
-    //     // logger.debug("curKey result",curKey,result)
-    //     for(i = 0; i < result.length; i++){
-            // let urls = result[i]
             // 获取当前接口对应的错误记录
             mSpiderClient.get(curKey,(err,result) => {
                 // logger.debug("获取当前接口对应的错误记录=",curKey,result)
@@ -286,12 +279,6 @@ const getErr = (platform,urlDesc) => {
 const judgeResults = (options,emailOptions,numberArr) => {
     // logger.debug("judgeResults  options=================",options)
     let resultObj = JSON.parse(options.result)
-    // logger.debug(resultObj.responseErr.times,
-    //             resultObj.resultErr.times,
-    //             resultObj.doWithResErr.times,
-    //             resultObj.domBasedErr.times,
-    //             resultObj.timeoutErr.times,
-    //             options.totalResult)
     if(!options.totalResult || options.totalResult < 2){
         return
     }
