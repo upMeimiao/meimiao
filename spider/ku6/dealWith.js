@@ -49,12 +49,17 @@ class dealWith {
             if(err){
                 return callback(err)
             }
-            let $ = cheerio.load(result.body),
-                num = $('.fright.statNum a .num').text(),
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.debug('粉丝数请求失败')
+                return callback(e)
+            }
+            let fans = result.data.subscriptions ? result.data.subscriptions : '',
                 user = {
                     platform: 14,
                     bid: task.id,
-                    fans_num: num
+                    fans_num: spiderUtils.numberHandling(fans)
                 }
             this.sendUser(user ,(err,result) => {
                 callback()
@@ -115,7 +120,7 @@ class dealWith {
         logger.debug('开始获取视频总数')
         let option = {
             url: this.settings.spiderAPI.ku6.listNum + id,
-            referer: `http://boke.ku6.com/${task.id}?mode=2`,
+            referer: `http://v.ku6.com/u/${task.id}/profile.html`,
             ua: 1
         }
         request.get(logger, option, (err,result) => {
@@ -129,7 +134,7 @@ class dealWith {
                 logger.info('json1 error :',result.body)
                 return callback(e)
             }
-            let total = parseInt(result.data.left) + parseInt(result.data.offset)
+            let total = result.data.videoCount
             task.total = total
             this.getList( task, total, (err) => {
                 if(err){
