@@ -80,6 +80,7 @@ class dealWith {
                     bid: task.id,
                     fans_num: result.userInfo ? (result.userInfo.followers_count ? result.userInfo.followers_count : '') : ''
                 }
+                this.sendUser(user)
                 this.sendStagingUser(user)
                 if(result.tabsInfo.tabs[2].title !== '视频'){
                     task.NoVideo = true
