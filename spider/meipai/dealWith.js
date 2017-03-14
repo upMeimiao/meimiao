@@ -133,10 +133,6 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
-            if( result.statusCode != 200){
-                logger.error('获取total code error：',result.statusCode)
-                return callback(result.statusCode)
-            }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
@@ -158,7 +154,7 @@ class dealWith {
         })
     }
     getVideos ( task,page,callback ) {
-        let maxId = '',sign = 1,option = {}, flag = 0
+        let maxId = '',sign = 1,option = {}
         async.whilst(
             () => {
                 return sign <= page
@@ -168,21 +164,9 @@ class dealWith {
                 request.get(logger, option,(err,result) => {
                     if(err){
                         logger.error( 'occur error : ', err )
-                        flag++
-                        if(flag > 5){
-                            sign++
-                        }
+                        sign++
                         return cb()
                     }
-                    if( result.statusCode != 200){
-                        logger.error('获取videos code error：',result.statusCode)
-                        flag++
-                        if(flag > 5){
-                            sign++
-                        }
-                        return cb()
-                    }
-                    flag = null
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
@@ -237,11 +221,6 @@ class dealWith {
         request.get(logger, option, (err,result) => {
             if(err){
                 return callback(err)
-            }
-            if( result.statusCode != 200){
-                logger.error('获取info code error：',result.statusCode)
-                result = null
-                return callback()
             }
             try {
                 result = JSON.parse(result.body)

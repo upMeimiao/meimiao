@@ -170,7 +170,7 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             if(err){
                 logger.debug('评论量请求失败 ', err)
-                callback(null,{comment_count:''})
+                return callback(null,{comment_count:''})
             }
             try{
                 result = JSON.parse(result.body)
