@@ -155,6 +155,7 @@ class dealWith {
             }else{
                 page = total / 20
             }
+            result = null
             this.getVideos(task,page, () => {
                 callback()
             })
@@ -187,6 +188,7 @@ class dealWith {
                     if(!videos){
                         return cb()
                     }
+                    result = null
                     this.deal(task,videos, () => {
                         sign++
                         cb()
@@ -199,14 +201,14 @@ class dealWith {
         )
     }
     deal ( task, list, callback ) {
-        let index = 0,
+        let index = 0, video,
             length = list.length
         async.whilst(
             () => {
                 return index < length
             },
             (cb) => {
-                let video = list[index]
+                video = list[index]
                 this.info( task, video, (err) => {
                     index++
                     cb()
