@@ -21,7 +21,9 @@ class monitor {
             heartbeat.do(io, socket)
         })
         monitorServer.start()
-        mSpiderServer.start()
+        mSpiderServer.start((err,result) => {
+            logger.debug(err,result)
+        })
         maintainServer.start()
         logger.debug('Monitor started on port 3001')
     }}

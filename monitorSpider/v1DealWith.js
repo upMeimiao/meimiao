@@ -96,11 +96,6 @@ class dealWith {
             if(!result.body){
                 return 
             }
-            if(result.statusCode != 200){
-                logger.error('v1状态码错误',result.statusCode)
-                this.storaging.errStoraging('V1',option.url,task.id,"v1获取total接口状态码错误","statusErr","total")
-                return callback(true)
-            }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
@@ -138,15 +133,11 @@ class dealWith {
                         this.storaging.errStoraging("v1",option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('v1',option.url,task.id,"v1获取list接口无返回数据","resultErr","list")
-                        return cb()
-                    }
                     if(!result.body){
                         this.storaging.errStoraging('v1',option.url,task.id,"v1获取list接口无返回数据","resultErr","list")
                         return cb()
                     }
-                    if(result.statusCode != 200){
+                    if(result.statusCode && result.statusCode != 200){
                         this.storaging.errStoraging('v1',option.url,task.id,"v1获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
@@ -324,9 +315,9 @@ class dealWith {
                 }
                 return callback(null,'next')
             }
-            if(!result){
-                this.storaging.errStoraging('v1',option.url,task.id,"v1获取vidInfo接口无返回数据","responseErr","vidInfo")
-                return cb()
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('v1',option.url,task.id,"v1获取vidInfo接口状态码错误","statusErr","vidInfo")
+                return callback()
             }
             try{
                 result = JSON.parse(result.body)
@@ -340,18 +331,18 @@ class dealWith {
                 "aid": vid,
                 "play_num": result.body.obj.videoDetail.playNum
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('v1',`${option.url}`,task.id,`v1视频${media.aid}播放量减少`,"playNumErr","vidInfo")
-                    return
-                }
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('v1',`${option.url}`,task.id,`v1视频${media.aid}播放量减少`,"playNumErr","vidInfo")
+            //         return
+            //     }
+            // })
             // logger.debug("v1 media==============",media)
-            this.storaging.sendDb(media)
+            this.storaging.sendDb(media,task.id,"vidInfo")
             callback(null,result.body.obj.videoDetail)
         })
     }

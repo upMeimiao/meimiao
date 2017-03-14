@@ -147,11 +147,7 @@ class billDealWith {
                         this.storaging.errStoraging('bili',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口无返回内容","resultErr","videos")
-                        return cb()
-                    }
-                    if( result.statusCode != 200){
+                    if( result.statusCode && result.statusCode != 200){
                         logger.error('获取total接口code error：',result.statusCode)
                         this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取videos接口code error","statusErr","videos")
                         return cb()
@@ -266,16 +262,16 @@ class billDealWith {
             if(!media.save_num){
                 delete media.save_num
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少`,"playNumErr","videos")
-                }
-            })
-            this.storaging.sendDb(media)
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少`,"playNumErr","videos")
+            //     }
+            // })
+            this.storaging.sendDb(media,task.id,"videos")
             callback()
         })
     }

@@ -169,8 +169,8 @@ class tencentDealWith {
                         return cb()
                     }
                     //logger.debug(back.body)
-                    if(!result){
-                        this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频list接口无返回数据","responseErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('tencent',option.url,task.id,"tencent获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     if(!result.body){
@@ -271,17 +271,17 @@ class tencentDealWith {
                     long_t: this.long_t(data.duration),
                     tag: this.tags(result[2])
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"playNumErr","view")
-                        return
-                    }
-                })
-                this.storaging.sendDb(media)
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('tencent',`${api.tencent.view}${media.aid}`,task.id,`腾讯视频${media.aid}播放量减少`,"playNumErr","view")
+                //         return
+                //     }
+                // })
+                this.storaging.sendDb(media,task.id,"view")
                 if(!media.comment_num){
                     delete media.comment_num
                 }

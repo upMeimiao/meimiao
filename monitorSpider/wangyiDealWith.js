@@ -107,7 +107,7 @@ class dealWith {
                         this.storaging.errStoraging('wangyi',option.url,task.id,"wangyi获取list接口无返回数据","resultErr","list")
                         return cb()
                     }
-                    if( result.statusCode != 200){
+                    if( result.statusCode && result.statusCode != 200){
                         this.storaging.errStoraging('wangyi',option.url,task.id,"wangyi获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
@@ -177,6 +177,9 @@ class dealWith {
                 }
             ],
             (err,result) => {
+                if(!result[0] || !result[1]){
+                    return
+                }
                 media = {
                     author: task.name,
                     platform: task.p,
@@ -214,10 +217,11 @@ class dealWith {
                 }
                 //logger.error(errType)
                 this.storaging.errStoraging("wangyi",option.url,task.id,err.code || "error",errType,"video")
+                return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging("wangyi",option.url,task.id,"wangyi获取video接口无返回结果","responseErr","video")
-                return callback(null,'')
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('wangyi',option.url,task.id,"wangyi获取video接口状态码错误","statusErr","video")
+                return callback()
             }
             if( result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('wangyi',option.url,task.id,"wangyi获取video接口状态码错误","statusErr","video")
@@ -246,10 +250,6 @@ class dealWith {
             if(!result.body){
                 return 
             }
-            if( result.statusCode != 200){
-                this.storaging.errStoraging('wangyi',option.url,task.id,"wangyi获取paly接口状态码错误","statusErr","paly")
-                return callback(null,'')
-            }
             try {
                 result = result.body.replace('var vote = ','').replace(';','')
                 result = JSON.parse(result)
@@ -264,18 +264,18 @@ class dealWith {
                 "play_num": result.info.hits
             }
             // logger.debug("wangyi result result.info++*+*****+*++*+*+*+*+******+*+*+*+*+*+***+",result,result.info)
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`wangyi视频${media.aid}播放量减少`,"playNumErr","paly")
-                    return
-                }
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`wangyi视频${media.aid}播放量减少`,"playNumErr","paly")
+            //         return
+            //     }
+            // })
             // logger.debug("wangyi media==============",media)
-            this.storaging.sendDb(media)
+            this.storaging.sendDb(media,task.id,"paly")
             callback(null,result.info)
         })
     }

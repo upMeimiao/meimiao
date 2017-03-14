@@ -100,8 +100,8 @@ class dealWith {
                 },3000)
                 return
             }
-            if(!result){
-                this.storaging.errStoraging('cctv',option.url,task.id,"cctv total接口无返回结果","responseErr","total")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('cctv',option.url,task.id,"cctv total接口状态码错误","statusErr","total")
                 setTimeout(() => {
                     this.getVidTotal(task,callback)
                 },3000)
@@ -154,10 +154,10 @@ class dealWith {
                         },3000)
                         return
                     }
-                    if(!result){
-                        this.storaging.errStoraging('cctv',option.url,task.id,"cctv list接口无返回结果","responseErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('cctv',option.url,task.id,"cctv list接口状态码错误","statusErr","list")
                         setTimeout(() => {
-                            this.getVidTotal(task,callback)
+                            this.getVidList(task,callback)
                         },3000)
                         return
                     }
@@ -251,18 +251,18 @@ class dealWith {
                 a_create_time: moment(time).format('X')
 
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('cctv',`${option.url}`,task.id,`cctv视频${media.aid}播放量减少`,"playNumErr","info")
-                    return
-                }
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('cctv',`${option.url}`,task.id,`cctv视频${media.aid}播放量减少`,"playNumErr","info")
+            //         return
+            //     }
+            // })
             // logger.debug("btime media==============",media)
-            this.storaging.sendDb(media)
+            this.storaging.sendDb(media,task.id,"info")
             callback() 
         })
     }

@@ -2,7 +2,6 @@
  * Created by yunsong on 16/9/7.
  */
 const async = require( 'async' )
-const cheerio = require( 'cheerio' )
 const request = require('../lib/request.js')
 const channels = require('../spider/acfun/channels')
 
@@ -131,8 +130,8 @@ class dealWith {
                         this.storaging.errStoraging('acfun',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('acfun',option.url,task.id,"acfun获取list接口无返回数据","resultErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('acfun',option.url,task.id,"acfun获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try{
@@ -198,17 +197,17 @@ class dealWith {
                 tag: this._tags(data.tags),
                 class: channels.get(Number(data.channelId))
             }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('acfun',`${url}`,task.id,`acfun视频${media.aid}播放量减少`,"playNumErr","list")
-                return
-            }
-        })
-        this.storaging.sendDb(media)
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('acfun',`${url}`,task.id,`acfun视频${media.aid}播放量减少`,"playNumErr","list")
+        //         return
+        //     }
+        // })
+        this.storaging.sendDb(media,task.id,"list")
         callback()
     }
     _tags( raw ){

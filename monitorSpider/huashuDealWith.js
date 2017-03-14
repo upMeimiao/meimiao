@@ -241,9 +241,9 @@ class dealWith {
                 this.storaging.errStoraging("huashu",option.url,task.id,err.code || "error",errType,"play")
                 return this.getPlay( task, vid, callback )            
             }
-            if(!result){
-                this.storaging.errStoraging("huashu",option.url,task.id,"huashu play接口无返回数据","resultErr","play")
-                return this.getPlay( task, vid, callback )  
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取play接口状态码错误","statusErr","play")
+                return this.getPlay( task, vid, callback )
             }
             result = result.body ? Number(result.body.replace(/,/g,'')) : ''
             let media = {
@@ -251,18 +251,18 @@ class dealWith {
                     "aid": vid,
                     "play_num": result
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('huashu',`${option.url}`,task.id,`huashu视频${media.aid}播放量减少`,"playNumErr","play")
-                        return
-                    }
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('huashu',`${option.url}`,task.id,`huashu视频${media.aid}播放量减少`,"playNumErr","play")
+                //         return
+                //     }
+                // })
                 // logger.debug("huashu media==============",media)
-                this.storaging.sendDb(media)
+                this.storaging.sendDb(media,task.id,"play")
             callback(null,result)
         })
     }

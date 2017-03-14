@@ -218,18 +218,18 @@ class dealWith {
                     comment_num: result[1],
                     a_create_time: video.uploadTime.toString().substr(0,10)
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('tv56',api.tv56.video + `${id}&_=${new Date().getTime()}`,task.id,`tv56 ${media.aid}播放量减少`,"playNumErr","info")
-                        return
-                    }
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('tv56',api.tv56.video + `${id}&_=${new Date().getTime()}`,task.id,`tv56 ${media.aid}播放量减少`,"playNumErr","info")
+                //         return
+                //     }
+                // })
                 // logger.debug("tv56 media==============",media)
-                this.storaging.sendDb(media)
+                this.storaging.sendDb(media,task.id,"info")
                 //logger.debug(media)
                 callback()
             }
@@ -251,7 +251,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 // logger.error(errType)
-                this.storaging.errStoraging('tv56',option.url,task.id,err.code || err,errType,"info")
+                this.storaging.errStoraging('tv56',option.url,task.id,err.code || "error",errType,"info")
                 return callback(error)
             }
             if(!meta){

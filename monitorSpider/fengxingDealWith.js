@@ -42,8 +42,8 @@ class dealWith {
                     this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"video")
                     return this.getVideo(task,callback)
                 }
-                if(!result){
-                    this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing video接口无返回数据","resultErr","video")
+                if(result.statusCode && result.statusCode != 200){
+                    this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing  video接口状态码错误","statusErr","video")
                     return this.getVideo(task,callback)
                 }
                 let $ = cheerio.load(result.body),
@@ -85,11 +85,7 @@ class dealWith {
                     this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"video")
                     return this.getVideo(task,callback)
                 }
-                if(!result){
-                    this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing video接口无返回数据","resultErr","video")
-                    return this.getVideo(task,callback)
-                }
-                if(result.statusCode != 200){
+                if(result.statusCode && result.statusCode != 200){
                     logger.error('风行状态码错误',result.statusCode)
                     this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取video接口状态码错误","statusErr","video")
                     return this.getVideo(task,callback)
@@ -124,8 +120,9 @@ class dealWith {
                 this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"fans")
                 return this.getFans( task, callback )
             }
-            if(!result){
-                this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing fans接口无返回数据","resultErr","fans")
+            if(result.statusCode && result.statusCode != 200){
+                logger.error('风行状态码错误',result.statusCode)
+                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取fans接口状态码错误","statusErr","fans")
                 return this.getFans( task, callback )
             }
             let $ = cheerio.load(result.body),
@@ -171,8 +168,9 @@ class dealWith {
                         this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing list接口无返回数据","resultErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        logger.error('风行状态码错误',result.statusCode)
+                        this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     let $ = cheerio.load(result.body),
@@ -222,11 +220,7 @@ class dealWith {
                 this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"vidList")
                 return this.getVideoList(task,callback)
             }
-            if(!result){
-                this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing vidList接口无返回数据","resultErr","vidList")
-                return this.getVideoList(task,callback)
-            }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
                 this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取vidList接口状态码错误","statusErr","vidList")
                 return this.getVideoList(task,callback)
@@ -249,18 +243,18 @@ class dealWith {
                     "aid": video.videoid,
                     "play_num": playNum
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('fengxing',`${option.url}`,task.id,`pptv视频${media.aid}播放量减少`,"playNumErr","list")
-                        return
-                    }
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('fengxing',`${option.url}`,task.id,`pptv视频${media.aid}播放量减少`,"playNumErr","list")
+                //         return
+                //     }
+                // })
                 // logger.debug("pptv media==============",media)
-                this.storaging.sendDb(media)
+                this.storaging.sendDb(media,task.id,"list")
             }
             this.deal(task,content,length,() => {
                 logger.debug('数据请求完成')
@@ -384,11 +378,7 @@ class dealWith {
                             this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"info")
                             return this.getVideoInfo(task,vid,callback)
                         }
-                        if(!result){
-                            this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing info接口无返回数据","resultErr","info")
-                            return this.getVideoInfo(task,vid,callback)
-                        }
-                        if(result.statusCode != 200){
+                        if(result.statusCode && result.statusCode != 200){
                             logger.error('风行状态码错误',result.statusCode)
                             this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取info接口状态码错误","statusErr","info")
                             return this.getVideoInfo(task,vid,callback)
@@ -466,11 +456,7 @@ class dealWith {
                 this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"creatTime")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing creatTime接口无返回数据","resultErr","creatTime")
-                return callback(true)
-            }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
                 this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取creatTime接口状态码错误","statusErr","creatTime")
                 return callback(true)
@@ -505,11 +491,7 @@ class dealWith {
                 this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"comment")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing comment接口无返回数据","resultErr","comment")
-                return callback(true)
-            }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
                 this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取comment接口状态码错误","statusErr","comment")
                 return callback(true)

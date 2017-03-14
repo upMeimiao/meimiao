@@ -163,8 +163,8 @@ class dealWith {
                         this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging("tudou",option.url,task.id,"土豆list接口返回数据为空","resultErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('tudou',option.url,task.id,"tudou获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     if(!result.body){
@@ -187,16 +187,16 @@ class dealWith {
                     let list = result.data.data
                     if(list){
                         for(let index in list){
-                            this.core.MSDB.hget(`apiMonitor:play_num`,`tudou_${list[index].code}`,(err,result)=>{
-                                if(err){
-                                    logger.debug("读取redis出错")
-                                    return
-                                }
-                                if(result > list[index].playNum){
-                                    this.storaging.errStoraging("tudou",option.url,task.id,`土豆${list[index].code}播放量减少`,"playNumErr","list")
-                                    return
-                                }
-                            })
+                            // this.core.MSDB.hget(`apiMonitor:play_num`,`tudou_${list[index].code}`,(err,result)=>{
+                            //     if(err){
+                            //         logger.debug("读取redis出错")
+                            //         return
+                            //     }
+                            //     if(result > list[index].playNum){
+                            //         this.storaging.errStoraging("tudou",option.url,task.id,`土豆${list[index].code}播放量减少`,"playNumErr","list")
+                            //         return
+                            //     }
+                            // })
                             let media = {
                                     "author": task.name,
                                     "platform": task.platform,
@@ -204,7 +204,7 @@ class dealWith {
                                     "bid": task.id,
                                     "play_num": list[index].playNum
                                 }
-                            this.storaging.sendDb(media)
+                            this.storaging.sendDb(media,task.id,"list")
                         }
                         this.deal(task,list, () => {
                             sign++

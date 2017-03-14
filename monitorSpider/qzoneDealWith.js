@@ -62,8 +62,8 @@ class dealWith {
                 this.storaging.errStoraging("qzone",option.url,task.id,err.code || "error",errType,"fan")
                 return this.getFan( task, callback )
             }
-            if(!result){
-                this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取fan接口无返回内容","resultErr","fan")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取info接口状态码错误","statusErr","info")
                 return this.getFan( task, callback )
             }
             if(!result.body){
@@ -126,9 +126,9 @@ class dealWith {
                             cb()
                         },300)
                     }
-                    if(!result){
-                        this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取list接口无返回内容","resultErr","list")
-                        return callback()
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取list接口状态码错误","statusErr","list")
+                        return callback( task, callback )
                     }
                     num = 0
                     try{
@@ -293,18 +293,18 @@ class dealWith {
                 "aid": video.key,
                 "play_num": result.singlefeed['7'].videoplaycnt
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('qzone',`${option.url}`,task.id,`qzone  ${media.aid}播放量减少`,"playNumErr","info")
-                    return
-                }
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('qzone',`${option.url}`,task.id,`qzone  ${media.aid}播放量减少`,"playNumErr","info")
+            //         return
+            //     }
+            // })
             // logger.debug("qzone media==============",media)
-            this.storaging.sendDb(media)
+            this.storaging.sendDb(media,task.id,"info")
             callback(null,result)
         })
     }

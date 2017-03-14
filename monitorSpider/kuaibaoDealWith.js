@@ -264,16 +264,16 @@ class kuaibaoDealWith {
             if(!media.long_t){
                 delete media.long_t
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报${media.aid}播放量减少`,"playNumErr","play")
-                }
-            })
-            this.storaging.sendDb(media)
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报${media.aid}播放量减少`,"playNumErr","play")
+            //     }
+            // })
+            this.storaging.sendDb(media,task.id,"play")
             callback()
         })
     }

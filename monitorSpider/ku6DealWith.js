@@ -3,7 +3,6 @@
  */
 const async = require( 'async' )
 const request = require( '../lib/request' )
-const cheerio = require( 'cheerio' )
 
 let logger,api
 class dealWith {
@@ -53,10 +52,16 @@ class dealWith {
             if(!result.body){
                 return 
             }
-            let $ = cheerio.load(result.body),
-                num = $('.fright.statNum a .num').text()
-            if(!num){
-                this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取粉丝dom获取错误","domBasedErr","user")
+            try{
+                result = JSON.parse(result.body)
+            }catch(e){
+                this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取粉丝信息接口json数据解析失败","doWithResErr","user")
+                return
+            }
+            let fans = result.data.subscriptions ? result.data.subscriptions : ''
+            logger.debug("ku6 fans",fans)
+            if(!fans){
+                this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取粉丝信息接口返回数据错误","resultErr","user")
                 return
             }
                 // ,
@@ -71,7 +76,7 @@ class dealWith {
         // logger.debug('开始获取视频总数')
         let option = {
             url: api.ku6.listNum + id,
-            referer: `http://boke.ku6.com/${task.id}?mode=2`,
+            referer: `http://v.ku6.com/u /${task.id}/profile.html`,
             ua: 1
         }
         request.get(logger, option, (err,result) => {
@@ -90,7 +95,7 @@ class dealWith {
                 this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取全部视频接口json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
-            let total = parseInt(result.data.left) + parseInt(result.data.offset)
+            let total = result.data.videoCount
             task.total = total
             this.getList( task, total, (err,result) => {
                 if(err){
@@ -133,12 +138,8 @@ class dealWith {
                         this.storaging.errStoraging('ku6',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取视频列表接口无返回数据","resultErr","list")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取视频列表接口无返回数据","resultErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try{
@@ -206,17 +207,17 @@ class dealWith {
                 tag: this._tag(data.tag),
                 class: this._class(data.catename)
             }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频${media.aid}播放量减少`,"playNumErr","info")
-                return
-            }
-        })
-        this.storaging.sendDb(media)
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频${media.aid}播放量减少`,"playNumErr","info")
+        //         return
+        //     }
+        // })
+        this.storaging.sendDb(media,task.id,"info")
         callback()
     }
     _tag ( raw ){
