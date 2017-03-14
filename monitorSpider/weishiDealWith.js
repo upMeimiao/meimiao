@@ -93,8 +93,8 @@ class dealWith {
                         sign++
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口无返回数据","resultErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     if(!result.body){
@@ -178,18 +178,18 @@ class dealWith {
                 if(!media.tag){
                     delete media.tag
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('weishi',`${url}`,task.id,`微视视频${media.aid}播放量减少`,"playNumErr","list")
-                        return
-                    }
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('weishi',`${url}`,task.id,`微视视频${media.aid}播放量减少`,"playNumErr","list")
+                //         return
+                //     }
+                // })
                 index++
-                this.storaging.sendDb(media)
+                this.storaging.sendDb(media,task.id,"list")
                 cb()
             },
             (err,result) => {

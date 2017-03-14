@@ -59,18 +59,18 @@ class dealWith {
                     "aid": video.id,
                     "play_num": playNum
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('pptv',`${option.url}`,task.id,`pptv视频${media.aid}播放量减少`,"playNumErr","list")
-                        return
-                    }
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('pptv',`${option.url}`,task.id,`pptv视频${media.aid}播放量减少`,"playNumErr","list")
+                //         return
+                //     }
+                // })
                 // logger.debug("pptv media==============",media)
-                this.storaging.sendDb(media)
+                this.storaging.sendDb(media,task.id,"list")
             }
             this.deal(task,result.data,length,() => {
                 callback()
@@ -158,9 +158,9 @@ class dealWith {
                 },100)
                 return
             }
-            if(!result){
-                this.storaging.errStoraging('pptv',option.url,task.id,"pptv获取info接口无返回内容","resultErr","info")
-                return cb()
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('pptv',option.url,task.id,"pptv获取info接口状态码错误","statusErr","info")
+                return callback()
             }
             let $ = cheerio.load(result.body),
                 script = $('script')[2].children[0].data,

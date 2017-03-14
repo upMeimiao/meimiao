@@ -13,14 +13,31 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64
     }
 })
 
-exports.start = () => {
+exports.start = (callback) => {
     //读取已存的错误，生成错误表
     const errSetRule = new schedule.RecurrenceRule()
         errSetRule.minute = [5,10,15,20,25,30,35,40,45,50,55]
     schedule.scheduleJob(errSetRule, () =>{
-        _errorJudge(()=>{
-            logger.debug("开始错误读取与分析~")
-        })
+        async.parallel(
+            {
+                playErr: (callback) => {
+                    _playNumJudge(()=>{
+                        logger.debug("开始关于播放量的错误读取~")
+                    })
+                },
+                otherErr: (callback) => {
+                    _errorJudge(()=>{
+                        logger.debug("开始错误读取与分析~")
+                    })
+                }
+            },
+            ( err, result ) => {
+                if(err){
+                    return
+                }
+                callback()
+            }
+        )
     })
     const errReadRule = new schedule.RecurrenceRule()
         errReadRule.minute = [21,41,59]
@@ -29,6 +46,181 @@ exports.start = () => {
             logger.debug("开始读取错误列表发送邮件~")
         })
     })
+}
+const _playNumJudge = (callback) => {
+    let myDate = new Date(),
+        hour = myDate.getHours(),
+        minute = myDate.getMinutes(),
+        group_num,last_group_num,curKey,lastKey
+        if(0 <= minute  && minute < 20){
+            group_num = 1
+        } else if(20 <= minute && minute < 40){
+            group_num = 2
+            last_group_num = 1
+        } else if(40 <= minute && minute < 60){
+            group_num = 3
+            last_group_num = 2
+        }
+    if(!last_group_num){
+        return
+    }
+    curKey = `apiMonitor:play_num_${group_num}`,
+    lastKey = `apiMonitor:play_num_${last_group_num}`
+    //分别取curKey和lastKey的fields
+    //分别遍历两个fields
+    //取相同field的value作比较
+    //若curKey < lastKey 记录错误  
+    async.parallel(
+        {
+            cur: (callback) => {
+                mSpiderClient.hkeys(curKey,(err,result) => {
+                    callback(err,result)
+                })
+            },
+            last: (callback) => {
+                mSpiderClient.hkeys(lastKey,(err,result) => {
+                    callback(err,result)
+                })
+            }
+        },
+        ( err, result ) => {
+            if(err){
+                return
+            }
+            // logger.debug("异步获取当前和上次播放量纪录的结果为",result)
+            let curResult = result["cur"],
+                lastResult = result["last"]
+            if(!lastResult){
+                return
+            }
+            checkField(curKey,lastKey,curResult,lastResult,(err,result) => {
+                logger.debug(err,result)
+            })
+            callback(err,result)
+        }
+    )
+}
+//分别遍历两个fields
+//取相同field集合
+//相同key的value作比较
+//若curKey < lastKey 记录错误 
+const checkField = (curKey,lastKey,curResult,lastResult,callback) => {
+    let i,
+        j,
+        index = 0,
+        curLen = curResult.length,
+        lastLen = lastResult.length,
+        sameKeys = []
+    for(i = 0; i < curLen; i++){
+        for(j = 0; j < curLen; j++){
+            if(curResult[i] == lastResult[j]){
+                sameKeys.push(curResult[i])
+            }
+        }
+    }
+    if(!sameKeys.length){
+        return
+    }
+    async.whilst(
+        () => {
+            return index < sameKeys.length
+        },
+        (cb) => {
+            getValue(curKey,lastKey,sameKeys[index],(err,result) => {
+                callback(err,result)
+            })
+            index++
+            cb()
+        },
+        (err,data) => {
+            callback(err,data)
+        }
+    )
+}
+const getValue = (curKey,lastKey,field,callback) => {
+    async.parallel(
+        {
+            curVal: (callback) => {
+                mSpiderClient.hget(curKey,field,(err,result) => {
+                    callback(err,result)
+                })
+            },
+            lastVal: (callback) => {
+                mSpiderClient.hget(lastKey,field,(err,result) => {
+                    callback(err,result)
+                })
+            }
+        },
+        ( err, result ) => {
+            if(err){
+                return
+            }
+            let curVal = result[0],
+                lastVal = result[1]
+            if(curVal < lastVal){
+                //${curPlatform}-${urlDesc}-${taskId}-${media.aid}
+                //平台 账号id 接口描述 错误类型 错误描述 错误次数 接口总请求次数
+                let strArr = field.split("-"),
+                    platform = strArr[0],
+                    urlDesc = strArr[1],
+                    taskId = strArr[2],
+                    MediaAid = strArr[3],
+                    newDate = new Date(),
+                    hour = newDate.getHours(),
+                    errObj = {
+                        "platform": platform,
+                        "urlDesc": urlDesc,
+                        "urls": [],
+                        "bid": taskId,
+                        "errType": "playNumErr",
+                        "errDesc": [MediaAid],
+                        "hourStr": hour,
+                        "errTimes": "--",
+                        "totalTimes": "--"
+                    },
+                    errObjStr = JSON.stringify(errObj)
+                    /*{
+                          "platform": "pptv",
+                          "urlDesc": "list",
+                          "urls": [
+                            "http://apis.web.pptv.com/show/videoList?from=web&version=1.0.0&format=jsonp&vt=22&pid=8057347&cat_id=75395"
+                          ],
+                          "bid": taskId,
+                          "errType": "playNumErr",
+                          "errDesc": "pptv视频24844997播放量减少",
+                          "hourStr": "14",
+                          "errTimes": 7,
+                          "totalTimes": 15
+                        }*/
+                //读取当前平台 playnum错误
+                mSpiderClient.hget(`apiMonitor:warnTable:${hour}`,`${platform}_${urlDesc}_playNumErr`,(err,result) => {
+                    if(err){
+                        logger.debug("连接redis数据库出错")
+                        return
+                    }
+                    // 若没有结果，直接记录当前playnum错误
+                    if(!result.length){
+                        mSpiderClient.hset(`apiMonitor:warnTable:${hour}`,`${platform}_${urlDesc}_${playNumErr}`,errObjStr,(err,result) => {
+                            if(err){
+                                logger.debug("连接redis数据库出错")
+                                return
+                            }
+                        })
+                        return
+                    }
+                    // 若有结果，将当前错误的视频id加入错误的desc中
+                    let errObjStored = JSON.parse(result)
+                    errObjStored.errDesc.push(MediaAid)
+                    mSpiderClient.hset(`apiMonitor:warnTable:${hour}`,`${platform}_${urlDesc}_${playNumErr}`,JSON.stringify(errObjStored),(err,result) => {
+                        if(err){
+                            logger.debug("连接redis数据库出错")
+                            return
+                        }
+                    })
+                })
+            }
+        }
+    )
 }
 const setWarnErrTable = (emailOptions) => {
     let key = `apiMonitor:warnTable:${emailOptions.hourStr}`,
@@ -42,11 +234,6 @@ const setWarnErrTable = (emailOptions) => {
 const sendWarnEmail = (callback) => {
     let newDate = new Date(),
         hour = newDate.getHours()
-        if(hour < 10){
-            hour = "0" + hour
-        } else{
-            hour = "" + hour
-        }
     let  key = `apiMonitor:warnTable:${hour}`
     //获取所有的key
     mSpiderClient.hkeys(key,(err,result) => {
@@ -62,23 +249,14 @@ const sendWarnEmail = (callback) => {
             year = newDate.getFullYear(),
             month = newDate.getMonth() + 1,
             day = newDate.getDate(),
-            hour = newDate.getHours(),hourStr,content,
+            hour = newDate.getHours(),
+            content,errDesc,errTimes,
             platform,bid,urlDesc,totalTimes,errObj,
             errType
-        if(hour >= 10){
-            hourStr = "" + hour
-        }else{
-            hourStr = "0" + hour
-        }
-        let subject = `接口监控：${year}年${month}月${day}日 ${hourStr}时接口报警报表`,
+        let subject = `接口监控：${year}年${month}月${day}日 ${hour}时接口报警报表`,
             tableBody,j = 0,length = result.length,
             tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
         //遍历key，获取所有错误信息，发送邮件
-        //for(j = 0; j < length; j++){
-            
-        //}
-        //
-        // logger.debug("即将进入循环",subject)
         if(length < 1){
             logger.debug("获取的错误内容为空，不发邮件") 
             return
@@ -97,11 +275,14 @@ const sendWarnEmail = (callback) => {
                     totalTimes = result["totalTimes"]
                     errObj = result["errObj"]
                     errType = result["errType"]
-                    errDesc = JSON.stringify(result["errDesc"])
+                    if(errType == "playNumErr"){
+                        errDesc = "播放量减少，视频ID集合为" + result["errDesc"].toString()
+                    } else{
+                        errDesc = JSON.stringify(result["errDesc"])
+                    }
                     errTimes = result["errTimes"]
                     tableBody += `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
-                    content = `<style>table{border-collapse:collapse;}table,th, td{border: 1px solid black;}</style><table>${tableHead}${tableBody}</table>`
-                    //emailServerLz.sendAlarm(subject,content)
+                    content = `<style>table{border-collapse:collapse;margin:20px;}table,th, td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
                     j++
                     cb()
                 })
@@ -117,14 +298,8 @@ const getErr = (platform,urlDesc) => {
     // logger.debug("进入getErr")
     let nowDate = new Date(),
         hour = nowDate.getHours(),
-        hourStr,
         times
-    if(hour >= 10){
-        hourStr = "" + hour
-    }else{
-        hourStr = "0" + hour
-    }
-    let curKey = `apiMonitor:error:${platform}:${urlDesc}:${hourStr}`,
+    let curKey = `apiMonitor:error:${platform}:${urlDesc}:${hour}`,
         i
             // 获取当前接口对应的错误记录
             mSpiderClient.get(curKey,(err,result) => {
@@ -141,7 +316,7 @@ const getErr = (platform,urlDesc) => {
                       options
                 // 获取当前url对应的全部请求次数
                 // logger.debug("errResult~~~~~~~~~~~~~~~~~",errResult)
-                mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}_${hourStr}`,(err,result) => {
+                mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}_${hour}`,(err,result) => {
                     // logger.debug("获取当前url对应的全部请求次数=",curKey,result)
                     if(err){
                         logger.debug("读取redis发生错误")
@@ -153,7 +328,7 @@ const getErr = (platform,urlDesc) => {
                     }
                     options = {
                         "urlDesc": urlDesc,
-                        "hourStr": hourStr,
+                        "hourStr": hour,
                         "result": errResult,
                         "totalResult": (+result)
                     }
@@ -323,14 +498,16 @@ const judgeResults = (options,emailOptions,numberArr) => {
         emailOptions.urls = resultObj.timeoutErr.errUrls
         setWarnErrTable(emailOptions)
         return
-    } else if(resultObj.playNumErr.times){
-        emailOptions.errType = "playNumErr"
-        emailOptions.errTimes = resultObj.playNumErr.times
-        emailOptions.errDesc = resultObj.playNumErr.desc
-        emailOptions.urls = resultObj.playNumErr.errUrls
-        setWarnErrTable(emailOptions)
-        return
-    } else if(resultObj.statusErr.times 
+    } 
+    // else if(resultObj.playNumErr.times){
+    //     emailOptions.errType = "playNumErr"
+    //     emailOptions.errTimes = resultObj.playNumErr.times
+    //     emailOptions.errDesc = resultObj.playNumErr.desc
+    //     emailOptions.urls = resultObj.playNumErr.errUrls
+    //     setWarnErrTable(emailOptions)
+    //     return
+    // } 
+    else if(resultObj.statusErr.times 
         && resultObj.statusErr.times/(+options.totalResult) > numberArr[5]){
         emailOptions.errType = "statusErr"
         emailOptions.errTimes = resultObj.statusErr.times

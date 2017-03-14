@@ -101,11 +101,7 @@ class miaopaiDealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('meipai',option.url,task.id,"秒拍获取total接口无返回内容","responseErr","total")
-                return callback()
-            }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取total code error","statusErr","total")
                 if(task.id == 'mEpTsCBR3q2uyDUc'){
                     return callback()
@@ -158,15 +154,11 @@ class miaopaiDealWith {
                         this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos接口无返回内容","resultErr","videos")
-                        return cb()
-                    }
                     if(!result.body){
                         this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos接口无返回内容","resultErr","videos")
                         return cb()
                     }
-                    if( result.statusCode != 200){
+                    if( result.statusCode && result.statusCode != 200){
                         logger.error('获取videos code error：',result.statusCode)
                         this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos code error","statusErr","videos")
                         return cb()
@@ -223,16 +215,16 @@ class miaopaiDealWith {
                     }
                     // logger.debug(data.title+'标题')
                     // logger.debug(data.desc+'描述')
-                    this.core.MSDB.hget(`apiMonitor:play_num`,`${data.author}_${data.aid}`,(err,result)=>{
-                        if(err){
-                            logger.debug("读取redis出错")
-                            return
-                        }
-                        if(result > data.play_num){
-                            this.storaging.errStoraging('miaopai',`http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+${data.aid}+"&vend=miaopai`,task.id,`秒拍${data.aid}播放量减少`,"playNumErr","videos")
-                        }
-                    })
-                    this.storaging.sendDb(data)
+                    // this.core.MSDB.hget(`apiMonitor:play_num`,`${data.author}_${data.aid}`,(err,result)=>{
+                    //     if(err){
+                    //         logger.debug("读取redis出错")
+                    //         return
+                    //     }
+                    //     if(result > data.play_num){
+                    //         this.storaging.errStoraging('miaopai',`http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+${data.aid}+"&vend=miaopai`,task.id,`秒拍${data.aid}播放量减少`,"playNumErr","videos")
+                    //     }
+                    // })
+                    this.storaging.sendDb(data,task.id,"videos")
                     index++
                     cb()
                 })

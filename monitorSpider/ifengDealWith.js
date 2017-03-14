@@ -85,13 +85,9 @@ class dealWith {
                         this.storaging.errStoraging("ifeng",option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取list接口无返回结果","resultErr","list")
-                        return  cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取list接口返回数据为空","resultErr","list")
-                        return  cb()
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取list接口状态码错误","statusErr","list")
+                        return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
@@ -153,8 +149,8 @@ class dealWith {
                 this.storaging.errStoraging("ifeng",option.url,task.id,err.code || "error",errType,"video")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging("ifeng",option.url,task.id,"ifeng video接口无返回数据","resultErr","video")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取video接口状态码错误","statusErr","video")
                 return callback()
             }
             try{
@@ -162,7 +158,7 @@ class dealWith {
             } catch(e){
                 logger.error('json数据解析失败')
                 this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取video接口json数据解析失败","doWithResErr","video")
-                return callback(err)
+                return callback(e)
             }
             media = {
                 author: task.name,
@@ -179,18 +175,18 @@ class dealWith {
                 tag: video.tag,
                 v_url: video.memberItem.pcUrl
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('acfun',`${option.url}`,task.id,`ifeng视频${media.aid}播放量减少`,"playNumErr","video")
-                    return
-                }
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('acfun',`${option.url}`,task.id,`ifeng视频${media.aid}播放量减少`,"playNumErr","video")
+            //         return
+            //     }
+            // })
             // logger.debug("ifeng media==============",media)
-            this.storaging.sendDb(media)
+            this.storaging.sendDb(media,task.id,"video")
             callback()
         })
     }

@@ -150,15 +150,11 @@ class meipaiDealWith {
                         this.storaging.errStoraging('meipai',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos接口无返回内容","resultErr","videos")
-                        return cb()
-                    }
                     if(!result.body){
                         this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos接口返回内容为空","resultErr","videos")
                         return cb()
                     }
-                    if( result.statusCode != 200){
+                    if( result.statusCode && result.statusCode != 200){
                         logger.error('获取videos code error：',result.statusCode)
                         this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos code error","statusErr","videos")
                         return cb()
@@ -280,17 +276,17 @@ class meipaiDealWith {
                 tag: _tags.join(','),
                 class: tags
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍${media.aid}播放量减少`,"playNumErr","videos")
-                    return
-                }
-            })
-            this.storaging.sendDb(media)
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍${media.aid}播放量减少`,"playNumErr","videos")
+            //         return
+            //     }
+            // })
+            this.storaging.sendDb(media,task.id,"videos")
             callback()
         })
     }

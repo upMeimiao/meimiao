@@ -181,9 +181,9 @@ class iqiyiDeal {
                             cb()
                         }, 3000)
                     }
-                    if(!result){
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取ListN接口无返回结果","responseErr","ListN")
-                        return  cb()
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取ListN接口状态码错误","statusErr","ListN")
+                        return
                     }
                     const $ = cheerio.load(result.body,{
                             ignoreWhitespace:true
@@ -238,12 +238,8 @@ class iqiyiDeal {
                     	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"ids")
                         return cb()
                     }
-                    if(!result || !result.body){
-                    	this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取视频id列表接口无返回数据","resultErr","ids")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取视频id列表返回内容为空","resultErr","ids")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取ids接口状态码错误","statusErr","ids")
                         return cb()
                     }
                     const $ = cheerio.load(result.body,{
@@ -292,12 +288,8 @@ class iqiyiDeal {
                     	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取list接口无返回数据","resultErr","list")
-                        return cb()
-                    }
-                     if(!result.body){
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取list接口返回内容为空","resultErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try {
@@ -431,21 +423,21 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                	if(result > media.play_num){
-                        this.storaging.errStoraging('iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.id,`爱奇艺视频${media.aid}播放量减少`,"playNumErr","info")
-                        return
-                    }
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                // 	if(result > media.play_num){
+                //         this.storaging.errStoraging('iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.id,`爱奇艺视频${media.aid}播放量减少`,"playNumErr","info")
+                //         return
+                //     }
+                // })
 
                 if(media.comment_num < 0){
                     delete media.comment_num
                 }
-                this.storaging.sendDb( media )
+                this.storaging.sendDb( media,task.id,"info" )
                 callback()
             }
         )
@@ -471,9 +463,9 @@ class iqiyiDeal {
                 return callback(err)
             }
             //logger.debug(backData)
-            if(!result){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取info接口无返回数据","resultErr","info")
-                return callback()
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取info接口状态码错误","statusErr","info")
+                return cb()
             }
             let playData
             try {
@@ -552,8 +544,8 @@ class iqiyiDeal {
             	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"Expr")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取Expr接口无返回数据","resultErr","Expr")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取Expr接口状态码错误","statusErr","Expr")
                 return callback()
             }
             //logger.debug(result)
@@ -594,8 +586,8 @@ class iqiyiDeal {
             	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"play")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取play接口无返回数据","resultErr","play")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取play接口状态码错误","statusErr","play")
                 return callback()
             }
             //logger.debug(result)
@@ -633,8 +625,8 @@ class iqiyiDeal {
             	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"comment")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取comment接口无返回数据","resultErr","comment")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取comment接口状态码错误","statusErr","comment")
                 return callback()
             }
             //logger.debug(result)

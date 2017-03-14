@@ -152,18 +152,12 @@ class souhuDealWith {
                         this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口无返回内容","resultErr","list")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('souhu',option.url,task.id,"souhu获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     if(!result.body){
                         this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口无返回内容","resultErr","list")
-                        return cb()
-                    }
-                    if(result.statusCode != 200){
-                        // logger.error(`${index}状态码错误`)
-                        this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${index}状态码错误`,"info","list")
-                        // logger.debug('code:',result.statusCode)
                         return cb()
                     }
                     try{
@@ -273,17 +267,17 @@ class souhuDealWith {
             if(!media.class){
                 delete media.class
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少`,"playNumErr","info")
-                    return
-                }
-            })
-            this.storaging.sendDb(media)
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少`,"playNumErr","info")
+            //         return
+            //     }
+            // })
+            this.storaging.sendDb(media,task.id,"info")
             callback()
         })
     }

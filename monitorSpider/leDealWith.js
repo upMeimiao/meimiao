@@ -45,12 +45,8 @@ class leDealWith {
                 this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"total")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口无返回数据","resultErr","total")
-                return callback()
-            }
-            if(!result.body){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口返回数据为空","resultErr","total")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取total接口状态码错误","statusErr","total")
                 return callback()
             }
             try {
@@ -95,13 +91,9 @@ class leDealWith {
                         this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口无返回数据","resultErr","list")
-                        return
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口无返回数据","resultErr","list")
-                        return
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('le',option.url,task.id,"le获取list接口状态码错误","statusErr","list")
+                        return cb()
                     }
                     try {
                         result = eval("("+result.body+")")
@@ -199,17 +191,17 @@ class leDealWith {
                     delete media.class
                 }
 
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频${media.aid}播放量减少`,"playNumErr","info")
-                        return
-                    }
-                })
-                this.storaging.sendDb(media )
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频${media.aid}播放量减少`,"playNumErr","info")
+                //         return
+                //     }
+                // })
+                this.storaging.sendDb(media,task.id,"info")
                 callback()
             }
         )
@@ -235,8 +227,10 @@ class leDealWith {
                 this.storaging.errStoraging('le',option.url,id,err.code || "error",errType,"info")
                 return callback(err)
             }
-            //logger.debug(result.body)
-            
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取info接口状态码错误","statusErr","info")
+                return callback()
+            }
             let backData
             try {
                 backData = JSON.parse(result.body)
@@ -276,12 +270,8 @@ class leDealWith {
                 this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"Expr")
                 return callback( err )
             }
-            if(!result){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取Expr接口无返回结果","resultErr","Expr")
-                return callback()
-            }
-            if(!result.body){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取Expr接口返回结果为空","resultErr","Expr")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取Expr接口状态码错误","statusErr","Expr")
                 return callback()
             }
             const $ = cheerio.load(result.body),
@@ -355,12 +345,8 @@ class leDealWith {
                 this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"Desc")
                 return callback(null,null)
             }
-            if(!result){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取Desc接口无返回结果","resultErr","Desc")
-                return callback()
-            }
-            if(!result.body){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取Desc接口返回结果为空","resultErr","Desc")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('le',option.url,task.id,"le获取Desc接口状态码错误","statusErr","Desc")
                 return callback()
             }
             try{

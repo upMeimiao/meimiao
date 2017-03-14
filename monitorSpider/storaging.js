@@ -19,10 +19,10 @@ class storage{
 	    	// logger.error(err,err.code,err.Error)
 	    	let errType
 	    	if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
-                } else{
-                    errType = "responseErr"
-                }
+                errType = "timeoutErr"
+            } else{
+                errType = "responseErr"
+            }
             // logger.error(errType)
 	        this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
 	        return
@@ -36,16 +36,28 @@ class storage{
 	        return
 	    }
     }
-    sendDb (media){
-	    let curPlatform = media.author
-	    mSpiderClint.hset(`apiMonitor:play_num`,`${curPlatform}_${media.aid}`,media.play_num,(err,result)=>{
+    sendDb (media,taskId,urlDesc){
+	    let curPlatform = media.author,
+	    	myDate = new Date(),
+	    	hour = myDate.getHours(),
+	    	minute = myDate.getMinutes(),
+	    	group_num
+	    	if(0 <= minute && minute < 20){
+	    		group_num = 1
+	    	} else if(20 <= minute && minute < 40){
+	    		group_num = 2
+	    	} else if(40 <= minute && minute < 60){
+	    		group_num = 3
+	    	}
+	    // logger.debug("当前的group_num为",minute,group_num)
+	    mSpiderClint.hset(`apiMonitor:play_num_${group_num}`,`${curPlatform}-${urlDesc}-${taskId}-${media.aid}`,media.play_num,(err,result)=>{
 	        if ( err ) {
 	            logger.error( '加入接口监控数据库出现错误：', err )
 	            return
 	        }
 	        // logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:play_num`,12*60*60) 
+	    mSpiderClint.expire(`apiMonitor:play_num_${group_num}`,30*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
@@ -129,11 +141,11 @@ class storage{
 						"desc": "",
 						"errUrls": []
 					},
-					"playNumErr":{
-						"times": 0,
-						"desc": "",
-						"errUrls": []
-					},
+					// "playNumErr":{
+					// 	"times": 0,
+					// 	"desc": "",
+					// 	"errUrls": []
+					// },
 					"statusErr":{
 						"times": 0,
 						"desc": "",

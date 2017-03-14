@@ -83,11 +83,11 @@ class toutiaoDealWith {
                     errType = "responseErr"
                 }
                 logger.error(errType)
-                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || "error",errType,"user")
+                this.storaging.errStoraging("toutiao",option.url,task.id,err.code || "error",errType,"user")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口无返回值","resultErr","user")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取user接口状态码错误","statusErr","user")
                 return callback()
             }
             if(!result.body){
@@ -134,23 +134,21 @@ class toutiaoDealWith {
         request.get(logger, {url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`},(err, result)=>{
             this.storaging.totalStorage ("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
                 if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                     errType = "timeoutErr"
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
                 this.storaging.errStoraging("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,err.code || "error",errType,"userId")
                 return
             }
-            if(!result){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","userId")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,"toutiao获取userId接口状态码错误","statusErr","userId")
                 return
             }
             if(!result.body){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","userId")
+                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,"toutiao list接口无返回数据","resultErr","userId")
                 return
             }
             try{
@@ -197,8 +195,8 @@ class toutiaoDealWith {
                             this.core.proxy.back(proxy, false)
                             return cb()
                         }
-                        if(!result){
-                            this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
+                        if(result.statusCode && result.statusCode != 200){
+                            this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取list接口状态码错误","statusErr","list")
                             return cb()
                         }
                         if(!result.body){
@@ -240,13 +238,6 @@ class toutiaoDealWith {
                     this.core.proxy.need(times, (err, _proxy) => {
                         this.storaging.totalStorage ("toutiao",option.url,"list")
                         if(err) {
-                            if(err == 'timeout'){
-                                logger.error(err,err.code,err.Error)
-                                this.storaging.errStoraging("toutiao",options.url,task.id,err.code || "error","timeoutErr","list")
-                                return callback('Get proxy timesout!!')
-                            }
-                            logger.error('Get proxy occur error:' , err)
-                            this.storaging.errStoraging("toutiao",options.url,task.id,err,"responseErr","list")
                             times++
                             proxyStatus = false
                             return cb()
@@ -260,8 +251,8 @@ class toutiaoDealWith {
                                 this.core.proxy.back(_proxy, false)
                                 return cb()
                             }
-                            if(!result){
-                                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
+                            if(result.statusCode && result.statusCode != 200){
+                                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取list接口状态码错误","statusErr","list")
                                 return cb()
                             }
                             if(!result.body){
@@ -370,17 +361,17 @@ class toutiaoDealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"playNumErr","play")
-                return
-            }
-        })
-        this.storaging.sendDb(media)
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"playNumErr","play")
+        //         return
+        //     }
+        // })
+        this.storaging.sendDb(media,task.id,"play")
         callback()
     }
     getPlayNum ( vid, callback ) {
@@ -390,10 +381,17 @@ class toutiaoDealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("toutiao",option.url,"play")
             if(err){
+                let errType
+                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+                    errType = "timeoutErr"
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging("toutiao",option.url,task.id,err.code || "error",errType,"play")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao play接口无返回数据","resultErr","play")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取play接口状态码错误","statusErr","play")
                 return callback()
             }
             if(!result.body){

@@ -123,8 +123,8 @@
 		},
 		"ku6":{
 			"allInfo": "http://new.ku6.com/mobile/getuploadedvideos?rn=20&uid=",
-  			"listNum": "http://my.ku6.com/channel/getuploadvideos?channel=",
-  			"fansNum": "http://boke.ku6.com/"
+  			"listNum": "http://v.ku6.com/user.htm?t=statuser&uid=",
+  			"fansNum": "http://my.ku6.com/user/getvipuserinfo?uid="
 		},
 		"btime":{
 			"userInfo": "http://record.btime.com/getUserChannel?uid=",

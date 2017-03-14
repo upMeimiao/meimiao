@@ -50,11 +50,7 @@ class dealWith {
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || "error",errType,"user")
                 return callback(err.message)
             }
-            if(!result){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口无返回结果","resultErr","user")
-                return callback()
-            }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口状态码错误","statusErr","user")
                 return callback(`200 ${result.body}`)
             }
@@ -102,13 +98,9 @@ class dealWith {
                         this.storaging.errStoraging('btime',option.url,task.id,err.code || "error",errType,"list")
                         return callback(err)
                     }
-                    if(!result){
-                        this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口无返回数据","resultErr","list")
-                        return callback()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口无返回数据","resultErr","list")
-                        return callback()
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口状态码错误","statusErr","user")
+                        return callback(`200 ${result.body}`)
                     }
                     try{
                         result = JSON.parse(result.body)
@@ -194,18 +186,18 @@ class dealWith {
             media.v_img = data.image_url
             media.long_t = this._long_t(data.duration)
             //logger.debug(media)
-            this.core.MSDB.hget(`apiMonitor:play_num`,`:${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('btime',`${api.btime.medialist}&pageNo=${index}&lastTime=`,task.id,`北京时间视频${media.aid}播放量减少`,"playNumErr","list")
-                    return
-                }
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`:${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('btime',`${api.btime.medialist}&pageNo=${index}&lastTime=`,task.id,`北京时间视频${media.aid}播放量减少`,"playNumErr","list")
+            //         return
+            //     }
+            // })
             // logger.debug("btime media==============",media)
-            this.storaging,sendDb(media)
+            this.storaging,sendDb(media,task.id,"list")
             callback()
         })
     }
@@ -227,11 +219,7 @@ class dealWith {
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || "error",errType,"info")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口无返回数据","resultErr","info")
-                return callback()
-            }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口状态码错误","statusErr","info")
                 return callback(true)
             }
@@ -274,11 +262,7 @@ class dealWith {
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || "error",errType,"comment")
                 return callback(err)
             }
-            if(!result){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口无返回结果","resultErr","comment")
-                return callback()
-            }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口状态码错误","statusErr","comment")
                 return callback(true)
             }

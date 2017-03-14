@@ -38,7 +38,7 @@ class dealWith {
             if(!result.body){
                 return 
             }
-            if(result.statusCode != 200){
+            if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('yy',option.url,task.id,"yy获取total接口状态码错误","statusErr","total")
                 return callback(true)
             }
@@ -119,8 +119,8 @@ class dealWith {
                         this.storaging.errStoraging('yy',option.url,task.id,err.code || "error",errType,"live")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取live接口无返回数据","resultErr","live")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取live接口状态码错误","statusErr","live")
                         return cb()
                     }
                     if(!result.body){
@@ -182,8 +182,8 @@ class dealWith {
                         this.storaging.errStoraging('yy',option.url,task.id,err.code || "error",errType,"slist")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取slist接口无返回数据","resultErr","slist")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取slist接口状态码错误","statusErr","slist")
                         return cb()
                     }
                     if(!result.body){
@@ -245,8 +245,8 @@ class dealWith {
                         this.storaging.errStoraging('yy',option.url,task.id,err.code || "error",errType,"dlist")
                         return cb()
                     }
-                    if(!result){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取dlist接口无返回数据","resultErr","dlist")
+                    if(result.statusCode && result.statusCode != 200){
+                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取dlist接口状态码错误","statusErr","dlist")
                         return cb()
                     }
                     if(!result.body){
@@ -320,17 +320,17 @@ class dealWith {
             v_img: data.imageUrl,
             class: type
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频${media.aid}播放量减少`,"playNumErr","list")
-                return
-            }
-        })
-        this.storaging.sendDb(media)
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频${media.aid}播放量减少`,"playNumErr","list")
+        //         return
+        //     }
+        // })
+        this.storaging.sendDb(media,task.id,"list")
         callback()
     }
     getInfo ( task, url, type, data, callback ) {

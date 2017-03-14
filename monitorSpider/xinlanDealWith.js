@@ -46,8 +46,8 @@ class dealWith {
                 this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"list")
                 return this.getVidList( task, callback )
             }
-            if(!result){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取list接口无返回数据","responseErr","list")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取list接口状态码错误","statusErr","list")
                 return this.getVidList( task, callback )
             }
             try{
@@ -148,8 +148,8 @@ class dealWith {
                 this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"save")
                 return callback(null,{hasCollect:''})
             }
-            if(!result){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取save接口无返回数据","resultErr","save")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取save接口状态码错误","statusErr","save")
                 return callback()
             }
             if(!result.body){
@@ -163,27 +163,6 @@ class dealWith {
                 logger.info(result)
                 return callback(null,{hasCollect:''})
             }
-            if(!result.content){
-                return
-            }
-            let media = {
-                "author": "xinlan",
-                "aid": vid,
-                "play_num": result.content.list[0].hasCollect
-            }
-            // logger.debug("xinlan +++++++++++++++++++++++++++++++++++++++++++result result.content.list",result,result.content.list)
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${vid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('xinlan',`${option.url}`,task.id,`mgtv视频${vid}保存量减少`,"playNumErr","save")
-                    return
-                }
-            })
-            // logger.debug("xinlan media==============",media)
-            this.storaging.sendDb(media)
             if(!result.content){
                 return
             }
@@ -209,8 +188,8 @@ class dealWith {
                 this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"suport")
                 return callback(null,{supportNumber:''})
             }
-            if(!result || (result && !result.body)){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取suport接口无返回数据","resultErr","suport")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取suport接口状态码错误","statusErr","suport")
                 return callback()
             }
             try{
@@ -243,10 +222,10 @@ class dealWith {
                 }
                 //logger.error(errType)
                 this.storaging.errStoraging("xinlan",option.url,task.id,err.code || "error",errType,"comment")
-                callback(null,{comment_count:''})
+                return callback(null,{comment_count:''})
             }
-            if(!result){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取comment接口无返回数据","resultErr","comment")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取comment接口状态码错误","statusErr","comment")
                 return callback()
             }
             if(!result.body){
@@ -284,8 +263,8 @@ class dealWith {
                 }
                 return callback(null,'next')
             }
-            if(!result){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取info接口无返回数据","resultErr","info")
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取info接口状态码错误","statusErr","info")
                 return callback()
             }
             if(!result.body){

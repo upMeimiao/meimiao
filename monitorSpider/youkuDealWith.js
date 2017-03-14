@@ -164,7 +164,7 @@ class youkuDealWith {
                         this.storaging.errStoraging('youku',options.url,task.id,error.code || error,errType,"videos")
                         return cb()
                     }
-                    if(response.statusCode != 200){
+                    if(response.statusCode && response.statusCode != 200){
                         this.storaging.errStoraging('youku',options.url,task.id,"优酷获取单页视频列表接口状态码错误","statusErr","videos")
                         return cb()
                     }
@@ -184,19 +184,19 @@ class youkuDealWith {
                     }
                     //根据已存redis内容判断body内容是否正确
                     let videos = data.videos
-                    for(let index in videos){
-                        this.core.MSDB.hget(`apiMonitor:play_num`,`youku_${videos[index].videoid}`,(err,result)=>{
-                            if(err){
-                                logger.debug("读取redis出错")
-                                return
-                            }
-                            if(result > videos[index].total_vv){
-                                // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
-                                this.storaging.errStoraging("youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"playNumErr","videos")
-                                return
-                            }
-                        })
-                    }
+                    // for(let index in videos){
+                    //     this.core.MSDB.hget(`apiMonitor:play_num`,`youku_${videos[index].videoid}`,(err,result)=>{
+                    //         if(err){
+                    //             logger.debug("读取redis出错")
+                    //             return
+                    //         }
+                    //         if(result > videos[index].total_vv){
+                    //             // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
+                    //             this.storaging.errStoraging("youku",options.url,task.id,`优酷视频${videos[index].videoid}播放量减少`,"playNumErr","videos")
+                    //             return
+                    //         }
+                    //     })
+                    // }
                     // this.storaging.succStorage("youku",options.url,"videos")
                     this.youkuInfo(task,videos, () => {
                         sign++
@@ -281,7 +281,7 @@ class youkuDealWith {
                     step: result.down_count,
                     a_create_time: video.publishtime
                 }
-                this.storaging.sendDb(media)
+                this.storaging.sendDb(media,task.id,"videos")
                 index++
                 cb()
             },
