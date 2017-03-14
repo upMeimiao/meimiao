@@ -62,16 +62,10 @@ class storage{
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
 			hour = nowDate.getHours(),
-			hourStr,
 			urlStr = url, 
 	        times
-	    if(hour >= 10){
-	    	hourStr = "" + hour
-	    }else{
-	    	hourStr = "0" + hour
-	    }
 		let	curKey = `apiMonitor:all`,
-			field = `${platform}_${urlDesc}_${hourStr}`
+			field = `${platform}_${urlDesc}_${hour}`
 	    mSpiderClint.hget(curKey,field,(err,result) => {
 	        if(err){
 	            logger.error( '获取接口成功调取次数出现错误', err )

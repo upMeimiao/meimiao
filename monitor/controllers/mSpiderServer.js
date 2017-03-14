@@ -13,29 +13,31 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64
     }
 })
 
-exports.start = (callback) => {
+exports.start = () => {
     //读取已存的错误，生成错误表
     const errSetRule = new schedule.RecurrenceRule()
         errSetRule.minute = [5,10,15,20,25,30,35,40,45,50,55]
     schedule.scheduleJob(errSetRule, () =>{
-        async.parallel(
-            {
-                playErr: (callback) => {
-                    _playNumJudge(()=>{
-                        logger.debug("开始关于播放量的错误读取~")
-                    })
-                },
-                otherErr: (callback) => {
-                    _errorJudge(()=>{
-                        logger.debug("开始错误读取与分析~")
-                    })
-                }
+        async.parallel([
+            (cb) => {
+                _playNumJudge((err,result)=>{
+                    logger.debug("开始关于播放量的错误读取~")
+                    logger.debug(err,result)
+                    cb()
+                })
             },
-            ( err, result ) => {
+            (cb) => {
+                _errorJudge((err,result)=>{
+                    logger.debug("开始错误读取与分析~")
+                    logger.debug(err,result)
+                    cb()
+                })
+            }
+        ],( err, result ) => {
                 if(err){
                     return
                 }
-                callback()
+                logger.debug(err, result)
             }
         )
     })
@@ -72,14 +74,14 @@ const _playNumJudge = (callback) => {
     //若curKey < lastKey 记录错误  
     async.parallel(
         {
-            cur: (callback) => {
+            cur: (cb) => {
                 mSpiderClient.hkeys(curKey,(err,result) => {
-                    callback(err,result)
+                    cb(err,result)
                 })
             },
-            last: (callback) => {
+            last: (cb) => {
                 mSpiderClient.hkeys(lastKey,(err,result) => {
-                    callback(err,result)
+                    cb(err,result)
                 })
             }
         },
@@ -140,14 +142,14 @@ const checkField = (curKey,lastKey,curResult,lastResult,callback) => {
 const getValue = (curKey,lastKey,field,callback) => {
     async.parallel(
         {
-            curVal: (callback) => {
+            curVal: (cb) => {
                 mSpiderClient.hget(curKey,field,(err,result) => {
-                    callback(err,result)
+                    cb(err,result)
                 })
             },
-            lastVal: (callback) => {
+            lastVal: (cb) => {
                 mSpiderClient.hget(lastKey,field,(err,result) => {
-                    callback(err,result)
+                    cb(err,result)
                 })
             }
         },
@@ -216,6 +218,7 @@ const getValue = (curKey,lastKey,field,callback) => {
                             logger.debug("连接redis数据库出错")
                             return
                         }
+                        callback(null,result)
                     })
                 })
             }
