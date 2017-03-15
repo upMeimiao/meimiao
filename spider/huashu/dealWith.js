@@ -4,6 +4,9 @@
 const async = require( 'async' )
 const request = require( '../../lib/request' )
 const spiderUtils = require('../../lib/spiderUtils')
+const jsonp = function(data){
+    return data
+}
 
 let logger
 class dealWith {
@@ -159,7 +162,7 @@ class dealWith {
                         comment_num: result[1]
                     }
                 }
-                spiderUtils.saveCache( this.core.cache_db, 'cache', media ) 
+                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
@@ -202,13 +205,20 @@ class dealWith {
     }
     getPlay( vid, callback ){
         let option = {
-            url: `http://uc.wasu.cn/Ajax/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}`
+            url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}&jsoncallback=jsonp`
         }
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('播放量请求失败',err)
-                return this.getPlay( vid, callback )            }
-            result = result.body ? Number(result.body.replace(/,/g,'')) : ''
+                return this.getPlay( vid, callback )
+            }
+            try{
+                result = eval(result.body)
+            }catch (e){
+                logger.debug('播放量解析失败')
+                return this.getPlay( vid, callback )
+            }
+            result = result ? Number(result.replace(/,/g,'')) : ''
             callback(null,result)
         })
     }
