@@ -97,7 +97,7 @@ class spiderCore {
             let work = job.data,
                 key = work.p + ':' + work.id
             logger.info( work )
-            const d = domain.create()
+            let d = domain.create()
             d.on('error', function(err){
                 done(err)
             })
@@ -130,6 +130,10 @@ class spiderCore {
                             logger.info(body)
                         }
                         d.exit()
+                        d = null
+                        key = null
+                        work = null
+                        job = null
                     })
                 })
             })
