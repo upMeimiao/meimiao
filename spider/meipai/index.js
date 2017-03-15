@@ -129,7 +129,7 @@ class spiderCore {
                         }else{
                             logger.info(body)
                         }
-                        gc()
+                        d.exit()
                     })
                 })
             })
