@@ -97,54 +97,41 @@ class spiderCore {
             let work = job.data,
                 key = work.p + ':' + work.id
             logger.info( work )
-            this.dealWith.todo(work, (err,total) => {
-                if(err){
-                    return done(err)
-                }
-                done(null)
-                this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-                request.post( settings.update, {form:{platform:work.p,bid: work.id}})
+            const d = domain.create()
+            d.on('error', function(err){
+                done(err)
             })
-            // let d = domain.create()
-            // d.on('error', function(err){
-            //     done(err)
-            // })
-            // d.run(()=>{
-            //     this.dealWith.todo(work, (err,total) => {
-            //         if(err){
-            //             return done(err)
-            //         }
-            //         done(null)
-            //         this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
-            //         request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
-            //             if(err){
-            //                 logger.error( 'occur error : ', err )
-            //                 return
-            //             }
-            //             if(res.statusCode != 200 ){
-            //                 logger.error( `状态码${res.statusCode}` )
-            //                 logger.info( res )
-            //                 return
-            //             }
-            //             try {
-            //                 body = JSON.parse( body )
-            //             } catch (e) {
-            //                 logger.info( '不符合JSON格式' )
-            //                 return
-            //             }
-            //             if(body.errno == 0){
-            //                 logger.info(body.errmsg)
-            //             }else{
-            //                 logger.info(body)
-            //             }
-            //             d.exit()
-            //             d = null
-            //             key = null
-            //             work = null
-            //             job = null
-            //         })
-            //     })
-            // })
+            d.run(()=>{
+                this.dealWith.todo(work, (err,total) => {
+                    if(err){
+                        return done(err)
+                    }
+                    done(null)
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
+                    request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+                        if(err){
+                            logger.error( 'occur error : ', err )
+                            return
+                        }
+                        if(res.statusCode != 200 ){
+                            logger.error( `状态码${res.statusCode}` )
+                            logger.info( res )
+                            return
+                        }
+                        try {
+                            body = JSON.parse( body )
+                        } catch (e) {
+                            logger.info( '不符合JSON格式' )
+                            return
+                        }
+                        if(body.errno == 0){
+                            logger.info(body.errmsg)
+                        }else{
+                            logger.info(body)
+                        }
+                    })
+                })
+            })
         })
     }
 }
