@@ -24,7 +24,7 @@ class storage{
                 errType = "responseErr"
             }
             // logger.error(errType)
-            this.storaging.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
+            this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
 	        return
 	    }
 	    if(!res){
