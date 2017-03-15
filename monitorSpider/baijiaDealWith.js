@@ -295,18 +295,18 @@ class dealWith {
                 "aid": vid,
                 "play_num": res.playNum
             }
-            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            //     if(err){
-            //         logger.debug("读取redis出错")
-            //         return
-            //     }
-            //     if(result > media.play_num){
-            //         this.storaging.errStoraging('baijia',`${option.url}`,task.id,`baijia视频${media.aid}播放量减少`,"playNumErr","info")
-            //         return
-            //     }
-            // })
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('baijia',`${option.url}`,task.id,`baijia视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                    return
+                }
+                this.storaging.sendDb(media,task.id,"info")
+            })
             // logger.debug("baijia media==============",media)
-            this.storaging.sendDb(media,task.id,"info")
             callback(null,res)
         })
     }

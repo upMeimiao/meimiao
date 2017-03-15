@@ -5,7 +5,7 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
-const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
+const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -18,31 +18,31 @@ exports.start = () => {
     const errSetRule = new schedule.RecurrenceRule()
         errSetRule.minute = [5,10,15,20,25,30,35,40,45,50,55]
     schedule.scheduleJob(errSetRule, () =>{
-        async.parallel([
-            (cb) => {
-                _playNumJudge((err,result)=>{
-                    logger.debug("开始关于播放量的错误读取~")
-                    logger.debug(err,result)
-                    cb()
-                })
-            },
-            (cb) => {
+        // async.parallel([
+        //     (cb) => {
+                // _playNumJudge((err,result)=>{
+                //     logger.debug("开始关于播放量的错误读取~")
+                //     logger.debug(err,result)
+                //     cb()
+                // })
+            // },
+            // (cb) => {
                 _errorJudge((err,result)=>{
                     logger.debug("开始错误读取与分析~")
                     logger.debug(err,result)
-                    cb()
+                    // cb()
                 })
-            }
-        ],( err, result ) => {
-                if(err){
-                    return
-                }
-                logger.debug(err, result)
-            }
-        )
+        //     }
+        // ],( err, result ) => {
+        //         if(err){
+        //             return
+        //         }
+        //         logger.debug(err, result)
+        //     }
+        // )
     })
     const errReadRule = new schedule.RecurrenceRule()
-        errReadRule.minute = [21,41,59]
+        errReadRule.minute = [31,59]
     schedule.scheduleJob(errReadRule, () =>{
         sendWarnEmail(()=>{
             logger.debug("开始读取错误列表发送邮件~")
@@ -272,18 +272,13 @@ const sendWarnEmail = (callback) => {
             (cb) => {
                 mSpiderClient.hget(key,result[j],(err,result) => {
                     result = JSON.parse(result)
-                    // logger.debug("resultJ====================",resultJ)
                     platform = result["platform"]
                     bid = result["bid"]
                     urlDesc = result["urlDesc"]
                     totalTimes = result["totalTimes"]
                     errObj = result["errObj"]
                     errType = result["errType"]
-                    if(errType == "playNumErr"){
-                        errDesc = "播放量减少，视频ID集合为" + result["errDesc"].toString()
-                    } else{
-                        errDesc = JSON.stringify(result["errDesc"])
-                    }
+                    errDesc = JSON.stringify(result["errDesc"])
                     errTimes = result["errTimes"]
                     tableBody += `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
                     content = `<style>table{border-collapse:collapse;margin:20px;}table,th, td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
@@ -292,8 +287,8 @@ const sendWarnEmail = (callback) => {
                 })
             },
             (err, result) => {
-                logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
-                // emailServerLz.sendAlarm(subject,content)
+                // logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
+                emailServerLz.sendAlarm(subject,content)
             }
         )
     })
@@ -503,14 +498,15 @@ const judgeResults = (options,emailOptions,numberArr) => {
         setWarnErrTable(emailOptions)
         return
     } 
-    // else if(resultObj.playNumErr.times){
-    //     emailOptions.errType = "playNumErr"
-    //     emailOptions.errTimes = resultObj.playNumErr.times
-    //     emailOptions.errDesc = resultObj.playNumErr.desc
-    //     emailOptions.urls = resultObj.playNumErr.errUrls
-    //     setWarnErrTable(emailOptions)
-    //     return
-    // } 
+    else if(resultObj.playNumErr.times){
+        emailOptions.errType = "playNumErr"
+        emailOptions.errTimes = resultObj.playNumErr.times
+        emailOptions.errDesc = resultObj.playNumErr.desc + ",出错vid为" + resultObj.playNumErr.vids.toString()
+                                + ",对应播放量的值为" + resultObj.playNumErr.props.toString()
+        emailOptions.urls = resultObj.playNumErr.errUrls
+        setWarnErrTable(emailOptions)
+        return
+    } 
     else if(resultObj.statusErr.times 
         && resultObj.statusErr.times/(+options.totalResult) > numberArr[5]){
         emailOptions.errType = "statusErr"

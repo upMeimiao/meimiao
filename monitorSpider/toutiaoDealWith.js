@@ -179,6 +179,11 @@ class toutiaoDealWith {
                 return sign
             },
             (cb) => {
+                if(index > 500){
+                    sign = false
+                    task.total = 10 * index
+                    return cb()
+                }
                 const {as, cp} = this.getHoney()
                 if(hot_time){
                     option.url = 'http://ic.snssdk.com' + api.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
@@ -188,19 +193,10 @@ class toutiaoDealWith {
                 if(proxyStatus && proxy){
                     option.proxy = proxy
                     request.get( logger, option, (err,result) => {
-                        this.storaging.totalStorage ("toutiao",option.url,"list")
                         if(err){
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
-                            return cb()
-                        }
-                        if(result.statusCode && result.statusCode != 200){
-                            this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取list接口状态码错误","statusErr","list")
-                            return cb()
-                        }
-                        if(!result.body){
-                            this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
                             return cb()
                         }
                         times = 0
@@ -209,7 +205,6 @@ class toutiaoDealWith {
                         }catch (e){
                             // logger.error('json数据解析失败')
                             // logger.error(result.body)
-                            this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取列表接口json数据解析失败","doWithResErr","list")
                             times++
                             proxyStatus = false
                             this.core.proxy.back(proxy, false)
@@ -232,12 +227,14 @@ class toutiaoDealWith {
                             index++
                             cb()
                         })
-                        // this.storaging.succStorage("toutiao",option.url,"list")
                     })
                 } else {
                     this.core.proxy.need(times, (err, _proxy) => {
-                        this.storaging.totalStorage ("toutiao",option.url,"list")
                         if(err) {
+                            if(err == 'timeout'){
+                                return callback('Get proxy timesout!!')
+                            }
+                            logger.error('Get proxy occur error:' , err)
                             times++
                             proxyStatus = false
                             return cb()
@@ -251,27 +248,12 @@ class toutiaoDealWith {
                                 this.core.proxy.back(_proxy, false)
                                 return cb()
                             }
-                            if(result.statusCode && result.statusCode != 200){
-                                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取list接口状态码错误","statusErr","list")
-                                times++
-                                proxyStatus = false
-                                this.core.proxy.back(_proxy, false)
-                                return cb()
-                            }
-                            if(!result.body){
-                                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
-                                times++
-                                proxyStatus = false
-                                this.core.proxy.back(_proxy, false)
-                                return cb()
-                            }
                             times = 0
                             try{
                                 result = JSON.parse(result.body)
                             }catch (e){
                                 // logger.error('json数据解析失败')
                                 // logger.error(result.body)
-                                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取list接口json数据解析失败","doWithResErr","list")
                                 times++
                                 proxyStatus = false
                                 this.core.proxy.back(_proxy, false)
@@ -296,7 +278,6 @@ class toutiaoDealWith {
                                 index++
                                 cb()
                             })
-                            // this.storaging.succStorage("toutiao",option.url,"list")
                         })
                     })
                 }
@@ -367,17 +348,17 @@ class toutiaoDealWith {
         if(!media.v_img){
             delete media.v_img
         }
-        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-        //     if(err){
-        //         logger.debug("读取redis出错")
-        //         return
-        //     }
-        //     if(result > media.play_num){
-        //         this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条${media.aid}播放量减少`,"playNumErr","play")
-        //         return
-        //     }
-        // })
-        this.storaging.sendDb(media,task.id,"play")
+        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            if(err){
+                logger.debug("读取redis出错")
+                return
+            }
+            if(result > media.play_num){
+                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
+                return
+            }
+            this.storaging.sendDb(media/*,task.id,"play"*/)
+        })
         callback()
     }
     getPlayNum ( vid, callback ) {

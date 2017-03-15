@@ -262,16 +262,16 @@ class billDealWith {
             if(!media.save_num){
                 delete media.save_num
             }
-            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            //     if(err){
-            //         logger.debug("读取redis出错")
-            //         return
-            //     }
-            //     if(result > media.play_num){
-            //         this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍${media.aid}播放量减少`,"playNumErr","videos")
-            //     }
-            // })
-            this.storaging.sendDb(media,task.id,"videos")
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
+                }
+                this.storaging.sendDb(media/*,task.id,"videos"*/)
+            })
             callback()
         })
     }

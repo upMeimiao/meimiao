@@ -227,7 +227,7 @@ class dealWith {
     }
     getPlay( task, vid, callback ){
         let option = {
-            url: `http://uc.wasu.cn/Ajax/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}`
+            url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}&jsoncallback=jsonp`
         }
         request.get( logger, option, (err, result) => {
             if(err){
@@ -245,24 +245,38 @@ class dealWith {
                 this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取play接口状态码错误","statusErr","play")
                 return this.getPlay( task, vid, callback )
             }
-            result = result.body ? Number(result.body.replace(/,/g,'')) : ''
+            if(!result.body){
+                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取play接口返回值为空","resultErr","play")
+                return this.getPlay( task, vid, callback )
+            }
+            try{
+                result = eval(result.body)
+            }catch (e){
+                logger.debug('播放量解析失败')
+                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取play接口eval错误","doWithResErr","play")
+                return this.getPlay( vid, callback )
+            }
+            result = result ? Number(result.replace(/,/g,'')) : ''
+            if(!result){
+                return
+            }
             let media = {
                     "author": "huashu",
                     "aid": vid,
                     "play_num": result
                 }
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                //     if(result > media.play_num){
-                //         this.storaging.errStoraging('huashu',`${option.url}`,task.id,`huashu视频${media.aid}播放量减少`,"playNumErr","play")
-                //         return
-                //     }
-                // })
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('huashu',`${option.url}`,task.id,`huashu视频播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb(media/*,task.id,"play"*/)
+                })
                 // logger.debug("huashu media==============",media)
-                this.storaging.sendDb(media,task.id,"play")
             callback(null,result)
         })
     }

@@ -310,18 +310,18 @@ class dealWith {
                 if(!media.play_num){
                     delete media.play_num
                 }
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                //     if(result > media.play_num){
-                //         this.storaging.errStoraging('weibo',`http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${video.mblog.mblogid}`,task.id,`weibo视频${media.aid}播放量减少`,"playNumErr","list")
-                //         return
-                //     }
-                // })
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('weibo',`http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${video.mblog.mblogid}`,task.id,`weibo视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb(media/*,task.id,"list"*/)
+                })
                 // logger.debug("weibo media==============",media)
-                this.storaging.sendDb(media,task.id,"list")
                 callback()
             })
         }

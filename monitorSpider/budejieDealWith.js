@@ -139,18 +139,18 @@ class dealWith {
                     v_img: this._v_img(video.video.thumbnail),
                     tag: this._tag(video.tags)
                 }
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                //     if(result > media.play_num){
-                //         this.storaging.errStoraging('budejie',`${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`,task.id,`budejie视频${media.aid}播放量减少`,"playNumErr","list")
-                //         return
-                //     }
-                // })
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('budejie',`${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`,task.id,`budejie视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb(media/*,task.id,"list"*/)
+                })
                 index++
-                this.storaging.sendDb(media,task.id,"list")
                 cb()
             },
             (err,result) => {

@@ -195,17 +195,17 @@ class dealWith {
                 save_num: Number(result[0].collectCount) + Number(result[1].CollectionCount),
                 v_img: video.IMGURL
             }
-            // this.core.MSDB.hget(`apiMonitor:play_num`,"${media.author}_${media.aid}",(err,result)=>{
-            //     if(err){
-            //         logger.debug("读取redis出错")
-            //         return
-            //     }
-            //     if(result > media.play_num){
-            //         this.storaging.errStoraging('baomihua',`${api.baomihua.playNum}${task.id}&flvid=${media.aid}`,task.id,`爆米花视频${media.aid}播放量减少`,"playNumErr","playNum")
-            //         return
-            //     }
-            // })
-            this.storaging.sendDb(media,task.id,"playNum")
+            this.core.MSDB.hget(`apiMonitor:play_num`,"${media.author}_${media.aid}",(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('baomihua',`${api.baomihua.playNum}${task.id}&flvid=${media.aid}`,task.id,`爆米花视频播放量减少`,"playNumErr","playNum",media.aid,`${result}/${media.play_num}`)
+                    return
+                }
+                this.storaging.sendDb(media/*,task.id,"playNum"*/)
+            })
             callback()
         })
     }

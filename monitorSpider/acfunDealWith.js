@@ -197,17 +197,17 @@ class dealWith {
                 tag: this._tags(data.tags),
                 class: channels.get(Number(data.channelId))
             }
-        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-        //     if(err){
-        //         logger.debug("读取redis出错")
-        //         return
-        //     }
-        //     if(result > media.play_num){
-        //         this.storaging.errStoraging('acfun',`${url}`,task.id,`acfun视频${media.aid}播放量减少`,"playNumErr","list")
-        //         return
-        //     }
-        // })
-        this.storaging.sendDb(media,task.id,"list")
+        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            if(err){
+                logger.debug("读取redis出错")
+                return
+            }
+            if(result > media.play_num){
+                this.storaging.errStoraging('acfun',`${url}`,task.id,`acfun视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                return
+            }
+            this.storaging.sendDb(media/*,task.id,"list"*/)
+        })
         callback()
     }
     _tags( raw ){

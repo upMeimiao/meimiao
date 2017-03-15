@@ -320,17 +320,17 @@ class dealWith {
             v_img: data.imageUrl,
             class: type
         }
-        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-        //     if(err){
-        //         logger.debug("读取redis出错")
-        //         return
-        //     }
-        //     if(result > media.play_num){
-        //         this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频${media.aid}播放量减少`,"playNumErr","list")
-        //         return
-        //     }
-        // })
-        this.storaging.sendDb(media,task.id,"list")
+        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            if(err){
+                logger.debug("读取redis出错")
+                return
+            }
+            if(result > media.play_num){
+                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                return
+            }
+            this.storaging.sendDb(media/*,task.id,"list"*/)
+        })
         callback()
     }
     getInfo ( task, url, type, data, callback ) {
