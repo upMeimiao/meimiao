@@ -5,7 +5,7 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
-const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
+const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -120,6 +120,7 @@ const checkField = (curKey,lastKey,curResult,lastResult,callback) => {
             }
         }
     }
+    logger.debug("sameKeys.length=",sameKeys.length)
     if(!sameKeys.length){
         return
     }
@@ -291,8 +292,8 @@ const sendWarnEmail = (callback) => {
                 })
             },
             (err, result) => {
-                // logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
-                emailServerLz.sendAlarm(subject,content)
+                logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
+                // emailServerLz.sendAlarm(subject,content)
             }
         )
     })

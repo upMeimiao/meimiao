@@ -253,10 +253,16 @@ class toutiaoDealWith {
                             }
                             if(result.statusCode && result.statusCode != 200){
                                 this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取list接口状态码错误","statusErr","list")
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
                                 return cb()
                             }
                             if(!result.body){
                                 this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao list接口无返回数据","resultErr","list")
+                                times++
+                                proxyStatus = false
+                                this.core.proxy.back(_proxy, false)
                                 return cb()
                             }
                             times = 0
