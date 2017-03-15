@@ -281,7 +281,7 @@ const sendWarnEmail = (callback) => {
                     errDesc = JSON.stringify(result["errDesc"])
                     errTimes = result["errTimes"]
                     tableBody += `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
-                    content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody.slice(9)}</table>`
+                    content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
                     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
                     j++
                     cb()
