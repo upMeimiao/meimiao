@@ -17,14 +17,16 @@ class storage{
     judgeRes(platform,url,bid,err,res,urlDesc){
 	    if(err){
 	    	// logger.error(err,err.code,err.Error)
-	    	let errType
+	    	let errType,errDesc
 	    	if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                 errType = "timeoutErr"
+                errDesc = err.code
             } else{
                 errType = "responseErr"
+                errDesc = "error"
             }
             // logger.error(errType)
-	        this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
+	        this.errStoraging(platform,url,bid,errDesc,errType,urlDesc)
 	        return
 	    }
 	    if(!res){
