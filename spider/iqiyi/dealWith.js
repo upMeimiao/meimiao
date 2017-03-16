@@ -180,7 +180,7 @@ class dealWith {
         })
     }
     getListN(task, callback) {
-        let index = 1,flag = 0,
+        let index = 1,flag = 0,$,titleDom,
             sign = true
         const option = {
             ua: 1,
@@ -203,16 +203,18 @@ class dealWith {
                             if(flag > 2){
                                 task.total = 24 * (index -1)
                                 sign = false
+                                flag = null
                             }
                             flag++
                             cb()
                         }, 3000)
                     }
-                    const $ = cheerio.load(result.body,{
-                            ignoreWhitespace:true
-                        }),
-                        titleDom = $('p.mod-piclist_info_title a'),
-                        video = []
+                    flag = null
+                    $ = cheerio.load(result.body,{
+                        ignoreWhitespace:true
+                    })
+                    titleDom = $('p.mod-piclist_info_title a')
+                    let video = []
                     if(titleDom.length === 0){
                         task.total = 24 * (index -1)
                         sign = false
@@ -237,7 +239,7 @@ class dealWith {
         )
     }
     getIds(task, raw, callback) {
-        let index = 0,flag = 0
+        let index = 0,flag = 0,$,id
         const option = {
             ua: 1
         }
@@ -255,11 +257,11 @@ class dealWith {
                         }
                         return cb()
                     }
-                    flag = 0
-                    const $ = cheerio.load(result.body,{
-                            ignoreWhitespace:true
-                        }),
-                        id = $('#flashbox').attr('data-player-tvid')
+                    flag = null
+                    $ = cheerio.load(result.body,{
+                        ignoreWhitespace:true
+                    })
+                    id = $('#flashbox').attr('data-player-tvid')
                     this.info(task, {id: id, title: raw[index].title, link: raw[index].link},(err)=>{
                         index++
                         cb()
@@ -272,7 +274,7 @@ class dealWith {
         )
     }
     getList(task, page, callback) {
-        let index = 1
+        let index = 1,data,$
         const option = {
             ua: 1,
             referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
@@ -294,10 +296,10 @@ class dealWith {
                         logger.error(result)
                         return cb()
                     }
-                    const data = result.data,
-                        $ = cheerio.load(data,{
-                            ignoreWhitespace:true
-                        })
+                    data = result.data
+                    $ = cheerio.load(data,{
+                        ignoreWhitespace:true
+                    })
                     if($('.wrap-customAuto-ht li').length === 0){
                         index++
                         return cb()
@@ -331,14 +333,14 @@ class dealWith {
         )
     }
     deal( task, ids, titles, links, callback ){
-        let index = 0,
+        let index = 0,data,
             length = ids.length
         async.whilst(
             () => {
                 return index < length
             },
             (cb) => {
-                let data = {
+                data = {
                     id: ids[index],
                     title: titles[index],
                     link: links[index]
