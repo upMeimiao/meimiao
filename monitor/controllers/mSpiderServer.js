@@ -258,7 +258,7 @@ const sendWarnEmail = (callback) => {
             platform,bid,urlDesc,totalTimes,errObj,
             errType
         let subject = `接口监控：${year}年${month}月${day}日 ${hour}时接口报警报表`,
-            tableBody,j = 0,length = result.length,
+            tableBody = "",j = 0,length = result.length,
             tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
         //遍历key，获取所有错误信息，发送邮件
         if(length < 1){

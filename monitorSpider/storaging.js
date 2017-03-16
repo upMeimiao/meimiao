@@ -18,16 +18,20 @@ class storage{
 	    if(err){
 	    	// logger.error(err,err.code,err.Error)
 	    	let errType
-            if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                errType = "timeoutErr"
+            if(err.code){
+            	if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+               		errType = "timeoutErr"
+            	} else{
+            		errType = "responseErr"
+            	}
             } else{
                 errType = "responseErr"
             }
-            // logger.error(err,errType,err.code)
-            this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
+            // logger.error("judgeRes error 内容===========",platform,JSON.stringify(err),errType,err.code)
+            this.errStoraging(platform,url,bid,err.code||"error",errType,urlDesc)
 	        return
 	    }
-	    if(!res){
+	    if(!res.body){
 	        this.errStoraging(platform,url,bid,`返回数据为空`,"resultErr",urlDesc)
 	        return
 	    }
@@ -79,7 +83,7 @@ class storage{
 			hour = nowDate.getHours(),
 			hourStr,
 			urlStr = url,
-	        times,errObj = {}
+	        times,errObj
 	    if(hour >= 10){
 	    	hourStr = "" + hour
 	    }else{

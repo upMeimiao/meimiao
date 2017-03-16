@@ -86,14 +86,16 @@ class miaopaiDealWith {
         request.get( option, (err,result) => {
             this.storaging.totalStorage ("miaopai",option.url,"total")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
                 this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"total")
                 if(task.id == 'mEpTsCBR3q2uyDUc'){
                     return callback()
@@ -143,14 +145,16 @@ class miaopaiDealWith {
                 request.get(option, (err,result) => {
                     this.storaging.totalStorage ("miaopai",option.url,"videos")
                     if(err){
-                        logger.error(err,err.code,err.Error)
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
                         this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }

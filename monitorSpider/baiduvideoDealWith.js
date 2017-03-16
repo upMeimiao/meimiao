@@ -96,12 +96,15 @@ class dealWith {
                     this.storaging.totalStorage ("baiduvideo",option.url,"list")
                     if(err){
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        //logger.error(errType)
                         this.storaging.errStoraging("baiduvideo",option.url,task.id,err.code || "error",errType,"list")
                         if(num <= 1){
                             return cb()
@@ -207,8 +210,12 @@ class dealWith {
             if(err){
                 // logger.debug('单个视频Dom请求失败',err)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }

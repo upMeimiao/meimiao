@@ -139,14 +139,16 @@ class meipaiDealWith {
                 request.get(option,(err,result) => {
                     this.storaging.totalStorage ("meipai",option.url,"videos")
                     if(err){
-                        logger.error(err,err.code,err.Error)
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
                         this.storaging.errStoraging('meipai',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }

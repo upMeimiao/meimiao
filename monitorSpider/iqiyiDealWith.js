@@ -227,14 +227,16 @@ class iqiyiDeal {
                 request.get(logger, option, (err, result) => {
                     this.storaging.totalStorage ("iqiyi",option.url,"ids")
                     if(err){
-                        logger.error(err,err.code,err.Error)
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
                     	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"ids")
                         return cb()
                     }
@@ -277,14 +279,16 @@ class iqiyiDeal {
                 request.get( logger, option, (err,result) => {
                     this.storaging.totalStorage ("iqiyi",option.url,"list")
                     if(err){
-                        logger.error(err,err.code,err.Error)
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
                     	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
@@ -451,14 +455,18 @@ class iqiyiDeal {
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("iqiyi",option.url,"info")
             if(err){
-                logger.error(err,err.code,err.Error)
+                // logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
+                // logger.error(errType)
             	this.storaging.errStoraging('iqiyi',link,task.id,err.code || "error",errType,"info")
                 return callback(err)
             }
@@ -533,14 +541,16 @@ class iqiyiDeal {
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("iqiyi",option.url,"Expr")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
             	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"Expr")
                 return callback(err)
             }
@@ -574,15 +584,16 @@ class iqiyiDeal {
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("iqiyi",option.url,"play")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
-
             	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"play")
                 return callback(err)
             }
@@ -613,15 +624,16 @@ class iqiyiDeal {
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("iqiyi",option.url,"comment")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
-
             	this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"comment")
                 return callback(err)
             }

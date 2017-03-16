@@ -75,14 +75,16 @@ class toutiaoDealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("toutiao",option.url,"user")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
                 this.storaging.errStoraging("toutiao",option.url,task.id,err.code || "error",errType,"user")
                 return callback(err)
             }
@@ -135,8 +137,12 @@ class toutiaoDealWith {
             this.storaging.totalStorage ("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
             if(err){
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
@@ -369,8 +375,12 @@ class toutiaoDealWith {
             this.storaging.totalStorage ("toutiao",option.url,"play")
             if(err){
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }

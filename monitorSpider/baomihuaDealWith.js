@@ -88,9 +88,13 @@ class dealWith {
                 request.get( logger,option, ( err, result ) => {
                     if(err){
                         // logger.error(err,err.code,err.Error)
-                        let errType 
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        let errType
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
