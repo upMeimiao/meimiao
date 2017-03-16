@@ -146,8 +146,12 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err) {
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
@@ -180,8 +184,12 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err) {
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
@@ -209,8 +217,12 @@ class dealWith {
         request.get( logger, option, (err, result) => {
             if(err){
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }

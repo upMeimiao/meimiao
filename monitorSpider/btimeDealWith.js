@@ -40,9 +40,13 @@ class dealWith {
             this.storaging.totalStorage ("btime",option.url,"user")
             if(err){
                 // logger.error(err,err.code,err.Error)
-                let errType 
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
@@ -88,9 +92,13 @@ class dealWith {
                     this.storaging.totalStorage ("btime",option.url,"list")
                     if(err){
                         // logger.error(err,err.code,err.Error)
-                        let errType 
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        let errType
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
@@ -208,14 +216,16 @@ class dealWith {
         request.get(option, (err, result) => {
             this.storaging.totalStorage ("btime",option.url,"info")
             if(err){
-                logger.error(err,err.code,err.Error)
-                let errType 
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || "error",errType,"info")
                 return callback(err)
             }
@@ -251,14 +261,16 @@ class dealWith {
         request.get(option, ( err, result ) => {
             this.storaging.totalStorage ("btime",option.url,"comment")
             if(err){
-                logger.error(err,err.code,err.Error)
-                let errType 
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
                 this.storaging.errStoraging('btime',option.url,task.id,err.code || "error",errType,"comment")
                 return callback(err)
             }

@@ -124,8 +124,12 @@ class dealWith {
                     this.storaging.totalStorage ("v1",option.url,"list")
                     if (err) {
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
@@ -260,8 +264,12 @@ class dealWith {
             this.storaging.totalStorage ("v1",option.url,"videoInfo")
             if (err) {
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
@@ -301,10 +309,13 @@ class dealWith {
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("v1",option.url,"vidInfo")
             if (err) {
-                logger.error( '单个视频接口请求错误 : ', err )
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }

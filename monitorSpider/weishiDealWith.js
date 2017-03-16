@@ -83,8 +83,12 @@ class dealWith {
                         // logger.error( 'occur error : ' + err )
                         // logger.error(err,err.code,err.Error)
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }

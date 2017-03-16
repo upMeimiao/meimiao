@@ -152,14 +152,16 @@ class dealWith {
                 request.get(logger,option, (err,result) => {
                     this.storaging.totalStorage ("tudou",option.url,"list")
                     if(err){
-                        logger.error(err,err.code,err.Error)
-                        let errType 
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        let errType
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
                         this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }

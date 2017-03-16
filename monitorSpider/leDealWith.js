@@ -33,15 +33,16 @@ class leDealWith {
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("le",option.url,"total")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
-
                 this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"total")
                 return callback(err)
             }
@@ -80,14 +81,16 @@ class leDealWith {
                 request.get( logger, option, (err,result) => {
                     this.storaging.totalStorage ("le",option.url,"list")
                     if(err){
-                        logger.error(err,err.code,err.Error)
                         let errType
-                        if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
                         this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
@@ -215,15 +218,16 @@ class leDealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("le",option.url,"info")
             if(err){
-                logger.error(err,err.code,err.Error)
-                let errType 
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
-
                 this.storaging.errStoraging('le',option.url,id,err.code || "error",errType,"info")
                 return callback(err)
             }
@@ -259,14 +263,16 @@ class leDealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("le",option.url,"Expr")
             if(err){
-                logger.error(err,err.code,err.Error)
-                let errType 
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
                 this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"Expr")
                 return callback( err )
             }
@@ -334,14 +340,16 @@ class leDealWith {
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("le",option.url,"Desc")
             if(err){
-                logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
-                logger.error(errType)
                 this.storaging.errStoraging('le',option.url,task.id,err.code || "error",errType,"Desc")
                 return callback(null,null)
             }

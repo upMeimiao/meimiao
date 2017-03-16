@@ -51,8 +51,12 @@ class youkuDealWith {
             if(err){
                 //logger.error(err,err.code,err.Error)
                 let errType
-                if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                    errType = "timeoutErr"
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
                 } else{
                     errType = "responseErr"
                 }
@@ -153,14 +157,16 @@ class youkuDealWith {
                 request(options, (error, response, body) => {
                     this.storaging.totalStorage ("youku",options.url,"videos")
                     if(error){
-                        logger.error(error,error.code,error.Error)
-                        let errType 
-                        if(error.code && error.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
-                            errType = "timeoutErr"
+                        let errType
+                        if(error.code){
+                            if(error.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
                         } else{
                             errType = "responseErr"
                         }
-                        logger.error(errType)
                         this.storaging.errStoraging('youku',options.url,task.id,error.code || error,errType,"videos")
                         return cb()
                     }
