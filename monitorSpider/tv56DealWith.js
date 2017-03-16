@@ -183,7 +183,7 @@ class dealWith {
         async.parallel(
             [
                 ( callback ) => {
-                    this.getInfo( video.id, ( err, data ) =>{
+                    this.getInfo( task, video.id, ( err, data ) =>{
                         if(err){
                             return callback(err)
                         }
@@ -191,7 +191,7 @@ class dealWith {
                     })
                 },
                 ( callback ) => {
-                    this.getComment( video.id, ( err, num ) => {
+                    this.getComment( task, video.id, ( err, num ) => {
                         if(err){
                             return callback(err)
                         }
@@ -218,24 +218,24 @@ class dealWith {
                     comment_num: result[1],
                     a_create_time: video.uploadTime.toString().substr(0,10)
                 }
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                //     if(result > media.play_num){
-                //         this.storaging.errStoraging('tv56',api.tv56.video + `${id}&_=${new Date().getTime()}`,task.id,`tv56 ${media.aid}播放量减少`,"playNumErr","info")
-                //         return
-                //     }
-                // })
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('tv56',api.tv56.video + `${id}&_=${new Date().getTime()}`,task.id,`tv56播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb(media/*,task.id,"info"*/)
+                })
                 // logger.debug("tv56 media==============",media)
-                this.storaging.sendDb(media,task.id,"info")
                 //logger.debug(media)
                 callback()
             }
         )
     }
-    getInfo ( id, callback ){
+    getInfo ( task, id, callback ){
         let options = {
             headers: {
                 "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
@@ -251,7 +251,7 @@ class dealWith {
                     errType = "responseErr"
                 }
                 // logger.error(errType)
-                this.storaging.errStoraging('tv56',option.url,task.id,err.code || "error",errType,"info")
+                this.storaging.errStoraging('tv56',option.url,task.id,error.code || "error",errType,"info")
                 return callback(error)
             }
             if(!meta){
@@ -274,7 +274,7 @@ class dealWith {
             callback(null,body.data)
         })
     }
-    getComment ( id, callback ){
+    getComment ( task, id, callback ){
         let option = {
             url: api.tv56.comment + `${id}&_=${new Date().getTime()}`,
         }

@@ -305,18 +305,18 @@ class dealWith {
                 "aid": video.video_id,
                 "play_num": result.data.all
             }
-            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            //     if(err){
-            //         logger.debug("读取redis出错")
-            //         return
-            //     }
-            //     if(result > media.play_num){
-            //         this.storaging.errStoraging('mgtv',`${option.url}`,task.id,`mgtv视频${media.aid}播放量减少`,"playNumErr","paly")
-            //         return
-            //     }
-            // })
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('mgtv',`${option.url}`,task.id,`mgtv视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
+                    return
+                }
+                this.storaging.sendDb(media/*,task.id,"paly"*/)
+            })
             // logger.debug("mgtv media==============",media)
-            this.storaging.sendDb(media,task.id,"paly")
             callback(null,result.data)
         })
     }

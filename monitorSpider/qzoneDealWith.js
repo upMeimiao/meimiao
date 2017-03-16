@@ -293,18 +293,18 @@ class dealWith {
                 "aid": video.key,
                 "play_num": result.singlefeed['7'].videoplaycnt
             }
-            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            //     if(err){
-            //         logger.debug("读取redis出错")
-            //         return
-            //     }
-            //     if(result > media.play_num){
-            //         this.storaging.errStoraging('qzone',`${option.url}`,task.id,`qzone  ${media.aid}播放量减少`,"playNumErr","info")
-            //         return
-            //     }
-            // })
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('qzone',`${option.url}`,task.id,`qzone播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                    return
+                }
+                this.storaging.sendDb(media/*,task.id,"info"*/)
+            })
             // logger.debug("qzone media==============",media)
-            this.storaging.sendDb(media,task.id,"info")
             callback(null,result)
         })
     }

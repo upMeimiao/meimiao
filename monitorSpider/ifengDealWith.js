@@ -175,18 +175,18 @@ class dealWith {
                 tag: video.tag,
                 v_url: video.memberItem.pcUrl
             }
-            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            //     if(err){
-            //         logger.debug("读取redis出错")
-            //         return
-            //     }
-            //     if(result > media.play_num){
-            //         this.storaging.errStoraging('acfun',`${option.url}`,task.id,`ifeng视频${media.aid}播放量减少`,"playNumErr","video")
-            //         return
-            //     }
-            // })
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('acfun',`${option.url}`,task.id,`ifeng视频播放量减少`,"playNumErr","video",media.aid,`${result}/${media.play_num}`)
+                    return
+                }
+                this.storaging.sendDb(media/*,task.id,"video"*/)
+            })
             // logger.debug("ifeng media==============",media)
-            this.storaging.sendDb(media,task.id,"video")
             callback()
         })
     }

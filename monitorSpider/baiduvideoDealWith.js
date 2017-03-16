@@ -236,18 +236,18 @@ class dealWith {
                     "aid": video.id,
                     "play_num": playNum
                 }
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                //     if(result > media.play_num){
-                //         this.storaging.errStoraging('baiduvideo',`${option.url}`,task.id,`baiduvideo ${media.aid}播放量减少`,"playNumErr","info")
-                //         return
-                //     }
-                // })
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('baiduvideo',`${option.url}`,task.id,`baiduvideo播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb(media/*,task.id,"info"*/)
+                })
             // logger.debug("baiduvideo media==============",media)
-            this.storaging.sendDb(media,task.id,"info")
             callback(null,playNum)
         })
     }

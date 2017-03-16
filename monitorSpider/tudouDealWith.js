@@ -187,24 +187,24 @@ class dealWith {
                     let list = result.data.data
                     if(list){
                         for(let index in list){
-                            // this.core.MSDB.hget(`apiMonitor:play_num`,`tudou_${list[index].code}`,(err,result)=>{
-                            //     if(err){
-                            //         logger.debug("读取redis出错")
-                            //         return
-                            //     }
-                            //     if(result > list[index].playNum){
-                            //         this.storaging.errStoraging("tudou",option.url,task.id,`土豆${list[index].code}播放量减少`,"playNumErr","list")
-                            //         return
-                            //     }
-                            // })
-                            let media = {
-                                    "author": task.name,
-                                    "platform": task.platform,
-                                    "aid": list[index].code,
-                                    "bid": task.id,
-                                    "play_num": list[index].playNum
+                            this.core.MSDB.hget(`apiMonitor:play_num`,`tudou_${list[index].code}`,(err,result)=>{
+                                if(err){
+                                    logger.debug("读取redis出错")
+                                    return
                                 }
-                            this.storaging.sendDb(media,task.id,"list")
+                                if(result > list[index].playNum){
+                                    this.storaging.errStoraging("tudou",option.url,task.id,`土豆播放量减少`,"playNumErr","list",list[index].code,`${result}/${list[index].playNum}`)
+                                    return
+                                }
+                                let media = {
+                                        "author": task.name,
+                                        "platform": task.platform,
+                                        "aid": list[index].code,
+                                        "bid": task.id,
+                                        "play_num": list[index].playNum
+                                    }
+                                this.storaging.sendDb(media/*,task.id,"list"*/)
+                            })
                         }
                         this.deal(task,list, () => {
                             sign++

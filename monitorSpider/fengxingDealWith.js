@@ -243,18 +243,18 @@ class dealWith {
                     "aid": video.videoid,
                     "play_num": playNum
                 }
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                //     if(result > media.play_num){
-                //         this.storaging.errStoraging('fengxing',`${option.url}`,task.id,`pptv视频${media.aid}播放量减少`,"playNumErr","list")
-                //         return
-                //     }
-                // })
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('fengxing',`${option.url}`,task.id,`pptv视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb(media/*,task.id,"list"*/)
+                })
                 // logger.debug("pptv media==============",media)
-                this.storaging.sendDb(media,task.id,"list")
             }
             this.deal(task,content,length,() => {
                 logger.debug('数据请求完成')

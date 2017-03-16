@@ -18,13 +18,13 @@ class storage{
 	    if(err){
 	    	// logger.error(err,err.code,err.Error)
 	    	let errType
-	    	if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
+            if(err.code && err.code == "ETIMEOUT" || "ESOCKETTIMEOUT"){
                 errType = "timeoutErr"
             } else{
                 errType = "responseErr"
             }
-            // logger.error(errType)
-	        this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
+            // logger.error(err,errType,err.code)
+            this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
 	        return
 	    }
 	    if(!res){
@@ -37,41 +37,24 @@ class storage{
 	    }
     }
     sendDb (media,taskId,urlDesc){
-	    let curPlatform = media.author,
-	    	myDate = new Date(),
-	    	hour = myDate.getHours(),
-	    	minute = myDate.getMinutes(),
-	    	group_num
-	    	if(0 <= minute && minute < 20){
-	    		group_num = 1
-	    	} else if(20 <= minute && minute < 40){
-	    		group_num = 2
-	    	} else if(40 <= minute && minute < 60){
-	    		group_num = 3
-	    	}
-	    // logger.debug("当前的group_num为",minute,group_num)
-	    mSpiderClint.hset(`apiMonitor:play_num_${group_num}`,`${curPlatform}-${urlDesc}-${taskId}-${media.aid}`,media.play_num,(err,result)=>{
+	    let curPlatform = media.author
+	    // logger.debug("当前的group_num为",minute,group_num)${curPlatform}-${urlDesc}-${taskId}-${media.aid}
+	    mSpiderClint.hset(`apiMonitor:play_num`,`${curPlatform}_${media.aid}`,media.play_num,(err,result)=>{
 	        if ( err ) {
 	            logger.error( '加入接口监控数据库出现错误：', err )
 	            return
 	        }
 	        // logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:play_num_${group_num}`,30*60) 
+	    mSpiderClint.expire(`apiMonitor:play_num`,12*60*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
 			hour = nowDate.getHours(),
-			hourStr,
 			urlStr = url, 
 	        times
-	    if(hour >= 10){
-	    	hourStr = "" + hour
-	    }else{
-	    	hourStr = "0" + hour
-	    }
 		let	curKey = `apiMonitor:all`,
-			field = `${platform}_${urlDesc}_${hourStr}`
+			field = `${platform}_${urlDesc}_${hour}`
 	    mSpiderClint.hget(curKey,field,(err,result) => {
 	        if(err){
 	            logger.error( '获取接口成功调取次数出现错误', err )
@@ -91,7 +74,7 @@ class storage{
 	        mSpiderClint.expire(curKey,12*60*60)  
 	    })
 	}
-	errStoraging (platform,url,bid,errDesc,errType,urlDesc){
+	errStoraging (platform,url,bid,errDesc,errType,urlDesc,vid,prop){
 	    let nowDate = new Date(),
 			hour = nowDate.getHours(),
 			hourStr,
@@ -141,17 +124,19 @@ class storage{
 						"desc": "",
 						"errUrls": []
 					},
-					// "playNumErr":{
-					// 	"times": 0,
-					// 	"desc": "",
-					// 	"errUrls": []
-					// },
+					"playNumErr":{
+						"times": 0,
+						"desc": "",
+						"errUrls": [],
+						"vids": [],
+						"props": []
+					},
 					"statusErr":{
 						"times": 0,
 						"desc": "",
 						"errUrls": []
 					}
-				},
+				}
 	        	// logger.debug("result  errObj errType urlDesc platform",result,errObj,errType,urlDesc,platform)
 	            errObj[errType]["times"] = 1
 	        }  else {
@@ -159,6 +144,10 @@ class storage{
 	            errObj[errType]["times"] += 1
 	        }
 	        errObj[errType]["desc"] = errDesc
+	        if(errType == "playNumErr" && errObj[errType]["vids"].indexOf(vid) < 0){
+	        	errObj[errType]["vids"].push(vid)
+	        	errObj[errType]["props"].push(prop)
+	        }
 	        let errArr = errObj[errType]["errUrls"],
 	        	length,
 	        	bool
@@ -167,15 +156,18 @@ class storage{
 	        if(!errArr || !errArr.length){
 	        	errArr.push(urlStr)
 	        } else{
-	        	length = errArr.length
-	        	for(i = 0; i < length; i++){
-	        		if(errArr[i] == urlStr){
-	        			bool = true
-	        		}
-	        	}
-	        	if(!bool){
+	        	if(errArr.indexOf(urlStr) < 0){
 	        		errArr.push(urlStr)
 	        	}
+	        	// length = errArr.length
+	        	// for(i = 0; i < length; i++){
+	        	// 	if(errArr[i] == urlStr){
+	        	// 		bool = true
+	        	// 	}
+	        	// }
+	        	// if(!bool){
+	        	// 	errArr.push(urlStr)
+	        	// }
 	        }
 	        let errString = JSON.stringify(errObj)
 	        mSpiderClint.set(curKey,errString,(err,result) => {

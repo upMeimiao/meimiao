@@ -423,21 +423,21 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                // 	if(result > media.play_num){
-                //         this.storaging.errStoraging('iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.id,`爱奇艺视频${media.aid}播放量减少`,"playNumErr","info")
-                //         return
-                //     }
-                // })
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                	if(result > media.play_num){
+                        this.storaging.errStoraging('iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.id,`爱奇艺视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb( media/*,task.id,"info"*/ )
+                })
 
                 if(media.comment_num < 0){
                     delete media.comment_num
                 }
-                this.storaging.sendDb( media,task.id,"info" )
                 callback()
             }
         )

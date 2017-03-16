@@ -267,17 +267,17 @@ class souhuDealWith {
             if(!media.class){
                 delete media.class
             }
-            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            //     if(err){
-            //         logger.debug("读取redis出错")
-            //         return
-            //     }
-            //     if(result > media.play_num){
-            //         this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐${media.aid}播放量减少`,"playNumErr","info")
-            //         return
-            //     }
-            // })
-            this.storaging.sendDb(media,task.id,"info")
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                    return
+                }
+                this.storaging.sendDb(media/*,task.id,"info"*/)
+            })
             callback()
         })
     }

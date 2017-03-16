@@ -191,17 +191,17 @@ class leDealWith {
                     delete media.class
                 }
 
-                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                //     if(err){
-                //         logger.debug("读取redis出错")
-                //         return
-                //     }
-                //     if(result > media.play_num){
-                //         this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频${media.aid}播放量减少`,"playNumErr","info")
-                //         return
-                //     }
-                // })
-                this.storaging.sendDb(media,task.id,"info")
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                        return
+                    }
+                    this.storaging.sendDb(media/*,task.id,"info"*/)
+                })
                 callback()
             }
         )
