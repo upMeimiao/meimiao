@@ -173,6 +173,7 @@ class dealWith {
             url : 'http://m.baofeng.com/play/73/play-786073-drama-'+ index +'.html'
         }
         request.get( logger, option, (err, result) => {
+            this.storaging.totalStorage ("baofeng",option.url,"desc")
             if(err) {
                 let errType
                 if(err.code){
@@ -193,14 +194,18 @@ class dealWith {
                 return callback(null,{type:'',desc:''})
             }
             let $ = cheerio.load(result.body),
-                type = $('div.details-info-right a').text(),
+                type = $('.details-info-right a').text(),
                 desc = $('div.play-details-words').text().replace('简介：','').substring(0,100),
                 res = {
                     type: type ? type : '',
                     desc: desc ? desc : ''
                 }
-            if(!type || !desc){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng从dom中获取desc与type失败","domBasedErr","desc")
+            if(!type){
+                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng从dom中获取type失败","domBasedErr","desc")
+                return callback()
+            }
+            if(!desc){
+                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng从dom中获取desc失败","domBasedErr","desc")
                 return callback()
             }
             callback(null,res)
