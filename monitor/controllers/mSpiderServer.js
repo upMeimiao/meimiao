@@ -16,7 +16,7 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64
 exports.start = () => {
     //读取已存的错误，生成错误表
     const errSetRule = new schedule.RecurrenceRule()
-        errSetRule.minute = [5,10,15,20,25,30,35,40,45,50,55]
+        errSetRule.minute = 40
     schedule.scheduleJob(errSetRule, () =>{
         // async.parallel([
         //     (cb) => {
@@ -42,7 +42,7 @@ exports.start = () => {
         // )
     })
     const errReadRule = new schedule.RecurrenceRule()
-        errReadRule.minute = [31,59]
+        errReadRule.minute = 0
     schedule.scheduleJob(errReadRule, () =>{
         sendWarnEmail(()=>{
             logger.debug("开始读取错误列表发送邮件~")
@@ -238,7 +238,12 @@ const setWarnErrTable = (emailOptions) => {
 const sendWarnEmail = (callback) => {
     let newDate = new Date(),
         hour = newDate.getHours()
-    let  key = `apiMonitor:warnTable:${hour}`
+        if(hour == 0){
+            hourStr = 23
+        } else{
+            hourStr = hour - 1
+        }
+    let  key = `apiMonitor:warnTable:${hourStr}`
     //获取所有的key
     mSpiderClient.hkeys(key,(err,result) => {
         if(err){
@@ -253,11 +258,10 @@ const sendWarnEmail = (callback) => {
             year = newDate.getFullYear(),
             month = newDate.getMonth() + 1,
             day = newDate.getDate(),
-            hour = newDate.getHours(),
             content,errDesc,errTimes,
             platform,bid,urlDesc,totalTimes,errObj,
             errType
-        let subject = `接口监控：${year}年${month}月${day}日 ${hour}时接口报警报表`,
+        let subject = `接口监控：${year}年${month}月${day}日 ${hourStr}时接口报警报表`,
             tableBody = "",j = 0,length = result.length,
             tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
         //遍历key，获取所有错误信息，发送邮件

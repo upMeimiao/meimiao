@@ -12,6 +12,7 @@ class dealWith {
         this.core = spiderCore
         this.settings = spiderCore.settings
         this.storaging = new (require('./storaging'))(this)
+        this.aidUrl = ''
         logger = this.settings.logger
         api = this.settings.spiderAPI
         logger.trace('baofengDealWith instantiation ...')
@@ -39,8 +40,20 @@ class dealWith {
             if(!result){
                 return 
             }
-            let $ = cheerio.load(result),
+             let $ = cheerio.load(result.body),
+                aid = $('div.episodes.clearfix').attr('m_aid')
+            if(!aid){
                 aid = $('div.enc-episodes-detail').attr('m_aid')
+            }
+            if(!aid){
+                this.aidUrl = $('ul.hot-pic-list li').eq(0).find('a').attr('href')
+                return this.getAid( task,(err) => {
+                    if(err){
+                        return callback(err)
+                    }
+                    callback()
+                })
+            }
             if(!aid){
                 this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng从dom中获取TheAlbum失败","domBasedErr","TheAlbum")
                 return callback()
@@ -53,7 +66,23 @@ class dealWith {
             })
         })
     }
-    
+    getAid( task, callback ){
+        if(!this.aidUrl)
+            return callback('结构出错，没有获取到播放详情页地址')
+        let option = {
+            url: 'http://www.baofeng.com/'+ this.aidUrl
+        }
+        request.get(logger, option, (err, result) => {
+            if(err){
+                return this.getAid( task, callback )
+            }
+            result = result.body
+            let aid = result.match(/"aid":"\d+/).toString().replace(/"aid":"/,'')
+            this.getVidList( task, aid, (err) => {
+                callback()
+            })
+        })
+    }
     getVidList( task, aid, callback ){
         let option = {
             url: 'http://minfo.baofeng.net/asp_c/13/124/'+aid+'-n-100-r-50-s-1-p-1.json?_random=false'
@@ -108,7 +137,7 @@ class dealWith {
                     })
                 },
                 (cb) => {
-                    this.getDesc( task.id, index, (err, result) => {
+                    this.getDesc( task, index, (err, result) => {
                         logger.debug(err,result)
                     })
                 },
@@ -138,7 +167,7 @@ class dealWith {
             }
         )
     }
-    getDesc( bid, index, callback ){
+    getDesc( task, index, callback ){
         index++
         let option = {
             url : 'http://m.baofeng.com/play/73/play-786073-drama-'+ index +'.html'

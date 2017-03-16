@@ -3,8 +3,9 @@
  */
 const moment = require('moment')
 const async = require( 'async' )
-const request = require( 'request' )
 const fetchUrl = require("fetch").fetchUrl
+const request = require('../lib/request.js')
+const spiderUtils = require('../lib/spiderUtils')
 const jsonp = function(data){
     return data
 }
@@ -242,7 +243,7 @@ class dealWith {
             }
         }
         fetchUrl(api.tv56.video + `${id}&_=${new Date().getTime()}`, options, (error, meta, body) => {
-            this.storaging.totalStorage ("tv56",option.url,"info")
+            this.storaging.totalStorage ("tv56",options.url,"info")
             if(error){
                 let errType
                 if(err.code){
@@ -255,23 +256,23 @@ class dealWith {
                     errType = "responseErr"
                 }
                 // logger.error(errType)
-                this.storaging.errStoraging('tv56',option.url,task.id,error.code || "error",errType,"info")
+                this.storaging.errStoraging('tv56',options.url,task.id,error.code || "error",errType,"info")
                 return callback(error)
             }
             if(!meta){
-                this.storaging.errStoraging('tv56',option.url,task.id,"tv56 info接口无返回数据","responseErr","info")
+                this.storaging.errStoraging('tv56',options.url,task.id,"tv56 info接口无返回数据","responseErr","info")
                 return callback()
             }
             if(meta.status != 200){
                 logger.error(`getInfo请求状态有误: ${meta.status}`)
-                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取info接口请求状态有误","statusErr","info")
+                this.storaging.errStoraging('tv56',options.url,task.id,"tv56获取info接口请求状态有误","statusErr","info")
                 return callback(true)
             }
             try {
                 body = JSON.parse(body)
             } catch (e) {
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取info接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('tv56',options.url,task.id,"tv56获取info接口json数据解析失败","doWithResErr","info")
                 return callback(e)
             }
             //logger.debug(body)
@@ -292,9 +293,8 @@ class dealWith {
                 return 
             }
             try {
-                result = eval(result.body)
+                result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(e)
             }

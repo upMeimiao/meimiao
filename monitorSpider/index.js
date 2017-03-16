@@ -245,46 +245,46 @@ class spiderCore {
                 "name":"baiduvideo","platform":37,"id":18680,"bname":"陈翔六点半"
             }
 
-        youku_rule.minute = [1,21,41]
-        iqiyi_rule.minute = [2,22,42]
-        le_rule.minute = [3,23,43]
-        tencent_rule.minute = [4,24,44]
-        meipai_rule.minute = [5,25,45]
-        toutiao_rule.minute = [6,26,46]
-        miaopai_rule.minute = [7,27,47]
-        bili_rule.minute = [8,28,48]
-        souhu_rule.minute = [9,29,49]
-        kuaibao_rule.minute = [10,30,50]
+        youku_rule.minute = 5
+        iqiyi_rule.minute = 5
+        le_rule.minute = 5
+        tencent_rule.minute = 5
+        meipai_rule.minute = 5
+        toutiao_rule.minute = 5
+        miaopai_rule.minute = 5
+        bili_rule.minute = 5
+        souhu_rule.minute = 5
+        kuaibao_rule.minute = 5
 
-        yidian_rule.minute = [1,21,41]
-        tudou_rule.minute = [2,22,42]
-        baomihua_rule.minute = [3,23,43]
-        ku6_rule.minute = [4,24,44]
-        btime_rule.minute = [5,25,45]
-        weishi_rule.minute = [6,26,46]
-        xiaoying_rule.minute = [7,27,47]
-        budejie_rule.minute = [8,28,48]
-        neihan_rule.minute = [9,29,49]
-        yy_rule.minute = [10,30,50]
+        yidian_rule.minute = 5
+        tudou_rule.minute = 5
+        baomihua_rule.minute = 10
+        ku6_rule.minute = 10
+        btime_rule.minute = 10
+        weishi_rule.minute = 10
+        xiaoying_rule.minute = 10
+        budejie_rule.minute = 10
+        neihan_rule.minute = 10
+        yy_rule.minute = 10
 
-        tv56_rule.minute = [1,21,41]
-        acfun_rule.minute = [2,22,42]
-        weibo_rule.minute = [3,23,43]
-        ifeng_rule.minute = [4,24,44]
-        wangyi_rule.minute = [5,25,45]
-        uctt_rule.minute = [6,26,46]
-        mgtv_rule.minute = [7,27,47]
-        baijia_rule.minute = [8,28,48]
-        qzone_rule.minute = [9,29,49]
-        cctv_rule.minute = [10,30,50]
+        tv56_rule.minute = 10
+        acfun_rule.minute = 10
+        weibo_rule.minute = 10
+        ifeng_rule.minute = 10
+        wangyi_rule.minute = 15
+        uctt_rule.minute = 15
+        mgtv_rule.minute = 15
+        baijia_rule.minute = 15
+        qzone_rule.minute = 15
+        cctv_rule.minute = 15
 
-        pptv_rule.minute = [1,21,41]
-        xinlan_rule.minute = [2,22,42]
-        v1_rule.minute = [3,23,43]
-        fengxing_rule.minute = [4,24,44]
-        huashu_rule.minute = [5,25,45]
-        baofeng_rule.minute = [6,26,46]
-        baiduvideo_rule.minute = [7,27,47]
+        pptv_rule.minute = 15
+        xinlan_rule.minute = 15
+        v1_rule.minute = 15
+        fengxing_rule.minute = 15
+        huashu_rule.minute = 15
+        baofeng_rule.minute = 15
+        baiduvideo_rule.minute = 15
 
         youku_rule.second = 1
         iqiyi_rule.second = 2
