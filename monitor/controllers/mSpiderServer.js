@@ -17,6 +17,7 @@ exports.start = () => {
     //读取已存的错误，生成错误表
     const errSetRule = new schedule.RecurrenceRule()
         errSetRule.minute = 40
+        // errSetRule.minute = [0,5,10,15,20,25,30,35,40,45,50,55]
     schedule.scheduleJob(errSetRule, () =>{
         // async.parallel([
         //     (cb) => {
@@ -43,6 +44,7 @@ exports.start = () => {
     })
     const errReadRule = new schedule.RecurrenceRule()
         errReadRule.minute = 0
+        // errReadRule.minute = [1,6,11,16,21,26,31,36,41,46,51,56]
     schedule.scheduleJob(errReadRule, () =>{
         sendWarnEmail(()=>{
             logger.debug("开始读取错误列表发送邮件~")
