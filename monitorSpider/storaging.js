@@ -23,7 +23,7 @@ class storage{
             } else{
                 errType = "responseErr"
             }
-            // logger.error(errType)
+            // logger.error(err,errType,err.code)
             this.errStoraging(platform,url,bid,err.code || "error",errType,urlDesc)
 	        return
 	    }

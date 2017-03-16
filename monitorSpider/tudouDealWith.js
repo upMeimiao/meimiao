@@ -193,7 +193,7 @@ class dealWith {
                                     return
                                 }
                                 if(result > list[index].playNum){
-                                    this.storaging.errStoraging("tudou",option.url,task.id,`土豆播放量减少`,"playNumErr","list",media.aid,`${result}/${list[index].playNum}`)
+                                    this.storaging.errStoraging("tudou",option.url,task.id,`土豆播放量减少`,"playNumErr","list",list[index].code,`${result}/${list[index].playNum}`)
                                     return
                                 }
                                 let media = {
