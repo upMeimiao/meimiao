@@ -2,7 +2,7 @@
  * Created by junhao on 16/6/21.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 let logger,api
 const jsonp = function (data) {
     return data
@@ -40,84 +40,80 @@ class souhuDealWith {
         let option ={
             url: api.souhu.newUser + task.id + ".json?api_key=" + api.souhu.key +  "&_=" + (new Date()).getTime()
         }
-        request.get ( option,(err,result)=>{
-            // if(err){
-            //     logger.error( 'occur error : ', err )
-            //     this.storaging.errStoraging('souhu',option.url,task.id,err,"responseErr","user")
-            //     return callback()
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝接口无返回内容","resultErr","user")
-            //     return callback()
-            // }
-            // if( result.statusCode != 200){
-            //     logger.error('获取粉丝code error：',result.statusCode)
-            //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝code error","responseErr","user")
-            //     return callback()
-            // }
+        request.get ( logger,option,(err,result)=>{
             this.storaging.totalStorage ("souhu",option.url,"user")
-            this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取粉丝接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝json数据解析失败","doWithResErr","user")
-                return callback()
+                return callback(e)
             }
-            // let userInfo = result.data,
-            //     user = {
-            //         platform: 9,
-            //         bid: userInfo.user_id,
-            //         fans_num: userInfo.total_fans_count
-            //     }
-            // this.storaging.succStorage("souhu",option.url,"user")
+            if(!result.data || (result.data&&(!result.data.user_id||!result.data.total_fans_count))){
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝返回数据错误","resultErr","user")
+                return callback(result)
+            }
+            let userInfo = result.data,
+                user = {
+                    platform: 9,
+                    bid: userInfo.user_id,
+                    fans_num: userInfo.total_fans_count
+                }
         })
     }
     getTotal ( task, callback ) {
         let option = {
             url: api.souhu.newList + task.id + "&page=1&_=" + new Date().getTime()
         }
-        request.get(option, (err,result) => {
-            // if(err){
-            //     logger.error( 'occur error : ', err )
-            //     this.storaging.errStoraging('souhu',option.url,task.id,err,"responseErr","total")
-            //     return callback(err)
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取total接口无返回内容","resultErr","total")
-            //     return callback()
-            // }
-            // if( result.statusCode != 200){
-            //     logger.error('获取total接口code error：',result.statusCode)
-            //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取total接口code error","responseErr","total")
-            //     return callback()
-            // }
+        request.get(logger,option, (err,result) => {
             this.storaging.totalStorage ("souhu",option.url,"total")
-            this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                // logger.error('json数据解析失败')
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取total接口json数据解析失败","doWithResErr","total")
-                // logger.debug('getTotal:',result)
                 return callback(e)
             }
-            //logger.debug(back)
+            if(!result.data.totalCount){
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取total接口返回数据错误","resultErr","total")
+                return callback()
+            }
             let total  = result.data.totalCount
             task.total = total
-            // this.storaging.succStorage("souhu",option.url,"total")
             this.getList(task,total, () => {
                 callback()
             })
@@ -138,7 +134,7 @@ class souhuDealWith {
                 option = {
                     url: api.souhu.newList + task.id + "&page=" + index + "&_=" + new Date().getTime()
                 }
-                request.get(option, (err,result) => {
+                request.get(logger,option, (err,result) => {
                     this.storaging.totalStorage ("souhu",option.url,"list")
                     if(err){
                         let errType
@@ -151,24 +147,17 @@ class souhuDealWith {
                         } else{
                             errType = "responseErr"
                         }
-                        // logger.error(errType)
                         this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('souhu',option.url,task.id,"souhu获取list接口状态码错误","statusErr","list")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口无返回内容","resultErr","list")
-                        return cb()
+                        this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                        return cb(result.statusCode)
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
-                        // logger.error('json数据解析失败')
                         this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口json数据解析失败","doWithResErr","list")
-                        // logger.debug('list:',result)
                         return cb()
                     }
                     let data = result.data.videos
@@ -176,7 +165,6 @@ class souhuDealWith {
                         index++
                         return cb()
                     }
-                    // this.storaging.succStorage("souhu",option.url,"list")
                     this.deal(task,data, () => {
                         index++
                         cb()
@@ -270,14 +258,16 @@ class souhuDealWith {
             if(!media.class){
                 delete media.class
             }
+            if(!media.play_num){
+                return
+            }
             this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('souhu',`${api.souhu.videoInfo}${media.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`,task.id,`搜狐播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    return
+                    this.storaging.errStoraging('souhu',"",task.id,`搜狐播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
                 }
                 this.storaging.sendDb(media/*,task.id,"info"*/)
             })
@@ -288,44 +278,40 @@ class souhuDealWith {
         let option = {
             url: api.souhu.videoInfo + id + ".json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0"
         }
-        request.get( option, (err,result) => {
-            // if(err){
-            //     logger.error( 'occur error : ', err )
-            //     this.storaging.errStoraging('souhu',option.url,task.id,err,"responseErr","info")
-            //     return callback(err)
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口无返回内容","resultErr","info")
-            //     return callback()
-            // }
-            // if(result.statusCode != 200){
-            //     logger.error(`${id}状态码错误`)
-            //     this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${id}状态码错误`,"responseErr","info")
-            //     logger.debug('code:',result.statusCode)
-            //     return callback(true)
-            // }
+        request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("souhu",option.url,"info")
-            this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"info")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取list接口json数据解析失败","doWithResErr","info")
-                // logger.debug('info',result)
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取info接口json数据解析失败","doWithResErr","info")
                 return callback(e)
             }
-            if(result.status != 200){
-                logger.error(`${result.statusText},${result.request}`)
-                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取list接口${id}状态码错误`,"info","info")
-                return callback(result.status)
+            if(!result.data){
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取info接口返回结果错误","resultErr","info")
+                return callback(result)
             }
-            //logger.debug('debug info message:',result)
+            if(!result.data.video_name||!result.data.video_desc||!result.data.create_time||!result.data.first_cate_name||!result.data.play_count||!result.data.keyword||!result.data.total_duration){
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取info接口返回结果错误","resultErr","info")
+                return callback(result)
+            }
             let backData  = result.data
             let data = {
                 title: backData.video_name,
@@ -345,37 +331,40 @@ class souhuDealWith {
         let option = {
                 url: api.souhu.digg + id + "&_=" + (new Date()).getTime()
             }
-        request.get(option, (err,back) => {
-            // if(err){
-            //     logger.error( 'occur error : ', err )
-            //     this.storaging.errStoraging('souhu',option.url,task.id,err,"responseErr","digg")
-            //     return callback(err)
-            // }
-            // if(!back){
-            //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口无返回内容","resultErr","digg")
-            //     return callback()
-            // }
-            // if(back.statusCode != 200){
-            //     logger.error(`${id} getDigg状态码错误`)
-            //     this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取digg接口${id}状态码错误`,"responseErr","digg")
-            //     logger.debug('code:',back.statusCode)
-            //     return callback(true)
-            // }
+        request.get(logger, option, (err,back) => {
             this.storaging.totalStorage ("souhu",option.url,"digg")
-            this.storaging.judgeRes ("souhu",option.url,task.id,err,back,"digg")
-            if(!back){
-                return
-            }
-            if(!back.body){
-                return
-            }
-            // logger.debug("back.body=================",back.body)
-            let backInfo = eval(back.body),
-                data = {
-                    up: backInfo.upCount,
-                    down: backInfo.downCount
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
                 }
-            // this.storaging.succStorage("souhu",option.url,"digg")
+                this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"digg")
+                return callback(err)
+            }
+            if(back.statusCode && back.statusCode != 200){
+                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取digg接口状态码错误${back.statusCode}`,"statusErr","digg")
+                return callback(back.statusCode)
+            }
+            try{
+                result = eval(back.body)
+            }catch (e){
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口json数据解析失败","doWithResErr","digg")
+                return callback(e)
+            }
+            if(!result.upCount||!result.downCount){
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口返回数据错误","resultErr","digg")
+                return callback(result)
+            }
+            let data = {
+                up: result.upCount,
+                down: result.downCount
+            }
             callback(null,data)
         })
     }
@@ -383,38 +372,36 @@ class souhuDealWith {
         let option = {
             url: api.souhu.comment + id
         }
-        request.get( option, (err,result) => {
-            // if(err){
-            //     logger.error( 'occur error : ', err )
-            //     this.storaging.errStoraging('souhu',option.url,task.id,err,"responseErr","commentNum")
-            //     return callback(err)
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取commentNum接口无返回内容","resultErr","commentNum")
-            //     return callback()
-            // }
-            // if(result.statusCode != 200){
-            //     logger.error(`${id} getDigg状态码错误`)
-            //     this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取commentNum接口${id}状态码错误`,"responseErr","commentNum")
-            //     logger.debug('code:',result.statusCode)
-            //     return callback(true)
-            // }
+        request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("souhu",option.url,"commentNum")
-            this.storaging.judgeRes ("souhu",option.url,task.id,err,result,"commentNum")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('souhu',option.url,task.id,err.code || "error",errType,"commentNum")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('souhu',option.url,task.id,`搜狐获取commentNum接口状态码错误${result.statusCode}`,"statusErr","commentNum")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取commentNum接口json数据解析失败","doWithResErr","commentNum")
-                return
+                return callback(e)
             }
-            // this.storaging.succStorage("souhu",option.url,"commentNum")
+            if(!result.cmt_sum){
+                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取commentNum接口返回数据错误","doWithResErr","commentNum")
+                return callback(result)
+            }
             callback(null,result.cmt_sum)
         })
     }

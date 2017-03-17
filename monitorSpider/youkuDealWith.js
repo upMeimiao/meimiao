@@ -190,25 +190,6 @@ class youkuDealWith {
                     }
                     //根据已存redis内容判断body内容是否正确
                     let videos = data.videos
-                    for(let index in videos){
-                        this.core.MSDB.hget(`apiMonitor:play_num`,`youku_${videos[index].videoid}`,(err,result)=>{
-                            if(err){
-                                logger.debug("读取redis出错")
-                                return
-                            }
-                            if(result > videos[index].total_vv){
-                                // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
-                                this.storaging.errStoraging("youku",options.url,task.id,`优酷视频播放量减少`,"playNumErr","videos",videos[index].videoid,`${result}/${videos[index].total_vv}`)
-                                return
-                            }
-                            let media = {
-                                "author": "youku",
-                                "bid": task.id,
-                                "play_num": videos[index].total_vv
-                            } 
-                            this.storaging.sendDb(media/*,task.id,"videos"*/)
-                        })
-                    }
                     // this.storaging.succStorage("youku",options.url,"videos")
                     this.youkuInfo(task,videos, () => {
                         sign++
@@ -293,6 +274,20 @@ class youkuDealWith {
                     step: result.down_count,
                     a_create_time: video.publishtime
                 }
+                if(!media.play_num){
+                    return
+                }
+                this.core.MSDB.hget(`apiMonitor:play_num`,`youku_${videos[index].videoid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
+                        this.storaging.errStoraging("youku","",task.id,`优酷视频播放量减少`,"playNumErr","videos",media.aid,`${result}/media.play_num`)
+                    }
+                    this.storaging.sendDb(media/*,task.id,"videos"*/)
+                })
                 index++
                 cb()
             },

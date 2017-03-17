@@ -167,6 +167,19 @@ class dealWith {
                 comment_num: result[5].total_number
             }
             
+            if(!media.play_num){
+                return
+            }
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('mgtv',"",task.id,`mgtv视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
+                }
+                this.storaging.sendDb(media/*,task.id,"paly"*/)
+            })
             callback()
         })
     }
@@ -300,22 +313,6 @@ class dealWith {
             if(!result.data.all){
                 result.data.all = ''
             }
-            let media = {
-                "author": "mgtv",
-                "aid": video.video_id,
-                "play_num": result.data.all
-            }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('mgtv',`${option.url}`,task.id,`mgtv视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
-                    return
-                }
-                this.storaging.sendDb(media/*,task.id,"paly"*/)
-            })
             // logger.debug("mgtv media==============",media)
             callback(null,result.data)
         })

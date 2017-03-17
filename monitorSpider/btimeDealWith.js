@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/1.
  */
 const async = require('async')
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 const moment = require('moment')
 
 let logger,api
@@ -36,7 +36,7 @@ class dealWith {
         let option = {
             url: api.btime.userInfo + id
         }
-        request.get(option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             this.storaging.totalStorage ("btime",option.url,"user")
             if(err){
                 // logger.error(err,err.code,err.Error)
@@ -55,24 +55,28 @@ class dealWith {
                 return callback(err.message)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口状态码错误","statusErr","user")
+                this.storaging.errStoraging('btime',option.url,task.id,`北京时间user接口状态码错误${result.statusCode}`,"statusErr","user")
                 return callback(`200 ${result.body}`)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             if(!result.data){
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口返回数据为空","resultErr","user")
                 return callback(JSON.stringify(result))
             }
-            // let user = {
-            //     platform: 15,
-            //     bid: task.id,
-            //     fans_num: result.data.fans
-            // }
+            let user = {
+                platform: 15,
+                bid: task.id,
+                fans_num: result.data.fans
+            }
+            if(!user.fans_num){
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口返回数据错误","resultErr","user")
+                return callback(JSON.stringify(result))
+            }
         })
     }
     getList(task ,id ,callback ){
@@ -88,7 +92,7 @@ class dealWith {
                 let option = {
                     url: api.btime.medialist + id + '&pageNo=' + sign + "&lastTime=" + lastTime
                 }
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     this.storaging.totalStorage ("btime",option.url,"list")
                     if(err){
                         // logger.error(err,err.code,err.Error)
@@ -107,17 +111,20 @@ class dealWith {
                         return callback(err)
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口状态码错误","statusErr","user")
+                        this.storaging.errStoraging('btime',option.url,task.id,`北京时间list接口状态码错误${result.statusCode}`,"statusErr","user")
                         return callback(`200 ${result.body}`)
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口json数据解析失败","doWithResErr","list")
                         return callback(e)
                     }
                     let list = result.data
+                    if(!result.data || !result.data.length){
+                        this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口返回数据为空","doWithResErr","list")
+                        return callback()
+                    }
                     if(list.length !=0){
                         lastTime = list[list.length -1].pdate
                     }
@@ -193,15 +200,16 @@ class dealWith {
             media.v_url = data.gid
             media.v_img = data.image_url
             media.long_t = this._long_t(data.duration)
-            logger.debug(media)
+            if(!media.play_num){
+                return
+            }
             this.core.MSDB.hget(`apiMonitor:play_num`,`:${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('btime',`${api.btime.medialist}&pageNo=${index}&lastTime=`,task.id,`北京时间视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                    return
+                    this.storaging.errStoraging('btime',"",task.id,`北京时间视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
                 }
                 this.storaging,sendDb(media/*,task.id,"list"*/)
             })
@@ -213,7 +221,7 @@ class dealWith {
         const option = {
             url: api.btime.info + info.gid + "&timestamp=" + Math.round(new Date().getTime() / 1000)
         }
-        request.get(option, (err, result) => {
+        request.get(logger, option, (err, result) => {
             this.storaging.totalStorage ("btime",option.url,"info")
             if(err){
                 let errType
@@ -230,12 +238,8 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口状态码错误","statusErr","info")
+                this.storaging.errStoraging('btime',option.url,task.id,`北京时间info接口状态码错误${result.statusCode}`,"statusErr","info")
                 return callback(true)
-            }
-            if(!result.body){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口无返回数据","resultErr","info")
-                return callback()
             }
             if(result.errno != 0){
                 return callback(true)
@@ -245,6 +249,14 @@ class dealWith {
             } catch (e){
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口json数据解析失败","doWithResErr","info")
                 return callback(e)
+            }
+            if(!result.data){
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口返回数据为空","resultErr","info")
+                return callback()
+            }
+            if(!result.data.watches || !result.data.comment || !result.data.ding){
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间info接口返回数据错误","resultErr","info")
+                return callback()
             }
             let data = {
                 play: result.data.watches,
@@ -258,7 +270,7 @@ class dealWith {
         let option={
             url: `http://api.app.btime.com/api/commentList?protocol=1&timestamp=${Math.round(new Date().getTime() / 1000)}&url=http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${info.gid}&ver=2.3.0`
         }
-        request.get(option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             this.storaging.totalStorage ("btime",option.url,"comment")
             if(err){
                 let errType
@@ -275,12 +287,8 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口状态码错误","statusErr","comment")
+                this.storaging.errStoraging('btime',option.url,task.id,`北京时间comment接口状态码错误${result.statusCode}`,"statusErr","comment")
                 return callback(true)
-            }
-            if(!result.body){
-                this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口无返回数据","resultErr","comment")
-                return callback()
             }
             try {
                 result = JSON.parse(result.body)
@@ -288,7 +296,12 @@ class dealWith {
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间comment接口json数据解析失败","doWithResErr","comment")
                 return callback(e)
             }
+            if(!result.data){
+                this.storaging.errStoraging('btime',option.url,task.id,`北京时间comment接口返回结果为空`,"resultErr","comment")
+                return callback()
+            }   
             if(result.errno != 0 ){
+                this.storaging.errStoraging('btime',option.url,task.id,`北京时间comment接口返回结果errno：${result.errno}`,"resultErr","comment")
                 return callback(true)
             }
             callback(null,result.data.total)

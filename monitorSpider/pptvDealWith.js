@@ -50,28 +50,6 @@ class dealWith {
             }
             let length = result.data.list.length
             task.total = result.data.total
-            let i,playNum,video,media
-            for(i = 0; i < length; i++){
-                video = result.data.list[i]
-                playNum = video.pv.replace('万','0000')
-                media = {
-                    "author": "pptv",
-                    "aid": video.id,
-                    "play_num": playNum
-                }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('pptv',`${option.url}`,task.id,`pptv视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                        return
-                    }
-                    this.storaging.sendDb(media/*,task.id,"list"*/)
-                })
-                // logger.debug("pptv media==============",media)
-            }
             this.deal(task,result.data,length,() => {
                 callback()
             })
@@ -131,7 +109,19 @@ class dealWith {
                 v_url: video.url,
                 play_num: video.pv.replace('万','0000')
             }
-            
+            if(!media.play_num){
+                return
+            }
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('pptv',"",task.id,`pptv视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                }
+                this.storaging.sendDb(media/*,task.id,"list"*/)
+            })
             callback()
         })
     }

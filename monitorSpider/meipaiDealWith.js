@@ -2,7 +2,7 @@
  * Created by ifable on 16/6/22.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 let logger,api
 const classification = ['搞笑','明星名人','女神','舞蹈','音乐','美食','美妆','男神','宝宝','宠物','直播','热门']
 class meipaiDealWith {
@@ -41,77 +41,76 @@ class meipaiDealWith {
         let option = {
             url: api.meipai.userInfo + task.id
         }
-        request.get(option,(err,result) => {
-            // if(err){
-            //     this.storaging.errStoraging('meipai',option.url,task.id,err,"responseErr","user")
-            //     return callback()
-            // }
-            // if( result.statusCode != 200){
-            //     logger.error('获取粉丝code error：',result.statusCode)
-            //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝code error","responseErr","user")
-            //     return callback()
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝接口无返回内容","resultErr","user")
-            //     return callback()
-
-            // }
+        request.get(logger,option,(err,result) => {
             this.storaging.totalStorage ("meipai",option.url,"user")
-            this.storaging.judgeRes ("meipai",option.url,task.id,err,result,"user")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('meipai',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('meipai',option.url,task.id,`美拍获取粉丝接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(true)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝接口json数据解析失败","doWithResErr","user")
                 return callback()
             }
-            // let user = {
-            //     platform: 5,
-            //     bid: result.id,
-            //     fans_num: result.followers_count
-            // }
-            // this.storaging.succStorage("meipai",option.url,"user")
+            if(!result.id||!result.followers_count){
+                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝接口返回数据错误","resultErr","user")
+                return callback()
+            }
+            let user = {
+                platform: 5,
+                bid: result.id,
+                fans_num: result.followers_count
+            }
         })
     }
     getTotal ( task,callback ) {
         let option = {
             url: api.meipai.userInfo + task.id
         }
-        request.get(option, (err,result) => {
-            // if(err){
-            //     logger.error( 'occur error : ', err )
-            //     this.storaging.errStoraging('meipai',option.url,task.id,err,"responseErr","total")
-            //     return callback(err)
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取total接口无返回内容","resultErr","total")
-            //     return callback()
-            // }
-            // if( result.statusCode != 200){
-            //     logger.error('获取total code error：',result.statusCode)
-            //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取total code error","responseErr","total")
-            //     return callback(result.statusCode)
-            // }
+        request.get(logger,option, (err,result) => {
             this.storaging.totalStorage ("meipai",option.url,"total")
-            this.storaging.judgeRes ("meipai",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('meipai',option.url,task.id,err.code||"error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('meipai',option.url,task.id,`美拍获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取total接口json数据解析失败","doWithResErr","total")
                 return callback(e)
+            }
+            if(!result.videos_count){
+                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取total接口返回数据错误","resultErr","total")
+                return callback(result)
             }
             let videos_count = result.videos_count,page
             task.total = videos_count
@@ -136,7 +135,7 @@ class meipaiDealWith {
                 option = {
                     url: api.meipai.mediaList + task.id + "&max_id=" + maxId
                 }
-                request.get(option,(err,result) => {
+                request.get(logger,option,(err,result) => {
                     this.storaging.totalStorage ("meipai",option.url,"videos")
                     if(err){
                         let errType
@@ -150,26 +149,21 @@ class meipaiDealWith {
                             errType = "responseErr"
                         }
                         this.storaging.errStoraging('meipai',option.url,task.id,err.code || "error",errType,"videos")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos接口返回内容为空","resultErr","videos")
+                        sign++
                         return cb()
                     }
                     if( result.statusCode && result.statusCode != 200){
-                        logger.error('获取videos code error：',result.statusCode)
-                        this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos code error","statusErr","videos")
+                        this.storaging.errStoraging('meipai',option.url,task.id,`美拍获取videos接口状态码错误${result.statusCode}`,"statusErr","videos")
                         return cb()
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos接口json数据解析失败","doWithResErr","videos")
+                        sign++
                         return cb()
                     }
                     if(!result || result.length == 0){
-                        logger.error('数据解析异常失败')
                         this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取videos接口无返回数据","resultErr","videos")
                         logger.error(result)
                         sign++
@@ -210,39 +204,39 @@ class meipaiDealWith {
         let option = {
             url: api.meipai.media + id
         }
-        request.get(option, (err,result) => {
-            // if(err){
-            //     this.storaging.errStoraging('meipai',option.url,task.id,err,"responseErr","info")
-            //     return callback(err)
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info接口无返回内容","resultErr","info")
-            //     return callback()
-            // }
-            // if( result.statusCode != 200){
-            //     logger.error('获取info code error：',result.statusCode)
-            //     this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info code error","responseErr","info")
-            //     return callback()
-            // }
+        request.get(logger, option, (err,result) => {
             this.storaging.totalStorage ("meipai",option.url,"info")
-            this.storaging.judgeRes ("meipai",option.url,task.id,err,result,"info")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('meipai',option.url,task.id,err.code||"error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('meipai',option.url,task.id,`美拍获取info结口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback()
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info接口json数据解析失败","doWithResErr","info")
                 return callback(e)
             }
             if(result.lives){
-                return callback()
+                return callback(result)
             }
-            // this.storaging.succStorage("meipai",option.url,"info")
+            if(!result.caption||!result.plays_count||!result.comments_count||!result.likes_count||!result.reposts_count||!result.created_at||!result.cover_pic){
+                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info接口返回数据错误","doWithResErr","info")
+                return callback(result)
+            }
             let title,_tags = [],__tags = [],tags = '',tagArr
             if(result.caption && result.caption != ''){
                 title = result.caption.substr(0,100)
@@ -278,6 +272,10 @@ class meipaiDealWith {
                 tag: _tags.join(','),
                 class: tags
             }
+            
+            if(!media.play_num){
+                return
+            }
             this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
@@ -285,7 +283,6 @@ class meipaiDealWith {
                 }
                 if(result > media.play_num){
                     this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
-                    return
                 }
                 this.storaging.sendDb(media/*,task.id,"videos"*/)
             })

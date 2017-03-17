@@ -61,8 +61,8 @@ class leDealWith {
             let page = result.data.totalPage
             task.total = page * 48
             // this.storaging.succStorage("le",option.url,"total")
-            this.getList(task,page, () => {
-                callback()
+            this.getList(task, page, (err,result) => {
+                callback(err,result)
             })
         })
     }
@@ -193,7 +193,10 @@ class leDealWith {
                 if(!media.class){
                     delete media.class
                 }
-
+                
+                if(!media.play_num){
+                    return
+                }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
@@ -201,7 +204,6 @@ class leDealWith {
                     }
                     if(result > media.play_num){
                         this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                        return
                     }
                     this.storaging.sendDb(media/*,task.id,"info"*/)
                 })

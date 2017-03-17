@@ -16,7 +16,6 @@ class storage{
     }
     judgeRes(platform,url,bid,err,res,urlDesc){
 	    if(err){
-	    	// logger.error(err,err.code,err.Error)
 	    	let errType
             if(err.code){
             	if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
@@ -50,7 +49,7 @@ class storage{
 	        }
 	        // logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:play_num`,12*60*60) 
+	    mSpiderClint.expire(`apiMonitor:play_num`,6*60*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
@@ -75,7 +74,7 @@ class storage{
 	                return
 	            }
 	        })
-	        mSpiderClint.expire(curKey,12*60*60)  
+	        mSpiderClint.expire(curKey,6*60*60)  
 	    })
 	}
 	errStoraging (platform,url,bid,errDesc,errType,urlDesc,vid,prop){
@@ -179,7 +178,7 @@ class storage{
 	                logger.error( '设置接口成功调取次数出现错误', err )
 	                return
 	            }
-	            mSpiderClint.expire(curKey,12*60*60) 
+	            mSpiderClint.expire(curKey,6*60*60) 
 	        })
 	    })
 	}

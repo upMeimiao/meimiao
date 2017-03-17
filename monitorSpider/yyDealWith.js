@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/5.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 const cheerio = require( 'cheerio' )
 const moment = require( 'moment' )
 
@@ -29,18 +29,25 @@ class dealWith {
         let option = {
             url: api.yy.userInfo + task.id
         }
-        request.get(option,(err,result) => {
+        request.get(logger,option,(err,result) => {
             this.storaging.totalStorage ("yy",option.url,"total")
-            this.storaging.judgeRes ("yy",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
-            }
-            if(!result.body){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('yy',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('yy',option.url,task.id,"yy获取total接口状态码错误","statusErr","total")
-                return callback(true)
+                this.storaging.errStoraging('yy',option.url,task.id,`yy获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             let $ = cheerio.load(result.body),
                 fans_text = $('.fans-link').text(),
@@ -52,10 +59,14 @@ class dealWith {
                 bid: task.id,
                 fans_num: fans_text.replace(/,/g,'')
             }
+            if(!live_num && !sq_num && !dp_num && !fans_text){
+                this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
+                return 
+            }
             task.total = Number(live_num) + Number(sq_num) + Number(dp_num)
             if(!task.total){
                 this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
-                return
+                return 
             }
             async.parallel({
                 live: (callback) => {
@@ -106,7 +117,7 @@ class dealWith {
             },
             (cb) => {
                 option.url = api.yy.liveList + task.id + "&pageNum=" + sign
-                request.get( option, (err,result) => {
+                request.get( logger, option, (err,result) => {
                     this.storaging.totalStorage ("yy",option.url,"live")
                     if(err){
                         let errType
@@ -124,17 +135,12 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取live接口状态码错误","statusErr","live")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取live接口无返回数据","resultErr","live")
+                        this.storaging.errStoraging('yy',option.url,task.id,`yy获取live接口状态码错误${result.statusCode}`,"statusErr","live")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('yy',option.url,task.id,"yy获取live接口json数据解析失败","doWithResErr","live")
                         return cb()
                     }
@@ -173,7 +179,7 @@ class dealWith {
                 option = {
                     url: api.yy.shenquList + task.id + "&p=" + sign
                 }
-                request.get( option, (err,result) => {
+                request.get( logger, option, (err,result) => {
                     this.storaging.totalStorage ("yy",option.url,"slist")
                     if(err){
                         let errType
@@ -191,17 +197,12 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取slist接口状态码错误","statusErr","slist")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取slist接口无返回数据","resultErr","slist")
+                        this.storaging.errStoraging('yy',option.url,task.id,`yy获取slist接口状态码错误${result.statusCode}`,"statusErr","slist")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('yy',option.url,task.id,"yy获取slist接口json数据解析失败","doWithResErr","slist")
                         return cb()
                     }
@@ -240,7 +241,7 @@ class dealWith {
                 option = {
                     url: api.yy.duanpaiList + task.id + "&p=" + sign
                 }
-                request.get( option, (err,result) => {
+                request.get( logger, option, (err,result) => {
                     this.storaging.totalStorage ("yy",option.url,"dlist")
                     if(err){
                         let errType
@@ -254,17 +255,12 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取dlist接口状态码错误","statusErr","dlist")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('yy',option.url,task.id,"yy获取dlist接口无返回数据","resultErr","dlist")
+                        this.storaging.errStoraging('yy',option.url,task.id,`yy获取dlist接口状态码错误${result.statusCode}`,"statusErr","dlist")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('yy',option.url,task.id,"yy获取dlist接口json数据解析失败","doWithResErr","dlist")
                         return cb()
                     }
@@ -328,6 +324,9 @@ class dealWith {
             v_img: data.imageUrl,
             class: type
         }
+        if(!media.play_num){
+            return
+        }
         this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")
@@ -335,7 +334,6 @@ class dealWith {
             }
             if(result > media.play_num){
                 this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                return
             }
             this.storaging.sendDb(media/*,task.id,"list"*/)
         })
@@ -377,17 +375,19 @@ class dealWith {
                 class: type,
                 v_url: data.playUrl
             }
+        if(!media.play_num){
+            return
+        }
         this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频${media.aid}播放量减少`,"resultErr","list")
-                return
+                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
             }
+            this.storaging.sendDb(media)
         })
-        this.storaging.sendDb(media)
         if(!media.long_t){
             delete media.long_t
         }

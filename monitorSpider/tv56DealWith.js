@@ -219,14 +219,16 @@ class dealWith {
                     comment_num: result[1],
                     a_create_time: video.uploadTime.toString().substr(0,10)
                 }
+                if(!media.play_num){
+                    return
+                }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('tv56',api.tv56.video + `${id}&_=${new Date().getTime()}`,task.id,`tv56播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                        return
+                        this.storaging.errStoraging('tv56',"",`tv56播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
                     }
                     this.storaging.sendDb(media/*,task.id,"info"*/)
                 })
@@ -246,8 +248,8 @@ class dealWith {
             this.storaging.totalStorage ("tv56",options.url,"info")
             if(error){
                 let errType
-                if(err.code){
-                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                if(error.code){
+                    if(error.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
                         errType = "timeoutErr"
                     } else{
                         errType = "responseErr"

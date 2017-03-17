@@ -36,11 +36,25 @@ class dealWith {
         task.bid = bid
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("baofeng",option.url,"TheAlbum")
-            this.storaging.judgeRes ("baofeng",option.url,task.id,err,result,"TheAlbum")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baofeng',option.url,task.id,err.code || "error",errType,"TheAlbum")
+                return callback(err)
             }
-             let $ = cheerio.load(result.body),
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('baofeng',option.url,task.id,`baofeng获取TheAlbum接口状态码错误${result.statusCode}`,"statusErr","TheAlbum")
+                return callback(result.statusCode)
+            }
+            let $ = cheerio.load(result.body),
                 aid = $('div.episodes.clearfix').attr('m_aid')
             if(!aid){
                 aid = $('div.enc-episodes-detail').attr('m_aid')
@@ -73,7 +87,19 @@ class dealWith {
             url: 'http://www.baofeng.com/'+ this.aidUrl
         }
         request.get(logger, option, (err, result) => {
+            this.storaging.totalStorage ("baofeng",option.url,"aid")
             if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baofeng',option.url,task.id,err.code || "error",errType,"aid")
                 return this.getAid( task, callback )
             }
             result = result.body
@@ -89,23 +115,37 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("baofeng",option.url,"list")
-            this.storaging.judgeRes ("baofeng",option.url,task.id,err,result,"list")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baofeng',option.url,task.id,err.code || "error",errType,"list")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('baofeng',option.url,task.id,`baofeng获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取list接口json数据解析失败","doWithResErr","list")
                 return callback(e)
             }
             task.total = result.album_info.videos_num
             let videoList = result.video_list,
                 length = videoList.length
+            if(!task.total||!videoList||!length){
+                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取list接口返回数据错误","resultErr","list")
+                return callback(null,result)
+            }
             this.deal( task, videoList, length, () => {
                 callback()
             })
@@ -216,6 +256,7 @@ class dealWith {
             url : 'http://hd.baofeng.com/api/getud?wid=13&vid='+vid
         }
         request.get( logger, option, (err, result) => {
+            this.storaging.totalStorage ("baofeng",option.url,"support")
             if(err) {
                 let errType
                 if(err.code){
@@ -238,8 +279,12 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取desc接口json数据解析失败","doWithResErr","support")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取support接口json数据解析失败","doWithResErr","support")
                 return callback(null,{u:'',d:''})
+            }
+            if(!result.data){
+                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取support接口json数据解析失败","resultErr","support")
+                return callback(null,result)
             }
             callback(null,result.data)
         })
@@ -249,6 +294,7 @@ class dealWith {
             url: 'http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&xid='+ vid +'&page=1&pagesize=6'
         }
         request.get( logger, option, (err, result) => {
+            this.storaging.totalStorage ("baofeng",option.url,"comment")
             if(err){
                 let errType
                 if(err.code){
@@ -271,8 +317,12 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取desc接口json数据解析失败","doWithResErr","comment")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(null,'1')
+            }
+            if(!result.total){
+                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取comment接口json数据解析失败","resultErr","comment")
+                return callback(null,result)
             }
             return callback(null,result.total)
         })

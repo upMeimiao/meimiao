@@ -173,8 +173,21 @@ class dealWith {
                         comment_num: result[1]
                     }
                 }
-                //logger.debug(media.title + '---' + media.play_num)
                 
+                if(!media.play_num){
+                    return
+                }
+                //logger.debug(media.title + '---' + media.play_num)
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('huashu',"",task.id,`huashu视频播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
+                    }
+                    this.storaging.sendDb(media/*,task.id,"play"*/)
+                })
                 callback()
             }
         )
@@ -230,6 +243,7 @@ class dealWith {
             url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}&jsoncallback=jsonp`
         }
         request.get( logger, option, (err, result) => {
+            this.storaging.totalStorage ("huashu",option.url,"play")
             if(err){
                 let errType
                 if(err.code){
@@ -264,23 +278,7 @@ class dealWith {
             if(!result){
                 return
             }
-            let media = {
-                    "author": "huashu",
-                    "aid": vid,
-                    "play_num": result
-                }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('huashu',`${option.url}`,task.id,`huashu视频播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
-                        return
-                    }
-                    this.storaging.sendDb(media/*,task.id,"play"*/)
-                })
-                // logger.debug("huashu media==============",media)
+            // logger.debug("huashu media==============",media)
             callback(null,result)
         })
     }

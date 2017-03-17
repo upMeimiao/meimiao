@@ -34,12 +34,23 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("baiduvideo",option.url,"total")
-            this.storaging.judgeRes ("baiduvideo",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baiduvideo',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             let $ = cheerio.load(result.body),
                 script = $('script')[14].children[0].data.replace(/[\s\n\r]/g,''),
@@ -55,8 +66,11 @@ class dealWith {
                     fans_num: fan
                 }
             task.total = $('div.num-sec').eq(1).find('p.num').text()
+            if(!fan || !listData){
+                this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取total接口从dom获取信息失败`,"domBasedErr","total")
+                return callback(result)
+            }
             this.getVidList(task,listData,length,(err) => {
-                logger.debug('视频数据请求完成')
                 callback(null)
             })
     
@@ -113,20 +127,22 @@ class dealWith {
                         return callback(err)
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('baiduvideo',option.url,task.id,"baiduvideo获取list接口状态码错误","statusErr","list")
-                        return callback()
+                        this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                        return callback(result.statusCode)
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch(e){
-                        logger.debug('视频列表数据解析失败')
                         this.storaging.errStoraging('baiduvideo',option.url,task.id,"baiduvideo获取list接口json数据解析失败","doWithResErr","list")
-                        logger.info(result)
                         if(num <= 1){
                             return cb()
                         }
                         num = 0
                         return callback(e)
+                    }
+                    if(!result.data){
+                        this.storaging.errStoraging('baiduvideo',option.url,task.id,"baiduvideo获取list接口返回数据错误","resultErr","list")
+                        return callback(result)
                     }
                     length = result.data.length
                     this.deal( task, result.data, length, (err) => {
@@ -183,7 +199,19 @@ class dealWith {
                     play_num: result[0],
                     v_url: video.play_link
                 }
-                
+                if(!media.play_num){
+                    return
+                }
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('baiduvideo',"",task.id,`baiduvideo播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                    }
+                    this.storaging.sendDb(media/*,task.id,"info"*/)
+                })
                 callback()
             }
         )
@@ -229,7 +257,7 @@ class dealWith {
                 return callback(null,'')
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baiduvideo',option.url,task.id,"baiduvideo获取info接口状态码错误","statusErr","info")
+                this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取info接口状态码错误${result.statusCode}`,"statusErr","info")
                 return callback()
             }
             let $ = cheerio.load(result.body),
@@ -238,23 +266,6 @@ class dealWith {
                 this.storaging.errStoraging("baiduvideo",option.url,task.id,"baiduvideo从dom中获取播放量失败","domBasedErr","info")
                 return callback(null,'')
             }
-            let media = {
-                    "author": "baiduvideo",
-                    "aid": video.id,
-                    "play_num": playNum
-                }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('baiduvideo',`${option.url}`,task.id,`baiduvideo播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                        return
-                    }
-                    this.storaging.sendDb(media/*,task.id,"info"*/)
-                })
-            // logger.debug("baiduvideo media==============",media)
             callback(null,playNum)
         })
     }

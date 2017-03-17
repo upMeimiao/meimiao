@@ -28,7 +28,6 @@ class dealWith {
             callback( err,result )
         })
     }
-
     getList ( task, callback ) {
         let _pos = '',
             page = 3
@@ -153,6 +152,19 @@ class dealWith {
                 if(!media.support){
                     delete media.support
                 }
+                if(!media.play_num){
+                    return
+                }
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('uctt',"",task.id,`uctt视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                    }
+                    this.storaging.sendDb(media/*,task.id,"info"*/)
+                })
                 callback()
             }
         )        
@@ -189,22 +201,6 @@ class dealWith {
                 this.storaging.errStoraging('uctt',option.url,task.id,"uctt获取info接口json数据解析失败","doWithResErr","info")
                 return callback(null,'没有数据')
             }
-            let media = {
-                "author": "uctt",
-                "aid": aid,
-                "play_num": result.view_cnt
-            }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('uctt',`${option.url}`,task.id,`uctt视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    return
-                }
-                this.storaging.sendDb(media/*,task.id,"info"*/)
-            })
             // logger.debug("uctt media==============",media)
             this.getCommentNum(task,_id,result.id,(err,data) => {
                 result.descData = data

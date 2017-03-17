@@ -354,6 +354,9 @@ class toutiaoDealWith {
         if(!media.v_img){
             delete media.v_img
         }
+        if(!media.play_num){
+            return
+        }
         this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
             if(err){
                 logger.debug("读取redis出错")
@@ -361,7 +364,6 @@ class toutiaoDealWith {
             }
             if(result > media.play_num){
                 this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
-                return
             }
             this.storaging.sendDb(media/*,task.id,"play"*/)
         })
