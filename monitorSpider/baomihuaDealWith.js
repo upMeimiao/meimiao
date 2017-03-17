@@ -50,27 +50,40 @@ class dealWith {
         }
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("baomihua",option.url,"user")
-            this.storaging.judgeRes ("baomihua",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+           if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baomihua',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"爆米花获取user接口json数据解析失败","doWithResErr","user")
-                // logger.info(result)
+                this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
+            if(!result.result || result.result && !result.result.ChannelInfo.RssNum){
+                this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取user接口返回数据错误","resultErr","user")
+                return callback(null,result)
+            }
             result = result.result
-            // let user = {
-            //     platform: 13,
-            //     bid: task.id,
-            //     fans_num: result.ChannelInfo.RssNum
-            // }
+            let user = {
+                platform: 13,
+                bid: task.id,
+                fans_num: result.ChannelInfo.RssNum
+            }
         })
     }
     getList ( task, callback ) {
@@ -86,8 +99,8 @@ class dealWith {
                     option.url = api.baomihua.mediaList + task.id
                 }
                 request.get( logger,option, ( err, result ) => {
+                    this.storaging.totalStorage ("baomihua",option.url,"list")
                     if(err){
-                        // logger.error(err,err.code,err.Error)
                         let errType
                         if(err.code){
                             if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
@@ -98,12 +111,11 @@ class dealWith {
                         } else{
                             errType = "responseErr"
                         }
-                        // logger.error(errType)
                         this.storaging.errStoraging('baomihua',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('baomihua',option.url,task.id,"baomihua获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return cb()
                     }
                     try{
@@ -115,7 +127,6 @@ class dealWith {
                     }
                     result = result.result
                     if(!result.VideoList || result.VideoList == 'null'){
-                        // logger.debug('已经没有数据')
                         sign = false
                         return cb()
                     }
@@ -199,6 +210,9 @@ class dealWith {
                 save_num: Number(result[0].collectCount) + Number(result[1].CollectionCount),
                 v_img: video.IMGURL
             }
+            if(!media.play_num){
+                return
+            }
             this.core.MSDB.hget(`apiMonitor:play_num`,"${media.author}_${media.aid}",(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
@@ -206,7 +220,6 @@ class dealWith {
                 }
                 if(result > media.play_num){
                     this.storaging.errStoraging('baomihua',`${api.baomihua.playNum}${task.id}&flvid=${media.aid}`,task.id,`爆米花视频播放量减少`,"playNumErr","playNum",media.aid,`${result}/${media.play_num}`)
-                    return
                 }
                 this.storaging.sendDb(media/*,task.id,"playNum"*/)
             })
@@ -221,17 +234,27 @@ class dealWith {
         }
         request.get( logger,option, ( err, result ) => {
             this.storaging.totalStorage ("baomihua",option.url,"Expr")
-            this.storaging.judgeRes ("baomihua",option.url,task.id,err,result,"Expr")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baomihua',option.url,task.id,err.code || "error",errType,"Expr")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取Expr接口状态码错误${result.statusCode}`,"statusErr","Expr")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('返回JSON格式不正确')
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花Expr接口json数据解析失败","doWithResErr","Expr")
                 return callback(e)
             }
@@ -244,12 +267,23 @@ class dealWith {
         }
         request.get( logger,option, ( err, result ) => {
             this.storaging.totalStorage ("baomihua",option.url,"ExprPC")
-            this.storaging.judgeRes ("baomihua",option.url,task.id,err,result,"ExprPC")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baomihua',option.url,task.id,err.code || "error",errType,"ExprPC")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取ExprPC接口状态码错误${result.statusCode}`,"statusErr","ExprPC")
+                return callback(result.statusCode)
             }
             try{
                 result = eval(result.body)
@@ -271,19 +305,33 @@ class dealWith {
         }
         request.get( logger,option, ( err, result ) => {
             this.storaging.totalStorage ("baomihua",option.url,"playNum")
-            this.storaging.judgeRes ("baomihua",option.url,task.id,err,result,"playNum")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('baomihua',option.url,task.id,err.code || "error",errType,"playNum")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取playNum接口状态码错误${result.statusCode}`,"statusErr","playNum")
+                return callback(result.statusCode)
             }
             try{
                 result = eval(result.body)
             } catch (e){
-                logger.error('playNum jsonp error')
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花playNum接口eval错误","doWithResErr","playNum")
                 return callback(e)
+            }
+            if(!result.appinfo[0].playCount){
+                this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花playNum接口返回数据错误","doWithResErr","playNum")
+                return callback(result)
             }
             callback(null,result.appinfo[0].playCount)
         })

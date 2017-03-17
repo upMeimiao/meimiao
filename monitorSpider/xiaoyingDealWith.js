@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/3.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 const moment = require( 'moment' )
 const newRequest = require( 'request' )
 
@@ -26,25 +26,38 @@ class dealWith {
         })
     }
     getTotal (task,callback){
-        // logger.debug('开始获取视频总数')
         let option = {
             url: api.xiaoying.userInfo + task.id
         }
-        request.get(option,(err,result) => {
+        request.get(logger,option,(err,result) => {
             this.storaging.totalStorage ("xiaoying",option.url,"total")
-            this.storaging.judgeRes ("xiaoying",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('xiaoying',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('xiaoying',option.url,task.id,`xiaoying获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取全部视频接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取total接口json数据解析失败","doWithResErr","total")
                 return callback(e)
+            }
+            if(!result.user||result.user && (!result.user.fanscount||!result.user.videocount)){
+                this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取total接口返回数据错误","resultErr","total")
+                return callback(result)
             }
             let user = {
                 platform: 17,
@@ -93,6 +106,7 @@ class dealWith {
                     }
                 }
                 newRequest(options, (err, response, body) => {
+                    this.storaging.totalStorage ("xiaoying",options.url,"list")
                     if(err){
                         let errType
                         if(err.code){
@@ -108,15 +122,14 @@ class dealWith {
                         this.storaging.errStoraging('xiaoying',options.url,task.id,err.code || "error",errType,"list")
                         return callback(err);
                     }
-                    if(!response || !body){
-                        this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取list接口无返回数据","responseErr","list")
-                        return callback()
+                    if(response.statusCode && response.statusCode != 200){
+                        this.storaging.errStoraging('xiaoying',options.url,task.id,`xiaoying获取list接口状态码错误${response.statusCode}`,"statusErr","list")
+                        return callback(response.statusCode)
                     }
                     try{
                         body = JSON.parse(body);
                     } catch (e){
-                        logger.error('json数据解析失败');
-                        this.storaging.errStoraging('xiaoying',options.url,task.id,"xiaoying获取视频列表接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('xiaoying',options.url,task.id,"xiaoying获取list接口json数据解析失败","doWithResErr","list")
                         return callback(e);
                     }
                     let list = body.f;
@@ -157,23 +170,34 @@ class dealWith {
         let option = {
             url: api.xiaoying.videoInfo + data.l
         }
-        request.get(option, (err,result) => {
+        request.get(logger, option, (err,result) => {
             this.storaging.totalStorage ("xiaoying",option.url,"info")
-            this.storaging.judgeRes ("xiaoying",option.url,task.id,err,result,"info")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('xiaoying',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('xiaoying',option.url,task.id,`xiaoying获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取视频信息接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取info接口json数据解析失败","doWithResErr","info")
                 return callback(e)
             }
             if(!result.videoinfo){
+                this.storaging.errStoraging('xiaoying',option.url,task.id,"xiaoying获取info接口异常错误","resultErr","info")
                 return callback('异常错误')
             }
             let time = result.videoinfo.publishtime,
@@ -194,6 +218,9 @@ class dealWith {
                     support: result.videoinfo.likecount,
                     a_create_time: a_create_time
                 }
+            if(!media.play_num){
+                return
+            }
             this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
@@ -201,7 +228,6 @@ class dealWith {
                 }
                 if(result > media.play_num){
                     this.storaging.errStoraging('xiaoying',`${option.url}`,task.id,`爱奇艺视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    return
                 }
                 this.storaging.sendDb(media/*,task.id,"info"*/)
             })

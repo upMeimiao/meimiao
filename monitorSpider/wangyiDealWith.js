@@ -201,6 +201,19 @@ class dealWith {
                     play_num: result[0].hits,
                     v_url: result[1].vurl
                 }
+                if(!media.play_num){
+                    return
+                }
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`wangyi视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
+                    }
+                    this.storaging.sendDb(media/*,task.id,"paly"*/)
+                })
                 callback()
             }
         )
@@ -266,23 +279,6 @@ class dealWith {
                 this.storaging.errStoraging('wangyi',option.url,task.id,"wangyi获取paly接口json解析失败","doWithResErr","paly")
                 return callback(null,'')
             }
-            let media = {
-                "author": "wangyi",
-                "aid": vid,
-                "play_num": result.info.hits
-            }
-            // logger.debug("wangyi result result.info++*+*****+*++*+*+*+*+******+*+*+*+*+*+***+",result,result.info)
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`wangyi视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
-                    return
-                }
-                this.storaging.sendDb(media/*,task.id,"paly"*/)
-            })
             // logger.debug("wangyi media==============",media)
             callback(null,result.info)
         })

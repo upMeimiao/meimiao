@@ -16,10 +16,7 @@ exports.sendAlarm = (subject, content) => {
         to: ["liuze@meimiao.net",
             "luoqibu@meimiao.net",
             "changjunhao@meimiao.net",
-            "zhupenghui@meimiao.net",
-            "weijieyu@meimiao.net",
-            "wangqiang@meimiao.net",
-            "laisiyuan@meimiao.net"], // list of receivers
+            "zhupenghui@meimiao.net"], // list of receivers
         // to: "liuze@meimiao.net",
         subject: subject, // Subject line
         text: content, // plaintext body

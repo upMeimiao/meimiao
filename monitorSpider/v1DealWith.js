@@ -227,7 +227,19 @@ class dealWith {
                 if(!media.support){
                     delete media.support
                 }
-
+                if(!media.play_num){
+                    return
+                }
+                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    if(err){
+                        logger.debug("读取redis出错")
+                        return
+                    }
+                    if(result > media.play_num){
+                        this.storaging.errStoraging('v1',"",task.id,`v1视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
+                    }
+                    this.storaging.sendDb(media/*,task.id,"vidInfo"*/)
+                })
                 callback()
             }
         )
@@ -337,22 +349,6 @@ class dealWith {
                 this.storaging.errStoraging('v1',option.url,task.id,"v1获取info接口json数据解析失败","doWithResErr","vidInfo")
                 return callback(e)
             }
-            let media = {
-                "author": "v1",
-                "aid": vid,
-                "play_num": result.body.obj.videoDetail.playNum
-            }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('v1',`${option.url}`,task.id,`v1视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
-                    return
-                }
-                this.storaging.sendDb(media/*,task.id,"vidInfo"*/)
-            })
             // logger.debug("v1 media==============",media)
             callback(null,result.body.obj.videoDetail)
         })

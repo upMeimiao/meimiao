@@ -53,13 +53,17 @@ class dealWith {
                 return this.getVidTotal( task, callback )
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取total接口状态码错误","statusErr","total")
+                this.storaging.errStoraging('baijia',option.url,task.id,`baijia获取total接口状态码错误${result.statusCode}`,"statusErr","total")
                 return this.getVidTotal( task, callback )
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取total接口json数据解析失败","doWithResErr","total")
+                return this.getVidTotal( task, callback )
+            }
+            if(!result.total){
+                this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取total接口返回数据错误","resultErr","total")
                 return this.getVidTotal( task, callback )
             }
             let total = result.total
@@ -112,7 +116,7 @@ class dealWith {
                     return Fan( vid )
                 }
                 if(result.statusCode && result.statusCode != 200){
-                    this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取fan接口状态码错误","statusErr","fan")
+                    this.storaging.errStoraging('baijia',option.url,task.id,`baijia获取fan接口状态码错误${result.statusCode}`,"statusErr","fan")
                     return Fan( vid )
                 }
                 let $ = cheerio.load(result.body)
@@ -129,6 +133,10 @@ class dealWith {
                 }catch(e){
                     this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取fan接口json数据解析失败","doWithResErr","fan")
                     index++
+                    return Fan( vid )
+                }
+                if(!dataJson.app.fans_cnt){
+                    this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取fan接口返回数据错误","resultErr","fan")
                     return Fan( vid )
                 }
                 let user = {
@@ -174,17 +182,19 @@ class dealWith {
                 return this.getVidList( task, total, callback )
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取list接口状态码错误","statusErr","list")
+                this.storaging.errStoraging('baijia',option.url,task.id,`baijia获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                 return this.getVidList( task, total, callback )
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据总量解析失败')
                 this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取list接口json数据解析失败","doWithResErr","list")
                 return this.getVidList( task, total, callback )
             }
-
+            if(!result.items){
+                this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取list接口返回数据错误","resultErr","list")
+                return this.getVidList( task, total, callback )
+            }
             this.deal(task,result.items,total,() => {
                 callback()
             })
@@ -243,9 +253,20 @@ class dealWith {
                 a_create_time: moment(time).format('X'),
                 play_num: result[0].playNum
             }
-            if(!media.play_num && media.play_num !== 0){
-                return callback()
+            if(!media.play_num){
+                return
             }
+
+            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                if(err){
+                    logger.debug("读取redis出错")
+                    return
+                }
+                if(result > media.play_num){
+                    this.storaging.errStoraging('baijia',"",task.id,`baijia视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                }
+                this.storaging.sendDb(media,task.id,"info")
+            })
             task.total++
             // logger.debug(media.title+'---'+task.total)
             callback()
@@ -280,7 +301,7 @@ class dealWith {
                 return callback(null,{long_t:'',a_create_time:'',playNum:''})
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取list接口状态码错误","statusErr","list")
+                this.storaging.errStoraging('baijia',option.url,task.id,`baijia获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                 return callback(null,{long_t:'',a_create_time:'',playNum:''})
             }
             let $ = cheerio.load(result.body)
@@ -303,25 +324,13 @@ class dealWith {
                 long_t: this.getVidTime(time),
                 playNum: dataJson.video ? dataJson.video.playcnt : dataJson.article.read_amount
             } 
+            if(!res.playNum){
+                this.storaging.errStoraging('baijia',option.url,task.id,"baijia获取info接口返回数据错误","resultErr","info")
+                return callback(null,res)
+            }
             if(!vid){
                 return
             }
-            let media = {
-                "author": "baijia",
-                "aid": vid,
-                "play_num": res.playNum
-            }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('baijia',`${option.url}`,task.id,`baijia视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    return
-                }
-                this.storaging.sendDb(media,task.id,"info")
-            })
             // logger.debug("baijia media==============",media)
             callback(null,res)
         })

@@ -316,8 +316,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('weibo',`http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${video.mblog.mblogid}`,task.id,`weibo视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                        return
+                        this.storaging.errStoraging('weibo',"",task.id,`weibo视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
                     }
                     this.storaging.sendDb(media/*,task.id,"list"*/)
                 })

@@ -1,5 +1,5 @@
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 
 let logger,api
 class dealWith {
@@ -25,22 +25,35 @@ class dealWith {
             url: api.weishi.userInfo + task.id,
             referer: `http://weishi.qq.com/u/${task.id}`
         }
-        request.get(option, ( err, result ) => {
+        request.get(logger, option, ( err, result ) => {
             this.storaging.totalStorage ("weishi",option.url,"user")
-            this.storaging.judgeRes ("weishi",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('weishi',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('weishi',option.url,task.id,`weishi获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取user接口json数据解析失败","doWithResErr","user")
-                // logger.info(result)
                 return callback(e)
+            }
+            if(!result.data||result.data && (!result.data.uid||!result.data.follower_num)){
+                this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取user接口返回数据错误","resultErr","user")
+                return callback(result)
             }
             let data = result.data,
                 user = {
@@ -77,11 +90,9 @@ class dealWith {
                     option.url = api.weishi.list + `${task.id}&lastid=${lastid}&pagetime=${pagetime}&_=${new Date().getTime()}`
                 }
                 option.referer = `http://weishi.qq.com/u/${task.id}`
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     this.storaging.totalStorage ("weishi",option.url,"list")
                     if(err){
-                        // logger.error( 'occur error : ' + err )
-                        // logger.error(err,err.code,err.Error)
                         let errType
                         if(err.code){
                             if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
@@ -92,28 +103,17 @@ class dealWith {
                         } else{
                             errType = "responseErr"
                         }
-                        // logger.error(errType)
                         this.storaging.errStoraging('weishi',option.url,task.id,err.code || "error",errType,"list")
                         sign++
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口状态码错误","statusErr","list")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口无返回数据","resultErr","list")
-                        return cb()
-                    }
-                    if(result.statusCode != 200){
-                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口状态码错误","statusErr","list")
-                        sign++
+                        this.storaging.errStoraging('weishi',option.url,task.id,`weishi获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return cb()
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口json数据解析失败","doWithResErr","list")
                         sign++
                         return cb()
@@ -182,6 +182,9 @@ class dealWith {
                 if(!media.tag){
                     delete media.tag
                 }
+                if(!media.play_num){
+                    return
+                }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
@@ -189,7 +192,6 @@ class dealWith {
                     }
                     if(result > media.play_num){
                         this.storaging.errStoraging('weishi',`${url}`,task.id,`微视视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                        return
                     }
                     this.storaging.sendDb(media/*,task.id,"list"*/)
                 })

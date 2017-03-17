@@ -56,25 +56,39 @@ class dealWith {
         }
         request.get( logger, option, (err, result)=>{
             this.storaging.totalStorage ("cctv",option.url,"fans")
-            this.storaging.judgeRes ("cctv",option.url,task.id,err,result,"fans")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('cctv',option.url,task.id,err.code || "error",errType,"fans")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('cctv',option.url,task.id,`cctv获取fans接口状态码错误${result.statusCode}`,"statusErr","fans")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error(`CCTV json数据解析失败`)
                 this.storaging.errStoraging('cctv',option.url,task.id,"cctv获取fans接口json数据解析失败","doWithResErr","fans")
                 return callback(e)
             }
-            // let user = {
-            //     platform: task.p,
-            //     bid: task.id,
-            //     fans_num: result.data.fans_count
-            // }
+            if(!result.data.fans_count){
+                this.storaging.errStoraging('cctv',option.url,task.id,"cctv获取fans接口返回数据错误","resultErr","fans")
+                return callback(null,result)
+            }
+            let user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: result.data.fans_count
+            }
             callback()
         })
     }
@@ -225,12 +239,23 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("cctv",option.url,"info")
-            this.storaging.judgeRes ("cctv",option.url,task.id,err,result,"info")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('cctv',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('cctv',option.url,task.id,`cctv获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
@@ -259,6 +284,10 @@ class dealWith {
                 a_create_time: moment(time).format('X')
 
             }
+            
+            if(!media.play_num){
+                return
+            }
             this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
@@ -266,7 +295,6 @@ class dealWith {
                 }
                 if(result > media.play_num){
                     this.storaging.errStoraging('cctv',`${option.url}`,task.id,`cctv视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    return
                 }
                 this.storaging.sendDb(media/*,task.id,"info"*/)
             })

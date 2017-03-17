@@ -2,7 +2,7 @@
  * Created by junhao on 16/6/22.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 let logger,api
 class miaopaiDealWith {
     constructor (spiderCore){
@@ -40,50 +40,53 @@ class miaopaiDealWith {
         let option = {
             url: api.miaopai.api + "1&per=20&suid=" + task.id
         }
-        request.get(option,(err,result) => {
-            // if(err){
-            //     logger.error( 'occur error : ', err )
-            //     this.storaging.errStoraging('miaopai',option.url,task.id,err,"responseErr","user")
-            //     return callback()
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝接口无返回内容","resultErr","user")
-            //     return callback()
-            // }
-            // if( result.statusCode != 200){
-            //     logger.error('获取粉丝code error：',result.statusCode)
-            //     this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝code error","responseErr","user")
-            //     return callback()
-            // }
+        request.get(logger,option,(err,result) => {
             this.storaging.totalStorage ("miaopai",option.url,"user")
-            this.storaging.judgeRes ("miaopai",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"user")
+                return callback()
             }
-            if(!result.body){
-                return 
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('miaopai',option.url,task.id,`秒拍获取粉丝接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback()
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝json数据解析失败","doWithResErr","user")
+                return callback(e)
+            }
+            if(!result.header){
+                this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝接口返回数据错误","resultErr","user")
                 return callback()
             }
-            // let userInfo = result.header,
-            //     user = {
-            //         platform: 7,
-            //         bid: userInfo.suid,
-            //         fans_num: userInfo.eventCnt.fans
-            //     }
-            // this.storaging.succStorage("miaopai",option.url,"user")
+            if(!result.header.suid||!result.header.eventCnt.fans){
+                this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝接口返回数据错误","resultErr","user")
+                return callback()
+            }
+            let userInfo = result.header,
+                user = {
+                    platform: 7,
+                    bid: userInfo.suid,
+                    fans_num: userInfo.eventCnt.fans
+                }
         })
     }
     getTotal ( task, callback ) {
         let option = {
             url: api.miaopai.api + "1&per=20&suid=" +task.id
         }
-        request.get( option, (err,result) => {
+        request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("miaopai",option.url,"total")
             if(err){
                 let errType
@@ -100,23 +103,24 @@ class miaopaiDealWith {
                 if(task.id == 'mEpTsCBR3q2uyDUc'){
                     return callback()
                 }
-                logger.error( 'occur error : ', err )
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取total code error","statusErr","total")
+                this.storaging.errStoraging('miaopai',option.url,task.id,`秒拍获取total接口状态码错误${result.statusCode}`,"statusErr","total")
                 if(task.id == 'mEpTsCBR3q2uyDUc'){
                     return callback()
                 }
-                logger.error( 'http code error : ', result.statusCode )
-                return callback(err)
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('miaopai',option.url,task.id,"json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取total接口json数据解析失败","doWithResErr","total")
                 return callback(e)
+            }
+            if(!result.total){
+                this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取total接口返回数据错误","resultErr","total")
+                return callback(result)
             }
             let videos_count = result.total,page
             task.total = videos_count
@@ -142,7 +146,7 @@ class miaopaiDealWith {
                     url: api.miaopai.api + sign + "&per=20&suid=" + task.id
                 }
                 // logger.debug(option.url)
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     this.storaging.totalStorage ("miaopai",option.url,"videos")
                     if(err){
                         let errType
@@ -158,20 +162,18 @@ class miaopaiDealWith {
                         this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"videos")
                         return cb()
                     }
-                    if(!result.body){
-                        this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos接口无返回内容","resultErr","videos")
-                        return cb()
-                    }
                     if( result.statusCode && result.statusCode != 200){
-                        logger.error('获取videos code error：',result.statusCode)
-                        this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos code error","statusErr","videos")
+                        this.storaging.errStoraging('miaopai',option.url,task.id,`秒拍获取videos接口状态码错误${result.statusCode}`,"statusErr","videos")
                         return cb()
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e){
-                        logger.error('json数据解析失败')
-                        this.storaging.errStoraging('miaopai',option.url,task.id,"json数据解析失败","resultErr","videos")
+                        this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos接口json数据解析失败","doWithResErr","videos")
+                        return cb()
+                    }
+                    if(!result.result){
+                        this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取videos接口返回数据错误","resultErr","videos")
                         return cb()
                     }
                     let videos = result.result
@@ -217,6 +219,10 @@ class miaopaiDealWith {
                         data.class = result.class
                         data.tag = result.tag
                     }
+                    
+                    if(!data.play_num){
+                        return
+                    }
                     // logger.debug(data.title+'标题')
                     // logger.debug(data.desc+'描述')
                     this.core.MSDB.hget(`apiMonitor:play_num`,`${data.author}_${data.aid}`,(err,result)=>{
@@ -225,7 +231,7 @@ class miaopaiDealWith {
                             return
                         }
                         if(result > data.play_num){
-                            this.storaging.errStoraging('miaopai',`http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+${data.aid}+"&vend=miaopai`,task.id,`秒拍播放量减少`,"playNumErr","videos",data.aid,`${result}/${data.play_num}`)
+                            this.storaging.errStoraging('miaopai',"",task.id,`秒拍播放量减少`,"playNumErr","videos",data.aid,`${result}/${data.play_num}`)
                         }
                         this.storaging.sendDb(data/*,task.id,"videos"*/)
                     })
@@ -243,39 +249,35 @@ class miaopaiDealWith {
             url : "http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="+id+"&vend=miaopai"
         }
         let dataJson = {}
-        request.get( option, ( err, result ) => {
-            // if(err){
-            //     logger.error('秒拍getInfo error')
-            //     this.storaging.errStoraging('miaopai',option.url,task.id,err,"responseErr","info")
-            //     return callback(err)
-            // }
-            // if(!result){
-            //     this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取info接口无返回内容","resultErr","info")
-            //     return callback()
-            // }
-            // if(result.statusCode != 200){
-            //     logger.error(`秒拍getInfo code error: ${result.statusCode}`)
-            //     this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取info code error","responseErr","info")
-            //     return callback(true)
-            // }
+        request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("miaopai",option.url,"info")
-            this.storaging.judgeRes ("miaopai",option.url,task.id,err,result,"info")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('miaopai',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('miaopai',option.url,task.id,`秒拍获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(true)
             }
             try{
                 result = JSON.parse(result.body)
             } catch ( e ){
-                logger.error(`秒拍getInfo json 解析: ${result.statusCode}`)
-                this.storaging.errStoraging('miaopai',option.url,task.id,`json数据解析失败${result.statusCode}`,"doWithResErr","info")
+                this.storaging.errStoraging('miaopai',option.url,task.id,`秒拍获取info接口json数据解析失败`,"doWithResErr","info")
                 return callback(e)
             }
-            if(result.statusCode && result.statusCode != 200 || result.status && result.status != 200){
-                this.storaging.errStoraging('miaopai',option.url,task.id,`miaopai平台info接口状态码错误${result.statusCode}`,"statusErr","info")
-                return callback(true)
+            if(!result.result){
+                this.storaging.errStoraging('miaopai',option.url,task.id,`秒拍获取info接口返回数据错误`,"resultErr","info")
+                return callback(result)
             }
             dataJson.long_t = result.result.ext.length
             dataJson.v_img  = result.result.pic.base+result.result.pic.m

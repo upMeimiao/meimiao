@@ -211,6 +211,7 @@ const getValue = (curKey,lastKey,field,callback) => {
                                 return
                             }
                         })
+                        mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,6*60*60) 
                         return
                     }
                     // 若有结果，将当前错误的视频id加入错误的desc中
@@ -223,7 +224,9 @@ const getValue = (curKey,lastKey,field,callback) => {
                         }
                         callback(null,result)
                     })
+                    mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,6*60*60) 
                 })
+
             }
         }
     )
@@ -231,11 +234,12 @@ const getValue = (curKey,lastKey,field,callback) => {
 const setWarnErrTable = (emailOptions) => {
     let key = `apiMonitor:warnTable:${emailOptions.hourStr}`,
         field = `${emailOptions.platform}_${emailOptions.urlDesc}_${emailOptions.errType}`
-        mSpiderClient.hset(key,field,JSON.stringify(emailOptions),(err,result) => {
-            if(err){
-                return
-            }
-        })
+    mSpiderClient.hset(key,field,JSON.stringify(emailOptions),(err,result) => {
+        if(err){
+            return
+        }
+    })
+    mSpiderClient.expire(key,6*60*60)
 }
 const sendWarnEmail = (callback) => {
     let newDate = new Date(),
@@ -309,7 +313,7 @@ const getErr = (platform,urlDesc) => {
         i
             // 获取当前接口对应的错误记录
             mSpiderClient.get(curKey,(err,result) => {
-                // logger.debug("获取当前接口对应的错误记录=",curKey,result)
+                logger.debug("获取当前接口对应的错误记录=",curKey,result)
                 if(err){
                     logger.debug("读取redis发生错误")
                     return

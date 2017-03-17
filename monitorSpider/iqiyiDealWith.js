@@ -427,6 +427,10 @@ class iqiyiDeal {
                     v_img: result[0].picurl,
                     class: result[0].type
                 }
+                
+                if(!media.play_num){
+                    return
+                }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
@@ -434,7 +438,6 @@ class iqiyiDeal {
                     }
                 	if(result > media.play_num){
                         this.storaging.errStoraging('iqiyi',`${api.iqiyi.play}${media.aid}?callback=jsonp`,task.id,`爱奇艺视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                        return
                     }
                     this.storaging.sendDb( media/*,task.id,"info"*/ )
                 })

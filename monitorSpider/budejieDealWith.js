@@ -1,6 +1,6 @@
 const async = require( 'async' )
 const moment = require('moment')
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 
 let logger,api
 
@@ -26,21 +26,39 @@ class dealWith {
         let option = {
             url : api.budejie.userInfo + task.id
         }
-        request.get( option, ( err, result) => {
+        request.get( logger, option, ( err, result) => {
             this.storaging.totalStorage ("budejie",option.url,"user")
-            this.storaging.judgeRes ("budejie",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('budejie',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('budejie',option.url,task.id,`budejie获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(true)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
+            }
+            if(!result.data){
+                this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口返回内容为空","resultErr","user")
+                return callback(null,result.data)
+            }
+            if(!result.data.id||!result.data.fans_count){
+                this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口返回内容错误","resultErr","user")
+                return callback(null,result.data)
             }
             let userInfo = result.data,
                 user = {
@@ -72,7 +90,7 @@ class dealWith {
             },
             (cb) => {
                 option.url = `${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     this.storaging.totalStorage ("budejie",option.url,"list")
                     if(err){
                         let errType
@@ -96,9 +114,12 @@ class dealWith {
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口json数据解析失败","doWithResErr","list")
                         sign++
+                        return cb()
+                    }
+                    if(!result.list || !result.info.np){
+                        this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口返回数据错误","resultErr","list")
                         return cb()
                     }
                     let data = result.list
@@ -143,6 +164,10 @@ class dealWith {
                     v_img: this._v_img(video.video.thumbnail),
                     tag: this._tag(video.tags)
                 }
+                
+                if(!media.play_num){
+                    return
+                }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
@@ -150,7 +175,6 @@ class dealWith {
                     }
                     if(result > media.play_num){
                         this.storaging.errStoraging('budejie',`${api.budejie.medialist}${task.id}/1/desc/bs0315-iphone-4.3/${np}-20.json`,task.id,`budejie视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                        return
                     }
                     this.storaging.sendDb(media/*,task.id,"list"*/)
                 })

@@ -2,7 +2,7 @@
  * Created by yunsong on 16/8/4.
  */
 const async = require( 'async' )
-const request = require( '../lib/req' )
+const request = require( '../lib/request' )
 let logger,api
 class dealWith {
     constructor (spiderCore){
@@ -40,27 +40,41 @@ class dealWith {
         let option = {
             url: api.neihan.userInfo + task.id
         }
-        request.get(option,(err,result) => {
+        request.get(logger,option,(err,result) => {
             this.storaging.totalStorage ("neihan",option.url,"user")
-            this.storaging.judgeRes ("neihan",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('neihan',option.url,task.id,err.code || "error",errType,"user")
+                return callback()
             }
-            if(!result.body){
-                return 
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('neihan',option.url,task.id,`neihan获取粉丝接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('neihan',option.url,task.id,"neihan获取user接口json数据解析失败","doWithResErr","user")
-                return callback()
+                return callback(e)
             }
-            // let user = {
-            //     platform: 19,
-            //     bid: task.id,
-            //     fans_num: result.data.followers
-            // }
+            if(!result.data || (result.data&&!result.data.followers)){
+                this.storaging.errStoraging('neihan',option.url,task.id,"neihan获取user接口返回数据错误","doWithResErr","user")
+                return callback(result)
+            }
+            let user = {
+                platform: 19,
+                bid: task.id,
+                fans_num: result.data.followers
+            }
         })
     }
     getList ( task, callback ) {
@@ -82,7 +96,7 @@ class dealWith {
                         url: api.neihan.medialist + task.id + "&max_time=" + time
                     }
                 }
-                request.get(option, (err,result) => {
+                request.get(logger, option, (err,result) => {
                     this.storaging.totalStorage ("neihan",option.url,"list")
                     if(err){
                         let errType
@@ -95,27 +109,25 @@ class dealWith {
                         } else{
                             errType = "responseErr"
                         }
-                        // logger.error(errType)
                         this.storaging.errStoraging('neihan',option.url,task.id,err.code || "error",errType,"list")
                         return cb()
                     }
-                    if(!result.body){
-                        this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取list接口无返回内容","responseErr","list")
-                        return cb()
-                    }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子list接口状态码错误","list")
+                        this.storaging.errStoraging('neihan',option.url,task.id,`内涵段子list接口状态码错误${result.statusCode}`,"list")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子list接口json数据解析失败","list")
                         sign++
                         return cb()
                     }
                     let list = result.data.data
+                    if(!list){
+                        this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子list接口返回结果错误","list")
+                        return cb()
+                    }
                     if(list.length != 0){
                         this.deal(task,option.url,list, () => {
                             time = list[list.length-1].group ? list[list.length-1].group.online_time : list[list.length-1].online_time
@@ -197,6 +209,9 @@ class dealWith {
         }
         if(!media.v_img){
             delete media.v_img
+        }
+        if(!media.play_num){
+            return
         }
         this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
             if(err){

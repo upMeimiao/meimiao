@@ -253,29 +253,7 @@ class dealWith {
                 return this.getVideoList(task,callback)
             }
             let length  = result.episodes.length,
-                content = result.episodes,
-                i,playNum,video,media
-            for(i = 0; i < length; i++){
-                video = content[i]
-                playNum = video.play_index
-                media = {
-                    "author": "fengxing",
-                    "aid": video.videoid,
-                    "play_num": playNum
-                }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('fengxing',`${option.url}`,task.id,`pptv视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                        return
-                    }
-                    this.storaging.sendDb(media/*,task.id,"list"*/)
-                })
-                // logger.debug("pptv media==============",media)
-            }
+                content = result.episodes
             this.deal(task,content,length,() => {
                 logger.debug('数据请求完成')
                callback()
@@ -298,6 +276,14 @@ class dealWith {
                 callback()
             }
         )
+    }
+    getNumber(str){
+        let strArr = str.split(","),
+            newStr = "",i
+        for(i = 0; i < strArr.length; i++){
+            newStr += strArr[i]
+        }
+        return newStr
     }
     getAllInfo( task, video, callback ){
         if(task.type == '视频号'){
@@ -326,7 +312,24 @@ class dealWith {
                         a_create_time: result[0].release ? result[0].release : ''
                     }
                     //logger.debug(media)
-                    
+                    if(!media.play_num){
+                        return
+                    }
+                    let playNum = media.play_num,
+                        playNumStr = playNum.toString()
+                    if(playNumStr.indexOf(",") >= 0){
+                        media.play_num = Number(this.getNumber(playNumStr))
+                    }
+                    this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                        if(err){
+                            logger.debug("读取redis出错")
+                            return
+                        }
+                        if(result > media.play_num){
+                            this.storaging.errStoraging('fengxing',"",task.id,`pptv视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                        }
+                        this.storaging.sendDb(media/*,task.id,"list"*/)
+                    })
                     callback()
                 }
             )            
