@@ -92,8 +92,12 @@ class spiderCore {
     }
     start () {
         logger.trace('启动函数')
-        this.assembly()
-        
+        this.getH(()=>{
+            this.assembly()
+            setInterval(()=>{
+                this.getH()
+            },86400000)
+        })
     }
     getH (callback) {
         this.xiaoyingDeal.getH( ( err, result ) => {
@@ -415,12 +419,6 @@ class spiderCore {
             })
         })
         schedule.scheduleJob(xiaoying_rule,() => {
-            this.getH(()=>{
-                this.assembly()
-                setInterval(()=>{
-                    this.getH()
-                },86400000)
-            })
             this.xiaoyingDeal.xiaoying(xiaoying_work,(err,result) => {
                 logger.debug(err,result)
             })
