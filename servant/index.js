@@ -203,6 +203,9 @@ class spiderCore {
             case 'baijiahao.baidu.com':
                 handle.baijiaHandle( ctx, remote )
                 break
+            case 'www.pearvideo.com':
+                handle.liVideoHandle( ctx, remote )
+                break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

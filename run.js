@@ -352,6 +352,13 @@ const baijia = () => {
     let spider = new (require('./spider/baijia'))(settings)
     spider.start()
 }
+const liVideo = () => {
+    let logger = logging.getLogger('梨视频',options['i'],log_level)
+    settings['logger'] = logger
+    settings['instance'] = options['i']
+    let spider = new (require('./spider/liVideo'))(settings)
+    spider.start()
+}
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level)
     settings['logger'] = logger
@@ -494,6 +501,9 @@ switch (options['a']){
         break
     case 'baijia':
         baijia()
+        break
+    case 'liVideo':
+        liVideo()
         break
     case 'test':
         test()

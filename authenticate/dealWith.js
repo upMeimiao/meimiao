@@ -2884,4 +2884,4 @@ class DealWith {
         return endPage;
     }
 }
-module.exports = DealWith
+module.exports = DealWith;
