@@ -24,7 +24,7 @@
             </el-col>
         </el-row>
         <el-row style="width: 1260px;margin: 0 auto;">
-            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="width: 100%;">
+            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="width: 100%;" max-height="750">
                 <el-table-column align="center" prop="platform"  :formatter="show_pname" width="120" label="平台">
                 </el-table-column>
                 <el-table-column align="center" prop="bid" width="110"  label="bid">
