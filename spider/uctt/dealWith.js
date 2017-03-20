@@ -164,7 +164,14 @@ class dealWith {
                 return callback(null,'没有数据')
             }
             this.getCommentNum(task,_id,result.id,(err,data) => {
-                result.descData = data
+                result.descData = data;
+                if(!result.descData){
+                    result.descData = {
+                        comment_num: '',
+                        desc: ''
+                    }
+                    return callback(null,result)
+                }
                 if(!result.descData.comment_num){
                     result.descData.comment_num = ''
                 }else if(!result.descData.desc){
