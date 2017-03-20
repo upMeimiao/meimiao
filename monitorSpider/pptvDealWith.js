@@ -34,17 +34,27 @@ class dealWith {
         }
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("pptv",option.url,"list")
-            this.storaging.judgeRes ("pptv",option.url,task.id,err,result,"list")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('pptv',option.url,task.id,err.code || "error",errType,"list")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('pptv',option.url,task.id,`pptv获取user接口状态码错误${result.statusCode}`,"statusErr","list")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('pptv',option.url,task.id,"pptv获取list接口json数据解析失败","doWithResErr","list")
                 return callback(e.message)
             }
@@ -178,6 +188,10 @@ class dealWith {
                 tag: tags,
                 desc: desc
             }
+            if(!res.data||!res.class||!res.tag||!res.desc){
+                this.storaging.errStoraging('pptv',option.url,task.id,"pptv获取info接口返回数据错误","resultErr","info")
+                return callback(null,res)
+            }
             callback(null,res)
         })
     }
@@ -187,12 +201,23 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("pptv",option.url,"total")
-            this.storaging.judgeRes ("pptv",option.url,task.id,err,result,"total")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('pptv',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('pptv',option.url,task.id,`pptv获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse( result.body )

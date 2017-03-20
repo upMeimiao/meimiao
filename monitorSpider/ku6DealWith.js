@@ -45,23 +45,34 @@ class dealWith {
         }
         request.get(logger, option, (err,result) => {
             this.storaging.totalStorage ("ku6",option.url,"user")
-            this.storaging.judgeRes ("ku6",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('ku6',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('ku6',option.url,task.id,`酷6获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取粉丝信息接口json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取user接口json数据解析失败","doWithResErr","user")
                 return
             }
             let fans = result.data.subscriptions ? result.data.subscriptions : ''
             logger.debug("ku6 fans",fans)
             if(!fans){
-                this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取粉丝信息接口返回数据错误","resultErr","user")
+                this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取user接口返回数据错误","resultErr","user")
                 return
             }
                 // ,
@@ -81,22 +92,36 @@ class dealWith {
         }
         request.get(logger, option, (err,result) => {
             this.storaging.totalStorage ("ku6",option.url,"total")
-            this.storaging.judgeRes ("ku6",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('ku6',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('ku6',option.url,task.id,`酷6获取全部视频接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取全部视频接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取全部视频接口json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
             let total = result.data.videoCount
             task.total = total
+            if(!total){
+                this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取全部视频接口返回数据错误","resultErr","total")
+                return callback(result)
+            }
             this.getList( task, total, (err,result) => {
                 if(err){
                     return callback(err)
@@ -143,14 +168,14 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
                         logger.error('json数据解析失败')
-                        this.storaging.errStoraging('ku6',option.url,task.id,"ku6获取全部视频接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取全部视频接口json数据解析失败","doWithResErr","list")
                         sign++
                         newSign++
                         return cb()

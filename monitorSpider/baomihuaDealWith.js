@@ -65,7 +65,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                this.storaging.errStoraging('baomihua',option.url,task.id,`爆米花获取user接口状态码错误${result.statusCode}`,"statusErr","user")
                 return callback(result.statusCode)
             }
             try{
@@ -115,7 +115,7 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                        this.storaging.errStoraging('baomihua',option.url,task.id,`爆米花获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return cb()
                     }
                     try{
@@ -249,7 +249,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取Expr接口状态码错误${result.statusCode}`,"statusErr","Expr")
+                this.storaging.errStoraging('baomihua',option.url,task.id,`爆米花获取Expr接口状态码错误${result.statusCode}`,"statusErr","Expr")
                 return callback(result.statusCode)
             }
             try{
@@ -282,7 +282,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取ExprPC接口状态码错误${result.statusCode}`,"statusErr","ExprPC")
+                this.storaging.errStoraging('baomihua',option.url,task.id,`爆米花获取ExprPC接口状态码错误${result.statusCode}`,"statusErr","ExprPC")
                 return callback(result.statusCode)
             }
             try{
@@ -320,7 +320,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baomihua',option.url,task.id,`baomihua获取playNum接口状态码错误${result.statusCode}`,"statusErr","playNum")
+                this.storaging.errStoraging('baomihua',option.url,task.id,`爆米花获取playNum接口状态码错误${result.statusCode}`,"statusErr","playNum")
                 return callback(result.statusCode)
             }
             try{

@@ -42,17 +42,17 @@ class dealWith {
                 return callback(err)
             }
             if( result.statusCode != 200){
-                this.storaging.errStoraging('weishi',option.url,task.id,`weishi获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                this.storaging.errStoraging('weishi',option.url,task.id,`微视获取user接口状态码错误${result.statusCode}`,"statusErr","user")
                 return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取user接口json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('weishi',option.url,task.id,"微视获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             if(!result.data||result.data && (!result.data.uid||!result.data.follower_num)){
-                this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取user接口返回数据错误","resultErr","user")
+                this.storaging.errStoraging('weishi',option.url,task.id,"微视获取user接口返回数据错误","resultErr","user")
                 return callback(result)
             }
             let data = result.data,
@@ -108,13 +108,13 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('weishi',option.url,task.id,`weishi获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                        this.storaging.errStoraging('weishi',option.url,task.id,`微视获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return cb()
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
-                        this.storaging.errStoraging('weishi',option.url,task.id,"weishi获取list接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('weishi',option.url,task.id,"微视获取list接口json数据解析失败","doWithResErr","list")
                         sign++
                         return cb()
                     }

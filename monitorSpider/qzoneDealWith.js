@@ -67,25 +67,25 @@ class dealWith {
                 return this.getFan( task, callback )
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取info接口状态码错误","statusErr","info")
-                return this.getFan( task, callback )
-            }
-            if(!result.body){
-                this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取fan接口无返回内容","resultErr","fan")
+                this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取info接口状态码错误","statusErr","info")
                 return this.getFan( task, callback )
             }
             try{
                 result = eval(result.body)
             }catch(e){
-                this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取list接口json数据解析失败","doWithResErr","fan")
+                this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口json数据解析失败","doWithResErr","fan")
                 return this.getFan( task, callback )
             }
-            // let user = {
-            //     platform: task.p,
-            //     bid: task.id,
-            //     fans_num: result.data.data.total
-            // }
-            callback()
+            if(!result.data.data.total){
+                this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口返回数据错误","resultErr","fan")
+                return this.getFan( task, callback )
+            }
+            let user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: result.data.data.total
+            }
+            callback(null,user)
         })
     }
     getVidList( task, callback ){
@@ -123,41 +123,41 @@ class dealWith {
                         if(num <= 1){
                             return setTimeout(() => {
                                 num++
-                                logger.debug('300毫秒之后重新请求一下当前列表')
+                                // logger.debug('300毫秒之后重新请求一下当前列表')
                                 cb()
                             },300)
                         }
                         return setTimeout(() => {
                             start += 10
                             num = 0
-                            logger.debug('300毫秒之后重新请求下一页列表')
+                            // logger.debug('300毫秒之后重新请求下一页列表')
                             cb()
                         },300)
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口状态码错误","statusErr","list")
                         return callback( task, callback )
                     }
                     num = 0
                     try{
                         result = eval(result.body)
                     }catch (e){
-                        logger.error('json数据解析失败')
-                        this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取list接口json数据解析失败","doWithResErr","list")
+                        // logger.error('json数据解析失败')
+                        this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口json数据解析失败","doWithResErr","list")
                         return callback(e)
                     }
                     if(result.data == undefined){
                         if(num <= 1){
                             return setTimeout(() => {
                                 num++
-                                logger.debug('300毫秒之后重新请求一下')
+                                // logger.debug('300毫秒之后重新请求一下')
                                 cb()
                             },300)
                         }
                         return setTimeout(() => {
                             num = 0
                             start+=10
-                            logger.debug('300毫秒之后重新请求下一页列表')
+                            // logger.debug('300毫秒之后重新请求下一页列表')
                             cb()
                         },300)
                     }
@@ -166,14 +166,14 @@ class dealWith {
                         if(num <= 1){
                             return setTimeout(() => {
                                 num++
-                                logger.debug('300毫秒之后重新请求一下')
+                                // logger.debug('300毫秒之后重新请求一下')
                                 cb()
                             },300)
                         }
                         return setTimeout(() => {
                             num = 0
                             start+=10
-                            logger.debug('300毫秒之后重新请求下一页列表')
+                            // logger.debug('300毫秒之后重新请求下一页列表')
                             cb()
                         },300)
                     }
@@ -181,7 +181,7 @@ class dealWith {
                     let length = result.data.friend_data.length-1
                     task.total += length
                     if( length <= 0 ){
-                        logger.debug('已经没有数据')
+                        // logger.debug('已经没有数据')
                         page = 0
                         sign++
                         return cb()
@@ -236,11 +236,13 @@ class dealWith {
             }
         ],(err,result) => {
 
-            if(result[0] == '抛掉当前的'){
-                logger.debug('直接请求下一个视频')
+            if(result[0] == '抛掉当前的'||!result[0]){
                 return callback()
             }
             if(result[0].singlefeed == undefined){
+                return callback()
+            }
+            if(!result[1]){
                 return callback()
             }
             let media = {
@@ -268,7 +270,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('qzone',"",task.id,`qzone播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                    this.storaging.errStoraging('qzone',"",task.id,`QQ空间播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
                 }
                 this.storaging.sendDb(media/*,task.id,"info"*/)
             })
@@ -283,18 +285,29 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("qzone",option.url,"info")
-            this.storaging.judgeRes ("qzone",option.url,task.id,err,result,"info")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('qzone',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(result.statusCode)
             }
             try{
                 result = eval(result.body)
             } catch(e){
                 logger.error('_Callback数据解析失败')
-                this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取info接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取info接口json数据解析失败","doWithResErr","info")
                 return callback(null,'抛掉当前的')
             }
             if(result.data == undefined){
@@ -310,6 +323,10 @@ class dealWith {
                 result.v_img = result.singlefeed['7'].coverurl['0'].url
             }
             // logger.debug("qzone media==============",media)
+            if(!result){
+                this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取info接口返回数据错误`,"statusErr","info")
+                return callback(result)
+            }
             callback(null,result)
         })
     }
@@ -320,20 +337,34 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("qzone",option.url,"comment")
-            this.storaging.judgeRes ("qzone",option.url,task.id,err,result,"comment")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('qzone',option.url,task.id,err.code || "error",errType,"comment")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取comment接口状态码错误${result.statusCode}`,"statusErr","comment")
+                return callback(result.statusCode)
             }
             try{
                 result = eval(result.body)
             }catch(e){
-                this.storaging.errStoraging('qzone',option.url,task.id,"qzone获取comment接口json数据解析失败","doWithResErr","comment")
+                this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(null,'')
             }
-
+            if(!result.cmtnum||!result.fwdnum){
+                this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取comment接口返回数据错误`,"resultErr","comment")
+                return callback(result)
+            }
             callback(null,result)
         })
     }

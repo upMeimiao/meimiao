@@ -40,18 +40,28 @@ class dealWith {
                 }
                 request.get( logger, option, ( err, result ) => {
                     this.storaging.totalStorage ("mgtv",option.url,"list")
-                    this.storaging.judgeRes ("mgtv",option.url,task.id,err,result,"list")
-                    if(!result){
-                        return 
+                    if(err){
+                        let errType
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
+                        } else{
+                            errType = "responseErr"
+                        }
+                        this.storaging.errStoraging('mgtv',option.url,task.id,err.code || "error",errType,"list")
+                        return callback(err)
                     }
-                    if(!result.body){
-                        return 
+                    if(result.statusCode != 200){
+                        this.storaging.errStoraging('mgtv',option.url,task.id,`芒果TV获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                        return callback(result.statusCode)
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
-                        logger.error('json数据解析失败')
-                        this.storaging.errStoraging('mgtv',option.url,task.id,"mgtv获取list接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('mgtv',option.url,task.id,"芒果TV获取list接口json数据解析失败","doWithResErr","list")
                         sign++
                         page++
                         return cb()
@@ -176,7 +186,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('mgtv',"",task.id,`mgtv视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
+                    this.storaging.errStoraging('mgtv',"",task.id,`芒果TV视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
                 }
                 this.storaging.sendDb(media/*,task.id,"paly"*/)
             })
@@ -189,18 +199,28 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("mgtv",option.url,"commentNum")
-            this.storaging.judgeRes ("mgtv",option.url,task.id,err,result,"commentNum")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('mgtv',option.url,task.id,err.code || "error",errType,"commentNum")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('mgtv',option.url,task.id,`芒果TV获取commentNum接口状态码错误${result.statusCode}`,"statusErr","commentNum")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('数据解析失败')
-                this.storaging.errStoraging('mgtv',option.url,task.id,"mgtv获取commentNum接口json数据解析失败","doWithResErr","commentNum")
+                this.storaging.errStoraging('mgtv',option.url,task.id,"芒果TV获取commentNum接口json数据解析失败","doWithResErr","commentNum")
                 return callback(e,null)
             }
             if(!result.total_number){
@@ -215,18 +235,28 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("mgtv",option.url,"like")
-            this.storaging.judgeRes ("mgtv",option.url,task.id,err,result,"like")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('mgtv',option.url,task.id,err.code || "error",errType,"like")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('mgtv',option.url,task.id,`芒果TV获取like接口状态码错误${result.statusCode}`,"statusErr","like")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('数据解析失败')
-                this.storaging.errStoraging('mgtv',option.url,task.id,"mgtv获取like接口json数据解析失败","doWithResErr","like")
+                this.storaging.errStoraging('mgtv',option.url,task.id,"芒果TV获取like接口json数据解析失败","doWithResErr","like")
                 return callback(e,null)
             }
             if(!result.data){
@@ -245,17 +275,28 @@ class dealWith {
             desc = ''
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("mgtv",option.url,"desc")
-            this.storaging.judgeRes ("mgtv",option.url,task.id,err,result,"desc")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('mgtv',option.url,task.id,err.code || "error",errType,"desc")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('mgtv',option.url,task.id,`芒果TV获取desc接口状态码错误${result.statusCode}`,"statusErr","desc")
+                return callback(result.statusCode)
             }
             let $ = cheerio.load(result.body)
             desc = $('span.details').text()
             if(!desc){
-                this.storaging.errStoraging('mgtv',option.url,task.id,"mgtv获取desc接口从返回的dom中获取数据失败","domBasedErr","desc")
+                this.storaging.errStoraging('mgtv',option.url,task.id,"芒果TV获取desc接口从返回的dom中获取数据失败","domBasedErr","desc")
                 return callback(err,result)
             }
             callback(null,desc)
@@ -266,19 +307,29 @@ class dealWith {
             url: 'http://mobile.api.hunantv.com/v7/video/info?device=iPhone&videoId=' + video.video_id
         }
         request.get( logger, option, ( err, result ) => {
-            this.storaging.totalStorage ("mgtv",option.url,"desc")
-            this.storaging.judgeRes ("mgtv",option.url,task.id,err,result,"desc")
-            if(!result){
-                return 
+            this.storaging.totalStorage ("mgtv",option.url,"class")
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('mgtv',option.url,task.id,err.code || "error",errType,"class")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('mgtv',option.url,task.id,`芒果TV获取class接口状态码错误${result.statusCode}`,"statusErr","class")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('数据解析失败')
-                this.storaging.errStoraging('mgtv',option.url,task.id,"mgtv获取class接口json数据解析失败","doWithResErr","class")
+                this.storaging.errStoraging('mgtv',option.url,task.id,"芒果TV获取class接口json数据解析失败","doWithResErr","class")
                 return callback(e,null)
             }
             if(!result.data.fstlvlName){
@@ -296,18 +347,29 @@ class dealWith {
         }
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("mgtv",option.url,"play")
-            this.storaging.judgeRes ("mgtv",option.url,task.id,err,result,"play")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('mgtv',option.url,task.id,err.code || "error",errType,"play")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('mgtv',option.url,task.id,`芒果TV获取play接口状态码错误${result.statusCode}`,"statusErr","play")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
                 logger.error('数据解析失败')
-                this.storaging.errStoraging('mgtv',option.url,task.id,"mgtv获取play接口json数据解析失败","doWithResErr","play")
+                this.storaging.errStoraging('mgtv',option.url,task.id,"芒果TV获取play接口json数据解析失败","doWithResErr","play")
                 return callback(e,null)
             }
             if(!result.data.all){
@@ -324,18 +386,28 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("mgtv",option.url,"info")
-            this.storaging.judgeRes ("mgtv",option.url,task.id,err,result,"info")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('mgtv',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('mgtv',option.url,task.id,`芒果TV获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('数据解析失败')
-                this.storaging.errStoraging('mgtv',option.url,task.id,"mgtv获取info接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('mgtv',option.url,task.id,"芒果TV获取info接口json数据解析失败","doWithResErr","info")
                 return callback(e,null)
             }
             if(!result.info){

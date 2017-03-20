@@ -47,14 +47,14 @@ class leDealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取total接口状态码错误","statusErr","total")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取total接口状态码错误","statusErr","total")
                 return callback()
             }
             try {
                 result = eval("("+result.body+")")
             } catch (e){
                 logger.error('jsonp解析错误:',e)
-                this.storaging.errStoraging('le',option.url,task.id,"le获取视频总数接口jsonp解析错误","doWithResErr","total")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取视频总数接口jsonp解析错误","doWithResErr","total")
                 logger.info(result)
                 return callback(e)
             }
@@ -95,14 +95,14 @@ class leDealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('le',option.url,task.id,"le获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('le',option.url,task.id,"乐视获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try {
                         result = eval("("+result.body+")")
                     } catch (e){
                         logger.error(`jsonp解析错误`)
-                        this.storaging.errStoraging('le',option.url,task.id,"le获取视频列表接口jsonp解析错误","doWithResErr","list")
+                        this.storaging.errStoraging('le',option.url,task.id,"乐视获取视频列表接口jsonp解析错误","doWithResErr","list")
                         logger.info(result)
                         return cb()
                     }
@@ -234,7 +234,7 @@ class leDealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取info接口状态码错误","statusErr","info")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取info接口状态码错误","statusErr","info")
                 return callback()
             }
             let backData
@@ -242,13 +242,13 @@ class leDealWith {
                 backData = JSON.parse(result.body)
             } catch (e){
                 logger.error(`getInfo json error: `,e)
-                this.storaging.errStoraging('le',option.url,task.id,"le获取视频信息接口json解析错误","doWithResErr","info")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取视频信息接口json解析错误","doWithResErr","info")
                 logger.error(result.body)
                 return callback(e)
             }
             if(!backData || backData.length === 0){
                 logger.error(`getInfo 异常`)
-                this.storaging.errStoraging('le',option.url,task.id,"le获取视频信息接口返回数据为空","resultErr","info")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取视频信息接口返回数据为空","resultErr","info")
                 return callback(true)
             }
             //logger.debug('188: ',backData)
@@ -279,7 +279,7 @@ class leDealWith {
                 return callback( err )
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取Expr接口状态码错误","statusErr","Expr")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取Expr接口状态码错误","statusErr","Expr")
                 return callback()
             }
             const $ = cheerio.load(result.body),
@@ -290,11 +290,11 @@ class leDealWith {
                 timeDom3 = $('li.li_04 em'),
                 descDom3 = $('li_08 em p')
             if(!timeDom.length && !timeDom2.length && !timeDom3.length){
-                this.storaging.errStoraging('le',option.url,task.id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视从dom中获取视频的expr信息失败","domBasedErr","Expr")
                 return callback(true)
             }
             if(!descDom.length && !descDom2.length && !descDom3.length){
-                this.storaging.errStoraging('le',option.url,task.id,"从dom中获取视频的expr信息失败","domBasedErr","Expr")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视从dom中获取视频的expr信息失败","domBasedErr","Expr")
                 return callback(true)
             }
             let time,desc
@@ -356,15 +356,13 @@ class leDealWith {
                 return callback(null,null)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('le',option.url,task.id,"le获取Desc接口状态码错误","statusErr","Desc")
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取Desc接口状态码错误","statusErr","Desc")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('le',option.url,task.id,"le获取视频描述信息json解析错误","doWithResErr","Desc")
-                logger.info(result)
+                this.storaging.errStoraging('le',option.url,task.id,"乐视获取视频描述信息json解析错误","doWithResErr","Desc")
                 return callback(null,null)
             }
             result = result.data.introduction

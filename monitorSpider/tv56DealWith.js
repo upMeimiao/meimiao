@@ -53,32 +53,45 @@ class dealWith {
         }
         request.get( logger, option, (err, result)=>{
             this.storaging.totalStorage ("tv56",option.url,"user")
-            this.storaging.judgeRes ("tv56",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tv56',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('tv56',option.url,task.id,`tv56获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('56粉丝json数据解析失败')
                 this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             //logger.debug(result)
             let userInfo = result.data,user
             if(userInfo.length === 0){
-                logger.error('异常')
-                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口异常","doWithResErr","user")
+                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口异常","resultErr","user")
                 return callback(true)
             }
-            // user = {
-            //     platform: task.p,
-            //     bid: task.id,
-            //     fans_num: userInfo[0].fansCount
-            // }
+            if(!userInfo[0].fansCount){
+                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口返回数据错误","resultErr","user")
+                return callback(result)
+            }
+            user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: userInfo[0].fansCount
+            }
             callback()
         })
     }
@@ -91,18 +104,29 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("tv56",option.url,"total")
-            this.storaging.judgeRes ("tv56",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tv56',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('tv56',option.url,task.id,`tv56获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try {
                 result = eval(result.body)
             } catch (e) {
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取total接口json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
             //logger.debug(result)
@@ -131,17 +155,27 @@ class dealWith {
                 option.url = api.tv56.list + `${task.id}&pg=${sign}&_=${new Date().getTime()}`
                 request.get( logger, option, (err, result) => {
                     this.storaging.totalStorage ("tv56",option.url,"videos")
-                    this.storaging.judgeRes ("tv56",option.url,task.id,err,result,"videos")
-                    if(!result){
-                        return 
+                    if(err){
+                        let errType
+                        if(err.code){
+                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                errType = "timeoutErr"
+                            } else{
+                                errType = "responseErr"
+                            }
+                        } else{
+                            errType = "responseErr"
+                        }
+                        this.storaging.errStoraging('tv56',option.url,task.id,err.code || "error",errType,"videos")
+                        return callback(err)
                     }
-                    if(!result.body){
-                        return 
+                    if(result.statusCode != 200){
+                        this.storaging.errStoraging('tv56',option.url,task.id,`tv56获取videos接口状态码错误${result.statusCode}`,"statusErr","videos")
+                        return callback(result.statusCode)
                     }
                     try {
                         result = eval(result.body)
                     } catch (e) {
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取videos接口json数据解析失败","doWithResErr","videos")
                         return callback(e)
                     }
@@ -287,12 +321,23 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("tv56",option.url,"comment")
-            this.storaging.judgeRes ("tv56",option.url,task.id,err,result,"comment")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tv56',option.url,task.id,err.code || "error",errType,"comment")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('tv56',option.url,task.id,`tv56获取comment接口状态码错误${result.statusCode}`,"statusErr","comment")
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)

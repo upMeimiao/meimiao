@@ -47,13 +47,13 @@ class dealWith {
                     return this.getVideo(task,callback)
                 }
                 if(result.statusCode && result.statusCode != 200){
-                    this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing  video接口状态码错误","statusErr","video")
+                    this.storaging.errStoraging('fengxing',option.url,task.id,"风行网video接口状态码错误","statusErr","video")
                     return this.getVideo(task,callback)
                 }
                 let $ = cheerio.load(result.body),
                 vidObj = $('div.mod-wrap-in.mod-li-lay.chan-mgtp>div')
                 if(!vidObj){
-                    this.storaging.errStoraging("fengxing",option.url,task.id,"fengxing从dom中获取video信息失败","domBasedErr","video")
+                    this.storaging.errStoraging("fengxing",option.url,task.id,"风行网从dom中获取video信息失败","domBasedErr","video")
                     return this.getVideo(task,callback)
                 }
                 async.parallel(
@@ -95,14 +95,14 @@ class dealWith {
                 }
                 if(result.statusCode && result.statusCode != 200){
                     logger.error('风行状态码错误',result.statusCode)
-                    this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取video接口状态码错误","statusErr","video")
+                    this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取video接口状态码错误","statusErr","video")
                     return this.getVideo(task,callback)
                 }
                 try{
                     result = JSON.parse(result.body)
                 }catch (e){
                     logger.error('视频总量数据解析失败')
-                    this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取video接口json数据解析失败","doWithResErr","video")
+                    this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取video接口json数据解析失败","doWithResErr","video")
                     return this.getVideo(task,callback)
                 }
                 task.total = result.total
@@ -134,7 +134,7 @@ class dealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
-                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取fans接口状态码错误","statusErr","fans")
+                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取fans接口状态码错误","statusErr","fans")
                 return this.getFans( task, callback )
             }
             let $ = cheerio.load(result.body),
@@ -186,7 +186,7 @@ class dealWith {
                     }
                     if(result.statusCode && result.statusCode != 200){
                         logger.error('风行状态码错误',result.statusCode)
-                        this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     let $ = cheerio.load(result.body),
@@ -198,7 +198,7 @@ class dealWith {
                         dataJson = JSON.parse(dataJson)
                     }catch(e){
                         // logger.debug(dataJson)
-                        this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取list接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取list接口json数据解析失败","doWithResErr","list")
                         return cb()
                     }
                     let length  = dataJson.dvideos[0].videos.length,
@@ -242,14 +242,14 @@ class dealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
-                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取vidList接口状态码错误","statusErr","vidList")
+                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取vidList接口状态码错误","statusErr","vidList")
                 return this.getVideoList(task,callback)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取vidList接口json数据解析失败","doWithResErr","vidList")
+                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取vidList接口json数据解析失败","doWithResErr","vidList")
                 return this.getVideoList(task,callback)
             }
             let length  = result.episodes.length,
@@ -326,7 +326,7 @@ class dealWith {
                             return
                         }
                         if(result > media.play_num){
-                            this.storaging.errStoraging('fengxing',"",task.id,`pptv视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                            this.storaging.errStoraging('fengxing',"",task.id,`风行网视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
                         }
                         this.storaging.sendDb(media/*,task.id,"list"*/)
                     })
@@ -407,14 +407,14 @@ class dealWith {
                         }
                         if(result.statusCode && result.statusCode != 200){
                             logger.error('风行状态码错误',result.statusCode)
-                            this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取info接口状态码错误","statusErr","info")
+                            this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取info接口状态码错误","statusErr","info")
                             return this.getVideoInfo(task,vid,callback)
                         }
                         try{
                             result = JSON.parse(result.body)
                         }catch(e){
                             logger.error('json数据解析失败')
-                            this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取info接口json数据解析失败","doWithResErr","info")
+                            this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取info接口json数据解析失败","doWithResErr","info")
                             return this.getVideoInfo(task,vid,callback)
                         }
                         result.release = result.release.replace(/[年月]/g,'-').replace('日','')
@@ -493,14 +493,14 @@ class dealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
-                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取creatTime接口状态码错误","statusErr","creatTime")
+                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取creatTime接口状态码错误","statusErr","creatTime")
                 return callback(true)
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取creatTime接口json数据解析失败","doWithResErr","creatTime")
+                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取creatTime接口json数据解析失败","doWithResErr","creatTime")
                 return callback(e)
             }
             result.data.number = result.data.number+' 00:00:00'
@@ -532,14 +532,14 @@ class dealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
-                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取comment接口状态码错误","statusErr","comment")
+                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取comment接口状态码错误","statusErr","comment")
                 return callback(true)
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('fengxing',option.url,task.id,"fengxing获取comment接口json数据解析失败","doWithResErr","comment")
+                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(e)
             }
             

@@ -49,21 +49,32 @@ class dealWith {
         }
         request.get( logger,option,(err,result) => {
             this.storaging.totalStorage ("yidian",option.url,"user")
-            this.storaging.judgeRes ("yidian",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('yidian',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('yidian',option.url,task.id,`一点资讯获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e){
-                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取user接口json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('yidian',option.url,task.id,"一点资讯获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             if( result.status != 'success'){
-                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取user接口返回信息状态码错误","statusErr","user")
+                this.storaging.errStoraging('yidian',option.url,task.id,"一点资讯获取user接口返回信息状态码错误","statusErr","user")
                 return callback(true)
             }
             let fans_str = result.result.channels[task.id].replace('人订阅',''),
@@ -93,21 +104,32 @@ class dealWith {
         }
         request.get( logger, option, (  err, result ) => {
             this.storaging.totalStorage ("yidian",option.url,"interestId")
-            this.storaging.judgeRes ("yidian",option.url,task.id,err,result,"interestId")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('yidian',option.url,task.id,err.code || "error",errType,"interestId")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('yidian',option.url,task.id,`一点资讯获取interestId接口状态码错误${result.statusCode}`,"statusErr","interestId")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse( result.body )
             } catch (e){
-                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取interestId接口json数据解析失败","doWithResErr","interestId")
+                this.storaging.errStoraging('yidian',option.url,task.id,"一点资讯获取interestId接口json数据解析失败","doWithResErr","interestId")
                 return callback(e)
             }
             if( result.status != 'success' ){
-                this.storaging.errStoraging('yidian',option.url,task.id,"yidian获取interestId接口返回信息状态码错误","statusErr","interestId")
+                this.storaging.errStoraging('yidian',option.url,task.id,"一点资讯获取interestId接口返回信息状态码错误","statusErr","interestId")
                 return callback(result.status)
             }
             if( result.result.length == 0){

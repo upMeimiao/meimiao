@@ -51,7 +51,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baofeng',option.url,task.id,`baofeng获取TheAlbum接口状态码错误${result.statusCode}`,"statusErr","TheAlbum")
+                this.storaging.errStoraging('baofeng',option.url,task.id,`暴风影音获取TheAlbum接口状态码错误${result.statusCode}`,"statusErr","TheAlbum")
                 return callback(result.statusCode)
             }
             let $ = cheerio.load(result.body),
@@ -69,7 +69,7 @@ class dealWith {
                 })
             }
             if(!aid){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng从dom中获取TheAlbum失败","domBasedErr","TheAlbum")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音从dom中获取TheAlbum失败","domBasedErr","TheAlbum")
                 return callback()
             }
             this.getVidList( task, aid, (err) => {
@@ -130,20 +130,20 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baofeng',option.url,task.id,`baofeng获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                this.storaging.errStoraging('baofeng',option.url,task.id,`暴风影音获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                 return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取list接口json数据解析失败","doWithResErr","list")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取list接口json数据解析失败","doWithResErr","list")
                 return callback(e)
             }
             task.total = result.album_info.videos_num
             let videoList = result.video_list,
                 length = videoList.length
             if(!task.total||!videoList||!length){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取list接口返回数据错误","resultErr","list")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取list接口返回数据错误","resultErr","list")
                 return callback(null,result)
             }
             this.deal( task, videoList, length, () => {
@@ -230,7 +230,7 @@ class dealWith {
                 return callback(null,{type:'',desc:''})
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取desc接口状态码错误","statusErr","desc")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取desc接口状态码错误","statusErr","desc")
                 return callback(null,{type:'',desc:''})
             }
             let $ = cheerio.load(result.body),
@@ -241,11 +241,11 @@ class dealWith {
                     desc: desc ? desc : ''
                 }
             if(!type){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng从dom中获取type失败","domBasedErr","desc")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音从dom中获取type失败","domBasedErr","desc")
                 return callback()
             }
             if(!desc){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng从dom中获取desc失败","domBasedErr","desc")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音从dom中获取desc失败","domBasedErr","desc")
                 return callback()
             }
             callback(null,res)
@@ -273,17 +273,17 @@ class dealWith {
                 return callback(null,{u:'',d:''})
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取support接口状态码错误","statusErr","support")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取support接口状态码错误","statusErr","support")
                 return callback(null,{u:'',d:''})
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取support接口json数据解析失败","doWithResErr","support")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取support接口json数据解析失败","doWithResErr","support")
                 return callback(null,{u:'',d:''})
             }
             if(!result.data){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取support接口json数据解析失败","resultErr","support")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取support接口json数据解析失败","resultErr","support")
                 return callback(null,result)
             }
             callback(null,result.data)
@@ -311,18 +311,14 @@ class dealWith {
                 return callback(null,'0')
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取comment接口状态码错误","statusErr","comment")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取comment接口状态码错误","statusErr","comment")
                 return callback(null,'0')
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取comment接口json数据解析失败","doWithResErr","comment")
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(null,'1')
-            }
-            if(!result.total){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"baofeng获取comment接口json数据解析失败","resultErr","comment")
-                return callback(null,result)
             }
             return callback(null,result.total)
         })

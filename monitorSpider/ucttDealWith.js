@@ -58,14 +58,14 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('uctt',option.url,task.id,"uctt获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('uctt',option.url,task.id,"UC头条获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
                         logger.error('json数据解析失败')
-                        this.storaging.errStoraging('uctt',option.url,task.id,"uctt获取list接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('uctt',option.url,task.id,"UC头条获取list接口json数据解析失败","doWithResErr","list")
                         return cb()
                     }
                     let length = result.data.length
@@ -127,7 +127,7 @@ class dealWith {
                 }
             ],
             (err,result) => {
-                if(result == '没有数据'){
+                if(result == '没有数据'||!result){
                     logger.debug('没有数据')
                     return callback()
                 }
@@ -161,7 +161,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('uctt',"",task.id,`uctt视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                        this.storaging.errStoraging('uctt',"",task.id,`UC头条视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
                     }
                     this.storaging.sendDb(media/*,task.id,"info"*/)
                 })
@@ -177,12 +177,23 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("uctt",option.url,"info")
-            this.storaging.judgeRes ("uctt",option.url,task.id,err,result,"info")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('uctt',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('uctt',option.url,task.id,`UC头条获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(result.statusCode)
             }
             try{
                 result = result.body.replace(/[\r\n]/g, '')
@@ -197,12 +208,13 @@ class dealWith {
                 //result = result.replace(/var zzdReadId = \'\w*\';/,'').replace(/;/g,'')
                 result = JSON.parse(result)
             }catch (e){
-                logger.error('单个视频json数据解析失败')
-                this.storaging.errStoraging('uctt',option.url,task.id,"uctt获取info接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('uctt',option.url,task.id,"UC头条获取info接口json数据解析失败","doWithResErr","info")
                 return callback(null,'没有数据')
             }
-            // logger.debug("uctt media==============",media)
             this.getCommentNum(task,_id,result.id,(err,data) => {
+                if(err){
+                    return
+                }
                 result.descData = data
                 if(!result.descData.comment_num){
                     result.descData.comment_num = ''
@@ -236,14 +248,14 @@ class dealWith {
                 return this.getCommentNum( task, _id, id, callback )
             }
             if(!data){
-                this.storaging.errStoraging('uctt',options.url,task.id,"uctt获取commentNum接口无返回数据","responseErr","commentNum")
+                this.storaging.errStoraging('uctt',options.url,task.id,"UC头条获取commentNum接口无返回数据","responseErr","commentNum")
                 return cb()
             }
             try{
                 data = JSON.parse(data.body)
             }catch(e){
                 logger.debug('UC数据解析失败')
-                this.storaging.errStoraging('uctt',options.url,task.id,"uctt获取commentNum接口json数据解析失败","doWithResErr","commentNum")
+                this.storaging.errStoraging('uctt',options.url,task.id,"UC头条获取commentNum接口json数据解析失败","doWithResErr","commentNum")
                 return this.getCommentNum( task, _id, id, callback )
             }
             num = data.data.comment_cnt
@@ -267,17 +279,28 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("uctt",option.url,"desc")
-            this.storaging.judgeRes ("uctt",option.url,task.id,err,result,"desc")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('uctt',option.url,task.id,err.code || "error",errType,"desc")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('uctt',option.url,task.id,`UC头条获取desc接口状态码错误${result.statusCode}`,"statusErr","desc")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                this.storaging.errStoraging('uctt',option.url,task.id,"uctt获取desc接口json数据解析失败","doWithResErr","desc")
+                this.storaging.errStoraging('uctt',option.url,task.id,"UC头条获取desc接口json数据解析失败","doWithResErr","desc")
                 return callback(e)
             }
             callback(null,result)

@@ -46,12 +46,23 @@ class dealWith {
         // logger.debug("tudou getUser option",option)
         request.get(logger,option,(err,result)=>{
             this.storaging.totalStorage ("tudou",option.url,"user")
-            this.storaging.judgeRes ("tudou",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('tudou',option.url,task.id,`土豆获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             let $ = cheerio.load(result.body),
                 script = $('script')[0].children[0].data
@@ -61,9 +72,7 @@ class dealWith {
             try {
                 user_conf = eval("(" + script + ")")
             } catch (e){
-                logger.error('土豆解析userconf失败')
-                logger.error(script)
-                this.storaging.errStoraging("tudou",option.url,task.id,"土豆解析userconf失败","doWithResErr","user")
+                this.storaging.errStoraging("tudou",option.url,task.id,"土豆user接口解析jsonp数据失败","doWithResErr","user")
                 return callback(e)
             }
             let uidCode = user_conf.uidCode
@@ -78,12 +87,23 @@ class dealWith {
         }
         request.get( logger, option, (err, result)=>{
             this.storaging.totalStorage ("tudou",option.url,"fans")
-            this.storaging.judgeRes ("tudou",option.url,task.id,err,result,"fans")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"fans")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('tudou',option.url,task.id,`土豆获取fans接口状态码错误${result.statusCode}`,"statusErr","fans")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
@@ -108,12 +128,23 @@ class dealWith {
         // logger.debug("tudou getTotal option",option)
         request.get( logger, option,(err,result) => {
             this.storaging.totalStorage ("tudou",option.url,"total")
-            this.storaging.judgeRes ("tudou",option.url,task.id,err,result,"total")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('tudou',option.url,task.id,`土豆获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
@@ -166,11 +197,7 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('tudou',option.url,task.id,"tudou获取list接口状态码错误","statusErr","list")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging("tudou",option.url,task.id,"土豆list接口返回数据为空","resultErr","list")
+                        this.storaging.errStoraging('tudou',option.url,task.id,"土豆获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try{
@@ -289,19 +316,33 @@ class dealWith {
         }
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("tudou",option.url,"videoTime")
-            this.storaging.judgeRes ("tudou",option.url,task.id,err,result,"videoTime")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"videoTime")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('tudou',option.url,task.id,"土豆获取videoTime接口状态码错误","statusErr","videoTime")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging("tudou",option.url,task.id,"土豆videoTime接口json数据解析失败","doWithResErr","videoTime")
                 return callback(e)
+            }
+            if(!result.tag||!result.cname){
+                this.storaging.errStoraging("tudou",option.url,task.id,"土豆videoTime接口返回数据错误","resultErr","videoTime")
+                return callback(result)
             }
             const data = {
                 tag: result.tag,
@@ -316,17 +357,27 @@ class dealWith {
         }
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("tudou",option.url,"Expr")
-            this.storaging.judgeRes ("tudou",option.url,task.id,err,result,"Expr")
-            if(!result){
-                return
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('tudou',option.url,task.id,err.code || "error",errType,"Expr")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode && result.statusCode != 200){
+                this.storaging.errStoraging('tudou',option.url,task.id,"土豆获取Expr接口状态码错误","statusErr","Expr")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('expr json数据解析失败')
                 this.storaging.errStoraging("tudou",option.url,task.id,"土豆Expr接口json数据解析失败","doWithResErr","Expr")
                 return callback(e)
             }

@@ -49,7 +49,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                this.storaging.errStoraging('baiduvideo',option.url,task.id,`百度视频获取total接口状态码错误${result.statusCode}`,"statusErr","total")
                 return callback(result.statusCode)
             }
             let $ = cheerio.load(result.body),
@@ -67,7 +67,7 @@ class dealWith {
                 }
             task.total = $('div.num-sec').eq(1).find('p.num').text()
             if(!fan || !listData){
-                this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取total接口从dom获取信息失败`,"domBasedErr","total")
+                this.storaging.errStoraging('baiduvideo',option.url,task.id,`百度视频获取total接口从dom获取信息失败`,"domBasedErr","total")
                 return callback(result)
             }
             this.getVidList(task,listData,length,(err) => {
@@ -127,13 +127,13 @@ class dealWith {
                         return callback(err)
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                        this.storaging.errStoraging('baiduvideo',option.url,task.id,`百度视频获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return callback(result.statusCode)
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch(e){
-                        this.storaging.errStoraging('baiduvideo',option.url,task.id,"baiduvideo获取list接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('baiduvideo',option.url,task.id,"百度视频获取list接口json数据解析失败","doWithResErr","list")
                         if(num <= 1){
                             return cb()
                         }
@@ -141,7 +141,7 @@ class dealWith {
                         return callback(e)
                     }
                     if(!result.data){
-                        this.storaging.errStoraging('baiduvideo',option.url,task.id,"baiduvideo获取list接口返回数据错误","resultErr","list")
+                        this.storaging.errStoraging('baiduvideo',option.url,task.id,"百度视频获取list接口返回数据错误","resultErr","list")
                         return callback(result)
                     }
                     length = result.data.length
@@ -208,7 +208,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('baiduvideo',"",task.id,`baiduvideo播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                        this.storaging.errStoraging('baiduvideo',"",task.id,`百度视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
                     }
                     this.storaging.sendDb(media/*,task.id,"info"*/)
                 })
@@ -257,13 +257,13 @@ class dealWith {
                 return callback(null,'')
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('baiduvideo',option.url,task.id,`baiduvideo获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                this.storaging.errStoraging('baiduvideo',option.url,task.id,`百度视频获取info接口状态码错误${result.statusCode}`,"statusErr","info")
                 return callback()
             }
             let $ = cheerio.load(result.body),
                 playNum = $('p.title-info .play').text().replace('次','')
             if(!playNum){
-                this.storaging.errStoraging("baiduvideo",option.url,task.id,"baiduvideo从dom中获取播放量失败","domBasedErr","info")
+                this.storaging.errStoraging("baiduvideo",option.url,task.id,"百度视频从dom中获取播放量失败","domBasedErr","info")
                 return callback(null,'')
             }
             callback(null,playNum)

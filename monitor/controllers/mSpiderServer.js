@@ -44,7 +44,6 @@ exports.start = () => {
     })
     const errReadRule = new schedule.RecurrenceRule()
         errReadRule.minute = 0
-        // errReadRule.minute = [1,6,11,16,21,26,31,36,41,46,51,56]
     schedule.scheduleJob(errReadRule, () =>{
         sendWarnEmail(()=>{
             logger.debug("开始读取错误列表发送邮件~")
@@ -122,7 +121,7 @@ const checkField = (curKey,lastKey,curResult,lastResult,callback) => {
             }
         }
     }
-    logger.debug("sameKeys.length=",sameKeys.length)
+    // logger.debug("sameKeys.length=",sameKeys.length)
     if(!sameKeys.length){
         return
     }
@@ -313,7 +312,7 @@ const getErr = (platform,urlDesc) => {
         i
             // 获取当前接口对应的错误记录
             mSpiderClient.get(curKey,(err,result) => {
-                logger.debug("获取当前接口对应的错误记录=",curKey,result)
+                // logger.debug("获取当前接口对应的错误记录=",curKey,result)
                 if(err){
                     logger.debug("读取redis发生错误")
                     return
@@ -1039,17 +1038,17 @@ const baiduvideoJudgeErr = (options) => {
     switch(options.urlDesc){
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1073,27 +1072,27 @@ const baofengJudgeErr = (options) => {
     switch(options.urlDesc){
         case "theAlbum":
             emailOptions.urlDesc = "theAlbum"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "desc":
             emailOptions.urlDesc = "desc"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "support":
             emailOptions.urlDesc = "support"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1117,27 +1116,27 @@ const huashuJudgeErr = (options) => {
     switch(options.urlDesc){
         case "vidList":
             emailOptions.urlDesc = "vidList"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videoList":
             emailOptions.urlDesc = "videoList"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "play":
             emailOptions.urlDesc = "play"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1161,32 +1160,32 @@ const fengxingJudgeErr = (options) => {
     switch(options.urlDesc){
         case "video":
             emailOptions.urlDesc = "video"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "fans":
             emailOptions.urlDesc = "fans"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "creatTime":
             emailOptions.urlDesc = "creatTime"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1210,32 +1209,32 @@ const v1JudgeErr = (options) => {
     switch(options.urlDesc){
         case "fans":
             emailOptions.urlDesc = "fans"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "support":
             emailOptions.urlDesc = "support"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1259,27 +1258,27 @@ const xinlanJudgeErr = (options) => {
     switch(options.urlDesc){
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "save":
             emailOptions.urlDesc = "save"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "suport":
             emailOptions.urlDesc = "suport"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1303,17 +1302,17 @@ const pptvJudgeErr = (options) => {
     switch(options.urlDesc){
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1337,22 +1336,22 @@ const cctvJudgeErr = (options) => {
     switch(options.urlDesc){
         case "fans":
             emailOptions.urlDesc = "fans"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "toal":
             emailOptions.urlDesc = "toal"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1376,22 +1375,22 @@ const qzoneJudgeErr = (options) => {
     switch(options.urlDesc){
         case "fan":
             emailOptions.urlDesc = "fan"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "fan":
             emailOptions.urlDesc = "fan"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1415,22 +1414,22 @@ const baijiaJudgeErr = (options) => {
     switch(options.urlDesc){
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "fan":
             emailOptions.urlDesc = "fan"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1454,37 +1453,37 @@ const mgtvJudgeErr = (options) => {
     switch(options.urlDesc){
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "commentNum":
             emailOptions.urlDesc = "commentNum"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "like":
             emailOptions.urlDesc = "like"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "desc":
             emailOptions.urlDesc = "desc"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "class":
             emailOptions.urlDesc = "class"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "play":
             emailOptions.urlDesc = "play"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1508,22 +1507,22 @@ const ucttJudgeErr = (options) => {
     switch(options.urlDesc){
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "commentNum":
             emailOptions.urlDesc = "commentNum"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "desc":
             emailOptions.urlDesc = "desc"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1547,22 +1546,22 @@ const wangyiJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "video":
             emailOptions.urlDesc = "video"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "paly":
             emailOptions.urlDesc = "paly"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1586,17 +1585,17 @@ const ifengJudgeErr = (options) => {
     switch(options.urlDesc){
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "video":
             emailOptions.urlDesc = "video"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1620,22 +1619,22 @@ const weiboJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1659,17 +1658,17 @@ const acfunJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1693,27 +1692,27 @@ const tv56JudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videos":
             emailOptions.urlDesc = "videos"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1737,27 +1736,27 @@ const yyJudgeErr = (options) => {
     switch(options.urlDesc){
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "live":
             emailOptions.urlDesc = "live"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "slist":
             emailOptions.urlDesc = "slist"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "dlist":
             emailOptions.urlDesc = "dlist"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1781,12 +1780,12 @@ const neihanJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1810,12 +1809,12 @@ const budejieJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1839,17 +1838,17 @@ const xiaoyingJudgeErr = (options) => {
     switch(options.urlDesc){
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1873,12 +1872,12 @@ const weishiJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1902,22 +1901,22 @@ const btimeJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1941,17 +1940,17 @@ const kusixJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -1975,27 +1974,27 @@ const baomihuaJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "Expr":
             emailOptions.urlDesc = "Expr"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "ExprPC":
             emailOptions.urlDesc = "ExprPC"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "playNum":
             emailOptions.urlDesc = "playNum"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -2019,32 +2018,32 @@ const tudouJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "fans":
             emailOptions.urlDesc = "fans"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videoTime":
             emailOptions.urlDesc = "videoTime"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "Expr":
             emailOptions.urlDesc = "Expr"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -2068,17 +2067,17 @@ const yidianJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "interestId":
             emailOptions.urlDesc = "interestId"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }
@@ -2102,37 +2101,37 @@ const tencentJudgeErr = (options) => {
     switch(options.urlDesc){
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "view":
             emailOptions.urlDesc = "view"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break  
         case "comment":
             emailOptions.urlDesc = "comment"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "commentNum":
             emailOptions.urlDesc = "commentNum"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break 
         case "vidTag":
             emailOptions.urlDesc = "vidTag"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break   
     }
@@ -2156,37 +2155,37 @@ const kuaibaoJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videos":
             emailOptions.urlDesc = "videos"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "commentNum":
             emailOptions.urlDesc = "commentNum"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break  
         case "Expr":
             emailOptions.urlDesc = "Expr"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "play":
             emailOptions.urlDesc = "play"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break 
         case "field":
             emailOptions.urlDesc = "field"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break   
     }
@@ -2209,27 +2208,27 @@ const souhuJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
         case "commentNum":
             emailOptions.urlDesc = "commentNum"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break  
     }
@@ -2252,22 +2251,22 @@ const toutiaoJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "userId":
             emailOptions.urlDesc = "userId"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "play":
             emailOptions.urlDesc = "play"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
     }
@@ -2290,22 +2289,22 @@ const meipaiJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videos":
             emailOptions.urlDesc = "videos"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
     }
@@ -2328,22 +2327,22 @@ const miaopaiJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videos":
             emailOptions.urlDesc = "videos"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
     }
@@ -2366,22 +2365,22 @@ const biliJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videos":
             emailOptions.urlDesc = "videos"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
     }
@@ -2404,22 +2403,22 @@ const youkuJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "videos":
             emailOptions.urlDesc = "videos"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
     }
@@ -2443,42 +2442,42 @@ const iqiyiJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "_user":
             emailOptions.urlDesc = "_user"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
         case "ids":
             emailOptions.urlDesc = "ids"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break  
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break  
         case "Expr":
             emailOptions.urlDesc = "Expr"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break  
         case "play":
             emailOptions.urlDesc = "play"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break 
         case "comment":
@@ -2506,27 +2505,27 @@ const leJudgeErr = (options) => {
     switch(options.urlDesc){
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "Expr":
             emailOptions.urlDesc = "Expr"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    
         case "Desc":
             emailOptions.urlDesc = "Desc"
-            numberArr = [0.8,0.4,0.4,0.5,0.8,0.8]
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }

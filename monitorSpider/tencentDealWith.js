@@ -63,7 +63,7 @@ class tencentDealWith {
             }
             if(result.statusCode != 200){
                 this.storaging.errStoraging('tencent',option.url,task.id,`腾讯视频获取total接口状态码错误${result.statusCode}`,"statusErr","total")
-                return callback()
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body.substring(6, result.body.length - 1))
@@ -108,17 +108,17 @@ class tencentDealWith {
                     errType = "responseErr"
                 }
                 this.storaging.errStoraging('tencent',option.url,task.id,err.code || "error",errType,"user")
-                return callback()
+                return callback(err)
             }
             if(result.statusCode != 200){
                 this.storaging.errStoraging('tencent',option.url,task.id,`腾讯视频获取user接口状态码错误${result.statusCode}`,"statusErr","user")
-                return callback()
+                return callback(result.statusCode)
             }
             try {
                 result = eval(result.body)
             } catch (e){
                 this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取user接口jsonp解析错误","resultErr","user")
-                return callback()
+                return callback(e)
             }
             if(!result.followcount){
                 this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取user接口返回数据错误","resultErr","user")
@@ -168,7 +168,7 @@ class tencentDealWith {
                     }
                     //logger.debug(back.body)
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('tencent',option.url,task.id,`tencent获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                        this.storaging.errStoraging('tencent',option.url,task.id,`腾讯视频获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return cb()
                     }
                     try {
@@ -313,7 +313,7 @@ class tencentDealWith {
             }
             //logger.debug(back.body)
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('tencent',option.url,task.id,`tencent获取view接口状态码错误${result.statusCode}`,"statusErr","view")
+                this.storaging.errStoraging('tencent',option.url,task.id,`腾讯视频获取view接口状态码错误${result.statusCode}`,"statusErr","view")
                 return callback(null, result)
             }
             try {

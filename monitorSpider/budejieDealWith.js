@@ -43,21 +43,21 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('budejie',option.url,task.id,`budejie获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                this.storaging.errStoraging('budejie',option.url,task.id,`百思不得姐获取user接口状态码错误${result.statusCode}`,"statusErr","user")
                 return callback(true)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             if(!result.data){
-                this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口返回内容为空","resultErr","user")
+                this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐获取user接口返回内容为空","resultErr","user")
                 return callback(null,result.data)
             }
             if(!result.data.id||!result.data.fans_count){
-                this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口返回内容错误","resultErr","user")
+                this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐获取user接口返回内容错误","resultErr","user")
                 return callback(null,result.data)
             }
             let userInfo = result.data,
@@ -108,18 +108,18 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('budejie',option.url,task.id,"budejie  list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐list接口状态码错误","statusErr","list")
                         return callback(true)
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
-                        this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐获取user接口json数据解析失败","doWithResErr","list")
                         sign++
                         return cb()
                     }
                     if(!result.list || !result.info.np){
-                        this.storaging.errStoraging('budejie',option.url,task.id,"budejie获取user接口返回数据错误","resultErr","list")
+                        this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐获取user接口返回数据错误","resultErr","list")
                         return cb()
                     }
                     let data = result.list

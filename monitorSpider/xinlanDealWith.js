@@ -51,14 +51,14 @@ class dealWith {
                 return this.getVidList( task, callback )
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取list接口状态码错误","statusErr","list")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取list接口状态码错误","statusErr","list")
                 return this.getVidList( task, callback )
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取list接口json数据解析失败","doWithResErr","list")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取list接口json数据解析失败","doWithResErr","list")
                 return this.getVidList( task, callback )
             }
             if(!result.data || !result.data.length){
@@ -157,17 +157,17 @@ class dealWith {
                 return callback(null,{hasCollect:''})
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取save接口状态码错误","statusErr","save")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取save接口状态码错误","statusErr","save")
                 return callback()
             }
             if(!result.body){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取save接口无返回数据","resultErr","save")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取save接口无返回数据","resultErr","save")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取save接口json数据解析失败","doWithResErr","save")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取save接口json数据解析失败","doWithResErr","save")
                 logger.info(result)
                 return callback(null,{hasCollect:''})
             }
@@ -201,14 +201,14 @@ class dealWith {
                 return callback(null,{supportNumber:''})
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取suport接口状态码错误","statusErr","suport")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取suport接口状态码错误","statusErr","suport")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
                 logger.debug('点赞量解析失败')
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取suport接口json数据解析失败","doWithResErr","suport")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取suport接口json数据解析失败","doWithResErr","suport")
                 return callback(null,{supportNumber:''})
             }
             if(result.content == undefined){
@@ -241,17 +241,17 @@ class dealWith {
                 return callback(null,{comment_count:''})
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取comment接口状态码错误","statusErr","comment")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取comment接口状态码错误","statusErr","comment")
                 return callback()
             }
             if(!result.body){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取comment接口无返回数据","resultErr","comment")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取comment接口无返回数据","resultErr","comment")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取comment接口json数据解析失败","doWithResErr","comment")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(null,{comment_count:''})
             }
             callback(null,result)
@@ -284,18 +284,18 @@ class dealWith {
                 return callback(null,'next')
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取info接口状态码错误","statusErr","info")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取info接口状态码错误","statusErr","info")
                 return callback()
             }
             if(!result.body){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取info接口无返回数据","resultErr","info")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取info接口无返回数据","resultErr","info")
                 return callback()
             }
             num = 0
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"xinlan获取info接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取info接口json数据解析失败","doWithResErr","info")
                 if(num <= 1){
                     return this.getVideoInfo( task, vid, num++, callback )
                 }

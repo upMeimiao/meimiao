@@ -89,7 +89,7 @@ class toutiaoDealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取user接口状态码错误","statusErr","user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取user接口状态码错误","statusErr","user")
                 return callback()
             }
             if(!result.body){
@@ -199,6 +199,7 @@ class toutiaoDealWith {
                 if(proxyStatus && proxy){
                     option.proxy = proxy
                     request.get( logger, option, (err,result) => {
+                        this.storaging.totalStorage("toutiao",option.url,"list")
                         if(err){
                             times++
                             proxyStatus = false
@@ -363,7 +364,7 @@ class toutiaoDealWith {
                 return
             }
             if(result > media.play_num){
-                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`头条播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
+                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`今日头条播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
             }
             this.storaging.sendDb(media/*,task.id,"play"*/)
         })
@@ -390,11 +391,11 @@ class toutiaoDealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao获取play接口状态码错误","statusErr","play")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取play接口状态码错误","statusErr","play")
                 return callback()
             }
             if(!result.body){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"toutiao play接口无返回数据","resultErr","play")
+                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条play接口无返回数据","resultErr","play")
                 return callback()
             }
             try{

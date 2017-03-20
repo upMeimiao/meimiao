@@ -71,24 +71,19 @@ class youkuDealWith {
             try{
                 body = JSON.parse(body)
             }catch(e){
-                logger.info(body)
                 this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口json数据解析失败","doWithResErr","user")
                 return callback(e.message)
             }
-            if(!body){
-                logger.error('youku获取用户信息接口发生未知错误')
-                // logger.debug('total error:',body)
-                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口返回内容为空","resultErr","user")
-                return callback()
+            if(!body.data.channelOwnerInfo||!body.data.channelOwnerInfo.followerNum){
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息返回数据错误","resultErr","user")
+                return callback(body)
             }
-            // let userInfo = body.data.channelOwnerInfo,
-            //     user = {
-            //         platform: 1,
-            //         bid: task.id,
-            //         fans_num: userInfo.followerNum
-            //     }
-            // logger.debug(user)
-            // this.storaging.succStorage("youku",options.url,"user")
+            let userInfo = body.data.channelOwnerInfo,
+                user = {
+                    platform: 1,
+                    bid: task.id,
+                    fans_num: userInfo.followerNum
+                }
         })
     }
     youkuGetTotal( task, callback ) {
@@ -104,9 +99,25 @@ class youkuDealWith {
             }
         request(options, (error, response, body) => {
             this.storaging.totalStorage ("youku",options.url,"total")
-            this.storaging.judgeRes ("youku",options.url,task.id,error,response,"total")
-            if(!(body||response)){
-                return 
+            if(error){
+                //logger.error(err,err.code,err.Error)
+                let errType
+                if(error.code){
+                    if(error.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                //logger.error(errType)
+                this.storaging.errStoraging("youku",options.url,task.id,error.code || "error",errType,"user")
+                return callback(error.message)
+            }
+            if(response.statusCode != 200){
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口状态码错误","statusErr","user")
+                return callback(response.statusCode)
             }
             try {
                 body = JSON.parse(body)
@@ -218,9 +229,25 @@ class youkuDealWith {
         }
         request( options, ( error, response, body ) => {
             this.storaging.totalStorage ("youku",options.url,"info")
-            this.storaging.judgeRes("youku",options.url,task.id,error,response,"info")
-            if(!(body||response)){
-                return 
+            if(error){
+                //logger.error(err,err.code,err.Error)
+                let errType
+                if(error.code){
+                    if(error.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                //logger.error(errType)
+                this.storaging.errStoraging("youku",options.url,task.id,error.code || "error",errType,"user")
+                return callback(error.message)
+            }
+            if(response.statusCode != 200){
+                this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口状态码错误","statusErr","user")
+                return callback(response.statusCode)
             }
             try{
                 body = JSON.parse(body)

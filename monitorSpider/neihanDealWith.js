@@ -57,17 +57,17 @@ class dealWith {
                 return callback()
             }
             if( result.statusCode != 200){
-                this.storaging.errStoraging('neihan',option.url,task.id,`neihan获取粉丝接口状态码错误${result.statusCode}`,"statusErr","user")
+                this.storaging.errStoraging('neihan',option.url,task.id,`内涵段子获取粉丝接口状态码错误${result.statusCode}`,"statusErr","user")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                this.storaging.errStoraging('neihan',option.url,task.id,"neihan获取user接口json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
             if(!result.data || (result.data&&!result.data.followers)){
-                this.storaging.errStoraging('neihan',option.url,task.id,"neihan获取user接口返回数据错误","doWithResErr","user")
+                this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取user接口返回数据错误","doWithResErr","user")
                 return callback(result)
             }
             let user = {

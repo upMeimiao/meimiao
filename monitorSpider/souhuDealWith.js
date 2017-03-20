@@ -398,10 +398,6 @@ class souhuDealWith {
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取commentNum接口json数据解析失败","doWithResErr","commentNum")
                 return callback(e)
             }
-            if(!result.cmt_sum){
-                this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取commentNum接口返回数据错误","doWithResErr","commentNum")
-                return callback(result)
-            }
             callback(null,result.cmt_sum)
         })
     }

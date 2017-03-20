@@ -95,6 +95,17 @@ class spiderCore {
         this.assembly()
         
     }
+    getH (callback) {
+        this.xiaoyingDeal.getH( ( err, result ) => {
+            if(err){
+                return
+            }
+            this.h = result
+            if(callback){
+                callback()
+            }
+        })
+    }
     setTask () {
         let youku_rule = new schedule.RecurrenceRule(),
             youku_work = {
@@ -110,7 +121,7 @@ class spiderCore {
             },
             tencent_rule = new schedule.RecurrenceRule(),
             tencent_work = {
-                "name":"tencent","platform":4,"id":"59d7fb0813b0bdf6d5b0b89a1ce27006","bname":"飞碟说"
+                "name":"tencent","platform":4,"id":"3549c076ea202664a0b6c87bb849e22c","bname":"papi酱"
             },
             meipai_rule = new schedule.RecurrenceRule(),
             meipai_work = {
@@ -404,6 +415,12 @@ class spiderCore {
             })
         })
         schedule.scheduleJob(xiaoying_rule,() => {
+            this.getH(()=>{
+                this.assembly()
+                setInterval(()=>{
+                    this.getH()
+                },86400000)
+            })
             this.xiaoyingDeal.xiaoying(xiaoying_work,(err,result) => {
                 logger.debug(err,result)
             })

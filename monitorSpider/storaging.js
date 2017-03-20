@@ -14,31 +14,6 @@ class storage{
         this.core = core
         logger = this.core.settings.logger
     }
-    judgeRes(platform,url,bid,err,res,urlDesc){
-	    if(err){
-	    	let errType
-            if(err.code){
-            	if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
-               		errType = "timeoutErr"
-            	} else{
-            		errType = "responseErr"
-            	}
-            } else{
-                errType = "responseErr"
-            }
-            // logger.error("judgeRes error 内容===========",platform,JSON.stringify(err),errType,err.code)
-            this.errStoraging(platform,url,bid,err.code||"error",errType,urlDesc)
-	        return
-	    }
-	    if(!res.body){
-	        this.errStoraging(platform,url,bid,`返回数据为空`,"resultErr",urlDesc)
-	        return
-	    }
-	    if(res && res.statusCode && res.statusCode != 200 || res && res.status && res.status != 200){
-	        this.errStoraging(platform,url,bid,res.errDesc,"statusErr",urlDesc)
-	        return
-	    }
-    }
     sendDb (media,taskId,urlDesc){
 	    let curPlatform = media.author
 	    // logger.debug("当前的group_num为",minute,group_num)${curPlatform}-${urlDesc}-${taskId}-${media.aid}
@@ -178,8 +153,8 @@ class storage{
 	                logger.error( '设置接口成功调取次数出现错误', err )
 	                return
 	            }
-	            mSpiderClint.expire(curKey,6*60*60) 
 	        })
+	        mSpiderClint.expire(curKey,6*60*60) 
 	    })
 	}
 }

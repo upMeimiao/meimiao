@@ -119,7 +119,7 @@ class dealWith {
         }
         option.proxy = proxy
         request.get( logger, option, ( err, result ) => {
-            this.storaging.totalStorage ("weibo",option.url,"user")
+            this.storaging.totalStorage ("weibo",option.url,"total")
             if (err) {
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
@@ -196,11 +196,11 @@ class dealWith {
                         return
                     }
                     if(!result){
-                        this.storaging.errStoraging('weibo',option.url,task.id,"weibo获取list接口无返回数据","resultErr","list")
+                        this.storaging.errStoraging('weibo',option.url,task.id,"微博获取list接口无返回数据","resultErr","list")
                         return
                     }
                     if(!result.body){
-                        this.storaging.errStoraging('weibo',option.url,task.id,"weibo获取list接口无返回数据","resultErr","list")
+                        this.storaging.errStoraging('weibo',option.url,task.id,"微博获取list接口无返回数据","resultErr","list")
                         return
                     }
                     try{
@@ -316,7 +316,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('weibo',"",task.id,`weibo视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                        this.storaging.errStoraging('weibo',"",task.id,`微博视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
                     }
                     this.storaging.sendDb(media/*,task.id,"list"*/)
                 })
@@ -345,7 +345,7 @@ class dealWith {
                 return
             }
             if(!result || (result && !result.body)){
-                this.storaging.errStoraging('weibo',option.url,task.id,"weibo获取info接口无返回数据","resultErr","info")
+                this.storaging.errStoraging('weibo',option.url,task.id,"微博获取info接口无返回数据","resultErr","info")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {

@@ -59,18 +59,29 @@ class dealWith {
         }
         request.get( logger, option, (err, result)=>{
             this.storaging.totalStorage ("v1",option.url,"fans")
-            this.storaging.judgeRes ("v1",option.url,task.id,err,result,"fans")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('v1',option.url,task.id,err.code || "error",errType,"fans")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('v1',option.url,task.id,`第一视频获取fans接口状态码错误${result.statusCode}`,"statusErr","fans")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error(`V1 json数据解析失败`)
-                this.storaging.errStoraging('V1',option.url,task.id,"v1获取fans接口json数据解析失败","doWithResErr","fans")
+                logger.error(`v1 json数据解析失败`)
+                this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取fans接口json数据解析失败","doWithResErr","fans")
                 return callback(e)
             }
             // let user = {
@@ -89,18 +100,28 @@ class dealWith {
         sign = 0
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("v1",option.url,"total")
-            this.storaging.judgeRes ("v1",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('v1',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('v1',option.url,task.id,`第一视频获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('V1',option.url,task.id,"v1获取total接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取total接口json数据解析失败","doWithResErr","total")
                 return
             }
             let page   = result.body.page_num
@@ -138,18 +159,18 @@ class dealWith {
                         return cb()
                     }
                     if(!result.body){
-                        this.storaging.errStoraging('v1',option.url,task.id,"v1获取list接口无返回数据","resultErr","list")
+                        this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取list接口无返回数据","resultErr","list")
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('v1',option.url,task.id,"v1获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
                         logger.error('json数据解析失败')
-                        this.storaging.errStoraging('v1',option.url,task.id,"v1获取list接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取list接口json数据解析失败","doWithResErr","list")
                         return
                     }
                     let length  = result.body.data.length,
@@ -204,7 +225,7 @@ class dealWith {
                 }
             ],
             (err,result) => {
-                if(result[0] == 'next'){
+                if(result[0] == 'next'|| !result[0] || !result[1]|| !result[2] ){
                     return callback()
                 }
                 let media = {
@@ -236,7 +257,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('v1',"",task.id,`v1视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
+                        this.storaging.errStoraging('v1',"",task.id,`第一视频视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
                     }
                     this.storaging.sendDb(media/*,task.id,"vidInfo"*/)
                 })
@@ -250,18 +271,29 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             this.storaging.totalStorage ("v1",option.url,"support")
-            this.storaging.judgeRes ("v1",option.url,task.id,err,result,"support")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('v1',option.url,task.id,err.code || "error",errType,"support")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('v1',option.url,task.id,`第一视频获取support接口状态码错误${result.statusCode}`,"statusErr","support")
+                return callback(result.statusCode)
             }
             try{
                 result = eval(result.body)
             }catch(e){
                 logger.debug('点赞量解析失败')
-                this.storaging.errStoraging('v1',option.url,task.id,"v1获取support接口json数据解析失败","doWithResErr","support")
+                this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取support接口json数据解析失败","doWithResErr","support")
                 return callback(null, null)
             }
             callback(null,result)
@@ -339,14 +371,14 @@ class dealWith {
                 return callback(null,'next')
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('v1',option.url,task.id,"v1获取vidInfo接口状态码错误","statusErr","vidInfo")
+                this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取vidInfo接口状态码错误","statusErr","vidInfo")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('单个视频json数据解析失败')
-                this.storaging.errStoraging('v1',option.url,task.id,"v1获取info接口json数据解析失败","doWithResErr","vidInfo")
+                this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取info接口json数据解析失败","doWithResErr","vidInfo")
                 return callback(e)
             }
             // logger.debug("v1 media==============",media)

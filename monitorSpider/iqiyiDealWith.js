@@ -46,26 +46,29 @@ class iqiyiDeal {
             ua: 2
         }
         request.get( logger, option, ( err, result ) => {
-    //         if(err){
-				// this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","user")
-				// return
-    //         }
-    //         if(!result || !result.body){
-    //         	this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取用户信息接口无返回数据","resultErr","user")
-    //         	return
-    //         }
             this.storaging.totalStorage ("iqiyi",option.url,"user")
-            this.storaging.judgeRes ("iqiyi",option.url,task.id,err,result,"user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"user")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,`爱奇艺获取user接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             const $ = cheerio.load(result.body),
                 fansDom = $('span.c-num-fans')
             if(!fansDom){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取粉丝dom获取错误","domBasedErr","user")
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取粉丝dom获取错误","domBasedErr","user")
                 return
             }
             if(fansDom.length === 0){
@@ -73,7 +76,6 @@ class iqiyiDeal {
                     callback()
                 })
             }
-            // this.storaging.succStorage("iqiyi",option.url,"user")
             // const fans = fansDom.attr('data-num'),
             //     user = {
             //         platform: 2,
@@ -89,26 +91,29 @@ class iqiyiDeal {
             ua: 2
         }
         request.get( logger, option, ( err, result ) => {
-    //         if(err){
-				// this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","_user")
-    //             return
-    //         }
-    //         if(!result.body){
-    //         	this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取粉丝接口无返回数据","resultErr","_user")
-    //             return
-    //         }
             this.storaging.totalStorage ("iqiyi",option.url,"_user")
-            this.storaging.judgeRes ("iqiyi",option.url,task.id,err,result,"_user")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"_user")
+                return callback(err)
             }
-            if(!result.body){
-                return
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,`爱奇艺获取_user接口状态码错误${result.statusCode}`,"statusErr","_user")
+                return callback(result.statusCode)
             }
             let $ = cheerio.load(result.body),
                 fansDom = $('h3.tle').text()
                 if(!fansDom){
-                    this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取粉丝dom获取错误","domBasedErr","_user")
+                    this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取_user接口dom获取错误","domBasedErr","_user")
                     return
                 }
             let user = {
@@ -127,20 +132,29 @@ class iqiyiDeal {
             referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
         }
         request.get(logger, option, (err,result) => {
-    //         if(err){
-				// this.storaging.errStoraging('iqiyi',option.url,task.id,err,"responseErr","total")
-    //             return
-    //         }
             this.storaging.totalStorage ("iqiyi",option.url,"total")
-            this.storaging.judgeRes ("iqiyi",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('iqiyi',option.url,task.id,err.code || "error",errType,"total")
+                return callback(err)
+            }
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,`爱奇艺获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result?result.body:null)
             } catch (e) {
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取全部视频接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取全部视频接口json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
             if(result.total !== 0){
@@ -182,7 +196,7 @@ class iqiyiDeal {
                         }, 3000)
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取ListN接口状态码错误","statusErr","ListN")
+                        this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取ListN接口状态码错误","statusErr","ListN")
                         return
                     }
                     const $ = cheerio.load(result.body,{
@@ -241,7 +255,7 @@ class iqiyiDeal {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取ids接口状态码错误","statusErr","ids")
+                        this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取ids接口状态码错误","statusErr","ids")
                         return cb()
                     }
                     const $ = cheerio.load(result.body,{
@@ -249,7 +263,7 @@ class iqiyiDeal {
                         }),
                         id = $('#flashbox').attr('data-player-tvid')
                         if(!id){
-                            this.storaging.errStoraging('iqiyi',DOM,task.id,"iqiyi获取DOM元素中的视频id失败","domBasedErr","ids")
+                            this.storaging.errStoraging('iqiyi',DOM,task.id,"爱奇艺获取DOM元素中的视频id失败","domBasedErr","ids")
                             return
                         }
                     // this.storaging.succStorage("iqiyi",option.url,"ids")
@@ -293,14 +307,14 @@ class iqiyiDeal {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
                         logger.error('json数据解析失败')
-                        this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取视频列表接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取视频列表接口json数据解析失败","doWithResErr","list")
                         logger.error(result)
                         return cb()
                     }
@@ -316,7 +330,7 @@ class iqiyiDeal {
                         ats = $('a[data-title]'),titles = [],
                         href = $('.site-piclist_info a[title]'),links = []
                     if(!lis || !ats || !href){
-                        this.storaging.errStoraging('iqiyi',DOM,task.id,"iqiyi由DOM获取视频列表信息失败","domBasedErr","list")
+                        this.storaging.errStoraging('iqiyi',DOM,task.id,"爱奇艺由DOM获取视频列表信息失败","domBasedErr","list")
                         return
                     }
                     for(let i = 0 ;i<lis.length;i++){
@@ -475,7 +489,7 @@ class iqiyiDeal {
             }
             //logger.debug(backData)
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取info接口状态码错误","statusErr","info")
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取info接口状态码错误","statusErr","info")
                 return cb()
             }
             let playData
@@ -483,7 +497,7 @@ class iqiyiDeal {
                 playData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
-                this.storaging.errStoraging('iqiyi',link,task.id,"iqiyi获取视频信息接口eval错误","doWithResErr","info")
+                this.storaging.errStoraging('iqiyi',link,task.id,"爱奇艺获取视频信息接口eval错误","doWithResErr","info")
                 return callback(e)
             }
             if(playData.code != 'A00000'){
@@ -558,7 +572,7 @@ class iqiyiDeal {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取Expr接口状态码错误","statusErr","Expr")
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取Expr接口状态码错误","statusErr","Expr")
                 return callback()
             }
             //logger.debug(result)
@@ -567,7 +581,7 @@ class iqiyiDeal {
                 infoData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取Expr接口eval错误","doWithResErr","Expr")
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取Expr接口eval错误","doWithResErr","Expr")
                 logger.error(result)
                 return callback(e)
             }
@@ -601,16 +615,15 @@ class iqiyiDeal {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取play接口状态码错误","statusErr","play")
-                return callback()
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取play接口状态码错误","statusErr","play")
+                return callback(result.statusCode)
             }
             //logger.debug(result)
             let infoData
             try {
                 infoData = eval(result.body)
             } catch (e){
-                logger.error('eval错误:',e)
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取视频播放量接口eval错误","doWithResErr","play")
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取视频播放量接口eval错误","doWithResErr","play")
                 logger.error(result)
                 return callback(e)
             }
@@ -641,20 +654,21 @@ class iqiyiDeal {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取comment接口状态码错误","statusErr","comment")
-                return callback()
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取comment接口状态码错误","statusErr","comment")
+                return callback(result.statusCode)
             }
             //logger.debug(result)
             let infoData
             try {
                 infoData = JSON.parse(result.body)
             } catch (e){
-                logger.error('json err:',e)
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"iqiyi获取评论信息接口json数据解析失败","doWithResErr","comment")
-                logger.error(result)
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取评论信息接口json数据解析失败","doWithResErr","comment")
                 return callback(e)
             }
-            // this.storaging.succStorage("iqiyi",option.url,"comment")
+            if(!infoData.data){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取comment接口返回数据错误","resultErr","comment")
+                return callback(result.statusCode)
+            }
             callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
     }

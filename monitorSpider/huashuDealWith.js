@@ -31,25 +31,39 @@ class dealWith {
         }
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("huashu",option.url,"VidList")
-            this.storaging.judgeRes ("huashu",option.url,task.id,err,result,"VidList")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('huashu',option.url,task.id,err.code || "error",errType,"VidList")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('huashu',option.url,task.id,`华数TV获取VidList接口状态码错误${result.statusCode}`,"statusErr","VidList")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取VidList接口json数据解析失败","doWithResErr","VidList")
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取VidList接口json数据解析失败","doWithResErr","VidList")
                 return callback(e)
             }
             let vidInfo     = result[1].aggData[0].aggRel,
                 contents    = result[1].aggData[0].aggChild.data[0].tele_data,
                 length      = contents.length
                 task.listid = vidInfo.video_sid
-            task.total     = length
+            task.total      = length
+            if(!vidInfo || !contents || !length){
+                this.storaging.errStoraging('huashu',option.url,task.id,`华数TV获取VidList接口返回结果错误`,"resultErr","VidList")
+                return callback(result)
+            }
             if(contents[0].vuid != null){
                 this.getVideoList(task,callback)
             }else{
@@ -67,23 +81,37 @@ class dealWith {
         //logger.debug(option.url)
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("huashu",option.url,"VideoList")
-            this.storaging.judgeRes ("huashu",option.url,task.id,err,result,"VideoList")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('huashu',option.url,task.id,err.code || "error",errType,"VideoList")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('huashu',option.url,task.id,`华数TV获取VideoList接口状态码错误${result.statusCode}`,"statusErr","VideoList")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取VideoList接口json数据解析失败","doWithResErr","VideoList")
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取VideoList接口json数据解析失败","doWithResErr","VideoList")
                 return callback(e)
             }
             let contents   = result.dramadatas,
                 length     = contents.length
             task.type      = 'list2'
+            if(!contents || !length){
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取VideoList接口返回数据错误","resultErr","VideoList")
+                return callback(result)
+            }
             this.deal(task,result,contents,length,() => {
                 logger.debug('当前用户数据请求完毕')
                 callback(null)
@@ -139,6 +167,12 @@ class dealWith {
                 }
             ],
             (err,result) => {
+                if(err){
+                    return
+                }
+                if(!result[0]||result[1]||result[2]){
+                    return
+                }
                 let media
                 if(task.type == 'list2'){
                     media = {
@@ -184,7 +218,7 @@ class dealWith {
                         return
                     }
                     if(result > media.play_num){
-                        this.storaging.errStoraging('huashu',"",task.id,`huashu视频播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
+                        this.storaging.errStoraging('huashu',"",task.id,`华数TV视频播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
                     }
                     this.storaging.sendDb(media/*,task.id,"play"*/)
                 })
@@ -198,18 +232,28 @@ class dealWith {
         }
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("huashu",option.url,"info")
-            this.storaging.judgeRes ("huashu",option.url,task.id,err,result,"info")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('huashu',option.url,task.id,err.code || "error",errType,"info")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('huashu',option.url,task.id,`华数TV获取info接口状态码错误${result.statusCode}`,"statusErr","info")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取VideoList接口json数据解析失败","doWithResErr","info")
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取VideoList接口json数据解析失败","doWithResErr","info")
                 return callback(e)
             }
             callback(null,result)
@@ -221,19 +265,33 @@ class dealWith {
         }
         request.get( logger, option, (err,result) => {
             this.storaging.totalStorage ("huashu",option.url,"comment")
-            this.storaging.judgeRes ("huashu",option.url,task.id,err,result,"comment")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('huashu',option.url,task.id,err.code || "error",errType,"comment")
+                return callback(err)
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('huashu',option.url,task.id,`华数TV获取comment接口状态码错误${result.statusCode}`,"statusErr","comment")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取comment接口json数据解析失败","doWithResErr","comment")
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(e)
+            }
+            if(!result.cmt_sum){
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取comment接口返回数据错误","resultErr","comment")
+                return callback(result)
             }
             callback(null,result.cmt_sum)
         })
@@ -260,18 +318,13 @@ class dealWith {
                 return this.getPlay( task, vid, callback )            
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取play接口状态码错误","statusErr","play")
-                return this.getPlay( task, vid, callback )
-            }
-            if(!result.body){
-                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取play接口返回值为空","resultErr","play")
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取play接口状态码错误","statusErr","play")
                 return this.getPlay( task, vid, callback )
             }
             try{
                 result = eval(result.body)
             }catch (e){
-                logger.debug('播放量解析失败')
-                this.storaging.errStoraging('huashu',option.url,task.id,"huashu获取play接口eval错误","doWithResErr","play")
+                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取play接口eval错误","doWithResErr","play")
                 return this.getPlay( vid, callback )
             }
             result = result ? Number(result.replace(/,/g,'')) : ''

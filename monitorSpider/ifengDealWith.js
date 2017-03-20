@@ -29,22 +29,32 @@ class dealWith {
         }
         request.get(logger, option, (err,result) => {
             this.storaging.totalStorage ("ifeng",option.url,"total")
-            this.storaging.judgeRes ("ifeng",option.url,task.id,err,result,"total")
-            if(!result){
-                return 
+            if(err){
+                let errType
+                if(err.code){
+                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                        errType = "timeoutErr"
+                    } else{
+                        errType = "responseErr"
+                    }
+                } else{
+                    errType = "responseErr"
+                }
+                this.storaging.errStoraging('ifeng',option.url,task.id,err.code || "error",errType,"total")
+                return callback()
             }
-            if(!result.body){
-                return 
+            if(result.statusCode != 200){
+                this.storaging.errStoraging('ifeng',option.url,task.id,`凤凰号获取total接口状态码错误${result.statusCode}`,"statusErr","total")
+                return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取total接口json数据解析失败","doWithResErr","total")
+                this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取total接口json数据解析失败","doWithResErr","total")
                 return callback(e)
             }
             if(result.infoList.length == 0){
-                this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取total接口异常错误","resultErr","total")
+                this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取total接口异常错误","resultErr","total")
                 return callback('异常错误')
             }
             task.total = result.infoList[0].weMedia.totalNum
@@ -52,6 +62,10 @@ class dealWith {
                 platform: task.p,
                 bid: task.id,
                 fans_num: result.infoList[0].weMedia.followNo
+            }
+            if(!task.total||!user.fans_num||!result.infoList[0].weMedia.totalPage){
+                this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取total接口返回数据错误","resultErr","total")
+                return callback(result)
             }
             this.getList(task, result.infoList[0].weMedia.totalPage, (err,result) => {
                 if(err){
@@ -90,14 +104,13 @@ class dealWith {
                         return cb()
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取list接口状态码错误","statusErr","list")
                         return cb()
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch(e){
-                        logger.error('json数据解析失败')
-                        this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取list接口json数据解析失败","doWithResErr","list")
+                        this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取list接口json数据解析失败","doWithResErr","list")
                         index++
                         return cb()
                     }
@@ -158,14 +171,13 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取video接口状态码错误","statusErr","video")
+                this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取video接口状态码错误","statusErr","video")
                 return callback()
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('ifeng',option.url,task.id,"ifeng获取video接口json数据解析失败","doWithResErr","video")
+                this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取video接口json数据解析失败","doWithResErr","video")
                 return callback(e)
             }
             media = {
@@ -193,7 +205,7 @@ class dealWith {
                     return
                 }
                 if(result > media.play_num){
-                    this.storaging.errStoraging('acfun',`${option.url}`,task.id,`ifeng视频播放量减少`,"playNumErr","video",media.aid,`${result}/${media.play_num}`)
+                    this.storaging.errStoraging('acfun',`${option.url}`,task.id,`凤凰号视频播放量减少`,"playNumErr","video",media.aid,`${result}/${media.play_num}`)
                 }
                 this.storaging.sendDb(media/*,task.id,"video"*/)
             })
