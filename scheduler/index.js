@@ -121,7 +121,7 @@ class scheduler {
         })
     }
     createQueue ( raw ) {
-        if( (raw.p == 12 && (raw.id == '120663556' || raw.id == '113077233' || raw.id == '113077988' || raw.id == '120663663' || raw.id == '120663623' || raw.id == '113077745' || raw.id == '113077370' || raw.id == '366571453' || raw.id == '120663699'))|| (raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206')){
+        if( (raw.p == 12 && (raw.id == '113077877' || raw.id == '120663556' || raw.id == '113077233' || raw.id == '113077988' || raw.id == '120663663' || raw.id == '120663623' || raw.id == '113077745' || raw.id == '113077370' || raw.id == '366571453' || raw.id == '120663699'))|| (raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206')){
             return
         }
         let job = this.queue.create( raw.platform , {
