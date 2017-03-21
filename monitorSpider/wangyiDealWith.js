@@ -82,6 +82,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.topicSet.subnum
             }
+            callback()
         })
     }
     getList ( task,callback ) {

@@ -96,6 +96,7 @@ class kuaibaoDealWith {
                 bid: task.id,
                 fans_num: userInfo.subCount
             }
+            callback()
         })
     }
     getVideos ( task, callback ) {
@@ -488,7 +489,6 @@ class kuaibaoDealWith {
                 result = eval(result.body)
             }catch (e){
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口json数据解析失败","doWithResErr","field")
-                logger.error(result)
                 return callback(e)
             }
             if(result && !result.video){

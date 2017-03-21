@@ -76,6 +76,7 @@ class souhuDealWith {
                     bid: userInfo.user_id,
                     fans_num: userInfo.total_fans_count
                 }
+            callback()
         })
     }
     getTotal ( task, callback ) {

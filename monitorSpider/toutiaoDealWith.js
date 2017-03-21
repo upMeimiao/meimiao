@@ -129,7 +129,7 @@ class toutiaoDealWith {
             //         time: new Date().getTime()
             //     }))
             // }
-            // this.storaging.succStorage("toutiao",option.url,"user")
+            callback()
         })
     }
     getUserId(task) {
@@ -168,8 +168,6 @@ class toutiaoDealWith {
                 this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,`今日头条获取粉丝Id接口发生错误${result.message}`,"responseErr","userId")
                 return
             }
-            //let userId = result.data.user_id
-            // this.storaging.succStorage("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
         })
     }
     getList ( task, callback ) {

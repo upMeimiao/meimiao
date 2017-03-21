@@ -75,6 +75,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.data.followers
             }
+            callback()
         })
     }
     getList ( task, callback ) {

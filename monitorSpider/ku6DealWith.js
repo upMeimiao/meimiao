@@ -70,11 +70,11 @@ class dealWith {
                 return
             }
             let fans = result.data.subscriptions ? result.data.subscriptions : ''
-            logger.debug("ku6 fans",fans)
             if(!fans){
                 this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取user接口返回数据错误","resultErr","user")
                 return
             }
+            callback()
                 // ,
                 // user = {
                 //     platform: 14,

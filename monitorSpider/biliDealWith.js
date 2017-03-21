@@ -85,6 +85,7 @@ class billDealWith {
                 this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取粉丝数失败","resultErr","user")
                 return callback()
             }
+            callback()
         })
     }
     getTotal ( task, callback) {

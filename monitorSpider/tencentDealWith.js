@@ -129,7 +129,7 @@ class tencentDealWith {
                 bid: task.id,
                 fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g,'')) * 10000
             }
-            // this.storaging.succStorage("tencent",option.url,"user")
+            callback()
         })
     }
     getList ( task, total, callback ) {

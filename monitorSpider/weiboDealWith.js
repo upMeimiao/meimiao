@@ -334,7 +334,6 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("weibo",option.url,"info")
             if(err){
-                logger.debug('单个视频信息请求错误',err.message)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {

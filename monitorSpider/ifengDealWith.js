@@ -65,7 +65,7 @@ class dealWith {
             }
             if(!task.total||!user.fans_num||!result.infoList[0].weMedia.totalPage){
                 this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取total接口返回数据错误","resultErr","total")
-                return callback(result)
+                return callback(null,result)
             }
             this.getList(task, result.infoList[0].weMedia.totalPage, (err,result) => {
                 if(err){

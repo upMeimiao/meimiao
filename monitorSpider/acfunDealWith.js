@@ -84,6 +84,7 @@ class dealWith {
                     bid: task.id,
                     fans_num: data.followed
                 }
+            callback()
         })
     }
     getTotal ( task, callback){

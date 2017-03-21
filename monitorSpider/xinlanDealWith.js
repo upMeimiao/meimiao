@@ -93,22 +93,22 @@ class dealWith {
         async.parallel([
             (cb) => {
                 this.getVideoInfo(task,video.vid,num,(err,result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             },
             (cb) => {
                 this.getComment(task,(err,result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             },
             (cb) => {
                 this.getSupport( task, video.vid, (err, result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             },
             (cb) => {
                 this.getSava( task, video.vid, (err, result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             }
         ],(err,result) => {
@@ -130,7 +130,6 @@ class dealWith {
                 support: result[2].supportNumber,
                 save_num: result[3].hasCollect
             }
-            
             callback()
         })
     }

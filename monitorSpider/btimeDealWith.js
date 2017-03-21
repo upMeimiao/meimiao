@@ -77,6 +77,7 @@ class dealWith {
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口返回数据错误","resultErr","user")
                 return callback(JSON.stringify(result))
             }
+            callback()
         })
     }
     getList(task ,id ,callback ){

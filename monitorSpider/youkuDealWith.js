@@ -24,12 +24,18 @@ class youkuDealWith {
             {
                 user: (callback) => {
                     this.youkuGetUser(task,(err,result)=>{
-                        callback(err,result)
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,result)
                     })
                 },
                 media: (callback) => {
                     this.youkuGetTotal(task,(err,result)=>{
-                        callback(err,result)
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,result)
                     })
                 }
             },
@@ -37,7 +43,7 @@ class youkuDealWith {
                 if(err){
                     return callback(err)
                 }
-                callback(err, result)
+                callback(null, result)
             }
         )
     }
@@ -84,6 +90,7 @@ class youkuDealWith {
                     bid: task.id,
                     fans_num: userInfo.followerNum
                 }
+            callback()
         })
     }
     youkuGetTotal( task, callback ) {
@@ -129,7 +136,6 @@ class youkuDealWith {
             }
             let data = body.data
             if(!data){
-                logger.error((body.code+body.desc)||"优酷获取全部视频接口返回内容为空")
                 this.storaging.errStoraging('youku',options.url,task.id,body.desc,"resultErr","total")
                 return callback(true)
             }
@@ -142,7 +148,7 @@ class youkuDealWith {
             }
             // this.storaging.succStorage("youku",options.url,"total")
             this.youkuGetVideos(task,page, (err,result) => {
-                // logger.debug(err,result)
+                callback()
             })
             //根据已存redis内容判断body内容是否正确
             
@@ -188,7 +194,6 @@ class youkuDealWith {
                     try{
                         body = JSON.parse(body)
                     }catch (e){
-                        logger.error('优酷获取单页视频列表接口json数据解析失败')
                         this.storaging.errStoraging('youku',options.url,task.id,"优酷获取单页视频列表接口json数据解析失败","doWithResErr","videos")
                         // logger.debug('list error:',body)
                         return cb()
@@ -204,11 +209,12 @@ class youkuDealWith {
                     // this.storaging.succStorage("youku",options.url,"videos")
                     this.youkuInfo(task,videos, () => {
                         sign++
+                        cb()
                     })
                 })
             },
             (err,result) => {
-                logger.debug(err,result)
+                callback(err,result)
             }
         )
     }
@@ -267,8 +273,8 @@ class youkuDealWith {
                 return callback()
             }
             // this.storaging.succStorage("youku",options.url,"info")
-            this.youkuDeal( task, videos, list, () => {
-                logger.debug(err,result)
+            this.youkuDeal( task, videos, list, (err,result) => {
+                callback(err,result)
             })
         })
     }
@@ -319,7 +325,7 @@ class youkuDealWith {
                 cb()
             },
             (err,result) => {
-                logger.debug(err,result)
+                callback(err,result)
             }
         )
     }

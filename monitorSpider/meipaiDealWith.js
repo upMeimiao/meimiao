@@ -76,6 +76,7 @@ class meipaiDealWith {
                 bid: result.id,
                 fans_num: result.followers_count
             }
+            callback()
         })
     }
     getTotal ( task,callback ) {

@@ -80,6 +80,7 @@ class miaopaiDealWith {
                     bid: userInfo.suid,
                     fans_num: userInfo.eventCnt.fans
                 }
+            callback()
         })
     }
     getTotal ( task, callback ) {

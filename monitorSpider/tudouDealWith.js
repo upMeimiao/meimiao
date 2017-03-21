@@ -108,9 +108,7 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error(`土豆粉丝 json数据解析失败`)
                 this.storaging.errStoraging("tudou",option.url,task.id,"土豆粉丝 json数据解析失败","doWithResErr","fans")
-                logger.error(result)
                 return callback(e)
             }
             // let user = {
@@ -118,6 +116,7 @@ class dealWith {
             //     bid: task.id,
             //     fans_num: result.data.subedNum
             // }
+            callback()
         })
     }
     getTotal (task,callback){

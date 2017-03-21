@@ -84,6 +84,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.ChannelInfo.RssNum
             }
+            callback()
         })
     }
     getList ( task, callback ) {

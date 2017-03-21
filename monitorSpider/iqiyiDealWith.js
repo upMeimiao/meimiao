@@ -123,6 +123,7 @@ class iqiyiDeal {
                 }
             //logger.debug(user)
             // this.storaging.succStorage("iqiyi",option.url,"_user")
+            callback()
         })
     }
     getTotal(task, callback) {
