@@ -197,6 +197,7 @@ class spiderCore {
                 break
             case 'baishi.baidu.com':
             case 'baidu.56.com':
+            case 'baishi.pgc.baidu.com':
                 handle.baiduHandle( ctx, remote )
                 break
             case 'po.baidu.com':

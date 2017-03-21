@@ -179,8 +179,14 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                logger.debug('视频详情数据解析失败')
+                logger.debug('视频详情数据解析失败');
                 return callback(e)
+            }
+            if(!result){
+                return this.getVidInfo(vid,callback)
+            }
+            if(!result.class && !result.duration && !result.updatetime){
+                return this.getVidInfo(vid,callback)
             }
             callback(null,result)
         })
