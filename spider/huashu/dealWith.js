@@ -128,6 +128,9 @@ class dealWith {
                 }
             ],
             (err,result) => {
+                if(err){
+                    return callback()
+                }
                 let media
                 if(task.type == 'list2'){
                     media = {
@@ -183,10 +186,10 @@ class dealWith {
                 return callback(e)
             }
             if(!result){
-                return this.getVidInfo(vid,callback)
+                return callback('next')
             }
             if(!result.class && !result.duration && !result.updatetime){
-                return this.getVidInfo(vid,callback)
+                return callback('next')
             }
             callback(null,result)
         })
