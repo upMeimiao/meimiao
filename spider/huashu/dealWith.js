@@ -128,6 +128,9 @@ class dealWith {
                 }
             ],
             (err,result) => {
+                if(err){
+                    return callback()
+                }
                 let media
                 if(task.type == 'list2'){
                     media = {
@@ -179,8 +182,14 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                logger.debug('视频详情数据解析失败')
+                logger.debug('视频详情数据解析失败');
                 return callback(e)
+            }
+            if(!result){
+                return callback('next')
+            }
+            if(!result.class && !result.duration && !result.updatetime){
+                return callback('next')
             }
             callback(null,result)
         })

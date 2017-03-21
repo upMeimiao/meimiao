@@ -2173,8 +2173,8 @@ class DealWith {
             option     = {
                 url : data
             }
-        if(host == 'baidu.56.com'){
-            let video = path.match(/\d*\.html/).toString()
+        if(host == 'baidu.56.com' || host == 'baishi.pgc.baidu.com'){
+            let video = path.match(/\d*\.html/).toString();
             option.url = 'http://baishi.baidu.com/watch/'+video
         }
         request.get( option, (err, result) => {
@@ -2191,7 +2191,7 @@ class DealWith {
             endIndex = result.indexOf(');}();!function(){varadmis')
             dataJson = result.substring(startIndex,endIndex)
             try{
-                dataJson.replace('{','{"').replace(/\'/g,'"').replace(',',',"').replace(/:/g,'":')
+                dataJson = dataJson.replace('{','{"').replace(/\'/g,'"').replace(',',',"').replace(/:/g,'":');
                 dataJson = JSON.parse(dataJson)
             }catch (e){
                 logger.debug('百度视频bid解析失败')
@@ -2202,7 +2202,7 @@ class DealWith {
                 id: dataJson.pgcTid,
                 name: dataJson.pgcName,
                 p: 37
-            }
+            };
             this.baiduAvatar( res.name, (err, avatar) => {
                 res.avatar = avatar
                 callback(null,res)
@@ -2212,7 +2212,7 @@ class DealWith {
     baiduAvatar( bname, callback ){
         let option = {
             url: 'http://v.baidu.com/tagapi?type=2&tag='+ encodeURIComponent(bname) +'&_='+ new Date().getTime()
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
                 logger.debug('百度视频的头像请求失败')
@@ -2229,7 +2229,6 @@ class DealWith {
                 logger.info(result)
                 return this.baiduAvatar(bname,callback)
             }
-            logger.debug(result)
             let avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : ''
             callback(null,avatar)
         })
