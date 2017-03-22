@@ -1,4 +1,4 @@
-const logging = require('./lib/logger.js')
+const logging = require('./lib/logger.js');
 //arguments parse
 const userArgv = require('optimist')
     .usage('Usage: $0 -i [instance name] -a [crawl|test|config|proxy|schedule]  -p [num] -l[url] -h')
@@ -22,492 +22,502 @@ const userArgv = require('optimist')
     .options('h', {
         'alias' : 'help',
         'describe' : 'Help infomation'
-    })
-const options = userArgv.argv
+    });
+const options = userArgv.argv;
 if(options['h']){
-    userArgv.showHelp()
-    process.exit()
-}
-const settings = require('./instance/'+options['i']+'/'+'settings.json')
-settings['instance'] = options['i']
+    userArgv.showHelp();
+    process.exit();
+};
+const settings = require('./instance/'+options['i']+'/'+'settings.json');
+settings['instance'] = options['i'];
 //log level
-let log_level = 'TRACE'
-if(settings['log_level'])log_level = settings['log_level']
+let log_level = 'TRACE';
+if(settings['log_level'])log_level = settings['log_level'];
 const scheduler = () => {
-    let logger = logging.getLogger('调度中心',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let scheduler = new (require('./scheduler'))(settings)
-    scheduler.start()
-}
+    let logger = logging.getLogger('调度中心',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let scheduler = new (require('./scheduler'))(settings);
+    scheduler.start();
+};
 const servant = () => {
-    let logger = logging.getLogger('平台',options['i'],log_level)
-    settings['logger'] = logger
-    settings[ 'port' ] = parseInt( options[ 'p' ] )
-    settings['instance'] = options['i']
-    let scheduler = new (require('./servant'))(settings)
-    scheduler.start()
-}
+    let logger = logging.getLogger('平台',options['i'],log_level);
+    settings['logger'] = logger;
+    settings[ 'port' ] = parseInt( options[ 'p' ] );
+    settings['instance'] = options['i'];
+    let scheduler = new (require('./servant'))(settings);
+    scheduler.start();
+};
 const authenticate = () => {
-    let logger = logging.getLogger('IP认证',options['i'],log_level)
-    settings['logger'] = logger
-    settings[ 'port' ] = 2018//parseInt( options[ 'p' ] )
-    settings['instance'] = options['i']
-    let scheduler = new (require('./authenticate'))(settings)
-    scheduler.start()
-}
+    let logger = logging.getLogger('IP认证',options['i'],log_level);
+    settings['logger'] = logger;
+    settings[ 'port' ] = 2018;//parseInt( options[ 'p' ] )
+    settings['instance'] = options['i'];
+    let scheduler = new (require('./authenticate'))(settings);
+    scheduler.start();
+};
 const server = () => {
-    let logger = logging.getLogger('数据中心',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./sendServer'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('数据中心',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./sendServer'))(settings);
+    spider.start();
+};
 const statusMonitor = () => {
-    let logger = logging.getLogger('状态监控',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./monitor'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('状态监控',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./monitor'))(settings);
+    spider.start();
+};
 
 const monitorSpider = () => {
-    let logger = logging.getLogger('接口监控',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./monitorSpider'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('接口监控',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./monitorSpider'))(settings);
+    spider.start();
+};
 
 const kueMonitor = () => {
-    let logger = logging.getLogger('Kue监控',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./kueMonitor'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('Kue监控',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./kueMonitor'))(settings);
+    spider.start();
+};
 const proxy = () => {
-    let logger = logging.getLogger('代理',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./proxy'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('代理',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./proxy'))(settings);
+    spider.start();
+};
 const tencent = () => {
-    let logger = logging.getLogger('腾讯视频',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/tencent'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('腾讯视频',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/tencent'))(settings);
+    spider.start();
+};
 const kuaibao = () => {
-    let logger = logging.getLogger('天天快报',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/kuaibao'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('天天快报',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/kuaibao'))(settings);
+    spider.start();
+};
 const souhu = () => {
-    let logger = logging.getLogger('搜狐视频',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/souhu'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('搜狐视频',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/souhu'))(settings);
+    spider.start();
+};
 const toutiao = () => {
-    let logger = logging.getLogger('今日头条',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/toutiao'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('今日头条',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/toutiao'))(settings);
+    spider.start();
+};
 const le = () => {
-    let logger = logging.getLogger('乐视',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/le'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('乐视',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/le'))(settings);
+    spider.start();
+};
 const bili = () => {
-    let logger = logging.getLogger('bili',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/bili'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('bili',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/bili'))(settings);
+    spider.start();
+};
 const meipai = () => {
-    let logger = logging.getLogger('美拍',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/meipai'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('美拍',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/meipai'))(settings);
+    spider.start();
+};
 const miaopai = () => {
-    let logger = logging.getLogger('秒拍',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/miaopai'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('秒拍',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/miaopai'))(settings);
+    spider.start();
+};
 const youku = () => {
-    let logger = logging.getLogger('优酷',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/youku'))(settings)
+    let logger = logging.getLogger('优酷',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/youku'))(settings);
     spider.start()
-}
+};
 const iqiyi = () => {
-    let logger = logging.getLogger('爱奇艺',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/iqiyi'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('爱奇艺',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/iqiyi'))(settings);
+    spider.start();
+};
 const yidian = () => {
-    let logger = logging.getLogger('一点资讯',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/yidian'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('一点资讯',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/yidian'))(settings);
+    spider.start();
+};
 const tudou = () => {
-    let logger = logging.getLogger('土豆',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/tudou'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('土豆',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/tudou'))(settings);
+    spider.start();
+};
 const baomihua = () => {
-    let logger = logging.getLogger('爆米花',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/baomihua'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('爆米花',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/baomihua'))(settings);
+    spider.start();
+};
 const ku6 = () => {
-    let logger = logging.getLogger('酷6',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/ku6'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('酷6',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/ku6'))(settings);
+    spider.start();
+};
 const btime = () => {
-    let logger = logging.getLogger('北京时间',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/btime'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('北京时间',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/btime'))(settings);
+    spider.start();
+};
 const weishi = () => {
-    let logger = logging.getLogger('微视', options['i'], log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/weishi'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('微视', options['i'], log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/weishi'))(settings);
+    spider.start();
+};
 const xiaoying = () => {
-    let logger = logging.getLogger('小影',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/xiaoying'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('小影',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/xiaoying'))(settings);
+    spider.start();
+};
 const budejie = () => {
-    let logger = logging.getLogger('不得姐',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/budejie'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('不得姐',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/budejie'))(settings);
+    spider.start();
+};
 const neihan = () => {
-    let logger = logging.getLogger('内涵段子',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/neihan'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('内涵段子',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/neihan'))(settings);
+    spider.start();
+};
 const yy = () => {
-    let logger = logging.getLogger('yy',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/yy'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('yy',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/yy'))(settings);
+    spider.start();
+};
 const acfun = () => {
-    let logger = logging.getLogger('acfun',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/acfun'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('acfun',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/acfun'))(settings);
+    spider.start();
+};
 const weibo = () => {
-    let logger = logging.getLogger('微博',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/weibo'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('微博',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/weibo'))(settings);
+    spider.start();
+};
 const tv56 = () => {
-    let logger = logging.getLogger('56视频',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/tv56'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('56视频',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/tv56'))(settings);
+    spider.start();
+};
 const ifeng = () => {
-    let logger = logging.getLogger('凤凰自媒体',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/ifeng'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('凤凰自媒体',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/ifeng'))(settings);
+    spider.start();
+};
 const uctt = () => {
-    let logger = logging.getLogger('UC头条',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/uctt'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('UC头条',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/uctt'))(settings);
+    spider.start();
+};
 const wangyi = () => {
-    let logger = logging.getLogger('网易号',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/wangyi'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('网易号',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/wangyi'))(settings);
+    spider.start();
+};
 const mgtv = () => {
-    let logger = logging.getLogger('芒果TV',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/mgtv'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('芒果TV',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/mgtv'))(settings);
+    spider.start();
+};
 const qzone = () => {
-    let logger = logging.getLogger('QQ空间',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/qzone'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('QQ空间',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/qzone'))(settings);
+    spider.start();
+};
 const cctv = () => {
-    let logger = logging.getLogger('CCTV',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/cctv'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('CCTV',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/cctv'))(settings);
+    spider.start();
+};
 const pptv = () => {
-    let logger = logging.getLogger('pptv',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/pptv'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('pptv',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/pptv'))(settings);
+    spider.start();
+};
 const xinlan = () => {
-    let logger = logging.getLogger('新蓝网',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/xinlan'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('新蓝网',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/xinlan'))(settings);
+    spider.start();
+};
 const v1 = () => {
-    let logger = logging.getLogger('第一视频',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/v1'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('第一视频',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/v1'))(settings);
+    spider.start();
+};
 const fengxing = () => {
-    let logger = logging.getLogger('风行网',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/fengxing'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('风行网',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/fengxing'))(settings);
+    spider.start();
+};
 const huashu = () => {
-    let logger = logging.getLogger('华数',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/huashu'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('华数',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/huashu'))(settings);
+    spider.start();
+};
 const baofeng = () => {
-    let logger = logging.getLogger('暴风',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/baofeng'))(settings)
+    let logger = logging.getLogger('暴风',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/baofeng'))(settings);
     spider.start()
-}
+};
 const baiduVideo = () => {
-    let logger = logging.getLogger('百度视频',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/baiduVideo'))(settings)
+    let logger = logging.getLogger('百度视频',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/baiduVideo'))(settings);
     spider.start()
-}
+};
 const baijia = () => {
-    let logger = logging.getLogger('百度百家',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/baijia'))(settings)
+    let logger = logging.getLogger('百度百家',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/baijia'))(settings);
     spider.start()
-}
+};
 const liVideo = () => {
-    let logger = logging.getLogger('梨视频',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./spider/liVideo'))(settings)
+    let logger = logging.getLogger('梨视频',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/liVideo'))(settings);
+    spider.start();
+};
+const xiangkan = () => {
+    let logger = logging.getLogger('小米想看',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/xiangkan'))(settings);
     spider.start()
-}
+};
 const test = () => {
-    let logger = logging.getLogger('monitor',options['i'],log_level)
-    settings['logger'] = logger
-    settings['instance'] = options['i']
-    let spider = new (require('./monitor'))(settings)
-    spider.start()
-}
+    let logger = logging.getLogger('monitor',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./monitor'))(settings);
+    spider.start();
+};
 switch (options['a']){
     case 'scheduler':
-        scheduler()
-        break
+        scheduler();
+        break;
     case 'servant':
-        servant()
-        break
+        servant();
+        break;
     case 'auth':
-        authenticate()
-        break
+        authenticate();
+        break;
     case 'server':
-        server()
-        break
+        server();
+        break;
     case 'monitor':
-        statusMonitor()
-        break
+        statusMonitor();
+        break;
     case 'monitorSpider':
-        monitorSpider()
-        break
+        monitorSpider();
+        break;
     case 'kue':
-        kueMonitor()
-        break
+        kueMonitor();
+        break;
     case 'proxy':
-        proxy()
-        break
+        proxy();
+        break;
     case 'tencent':
-        tencent()
-        break
+        tencent();
+        break;
     case 'kuaibao':
-        kuaibao()
-        break
+        kuaibao();
+        break;
     case 'souhu':
-        souhu()
-        break
+        souhu();
+        break;
     case 'toutiao':
-        toutiao()
-        break
+        toutiao();
+        break;
     case 'le':
-        le()
-        break
+        le();
+        break;
     case 'bili':
-        bili()
-        break
+        bili();
+        break;
     case 'meipai':
-        meipai()
-        break
+        meipai();
+        break;
     case 'miaopai':
-        miaopai()
-        break
+        miaopai();
+        break;
     case 'youku':
-        youku()
-        break
+        youku();
+        break;
     case 'iqiyi':
-        iqiyi()
-        break
+        iqiyi();
+        break;
     case 'yidian':
-        yidian()
-        break
+        yidian();
+        break;
     case 'tudou':
-        tudou()
-        break
+        tudou();
+        break;
     case 'baomihua':
-        baomihua()
-        break
+        baomihua();
+        break;
     case 'ku6':
-        ku6()
-        break
+        ku6();
+        break;
     case 'btime':
-        btime()
-        break
+        btime();
+        break;
     case 'weishi':
-        weishi()
-        break
+        weishi();
+        break;
     case 'xiaoying':
-        xiaoying()
-        break
+        xiaoying();
+        break;
     case 'budejie':
-        budejie()
-        break
+        budejie();
+        break;
     case 'neihan':
-        neihan()
-        break
+        neihan();
+        break;
     case 'yy':
-        yy()
-        break
+        yy();
+        break;
     case 'acfun':
-        acfun()
-        break
+        acfun();
+        break;
     case 'weibo':
-        weibo()
-        break
+        weibo();
+        break;
     case 'tv56':
-        tv56()
-        break
+        tv56();
+        break;
     case 'ifeng':
-        ifeng()
-        break
+        ifeng();
+        break;
     case 'uctt':
-        uctt()
-        break
+        uctt();
+        break;
     case 'wangyi':
-        wangyi()
-        break
+        wangyi();
+        break;
     case 'mgtv':
-        mgtv()
-        break
+        mgtv();
+        break;
     case 'qzone':
-        qzone()
-        break
+        qzone();
+        break;
     case 'cctv':
-        cctv()
-        break
+        cctv();
+        break;
     case 'pptv':
-        pptv()
-        break
+        pptv();
+        break;
     case 'xinlan':
-        xinlan()
-        break
+        xinlan();
+        break;
     case 'v1':
-        v1()
-        break
+        v1();
+        break;
     case 'fengxing':
-        fengxing()
-        break
+        fengxing();
+        break;
     case 'huashu':
-        huashu()
-        break
+        huashu();
+        break;
     case 'baofeng':
-        baofeng()
-        break
+        baofeng();
+        break;
     case 'baiduVideo':
-        baiduVideo()
-        break
+        baiduVideo();
+        break;
     case 'baijia':
-        baijia()
-        break
+        baijia();
+        break;
     case 'liVideo':
-        liVideo()
-        break
+        liVideo();
+        break;
+    case 'xiangkan':
+        xiangkan();
+        break;
     case 'test':
-        test()
-        break
+        test();
+        break;
     default:
         userArgv.showHelp()
 }
