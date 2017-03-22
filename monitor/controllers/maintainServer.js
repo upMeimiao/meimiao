@@ -5,7 +5,7 @@ const kue = require('kue')
 kue.createQueue({
     redis: {
         port: '6379',
-        host: 'r-m5e43f2043319e64.redis.rds.aliyuncs.com',
+        host: '127.0.0.1',
         auth: 'C19prsPjHs52CHoA0vm',
         db: 2
     }

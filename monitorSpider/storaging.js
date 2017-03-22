@@ -1,7 +1,7 @@
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
 const Redis = require('ioredis')
-const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
+const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -24,7 +24,7 @@ class storage{
 	        }
 	        // logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:play_num`,6*60*60) 
+	    mSpiderClint.expire(`apiMonitor:play_num`,12*60*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
@@ -49,7 +49,7 @@ class storage{
 	                return
 	            }
 	        })
-	        mSpiderClint.expire(curKey,6*60*60)  
+	        mSpiderClint.expire(curKey,12*60*60)  
 	    })
 	}
 	errStoraging (platform,url,bid,errDesc,errType,urlDesc,vid,prop){
@@ -154,7 +154,7 @@ class storage{
 	                return
 	            }
 	        })
-	        mSpiderClint.expire(curKey,6*60*60) 
+	        mSpiderClint.expire(curKey,12*60*60) 
 	    })
 	}
 }

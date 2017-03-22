@@ -5,7 +5,7 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
-const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
+const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -210,7 +210,7 @@ const getValue = (curKey,lastKey,field,callback) => {
                                 return
                             }
                         })
-                        mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,6*60*60) 
+                        mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,12*60*60) 
                         return
                     }
                     // 若有结果，将当前错误的视频id加入错误的desc中
@@ -223,7 +223,7 @@ const getValue = (curKey,lastKey,field,callback) => {
                         }
                         callback(null,result)
                     })
-                    mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,6*60*60) 
+                    mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,12*60*60) 
                 })
 
             }
@@ -238,7 +238,7 @@ const setWarnErrTable = (emailOptions) => {
             return
         }
     })
-    mSpiderClient.expire(key,6*60*60)
+    mSpiderClient.expire(key,12*60*60)
 }
 const sendWarnEmail = (callback) => {
     let newDate = new Date(),
@@ -266,6 +266,12 @@ const sendWarnEmail = (callback) => {
             content,errDesc,errTimes,
             platform,bid,urlDesc,totalTimes,errObj,
             errType
+            if(hourStr == 23){
+                lastDate = new Date(newDate.getTime() - 60*60*1000)
+                year = lastDate.getFullYear(),
+                month = lastDate.getMonth() + 1,
+                day = lastDate.getDate()
+            }
         let subject = `接口监控：${year}年${month}月${day}日 ${hourStr}时接口报警报表`,
             tableBody = "",j = 0,length = result.length,
             tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
@@ -297,8 +303,8 @@ const sendWarnEmail = (callback) => {
                 })
             },
             (err, result) => {
-                // logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
-                emailServerLz.sendAlarm(subject,content)
+                logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
+                // emailServerLz.sendAlarm(subject,content)
             }
         )
     })
