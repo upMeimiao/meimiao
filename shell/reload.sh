@@ -233,6 +233,9 @@ then
             '百家号')
                 ssh root@${loop} 'pm2 reload 百家号'
                 ;;
+            '梨视频')
+                ssh root@${loop} 'pm2 reload 梨视频'
+                ;;
             esac
             echo
             echo "--------------$2数据发送服务重启完成，退出服务器$loop --------------"
