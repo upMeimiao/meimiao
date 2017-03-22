@@ -16,8 +16,8 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,
 exports.start = () => {
     //读取已存的错误，生成错误表
     const errSetRule = new schedule.RecurrenceRule()
-        errSetRule.minute = 40
-        // errSetRule.minute = [0,5,10,15,20,25,30,35,40,45,50,55]
+        // errSetRule.minute = 40
+        errSetRule.minute = [0,5,10,15,20,25,30,35,40,45,50,55]
     schedule.scheduleJob(errSetRule, () =>{
         // async.parallel([
         //     (cb) => {
@@ -297,8 +297,8 @@ const sendWarnEmail = (callback) => {
                 })
             },
             (err, result) => {
-                // logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
-                emailServerLz.sendAlarm(subject,content)
+                logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
+                // emailServerLz.sendAlarm(subject,content)
             }
         )
     })

@@ -112,7 +112,7 @@ class dealWith {
                 })
             }
         ],(err,result) => {
-            if(result[0] == 'next'){
+            if(result[0] == 'next'||!result[0]){
                 return callback()
             }
             let media = {

@@ -408,7 +408,6 @@ class kuaibaoDealWith {
                 return callback()
             }
             // this.storaging.succStorage("kuaibao",option.url,"Expr")
-
             callback(null,data)
         })
     }
