@@ -24,7 +24,7 @@ class storage{
 	        }
 	        // logger.debug(`${curPlatform} ${media.aid} 的播放量加入数据库`)
 	    })
-	    mSpiderClint.expire(`apiMonitor:play_num`,6*60*60) 
+	    mSpiderClint.expire(`apiMonitor:play_num`,12*60*60) 
 	}
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
@@ -49,21 +49,15 @@ class storage{
 	                return
 	            }
 	        })
-	        mSpiderClint.expire(curKey,6*60*60)  
+	        mSpiderClint.expire(curKey,12*60*60)  
 	    })
 	}
 	errStoraging (platform,url,bid,errDesc,errType,urlDesc,vid,prop){
 	    let nowDate = new Date(),
 			hour = nowDate.getHours(),
-			hourStr,
 			urlStr = url,
 	        times,errObj
-	    if(hour >= 10){
-	    	hourStr = "" + hour
-	    }else{
-	    	hourStr = "0" + hour
-	    }
-		let	curKey = `apiMonitor:error:${platform}:${urlDesc}:${hourStr}`,
+		let	curKey = `apiMonitor:error:${platform}:${urlDesc}:${hour}`,
 			i
 	    mSpiderClint.get(curKey,(err,result) => {
 	        if(err){
@@ -154,7 +148,7 @@ class storage{
 	                return
 	            }
 	        })
-	        mSpiderClint.expire(curKey,6*60*60) 
+	        mSpiderClint.expire(curKey,12*60*60) 
 	    })
 	}
 }
