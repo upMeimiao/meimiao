@@ -75,22 +75,23 @@ class sendServer {
         })
     }
     sendOnline(list, time){
-        if(list.length ==0){
+        if(list.length === 0){
             list = null
             return
         }
-        // let newList = []
-        // for (let [index, elem] of list.entries()) {
-        //     if(elem.platform < 32 || elem.platform == 34){
-        //         newList.push(elem)
-        //     }
-        // }
-        // if(newList.length ==0){
-        //     list = null
-        //     newList = null
-        //     return
-        // }
-        this.onlineOption.form = {data: list}
+        let newList = []
+        for (let [index, elem] of list.entries()) {
+            if(elem.platform < 38){
+                newList.push(elem)
+            }
+        }
+        if(newList.length === 0){
+            list = null
+            newList = null
+            return
+        }
+        // this.onlineOption.form = {data: list}
+        this.onlineOption.form = {data: newList}
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
                 logger.error('online occur error : ', err.message)
@@ -98,7 +99,7 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
-                    // newList = null
+                    newList = null
                 }else{
                     setTimeout(() => {
                         this.emit('send_data', list, time)
@@ -113,7 +114,7 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
-                    // newList = null
+                    newList = null
                 }else{
                     setTimeout(() => {
                         this.emit('send_data', list, time)
@@ -129,7 +130,7 @@ class sendServer {
                 //logger.error(JSON.stringify(newList))
                 list = null
                 time = null
-                // newList = null
+                newList = null
                 return
             }
             if(result.errno == 0){
@@ -142,7 +143,7 @@ class sendServer {
             }
             //logger.debug(`${newList.length}个视频 online back end`)
             list = null
-            // newList = null
+            newList = null
             time = null
         })
     }

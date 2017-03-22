@@ -2280,6 +2280,88 @@ class DealWith {
             callback(null,res)
         })
     }
-
+    liVideo ( data, callback ){
+        let vid      = null,
+            name     = '',
+            options = {
+                method: 'GET',
+                qs: { contId: '' },
+                headers:
+                    { //'postman-token': 'c35cb432-4cb4-b3ce-bf2f-8b16e134b7f4',
+                        'cache-control': 'no-cache',
+                        'x-platform-version': '10.2.1',
+                        'x-client-hash': 'b90e74ec3b4e9511e9cf87e96438e461',
+                        connection: 'keep-alive',
+                        'x-client-version': '2.2.1',
+                        'x-client-agent': 'APPLE_iPhone8,2_iOS10.2.1',
+                        'user-agent': 'LiVideoIOS/2.2.1 (iPhone; iOS 10.2.1; Scale/3.00)',
+                        'X-Platform-Type': '1',
+                        'X-Client-ID': '2C2DECE9-B2CD-4B8B-A044-6D904ACFB5E7',
+                        //'X-Channel-Code': 'official',
+                        //'X-Serial-Num': '1489717814'
+                    }
+            };
+        if(data.includes('video_')){
+            vid = data.match(/video_\d*/).toString().replace('video_','')
+        }else{
+            vid = data.match(/detail_\d*/).toString().replace('detail_','')
+        }
+        options.qs.contId = vid;
+        options.url = `http://app.pearvideo.com/clt/jsp/v2/content.jsp?contId=${vid}`;
+        r(options, (error, response, body) => {
+            if(error){
+                logger.debug('梨视频单个视频信息请求失败',err);
+                return this.liVideo(data,callback)
+            }
+            if(response.statusCode != 200){
+                logger.debug('梨视频状态码错误',response.statusCode);
+                return callback(true,{code:102,p:38})
+            }
+            try{
+                body = JSON.parse(body)
+            }catch (e){
+                logger.debug('梨视频数据解析失败');
+                logger.debug(body);
+                return callback(e,{code:102,p:38})
+            }
+            let res = {
+                id: body.content.nodeInfo.nodeId,
+                name: body.content.nodeInfo.name,
+                avatar: body.content.nodeInfo.logoImg,
+                p: 38
+            };
+            callback(null,res)
+        })
+    }
+    xiangkan ( data, callback ){
+        let vid = data.match(/videoId=\w*/).toString().replace(/videoId=/,''),
+            option = {
+                url: `http://api.xk.miui.com/front/video/${vid}?d=270010343`
+            };
+            request.get(option, (err, result) => {
+                if(err){
+                    logger.debug('想看视频请求错误',err);
+                    return callback(err,{code:103,p:39});
+                }
+                if(result.statusCode != 200){
+                    logger.debug('请求的状态码有误',result.statusCode);
+                    return callback(true,{code:103,p:39})
+                }
+                try{
+                    result = JSON.parse(result.body)
+                }catch (e){
+                    logger.debug('数据解析失败');
+                    logger.info(result.body);
+                    return callback(e,{code:103,p:39})
+                }
+                let res = {
+                    id: result.data.videoInfo.authorInfo.uid,
+                    name: result.data.videoInfo.authorInfo.nickname,
+                    p: 39,
+                    avatar: result.data.videoInfo.authorInfo.headurl
+                }
+                callback(null,res)
+            })
+    }
 }
 module.exports = DealWith
