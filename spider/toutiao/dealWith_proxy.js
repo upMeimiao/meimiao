@@ -41,8 +41,8 @@ class dealWith {
                             return setTimeout(()=>{
                                 this.getUser(task,()=>{
                                     return callback(null,"用户信息已返回")
-                                }, 1000)
-                            })
+                                })
+                            }, 1000)
                         }
                         callback(null,"用户信息已返回")
                     })
@@ -212,9 +212,9 @@ class dealWith {
                 return sign
             },
             (cb) => {
-                if(index > 500){
+                if(index > 200){
                     sign = false
-                    task.total = 10 * index
+                    task.total = 50 * index
                     return cb()
                 }
                 const {as, cp} = this.getHoney()
@@ -251,7 +251,7 @@ class dealWith {
                         }
                         times = 0
                         if(!result.data || result.data.length == 0){
-                            task.total = 10 * index
+                            task.total = 50 * index
                             sign = false
                             return cb()
                         }
@@ -302,7 +302,7 @@ class dealWith {
                             proxyStatus = true
                             proxy = _proxy
                             if(!result.data || result.data.length == 0){
-                                task.total = 10 * index
+                                task.total = 50 * index
                                 sign = false
                                 return cb()
                             }

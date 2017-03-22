@@ -167,7 +167,7 @@ class dealWith {
                 return sign
             },
             (cb) => {
-                if(index > 500){
+                if(index > 200){
                     sign = false
                     return cb()
                 }
@@ -179,7 +179,7 @@ class dealWith {
                 this.getListInfo(option, (err, result) => {
                     if(err){
                         if(times > 10){
-                            task.total = 10 * index
+                            task.total = 50 * index
                             sign = false
                             if(index == 0){
                                 return cb('failed')
@@ -195,8 +195,8 @@ class dealWith {
                     if(index == 0 && result.data.length > 0){
                         task.uid = result.data[0].creator_uid
                     }
-                    if(!result.data || result.data.length == 0 || index > 500){
-                        task.total = 10 * index
+                    if(!result.data || result.data.length == 0){
+                        task.total = 50 * index
                         sign = false
                         return cb()
                     }
