@@ -123,6 +123,7 @@ http://momentjs.cn/
 35. 华数TV
 36. 暴风影音
 37. 百度视频
+38. 梨视频
 
 ## 流程图
 ![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)
