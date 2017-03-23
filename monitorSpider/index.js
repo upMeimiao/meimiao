@@ -448,7 +448,7 @@ class spiderCore {
     }
     setLiVideoTask(){
         let liVideo_work = {
-                "name":"liVideo","platform":38,"id":138,"bname":"二更"
+                "name":"liVideo","platform":38,"id":134,"bname":"二更"
             }
         this.liVideoDeal.liVideo(liVideo_work,(err,result) => {
             logger.debug("liVideo 又执行一次")
