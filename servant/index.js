@@ -207,9 +207,9 @@ class spiderCore {
             case 'www.pearvideo.com':
                 handle.liVideoHandle( ctx, remote );
                 break;
-            case 'share.xk.miui.com':
-                handle.xiangkanHandle( ctx, remote );
-                break;
+            // case 'share.xk.miui.com':
+            //     handle.xiangkanHandle( ctx, remote );
+            //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
                 handle.youtubeHandle(ctx, remote)
