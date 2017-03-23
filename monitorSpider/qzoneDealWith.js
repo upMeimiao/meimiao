@@ -135,7 +135,7 @@ class dealWith {
                         },300)
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return callback( task, callback )
                     }
                     num = 0
@@ -261,13 +261,13 @@ class dealWith {
                 forward_num: result[1].fwdnum,
                 play_num: result[0].singlefeed['7'].videoplaycnt
             }
-            if(!media.play_num){
-                return
+            if(!media.play_num && media.play_num !== 0){
+                return callback()
             }
             this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
-                    return
+                    return callback()
                 }
                 if(result > media.play_num){
                     this.storaging.errStoraging('qzone',"",task.id,`QQ空间播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
@@ -361,7 +361,7 @@ class dealWith {
                 this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(null,'')
             }
-            if(!result.cmtnum||!result.fwdnum){
+            if(!result.cmtnum && result.cmtnum != 0 || !result.fwdnum && result.fwdnum != 0 ){
                 this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取comment接口返回数据错误`,"resultErr","comment")
                 return callback(result)
             }

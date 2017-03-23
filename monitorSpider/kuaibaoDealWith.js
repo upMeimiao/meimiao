@@ -35,7 +35,7 @@ class kuaibaoDealWith {
             if ( err ) {
                 return callback(err)
             }
-            callback(err,result)
+            callback(null,result)
         })
     }
     getDevId() {
@@ -96,7 +96,7 @@ class kuaibaoDealWith {
                 bid: task.id,
                 fans_num: userInfo.subCount
             }
-            callback()
+            callback(null,user)
         })
     }
     getVideos ( task, callback ) {
@@ -403,7 +403,7 @@ class kuaibaoDealWith {
                 up: result.expr_info.list[0].count || null,
                 down: result.expr_info.list[1].count || null
             }
-            if(!data.like){
+            if(!data.like && data.like != 0){
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取Expr接口返回数据错误","resultErr","Expr")
                 return callback()
             }

@@ -63,7 +63,7 @@ class billDealWith {
             }
             if( result.statusCode != 200){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取粉丝${result.statusCode}`,"statusErr","user")
-                return callback()
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
@@ -110,7 +110,7 @@ class billDealWith {
             }
             if( result.statusCode != 200){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取total接口${result.statusCode}`,"statusErr","total")
-                return callback()
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
@@ -235,7 +235,7 @@ class billDealWith {
             }
             if(back.statusCode != 200){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取info${back.statusCode}`,"responseErr","info")
-                return callback(true)
+                return callback(back.statusCode)
             }
             try {
                 back = JSON.parse(back.body)
@@ -245,7 +245,7 @@ class billDealWith {
             }
             if(back.code != 0){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取info接口返回数据code错误${back.code}`,"resultErr","info")
-                return
+                return callback(back.code)
             }
             let tagStr = ''
             if(back.data.tags && back.data.tags.length != 0){
@@ -274,7 +274,7 @@ class billDealWith {
             }
             
             if(!media.play_num){
-                return
+                return callback()
             }
             this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                 if(err){

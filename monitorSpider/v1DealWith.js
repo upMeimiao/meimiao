@@ -32,7 +32,7 @@ class dealWith {
                         if(err){
                             return callback(err)
                         }
-                        callback(err,result)
+                        callback(null,result)
                     })
                 }
             },
@@ -84,12 +84,12 @@ class dealWith {
                 this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取fans接口json数据解析失败","doWithResErr","fans")
                 return callback(e)
             }
-            // let user = {
-            //     platform: task.p,
-            //     bid: task.id,
-            //     fans_num: result.obj.fansCount
-            // }
-            // task.total = result.obj.videoCount
+            let user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: result.obj.fansCount
+            }
+            task.total = result.obj.videoCount
             callback()
         })
     }
@@ -122,7 +122,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取total接口json数据解析失败","doWithResErr","total")
-                return
+                return callback(e)
             }
             let page   = result.body.page_num
             this.getVidList(task,page,sign,(err) => {
@@ -171,7 +171,7 @@ class dealWith {
                     }catch (e){
                         logger.error('json数据解析失败')
                         this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取list接口json数据解析失败","doWithResErr","list")
-                        return
+                        return cb()
                     }
                     let length  = result.body.data.length,
                         content = result.body.data

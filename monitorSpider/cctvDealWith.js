@@ -130,8 +130,8 @@ class dealWith {
                 page       = $('div.pagetotal span').eq(1).text().replace(/[\s]/g,'').replace('共','').replace('页','')
                 task.total = total
             //logger.debug(total)
-            if(!total || page){
-                this.storaging.errStoraging('cctv',option.url,task.id,"total从dom中取total与page信息失败","domBasedErr","total")
+            if(!total || !page){
+                this.storaging.errStoraging('cctv',option.url,task.id,"cctv从dom中取total与page信息失败","domBasedErr","total")
                 setTimeout(() => {
                     this.getVidTotal(task,callback)
                 },100)

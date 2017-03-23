@@ -171,7 +171,7 @@ class dealWith {
                 return callback(null,{hasCollect:''})
             }
             if(!result.content){
-                return
+                return callback()
             }
             callback(null,result.content.list[0])
         })

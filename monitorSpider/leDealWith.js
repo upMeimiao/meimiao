@@ -21,7 +21,10 @@ class leDealWith {
     le ( task, callback ) {
         task.total = 0
         this.getTotal( task, ( err,result ) => {
-            callback(err,result)
+            if(err){
+                return callback(err)
+            }
+            callback(null,result)
         })
     }
     getTotal ( task, callback ) {
@@ -48,14 +51,12 @@ class leDealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('le',option.url,task.id,"乐视获取total接口状态码错误","statusErr","total")
-                return callback()
+                return callback(result.statusCode)
             }
             try {
                 result = eval("("+result.body+")")
             } catch (e){
-                logger.error('jsonp解析错误:',e)
                 this.storaging.errStoraging('le',option.url,task.id,"乐视获取视频总数接口jsonp解析错误","doWithResErr","total")
-                logger.info(result)
                 return callback(e)
             }
             let page = result.data.totalPage
@@ -194,13 +195,13 @@ class leDealWith {
                     delete media.class
                 }
                 
-                if(!media.play_num){
-                    return
+                if(!media.play_num && media.play_num != 0){
+                    return callback()
                 }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
-                        return
+                        return callback()
                     }
                     if(result > media.play_num){
                         this.storaging.errStoraging('le',`${api.le.info}${media.aid}?callback=jsonp`,task.id,`乐视视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
@@ -235,7 +236,7 @@ class leDealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('le',option.url,task.id,"乐视获取info接口状态码错误","statusErr","info")
-                return callback()
+                return callback(result.statusCode)
             }
             let backData
             try {
@@ -280,7 +281,7 @@ class leDealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('le',option.url,task.id,"乐视获取Expr接口状态码错误","statusErr","Expr")
-                return callback()
+                return callback(result.statusCode)
             }
             const $ = cheerio.load(result.body),
                 timeDom = $('p.p_02 b.b_02'),
@@ -357,17 +358,17 @@ class leDealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('le',option.url,task.id,"乐视获取Desc接口状态码错误","statusErr","Desc")
-                return callback()
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 this.storaging.errStoraging('le',option.url,task.id,"乐视获取视频描述信息json解析错误","doWithResErr","Desc")
-                return callback(null,null)
+                return callback(e)
             }
             result = result.data.introduction
             if(!result){
-                return
+                return callback()
             }
             let backData = {
                 desc: result.video_description || '',

@@ -60,15 +60,10 @@ class dealWith {
                 length      = contents.length
                 task.listid = vidInfo.video_sid
             task.total      = length
-            if(!vidInfo || !contents || !length){
-                this.storaging.errStoraging('huashu',option.url,task.id,`华数TV获取VidList接口返回结果错误`,"resultErr","VidList")
-                return callback(result)
-            }
             if(contents[0].vuid != null){
                 this.getVideoList(task,callback)
             }else{
                 this.deal(task,vidInfo,contents,length,() => {
-                    logger.debug('当前用户数据请求完毕')
                     callback(null)
                 })
             }
@@ -108,12 +103,7 @@ class dealWith {
             let contents   = result.dramadatas,
                 length     = contents.length
             task.type      = 'list2'
-            if(!contents || !length){
-                this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取VideoList接口返回数据错误","resultErr","VideoList")
-                return callback(result)
-            }
             this.deal(task,result,contents,length,() => {
-                logger.debug('当前用户数据请求完毕')
                 callback(null)
             })
         })
@@ -168,10 +158,8 @@ class dealWith {
             ],
             (err,result) => {
                 if(err){
-                    return
-                }
-                if(!result[0]||result[1]||result[2]){
-                    return
+                    logger.debug("err",err)
+                    return callback()
                 }
                 let media
                 if(task.type == 'list2'){
@@ -208,14 +196,15 @@ class dealWith {
                     }
                 }
                 
-                if(!media.play_num){
-                    return
+                if(!media.play_num && media.play_num !== 0){
+                    logger.debug("media.play_num",media.play_num)
+                    return callback()
                 }
                 //logger.debug(media.title + '---' + media.play_num)
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
-                        return
+                        return callback()
                     }
                     if(result > media.play_num){
                         this.storaging.errStoraging('huashu',"",task.id,`华数TV视频播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
@@ -289,7 +278,7 @@ class dealWith {
                 this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(e)
             }
-            if(!result.cmt_sum){
+            if(!result.cmt_sum && result.cmt_sum !== 0){
                 this.storaging.errStoraging('huashu',option.url,task.id,"华数TV获取comment接口返回数据错误","resultErr","comment")
                 return callback(result)
             }

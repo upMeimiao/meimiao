@@ -173,17 +173,17 @@ class dealWith {
             [
                 (cb) => {
                     this.support( task, video.vid, (err, result) => {
-                        logger.debug(err,result)
+                        cb(err,result)
                     })
                 },
                 (cb) => {
                     this.getDesc( task, index, (err, result) => {
-                        logger.debug(err,result)
+                        cb(err,result)
                     })
                 },
                 (cb) => {
                     this.getComment( task, video.vid, (err, result) => {
-                        logger.debug(err,result)
+                        cb(err,result)
                     })
                 }
             ],

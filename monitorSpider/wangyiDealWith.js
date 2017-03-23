@@ -39,7 +39,7 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
-                callback(err,result)
+                callback(null,result)
             }
         )
     }
@@ -112,14 +112,6 @@ class dealWith {
                         }
                         //logger.error(errType)
                         this.storaging.errStoraging("wangyi",option.url,task.id,err.code || "error",errType,"list")
-                        return cb()
-                    }
-                    if(!result){
-                        this.storaging.errStoraging('wangyi',option.url,task.id,"网易获取list接口无返回数据","resultErr","list")
-                        return cb()
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('wangyi',option.url,task.id,"网易获取list接口无返回数据","resultErr","list")
                         return cb()
                     }
                     if( result.statusCode && result.statusCode != 200){
@@ -212,13 +204,13 @@ class dealWith {
                     play_num: result[0].hits,
                     v_url: result[1].vurl
                 }
-                if(!media.play_num){
-                    return
+                if(!media.play_num && media.play_num != 0){
+                    return callback()
                 }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
                     if(err){
                         logger.debug("读取redis出错")
-                        return
+                        return callback()
                     }
                     if(result > media.play_num){
                         this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`网易视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
@@ -291,7 +283,7 @@ class dealWith {
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('wangyi',option.url,task.id,"网易获取paly接口状态码错误","statusErr","paly")
+                this.storaging.errStoraging('wangyi',option.url,task.id,`网易获取paly接口状态码错误${result.statusCode}`,"statusErr","paly")
                 return callback()
             }
             try {

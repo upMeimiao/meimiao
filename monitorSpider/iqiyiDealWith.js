@@ -22,12 +22,18 @@ class iqiyiDeal {
             {
                 user: (callback) => {
                     this.getUser(task,(err,result)=>{
-                        callback(err,result)
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,result)
                     })
                 },
                 media: (callback) => {
                     this.getTotal(task,(err,result)=>{
-                        callback(err,result)
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,result)
                     })
                 }
             },
@@ -35,7 +41,7 @@ class iqiyiDeal {
                 if(err){
                     return callback(err)
                 }
-                callback(err,result)
+                callback(null,result)
             }
         )
     }
@@ -67,21 +73,22 @@ class iqiyiDeal {
             }
             const $ = cheerio.load(result.body),
                 fansDom = $('span.c-num-fans')
-            if(!fansDom){
-                this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取粉丝dom获取错误","domBasedErr","user")
-                return
-            }
             if(fansDom.length === 0){
                 return this.get_user(task,function () {
                     callback()
                 })
             }
-            // const fans = fansDom.attr('data-num'),
-            //     user = {
-            //         platform: 2,
-            //         bid: task.id,
-            //         fans_num: fans
-            //     }
+            const fans = fansDom.attr('data-num'),
+                user = {
+                    platform: 2,
+                    bid: task.id,
+                    fans_num: fans
+                }
+            if(!user.fans_num && user.fans_num != 0){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,`爱奇艺获取user接口从dom中获取fans失败`,"domBasedErr","user")
+                return callback()
+            }
+            callback()
         })
     }
     get_user ( task, callback) {
@@ -112,17 +119,15 @@ class iqiyiDeal {
             }
             let $ = cheerio.load(result.body),
                 fansDom = $('h3.tle').text()
-                if(!fansDom){
-                    this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取_user接口dom获取错误","domBasedErr","_user")
-                    return
-                }
             let user = {
                     platform: 2,
                     bid: task.id,
                     fans_num: fansDom.substring(2)
                 }
-            //logger.debug(user)
-            // this.storaging.succStorage("iqiyi",option.url,"_user")
+            if(!user.fans_num && user.fans_num != 0){
+                this.storaging.errStoraging('iqiyi',option.url,task.id,`爱奇艺获取_user接口从dom中获取fans失败`,"domBasedErr","_user")
+                return callback()
+            }
             callback()
         })
     }
@@ -491,7 +496,7 @@ class iqiyiDeal {
             //logger.debug(backData)
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('iqiyi',option.url,task.id,"爱奇艺获取info接口状态码错误","statusErr","info")
-                return cb()
+                return callback(result.statusCode )
             }
             let playData
             try {

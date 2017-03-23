@@ -201,13 +201,13 @@ class dealWith {
             media.v_url = data.gid
             media.v_img = data.image_url
             media.long_t = this._long_t(data.duration)
-            if(!media.play_num){
-                return
+            if(!media.play_num && media.play_num != 0){
+                return callback()
             }
             this.core.MSDB.hget(`apiMonitor:play_num`,`:${media.author}_${media.aid}`,(err,result)=>{
                 if(err){
                     logger.debug("读取redis出错")
-                    return
+                    return callback()
                 }
                 if(result > media.play_num){
                     this.storaging.errStoraging('btime',"",task.id,`北京时间视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
