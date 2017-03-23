@@ -52,7 +52,8 @@ class spiderCore {
         this.fengxingDeal = new (require('./fengxingDealWith'))(this)
         this.huashuDeal = new (require('./huashuDealWith'))(this)
         this.baofengDeal = new (require('./baofengDealWith'))(this)
-        this.baiduvideoDeal = new (require('./baiduvideoDealWith'))(this)        
+        this.baiduvideoDeal = new (require('./baiduvideoDealWith'))(this)
+        this.liVideoDeal = new (require('./liVideoDealWith'))(this)         
         this.proxy = new (require('./proxy'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
@@ -445,6 +446,15 @@ class spiderCore {
             this.setBaiduvideoTask()
         })
     }
+    setLiVideoTask(){
+        let liVideo_work = {
+                "name":"liVideo","platform":38,"id":138,"bname":"二更"
+            }
+        this.liVideoDeal.liVideo(liVideo_work,(err,result) => {
+            logger.debug("liVideo 又执行一次")
+            this.setLiVideoTask()
+        })
+    }
     setTask (callback) {
         async.parallel([
             (callback) => {
@@ -593,6 +603,10 @@ class spiderCore {
             },
             (callback) => {
                 this.setBaiduvideoTask()
+                callback()
+            },
+            (callback) => {
+                this.setLiVideoTask()
                 callback()
             }
         ],(err, result) => {
