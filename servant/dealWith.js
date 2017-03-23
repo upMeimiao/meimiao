@@ -1431,76 +1431,54 @@ class DealWith {
         })
     }
     ifeng(remote, callback) {
-        const urlObj = URL.parse(remote,true),
+        let urlObj = URL.parse(remote,true),
             host = urlObj.host,
             pathname = urlObj.pathname,
             option = {},
-            date_reg = /\d{6}/
-        let v_id
+            v_id;
         if(host == "vcis.ifeng.com"){
-            v_id = urlObj.query.guid
+            v_id = urlObj.query.guid;
+            option.url = api.ifeng.url + v_id;
+            this.ifengUser(option, (err, result) => {
+                if(err){
+                    return callback(err,result)
+                }
+                callback(null,result)
+            })
         }else if(host == "v.ifeng.com"){
-            if(pathname.startsWith('/m/')){
-                option.url = remote
-                request.get(option, ( err, result ) => {
-                    if (err) {
-                        logger.error('occur error: ', err)
-                        return callback(err, {code: 102, p: 24})
+            option.url = remote;
+            request.get(option, ( err, result ) => {
+                if (err) {
+                    logger.error('occur error: ', err);
+                    return callback(err, {code: 102, p: 24})
+                }
+                result = result.body.replace(/[\s\n\r]/g,'');
+                let guid = result.match(/\"vid\":\"[\d\w-]*/).toString().replace('"vid":"','');
+                option.url = api.ifeng.url + guid;
+                this.ifengUser(option, (err, result) => {
+                    if(err){
+                        return callback(err,result)
                     }
-                    let _$ = cheerio.load(result.body),
-                        script = _$('script')[8].children[0].data,
-                        guid = script.match(/\"id\": \"[\d\w-]*/),
-                        v_id = guid[0].toString().replace(/\"id\": \"/,"")
-                    option.url = api.ifeng.url + v_id
-                    request.get( option, (err,result) => {
-                        if(err){
-                            logger.error('occur error: ',err)
-                            return callback(err,{code:102,p:24})
-                        }
-                        if(result.statusCode != 200){
-                            logger.error('凤凰状态码错误',result.statusCode)
-                            logger.error(result)
-                            return callback(true,{code:102,p:24})
-                        }
-                        try {
-                            result = JSON.parse(result.body)
-                        } catch (e) {
-                            logger.error('凤凰json数据解析失败')
-                            logger.info('json error: ',result)
-                            return callback(e,{code:102,p:24})
-                        }
-                        let res = {
-                            name: result.weMedia.name,
-                            id: result.weMedia.id,
-                            avatar: result.weMedia.headPic,
-                            p: 24
-                        }
-                        callback(null,res)
-                    })
+                    callback(null,result)
                 })
-                return
-            }else{
-                let index = remote.indexOf(date_reg.exec(remote));
-                let preffix = remote.substring(index,remote.length).replace(".shtml","")
-                v_id = preffix.replace(/\d*\//,"");
-            }
+            });
         }
-        option.url = api.ifeng.url + v_id
+    }
+    ifengUser(option, callback){
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:24})
             }
             if(result.statusCode != 200){
-                logger.error('凤凰状态码错误',result.statusCode)
-                
+                logger.error('凤凰状态码错误',result.statusCode);
                 return callback(true,{code:102,p:24})
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('凤凰json数据解析失败')
-                logger.info('json error: ',result)
+                logger.error('凤凰json数据解析失败');
+                logger.info('json error: ',result);
                 return callback(e,{code:102,p:24})
             }
             let res = {
@@ -1508,7 +1486,7 @@ class DealWith {
                 id: result.weMedia.id,
                 avatar: result.weMedia.headPic,
                 p: 24
-            }
+            };
             callback(null,res)
         })
     }
