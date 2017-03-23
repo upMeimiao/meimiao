@@ -2341,5 +2341,40 @@ class DealWith {
                 callback(null,res)
             })
     }
+    youtube(remote, callback) {
+        let urlObj = URL.parse(remote, true),
+            pathname = urlObj.pathname
+        if(pathname !== '/watch'){
+            return callback(err, {code:101,p:38})
+        }
+        let vid = urlObj.query.v,
+            options = {
+            method: 'GET',
+            url: `https://www.youtube.com/watch?v=${vid}`,
+            // proxy: 'http://127.0.0.1:56428',
+            // tunnel: true,
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'
+            }
+        }
+        logger.debug(options)
+        r(options, (error, response, body) => {
+            if (error) {
+                return callback(err, {code:102,p:38})
+            }
+            if (response.statusCode !== 200){
+                return callback(err, {code:102,p:38})
+            }
+            logger.debug(body)
+            let $ = cheerio.load(body),
+                $id = $('.yt-user-info a'),
+                $avatar = $('.yt-thumb-clip img'),
+                id = $id.attr('data-ytid'),
+                name = $id.text(),
+                avatar = $avatar.attr('data-thumb'),
+                res = {id, name, avatar, p: 38}
+            callback(null, res)
+        })
+    }
 }
 module.exports = DealWith
