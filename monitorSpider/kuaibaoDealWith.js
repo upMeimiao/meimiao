@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/6/20.
- */
 const async = require( 'async' )
 const request = require( '../lib/request' )
 let logger,api

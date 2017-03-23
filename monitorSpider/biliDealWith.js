@@ -1,6 +1,3 @@
-/**
- * Created by ifable on 16/6/21.
- */
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/request' )

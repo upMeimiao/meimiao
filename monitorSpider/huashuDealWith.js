@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/6/21.
- */
 const async = require( 'async' )
 const request = require('../lib/request.js')
 const jsonp = function(data){

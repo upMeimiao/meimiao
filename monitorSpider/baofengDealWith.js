@@ -1,7 +1,3 @@
-/**
- * Created by junhao on 16/6/21.
- */
-
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const request = require('../lib/request.js')

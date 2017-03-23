@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/6/20.
- */
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/request' )

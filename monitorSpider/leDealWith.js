@@ -1,6 +1,3 @@
-/**
- * Created by ifable on 16/6/21.
- */
 const async = require( 'async' )
 const moment = require('moment')
 const cheerio = require('cheerio')
