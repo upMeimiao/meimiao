@@ -66,7 +66,9 @@ class spiderCore {
     start() {
         logger.trace('启动函数')
         // this.assembly()
-        this.test()
+        setInterval(()=>{
+            this.test()
+        }, 1800000)
     }
     test() {
         let work = {
