@@ -198,8 +198,8 @@ class dealWith {
                         }
                         conetent = conetents.contents
                     } else {
-                        conetents = body.content.continuation_contents.continuations
-                        if(conetents[0].item_type === 'previous_continuation_data'){
+                        conetents = body.content.continuation_contents
+                        if(conetents.continuations[0].item_type === 'previous_continuation_data'){
                             sign = false;
                             task.total = 30 * index
                         } else {
