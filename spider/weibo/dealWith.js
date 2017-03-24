@@ -80,7 +80,7 @@ class dealWith {
                     bid: task.id,
                     fans_num: result.userInfo ? (result.userInfo.followers_count ? result.userInfo.followers_count : '') : ''
                 }
-                if(user.fans_num){
+                if(user.fans_num !== ''){
                     this.sendUser(user)
                     this.sendStagingUser(user)
                 }
