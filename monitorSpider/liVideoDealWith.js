@@ -111,7 +111,7 @@ class dealWith {
         async.series(
             [
                 (cb) => {
-                    this.getVidInfo( video.contId, (err,result) => {
+                    this.getVidInfo( task, video.contId, (err,result) => {
                         cb(err,result)
                     })
                 }
