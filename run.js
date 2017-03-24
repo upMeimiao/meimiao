@@ -359,6 +359,13 @@ const liVideo = () => {
     let spider = new (require('./spider/liVideo'))(settings);
     spider.start();
 };
+const youtube = () => {
+    let logger = logging.getLogger('YouTube',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/youtube'))(settings);
+    spider.start();
+}
 const xiangkan = () => {
     let logger = logging.getLogger('小米想看',options['i'],log_level);
     settings['logger'] = logger;
@@ -515,6 +522,9 @@ switch (options['a']){
     case 'xiangkan':
         xiangkan();
         break;
+    case 'youtube':
+        youtube()
+        break
     case 'test':
         test();
         break;

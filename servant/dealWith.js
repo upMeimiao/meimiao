@@ -2311,35 +2311,70 @@ class DealWith {
             callback(null,res)
         })
     }
-    xiangkan ( data, callback ){
-        let vid = data.match(/videoId=\w*/).toString().replace(/videoId=/,''),
-            option = {
-                url: `http://api.xk.miui.com/front/video/${vid}?d=270010343`
-            };
-            request.get(option, (err, result) => {
-                if(err){
-                    logger.debug('想看视频请求错误',err);
-                    return callback(err,{code:103,p:39});
-                }
-                if(result.statusCode != 200){
-                    logger.debug('请求的状态码有误',result.statusCode);
-                    return callback(true,{code:103,p:39})
-                }
-                try{
-                    result = JSON.parse(result.body)
-                }catch (e){
-                    logger.debug('数据解析失败');
-                    logger.info(result.body);
-                    return callback(e,{code:103,p:39})
-                }
-                let res = {
-                    id: result.data.videoInfo.authorInfo.uid,
-                    name: result.data.videoInfo.authorInfo.nickname,
-                    p: 39,
-                    avatar: result.data.videoInfo.authorInfo.headurl
-                }
-                callback(null,res)
-            })
+    // xiangkan ( data, callback ){
+    //     let vid = data.match(/videoId=\w*/).toString().replace(/videoId=/,''),
+    //         option = {
+    //             url: `http://api.xk.miui.com/front/video/${vid}?d=270010343`
+    //         };
+    //         request.get(option, (err, result) => {
+    //             if(err){
+    //                 logger.debug('想看视频请求错误',err);
+    //                 return callback(err,{code:103,p:39});
+    //             }
+    //             if(result.statusCode != 200){
+    //                 logger.debug('请求的状态码有误',result.statusCode);
+    //                 return callback(true,{code:103,p:39})
+    //             }
+    //             try{
+    //                 result = JSON.parse(result.body)
+    //             }catch (e){
+    //                 logger.debug('数据解析失败');
+    //                 logger.info(result.body);
+    //                 return callback(e,{code:103,p:39})
+    //             }
+    //             let res = {
+    //                 id: result.data.videoInfo.authorInfo.uid,
+    //                 name: result.data.videoInfo.authorInfo.nickname,
+    //                 p: 39,
+    //                 avatar: result.data.videoInfo.authorInfo.headurl
+    //             }
+    //             callback(null,res)
+    //         })
+    // }
+    youtube(remote, callback) {
+        let urlObj = URL.parse(remote, true),
+            pathname = urlObj.pathname
+        if(pathname !== '/watch'){
+            return callback(err, {code:101,p:39})
+        }
+        let vid = urlObj.query.v,
+            options = {
+            method: 'GET',
+            url: `https://www.youtube.com/watch?v=${vid}`,
+            // proxy: 'http://127.0.0.1:56428',
+            // tunnel: true,
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'
+            }
+        }
+        logger.debug(options)
+        r(options, (error, response, body) => {
+            if (error) {
+                return callback(err, {code:102,p:39})
+            }
+            if (response.statusCode !== 200){
+                return callback(err, {code:102,p:39})
+            }
+            logger.debug(body)
+            let $ = cheerio.load(body),
+                $id = $('.yt-user-info a'),
+                $avatar = $('.yt-thumb-clip img'),
+                id = $id.attr('data-ytid'),
+                name = $id.text(),
+                avatar = $avatar.attr('data-thumb'),
+                res = {id, name, avatar, p: 39}
+            callback(null, res)
+        })
     }
 }
 module.exports = DealWith

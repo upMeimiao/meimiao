@@ -225,6 +225,10 @@
     },
     "liVideo": {
       "list": "http://app.pearvideo.com/clt/jsp/v2/getNodeConts.jsp?sort=0&nodeId="
+    },
+    "youtube": {
+      "channel": "https://m.youtube.com/channel/",
+      "info": "https://m.youtube.com/watch"
     }
   },
   "servantAPI": {
