@@ -454,6 +454,9 @@ const getErr = (platform,urlDesc) => {
                         case "baiduvideo":
                             baiduvideoJudgeErr(options)
                             break
+                        case "liVideo":
+                            liVideoJudgeErr(options)
+                            break
                     }
                 })
             })
@@ -678,6 +681,10 @@ const _errorJudge = (callback) => {
             baiduvideo: (callback) => {
                 getBaiduvideoError()
                 callback()
+            },
+            liVideo: (callback) => {
+                getLiVideoError()
+                callback()
             }
         },( err, result ) => {
                 if(err){
@@ -686,6 +693,15 @@ const _errorJudge = (callback) => {
                 callback()
         }
     )
+}
+const getLiVideoError = () => {
+    // logger.debug("getLiVideoError")
+    let urlDescArr = ["list","info"],
+        urlDesc,i
+    for(i = 0; i < urlDescArr.length; i++){
+        urlDesc = urlDescArr[i]
+        getErr("liVideo",urlDesc)
+    }
 }
 const getBaiduvideoError = () => {
     // logger.debug("getBaiduvideoError")
@@ -1019,6 +1035,35 @@ const getBiliError = () => {
         getErr("bili",urlDesc)
     }  
 }
+const liVideoJudgeErr = (options) => {
+    //["list","info"]
+    // logger.debug("liVideoJudgeErr  options=================",options)
+    let errObj = JSON.parse(options.result),
+        emailOptions = {
+            "platform": "liVideo",
+            "urlDesc": "",
+            "urls": "",
+            "bid": errObj.bid,
+            "errType": "",
+            "errDesc": "",
+            "hourStr": options.hourStr,
+            "errTimes": "",
+            "totalTimes": options.totalResult
+        },
+        numberArr
+    switch(options.urlDesc){
+        case "list":
+            emailOptions.urlDesc = "list"
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "info":
+            emailOptions.urlDesc = "info"
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+    }
+} 
 const baiduvideoJudgeErr = (options) => {
     //["total","list","info"]
     // logger.debug("baiduvideoJudgeErr  options=================",options)
@@ -1339,8 +1384,8 @@ const cctvJudgeErr = (options) => {
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
-        case "toal":
-            emailOptions.urlDesc = "toal"
+        case "total":
+            emailOptions.urlDesc = "total"
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
@@ -1388,8 +1433,8 @@ const qzoneJudgeErr = (options) => {
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
-        case "fan":
-            emailOptions.urlDesc = "fan"
+        case "comment":
+            emailOptions.urlDesc = "comment"
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break

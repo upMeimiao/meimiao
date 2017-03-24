@@ -162,7 +162,7 @@ class dealWith {
                         this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口返回数据错误`,"resultErr","list")
                         return callback(err,result)
                     }
-                    if(result.massage != "success"){
+                    if(result.message != "success"){
                         this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口状态码错误${result.massage}`,"statusErr","list")
                         return callback(result.massage)
                     }

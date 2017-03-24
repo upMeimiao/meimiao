@@ -151,7 +151,7 @@ class spiderCore {
     }
     setMeipaiTask(){
         let meipai_work = {
-                "name":"meipai","platform":5,"id":1000001181,"bname":"暴走漫画"
+                "name":"meipai","platform":5,"id":1046243739,"bname":"茶啊二中"
             }
         this.meipaiDeal.meipai(meipai_work,(err,result) => {
             logger.debug("meipai 又执行一次")
@@ -242,7 +242,7 @@ class spiderCore {
     }
     setBtimeTask(){
         let btime_work = {
-                "name":"btime","platform":15,"id":84626,"bname":"陈翔六点半"
+                "name":"btime","platform":15,"id":58128,"bname":"一色神技能"
             }
         this.btimeDeal.btime(btime_work,(err,result) => {
             logger.debug("btime 又执行一次")
@@ -296,7 +296,7 @@ class spiderCore {
     }
     setTv56Task(){
         let tv56_work = {
-                "name":"tv56","platform":21,"id":210741517,"bname":"Miss排位日记"
+                "name":"tv56","platform":21,"id":142228397,"bname":"暴走漫画官方"
             }
         this.tv56Deal.tv56(tv56_work,(err,result) => {
             logger.debug("tv56 又执行一次")
@@ -314,7 +314,7 @@ class spiderCore {
     }
     setWeiboTask(){
         let weibo_work = {
-                "name":"weibo","platform":23,"id":1850235592,"bname":"糗事百科"
+                "name":"weibo","platform":23,"id":1689181297,"bname":"土豆六道"
             }
         this.weiboDeal.weibo(weibo_work,(err,result) => {
             logger.debug("weibo 又执行一次")
@@ -323,7 +323,7 @@ class spiderCore {
     }
     setIfengTask(){
         let ifeng_work = {
-                "name":"ifeng","platform":24,"id":5451,"bname":"女神TV"
+                "name":"ifeng","platform":24,"id":9666,"bname":"潮人小罗"
             }
         this.ifengDeal.ifeng(ifeng_work,(err,result) => {
             logger.debug("ifeng 又执行一次")
@@ -458,150 +458,150 @@ class spiderCore {
     }
     setTask (callback) {
         async.parallel([
-            // (callback) => {
-            //     this.setYoukuTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setIqiyiTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setLeTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setTencentTask()
-            //     callback()
-            // },
+            (callback) => {
+                this.setYoukuTask()
+                callback()
+            },
+            (callback) => {
+                this.setIqiyiTask()
+                callback()
+            },
+            (callback) => {
+                this.setLeTask()
+                callback()
+            },
+            (callback) => {
+                this.setTencentTask()
+                callback()
+            },
             (callback) => {
                 this.setMeipaiTask()
                 callback()
             },
-            // (callback) => {
-            //     this.setToutiaoTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setMiaopaiTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setBiliTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setSouhuTask()
-            //     callback()
-            // },
+            (callback) => {
+                this.setToutiaoTask()
+                callback()
+            },
+            (callback) => {
+                this.setMiaopaiTask()
+                callback()
+            },
+            (callback) => {
+                this.setBiliTask()
+                callback()
+            },
+            (callback) => {
+                this.setSouhuTask()
+                callback()
+            },
             (callback) => {
                 this.setKuaibaoTask()
                 callback()
             },
-            // (callback) => {
-            //     this.setYidianTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setTudouTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setBaomihuaTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setKu6Task()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setBtimeTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setWeishiTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setXiaoyingTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setBudejieTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setNeihanTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setYyTask()
-            //     callback()
-            // },
+            (callback) => {
+                this.setYidianTask()
+                callback()
+            },
+            (callback) => {
+                this.setTudouTask()
+                callback()
+            },
+            (callback) => {
+                this.setBaomihuaTask()
+                callback()
+            },
+            (callback) => {
+                this.setKu6Task()
+                callback()
+            },
+            (callback) => {
+                this.setBtimeTask()
+                callback()
+            },
+            (callback) => {
+                this.setWeishiTask()
+                callback()
+            },
+            (callback) => {
+                this.setXiaoyingTask()
+                callback()
+            },
+            (callback) => {
+                this.setBudejieTask()
+                callback()
+            },
+            (callback) => {
+                this.setNeihanTask()
+                callback()
+            },
+            (callback) => {
+                this.setYyTask()
+                callback()
+            },
             (callback) => {
                 this.setTv56Task()
                 callback()
             },
-            // (callback) => {
-            //     this.setAcfunTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setWeiboTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setIfengTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setWangyiTask()
-            //     callback()
-            // },
+            (callback) => {
+                this.setAcfunTask()
+                callback()
+            },
+            (callback) => {
+                this.setWeiboTask()
+                callback()
+            },
+            (callback) => {
+                this.setIfengTask()
+                callback()
+            },
+            (callback) => {
+                this.setWangyiTask()
+                callback()
+            },
             (callback) => {
                 this.setUcttTask()
                 callback()
             },
-            // (callback) => {
-            //     this.setMgtvTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setBaijiaTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setQzoneTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setCctvTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setPptvTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setXinlanTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setV1Task()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setFengxingTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setHuashuTask()
-            //     callback()
-            // },
-            // (callback) => {
-            //     this.setBaofengTask()
-            //     callback()
-            // },
+            (callback) => {
+                this.setMgtvTask()
+                callback()
+            },
+            (callback) => {
+                this.setBaijiaTask()
+                callback()
+            },
+            (callback) => {
+                this.setQzoneTask()
+                callback()
+            },
+            (callback) => {
+                this.setCctvTask()
+                callback()
+            },
+            (callback) => {
+                this.setPptvTask()
+                callback()
+            },
+            (callback) => {
+                this.setXinlanTask()
+                callback()
+            },
+            (callback) => {
+                this.setV1Task()
+                callback()
+            },
+            (callback) => {
+                this.setFengxingTask()
+                callback()
+            },
+            (callback) => {
+                this.setHuashuTask()
+                callback()
+            },
+            (callback) => {
+                this.setBaofengTask()
+                callback()
+            },
             (callback) => {
                 this.setBaiduvideoTask()
                 callback()
