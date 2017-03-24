@@ -43,11 +43,11 @@ class dealWith {
                 }
                 //logger.error(errType)
                 this.storaging.errStoraging("baijia",option.url,task.id,err.code || "error",errType,"fan")
-                return this.getFan( task, callback )
+                return this.getFan( task, vid )
             }
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('baijia',option.url,task.id,"百家号获取fan接口状态码错误","statusErr","fan")
-                return this.getFan( task, callback )
+                return this.getFan( task, vid )
             }
             let $ = cheerio.load(result.body)
             if($('div.item p').eq(0).text() == '视频已失效，请观看其他视频'){
