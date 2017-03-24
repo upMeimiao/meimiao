@@ -65,7 +65,8 @@ class spiderCore {
     }
     start() {
         logger.trace('启动函数')
-        this.assembly()
+        // this.assembly()
+        this.test()
     }
     test() {
         let work = {
