@@ -66,7 +66,7 @@ class souhuDealWith {
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.data || (result.data&&(!result.data.user_id||!result.data.total_fans_count))){
+            if(!result.data){
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝返回数据错误","resultErr","user")
                 return callback(result)
             }

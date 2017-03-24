@@ -51,7 +51,7 @@ class dealWith {
                 this.storaging.errStoraging('weishi',option.url,task.id,"微视获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.data||result.data && (!result.data.uid||!result.data.follower_num)){
+            if(!result.data){
                 this.storaging.errStoraging('weishi',option.url,task.id,"微视获取user接口返回数据错误","resultErr","user")
                 return callback(result)
             }

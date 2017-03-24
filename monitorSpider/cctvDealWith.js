@@ -80,7 +80,7 @@ class dealWith {
                 this.storaging.errStoraging('cctv',option.url,task.id,"cctv获取fans接口json数据解析失败","doWithResErr","fans")
                 return callback(e)
             }
-            if(!result.data.fans_count){
+            if(!result.data.fans_count&&result.data.fans_count!==0){
                 this.storaging.errStoraging('cctv',option.url,task.id,"cctv获取fans接口返回数据错误","resultErr","fans")
                 return callback(null,result)
             }

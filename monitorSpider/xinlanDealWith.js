@@ -61,7 +61,7 @@ class dealWith {
                 this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取list接口json数据解析失败","doWithResErr","list")
                 return this.getVidList( task, callback )
             }
-            if(!result.data || !result.data.length){
+            if(!result.data){
                 return this.getVidList( task, callback )
             }
             let length = result.data.length
@@ -241,10 +241,6 @@ class dealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取comment接口状态码错误","statusErr","comment")
-                return callback()
-            }
-            if(!result.body){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取comment接口无返回数据","resultErr","comment")
                 return callback()
             }
             try{

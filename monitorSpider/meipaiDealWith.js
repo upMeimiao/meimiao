@@ -67,7 +67,7 @@ class meipaiDealWith {
                 this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝接口json数据解析失败","doWithResErr","user")
                 return callback()
             }
-            if(!result.id||!result.followers_count){
+            if(!result.id||!result.followers_count&&result.followers_count!==0){
                 this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝接口返回数据错误","resultErr","user")
                 return callback()
             }

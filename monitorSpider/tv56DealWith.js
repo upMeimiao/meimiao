@@ -83,7 +83,7 @@ class dealWith {
                 this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口异常","resultErr","user")
                 return callback(true)
             }
-            if(!userInfo[0].fansCount){
+            if(!userInfo[0].fansCount&&userInfo[0].fansCount!==0){
                 this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口返回数据错误","resultErr","user")
                 return callback(result)
             }

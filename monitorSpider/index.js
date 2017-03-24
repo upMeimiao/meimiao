@@ -160,7 +160,8 @@ class spiderCore {
     }
     setToutiaoTask(){
         let toutiao_work = {
-                "name":"toutiao","platform":6,"id":3164237012,"bname":"环球老虎财经"
+            //id: '5567057918', user_id: '5567057918', p: '6', name: '看鉴', type: '0'
+                "name":"toutiao","platform":6,"id":1558215549476865,"bname":"LOL大神第一视角", "user_id": 52915184920, type: "0"
             }
         this.toutiaoDeal.toutiao(toutiao_work,(err,result) => {
             logger.debug("toutiao 又执行一次")
@@ -412,7 +413,7 @@ class spiderCore {
     }
     setFengxingTask(){
         let fengxing_work = {
-                "name":"fengxing","platform":34,"id":306425,"bname":"造物集"
+                "name":"fengxing","platform":34,"id":117523,"bname":"贝瓦故事"
             }
         this.fengxingDeal.fengxing(fengxing_work,(err,result) => {
             logger.debug("fengxing 又执行一次")
@@ -540,7 +541,8 @@ class spiderCore {
             (callback) => {
                 this.setTv56Task()
                 callback()
-            },
+            }
+            ,
             (callback) => {
                 this.setAcfunTask()
                 callback()

@@ -195,14 +195,6 @@ class dealWith {
                         })
                         return
                     }
-                    if(!result){
-                        this.storaging.errStoraging('weibo',option.url,task.id,"微博获取list接口无返回数据","resultErr","list")
-                        return
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('weibo',option.url,task.id,"微博获取list接口无返回数据","resultErr","list")
-                        return
-                    }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){

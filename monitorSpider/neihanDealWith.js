@@ -66,7 +66,7 @@ class dealWith {
                 this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.data || (result.data&&!result.data.followers)){
+            if(!result.data || (result.data&&!result.data.followers&&result.data.followers!==0)){
                 this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取user接口返回数据错误","doWithResErr","user")
                 return callback(result)
             }

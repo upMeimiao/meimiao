@@ -80,7 +80,7 @@ class youkuDealWith {
                 this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口json数据解析失败","doWithResErr","user")
                 return callback(e.message)
             }
-            if(!body.data.channelOwnerInfo||!body.data.channelOwnerInfo.followerNum){
+            if(!body.data.channelOwnerInfo){
                 this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息返回数据错误","resultErr","user")
                 return callback(body)
             }

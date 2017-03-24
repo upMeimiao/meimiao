@@ -192,7 +192,7 @@ class leDealWith {
                     delete media.class
                 }
                 
-                if(!media.play_num && media.play_num != 0){
+                if(!media.play_num){
                     return callback()
                 }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{

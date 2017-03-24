@@ -73,7 +73,7 @@ class dealWith {
                 this.storaging.errStoraging('wangyi',option.url,task.id,"网易获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.topicSet.subnum){
+            if(!result.topicSet.subnum&&result.topicSet.subnum!==0){
                 this.storaging.errStoraging('wangyi',option.url,task.id,"网易获取user接口返回数据错误","resultErr","user")
                 return callback(result)
             }
@@ -204,7 +204,7 @@ class dealWith {
                     play_num: result[0].hits,
                     v_url: result[1].vurl
                 }
-                if(!media.play_num && media.play_num != 0){
+                if(!media.play_num){
                     return callback()
                 }
                 this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{

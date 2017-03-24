@@ -67,13 +67,9 @@ class dealWith {
                 result = JSON.parse(result.body)
             }catch(e){
                 this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取user接口json数据解析失败","doWithResErr","user")
-                return
+                return callback(e)
             }
             let fans = result.data.subscriptions ? result.data.subscriptions : ''
-            if(!fans){
-                this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取user接口返回数据错误","resultErr","user")
-                return
-            }
             callback()
                 // ,
                 // user = {

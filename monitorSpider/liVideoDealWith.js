@@ -46,7 +46,7 @@ class dealWith {
                 return cycle
             },
             (cb) => {
-                options.url = `${this.settings.spiderAPI.liVideo.list}${task.id}&start=${start}`;
+                options.url = `${api.liVideo.list}${task.id}&start=${start}`;
                 request(options, (error, response, body) => {
                     this.storaging.totalStorage ("liVideo",options.url,"list")
                     if(error){
@@ -65,13 +65,13 @@ class dealWith {
                         return this.getListInfo(task,callback)
                     }
                     if(response.statusCode != 200){
-                        this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频list接口状态码错误${response.statusCode}`,errType,"list")
+                        this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频list接口状态码错误${response.statusCode}`,"statusErr","list")
                         return this.getListInfo(task,callback)
                     }
                     try{
                         body = JSON.parse(body)
                     }catch (e){
-                        this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频list接口json数据解析错误`,errType,"list")
+                        this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频list接口json数据解析错误`,"doWithResErr","list")
                         return this.getListInfo(task,callback)
                     }
                     task.total += body.contList.length;
@@ -112,7 +112,7 @@ class dealWith {
             [
                 (cb) => {
                     this.getVidInfo( video.contId, (err,result) => {
-                        cb(null,result)
+                        cb(err,result)
                     })
                 }
             ],
@@ -132,24 +132,11 @@ class dealWith {
                     v_url: result[0].content.shareUrl,
                     comment_num: result[0].content.commentTimes
                 };
-                if(!media.play_num){
-                    return
-                }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('liVideo',"",task.id,`梨视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"info"*/)
-                })
                 callback()
             }
         )
     }
-    getVidInfo( vid, callback ){
+    getVidInfo( task,vid, callback ){
         let options = {
             method:'GET',
             url: 'http://app.pearvideo.com/clt/jsp/v2/content.jsp?contId='+vid,
@@ -182,17 +169,17 @@ class dealWith {
                 }
                 //logger.error(errType)
                 this.storaging.errStoraging("liVideo",options.url,task.id,error.code || "error",errType,"info")
-                return this.getVidInfo(vid,callback)
+                return this.getVidInfo(task,vid,callback)
             }
             if(response.statusCode != 200){
-                this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频info接口状态码错误${response.statusCode}`,errType,"info")
-                return this.getVidInfo(vid,callback)
+                this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频info接口状态码错误${response.statusCode}`,"statusErr","info")
+                return this.getVidInfo(task,vid,callback)
             }
             try{
                 body = JSON.parse(body)
             }catch (e){
-                this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频info接口json数据解析错误`,errType,"info")
-                return this.getVidInfo(vid,callback)
+                this.storaging.errStoraging("liVideo",options.url,task.id,`梨视频info接口json数据解析错误`,"doWithResErr","info")
+                return this.getVidInfo(task,vid,callback)
             }
             if(!body.content){
                 return logger.debug('暂停')

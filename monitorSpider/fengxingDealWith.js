@@ -488,19 +488,19 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"creatTime")
+                this.storaging.errStoraging("fengxing",option.url,id,err.code || "error",errType,"creatTime")
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
-                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取creatTime接口状态码错误","statusErr","creatTime")
+                this.storaging.errStoraging('fengxing',option.url,id,"风行网获取creatTime接口状态码错误","statusErr","creatTime")
                 return callback(true)
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取creatTime接口json数据解析失败","doWithResErr","creatTime")
+                this.storaging.errStoraging('fengxing',option.url,id,"风行网获取creatTime接口json数据解析失败","doWithResErr","creatTime")
                 return callback(e)
             }
             result.data.number = result.data.number+' 00:00:00'

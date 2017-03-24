@@ -124,7 +124,7 @@ class iqiyiDeal {
                     bid: task.id,
                     fans_num: fansDom.substring(2)
                 }
-            if(!user.fans_num && user.fans_num != 0){
+            if(!user.fans_num && user.fans_num !== 0){
                 this.storaging.errStoraging('iqiyi',option.url,task.id,`爱奇艺获取_user接口从dom中获取fans失败`,"domBasedErr","_user")
                 return callback()
             }

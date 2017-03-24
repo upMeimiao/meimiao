@@ -56,7 +56,7 @@ class dealWith {
                 this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐获取user接口返回内容为空","resultErr","user")
                 return callback(null,result.data)
             }
-            if(!result.data.id||!result.data.fans_count){
+            if(!result.data.id||!result.data.fans_count&&result.data.fans_count!==0){
                 this.storaging.errStoraging('budejie',option.url,task.id,"百思不得姐获取user接口返回内容错误","resultErr","user")
                 return callback(null,result.data)
             }

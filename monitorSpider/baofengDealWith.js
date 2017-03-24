@@ -64,10 +64,6 @@ class dealWith {
                     callback()
                 })
             }
-            if(!aid){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音从dom中获取TheAlbum失败","domBasedErr","TheAlbum")
-                return callback()
-            }
             this.getVidList( task, aid, (err) => {
                 if(err){
                     return callback(err)
@@ -138,10 +134,6 @@ class dealWith {
             task.total = result.album_info.videos_num
             let videoList = result.video_list,
                 length = videoList.length
-            if(!task.total||!videoList||!length){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取list接口返回数据错误","resultErr","list")
-                return callback(null,result)
-            }
             this.deal( task, videoList, length, () => {
                 callback()
             })

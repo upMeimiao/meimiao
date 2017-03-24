@@ -71,7 +71,7 @@ class dealWith {
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.result || result.result && !result.result.ChannelInfo.RssNum){
+            if(!result.result){
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取user接口返回数据错误","resultErr","user")
                 return callback(null,result)
             }
@@ -327,7 +327,7 @@ class dealWith {
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花playNum接口eval错误","doWithResErr","playNum")
                 return callback(e)
             }
-            if(!result.appinfo[0].playCount){
+            if(!result.appinfo[0].playCount&&result.appinfo[0].playCount!==0){
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花playNum接口返回数据错误","doWithResErr","playNum")
                 return callback(result)
             }

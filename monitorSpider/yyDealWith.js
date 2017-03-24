@@ -59,7 +59,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: fans_text.replace(/,/g,'')
             }
-            if(!live_num && !sq_num && !dp_num && !fans_text){
+            if(!live_num&&live_num!==0 && !sq_num&&sq_num!==0 && !dp_num&&dp_num!==0 && !fans_text&&user.fans_num!==0){
                 this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
                 return 
             }

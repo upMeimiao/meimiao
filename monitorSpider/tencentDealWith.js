@@ -123,7 +123,7 @@ class tencentDealWith {
                 this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取user接口jsonp解析错误","resultErr","user")
                 return callback(e)
             }
-            if(!result.followcount){
+            if(!result.followcount&&result.followcount!==0){
                 this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取user接口返回数据错误","resultErr","user")
                 return callback()
             }

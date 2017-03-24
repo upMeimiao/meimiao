@@ -84,7 +84,7 @@ class kuaibaoDealWith {
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取粉丝接口异常错误","resultErr","user")
                 return callback()
             }
-            if(!userInfo.subCount){
+            if(!userInfo.subCount&&userInfo.subCount!==0){
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取粉丝接口返回数据错误","resultErr","user")
                 return callback()
             }
@@ -487,12 +487,8 @@ class kuaibaoDealWith {
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口json数据解析失败","doWithResErr","field")
                 return callback(e)
             }
-            if(result && !result.video){
+            if(!result.video){
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口返回数据为空","resultErr","field")
-                return callback(null, null)
-            }
-            if(!result.video.tot||!result.video.pic||!result.video.tags||!result.video.ctypename){
-                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口返回数据错误","resultErr","field")
                 return callback(null, null)
             }
             const backData = {

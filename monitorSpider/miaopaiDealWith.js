@@ -70,7 +70,7 @@ class miaopaiDealWith {
                 this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝接口返回数据错误","resultErr","user")
                 return callback()
             }
-            if(!result.header.suid||!result.header.eventCnt.fans){
+            if(!result.header.suid||!result.header.eventCnt.fans&&result.header.eventCnt.fans!==0){
                 this.storaging.errStoraging('miaopai',option.url,task.id,"秒拍获取粉丝接口返回数据错误","resultErr","user")
                 return callback()
             }

@@ -78,7 +78,7 @@ class billDealWith {
                     bid: userInfo.mid,
                     fans_num: userInfo.fans
                 }
-            if(!user.fans_num){
+            if(!user.fans_num&&user.fans_num!==0){
                 this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取粉丝数失败","resultErr","user")
                 return callback()
             }
@@ -116,10 +116,6 @@ class billDealWith {
                 return callback(e)
             }
             if(!result.data){
-                this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口返回数据错误","resultErr","total")
-                return callback()
-            }
-            if(!result.data.count || !result.data.pages){
                 this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口返回数据错误","resultErr","total")
                 return callback()
             }
