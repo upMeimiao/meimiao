@@ -218,8 +218,8 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
-                _youtubeReq(ctx, remote)
-                // handle.youtubeHandle(ctx, remote)
+                // _youtubeReq(ctx, remote)
+                handle.youtubeHandle(ctx, remote)
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`);
