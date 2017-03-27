@@ -1,5 +1,6 @@
 const HTTP = require('http');
 const URL = require('url');
+const request = require('request');
 const Handle = require('./handle');
 
 let logger,handle;
@@ -229,23 +230,34 @@ class spiderCore {
     }
 }
 function _youtubeReq(ctx, remote) {
-    const options = {
-        "method": "GET",
-        "hostname": "47.88.137.212",
-        "port": 2017,
-        "path": `/?url=${encodeURIComponent(remote)}&site=youtube`,
-    }
-    const req = HTTP.request(options, (res) => {
-        const chunks = [];
-        res.on("data", (chunk) => {
-            chunks.push(chunk);
-        });
-        res.on("end", () => {
-            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-            ctx.res.writeHead(200)
-            ctx.res.end(Buffer.concat(chunks).toString())
-        });
-    });
-    req.end();
+    // const options = {
+    //     "method": "GET",
+    //     "hostname": "47.88.137.212",
+    //     "port": 2017,
+    //     "path": `/?url=${encodeURIComponent(remote)}&site=youtube`,
+    // }
+    let url = `http://47.88.137.212:2017/?url=${encodeURIComponent(remote)}&site=youtube`
+    request(url, (err, res, body)=> {
+        if(err || res.statusCode !== 200){
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`);
+            ctx.res.writeHead(502);
+            return
+        }
+        ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+        ctx.res.writeHead(200)
+        ctx.res.end(body)
+    })
+    // const req = HTTP.request(options, (res) => {
+    //     const chunks = [];
+    //     res.on("data", (chunk) => {
+    //         chunks.push(chunk);
+    //     });
+    //     res.on("end", () => {
+    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+    //         ctx.res.writeHead(200)
+    //         ctx.res.end(Buffer.concat(chunks).toString())
+    //     });
+    // });
+    // req.end();
 }
 module.exports = spiderCore
