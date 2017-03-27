@@ -863,7 +863,7 @@ class DealWith {
     btime ( data, callback) {
         let pathname = URL.parse(data,true).pathname,
             hostname = URL.parse(data,true).hostname,
-            option = {}
+            option = {};
         if(hostname == 'new.item.btime.com'){
             option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${pathname.replace(/\//g,'')}`
             return request.get(option, (err,result) => {
@@ -883,14 +883,36 @@ class DealWith {
                     name: result.data.source,
                     avatar: result.data.media.icon,
                     p: 15
-                }
+                };
                 return callback(null,res)
             })
         }
         if(!((pathname.startsWith('/video/')) || (pathname.startsWith('/wemedia/')) || (pathname.startsWith('/wm/')) || (pathname.startsWith('/ent/') || (pathname.startsWith('/detail/'))))){
-            return callback(true,{code:101,p:15})
+            option.url = data;
+            request.get(option, (err, result) => {
+                if(err){
+                    logger.debug('视频源码请求失败',err);
+                    return callback(err,{code:103,p:15})
+                }
+                let $ = cheerio.load(result.body),
+                    bid = $('div.content-info .guanzhu').attr('data-cid'),
+                    name = $('div.content-info .cite a').text(),
+                    avatar = $('div.content-info .cite img').attr('src'),
+                    res;
+                if(bid && name && avatar){
+                    res = {
+                        id: bid,
+                        name: name,
+                        avatar: avatar,
+                        p: 15
+                    };
+                    return callback(null,res)
+                }else {
+                    return callback(true,{code:101,p:15})
+                }
+            });
         }
-        option.url = data
+        option.url = data;
         request.get( option, (err,result) => {
             if(err){
                 logger.error('occur error: ',err)
@@ -923,13 +945,12 @@ class DealWith {
                         logger.info('json error: ',result.body)
                         return callback(e,{code:102,p:15})
                     }
-                    logger.debug('---')
                     let res = {
                         id: result.data.author_uid,
                         name: result.data.source,
                         avatar: result.data.media.icon,
                         p: 15
-                    }
+                    };
                     return callback(null,res)
                 })
             }else{
