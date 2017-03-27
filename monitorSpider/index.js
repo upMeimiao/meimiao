@@ -197,7 +197,7 @@ class spiderCore {
     }
     setKuaibaoTask(){
         let kuaibao_work = {
-                "name":"kuaibao","platform":10,"id":5008846,"bname":"四叶草影视"
+                "name":"kuaibao","platform":10,"id":5016129,"bname":"电影恋爱学"
             }
         this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
             logger.debug("kuaibao 又执行一次")
@@ -260,7 +260,7 @@ class spiderCore {
     }
     setXiaoyingTask(){
         let xiaoying_work = {
-                "name":"xiaoying","platform":17,"id":"b35I4","bname":"徐老师来巡山㊣"
+                "name":"xiaoying","platform":17,"id":"bfoX9","bname":"女神TV"
             }
         this.xiaoyingDeal.xiaoying(xiaoying_work,(err,result) => {
             logger.debug("xiaoying 又执行一次")
@@ -314,7 +314,7 @@ class spiderCore {
     }
     setWeiboTask(){
         let weibo_work = {
-                "name":"weibo","platform":23,"id":1689181297,"bname":"土豆六道"
+                "name":"weibo","platform":23,"id":1895520105,"bname":"爱极客"
             }
         this.weiboDeal.weibo(weibo_work,(err,result) => {
             logger.debug("weibo 又执行一次")

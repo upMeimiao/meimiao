@@ -192,7 +192,7 @@ class dealWith {
     }
     getListInfo(task, option, callback) {
         request.get(logger, option, (err,result) => {
-            this.storaging.totalStorage ("toutiao",option.url,"list")
+            this.storaging.totalStorage ("toutiao",option.url,"listInfo")
             if(err){
                 let errType
                 if(err.code){
@@ -204,17 +204,17 @@ class dealWith {
                 } else{
                     errType = "responseErr"
                 }
-                this.storaging.errStoraging('toutiao',option.url,task.id,err.code || "error",errType,"list")
+                this.storaging.errStoraging('toutiao',option.url,task.id,err.code || "error",errType,"listInfo")
                 return callback()
             }
             if( result.statusCode != 200){
-                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口状态码错误${result.statusCode}`,"statusErr","list")
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取listInfo接口状态码错误${result.statusCode}`,"statusErr","listInfo")
                 return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口json数据解析错误`,"doWithResErr","list")
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取listInfo接口json数据解析错误`,"doWithResErr","listInfo")
                 return callback(e)
             }
             if(result.has_more === false){
