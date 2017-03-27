@@ -237,8 +237,8 @@ function _youtubeReq(ctx, remote) {
     //     "path": `/?url=${encodeURIComponent(remote)}&site=youtube`,
     // }
     let options = {
-        url: `http://47.88.137.212:2017/?url=${encodeURIComponent(remote)}&site=youtube`
-        timeout: 5000,
+        url: `http://47.88.137.212:2017/?url=${encodeURIComponent(remote)}&site=youtube`,
+        timeout: 5000
     }
     request(options, (err, res, body)=> {
         if(err || res.statusCode !== 200){
