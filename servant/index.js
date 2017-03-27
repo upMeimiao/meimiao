@@ -240,7 +240,6 @@ function _youtubeReq(ctx, remote) {
     request(url, (err, res, body)=> {
         if(err || res.statusCode !== 200){
             logger.debug(err.message)
-            logger.debug(res.statusCode)
             ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`);
             ctx.res.writeHead(502);
             return
