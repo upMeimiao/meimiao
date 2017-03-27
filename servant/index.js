@@ -241,6 +241,8 @@ function _youtubeReq(ctx, remote) {
             chunks.push(chunk);
         });
         res.on("end", () => {
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+            ctx.res.writeHead(200)
             ctx.res.end(Buffer.concat(chunks).toString())
         });
     });
