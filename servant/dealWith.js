@@ -2378,7 +2378,7 @@ class DealWith {
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'
             }
         }
-        logger.debug(options)
+        // logger.debug(options)
         r(options, (error, response, body) => {
             if (error) {
                 return callback(err, {code:102,p:39})
@@ -2386,7 +2386,7 @@ class DealWith {
             if (response.statusCode !== 200){
                 return callback(err, {code:102,p:39})
             }
-            logger.debug(body)
+            // logger.debug(body)
             let $ = cheerio.load(body),
                 $id = $('.yt-user-info a'),
                 $avatar = $('.yt-thumb-clip img'),
@@ -2394,6 +2394,7 @@ class DealWith {
                 name = $id.text(),
                 avatar = $avatar.attr('data-thumb'),
                 res = {id, name, avatar, p: 39}
+                logger.debug(res)
             callback(null, res)
         })
     }
