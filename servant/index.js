@@ -219,6 +219,7 @@ class spiderCore {
             case 'www.youtube.com':
             case 'm.youtube.com':
                 // _youtubeReq(ctx, remote)
+                logger.debug(remote)
                 handle.youtubeHandle(ctx, remote)
                 break
             default:
