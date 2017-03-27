@@ -236,8 +236,11 @@ function _youtubeReq(ctx, remote) {
     //     "port": 2017,
     //     "path": `/?url=${encodeURIComponent(remote)}&site=youtube`,
     // }
-    let url = `http://47.88.137.212:2017/?url=${encodeURIComponent(remote)}&site=youtube`
-    request(url, (err, res, body)=> {
+    let options = {
+        url: `http://47.88.137.212:2017/?url=${encodeURIComponent(remote)}&site=youtube`
+        timeout: 5000,
+    }
+    request(options, (err, res, body)=> {
         if(err || res.statusCode !== 200){
             logger.debug(err.message)
             ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`);
