@@ -1,6 +1,6 @@
 const HTTP = require('http');
 const URL = require('url');
-const Handle = require( './handle' );
+const Handle = require('./handle');
 
 let logger,handle;
 class spiderCore {
@@ -11,7 +11,7 @@ class spiderCore {
         handle = new Handle( this );
         logger.debug('server实例化')
     }
-    start () {
+    start() {
         const server = HTTP.createServer((req, res) => {
             switch ( req.method ){
                 case 'GET':
@@ -28,15 +28,15 @@ class spiderCore {
             logger.debug(`Server running at ${this.port} port`);
         })
     }
-    getHandle ( req, res ){
-        if ( req.url === '/favicon.ico' || URL.parse(req.url).pathname !== '/' ){
+    getHandle(req, res){
+        if (req.url === '/favicon.ico' || URL.parse(req.url).pathname !== '/'){
             res.writeHead(404,{'Content-Type': 'text/html;charset=utf-8'});
             res.end();
             return
         }
         this.dispatch( req, res )
     }
-    dispatch ( req, res ) {
+    dispatch(req, res) {
         res.setHeader('Access-Control-Allow-Origin','*');
         const query = URL.parse(req.url,true).query;
         if(!query.url){
