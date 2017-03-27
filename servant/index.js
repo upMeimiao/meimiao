@@ -231,9 +231,9 @@ class spiderCore {
 function _youtubeReq(ctx, remote) {
     const options = {
         "method": "GET",
-        "hostname": "47.88.137.212",
+        "hostname": "spider-bidfetcher-intra.meimiaoip.com",
         "port": 2017,
-        "path": `/?url=${encodeURIComponent(remote)}&site=youtube`,
+        "path": `/servant?url=${encodeURIComponent(remote)}&site=youtube`,
     }
     const req = HTTP.request(options, (res) => {
         const chunks = [];
