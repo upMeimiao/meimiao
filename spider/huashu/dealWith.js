@@ -40,8 +40,14 @@ class dealWith {
                 logger.debug('视频列表解析失败')
                 return callback(e)
             }
-            let vidInfo     = result[1].aggData[0].aggRel,
-                contents    = result[1].aggData[0].aggChild.data[0].tele_data,
+            for(let i = 0; i < result[1].aggData.length; i++){
+                if(result[1].aggData[i].name == '华数'){
+                    result = result[1].aggData[i]
+                    break
+                }
+            }
+            let vidInfo     = result.aggRel,
+                contents    = result.aggChild.data[0].tele_data,
                 length      = contents.length
                 task.listid = vidInfo.video_sid
             task.total     = length
