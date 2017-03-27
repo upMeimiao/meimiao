@@ -46,7 +46,12 @@ class spiderCore {
         }
         const remote = query.url,
             hostname = URL.parse(remote,true).hostname,
-            ctx = { req, res };
+            ctx = {req, res};
+        if(query.site && query.site === 'youtube'){
+            logger.debug(remote)
+            handle.youtubeHandle(ctx, remote)
+            return
+        }
         switch (hostname){
             case 'v.youku.com':
                 handle.youkuHandle( ctx, remote );
@@ -212,7 +217,8 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
-                handle.youtubeHandle(ctx, remote)
+                _youtubeReq(ctx, remote)
+                // handle.youtubeHandle(ctx, remote)
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`);
@@ -221,5 +227,23 @@ class spiderCore {
                 return;
         }
     }
+}
+function _youtubeReq(ctx, remote) {
+    const options = {
+        "method": "GET",
+        "hostname": "47.88.137.212",
+        "port": 2017,
+        "path": `/?url=${encodeURIComponent(remote)}&site=youtube`,
+    }
+    const req = HTTP.request(options, (res) => {
+        const chunks = [];
+        res.on("data", (chunk) => {
+            chunks.push(chunk);
+        });
+        res.on("end", () => {
+            ctx.res.end(Buffer.concat(chunks).toString())
+        });
+    });
+    req.end();
 }
 module.exports = spiderCore
