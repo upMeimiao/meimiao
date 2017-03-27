@@ -219,8 +219,8 @@ class spiderCore {
             case 'www.youtube.com':
             case 'm.youtube.com':
                 // _youtubeReq(ctx, remote)
-                logger.debug(remote)
-                handle.youtubeHandle(ctx, remote)
+                logger.debug(new Buffer(remote, 'base64').toString())
+                handle.youtubeHandle(ctx, new Buffer(remote, 'base64').toString())
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`);
@@ -238,7 +238,7 @@ function _youtubeReq(ctx, remote) {
     //     "path": `/?url=${encodeURIComponent(remote)}&site=youtube`,
     // }
     let options = {
-        url: `http://47.88.137.212:2017/?url=${encodeURIComponent(remote)}&site=youtube`,
+        url: `http://47.88.137.212:2017/?url=${encodeURIComponent(new Buffer(remote).toString("base64"))}&site=youtube`,
         timeout: 7000
     }
     request(options, (err, res, body)=> {
