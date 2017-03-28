@@ -12,307 +12,173 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,
         }
     }
 })
-
+let platform,message
 exports.start = () => {
-    //读取已存的错误，生成错误表
-    const errSetRule = new schedule.RecurrenceRule()
-        // errSetRule.minute = 40
-        errSetRule.minute = [0,5,10,15,20,25,30,35,40,45,50,55]
-    schedule.scheduleJob(errSetRule, () =>{
-        // async.parallel([
-        //     (cb) => {
-                // _playNumJudge((err,result)=>{
-                //     logger.debug("开始关于播放量的错误读取~")
-                //     logger.debug(err,result)
-                //     cb()
-                // })
-            // },
-            // (cb) => {
-                _errorJudge((err,result)=>{
-                    logger.debug("开始错误读取与分析~")
-                    logger.debug(err,result)
-                    // cb()
-                })
-        //     }
-        // ],( err, result ) => {
-        //         if(err){
-        //             return
-        //         }
-        //         logger.debug(err, result)
-        //     }
-        // )
-    })
-    const errReadRule = new schedule.RecurrenceRule()
-        errReadRule.minute = 0
-    schedule.scheduleJob(errReadRule, () =>{
-        sendWarnEmail(()=>{
-            logger.debug("开始读取错误列表发送邮件~")
-        })
-    })
-}
-const _playNumJudge = (callback) => {
-    let myDate = new Date(),
-        hour = myDate.getHours(),
-        minute = myDate.getMinutes(),
-        group_num,last_group_num,curKey,lastKey
-        if(0 <= minute  && minute < 20){
-            group_num = 1
-        } else if(20 <= minute && minute < 40){
-            group_num = 2
-            last_group_num = 1
-        } else if(40 <= minute && minute < 60){
-            group_num = 3
-            last_group_num = 2
-        }
-    if(!last_group_num){
-        return
-    }
-    curKey = `apiMonitor:play_num_${group_num}`,
-    lastKey = `apiMonitor:play_num_${last_group_num}`
-    //分别取curKey和lastKey的fields
-    //分别遍历两个fields
-    //取相同field的value作比较
-    //若curKey < lastKey 记录错误  
-    async.parallel(
-        {
-            cur: (cb) => {
-                mSpiderClient.hkeys(curKey,(err,result) => {
-                    cb(err,result)
-                })
-            },
-            last: (cb) => {
-                mSpiderClient.hkeys(lastKey,(err,result) => {
-                    cb(err,result)
-                })
-            }
-        },
-        ( err, result ) => {
-            if(err){
-                return
-            }
-            // logger.debug("异步获取当前和上次播放量纪录的结果为",result)
-            let curResult = result["cur"],
-                lastResult = result["last"]
-            if(!lastResult){
-                return
-            }
-            checkField(curKey,lastKey,curResult,lastResult,(err,result) => {
-                logger.debug(err,result)
-            })
-            callback(err,result)
-        }
-    )
-}
-//分别遍历两个fields
-//取相同field集合
-//相同key的value作比较
-//若curKey < lastKey 记录错误 
-const checkField = (curKey,lastKey,curResult,lastResult,callback) => {
-    let i,
-        j,
-        index = 0,
-        curLen = curResult.length,
-        lastLen = lastResult.length,
-        sameKeys = []
-    for(i = 0; i < curLen; i++){
-        for(j = 0; j < curLen; j++){
-            if(curResult[i] == lastResult[j]){
-                sameKeys.push(curResult[i])
-            }
-        }
-    }
-    // logger.debug("sameKeys.length=",sameKeys.length)
-    if(!sameKeys.length){
-        return
-    }
-    async.whilst(
-        () => {
-            return index < sameKeys.length
-        },
-        (cb) => {
-            getValue(curKey,lastKey,sameKeys[index],(err,result) => {
-                callback(err,result)
-            })
-            index++
+    sub()
+    /*async.parallel([
+        (cb)=>{
+            
             cb()
         },
-        (err,data) => {
-            callback(err,data)
-        }
-    )
-}
-const getValue = (curKey,lastKey,field,callback) => {
-    async.parallel(
-        {
-            curVal: (cb) => {
-                mSpiderClient.hget(curKey,field,(err,result) => {
-                    cb(err,result)
-                })
-            },
-            lastVal: (cb) => {
-                mSpiderClient.hget(lastKey,field,(err,result) => {
-                    cb(err,result)
-                })
-            }
-        },
-        ( err, result ) => {
-            if(err){
-                return
-            }
-            let curVal = result[0],
-                lastVal = result[1]
-            if(curVal < lastVal){
-                //${curPlatform}-${urlDesc}-${taskId}-${media.aid}
-                //平台 账号id 接口描述 错误类型 错误描述 错误次数 接口总请求次数
-                let strArr = field.split("-"),
-                    platform = strArr[0],
-                    urlDesc = strArr[1],
-                    taskId = strArr[2],
-                    MediaAid = strArr[3],
-                    newDate = new Date(),
-                    hour = newDate.getHours(),
-                    errObj = {
-                        "platform": platform,
-                        "urlDesc": urlDesc,
-                        "urls": [],
-                        "bid": taskId,
-                        "errType": "playNumErr",
-                        "errDesc": [MediaAid],
-                        "hourStr": hour,
-                        "errTimes": "--",
-                        "totalTimes": "--"
-                    },
-                    errObjStr = JSON.stringify(errObj)
-                    /*{
-                          "platform": "pptv",
-                          "urlDesc": "list",
-                          "urls": [
-                            "http://apis.web.pptv.com/show/videoList?from=web&version=1.0.0&format=jsonp&vt=22&pid=8057347&cat_id=75395"
-                          ],
-                          "bid": taskId,
-                          "errType": "playNumErr",
-                          "errDesc": "pptv视频24844997播放量减少",
-                          "hourStr": "14",
-                          "errTimes": 7,
-                          "totalTimes": 15
-                        }*/
-                //读取当前平台 playnum错误
-                mSpiderClient.hget(`apiMonitor:warnTable:${hour}`,`${platform}_${urlDesc}_playNumErr`,(err,result) => {
-                    if(err){
-                        logger.debug("连接redis数据库出错")
-                        return
-                    }
-                    // 若没有结果，直接记录当前playnum错误
-                    if(!result.length){
-                        mSpiderClient.hset(`apiMonitor:warnTable:${hour}`,`${platform}_${urlDesc}_${playNumErr}`,errObjStr,(err,result) => {
-                            if(err){
-                                logger.debug("连接redis数据库出错")
-                                return
-                            }
-                        })
-                        mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,6*60*60) 
-                        return
-                    }
-                    // 若有结果，将当前错误的视频id加入错误的desc中
-                    let errObjStored = JSON.parse(result)
-                    errObjStored.errDesc.push(MediaAid)
-                    mSpiderClient.hset(`apiMonitor:warnTable:${hour}`,`${platform}_${urlDesc}_${playNumErr}`,JSON.stringify(errObjStored),(err,result) => {
-                        if(err){
-                            logger.debug("连接redis数据库出错")
-                            return
-                        }
-                        callback(null,result)
-                    })
-                    mSpiderClient.expire(`apiMonitor:warnTable:${hour}`,6*60*60) 
-                })
+        (cb)=>{
+            
 
-            }
         }
-    )
-}
-const setWarnErrTable = (emailOptions) => {
-    let key = `apiMonitor:warnTable:${emailOptions.hourStr}`,
-        field = `${emailOptions.platform}_${emailOptions.urlDesc}_${emailOptions.errType}`
-    mSpiderClient.hset(key,field,JSON.stringify(emailOptions),(err,result) => {
-        if(err){
-            return
-        }
+    ],(err,result)=>{
+        logger.debug("start",err,result)
+    })*/
+    mSpiderClient.on("message",(channel,message)=>{
+        logger.debug(channel,message)
     })
-    mSpiderClient.expire(key,6*60*60)
+    if(channel&&message){
+        
+    }
 }
-const sendWarnEmail = (callback) => {
-    let newDate = new Date(),
-        hour = newDate.getHours()
-        if(hour == 0){
-            hourStr = 23
-        } else{
-            hourStr = hour - 1
+const sub=() => {
+    async.parallel([
+        (cb) => {
+            mSpiderClient.subscribe("tencent_total/user",(err,result) => {
+                logger.debug("tencent_total/user",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("kuaibao_user/videos",(err,result) => {
+                logger.debug("kuaibao_user/videos",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("ku6_user/total",(err,result) => {
+                logger.debug("ku6_user/total",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("wangyi_user",(err,result) => {
+                logger.debug("wangyi_user",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("mgtv_list",(err,result) => {
+                logger.debug("mgtv_list",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("v1_fans/total",(err,result) => {
+                logger.debug("v1_fans/total",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("huashu_vidList/videoList",(err,result) => {
+                logger.debug("huashu_vidList/videoList",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("baiduvideo_total",(err,result) => {
+                logger.debug("baiduvideo_total",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("baomihua_user",(err,result) => {
+                logger.debug("baomihua_user",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
+        },
+        (cb) => {
+            mSpiderClient.subscribe("other_urls",(err,result) => {
+                logger.debug("other_urls",err,result)
+                if(err){
+                    return cb()
+                }
+                cb()
+            })
         }
-    let  key = `apiMonitor:warnTable:${hourStr}`
-    //获取所有的key
-    mSpiderClient.hkeys(key,(err,result) => {
+    ],( err, result ) => {
         if(err){
-            logger.debug("连接redis数据库出错")
-            return
-        }  
-        if(!result){
-            logger.debug("暂无错误报警")
             return
         }
+        logger.debug(null,result)
+    })
+}
+// const setWarnErrTable = (emailOptions) => {
+//     let key = `apiMonitor:warnTable:${emailOptions.hourStr}`,
+//         field = `${emailOptions.platform}_${emailOptions.urlDesc}_${emailOptions.errType}`
+//     mSpiderClient.hset(key,field,JSON.stringify(emailOptions),(err,result) => {
+//         if(err){
+//             return
+//         }
+//     })
+//     mSpiderClient.expire(key,6*60*60)
+// }
+const sendWarnEmail = (emailOptions,callback) => {
+        logger.debug("sendWarnEmail")
         let newDate = new Date(),
             year = newDate.getFullYear(),
             month = newDate.getMonth() + 1,
             day = newDate.getDate(),
             content,errDesc,errTimes,
-            platform,bid,urlDesc,totalTimes,errObj,
-            errType
-        let subject = `接口监控：${year}年${month}月${day}日 ${hourStr}时接口报警报表`,
-            tableBody = "",j = 0,length = result.length,
+            platform = emailOptions.platform,
+            bid,
+            urlDesc = emailOptions.urlDesc,totalTimes,errObj,
+            errType,
+            subject = `接口监控：${platform}平台${urlDesc}接口报警`,
+            tableBody = "",
             tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
         //遍历key，获取所有错误信息，发送邮件
-        if(length < 1){
-            logger.debug("获取的错误内容为空，不发邮件") 
-            return
-        }
-        async.whilst(
-            () => {
-                return j < length
-            },
-            (cb) => {
-                mSpiderClient.hget(key,result[j],(err,result) => {
-                    result = JSON.parse(result)
-                    platform = result["platform"]
-                    bid = result["bid"]
-                    urlDesc = result["urlDesc"]
-                    totalTimes = result["totalTimes"]
-                    errObj = result["errObj"]
-                    errType = result["errType"]
-                    errDesc = JSON.stringify(result["errDesc"])
+                    bid = emailOptions.bid
+                    totalTimes = emailOptions["totalTimes"]
+                    errObj = emailOptions["errObj"]
+                    errType = emailOptions["errType"]
                     errTimes = result["errTimes"]
-                    tableBody += `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
+                    tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
                     content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
-                    // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
-                    j++
-                    cb()
-                })
-            },
-            (err, result) => {
-                logger.debug("开始发邮件啦~~~~~~~~~~~~~~~~~~~~",subject,content)
-                // emailServerLz.sendAlarm(subject,content)
-            }
-        )
-    })
+        logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
+        // emailServerLz.sendAlarm(subject,content)
 }
 const getErr = (platform,urlDesc) => {
-    // logger.debug("进入getErr")
+    logger.debug("进入getErr",platform,urlDesc)
     let nowDate = new Date(),
         hour = nowDate.getHours(),
         times
-    let curKey = `apiMonitor:error:${platform}:${urlDesc}:${hour}`,
-        i
+    let curKey = `apiMonitor:error`,
+        i,
+        curField =`${platform}_${urlDesc}`
             // 获取当前接口对应的错误记录
-            mSpiderClient.get(curKey,(err,result) => {
-                // logger.debug("获取当前接口对应的错误记录=",curKey,result)
+            mSpiderClient.hget(curKey,curField,(err,result) => {
+                logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
                 if(err){
                     logger.debug("读取redis发生错误")
                     return
@@ -324,22 +190,24 @@ const getErr = (platform,urlDesc) => {
                 let　 errResult = result,
                       options
                 // 获取当前url对应的全部请求次数
-                // logger.debug("errResult~~~~~~~~~~~~~~~~~",errResult)
-                mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}_${hour}`,(err,result) => {
+                logger.debug("errResult~~~~~~~~~~~~~~~~~",errResult)
+                mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result) => {
                     // logger.debug("获取当前url对应的全部请求次数=",curKey,result)
                     if(err){
                         logger.debug("读取redis发生错误")
                         return
                     }
                     if(!result){
-                        // logger.debug(`暂无${platform}:${urlDesc}的请求记录`)
+                        logger.debug(`暂无${platform}:${urlDesc}的请求记录`)
                         return
                     }
                     options = {
                         "urlDesc": urlDesc,
                         "hourStr": hour,
                         "result": errResult,
-                        "totalResult": (+result)
+                        "totalResult": (+result.times),
+                        "firstTime": result.firstTime,
+                        "lastTime": result.lastTime
                     }
                     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~options",options)
                     switch(platform){
@@ -458,13 +326,24 @@ const getErr = (platform,urlDesc) => {
                             liVideoJudgeErr(options)
                             break
                     }
+                    mSpiderClient.hdel(curKey,curField,(err,result)=>{
+                        if(err){
+                            return
+                        }
+                        mSpiderClient.hdel("apiMonitor:all",`${platform}_${urlDesc}`,(err,result)=>{
+                            if(err){
+                                return
+                            }
+                            start()
+                        })
+                    })
                 })
             })
         // }
     // })
 } 
 const judgeResults = (options,emailOptions,numberArr) => {
-    // logger.debug("judgeResults  options=================",options)
+    logger.debug("judgeResults  options=================",options)
     let resultObj = JSON.parse(options.result)
     if(!options.totalResult || options.totalResult < 2){
         return
@@ -476,7 +355,8 @@ const judgeResults = (options,emailOptions,numberArr) => {
         emailOptions.errTimes = resultObj.responseErr.times
         emailOptions.errDesc = resultObj.responseErr.desc
         emailOptions.urls = resultObj.responseErr.errUrls
-        setWarnErrTable(emailOptions)
+        // setWarnErrTable(emailOptions)
+        sendWarnEmail(emailOptions)
         return
     } else if(resultObj.resultErr.times 
         && resultObj.resultErr.times/(+options.totalResult) > numberArr[1]){
@@ -484,7 +364,8 @@ const judgeResults = (options,emailOptions,numberArr) => {
         emailOptions.errTimes = resultObj.resultErr.times
         emailOptions.errDesc = resultObj.resultErr.desc
         emailOptions.urls = resultObj.resultErr.errUrls
-        setWarnErrTable(emailOptions)
+        // setWarnErrTable(emailOptions)
+        sendWarnEmail(emailOptions)
         return
     } else if(resultObj.doWithResErr.times 
         && resultObj.doWithResErr.times/(+options.totalResult) > numberArr[2]){
@@ -492,7 +373,8 @@ const judgeResults = (options,emailOptions,numberArr) => {
         emailOptions.errTimes = resultObj.doWithResErr.times
         emailOptions.errDesc = resultObj.doWithResErr.desc
         emailOptions.urls = resultObj.doWithResErr.errUrls
-        setWarnErrTable(emailOptions)
+        // setWarnErrTable(emailOptions)
+        sendWarnEmail(emailOptions)
         return
     } else if(resultObj.domBasedErr.times 
         && resultObj.domBasedErr.times/(+options.totalResult) > numberArr[3]){
@@ -500,7 +382,8 @@ const judgeResults = (options,emailOptions,numberArr) => {
         emailOptions.errTimes = resultObj.domBasedErr.times
         emailOptions.errDesc = resultObj.domBasedErr.desc
         emailOptions.urls = resultObj.domBasedErr.errUrls
-        setWarnErrTable(emailOptions)
+        // setWarnErrTable(emailOptions)
+        sendWarnEmail(emailOptions)
         return
     } else if(resultObj.timeoutErr.times 
         && resultObj.timeoutErr.times/(+options.totalResult) > numberArr[4]){
@@ -508,191 +391,29 @@ const judgeResults = (options,emailOptions,numberArr) => {
         emailOptions.errTimes = resultObj.timeoutErr.times
         emailOptions.errDesc = resultObj.timeoutErr.desc
         emailOptions.urls = resultObj.timeoutErr.errUrls
-        setWarnErrTable(emailOptions)
+        // setWarnErrTable(emailOptions)
+        sendWarnEmail(emailOptions)
         return
     } 
-    else if(resultObj.playNumErr.times){
-        emailOptions.errType = "playNumErr"
-        emailOptions.errTimes = resultObj.playNumErr.times
-        emailOptions.errDesc = resultObj.playNumErr.desc + ",出错vid为" + resultObj.playNumErr.vids.toString()
-                                + ",对应播放量的值为" + resultObj.playNumErr.props.toString()
-        emailOptions.urls = resultObj.playNumErr.errUrls
-        setWarnErrTable(emailOptions)
-        return
-    } 
+    // else if(resultObj.playNumErr.times){
+    //     emailOptions.errType = "playNumErr"
+    //     emailOptions.errTimes = resultObj.playNumErr.times
+    //     emailOptions.errDesc = resultObj.playNumErr.desc + ",出错vid为" + resultObj.playNumErr.vids.toString()
+    //                             + ",对应播放量的值为" + resultObj.playNumErr.props.toString()
+    //     emailOptions.urls = resultObj.playNumErr.errUrls
+    //     setWarnErrTable(emailOptions)
+    //     return
+    // } 
     else if(resultObj.statusErr.times 
         && resultObj.statusErr.times/(+options.totalResult) > numberArr[5]){
         emailOptions.errType = "statusErr"
         emailOptions.errTimes = resultObj.statusErr.times
         emailOptions.errDesc = resultObj.statusErr.desc
         emailOptions.urls = resultObj.statusErr.errUrls
-        setWarnErrTable(emailOptions)
+        // setWarnErrTable(emailOptions)
+        sendWarnEmail(emailOptions)
         return
     }
-}
-const _errorJudge = (callback) => {
-    // logger.debug("进入_errorJudge")
-    async.parallel(
-        {
-            youku: (callback) => {
-                getYoukuError()
-                callback()
-            },
-            iqiyi: (callback) => {
-                getIqiyiError()
-                callback()
-            },
-            le: (callback) => {
-                getLeError()
-                callback()
-            },
-            tencent: (callback) => {
-                getTencentError()
-                callback()
-            },
-            meipai: (callback) => {
-                getMeipaiError()
-                callback()
-            },
-            toutiao: (callback) => {
-                getToutiaoError()
-                callback()
-            },
-            miaopai: (callback) => {
-                getMiaopaiError()
-                callback()
-            },
-            souhu: (callback) => {
-                getSouhuError()
-                callback()
-            },
-            bili: (callback) => {
-                getBiliError()
-                callback()
-            },
-            kuaibao: (callback) => {
-                getKuaibaoError()
-                callback()
-            },
-            yidian: (callback) => {
-                getYidianError()
-                callback()
-            },
-            tudou: (callback) => {
-                getTudouError()
-                callback()
-            },
-            baomihua: (callback) => {
-                getBaomihuaError()
-                callback()
-            },
-            ku6: (callback) => {
-                getKusixError()
-                callback()
-            },
-            btime: (callback) => {
-                getBtimeError()
-                callback()
-            },
-            weishi: (callback) => {
-                getWeishiError()
-                callback()
-            },
-            xiaoying: (callback) => {
-                getXiaoyingError()
-                callback()
-            },
-            budejie: (callback) => {
-                getBudejieError()
-                callback()
-            },
-            neihan: (callback) => {
-                getNeihanError()
-                callback()
-            },
-            yy: (callback) => {
-                getYyError()
-                callback()
-            },
-            tv56: (callback) => {
-                getTv56Error()
-                callback()
-            },
-            acfun: (callback) => {
-                getAcfunError()
-                callback()
-            },
-            weibo: (callback) => {
-                getWeiboError()
-                callback()
-            },
-            ifeng: (callback) => {
-                getIfengError()
-                callback()
-            },
-            wangyi: (callback) => {
-                getWangyiError()
-                callback()
-            },
-            uctt: (callback) => {
-                getUcttError()
-                callback()
-            },
-            mgtv: (callback) => {
-                getMgtvError()
-                callback()
-            },
-            baijia: (callback) => {
-                getBaijiaError()
-                callback()
-            },
-            qzone: (callback) => {
-                getQzoneError()
-                callback()
-            },
-            cctv: (callback) => {
-                getCctvError()
-                callback()
-            },
-            pptv: (callback) => {
-                getPptvError()
-                callback()
-            },
-            xinlan: (callback) => {
-                getXinlanError()
-                callback()
-            },
-            v1: (callback) => {
-                getV1Error()
-                callback()
-            },
-            fengxing: (callback) => {
-                getFengxingError()
-                callback()
-            },
-            huashu: (callback) => {
-                getHuashuError()
-                callback()
-            },
-            baofeng: (callback) => {
-                getBaofengError()
-                callback()
-            },
-            baiduvideo: (callback) => {
-                getBaiduvideoError()
-                callback()
-            },
-            liVideo: (callback) => {
-                getLiVideoError()
-                callback()
-            }
-        },( err, result ) => {
-                if(err){
-                    return callback()
-                }
-                callback()
-        }
-    )
 }
 const getLiVideoError = () => {
     // logger.debug("getLiVideoError")
@@ -1048,7 +769,9 @@ const liVideoJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1077,7 +800,9 @@ const baiduvideoJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1111,7 +836,9 @@ const baofengJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1155,7 +882,9 @@ const huashuJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1199,7 +928,9 @@ const fengxingJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1248,7 +979,9 @@ const v1JudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1297,7 +1030,9 @@ const xinlanJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1341,7 +1076,9 @@ const pptvJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1375,7 +1112,9 @@ const cctvJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1414,7 +1153,9 @@ const qzoneJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1453,7 +1194,9 @@ const baijiaJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1492,7 +1235,9 @@ const mgtvJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1546,7 +1291,9 @@ const ucttJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1585,7 +1332,9 @@ const wangyiJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1624,7 +1373,9 @@ const ifengJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1658,7 +1409,9 @@ const weiboJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1697,7 +1450,9 @@ const acfunJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1731,7 +1486,9 @@ const tv56JudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1775,7 +1532,9 @@ const yyJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1819,7 +1578,9 @@ const neihanJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1848,7 +1609,9 @@ const budejieJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1877,7 +1640,9 @@ const xiaoyingJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1911,7 +1676,9 @@ const weishiJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1940,7 +1707,9 @@ const btimeJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -1979,7 +1748,9 @@ const kusixJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2013,7 +1784,9 @@ const baomihuaJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2057,7 +1830,9 @@ const tudouJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2106,7 +1881,9 @@ const yidianJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2140,7 +1917,9 @@ const tencentJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2194,7 +1973,9 @@ const kuaibaoJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2247,7 +2028,9 @@ const souhuJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2290,7 +2073,9 @@ const toutiaoJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2328,7 +2113,9 @@ const meipaiJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2366,7 +2153,9 @@ const miaopaiJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2404,7 +2193,9 @@ const biliJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2442,7 +2233,9 @@ const youkuJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
     switch(options.urlDesc){
@@ -2480,7 +2273,9 @@ const iqiyiJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
         //["user","total","_user","list","ids","info","Expr","play","comment"]
@@ -2543,7 +2338,9 @@ const leJudgeErr = (options) => {
             "errDesc": "",
             "hourStr": options.hourStr,
             "errTimes": "",
-            "totalTimes": options.totalResult
+            "totalTimes": options.totalResult,
+            "firstTime": options.firstTime,
+            "lastTime": options.lastTime
         },
         numberArr
         //["list","total","Expr","info","Desc"]

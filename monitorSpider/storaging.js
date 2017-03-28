@@ -29,21 +29,133 @@ class storage{
 	totalStorage (platform,url,urlDesc){
 		let nowDate = new Date(),
 			hour = nowDate.getHours(),
-			urlStr = url, 
-	        times
-		let	curKey = `apiMonitor:all`,
-			field = `${platform}_${urlDesc}_${hour}`
+	       	nowTime = nowDate.getTime(),
+	       	curKey = `apiMonitor:all`,
+			field = `${platform}_${urlDesc}`
 	    mSpiderClint.hget(curKey,field,(err,result) => {
+	    	let totalObj = {}
 	        if(err){
 	            logger.error( '获取接口成功调取次数出现错误', err )
 	            return
 	        }
 	        if (!result) {
-	            times = 1
+	        	//无记录，直接存入
+	            totalObj.firstTime = nowTime
+	            totalObj.lastTime = nowTime
+	            totalObj.times = 1
 	        }  else {
-	            times = Number(result) + 1
+	        	//有记录，加判断
+	        	result = JSON.parse(result)
+	        	totalObj.firstTime = result.firstTime
+	        	totalObj.lastTime = nowTime
+	        	totalObj.times = result.times
+		        switch(field){
+		        	case "tencent_total" || "tencent_user":
+		        		if(totalObj.times >= 5){
+		        			mSpiderClint.publish("tencent_total/user",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "kuaibao_user" || "kuaibao_videos":
+		        		if(totalObj.times >= 3){
+		        			mSpiderClint.publish("kuaibao_user/videos",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "ku6_user" || "ku6_total":
+		        		if(totalObj.times >= 3){
+		        			mSpiderClint.publish("ku6_user/total",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "wangyi_user":
+		        		if(totalObj.times >= 3){
+		        			mSpiderClint.publish("wangyi_user",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "mgtv_list":
+		        		if(totalObj.times >= 5){
+		        			mSpiderClint.publish("mgtv_list",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "v1_fans" || "v1_total":
+		        		if(totalObj.times >= 5){
+		        			mSpiderClint.publish("v1_fans/total",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "huashu_vidList" || "huashu_videoList":
+		        		if(totalObj.times >= 10){
+		        			mSpiderClint.publish("huashu_vidList/videoList",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "baiduvideo_total":
+		        		if(totalObj.times >= 3){
+		        			mSpiderClint.publish("baiduvideo_total",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	case "baomihua_user":
+		        		if(totalObj.times >= 5){
+		        			mSpiderClint.publish("baomihua_user",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+		        	default:
+		        		if(totalObj.times >= 20){
+		        			mSpiderClint.publish("other_urls",`${platform}-${urlDesc}-enough`,(err,result) => {
+		        				if(err){
+		        					return
+		        				}
+		        				logger.debug(err,result)
+		        			})
+		        			return
+		        		} else{
+		            		totalObj.times = Number(result.times) + 1
+		        		}
+		        		break
+	        	}
 	        }
-	        mSpiderClint.hset(curKey,field,times,(err,result) => {
+	        mSpiderClint.hset(curKey,field,JSON.stringify(totalObj),(err,result) => {
 	            if(err){
 	                logger.error( '设置接口成功调取次数出现错误', err )
 	                return
@@ -63,9 +175,10 @@ class storage{
 	    }else{
 	    	hourStr = "0" + hour
 	    }
-		let	curKey = `apiMonitor:error:${platform}:${urlDesc}:${hourStr}`,
-			i
-	    mSpiderClint.get(curKey,(err,result) => {
+		let	curKey = `apiMonitor:error`,
+			i,
+			field = `${platform}_${urlDesc}`
+	    mSpiderClint.hget(curKey,field,(err,result) => {
 	        if(err){
 	            logger.error( '获取接口成功调取次数出现错误', err )
 	            return
@@ -74,7 +187,7 @@ class storage{
 	        // errtype times =1 ...
 	        // 若有当前key的错误记录，查看errtype，若有times++，没有times=1
 	        
-	        if (!result || !result.length) {
+	        if (!result || result && !result.length) {
 	        	errObj = {
 					"bid": bid,
 					"responseErr": {
@@ -148,7 +261,7 @@ class storage{
 	        	// }
 	        }
 	        let errString = JSON.stringify(errObj)
-	        mSpiderClint.set(curKey,errString,(err,result) => {
+	        mSpiderClint.hset(curKey,field,errString,(err,result) => {
 	            if(err){
 	                logger.error( '设置接口成功调取次数出现错误', err )
 	                return
