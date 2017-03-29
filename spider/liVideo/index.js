@@ -68,8 +68,8 @@ class spiderCore {
     }
     test (){
         let work = {
-            id: 134,
-            name: '二更',
+            id: 168,
+            name: '一席·枝桠',
             p: 38
         };
         this.dealWith.todo(work,(err,total) => {
