@@ -239,19 +239,19 @@ class dealWith {
                 }
                 //logger.error(errType)
                 this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"vidList")
-                return this.getVideoList(task,callback)
+                return this.getVidList(task,callback)
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
                 this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取vidList接口状态码错误","statusErr","vidList")
-                return this.getVideoList(task,callback)
+                return this.getVidList(task,callback)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
                 this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取vidList接口json数据解析失败","doWithResErr","vidList")
-                return this.getVideoList(task,callback)
+                return this.getVidList(task,callback)
             }
             let length  = result.episodes.length,
                 content = result.episodes

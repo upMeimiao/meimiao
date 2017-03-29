@@ -5,6 +5,7 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
+var events = require('events')
 const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
@@ -14,25 +15,18 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,
 })
 let platform,message
 exports.start = () => {
+    let  eventEmitter = new events.EventEmitter()
     sub()
-    /*async.parallel([
-        (cb)=>{
-            
-            cb()
-        },
-        (cb)=>{
-            
-
-        }
-    ],(err,result)=>{
-        logger.debug("start",err,result)
-    })*/
     mSpiderClient.on("message",(channel,message)=>{
-        logger.debug(channel,message)
+        eventEmitter.emit('gotMsg',message)
     })
-    if(channel&&message){
-        
-    }
+    eventEmitter.on('gotMsg', (message) => {
+        logger.debug(message)
+        let arr = message.split(),
+            platform = arr[0],
+            urlDesc = arr[1]
+        getErr(platform,urlDesc)
+    })
 }
 const sub=() => {
     async.parallel([
@@ -176,6 +170,9 @@ const getErr = (platform,urlDesc) => {
     let curKey = `apiMonitor:error`,
         i,
         curField =`${platform}_${urlDesc}`
+        logger.debug("mSpiderClient=",mSpiderClient)
+        mSpiderClient.set("qwe",123)
+        return
             // 获取当前接口对应的错误记录
             mSpiderClient.hget(curKey,curField,(err,result) => {
                 logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
