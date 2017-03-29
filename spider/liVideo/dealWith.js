@@ -32,7 +32,7 @@ class dealWith {
                     'cache-control': 'no-cache',
                     'x-platform-version': '10.2.1',
                     'x-client-hash': 'b90e74ec3b4e9511e9cf87e96438e461',
-                    connection: 'c',
+                    connection: 'keep-alive',
                     'x-client-version': '2.2.1',
                     'x-client-agent': 'APPLE_iPhone8,2_iOS10.2.1',
                     'user-agent': 'LiVideoIOS/2.2.1 (iPhone; iOS 10.2.1; Scale/3.00)',
@@ -48,6 +48,7 @@ class dealWith {
             },
             (cb) => {
                 options.url = `${this.settings.spiderAPI.liVideo.list}${task.id}&start=${start}`;
+                //logger.debug(options);
                 request(options, (error, response, body) => {
                     if(error){
                         logger.debug('LI视频总量请求失败',error);
@@ -169,7 +170,7 @@ class dealWith {
                 tags.push(body.content.tags[i].name);
             }
             body.tags = tags.join(',');
-            body.content.pubTime = moment(new Date('body.content.pubTime'+':00')).format('X');
+            body.content.pubTime = moment(new Date(body.content.pubTime+':00')).format('X');
             callback(null,body)
         })
     }
