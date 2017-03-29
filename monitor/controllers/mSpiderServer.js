@@ -18,14 +18,22 @@ exports.start = () => {
     let  eventEmitter = new events.EventEmitter()
     sub()
     mSpiderClient.on("message",(channel,message)=>{
-        eventEmitter.emit('gotMsg',message)
+        let data = {"channel":channel,"message":message}
+        eventEmitter.emit('gotMsg',data)
     })
-    eventEmitter.on('gotMsg', (message) => {
-        logger.debug(message)
-        let arr = message.split(),
+    eventEmitter.on('gotMsg', (data) => {
+        logger.debug(data)
+        let arr = data.message.split(),
+            channel = data.channel,
             platform = arr[0],
             urlDesc = arr[1]
-        getErr(platform,urlDesc)
+        mSpiderClient.unsubscribe(channel,(err,result)=>{
+            if(err){
+                logger.debug(err)
+                return
+            }
+            getErr(channel,platform,urlDesc)
+        })
     })
 }
 const sub=() => {
@@ -162,7 +170,7 @@ const sendWarnEmail = (emailOptions,callback) => {
         logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
         // emailServerLz.sendAlarm(subject,content)
 }
-const getErr = (platform,urlDesc) => {
+const getErr = (channel,platform,urlDesc) => {
     logger.debug("进入getErr",platform,urlDesc)
     let nowDate = new Date(),
         hour = nowDate.getHours(),
@@ -170,9 +178,6 @@ const getErr = (platform,urlDesc) => {
     let curKey = `apiMonitor:error`,
         i,
         curField =`${platform}_${urlDesc}`
-        logger.debug("mSpiderClient=",mSpiderClient)
-        mSpiderClient.set("qwe",123)
-        return
             // 获取当前接口对应的错误记录
             mSpiderClient.hget(curKey,curField,(err,result) => {
                 logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
@@ -331,7 +336,7 @@ const getErr = (platform,urlDesc) => {
                             if(err){
                                 return
                             }
-                            start()
+                            mSpiderClient.subscribe(channel)
                         })
                     })
                 })
