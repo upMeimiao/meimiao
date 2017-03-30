@@ -232,16 +232,17 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('acfun',`${url}`,task.id,`acfun视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-            }
-            this.storaging.sendDb(media/*,task.id,"list"*/)
-        })
+        this.storaging.playNumStorage(media,"list")
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('acfun',`${url}`,task.id,`acfun视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //     }
+        //     this.storaging.sendDb(media/*,task.id,"list"*/)
+        // })
         callback()
     }
     _tags( raw ){

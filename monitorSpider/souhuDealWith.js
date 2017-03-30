@@ -262,16 +262,17 @@ class souhuDealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('souhu',"",task.id,`搜狐播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"info"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('souhu',"",task.id,`搜狐播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"info"*/)
+            // })
+            this.storaging.playNumStorage(media,"info")
             callback()
         })
     }

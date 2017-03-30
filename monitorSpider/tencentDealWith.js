@@ -274,17 +274,7 @@ class tencentDealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('tencent',"",task.id,`腾讯视频播放量减少`,"playNumErr","view",media.aid,`${result}/${media.play_num}`)
-                        return
-                    }
-                    this.storaging.sendDb(media/*,task.id,"view"*/)
-                })
+                this.storaging.playNumStorage(media,"view")
                 if(!media.comment_num){
                     delete media.comment_num
                 }

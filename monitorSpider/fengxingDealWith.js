@@ -321,16 +321,17 @@ class dealWith {
                     if(playNumStr.indexOf(",") >= 0){
                         media.play_num = Number(this.getNumber(playNumStr))
                     }
-                    this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                        if(err){
-                            logger.debug("读取redis出错")
-                            return
-                        }
-                        if(result > media.play_num){
-                            this.storaging.errStoraging('fengxing',"",task.id,`风行网视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                        }
-                        this.storaging.sendDb(media/*,task.id,"list"*/)
-                    })
+                    // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    //     if(err){
+                    //         logger.debug("读取redis出错")
+                    //         return
+                    //     }
+                    //     if(result > media.play_num){
+                    //         this.storaging.errStoraging('fengxing',"",task.id,`风行网视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                    //     }
+                    //     this.storaging.sendDb(media/*,task.id,"list"*/)
+                    // }
+                    this.storaging.playNumStorage(media,"list")
                     callback()
                 }
             )            

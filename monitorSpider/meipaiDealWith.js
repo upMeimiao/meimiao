@@ -277,16 +277,17 @@ class meipaiDealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"videos"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"videos"*/)
+            // })
+            this.storaging.playNumStorage(media,"videos")
             callback()
         })
     }

@@ -193,16 +193,17 @@ class dealWith {
             if(!media.play_num && media.play_num !== 0){
                 return callback()
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return callback()
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('baijia',"",task.id,`百家号播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"info"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return callback()
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('baijia',"",task.id,`百家号播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"info"*/)
+            // })
+            this.storaging.playNumStorage(media,"info")
             task.total++
             callback()
             

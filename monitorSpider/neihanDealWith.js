@@ -214,17 +214,18 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('neihan',`${url}`,task.id,`内涵段子播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                return
-            }
-            this.storaging.sendDb(media/*,task.id,"list"*/)
-        })
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('neihan',`${url}`,task.id,`内涵段子播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //         return
+        //     }
+        //     this.storaging.sendDb(media/*,task.id,"list"*/)
+        // })
+        this.storaging.playNumStorage(media,"list")
         callback()
     }
     long_t ( raw ){

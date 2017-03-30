@@ -16,123 +16,26 @@ const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,
 let platform,message
 exports.start = () => {
     let  eventEmitter = new events.EventEmitter()
-    sub()
+    mSpiderClient.subscribe("enough")
+    logger.debug("开始监听enough频道")
     mSpiderClient.on("message",(channel,message)=>{
         let data = {"channel":channel,"message":message}
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        logger.debug(data)
-        let arr = data.message.split(),
+        logger.debug("获取到msg和data",data)
+        let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
             urlDesc = arr[1]
         mSpiderClient.unsubscribe(channel,(err,result)=>{
             if(err){
-                logger.debug(err)
+                logger.debug("err",err)
                 return
             }
+            logger.debug(`取消订阅${channel}成功，开始分析`)
             getErr(channel,platform,urlDesc)
         })
-    })
-}
-const sub=() => {
-    async.parallel([
-        (cb) => {
-            mSpiderClient.subscribe("tencent_total/user",(err,result) => {
-                logger.debug("tencent_total/user",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("kuaibao_user/videos",(err,result) => {
-                logger.debug("kuaibao_user/videos",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("ku6_user/total",(err,result) => {
-                logger.debug("ku6_user/total",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("wangyi_user",(err,result) => {
-                logger.debug("wangyi_user",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("mgtv_list",(err,result) => {
-                logger.debug("mgtv_list",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("v1_fans/total",(err,result) => {
-                logger.debug("v1_fans/total",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("huashu_vidList/videoList",(err,result) => {
-                logger.debug("huashu_vidList/videoList",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("baiduvideo_total",(err,result) => {
-                logger.debug("baiduvideo_total",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("baomihua_user",(err,result) => {
-                logger.debug("baomihua_user",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        },
-        (cb) => {
-            mSpiderClient.subscribe("other_urls",(err,result) => {
-                logger.debug("other_urls",err,result)
-                if(err){
-                    return cb()
-                }
-                cb()
-            })
-        }
-    ],( err, result ) => {
-        if(err){
-            return
-        }
-        logger.debug(null,result)
     })
 }
 // const setWarnErrTable = (emailOptions) => {
@@ -146,29 +49,29 @@ const sub=() => {
 //     mSpiderClient.expire(key,6*60*60)
 // }
 const sendWarnEmail = (emailOptions,callback) => {
-        logger.debug("sendWarnEmail")
+        logger.debug("sendWarnEmail",emailOptions)
         let newDate = new Date(),
+            newTime =newDate.getTime(),
             year = newDate.getFullYear(),
             month = newDate.getMonth() + 1,
             day = newDate.getDate(),
-            content,errDesc,errTimes,
             platform = emailOptions.platform,
-            bid,
-            urlDesc = emailOptions.urlDesc,totalTimes,errObj,
-            errType,
+            urlDesc = emailOptions.urlDesc,
             subject = `接口监控：${platform}平台${urlDesc}接口报警`,
-            tableBody = "",
-            tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
+            tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`,
         //遍历key，获取所有错误信息，发送邮件
-                    bid = emailOptions.bid
-                    totalTimes = emailOptions["totalTimes"]
-                    errObj = emailOptions["errObj"]
-                    errType = emailOptions["errType"]
-                    errTimes = result["errTimes"]
+                    bid = emailOptions["bid"],
+                    totalTimes = emailOptions["totalTimes"],
+                    errDesc = emailOptions["errDesc"],
+                    errObj = emailOptions["errObj"],
+                    errType = emailOptions["errType"],
+                    errTimes = emailOptions["errTimes"],
                     tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
                     content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
         logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
+        mSpiderClient.hset("apiMonitor:errEmail",`${platform}_${urlDesc}_${newTime}`,content)
         // emailServerLz.sendAlarm(subject,content)
+        mSpiderClient.subscribe("enough")
 }
 const getErr = (channel,platform,urlDesc) => {
     logger.debug("进入getErr",platform,urlDesc)
@@ -180,163 +83,61 @@ const getErr = (channel,platform,urlDesc) => {
         curField =`${platform}_${urlDesc}`
             // 获取当前接口对应的错误记录
             mSpiderClient.hget(curKey,curField,(err,result) => {
-                logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
+                // logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
                 if(err){
+                    //发生错误，恢复订阅，返回
                     logger.debug("读取redis发生错误")
-                    return
+                    mSpiderClient.subscribe("enough")
+                    return 
                 }
                 if(!result){
-                    // logger.debug(`暂无${platform}:${urlDesc}的错误记录`)
+                    //结果为空，恢复订阅，返回
+                    logger.debug(`暂无${platform}:${urlDesc}的错误记录`)
+                    mSpiderClient.subscribe("enough")
                     return
                 }
+                //当前接口对应错误
                 let　 errResult = result,
                       options
                 // 获取当前url对应的全部请求次数
-                logger.debug("errResult~~~~~~~~~~~~~~~~~",errResult)
                 mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result) => {
                     // logger.debug("获取当前url对应的全部请求次数=",curKey,result)
                     if(err){
+                        //发生错误，恢复订阅，返回
                         logger.debug("读取redis发生错误")
+                        mSpiderClient.subscribe("enough")
                         return
                     }
                     if(!result){
+                        //无结果，恢复订阅，返回
                         logger.debug(`暂无${platform}:${urlDesc}的请求记录`)
+                        mSpiderClient.subscribe("enough")
                         return
                     }
+                    result = JSON.parse(result)
+                    // logger.debug(result,result.times)
                     options = {
                         "urlDesc": urlDesc,
                         "hourStr": hour,
                         "result": errResult,
-                        "totalResult": (+result.times),
+                        "totalResult": result.times,
                         "firstTime": result.firstTime,
                         "lastTime": result.lastTime
                     }
                     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~options",options)
-                    switch(platform){
-                        case "youku":
-                            youkuJudgeErr(options)
-                            break
-                        case "iqiyi":
-                            iqiyiJudgeErr(options)
-                            break
-                        case "le":
-                            leJudgeErr(options)
-                            break
-                        case "tencent":
-                            tencentJudgeErr(options)
-                            break
-                        case "meipai":
-                            meipaiJudgeErr(options)
-                            break
-                        case "toutiao":
-                            toutiaoJudgeErr(options)
-                            break
-                        case "miaopai":
-                            miaopaiJudgeErr(options)
-                            break
-                        case "souhu":
-                            souhuJudgeErr(options)
-                            break
-                        case "bili":
-                            biliJudgeErr(options)
-                            break
-                        case "kuaibao":
-                            kuaibaoJudgeErr(options)
-                            break
-                        case "yidian":
-                            yidianJudgeErr(options)
-                            break
-                        case "tudou":
-                            tudouJudgeErr(options)
-                            break
-                        case "baomihua":
-                            baomihuaJudgeErr(options)
-                            break
-                        case "ku6":
-                            kusixJudgeErr(options)
-                            break
-                        case "btime":
-                            btimeJudgeErr(options)
-                            break
-                        case "weishi":
-                            weishiJudgeErr(options)
-                            break
-                        case "xiaoying":
-                            xiaoyingJudgeErr(options)
-                            break
-                        case "budejie":
-                            budejieJudgeErr(options)
-                            break
-                        case "neihan":
-                            neihanJudgeErr(options)
-                            break
-                        case "yy":
-                            yyJudgeErr(options)
-                            break
-                        case "tv56":
-                            tv56JudgeErr(options)
-                            break
-                        case "acfun":
-                            acfunJudgeErr(options)
-                            break
-                        case "weibo":
-                            weiboJudgeErr(options)
-                            break
-                        case "ifeng":
-                            ifengJudgeErr(options)
-                            break
-                        case "wangyi":
-                            wangyiJudgeErr(options)
-                            break
-                        case "uctt":
-                            ucttJudgeErr(options)
-                            break
-                        case "mgtv":
-                            mgtvJudgeErr(options)
-                            break
-                        case "baijia":
-                            baijiaJudgeErr(options)
-                            break
-                        case "qzone":
-                            qzoneJudgeErr(options)
-                            break
-                        case "cctv":
-                            cctvJudgeErr(options)
-                            break
-                        case "pptv":
-                            pptvJudgeErr(options)
-                            break
-                        case "xinlan":
-                            xinlanJudgeErr(options)
-                            break
-                        case "v1":
-                            v1JudgeErr(options)
-                            break
-                        case "fengxing":
-                            fengxingJudgeErr(options)
-                            break
-                        case "huashu":
-                            huashuJudgeErr(options)
-                            break
-                        case "baofeng":
-                            baofengJudgeErr(options)
-                            break
-                        case "baiduvideo":
-                            baiduvideoJudgeErr(options)
-                            break
-                        case "liVideo":
-                            liVideoJudgeErr(options)
-                            break
-                    }
+                    //删除本次监听的数据
                     mSpiderClient.hdel(curKey,curField,(err,result)=>{
                         if(err){
                             return
                         }
+                        logger.debug(`key:${curKey}-field:${curField}已删除`)
                         mSpiderClient.hdel("apiMonitor:all",`${platform}_${urlDesc}`,(err,result)=>{
                             if(err){
                                 return
                             }
-                            mSpiderClient.subscribe(channel)
+                            logger.debug(`key:apiMonitor:all-field:${platform}_${urlDesc}已删除`)
+                            //开始判断各平台错误几率
+                            judgePlatsError(platform,options)
                         })
                     })
                 })
@@ -344,11 +145,141 @@ const getErr = (channel,platform,urlDesc) => {
         // }
     // })
 } 
+const judgePlatsError = (platform,options) => {
+    switch(platform){
+        case "youku":
+            youkuJudgeErr(options)
+            break
+        case "iqiyi":
+            iqiyiJudgeErr(options)
+            break
+        case "le":
+            leJudgeErr(options)
+            break
+        case "tencent":
+            tencentJudgeErr(options)
+            break
+        case "meipai":
+            meipaiJudgeErr(options)
+            break
+        case "toutiao":
+            toutiaoJudgeErr(options)
+            break
+        case "miaopai":
+            miaopaiJudgeErr(options)
+            break
+        case "souhu":
+            souhuJudgeErr(options)
+            break
+        case "bili":
+            biliJudgeErr(options)
+            break
+        case "kuaibao":
+            kuaibaoJudgeErr(options)
+            break
+        case "yidian":
+            yidianJudgeErr(options)
+            break
+        case "tudou":
+            tudouJudgeErr(options)
+            break
+        case "baomihua":
+            baomihuaJudgeErr(options)
+            break
+        case "ku6":
+            kusixJudgeErr(options)
+            break
+        case "btime":
+            btimeJudgeErr(options)
+            break
+        case "weishi":
+            weishiJudgeErr(options)
+            break
+        case "xiaoying":
+            xiaoyingJudgeErr(options)
+            break
+        case "budejie":
+            budejieJudgeErr(options)
+            break
+        case "neihan":
+            neihanJudgeErr(options)
+            break
+        case "yy":
+            yyJudgeErr(options)
+            break
+        case "tv56":
+            tv56JudgeErr(options)
+            break
+        case "acfun":
+            acfunJudgeErr(options)
+            break
+        case "weibo":
+            weiboJudgeErr(options)
+            break
+        case "ifeng":
+            ifengJudgeErr(options)
+            break
+        case "wangyi":
+            wangyiJudgeErr(options)
+            break
+        case "uctt":
+            ucttJudgeErr(options)
+            break
+        case "mgtv":
+            mgtvJudgeErr(options)
+            break
+        case "baijia":
+            baijiaJudgeErr(options)
+            break
+        case "qzone":
+            qzoneJudgeErr(options)
+            break
+        case "cctv":
+            cctvJudgeErr(options)
+            break
+        case "pptv":
+            pptvJudgeErr(options)
+            break
+        case "xinlan":
+            xinlanJudgeErr(options)
+            break
+        case "v1":
+            v1JudgeErr(options)
+            break
+        case "fengxing":
+            fengxingJudgeErr(options)
+            break
+        case "huashu":
+            huashuJudgeErr(options)
+                            break
+        case "baofeng":
+            baofengJudgeErr(options)
+            break
+        case "baiduvideo":
+            baiduvideoJudgeErr(options)
+            break
+        case "liVideo":
+            liVideoJudgeErr(options)
+            break
+    }
+}
 const judgeResults = (options,emailOptions,numberArr) => {
-    logger.debug("judgeResults  options=================",options)
-    let resultObj = JSON.parse(options.result)
-    if(!options.totalResult || options.totalResult < 2){
-        return
+    // logger.debug("judgeResults  options=================",options)
+    let resultObj = JSON.parse(options.result),
+        nowDate = new Date(),
+        nowTime = nowDate.getTime()
+    if(resultObj.responseErr.times){
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_resposeErr_${nowTime}`,resultObj.responseErr.times+"/"+options.totalResult)
+    }else if(resultObj.resultErr.times){
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_resultErr_${nowTime}`,resultObj.resultErr.times+"/"+options.totalResult)
+    }else if(resultObj.doWithResErr.times){
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_doWithResErr_${nowTime}`,resultObj.doWithResErr.times+"/"+options.totalResult)
+    }else if(resultObj.domBasedErr.times){
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_domBasedErr_${nowTime}`,resultObj.domBasedErr.times+"/"+options.totalResult)
+    }else if(resultObj.timeoutErr.times){
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_timeoutErr_${nowTime}`,resultObj.timeoutErr.times+"/"+options.totalResult)
+    }else if(resultObj.statusErr.times){
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}statusErr_${nowTime}`,resultObj.statusErr.times+"/"+options.totalResult)
     }
     if(resultObj.responseErr.times 
         && resultObj.responseErr.times/(+options.totalResult) > numberArr[0]){
@@ -397,15 +328,15 @@ const judgeResults = (options,emailOptions,numberArr) => {
         sendWarnEmail(emailOptions)
         return
     } 
-    // else if(resultObj.playNumErr.times){
-    //     emailOptions.errType = "playNumErr"
-    //     emailOptions.errTimes = resultObj.playNumErr.times
-    //     emailOptions.errDesc = resultObj.playNumErr.desc + ",出错vid为" + resultObj.playNumErr.vids.toString()
-    //                             + ",对应播放量的值为" + resultObj.playNumErr.props.toString()
-    //     emailOptions.urls = resultObj.playNumErr.errUrls
-    //     setWarnErrTable(emailOptions)
-    //     return
-    // } 
+    else if(resultObj.playNumErr.times){
+        emailOptions.errType = "playNumErr"
+        emailOptions.errTimes = resultObj.playNumErr.times
+        emailOptions.errDesc = resultObj.playNumErr.desc + ",出错vid为" + resultObj.playNumErr.vids.toString()
+                                + ",对应播放量的值为" + resultObj.playNumErr.props.toString()
+        emailOptions.urls = resultObj.playNumErr.errUrls
+        setWarnErrTable(emailOptions)
+        return
+    } 
     else if(resultObj.statusErr.times 
         && resultObj.statusErr.times/(+options.totalResult) > numberArr[5]){
         emailOptions.errType = "statusErr"
@@ -415,349 +346,354 @@ const judgeResults = (options,emailOptions,numberArr) => {
         // setWarnErrTable(emailOptions)
         sendWarnEmail(emailOptions)
         return
+    } else{
+        mSpiderClient.subscribe("enough")
+        return
     }
 }
-const getLiVideoError = () => {
-    // logger.debug("getLiVideoError")
-    let urlDescArr = ["list","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("liVideo",urlDesc)
-    }
-}
-const getBaiduvideoError = () => {
-    // logger.debug("getBaiduvideoError")
-    let urlDescArr = ["total","list","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("baiduvideo",urlDesc)
-    }
-}
-const getBaofengError = () => {
-    // logger.debug("getBaofengError")
-    let urlDescArr = ["theAlbum","list","desc","support","comment"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("baofeng",urlDesc)
-    }
-}
-const getHuashuError = () => {
-    // logger.debug("getHuashuError")
-    let urlDescArr = ["vidList","videoList","info","comment","play"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("huashu",urlDesc)
-    }
-}
-const getFengxingError = () => {
-    // logger.debug("getFengxingError")
-    let urlDescArr = ["video","fans","list","info","creatTime","comment"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("fengxing",urlDesc)
-    }
-}
-const getV1Error = () => {
-    // logger.debug("getV1Error")
-    let urlDescArr = ["fans","total","list","suport","videoInfo","vidInfo"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("v1",urlDesc)
-    }
-}
-const getXinlanError = () => {
-    // logger.debug("getXinlanError")
-    let urlDescArr = ["list","save","suport","comment","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("xinlan",urlDesc)
-    }
-}
-const getPptvError = () => {
-    // logger.debug("getPptvError")
-    let urlDescArr = ["list","total","info"]
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("pptv",urlDesc)
-    }
-}
-const getCctvError = () => {
-    // logger.debug("getCctvError")
-    let urlDescArr = ["fans","total","list","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("cctv",urlDesc)
-    }
-}
-const getQzoneError = () => {
-    // logger.debug("getQzoneError")
-    let urlDescArr = ["fan","list","info","comment"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("qzone",urlDesc)
-    }
-}
-const getBaijiaError = () => {
-    // logger.debug("getBaijiaError")
-    let urlDescArr = ["toal","fan","list","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("baijia",urlDesc)
-    }
-}
-const getMgtvError = () => {
-    // logger.debug("getMgtvError")
-    let urlDescArr = ["list","commentNum","like","desc","class","play","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("mgtv",urlDesc)
-    }
-}
-const getUcttError = () => {
-    // logger.debug("getUcttError")
-    let urlDescArr = ["list","info","commentNum","desc"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("uctt",urlDesc)
-    }
-}
-const getWangyiError = () => {
-    // logger.debug("getWangyiError")
-    let urlDescArr = ["user","list","video","play"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("wangyi",urlDesc)
-    }
-}
-const getIfengError = () => {
-    // logger.debug("getIfengError")
-    let urlDescArr = ["total","list","video"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("ifeng",urlDesc)
-    }
-}
-const getWeiboError = () => {
-    // logger.debug("getAcfunError")
-    let urlDescArr = ["user","total","list","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("weibo",urlDesc)
-    }
-}
-const getAcfunError = () => {
-    // logger.debug("getAcfunError")
-    let urlDescArr = ["user","total","list"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("acfun",urlDesc)
-    }
-}
-const getTv56Error = () => {
-    // logger.debug("getTv56Error")
-    let urlDescArr = ["user","total","videos","info","comment"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("tv56",urlDesc)
-    }
-}
-const getYyError = () => {
-    // logger.debug("getYyError")
-    let urlDescArr = ["total","live","slist","dlist","list"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("yy",urlDesc)
-    }
-}
-const getNeihanError = () => {
-    // logger.debug("getNeihanError")
-    let urlDescArr = ["user","list"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("neihan",urlDesc)
-    }
-}
-const getBudejieError = () => {
-    // logger.debug("getBudejieError")
-    let urlDescArr = ["user","list"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("budejie",urlDesc)
-    }
-}
-const getXiaoyingError = () => {
-    // logger.debug("getXiaoyingError")
-    let urlDescArr = ["info","list","total"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("xiaoying",urlDesc)
-    }
-}
-const getWeishiError = () => {
-    // logger.debug("getWeishiError")
-    let urlDescArr = ["user","list"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("weishi",urlDesc)
-    }
-}
-const getBtimeError = () => {
-    // logger.debug("getBtimeError")
-    let urlDescArr = ["user","list","info","comment"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("btime",urlDesc)
-    }
-}
-const getKusixError = () => {
-    // logger.debug("getKusixError")
-    let urlDescArr = ["user","total","list"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("ku6",urlDesc)
-    }
-}
-const getBaomihuaError = () => {
-    // logger.debug("getBaomihuaError")
-    let urlDescArr = ["user","list","Expr","playNum","ExprPC"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("baomihua",urlDesc)
-    }
-}
-const getTudouError = () => {
-    // logger.debug("getTudouError")
-    let urlDescArr = ["user","fans","total","list","videoTime","Expr"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("tudou",urlDesc)
-    }
-}
-const getYidianError = () => {
-    // logger.debug("getYidianError")
-    let urlDescArr = ["user","interestId","list"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("yidian",urlDesc)
-    }
-}
-const getSouhuError = () => {
-    // logger.debug("进入getSouhuError")
-    let urlDescArr = ["user","total","list","info","commentNum"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("souhu",urlDesc)
-    }
-}
-const getKuaibaoError = () => {
-    // logger.debug("进入getKuaibaoError")
-    let urlDescArr = ["user","videos","info","commentNum","Expr","play","field"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("kuaibao",urlDesc)
-    }
-}
-const getMeipaiError = () => {
-    // logger.debug("进入getMeipaiError")
-    let urlDescArr = ["user","total","videos","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("meipai",urlDesc)
-    }
-}
-const getMiaopaiError = () => {
-    // logger.debug("进入getMiaopaiError")
-    let urlDescArr = ["user","total","videos","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("miaopai",urlDesc)
-    }
-}
-const getToutiaoError = () => {
-    // logger.debug("进入getToutiaoError")
-    let urlDescArr = ["user","userId","list","play"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("toutiao",urlDesc)
-    }
-}
-const getIqiyiError = () => {
-    // logger.debug("进入getIqiyiError")
-    let urlDescArr = ["user","total","_user","list","ids","info","Expr","play","comment"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("iqiyi",urlDesc)
-    }
-}
-const getLeError = () => {
-    // logger.debug("进入getLeError")
-    let urlDescArr = ["list","total","Expr","info","Desc"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("le",urlDesc)
-    }  
-}
-const getTencentError = () => {
-    // logger.debug("进入getTencentError")
-    let urlDescArr = ["total","user","list","view","comment","commentNum","vidTag"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("tencent",urlDesc)
-    }  
-}
-const getYoukuError = () => {
-    // logger.debug("进入getYoukuError")
-    let urlDescArr = ["user","total","videos","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("youku",urlDesc)
-    }  
-}
-const getBiliError = () => {
-    // logger.debug("进入getBiliError")
-    let urlDescArr = ["user","total","videos","info"],
-        urlDesc,i
-    for(i = 0; i < urlDescArr.length; i++){
-        urlDesc = urlDescArr[i]
-        getErr("bili",urlDesc)
-    }  
-}
+/*
+    // const getLiVideoError = () => {
+    //     // logger.debug("getLiVideoError")
+    //     let urlDescArr = ["list","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("liVideo",urlDesc)
+    //     }
+    // }
+    // const getBaiduvideoError = () => {
+    //     // logger.debug("getBaiduvideoError")
+    //     let urlDescArr = ["total","list","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("baiduvideo",urlDesc)
+    //     }
+    // }
+    // const getBaofengError = () => {
+    //     // logger.debug("getBaofengError")
+    //     let urlDescArr = ["theAlbum","list","desc","support","comment"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("baofeng",urlDesc)
+    //     }
+    // }
+    // const getHuashuError = () => {
+    //     // logger.debug("getHuashuError")
+    //     let urlDescArr = ["vidList","videoList","info","comment","play"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("huashu",urlDesc)
+    //     }
+    // }
+    // const getFengxingError = () => {
+    //     // logger.debug("getFengxingError")
+    //     let urlDescArr = ["video","fans","list","info","creatTime","comment"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("fengxing",urlDesc)
+    //     }
+    // }
+    // const getV1Error = () => {
+    //     // logger.debug("getV1Error")
+    //     let urlDescArr = ["fans","total","list","suport","videoInfo","vidInfo"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("v1",urlDesc)
+    //     }
+    // }
+    // const getXinlanError = () => {
+    //     // logger.debug("getXinlanError")
+    //     let urlDescArr = ["list","save","suport","comment","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("xinlan",urlDesc)
+    //     }
+    // }
+    // const getPptvError = () => {
+    //     // logger.debug("getPptvError")
+    //     let urlDescArr = ["list","total","info"]
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("pptv",urlDesc)
+    //     }
+    // }
+    // const getCctvError = () => {
+    //     // logger.debug("getCctvError")
+    //     let urlDescArr = ["fans","total","list","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("cctv",urlDesc)
+    //     }
+    // }
+    // const getQzoneError = () => {
+    //     // logger.debug("getQzoneError")
+    //     let urlDescArr = ["fan","list","info","comment"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("qzone",urlDesc)
+    //     }
+    // }
+    // const getBaijiaError = () => {
+    //     // logger.debug("getBaijiaError")
+    //     let urlDescArr = ["toal","fan","list","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("baijia",urlDesc)
+    //     }
+    // }
+    // const getMgtvError = () => {
+    //     // logger.debug("getMgtvError")
+    //     let urlDescArr = ["list","commentNum","like","desc","class","play","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("mgtv",urlDesc)
+    //     }
+    // }
+    // const getUcttError = () => {
+    //     // logger.debug("getUcttError")
+    //     let urlDescArr = ["list","info","commentNum","desc"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("uctt",urlDesc)
+    //     }
+    // }
+    // const getWangyiError = () => {
+    //     // logger.debug("getWangyiError")
+    //     let urlDescArr = ["user","list","video","play"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("wangyi",urlDesc)
+    //     }
+    // }
+    // const getIfengError = () => {
+    //     // logger.debug("getIfengError")
+    //     let urlDescArr = ["total","list","video"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("ifeng",urlDesc)
+    //     }
+    // }
+    // const getWeiboError = () => {
+    //     // logger.debug("getAcfunError")
+    //     let urlDescArr = ["user","total","list","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("weibo",urlDesc)
+    //     }
+    // }
+    // const getAcfunError = () => {
+    //     // logger.debug("getAcfunError")
+    //     let urlDescArr = ["user","total","list"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("acfun",urlDesc)
+    //     }
+    // }
+    // const getTv56Error = () => {
+    //     // logger.debug("getTv56Error")
+    //     let urlDescArr = ["user","total","videos","info","comment"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("tv56",urlDesc)
+    //     }
+    // }
+    // const getYyError = () => {
+    //     // logger.debug("getYyError")
+    //     let urlDescArr = ["total","live","slist","dlist","list"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("yy",urlDesc)
+    //     }
+    // }
+    // const getNeihanError = () => {
+    //     // logger.debug("getNeihanError")
+    //     let urlDescArr = ["user","list"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("neihan",urlDesc)
+    //     }
+    // }
+    // const getBudejieError = () => {
+    //     // logger.debug("getBudejieError")
+    //     let urlDescArr = ["user","list"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("budejie",urlDesc)
+    //     }
+    // }
+    // const getXiaoyingError = () => {
+    //     // logger.debug("getXiaoyingError")
+    //     let urlDescArr = ["info","list","total"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("xiaoying",urlDesc)
+    //     }
+    // }
+    // const getWeishiError = () => {
+    //     // logger.debug("getWeishiError")
+    //     let urlDescArr = ["user","list"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("weishi",urlDesc)
+    //     }
+    // }
+    // const getBtimeError = () => {
+    //     // logger.debug("getBtimeError")
+    //     let urlDescArr = ["user","list","info","comment"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("btime",urlDesc)
+    //     }
+    // }
+    // const getKusixError = () => {
+    //     // logger.debug("getKusixError")
+    //     let urlDescArr = ["user","total","list"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("ku6",urlDesc)
+    //     }
+    // }
+    // const getBaomihuaError = () => {
+    //     // logger.debug("getBaomihuaError")
+    //     let urlDescArr = ["user","list","Expr","playNum","ExprPC"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("baomihua",urlDesc)
+    //     }
+    // }
+    // const getTudouError = () => {
+    //     // logger.debug("getTudouError")
+    //     let urlDescArr = ["user","fans","total","list","videoTime","Expr"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("tudou",urlDesc)
+    //     }
+    // }
+    // const getYidianError = () => {
+    //     // logger.debug("getYidianError")
+    //     let urlDescArr = ["user","interestId","list"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("yidian",urlDesc)
+    //     }
+    // }
+    // const getSouhuError = () => {
+    //     // logger.debug("进入getSouhuError")
+    //     let urlDescArr = ["user","total","list","info","commentNum"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("souhu",urlDesc)
+    //     }
+    // }
+    // const getKuaibaoError = () => {
+    //     // logger.debug("进入getKuaibaoError")
+    //     let urlDescArr = ["user","videos","info","commentNum","Expr","play","field"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("kuaibao",urlDesc)
+    //     }
+    // }
+    // const getMeipaiError = () => {
+    //     // logger.debug("进入getMeipaiError")
+    //     let urlDescArr = ["user","total","videos","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("meipai",urlDesc)
+    //     }
+    // }
+    // const getMiaopaiError = () => {
+    //     // logger.debug("进入getMiaopaiError")
+    //     let urlDescArr = ["user","total","videos","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("miaopai",urlDesc)
+    //     }
+    // }
+    // const getToutiaoError = () => {
+    //     // logger.debug("进入getToutiaoError")
+    //     let urlDescArr = ["user","userId","list","play"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("toutiao",urlDesc)
+    //     }
+    // }
+    // const getIqiyiError = () => {
+    //     // logger.debug("进入getIqiyiError")
+    //     let urlDescArr = ["user","total","_user","list","ids","info","Expr","play","comment"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("iqiyi",urlDesc)
+    //     }
+    // }
+    // const getLeError = () => {
+    //     // logger.debug("进入getLeError")
+    //     let urlDescArr = ["list","total","Expr","info","Desc"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("le",urlDesc)
+    //     }  
+    // }
+    // const getTencentError = () => {
+    //     // logger.debug("进入getTencentError")
+    //     let urlDescArr = ["total","user","list","view","comment","commentNum","vidTag"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("tencent",urlDesc)
+    //     }  
+    // }
+    // const getYoukuError = () => {
+    //     // logger.debug("进入getYoukuError")
+    //     let urlDescArr = ["user","total","videos","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("youku",urlDesc)
+    //     }  
+    // }
+    // const getBiliError = () => {
+    //     // logger.debug("进入getBiliError")
+    //     let urlDescArr = ["user","total","videos","info"],
+    //         urlDesc,i
+    //     for(i = 0; i < urlDescArr.length; i++){
+    //         urlDesc = urlDescArr[i]
+    //         getErr("bili",urlDesc)
+    //     }  
+    // }
+*/
 const liVideoJudgeErr = (options) => {
     //["list","info"]
     // logger.debug("liVideoJudgeErr  options=================",options)

@@ -327,16 +327,17 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-            }
-            this.storaging.sendDb(media/*,task.id,"list"*/)
-        })
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //     }
+        //     this.storaging.sendDb(media/*,task.id,"list"*/)
+        // })
+        this.storaging.playNumStorage(media,"list")
         callback()
     }
     getInfo ( task, url, type, data, callback ) {
@@ -378,16 +379,17 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-            }
-            this.storaging.sendDb(media)
-        })
+        // this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //     }
+        //     this.storaging.sendDb(media)
+        // })
+        this.storaging.playNumStorage(media,"list")
         if(!media.long_t){
             delete media.long_t
         }

@@ -248,16 +248,17 @@ class dealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('v1',"",task.id,`第一视频视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"vidInfo"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('v1',"",task.id,`第一视频视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"vidInfo"*/)
+                // })
+                this.storaging.playNumStorage(media,"vidInfo")
                 callback()
             }
         )

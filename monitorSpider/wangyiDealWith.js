@@ -189,7 +189,7 @@ class dealWith {
                 }
                 media = {
                     author: task.name,
-                    platform: task.p,
+                    platform: task.platform,
                     bid: task.id,
                     aid: data.videoID,
                     title: data.title.substr(0,100).replace(/"/g,''),
@@ -207,16 +207,17 @@ class dealWith {
                 if(!media.play_num){
                     return callback()
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return callback()
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`网易视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"paly"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return callback()
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('wangyi',`${option.url}`,task.id,`网易视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"paly"*/)
+                // })
+                this.storaging.playNumStorage(media,"paly")
                 callback()
             }
         )

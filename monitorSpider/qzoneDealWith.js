@@ -261,16 +261,17 @@ class dealWith {
             if(!media.play_num){
                 return callback()
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return callback()
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('qzone',"",task.id,`QQ空间播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"info"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return callback()
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('qzone',"",task.id,`QQ空间播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"info"*/)
+            // })
+            this.storaging.playNumStorage(media,"info")
             callback()
         })
     }

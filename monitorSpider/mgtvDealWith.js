@@ -180,16 +180,17 @@ class dealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('mgtv',"",task.id,`芒果TV视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"paly"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('mgtv',"",task.id,`芒果TV视频播放量减少`,"playNumErr","paly",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"paly"*/)
+            // })
+            this.storaging.playNumStorage(media,"paly")
             callback()
         })
     }

@@ -310,17 +310,18 @@ class youkuDealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`youku_${videos[index].videoid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
-                        this.storaging.errStoraging("youku","",task.id,`优酷视频播放量减少`,"playNumErr","videos",media.aid,`${result}/media.play_num`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"videos"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`youku_${videos[index].videoid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         // logger.debug("~~~~~~~~~result="+result+"total_vv="+videos[index].total_vv)
+                //         this.storaging.errStoraging("youku","",task.id,`优酷视频播放量减少`,"playNumErr","videos",media.aid,`${result}/media.play_num`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"videos"*/)
+                // })
+                this.storaging.playNumStorage(media,"videos")
                 index++
                 cb()
             },

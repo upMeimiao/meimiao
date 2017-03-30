@@ -215,7 +215,7 @@ class spiderCore {
     }
     setTudouTask(){
         let tudou_work = {
-                "name":"tudou","platform":12,"id":100598752,"bname":"文曰小强"
+                "name":"tudou","platform":12,"id":109218404,"bname":"辛巴达解说"
             }
         this.tudouDeal.tudou(tudou_work,(err,result) => {
             logger.debug("tudou 又执行一次")
@@ -233,7 +233,7 @@ class spiderCore {
     }
     setKu6Task(){
         let ku6_work = {
-                "name":"ku6","platform":14,"id":24858895,"bname":"百骗大扒秀"
+                "name":"ku6","platform":14,"id":24710528,"bname":"女神TV"
             }
         this.ku6Deal.ku6(ku6_work,(err,result) => {
             logger.debug("ku6 又执行一次")
@@ -260,7 +260,7 @@ class spiderCore {
     }
     setXiaoyingTask(){
         let xiaoying_work = {
-                "name":"xiaoying","platform":17,"id":"bfoX9","bname":"女神TV"
+                "name":"xiaoying","platform":17,"id":"aXh0U","bname":"开心锤锤"
             }
         this.xiaoyingDeal.xiaoying(xiaoying_work,(err,result) => {
             logger.debug("xiaoying 又执行一次")
@@ -269,7 +269,7 @@ class spiderCore {
     }
     setBudejieTask(){
         let budejie_work = {
-                "name":"budejie","platform":18,"id":15731223,"bname":"星座不求人"
+                "name":"budejie","platform":18,"id":16826242,"bname":"小罗恶搞"
             }
         this.budejieDeal.budejie(budejie_work,(err,result) => {
             logger.debug("budejie 又执行一次")
@@ -278,7 +278,7 @@ class spiderCore {
     }
     setNeihanTask(){
         let neihan_work = {
-                "name":"neihan","platform":19,"id":3243978216,"bname":"主播真会玩"
+                "name":"neihan","platform":19,"id":3536085720,"bname":"新片场"
             }
         this.neihanDeal.neihan(neihan_work,(err,result) => {
             logger.debug("neihan 又执行一次")
@@ -296,7 +296,7 @@ class spiderCore {
     }
     setTv56Task(){
         let tv56_work = {
-                "name":"tv56","platform":21,"id":142228397,"bname":"暴走漫画官方"
+                "name":"tv56","platform":21,"id":210741517,"bname":"Miss排位日记"
             }
         this.tv56Deal.tv56(tv56_work,(err,result) => {
             logger.debug("tv56 又执行一次")
@@ -305,7 +305,7 @@ class spiderCore {
     }
     setAcfunTask(){
         let acfun_work = {
-                "name":"acfun","platform":22,"id":1395294,"bname":"淘梦网"
+                "name":"acfun","platform":22,"id":1010069,"bname":"一条视频"
             }
         this.acfunDeal.acfun(acfun_work,(err,result) => {
             logger.debug("acfun 又执行一次")

@@ -226,16 +226,17 @@ class miaopaiDealWith {
                     }
                     // logger.debug(data.title+'标题')
                     // logger.debug(data.desc+'描述')
-                    this.core.MSDB.hget(`apiMonitor:play_num`,`${data.author}_${data.aid}`,(err,result)=>{
-                        if(err){
-                            logger.debug("读取redis出错")
-                            return
-                        }
-                        if(result > data.play_num){
-                            this.storaging.errStoraging('miaopai',"",task.id,`秒拍播放量减少`,"playNumErr","videos",data.aid,`${result}/${data.play_num}`)
-                        }
-                        this.storaging.sendDb(data/*,task.id,"videos"*/)
-                    })
+                    // this.core.MSDB.hget(`apiMonitor:play_num`,`${data.author}_${data.aid}`,(err,result)=>{
+                    //     if(err){
+                    //         logger.debug("读取redis出错")
+                    //         return
+                    //     }
+                    //     if(result > data.play_num){
+                    //         this.storaging.errStoraging('miaopai',"",task.id,`秒拍播放量减少`,"playNumErr","videos",data.aid,`${result}/${data.play_num}`)
+                    //     }
+                    //     this.storaging.sendDb(data/*,task.id,"videos"*/)
+                    // })
+                    this.storaging.playNumStorage(data,"videos")
                     index++
                     cb()
                 })

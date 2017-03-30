@@ -296,16 +296,17 @@ class dealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`tudou_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging("tudou","",task.id,`土豆播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"list"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`tudou_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging("tudou","",task.id,`土豆播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"list"*/)
+            // })
+            this.storaging.playNumStorage(media,"list")
             callback()
         })
     }
@@ -339,10 +340,10 @@ class dealWith {
                 this.storaging.errStoraging("tudou",option.url,task.id,"土豆videoTime接口json数据解析失败","doWithResErr","videoTime")
                 return callback(e)
             }
-            if(!result.tag||!result.cname){
-                this.storaging.errStoraging("tudou",option.url,task.id,"土豆videoTime接口返回数据错误","resultErr","videoTime")
-                return callback(result)
-            }
+            // if(!result.tag||!result.cname){
+            //     this.storaging.errStoraging("tudou",option.url,task.id,"土豆videoTime接口返回数据错误","resultErr","videoTime")
+            //     return callback(result)
+            // }
             const data = {
                 tag: result.tag,
                 class: result.cname

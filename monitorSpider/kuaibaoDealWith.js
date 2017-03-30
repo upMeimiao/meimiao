@@ -295,16 +295,17 @@ class kuaibaoDealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"play"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"play"*/)
+            // })
+            this.storaging.playNumStorage(media,"play")
             callback()
         })
     }
