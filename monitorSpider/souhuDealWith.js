@@ -360,9 +360,9 @@ class souhuDealWith {
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口json数据解析失败","doWithResErr","digg")
                 return callback(e)
             }
-            if(!result.upCount||!result.downCount){
+            if(!back.upCount&&back.upCount!==0||!back.downCount&&back.downCount!==0){
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口返回数据错误","resultErr","digg")
-                return callback(result)
+                return callback(data)
             }
             let data = {
                 up: back.upCount,
