@@ -9,7 +9,12 @@ const redis = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.r
 })
 
 exports.getMedia = (req, res) => {
-    let key = '375520641_' + req.query.hours
+    let key
+    if(!req.query.type){
+        key = '375520641_' + req.query.hours
+    }else if(req.query.type && req.query.type === 'send'){
+        key = '375520641_send_' + req.query.hours
+    }
     redis.smembers(key, (err, result) => {
         if(err){
             return res.status(502).json({status: false})

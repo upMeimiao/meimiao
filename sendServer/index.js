@@ -29,6 +29,13 @@ class sendServer {
                 }
             }
         })
+        this.redis_yiitao = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/12`,{
+            reconnectOnError: function (err) {
+                if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
+                    return true
+                }
+            }
+        })
         logger.trace('sendServer instantiation ...')
     }
     assembly () {
@@ -83,6 +90,10 @@ class sendServer {
         for (let [index, elem] of list.entries()) {
             if(elem.platform < 39){
                 newList.push(elem)
+            }
+            if(elem.bid == '375520641'){
+                let key = elem.bid + '_send_' + new Date().getHours()
+                this.redis_yiitao.sadd(key, JSON.stringify(elem))
             }
         }
         if(newList.length === 0){
