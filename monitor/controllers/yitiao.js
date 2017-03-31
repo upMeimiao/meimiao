@@ -18,6 +18,6 @@ exports.getMedia = (req, res) => {
         for (let [index, elem] of result.entries()) {
             list.push(JSON.parse(elem))
         }
-        res.status(200).json(list)
+        res.status(200).json({status:true, total: list.length, list})
     })
 }
