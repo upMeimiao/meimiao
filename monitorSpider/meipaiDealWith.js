@@ -234,8 +234,14 @@ class meipaiDealWith {
             if(result.lives){
                 return callback(result)
             }
-            if(!result.caption||!result.plays_count||!result.comments_count||!result.likes_count||!result.reposts_count||!result.created_at||!result.cover_pic){
-                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info接口返回数据错误","doWithResErr","info")
+            if(!result.caption
+                ||!result.plays_count&&result.plays_count!==0
+                ||!result.comments_count&&result.comments_count!==0
+                ||!result.likes_count&&result.likes_count!==0
+                ||!result.reposts_count&&result.reposts_count!==0
+                ||!result.created_at
+                ||!result.cover_pic){
+                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info接口返回数据错误","resultErr","info")
                 return callback(result)
             }
             let title,_tags = [],__tags = [],tags = '',tagArr

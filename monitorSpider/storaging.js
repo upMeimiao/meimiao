@@ -83,7 +83,7 @@ class storage{
 						(err,result)=>{
 							if(wrongTimes >= 3){
 								// logger.debug(`${platform}_${vid}播放量错误，近五次记录为${arr}`)
-								this.errStoraging(platform,"",media.bid,`${platform}平台${vid}接口播放量错误`,"playNumErr",urlDesc,vid,result)
+								this.errStoraging(platform,"",media.bid,`${platform}平台${vid}视频播放量错误${arr}`,"playNumErr",urlDesc,vid,result)
 							}
 							let array = []
 							if(arr[4] < arr[0]){

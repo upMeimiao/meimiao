@@ -83,7 +83,7 @@ const getErr = (channel,platform,urlDesc) => {
         curField =`${platform}_${urlDesc}`
             // 获取当前接口对应的错误记录
             mSpiderClient.hget(curKey,curField,(err,result) => {
-                logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
+                logger.debug("获取当前接口对应的错误记录=",curKey,curField)
                 if(err){
                     //发生错误，恢复订阅，返回
                     logger.debug("读取redis发生错误")
@@ -97,6 +97,7 @@ const getErr = (channel,platform,urlDesc) => {
                         if(err){
                             return
                         }
+                        logger.debug("读取error结果为空，删除本次total记录，恢复订阅")
                         mSpiderClient.subscribe("enough")
                     })
                     return
@@ -266,6 +267,9 @@ const judgePlatsError = (platform,options) => {
         case "liVideo":
             liVideoJudgeErr(options)
             break
+        default:
+            logger.debug(options,"无当前平台信息")
+            break
     }
 }
 const judgeResults = (options,emailOptions,numberArr) => {
@@ -275,7 +279,7 @@ const judgeResults = (options,emailOptions,numberArr) => {
         nowTime = nowDate.getTime()
     logger.debug("开始分析错误并将出错比例存入redis")
     if(resultObj.responseErr.times){
-        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_resposeErr_${nowTime}`,resultObj.responseErr.times+"/"+options.totalResult)
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_responseErr_${nowTime}`,resultObj.responseErr.times+"/"+options.totalResult)
     }else if(resultObj.resultErr.times){
         mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_resultErr_${nowTime}`,resultObj.resultErr.times+"/"+options.totalResult)
     }else if(resultObj.doWithResErr.times){
@@ -285,7 +289,7 @@ const judgeResults = (options,emailOptions,numberArr) => {
     }else if(resultObj.timeoutErr.times){
         mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_timeoutErr_${nowTime}`,resultObj.timeoutErr.times+"/"+options.totalResult)
     }else if(resultObj.statusErr.times){
-        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}statusErr_${nowTime}`,resultObj.statusErr.times+"/"+options.totalResult)
+        mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_statusErr_${nowTime}`,resultObj.statusErr.times+"/"+options.totalResult)
     }
     if(resultObj.responseErr.times 
         && resultObj.responseErr.times/(+options.totalResult) > numberArr[0]){
@@ -339,7 +343,7 @@ const judgeResults = (options,emailOptions,numberArr) => {
         emailOptions.errTimes = resultObj.playNumErr.times
         emailOptions.errDesc = resultObj.playNumErr.desc
         emailOptions.urls = resultObj.playNumErr.errUrls
-        setWarnErrTable(emailOptions)
+        sendWarnEmail(emailOptions)
         return
     } 
     else if(resultObj.statusErr.times 
@@ -768,7 +772,7 @@ const baiduvideoJudgeErr = (options) => {
     }
 } 
 const baofengJudgeErr = (options) => {
-    // ["theAlbum","list","desc","support","comment"]
+    // ["theAlbum","list","desc","support","comment","aid"]
     // logger.debug("baofengJudgeErr  options=================",options)
     let errObj = JSON.parse(options.result),
         emailOptions = {
@@ -808,6 +812,11 @@ const baofengJudgeErr = (options) => {
             break
         case "comment":
             emailOptions.urlDesc = "comment"
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
+            judgeResults(options,emailOptions,numberArr)
+            break
+        case "aid":
+            emailOptions.urlDesc = "aid"
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
@@ -2002,6 +2011,11 @@ const souhuJudgeErr = (options) => {
             emailOptions.urlDesc = "commentNum"
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
+            break 
+        case "digg":
+            emailOptions.urlDesc = "digg"
+            numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
+            judgeResults(options,emailOptions,numberArr)
             break  
     }
 }
@@ -2038,8 +2052,8 @@ const toutiaoJudgeErr = (options) => {
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
-        case "play":
-            emailOptions.urlDesc = "play"
+        case "listInfo":
+            emailOptions.urlDesc = "listInfo"
             numberArr = [0.8,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break    

@@ -201,7 +201,7 @@ class dealWith {
             //         return
             //     }
             //     if(result > media.play_num){
-            //         this.storaging.errStoraging('acfun',`${option.url}`,task.id,`凤凰号视频播放量减少`,"playNumErr","video",media.aid,`${result}/${media.play_num}`)
+            //         this.storaging.errStoraging('ifeng',`${option.url}`,task.id,`凤凰号视频播放量减少`,"playNumErr","video",media.aid,`${result}/${media.play_num}`)
             //     }
             //     this.storaging.sendDb(media/*,task.id,"video"*/)
             // })

@@ -310,7 +310,13 @@ class souhuDealWith {
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取info接口返回结果错误","resultErr","info")
                 return callback(result)
             }
-            if(!result.data.video_name||!result.data.video_desc||!result.data.create_time||!result.data.first_cate_name||!result.data.play_count||!result.data.keyword||!result.data.total_duration){
+            if(!result.data.video_name
+                ||!result.data.video_desc
+                ||!result.data.create_time
+                ||!result.data.first_cate_name
+                ||!result.data.play_count&&result.data.play_count!==0
+                ||!result.data.keyword
+                ||!result.data.total_duration){
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取info接口返回结果错误","resultErr","info")
                 return callback(result)
             }
