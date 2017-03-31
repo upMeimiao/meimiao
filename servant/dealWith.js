@@ -1,64 +1,63 @@
-const URL = require('url')
-const cheerio = require('cheerio')
-const request = require( '../lib/req' )
-const r = require('request')
+const URL = require('url');
+const cheerio = require('cheerio');
+const request = require( '../lib/req' );
+const r = require('request');
 const jsonp = function (data) {
     return data
-}
+};
 const _Callback =function (data) {
     return data
-}
+};
 
-let logger,api
+let logger,api;
 
 class DealWith {
     constructor( core ) {
-        logger = core.settings.logger
-        api = core.settings.servantAPI
+        logger = core.settings.logger;
+        api = core.settings.servantAPI;
         logger.debug('处理器实例化...')
     }
     youku(remote, callback) {
         let option = {
             url: api.youku.url + '?client_id=' + api.youku.key + "&video_url=" + encodeURIComponent(remote)
-        }
+        };
         request.get(option, (err, result) => {
             if(err){
-                logger.error('occur error : ', err)
+                logger.error('occur error : ', err);
                 return callback(err, {code:102,p:1})
             }
             if(result.statusCode != 200){
-                logger.error('优酷状态码错误',result.statusCode)
+                logger.error('优酷状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:1})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('优酷json数据解析失败')
-                
+                logger.error('优酷json数据解析失败');
                 return callback(e,{code:102,p:1})
             }
-            let user = result.user
-            option.url = `https://openapi.youku.com/v2/users/show.json`
+            let user = result.user;
+            option.url = `https://openapi.youku.com/v2/users/show.json`;
             option.data = {
                 client_id: 'c9e697e443715900',
                 user_id: user.id
-            }
+            };
             request.post(option, (err, info) => {
                 if(err){
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(err,{code:102,p:1})
                 }
                 if(info.statusCode != 200 ){
-                    logger.error('优酷状态码错误',info.statusCode)
-                    logger.info(info)
+                    logger.error('优酷状态码错误',info.statusCode);
+                    logger.info(info);
                     return callback(true,{code:102,p:1})
                 }
                 try{
                     info = JSON.parse(info.body)
                 } catch (e){
-                    logger.error('优酷json数据解析失败')
-                    logger.info(info)
+                    logger.error('优酷json数据解析失败');
+                    logger.info(info);
                     return callback(e,{code:102,p:1})
                 }
                 let res = {
@@ -67,7 +66,7 @@ class DealWith {
                     p: 1,
                     encode_id: user.link.substring(user.link.lastIndexOf('/')+1),
                     avatar: info.avatar_large
-                }
+                };
                 callback(null,res)
             })
         })
@@ -75,7 +74,7 @@ class DealWith {
     bili(remote, callback) {
         let start = remote.indexOf('/av'),
             end = remote.indexOf('/',start+1),
-            id
+            id;
         if(end == -1){
             id = remote.substring(start+3)
         }else{
@@ -83,22 +82,21 @@ class DealWith {
         }
         let option = {
             url: api.bili.url + id
-        }
+        };
         request.get(option, (err, result) => {
             if(err){
-                logger.error('occur error : ', err)
+                logger.error('occur error : ', err);
                 return callback(err,{code:102,p:8})
             }
             if(result.statusCode != 200){
-                logger.error('哔哩哔哩状态码错误',result.statusCode)
+                logger.error('哔哩哔哩状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:8})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('哔哩哔哩json数据解析失败')
-                
+                logger.error('哔哩哔哩json数据解析失败');
                 return callback(e,{code:102,p:8})
             }
             let res = {
@@ -106,31 +104,31 @@ class DealWith {
                 name: result.data.owner.name,
                 avatar: result.data.owner.face,
                 p: 8
-            }
+            };
             callback(null,res)
         })
     }
     meipai (data,callback) {
-        let pathname = URL.parse(data,true).pathname
+        let pathname = URL.parse(data,true).pathname;
         let start = pathname.indexOf('/',1),
-            id = pathname.substring(start+1)
+            id = pathname.substring(start+1);
         let option = {
             url: api.meipai.url + id
-        }
+        };
         request.get ( option, ( err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:5})
             }
             if(result.statusCode != 200 ){
-                logger.error('美拍状态码错误',result.statusCode)
+                logger.error('美拍状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:5})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('美拍json数据解析失败')
+                logger.error('美拍json数据解析失败');
                 
                 return callback(e,{code:102,p:5})
             }
@@ -139,38 +137,36 @@ class DealWith {
                 name: result.user.screen_name,
                 avatar: result.user.avatar,
                 p: 5
-            }
+            };
             callback(null,res)
         })
     }
     miaopai (data,callback) {
         let urlObj = URL.parse(data,true),
             pathname = urlObj.pathname,
-            hostname = urlObj.hostname
+            hostname = urlObj.hostname;
         let start = pathname.lastIndexOf('/'),
             end = pathname.lastIndexOf('.'),
-            id = pathname.substring(start+1,end)
+            id = pathname.substring(start+1,end);
         if(hostname == 'm.miaopai.com'){
             id = pathname.substring(start+1)
         }
         let option = {
             url: api.miaopai.url + id
-        }
+        };
         request.get ( option, ( err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:7})
             }
             if(result.statusCode != 200 ){
-                logger.error('秒拍状态码错误',result.statusCode)
-                
+                logger.error('秒拍状态码错误',result.statusCode);
                 return callback(true,{code:102,p:7})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('秒拍json数据解析失败')
-                
+                logger.error('秒拍json数据解析失败');
                 return callback(e,{code:102,p:7})
             }
             let res = {
@@ -178,60 +174,58 @@ class DealWith {
                 name: result.result.ext.owner.nick,
                 avatar: result.result.ext.owner.icon,
                 p: 7
-            }
+            };
             callback(null,res)
         })
     }
     sohu (data,callback) {
-        let pathname = URL.parse(data,true).pathname
+        let pathname = URL.parse(data,true).pathname;
         let start = pathname.lastIndexOf('/'),
             end = pathname.lastIndexOf('.'),
-            id = pathname.substring(start+1,end)
+            id = pathname.substring(start+1,end);
         let option = {
             url: api.souhu.url + id + '.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5'
-        }
+        };
         request.get ( option, ( err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:9})
             }
             if(result.statusCode != 200 ){
-                logger.error('搜狐状态码错误',result.statusCode)
-                
+                logger.error('搜狐状态码错误',result.statusCode);
                 return callback(true,{code:102,p:9})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('搜狐json数据解析失败')
-                
+                logger.error('搜狐json数据解析失败');
                 return callback(e,{code:102,p:9})
             }
             //logger.debug(result.data)
-            let uid = result.data.user ? result.data.user.user_id : result.data.user_id
+            let uid = result.data.user ? result.data.user.user_id : result.data.user_id;
             if(result.data.user){
                 let res = {
                     id: uid,
                     name: result.data.user.nickname,
                     avatar: result.data.user.bg_pic,
                     p: 9
-                }
+                };
                 return callback(null,res)
             }
             request.get ({url:`http://api.tv.sohu.com/v4/user/info/${uid}.json?api_key=f351515304020cad28c92f70f002261c&_=${(new Date()).getTime()}`}, ( err, result) => {
                 if (err) {
-                    logger.error('occur error : ', err)
+                    logger.error('occur error : ', err);
                     return callback(err, {code: 102, p: 9})
                 }
                 if (result.statusCode != 200) {
-                    logger.error('搜狐状态码错误', result.statusCode)
+                    logger.error('搜狐状态码错误', result.statusCode);
                     
                     return callback(true, {code: 102, p: 9})
                 }
                 try {
                     result = JSON.parse(result.body)
                 } catch (e) {
-                    logger.error('搜狐json数据解析失败')
+                    logger.error('搜狐json数据解析失败');
                     
                     return callback(e, {code: 102, p: 9})
                 }
@@ -240,36 +234,36 @@ class DealWith {
                     name: result.data.nickname,
                     avatar: result.data.bg_pic,
                     p: 9
-                }
+                };
                 return callback(null,res)
             })
         })
     }
     kuaibao (data,callback){
-        let pathname = URL.parse(data,true).pathname
+        let pathname = URL.parse(data,true).pathname;
         let start = pathname.lastIndexOf('/'),
-            id = pathname.substring(start+1)
+            id = pathname.substring(start+1);
         let option = {
             url: api.kuaibao.url,
             data: {
                 ids:id
             },
             referer:'http://r.cnews.qq.com/inews/iphone/'
-        }
+        };
         request.post( option, ( err, result ) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:10})
             }
             if(result.statusCode != 200 ){
-                logger.error('天天快报状态码错误',result.statusCode)
+                logger.error('天天快报状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:10})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('天天快报json数据解析失败')
+                logger.error('天天快报json数据解析失败');
                 
                 return callback(e,{code:102,p:10})
             }
@@ -280,7 +274,7 @@ class DealWith {
                     name: back.chlname,
                     avatar: back.chlsicon,
                     p: 10
-                }
+                };
             callback(null,res)
         })
     }
@@ -288,14 +282,14 @@ class DealWith {
         let option = {
             url:data,
             referer: 'http://www.iqiyi.com'+URL.parse(data).pathname
-        }
+        };
         request.get(option,(err,result)=>{
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:2})
             }
             if(result.statusCode != 200 ){
-                logger.error('爱奇艺状态码错误1',result.statusCode)
+                logger.error('爱奇艺状态码错误1',result.statusCode);
                 
                 return callback(true,{code:102,p:2})
             }
@@ -305,15 +299,14 @@ class DealWith {
                     url: api.iqiyi.url + id + "?callback=jsonp&status=1",
                     host: 'mixer.video.iqiyi.com',
                     referer: 'http://www.iqiyi.com'+URL.parse(data).pathname
-                }
+                };
             request.get(option,(err,result)=>{
                 if(err){
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(err,{code:102,p:2})
                 }
                 if(result.statusCode != 200 ){
-                    logger.error('爱奇艺状态码错误2',result.statusCode)
-                    
+                    logger.error('爱奇艺状态码错误2',result.statusCode);
                     return callback(true,{code:102,p:2})
                 }
                 let back = eval(result.body),
@@ -322,7 +315,7 @@ class DealWith {
                         name: back.data.user.name,
                         avatar: back.data.user.avatar,
                         p: 2
-                    }
+                    };
                 callback(null,res)
             })
         })
@@ -331,15 +324,14 @@ class DealWith {
         let option = {
             url:data,
             referer: data
-        }
+        };
         request.get(option,(err,result)=>{
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:3})
             }
             if(result.statusCode != 200 ){
-                logger.error('乐视状态码错误1',result.statusCode)
-                
+                logger.error('乐视状态码错误1',result.statusCode);
                 return callback(true,{code:102,p:3})
             }
             let $ = cheerio.load(result.body,{
@@ -347,25 +339,25 @@ class DealWith {
                 }),
                 _info_ = $('head script').text(),
                 reg = new RegExp('userId:"[0-9]+"'),
-                _info = _info_.match(reg),info,id,type
+                _info = _info_.match(reg),info,id,type;
             if(_info){
                 info = _info[0]
             }else{
                 return callback(true)
             }
-            id = info.substring(8,info.lastIndexOf('"'))
+            id = info.substring(8,info.lastIndexOf('"'));
             let option = {
                 url: `http://api.chuang.letv.com/outer/ugc/video/user/videocount?callback=jsonp&userid=${id}&_=${(new Date()).getTime()}`
-            }
+            };
             request.get(option,(err,result) => {
                 if(err){
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(true,{code:102,p:3})
                 }
-                result = eval(result.body)
+                result = eval(result.body);
                 let data = result.data,
                     name = data ? data.nickname : null,
-                    avatar = data ? data['pic300*300'] : null
+                    avatar = data ? data['pic300*300'] : null;
                 // let _$ = cheerio.load(result.body),
                 //     name = _$('.au_info .au_info_name').text()
                 let res ={
@@ -374,7 +366,7 @@ class DealWith {
                     type: 1,
                     avatar: avatar,
                     p: 3
-                }
+                };
                 callback(null,res)
             })
         })
@@ -386,38 +378,36 @@ class DealWith {
             start = pathname.lastIndexOf('/'),
             end = pathname.indexOf('.html'),
             option = {},res,
-            vid = pathname.substring(start+1,end)
+            vid = pathname.substring(start+1,end);
         if(pathname.startsWith('/x/cover/')){
             if(query.vid){
                 vid = query.vid
             }
         }
-        option.url = api.tencent.url + vid + "&_=" + new Date().getTime()
+        option.url = api.tencent.url + vid + "&_=" + new Date().getTime();
         request.get(option,(err,result)=>{
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:4})
             }
             if(result.statusCode != 200 ){
-                logger.error('腾讯状态码错误1',result.statusCode)
-                
+                logger.error('腾讯状态码错误1',result.statusCode);
                 return callback(true,{code:102,p:4})
             }
-            let back = eval(result.body)
+            let back = eval(result.body);
             if( back.result && (back.result.code == -200 || back.result.code == -12)){
-                option.url = data
+                option.url = data;
                 request.get(option,(err,result) => {
                     if(err){
-                        logger.error( 'occur error : ', err )
+                        logger.error( 'occur error : ', err );
                         return callback(err,{code:102,p:4})
                     }
                     if(result.statusCode != 200 ){
-                        logger.error('腾讯状态码错误2',result.statusCode)
-                        
+                        logger.error('腾讯状态码错误2',result.statusCode);
                         return callback(true,{code:102,p:4})
                     }
                     let $ = cheerio.load(result.body),
-                        num = $('.btn_book .num')
+                        num = $('.btn_book .num');
                     // if(num.length){
                     //     return callback(true,{code:102,p:4})
                     // }
@@ -425,25 +415,24 @@ class DealWith {
                         //name = user.attr('title'),
                         href = user.attr('href'),
                         idDom = $('.btn_book'),
-                        id = href.substring(href.lastIndexOf('/')+1)
-                    option.url = href
+                        id = href.substring(href.lastIndexOf('/')+1);
+                    option.url = href;
                     request.get(option,(err,result)=>{
                         if(err){
-                            logger.error( 'occur error : ', err )
+                            logger.error( 'occur error : ', err );
                             return callback(err,{code:102,p:4})
                         }
                         if(result.statusCode != 200 ){
-                            logger.error('腾讯状态码错误3',result.statusCode)
-                            
+                            logger.error('腾讯状态码错误3',result.statusCode);
                             return callback(true,{code:102,p:4})
                         }
                         let $ = cheerio.load(result.body),
                             nameDom = $('h2.user_info_name'),
                             nameDom2 = $('#userInfoNick'),
                             name,
-                            avatar
+                            avatar;
                         if(nameDom.length == 0){
-                            name = nameDom2.text()
+                            name = nameDom2.text();
                             id = idDom.attr('r-subscribe')
                         }else{
                             name = nameDom.text()
@@ -459,12 +448,12 @@ class DealWith {
                             type: 2,
                             avatar: avatar,
                             p: 4
-                        }
+                        };
                         return callback(null,res)
                     })
                 })
             }else{
-                let nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault
+                let nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault;
                 if(!back.result || !nameIs){
                     res = {
                         id: back.vppinfo.euin,
@@ -472,49 +461,49 @@ class DealWith {
                         avatar: back.vppinfo.avatar ? (back.vppinfo.avatar.replace('/60','/0')) : '',
                         type: 1,
                         p: 4
-                    }
+                    };
                     return callback(null,res)
                 }else{
-                    option.url = data
+                    option.url = data;
                     request.get(option,(err,result) => {
                         if(err){
-                            logger.error( 'occur error : ', err )
+                            logger.error( 'occur error : ', err );
                             return callback(err,{code:102,p:4})
                         }
                         if(result.statusCode != 200 ){
-                            logger.error('腾讯状态码错误2',result.statusCode)
+                            logger.error('腾讯状态码错误2',result.statusCode);
                             
                             return callback(true,{code:102,p:4})
                         }
                         let $ = cheerio.load(result.body),
-                            num = $('.btn_book .num')
+                            num = $('.btn_book .num');
                         // if(num.length){
                         //     return callback(true,{code:102,p:4})
                         // }
                         let user = $('.user_info'),
                             //name = user.attr('title'),
                             href = user.attr('href'),
-                            id = href.substring(href.lastIndexOf('/')+1)
-                        option.url = href
+                            id = href.substring(href.lastIndexOf('/')+1);
+                        option.url = href;
                         request.get(option,(err,result)=>{
                             if(err){
-                                logger.error( 'occur error : ', err )
+                                logger.error( 'occur error : ', err );
                                 return callback(err,{code:102,p:4})
                             }
                             if(result.statusCode != 200 ){
-                                logger.error('腾讯状态码错误3',result.statusCode)
+                                logger.error('腾讯状态码错误3',result.statusCode);
                                 
                                 return callback(true,{code:102,p:4})
                             }
                             let $ = cheerio.load(result.body),
-                                name = $('h2.user_info_name').html()
+                                name = $('h2.user_info_name').html();
                             res = {
                                 id: id,
                                 name: name,
                                 avatar: $('#userAvatar').attr('src') ? $('#userAvatar').attr('src') : '',
                                 type: 2,
                                 p: 4
-                            }
+                            };
                             return callback(null,res)
                         })
                     })
@@ -525,7 +514,7 @@ class DealWith {
     }
     toutiao (data,callback) {
         let pathname = URL.parse(data,true).pathname,
-            v_id, option = {}
+            v_id, option = {};
         if(pathname.startsWith('/i') || pathname.startsWith('/api/pc')){
             if(pathname.startsWith('/api/pc')){
                 v_id = pathname.replace(/\//g,'').substring(9)
@@ -534,39 +523,37 @@ class DealWith {
             }else{
                 v_id = pathname.replace(/\//g,'').substring(1)
             }
-            option.url = api.toutiao.url + v_id + "/info/"
+            option.url = api.toutiao.url + v_id + "/info/";
             request.get(option,(err,result)=>{
                 if(err){
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(err,{code:102,p:6})
                 }
                 if(result.statusCode != 200 ){
-                    logger.error('头条状态码错误',result.statusCode)
-                    
+                    logger.error('头条状态码错误',result.statusCode);
                     return callback(true,{code:102,p:6})
                 }
                 try {
                     result = JSON.parse(result.body)
                 } catch (e) {
-                    logger.error('头条json数据解析失败')
-                    
+                    logger.error('头条json数据解析失败');
                     return callback(e,{code:102,p:6})
                 }
                 request.get({url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}`},(err,resInfo)=> {
                     if (err) {
-                        logger.error('occur error : ', err)
+                        logger.error('occur error : ', err);
                         return callback(err, {code: 102, p: 6})
                     }
                     if (resInfo.statusCode != 200) {
-                        logger.error('头条状态码错误', resInfo.statusCode)
-                        logger.info(resInfo)
+                        logger.error('头条状态码错误', resInfo.statusCode);
+                        logger.info(resInfo);
                         return callback(true, {code: 102, p: 6})
                     }
                     try {
                         resInfo = JSON.parse(resInfo.body)
                     } catch (e) {
-                        logger.error('头条json数据解析失败')
-                        logger.info(resInfo)
+                        logger.error('头条json数据解析失败');
+                        logger.info(resInfo);
                         return callback(e, {code: 102, p: 6})
                     }
                     let res = {
@@ -575,46 +562,45 @@ class DealWith {
                         avatar: result.data.media_user.avatar_url,
                         p: 6,
                         encode_id: resInfo.data.user_id
-                    }
+                    };
                     callback(null,res)
                 })
             })
         }else if(pathname.startsWith('/a') || pathname.startsWith('/group/')){
             r.head(data,{headers:{'User-Agent':':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}},(err,res,body)=>{
-                v_id = (res.request.path).replace(/\//g,'').substring(1)
-                option.url = api.toutiao.url + v_id + "/info/"
+                v_id = (res.request.path).replace(/\//g,'').substring(1);
+                option.url = api.toutiao.url + v_id + "/info/";
                 request.get(option,(err,result)=>{
                     if(err){
-                        logger.error( 'occur error : ', err )
+                        logger.error( 'occur error : ', err );
                         return callback(err,{code:102,p:6})
                     }
                     if(result.statusCode != 200 ){
-                        logger.error('头条状态码错误',result.statusCode)
-                        
+                        logger.error('头条状态码错误',result.statusCode);
                         return callback(true,{code:102,p:6})
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e) {
-                        logger.error('头条json数据解析失败')
+                        logger.error('头条json数据解析失败');
                         
                         return callback(e,{code:102,p:6})
                     }
                     request.get({url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}`},(err,resInfo)=> {
                         if (err) {
-                            logger.error('occur error : ', err)
+                            logger.error('occur error : ', err);
                             return callback(err, {code: 102, p: 6})
                         }
                         if (resInfo.statusCode != 200) {
-                            logger.error('头条状态码错误', resInfo.statusCode)
-                            logger.info(resInfo)
+                            logger.error('头条状态码错误', resInfo.statusCode);
+                            logger.info(resInfo);
                             return callback(true, {code: 102, p: 6})
                         }
                         try {
                             resInfo = JSON.parse(resInfo.body)
                         } catch (e) {
-                            logger.error('头条json数据解析失败')
-                            logger.info(resInfo)
+                            logger.error('头条json数据解析失败');
+                            logger.info(resInfo);
                             return callback(e, {code: 102, p: 6})
                         }
                         let res = {
@@ -623,7 +609,7 @@ class DealWith {
                             avatar: result.data.media_user.avatar_url,
                             p: 6,
                             encode_id: resInfo.data.user_id
-                        }
+                        };
                         callback(null,res)
                     })
                 })
@@ -633,22 +619,21 @@ class DealWith {
     yidian ( data, callback ) {
         let option = {
             url: data
-        }
+        };
         request.get(option,(err,result)=>{
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:11})
             }
             if(result.statusCode != 200 ){
-                logger.error('一点状态码错误',result.statusCode)
-                
+                logger.error('一点状态码错误',result.statusCode);
                 return callback(true,{code:102,p:11})
             }
             let $ = cheerio.load(result.body),
                 name = $('#source-name').text(),
-                href = $('#source-name').attr('href')
+                href = $('#source-name').attr('href');
             if(!name || !href){
-                logger.error(`url可能不是播放页地址:${data}`)
+                logger.error(`url可能不是播放页地址:${data}`);
                 return callback(true,{code:101,p:11})
             }
             let h_array = href.split('='),
@@ -658,12 +643,12 @@ class DealWith {
                     id: v_id,
                     name: name,
                     p: 11
-                }
+                };
             this.yidianAvatar( docid, (err, result) => {
                 if(err){
                     return callback(err,result)
                 }
-                res.avatar = result
+                res.avatar = result;
                 callback(null,res)
             })           
         })
@@ -671,25 +656,24 @@ class DealWith {
     yidianAvatar( docid, callback ){
         let option = {
             url: 'https://a1.go2yd.com/Website/contents/content?appid=yidian&cv=4.3.8.1&distribution=com.apple.appstore&docid='+ docid +'&net=wifi&platform=0&recommend_audio=true&related_docs=true&version=020116'
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:11})
             }
             if(result.statusCode != 200 ){
-                logger.error('一点状态码错误',result.statusCode)
+                logger.error('一点状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:11})
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                logger.error('一点json数据解析失败')
+                logger.error('一点json数据解析失败');
                 
                 return callback(e,{code:102,p:11})
             }
-            
             if(!result.documents || !result.documents[0].related_wemedia){
                 return callback(null,'')
             }
@@ -699,49 +683,48 @@ class DealWith {
     tudou (data,callback) {
         let pathname = URL.parse(data,true).pathname,
             test = pathname.indexOf('html'),
-            option = {},v_id
+            option = {},v_id;
         if(pathname.startsWith('/albumplay') && test> 0){
-            let v_array = pathname.split('/')
-            v_id = (v_array[v_array.length-1].split('.'))[0]
+            let v_array = pathname.split('/');
+            v_id = (v_array[v_array.length-1].split('.'))[0];
             option.url = `http://www.tudou.com/tvp/getItemInfo.action?ic=${v_id}&app=5`
         }else if( test > 0 ){
-            let v_array = pathname.split('/')
-            v_id = (v_array[v_array.length-1].split('.'))[0]
+            let v_array = pathname.split('/');
+            v_id = (v_array[v_array.length-1].split('.'))[0];
             option.url = api.tudou.url + v_id
         }else{
-            let v_array = pathname.split('/')
-            v_id = v_array[3]
+            let v_array = pathname.split('/');
+            v_id = v_array[3];
             option.url = api.tudou.url + v_id
         }
         request.get ( option, ( err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:12})
             }
             if(result.statusCode != 200 ){
-                logger.error('土豆状态码错误',result.statusCode)
+                logger.error('土豆状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:12})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('土豆json数据解析失败')
-                
+                logger.error('土豆json数据解析失败');
                 return callback(e,{code:102,p:12})
             }
-            let res
+            let res;
             if(pathname.startsWith('/albumplay')){
                 res = {
                     id: result.oid,
                     name: result.onic,
                     p: 12
-                }
+                };
                 return this.tudouAvatar( result.ocode, (err, result) => {
                     if(err){
                         callback(err,result)
                     }
-                    res.avatar = result
+                    res.avatar = result;
                     callback(null,res)
                 })
             }
@@ -753,29 +736,27 @@ class DealWith {
                 name: result.detail.username,
                 avatar: result.detail.channel_pic_220_220,
                 p: 12
-            }
+            };
             callback(null,res)
         })
     }
     tudouAvatar( uidCode, callback ){
         let option = {
             url: 'http://www.tudou.com/uis/userStatInfo.action?app=homev2&uidCode='+ uidCode +'&rt=1&_='+ new Date().getTime()
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('土豆的头像请求错误',err)
+                logger.debug('土豆的头像请求错误',err);
                 return callback(err,{code:102,p:12})
             }
             if(result.statusCode != 200 ){
-                logger.error('土豆状态码错误',result.statusCode)
-                
+                logger.error('土豆状态码错误',result.statusCode);
                 return callback(true,{code:102,p:12})
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                logger.debug('土豆的json数据解析失败')
-                
+                logger.debug('土豆的json数据解析失败');
                 return callback(true,{code:102,p:12})
             }
             callback(null,result.data.userpic)
@@ -787,15 +768,15 @@ class DealWith {
             pathname = urlObj.pathname,
             id,v_id,option = {}
         if(hostname == 'www.baomihua.com' || hostname == 'baomihua.com'){
-            let v_array = pathname.split('/')
+            let v_array = pathname.split('/');
             if(pathname.indexOf('_')){
-                id = v_array[2].split('_')[0]
+                id = v_array[2].split('_')[0];
                 v_id = v_array[2].split('_')[1]
             }else{
                 id = v_array[2]
             }
         }else{
-            let v_array = pathname.split('/')
+            let v_array = pathname.split('/');
             v_id = v_array[2]
         }
         if(id){
@@ -805,18 +786,17 @@ class DealWith {
         }
         request.get ( option, ( err, result ) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:13})
             }
             if(result.statusCode != 200 ){
-                logger.error('爆米花状态码错误',result.statusCode)
-                
+                logger.error('爆米花状态码错误',result.statusCode);
                 return callback(true,{code:102,p:13})
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                logger.error('爆米花json数据解析失败')
+                logger.error('爆米花json数据解析失败');
                 
                 return callback(e,{code:102,p:13})
             }
@@ -826,7 +806,7 @@ class DealWith {
                 name: result.result.ChannelInfo.ChannelName,
                 avatar: result.result.ChannelInfo.MidPic,
                 p: 13
-            }
+            };
             callback(null,res)
         })
     }
@@ -837,26 +817,25 @@ class DealWith {
             v_time = new Date().getTime(),
             option = {
                 url: api.ku6.url + v_id + '&_=' + v_time
-            }
+            };
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error:', err )
+                logger.error('occur error:', err );
                 return callback(err,{code:102,p:14})
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('酷6json数据解析失败')
-                
+                logger.error('酷6json数据解析失败');
                 return callback(e,{code:102,p:14})
             }
-            let avatar = result.data.list[0].author.icon.split(';')[0]
+            let avatar = result.data.list[0].author.icon.split(';')[0];
             let res = {
                 id: result.data.list[0].author.id,
                 name: result.data.list[0].author.nick,
                 avatar: avatar,
                 p: 14
-            }
+            };
             callback(null,res)
         })
     }
@@ -865,18 +844,18 @@ class DealWith {
             hostname = URL.parse(data,true).hostname,
             option = {};
         if(hostname == 'new.item.btime.com'){
-            option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${pathname.replace(/\//g,'')}`
+            option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${pathname.replace(/\//g,'')}`;
             return request.get(option, (err,result) => {
                 if(err){
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(err,{code:102,p:15})
                 }
                 try{
                     result = JSON.parse(result.body)
                 } catch (e){
-                    logger.error('北京时间json数据解析失败')
-                    logger.info('json error: ',result.body)
-                    return callback(e,{code:102,p:15})
+                    logger.error('北京时间json数据解析失败');
+                    logger.info('json error: ',result.body);
+                    return callback(e,{code:102,p:15});
                 }
                 let res = {
                     id: result.data.author_uid,
@@ -915,11 +894,11 @@ class DealWith {
         option.url = data;
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:15})
             }
             if(result.statusCode != 200){
-                logger.error('北京时间状态码错误:',result.statusCode)
+                logger.error('北京时间状态码错误:',result.statusCode);
                 
                 return callback(true,{code:102,p:15})
             }
@@ -931,18 +910,18 @@ class DealWith {
             if(!id){
                 let scriptDOM = $('script'),
                     scriptText = scriptDOM[35].children[0].data,
-                    v_id = scriptText.replace('var video_id = "','').replace('";','')
-                option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${v_id}`
+                    v_id = scriptText.replace('var video_id = "','').replace('";','');
+                option.url = `http://api.btime.com/trans?fmt=json&news_from=4&news_id=${v_id}`;
                 request.get(option, (err,result) => {
                     if(err){
-                        logger.error( 'occur error : ', err )
+                        logger.error( 'occur error : ', err );
                         return callback(err,{code:102,p:15})
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch (e){
-                        logger.error('北京时间json数据解析失败')
-                        logger.info('json error: ',result.body)
+                        logger.error('北京时间json数据解析失败');
+                        logger.info('json error: ',result.body);
                         return callback(e,{code:102,p:15})
                     }
                     let res = {
@@ -956,14 +935,14 @@ class DealWith {
             }else{
                 request.get( option, (err,result) => {
                     if(err){
-                        logger.error( 'occur error : ', err )
+                        logger.error( 'occur error : ', err );
                         return callback(err,{code:102,p:15})
                     }
                     try{
                         result = JSON.parse(result.body)
                     } catch (e){
-                        logger.error('北京时间json数据解析失败')
-                        logger.info('json error: ',result.body)
+                        logger.error('北京时间json数据解析失败');
+                        logger.info('json error: ',result.body);
                         return callback(e,{code:102,p:15})
                     }
                     
@@ -971,7 +950,7 @@ class DealWith {
                         id: result.data.uid,
                         name: result.data.nickname,
                         p: 15
-                    }
+                    };
                     return callback(null,res)
                 })
             }
@@ -981,43 +960,43 @@ class DealWith {
         let urlObj = URL.parse(data, true),
             hostname = urlObj.hostname,
             pathname = urlObj.pathname,
-            id, v_id, option = {}, res = {}
+            id, v_id, option = {}, res = {};
         if (hostname.indexOf('qq') == -1) {
-            v_id = pathname.split('/')[2]
-            option.url = api.weishi.url_2 + `?id=${v_id}`
+            v_id = pathname.split('/')[2];
+            option.url = api.weishi.url_2 + `?id=${v_id}`;
             option.referer = `http://www.weishi.com/t/${v_id}`
         } else {
             if(pathname.includes('u')){
-                id = pathname.split('/')[2]
-                option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`
+                id = pathname.split('/')[2];
+                option.url = api.weishi.url_1 + `?uid=${id}&_=${new Date().getTime()}`;
                 option.referer = `http://weishi.qq.com/u/${id}`
             }else{
-                v_id = pathname.split('/')[2]
-                option.url = api.weishi.url_2 + `?id=${v_id}`
+                v_id = pathname.split('/')[2];
+                option.url = api.weishi.url_2 + `?id=${v_id}`;
                 option.referer = `http://weishi.qq.com/t/${v_id}`
             }
         }
         request.get(option, (err, result) => {
             if (err) {
-                logger.error('occur error: ', err)
+                logger.error('occur error: ', err);
                 return callback(err,{code:102,p:16})
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('微视json数据解析失败')
-                logger.info('json error: ', result.body)
+                logger.error('微视json数据解析失败');
+                logger.info('json error: ', result.body);
                 return callback(e,{code:102,p:16})
             }
-            let data = result.data.user
-            res.name = Object.keys(data)[0]
-            res.id = data[res.name]
-            res.p = 16
+            let data = result.data.user;
+            res.name = Object.keys(data)[0];
+            res.id = data[res.name];
+            res.p = 16;
             this.weishiAvatar( res.id, (err, result) => {
                 if(err){
                     return callback(err,result)
                 }
-                res.avatar = result
+                res.avatar = result;
                 callback(null,res)
             })           
         })
@@ -1025,18 +1004,18 @@ class DealWith {
     weishiAvatar( uid, callback ){
         let option = {
             url: 'http://weishi.qq.com/u/' + uid
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('微视用户主页请求失败')
+                logger.debug('微视用户主页请求失败');
                 return callback(err,{code:102,p:16})
             }
             if(result.statusCode != 200){
-                logger.debug('微视用户主页状态码错误')
+                logger.debug('微视用户主页状态码错误');
                 return callback(true,{code:102,p:16})
             }
             let $ = cheerio.load(result.body),
-                avatar = $('#userpic').attr('src')
+                avatar = $('#userpic').attr('src');
             if(!avatar){
                 return callback(null,'')
             }
@@ -1049,17 +1028,17 @@ class DealWith {
             id = v_array[2],
             option = {
                 url: api.xiaoying.url + id
-            }
+            };
         request.get( option, (err,result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:17})
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('小影json数据解析失败')
-                logger.info('json error: ',result.body)
+                logger.error('小影json数据解析失败');
+                logger.info('json error: ',result.body);
                 return callback(e,{code:102,p:17})
             }
             let res = {
@@ -1067,7 +1046,7 @@ class DealWith {
                 name: result.videoinfo.username,
                 avatar: result.videoinfo.userlogourl,
                 p: 17
-            }
+            };
             callback(null,res)
         })
     }
@@ -1075,79 +1054,79 @@ class DealWith {
         let urlObj = URL.parse(data, true),
             hostname = urlObj.hostname,
             pathname = urlObj.pathname,
-            id, v_id, option = {}, res = {}
+            id, v_id, option = {}, res = {};
         switch (hostname) {
             case 'www.budejie.com':
                 if(pathname.indexOf('pc') !== -1){
                     let start = pathname.indexOf('/pc/'),
-                        end = pathname.indexOf('.')
-                    v_id = pathname.substring(start + 4,end)
+                        end = pathname.indexOf('.');
+                    v_id = pathname.substring(start + 4,end);
                     option.url = `http://www.budejie.com/detail-${v_id}.html`
                 }else if(pathname.indexOf('user') == -1){
                     let start = pathname.indexOf('-'),
-                        end = pathname.indexOf('.')
-                    v_id = pathname.substring(start + 1,end)
+                        end = pathname.indexOf('.');
+                    v_id = pathname.substring(start + 1,end);
                     option.url = `http://www.budejie.com/detail-${v_id}.html`
                 }else{
                     let start = pathname.indexOf('-'),
-                        end = pathname.indexOf('.')
-                    id = pathname.substring(start + 1,end)
+                        end = pathname.indexOf('.');
+                    id = pathname.substring(start + 1,end);
                     option.url = api.budejie.url_1 + id
                 }
-                break
+                break;
             case 'm.budejie.com':
                 if(urlObj.query.pid){
-                    v_id = urlObj.query.pid
+                    v_id = urlObj.query.pid;
                     option.url = `http://www.budejie.com/detail-${v_id}.html`
                 }else{
                     let start = pathname.lastIndexOf('-'),
-                        end = pathname.indexOf('.')
-                    v_id = pathname.substring(start + 1,end)
+                        end = pathname.indexOf('.');
+                    v_id = pathname.substring(start + 1,end);
                     option.url = `http://www.budejie.com/detail-${v_id}.html`
                 }
-                break
+                break;
             case 'a.f.budejie.com':
                 let start = pathname.lastIndexOf('/'),
-                    end = pathname.indexOf('.')
-                v_id = pathname.substring(start + 1,end)
-                option.url = `http://www.budejie.com/detail-${v_id}.html`
-                break
+                    end = pathname.indexOf('.');
+                v_id = pathname.substring(start + 1,end);
+                option.url = `http://www.budejie.com/detail-${v_id}.html`;
+                break;
             default:
                 return
         }
         if(id){
             request.get( option, ( err, result) => {
                 if (err) {
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(err,{code:102,p:18})
                 }
                 if (result.statusCode != 200) {
-                    logger.error('不得姐状态码错误1', result.statusCode)
+                    logger.error('不得姐状态码错误1', result.statusCode);
                     
                     return callback(true,{code:102,p:18})
                 }
                 try {
                     result = JSON.parse(result.body)
                 } catch (e) {
-                    logger.error('不得姐json数据解析失败')
-                    logger.info('json error: ',result)
+                    logger.error('不得姐json数据解析失败');
+                    logger.info('json error: ',result);
                     return callback(e,{code:102,p:18})
                 }
-                let data = result.data
-                res.id = data.id
-                res.name = data.username
-                res.avatar = data.profile_image_large
-                res.p = 18
+                let data = result.data;
+                res.id = data.id;
+                res.name = data.username;
+                res.avatar = data.profile_image_large;
+                res.p = 18;
                 callback(null,res)
             })
         } else {
             request.get( option, ( err, result ) => {
                 if (err) {
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(err,{code:102,p:18})
                 }
                 if (result.statusCode != 200) {
-                    logger.error('不得姐状态码错误2', result.statusCode)
+                    logger.error('不得姐状态码错误2', result.statusCode);
                     
                     return callback(true,{code:102,p:18})
                 }
@@ -1156,11 +1135,11 @@ class DealWith {
                     href = userNode.attr('href'),
                     start = href.lastIndexOf('-'),
                     end = href.indexOf('.'),
-                    avatar = $('img.u-logo').attr('src')
-                res.id = href.substring(start + 1,end)
-                res.name = userNode.text().trim()
-                res.avatar = avatar
-                res.p = 18
+                    avatar = $('img.u-logo').attr('src');
+                res.id = href.substring(start + 1,end);
+                res.name = userNode.text().trim();
+                res.avatar = avatar;
+                res.p = 18;
                 callback(null,res)
             })
         }
@@ -1170,39 +1149,39 @@ class DealWith {
             hostname = urlObj.hostname,
             path = urlObj.pathname,
             v_array = path.split('/'),
-            option = {},id,v_id
+            option = {},id,v_id;
         if(hostname == 'm.neihanshequ.com'){
-            id = path.includes('share') ? v_array[3] : v_array[2]
+            id = path.includes('share') ? v_array[3] : v_array[2];
             option.url = api.neihan.url + 'p' + id
         }else if(hostname == 'neihanshequ.com' && path.startsWith('/p')){
-            let rex = new RegExp(/^p[1-9]\d*|0$/)
+            let rex = new RegExp(/^p[1-9]\d*|0$/);
             if(rex.test(v_array[1]) ){
                 option.url = data
             }else{
                 return callback(true,{code:101,p:19})
             }
         }else if(hostname == 'neihanshequ.com' && path.startsWith('/user/')){
-            id = v_array[2]
-            option.url = data
+            id = v_array[2];
+            option.url = data;
             request.get( option, ( err, result ) => {
                 if (err) {
-                    logger.error( 'occur error : ', err )
+                    logger.error( 'occur error : ', err );
                     return callback(err,{code:102,p:19})
                 }
                 if (result.statusCode != 200) {
-                    logger.error('内涵段子状态码错误', result.statusCode)
+                    logger.error('内涵段子状态码错误', result.statusCode);
                     
                     return callback(true,{code:102,p:19})
                 }
                 let $ = cheerio.load(result.body,{ignoreWhitespace:true}),
                     name = $('.desc-item .desc-wrapper .name').text(),
-                    avatar = $('.desc-item img.logo').attr('src')
+                    avatar = $('.desc-item img.logo').attr('src');
                     res = {
                         name: name,
                         id: id,
                         avatar: avatar,
                         p: 19
-                    }
+                    };
                 return callback(null,res)
             })
         }else{
@@ -1210,17 +1189,17 @@ class DealWith {
         }
         request.get(option, (err, result) => {
             if (err) {
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:19})
             }
             if (result.statusCode != 200) {
-                logger.error('内涵段子状态码错误', result.statusCode)
+                logger.error('内涵段子状态码错误', result.statusCode);
                 
                 return callback(true,{code:102,p:19})
             }
             let $ = cheerio.load(result.body),
                 name = $('.name-time-wrapper .name').text(),
-                href = $('.detail-wrapper .header a').attr('href')
+                href = $('.detail-wrapper .header a').attr('href');
             let hArr = href.split('/'),
                 v_id = hArr[4],
                 res = {
@@ -1228,7 +1207,7 @@ class DealWith {
                     id: v_id,
                     avatar: $('#tmplNode img.user-img').attr('src'),
                     p: 19
-                }
+                };
             callback(null, res)
         })
     }
@@ -1236,15 +1215,15 @@ class DealWith {
         let urlObj = URL.parse(data,true),
             host = urlObj.hostname,
             path = urlObj.pathname,
-            option = {}
+            option = {};
         if(host == 'shenqu.3g.yy.com'){
             let v_array1 = path.split('/'),
                 v_array2 = v_array1[v_array1.length-1].split('_'),
                 v_array3 = v_array2[1].split('.'),
-                v_id = v_array3[0]
+                v_id = v_array3[0];
             option.url = api.yy.url_1 + v_id
         }else if(host == 'w.3g.yy.com'){
-            let q = URL.parse(data,true).query
+            let q = URL.parse(data,true).query;
             option.url = q.resid ? api.yy.url_2 + q.resid : api.yy.url_3 + q.pid
         }else if(host == 'www.yy.com'){
             if(path.startsWith('/x/') || path.startsWith('/s/') || path.startsWith('/d/')){
@@ -1253,16 +1232,16 @@ class DealWith {
                 return callback(true,{code:101,p:20})
             }
         }else{
-            logger.error('链接错误',data)
+            logger.error('链接错误',data);
             return callback(true,{code:101,p:20})
         }
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:20})
             }
             if(result.statusCode != 200){
-                logger.error('yy状态码错误',result.statusCode)
+                logger.error('yy状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:20})
             }
@@ -1287,7 +1266,7 @@ class DealWith {
             path = urlObj.pathname,
             v_array = path.split('/'),
             pre_vid = v_array[2].replace('.html',''),
-            vid,id,res,name
+            vid,id,res,name;
         switch (host){
             case 'www.56.com':
                 if(path.indexOf('play_album-aid') == -1){
@@ -1295,10 +1274,10 @@ class DealWith {
                 }else{
                     vid = pre_vid.split('_')[2].split('-')[1]
                 }
-                break
+                break;
             case 'm.56.com':
-                vid =  pre_vid.split('-')[1]
-                break
+                vid =  pre_vid.split('-')[1];
+                break;
             default:
                 return callback(true,{code:101,p:21})
         }
@@ -1308,14 +1287,14 @@ class DealWith {
             headers: {
                 'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
             }
-        }
+        };
         r( options, ( err, res, body ) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:21})
             }
             if(res.statusCode != 200){
-                logger.error('56状态码错误',res.statusCode)
+                logger.error('56状态码错误',res.statusCode);
                 return callback(true,{code:102,p:21})
             }
             let $ = cheerio.load(body,{
@@ -1329,51 +1308,84 @@ class DealWith {
                 dataJson = scriptData.replace(/[\s\n\r]/g,''),
                 startIndex = dataJson.indexOf('sohu_user_photo:'),
                 endIndex = dataJson.indexOf(',ispgc'),
-                avatar = dataJson.substring(startIndex+16,endIndex)
+                avatar = dataJson.substring(startIndex+16,endIndex),
+                sohuVideoInfo;
             if(_id_info && _name_info){
-                id_info = _id_info[0]
+                id_info = _id_info[0];
                 name_info = _name_info[0]
             }else{
-                return callback(true,{code:102,p:21})
+                //logger.debug('---');
+                options.url = data;
+                options.headers = {
+                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
+                }
+                options.method = 'GET';
+                r(options, (error, response, body) => {
+                    if(error){
+                        logger.debug('视频详情页请求失败',error);
+                        return callback(error, {code:102,p:21})
+                    }
+                    sohuVideoInfo = body.replace(/[\s\n\r]/g,'').indexOf('sohuVideoInfo');
+                    if(sohuVideoInfo != -1){
+                        let $ = cheerio.load(body);
+                        id = body.match(/pid: '\d*/).toString().replace("pid: '",'');
+                        name = $('.user_box a.user_cover').attr('title');
+                        avatar = $('.user_box a.user_cover img').attr('src');
+                        if(id && name){
+                            res = {
+                                id: id,
+                                name: name,
+                                avatar: avatar,
+                                p: 21
+                            };
+                            return callback(null,res)
+                        }else {
+                            return callback(true,{code:102,p:21})
+                        }
+                    }else {
+                        return callback(true,{code:102,p:21})
+                    }
+                });
+                return
             }
-            id = id_info.substring(14,id_info.lastIndexOf("'"))
-            name = name_info.substring(11,name_info.lastIndexOf("'"))
+            id = id_info.substring(14,id_info.lastIndexOf("'"));
+            name = name_info.substring(11,name_info.lastIndexOf("'"));
             res = {
                 id: id,
                 name: name,
                 avatar: avatar,
                 p: 21
-            }
+            };
             callback(null,res)
         })
     }
     acfun( data, callback){
         let host = URL.parse(data,true).hostname,
             option = {},
-            v_id
+            v_id;
         if(host == 'www.acfun.tv' || host == 'www.acfun.cn'){
-            let v_array = URL.parse(data,true).pathname.split('ac')
+            let v_array = URL.parse(data,true).pathname.split('ac');
             v_id = v_array[1]
         }else{
             v_id = URL.parse(data,true).query.ac
         }
-        option.url = api.acfun.url + v_id
-        option.deviceType = '0'
+        option.url = api.acfun.url + v_id;
+        option.deviceType = '0';
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:22})
             }
             if(result.statusCode != 200){
-                logger.error('A站状态码错误',result.statusCode)
+                logger.error('A站状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:22})
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('A站json数据解析失败')
-                logger.info('json error: ',result)
+                logger.error('A站json数据解析失败');
+                logger.info('json error: ',result);
                 return callback(e,{code:102,p:22})
             }
             let res = {
@@ -1381,7 +1393,7 @@ class DealWith {
                 id: result.data.owner.id,
                 avatar: result.data.owner.avatar,
                 p: 22
-            }
+            };
             callback(null,res)
         })
     }
@@ -1391,55 +1403,55 @@ class DealWith {
             path = urlObj.pathname,
             bid = path.match(/\/\d*/).toString().replace(/\//g,''),
             option = {},
-            v_id
+            v_id;
         if(bid == ''){
             bid = path.match(/status\/\d*/).toString().replace(/status\//,'')
         }
         if(bid.length > 10){
-            option.url = remote
+            option.url = remote;
             request.get( option, (err,result) => {
                 if(err){
-                    logger.error('occur error: ',err)
+                    logger.error('occur error: ',err);
                     return callback(err,{code:102,p:23})
                 }
                 if(result.statusCode != 200){
-                    logger.error('weibo状态码错误',result.statusCode)
+                    logger.error('weibo状态码错误',result.statusCode);
                     
                     return callback(true,{code:102,p:23})
                 }
                 let $ = cheerio.load(result.body),
-                    script
+                    script;
                 try{
-                    script = $('script')[1].children[0].data.replace(/[\s\n\r]/g,'')
+                    script = $('script')[1].children[0].data.replace(/[\s\n\r]/g,'');
                     bid = script.match(/"user":\{"id":\d*/).toString().replace(/"user":\{"id":/,'')
                 }catch(e){
                     this.weibo(remote, callback)
                     return
                 }
                 
-                option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid
+                option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid;
                 this.getRes(option,callback)
             })
         }else{
-            option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid
+            option.url = 'http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value='+bid;
             this.getRes(option,callback)
         }
     }
     getRes( option, callback ){
         request.get( option, ( err, result ) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:23})
             }
             if(result.statusCode != 200){
-                logger.error('weibo状态码错误',result.statusCode)
+                logger.error('weibo状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:23})
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                logger.debug('weibo数据解析失败')
+                logger.debug('weibo数据解析失败');
                 return callback(e,{code:102,p:23})
             }
             let res = {
@@ -1516,21 +1528,21 @@ class DealWith {
             dataUrl = remote.match(/\/\w*\.html/).toString().replace(/\//,'').replace(/\.html/,''),
             option  = {
                 url : 'http://c.m.163.com/nc/video/detail/'+dataUrl+'.html'
-            }
+            };
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:25})
             }
             if(result.statusCode != 200){
-                logger.error('网易状态码错误',result.statusCode)
-                logger.error(result)
+                logger.error('网易状态码错误',result.statusCode);
+                logger.error(result);
                 return callback(true,{code:102,p:25})
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                logger.error('网易数据解析失败')
+                logger.error('网易数据解析失败');
                 return callback(e,{code:102,p:25})
             }
             let res = {
@@ -1548,19 +1560,19 @@ class DealWith {
             option = {
                 url: remote
             },
-            bid = '', aid = '', options = {}
+            bid = '', aid = '', options = {};
         if(host == 'v.mp.uc.cn' || host == 'a.mp.uc.cn'){
-            bid = remote.match(/wm_id=\w*/).toString().replace(/wm_id=/,'')
+            bid = remote.match(/wm_id=\w*/).toString().replace(/wm_id=/,'');
             options.url = 'http://napi.uc.cn/3/classes/article/categories/wemedia/lists/'+ bid +'?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_size=5&_max_pos=&uc_param_str=frdnsnpfvecpntnwprdsssnikt'
             request.get( options, ( err, info ) => {
                 if(err){
-                    logger.error('occur error: ',err)
+                    logger.error('occur error: ',err);
                     return callback(err,{code:102,p:26})
                 }
                 try{
                     info = JSON.parse(info.body)
                 }catch(e){
-                    logger.debug('UC数据解析失败')
+                    logger.debug('UC数据解析失败');
                     return callback(e,{code:102,p:26})
                 }
                 let res = {
@@ -1568,28 +1580,28 @@ class DealWith {
                     id: bid,
                     avatar: info.data[0].avatar_url,
                     p: 26
-                }
+                };
                 callback(null,res)
             })
         }else{
             request.get( option, ( err, result ) => {
                 if(err){
-                    logger.error('occur error: ',err)
+                    logger.error('occur error: ',err);
                     return callback(err,{code:102,p:26})
                 }
                 if(result.statusCode != 200){
-                    logger.error('UC状态码错误',result.statusCode)
+                    logger.error('UC状态码错误',result.statusCode);
                     
                     return callback(true,{code:102,p:26})
                 }
                 let $ = cheerio.load(result.body),
-                    script
+                    script;
                 if(host == 'tc.uc.cn'){
                     script = $('script')[0].children[0].data
                 }else{
                     script = $('script')[1].children[0].data
                 }
-                bid = script.match(/mid=\w*/) == undefined? '': script.match(/mid=\w*/).toString().replace(/mid=/,'')
+                bid = script.match(/mid=\w*/) == undefined? '': script.match(/mid=\w*/).toString().replace(/mid=/,'');
                 if(bid == ''){
                     /*不是认证用户*/
                     callback(null,{code:103,p:26})
@@ -1597,13 +1609,13 @@ class DealWith {
                     options.url = 'http://napi.uc.cn/3/classes/article/categories/wemedia/lists/'+ bid +'?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_size=5&_max_pos=&uc_param_str=frdnsnpfvecpntnwprdsssnikt'
                     request.get( options, ( err, info ) => {
                         if(err){
-                            logger.error('occur error: ',err)
+                            logger.error('occur error: ',err);
                             return callback(err,{code:102,p:26})
                         }
                         try{
                             info = JSON.parse(info.body)
                         }catch(e){
-                            logger.debug('UC数据解析失败')
+                            logger.debug('UC数据解析失败');
                             return callback(e,{code:102,p:26})
                         }
                         let res = {
@@ -1611,7 +1623,7 @@ class DealWith {
                             id: bid,
                             avatar: info.data[0].avatar_url,
                             p: 26
-                        }
+                        };
                         callback(null,res)
                     })
                 }
@@ -1628,24 +1640,24 @@ class DealWith {
         }else{
             bid = remote.match(/b\/\d*/).toString().replace(/b\//,'')
         }
-        option.url = 'http://pcweb.api.mgtv.com/variety/showlist?collection_id='+bid
+        option.url = 'http://pcweb.api.mgtv.com/variety/showlist?collection_id='+bid;
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:27})
             }
             if(result.statusCode != 200){
-                logger.error('芒果TV状态码错误',result.statusCode)
+                logger.error('芒果TV状态码错误',result.statusCode);
                 return callback(true,{code:102,p:27})
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
-                logger.debug('芒果TV数据解析失败')
+                logger.debug('芒果TV数据解析失败');
                 return callback(e,{code:102,p:27})
             }
-            index = result.data.info.title.indexOf(' ')
-            index = index == -1 ? result.data.info.title.length : index
+            index = result.data.info.title.indexOf(' ');
+            index = index == -1 ? result.data.info.title.length : index;
             this.mgtvAvatar( bid, (err, avatar) => {
                 if(err){
                     return callback(err,avatar)
@@ -1655,7 +1667,7 @@ class DealWith {
                     id: result.data.tab_y[0].id,
                     avatar: avatar,
                     p: 27
-                }
+                };
                 callback(null,res)
             })           
         })
@@ -1663,18 +1675,18 @@ class DealWith {
     mgtvAvatar( bid, callback ){
         let option = {
             url: 'http://www.mgtv.com/h/'+ bid +'.html?fpa=se'
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('芒果TV avatar 请求失败')
+                logger.debug('芒果TV avatar 请求失败');
                 return this.mgtvAvatar(bid,callback)
             }
             if(result.statusCode != 200){
-                logger.error('芒果TV状态码错误',result.statusCode)
+                logger.error('芒果TV状态码错误',result.statusCode);
                 return this.mgtvAvatar(bid,callback)
             }
             let $ = cheerio.load(result.body),
-                avatar = $('a.banner>img').attr('src')
+                avatar = $('a.banner>img').attr('src');
             if(!avatar){
                 return callback(null,'')
             }
@@ -1686,49 +1698,49 @@ class DealWith {
             host = URL.parse(remote,true).hostname,
             uin = '',
             tid = '',
-            option = {}
+            option = {};
         if(host == 'user.qzone.qq.com'){
-            uin = remote.match(/com\/\d*/).toString().replace(/com\//,'')
-            tid = remote.match(/mood\/\w*/).toString().replace(/mood\//,'')
-            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+            uin = remote.match(/com\/\d*/).toString().replace(/com\//,'');
+            tid = remote.match(/mood\/\w*/).toString().replace(/mood\//,'');
+            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid;
             this.getQzone(option,callback)
         }else if(host == 'mobile.qzone.qq.com'){
             if(remote.match(/&u=\d*/) == null){
-                uin = query.res_uin
+                uin = query.res_uin;
                 tid = query.cellid
             }else{
-                uin = query.u
+                uin = query.u;
                 tid = query.i
             }
-            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid;
             this.getQzone(option,callback)
         }else if(host == 'h5.qzone.qq.com'){
-            uin = query.uin
-            tid = query.shoushou_id
-            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid
+            uin = query.uin;
+            tid = query.shoushou_id;
+            option.url = api.qzone.url+"&uin="+uin+"&tid="+tid;
             this.getQzone(option,callback)
         }else{
-            option.url = remote
+            option.url = remote;
             request.get( option, (err,result) => {
                 if(err){
-                    logger.error('occur error: ',err)
+                    logger.error('occur error: ',err);
                     return callback(err,{code:102,p:29})
                 }
                 if(result.statusCode != 200){
-                    logger.error('网易状态码错误',result.statusCode)
+                    logger.error('网易状态码错误',result.statusCode);
                     
                     return callback(true,{code:102,p:29})
                 }
                 let $ = cheerio.load(result.body),
                     script = $('script')[13].children[0].data,
-                    data = script.match(/"uin":"\d*","_wv":"\d*","_ws":"\d*","adtag":"\w*","is_video":"\w*","shuoshuo_id":"\w*","data/).toString().replace(/"uin/,'{"uin').replace(/,"data/,'}')
+                    data = script.match(/"uin":"\d*","_wv":"\d*","_ws":"\d*","adtag":"\w*","is_video":"\w*","shuoshuo_id":"\w*","data/).toString().replace(/"uin/,'{"uin').replace(/,"data/,'}');
                     try{
                         data = JSON.parse(data)
                     }catch(e){
-                        logger.debug('QQ空间bid请求参数解析失败')
+                        logger.debug('QQ空间bid请求参数解析失败');
                         return callback(e,{code:102,p:29})
                     }
-                option.url = api.qzone.url+"&uin="+data.uin+"&tid="+data.shuoshuo_id
+                option.url = api.qzone.url+"&uin="+data.uin+"&tid="+data.shuoshuo_id;
                 this.getQzone(option,callback)
             })
         }    
@@ -1736,17 +1748,17 @@ class DealWith {
     getQzone( option, callback ){
         request.get( option, (err,result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:29})
             }
             if(result.statusCode != 200){
-                logger.error('QQ空间状态码错误',result.statusCode)
+                logger.error('QQ空间状态码错误',result.statusCode);
                 return callback(true,{code:102,p:29})
             }
             try{
                 result = eval(result.body)
             }catch(e){
-                logger.debug('QQ空间数据解析失败')
+                logger.debug('QQ空间数据解析失败');
                 return callback(e,{code:102,p:29})
             }
             if(!result.usrinfo){
@@ -1757,7 +1769,7 @@ class DealWith {
                 id: result.usrinfo.uin,
                 avatar: 'https://qlogo4.store.qq.com/qzone/'+ result.usrinfo.uin +'/'+ result.usrinfo.uin +'/100?',
                 p: 29
-            }
+            };
             callback(null,res)
         })
     }
@@ -1770,21 +1782,21 @@ class DealWith {
             avatar   = '',
             option   = {
                 url : data
-            }
+            };
         request.get( option, (err, result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:30})
             }
             if(result.statusCode != 200){
-                logger.error('CCTV状态码错误',result.statusCode)
+                logger.error('CCTV状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:30})
             }
-            let $    = cheerio.load(result.body)
-            bid  = $('#userName a').attr('href').match(/\d*\/index/).toString().replace(/\/index/,'')
-            name = $('#userName a').text()
-            avatar = $('.user_pic').attr('src')
+            let $    = cheerio.load(result.body);
+            bid  = $('#userName a').attr('href').match(/\d*\/index/).toString().replace(/\/index/,'');
+            name = $('#userName a').text();
+            avatar = $('.user_pic').attr('src');
             if(!bid && !name && !avatar){
                 return callback(null,{code:103,p:30})
             }
@@ -1793,7 +1805,7 @@ class DealWith {
                 id: bid,
                 name: name,
                 avatar: avatar
-            }
+            };
             callback(null,res)
         })
     }
@@ -1802,18 +1814,18 @@ class DealWith {
             option = {
                 url : data,
                 referer : 'http://v.pptv.com/page/'+vid
-            }
+            };
         request.get( option, (err, result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:31})
             }
             if(result.statusCode != 200){
-                logger.error('PPTV状态码错误',result.statusCode)
+                logger.error('PPTV状态码错误',result.statusCode);
                 return callback(true,{code:102,p:31})
             }
-            result = result.body.replace(/[\s\n\r]/g,'')
-            let vid = result.match(/varwebcfg={"id":\d+/).toString().replace('varwebcfg={"id":','')
+            result = result.body.replace(/[\s\n\r]/g,'');
+            let vid = result.match(/varwebcfg={"id":\d+/).toString().replace('varwebcfg={"id":','');
             return this.pptvInfo(vid, data, (err, result) => {
                 callback(null,result)
             })
@@ -1823,41 +1835,41 @@ class DealWith {
     pptvInfo( vid, url, callback ){
         let option = {
             url: `http://epg.api.pptv.com/detail.api?auth=1&format=jsonp&cb=jsonp&vid=${vid}&_=${new Date().getTime()}`
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:31})
             }
             if(result.statusCode != 200){
-                logger.error('PPTV状态码错误',result.statusCode)
+                logger.error('PPTV状态码错误',result.statusCode);
                 return callback(true,{code:102,p:31})
             }
             try{
                 result = eval(result.body)
             }catch(e){
-                logger.debug('PPTV数据解析失败')
+                logger.debug('PPTV数据解析失败');
                 return callback(e,{code:102,p:31})
             }
-            let dataName = result
+            let dataName = result;
             if(!result.v.traceName){
-                option.url = url
+                option.url = url;
                 request.get( option, (err, result) => {
                     if(err){
-                        logger.error('occur error: ',err)
+                        logger.error('occur error: ',err);
                         return callback(err,{code:102,p:31})
                     }
                     if(result.statusCode != 200){
-                        logger.error('PPTV状态码错误',result.statusCode)
+                        logger.error('PPTV状态码错误',result.statusCode);
                         return callback(true,{code:102,p:31})
                     }
                     let $ = cheerio.load(result.body),
                         script = $('script')[2].children[0].data.replace(/[\s\n\r]/g,''),
-                        dataJson = script.replace(/varwebcfg=/,'').replace(/;/,'')
+                        dataJson = script.replace(/varwebcfg=/,'').replace(/;/,'');
                     try{
                         dataJson = JSON.parse(dataJson)
                     }catch(e){
-                        logger.debug(dataJson)
+                        logger.debug(dataJson);
                         return
                     }
                     if(!dataJson.p_title.replace(/[\s\n\r]/g,'')){
@@ -1869,7 +1881,7 @@ class DealWith {
                         p: 31,
                         encode_id: dataJson.cat_id,
                         avatar: dataName.v.imgurl
-                    }
+                    };
                     return callback(null,res)
                 })
             }else{
@@ -1879,7 +1891,7 @@ class DealWith {
                     p: 31,
                     encode_id: result.v.type,
                     avatar: result.v.imgurl
-                }
+                };
                 callback(null,res)
             }   
         })
@@ -1890,26 +1902,26 @@ class DealWith {
             path     = urlObj.pathname,
             option   = {
                 url : data
-            }
+            };
         request.get( option, (err, result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:32})
             }
             if(result.statusCode != 200){
-                logger.error('新蓝网状态码错误',result.statusCode)
+                logger.error('新蓝网状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:32})
             }
-            result = result.body.replace(/[\s\n\r]/g,'')
+            result = result.body.replace(/[\s\n\r]/g,'');
             let res = {
                 name: result.match(/pTitle:"[^\x00-\xff]*/).toString().replace(/pTitle:"/,''),
                 id: result.match(/pid:\d*/).toString().replace(/pid:/,''),
                 p: 32,
                 encode_id: result.match(/cid:\d*/).toString().replace(/cid:/,'')
-            }
+            };
             this.xinlanAvatar( res.name, (err, result) => {
-                res.avatar = result
+                res.avatar = result;
                 callback(null,res)
             }) 
         })
@@ -1917,25 +1929,25 @@ class DealWith {
     xinlanAvatar( name, callback ){
         let option = {
             url: 'http://so.cztv.com/pc/s?wd='+ encodeURIComponent(name)
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('头图的搜索列表请求失败')
+                logger.debug('头图的搜索列表请求失败');
                 return this.xinlanAvatar(name,callback)
             }
             if(result.statusCode != 200){
-                logger.error('新蓝网状态码错误',result.statusCode)
+                logger.error('新蓝网状态码错误',result.statusCode);
                 return this.xinlanAvatar(name,callback)
             }
             let $ = cheerio.load(result.body),
-                avatars = $('div.ui-search-results')
+                avatars = $('div.ui-search-results');
             if(avatars.length <= 0){
                 return callback(null,'')
             }
             for(let i = 0; i < avatars.length; i++){
                 let bname = avatars.eq(i).find('li.ui-cf div.ui-fl>img').attr('title'),
                     avatar = avatars.eq(i).find('li.ui-cf div.ui-fl>img').attr('src')
-                    logger.debug(name)
+                    logger.debug(name);
                 if(name === bname){
                     return callback(null,avatar)
                 }
@@ -1952,23 +1964,23 @@ class DealWith {
             vid      = '',
             option   = {
                 url : data
-            }
-        vid = path.match(/\d*\./).toString().replace(/[\.]/g,'')
+            };
+        vid = path.match(/\d*\./).toString().replace(/[\.]/g,'');
         option.url = 'http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/'+vid+'/pcode/010210000/version/4.5.4.mindex.html'
         request.get( option, (err, result) => {
             if(err){
-                logger.error('occur error: ',err)
+                logger.error('occur error: ',err);
                 return callback(err,{code:102,p:33})
             }
             if(result.statusCode != 200){
-                logger.error('v1状态码错误',result.statusCode)
+                logger.error('v1状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:33})
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.debug('v1数据转换失败')
+                logger.debug('v1数据转换失败');
                 return callback(e,{code:102,p:33})
             }
             this.getenCodeid( data, (err, encodeid) => {
@@ -1978,7 +1990,7 @@ class DealWith {
                     name: result.body.obj.videoDetail.userInfo.userName,
                     avatar: result.body.obj.videoDetail.userInfo.userImg,
                     encode_id: encodeid
-                }
+                };
                 callback(null,res)
             })           
         })
@@ -1986,18 +1998,18 @@ class DealWith {
     getenCodeid( url, callback ){
         let option = {
             url: url
-        }
+        };
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('v1 encodeid 请求失败')
+                logger.debug('v1 encodeid 请求失败');
                 return this.getenCodeid(url,callback)
             }
             if(result.statusCode != 200){
-                logger.debug('v1 encodeid 状态码错误')
+                logger.debug('v1 encodeid 状态码错误');
                 return this.getenCodeid(url,callback)
             }
             let $ = cheerio.load(result.body),
-                encodeid = $('a.btn_alSub').attr('id').replace('isfocusbtn_','')
+                encodeid = $('a.btn_alSub').attr('id').replace('isfocusbtn_','');
             callback(null,encodeid)
         })
     }
@@ -2010,7 +2022,7 @@ class DealWith {
             name      = '',
             option    = {
                 url : data
-            }
+            };
         if(host == 'pm.funshion.com' || host == 'm.fun.tv'){
             if(urlObj.query.mid == undefined){
                 return callback(null,{id:'',name:'',p:34})
@@ -2018,12 +2030,12 @@ class DealWith {
             bid = urlObj.query.mid
         }else{
             if(path.match(/g-\d*/) == null){
-                bid = path.match(/c-\d*/).toString().replace(/c-/,'')
-                option.url = 'http://www.fun.tv/channel/lists/'+bid+'/'
+                bid = path.match(/c-\d*/).toString().replace(/c-/,'');
+                option.url = 'http://www.fun.tv/channel/lists/'+bid+'/';
                 this.getfengxiang('视频号',option,callback)
             }else{
-                bid = path.match(/g-\d*/).toString().replace('g-','')
-                option.url = 'http://pm.funshion.com/v5/media/profile?cl=iphone&id='+bid+'&si=0&uc=202&ve=3.2.9.2'
+                bid = path.match(/g-\d*/).toString().replace('g-','');
+                option.url = 'http://pm.funshion.com/v5/media/profile?cl=iphone&id='+bid+'&si=0&uc=202&ve=3.2.9.2';
                 this.getfengxiang('',option,callback)
             }
         }
@@ -2032,36 +2044,36 @@ class DealWith {
         if(video == '视频号'){
             request.get( option, (err,result) => {
                 if(err){
-                    logger.error('occur error: ',err)
+                    logger.error('occur error: ',err);
                     return callback(err,{code:102,p:34})
                 }
                 let $          = cheerio.load(result.body),
                     bid        = $('div.ch-info div.info a').attr('data-id'),
                     name       = $('div.ch-info div.info h1').text(),
-                    avatar     = $('div.chan-head-ico>img').attr('src')
+                    avatar     = $('div.chan-head-ico>img').attr('src');
                 let res = {
                     id: bid,
                     name: name,
                     avatar: avatar ? avatar : '',
                     p: 34
-                }
+                };
                 callback(null,res)
             })
         }else{
             request.get( option, (err,result) => {
                 if(err){
-                    logger.error('occur error: ',err)
+                    logger.error('occur error: ',err);
                     return callback(err,{code:102,p:34})
                 }
                 if(result.statusCode != 200){
-                    logger.error('风行状态码错误',result.statusCode)
+                    logger.error('风行状态码错误',result.statusCode);
                     
                     return callback(true,{code:102,p:34})
                 }
                 try{
                     result = JSON.parse(result.body)
                 } catch(e){
-                    logger.debug('风行数据转换失败')
+                    logger.debug('风行数据转换失败');
                     return callback(e,{code:102,p:34})
                 }
                 let res  = {
@@ -2069,7 +2081,7 @@ class DealWith {
                     id: result.id,
                     name: result.name,
                     avatar: result.poster
-                }
+                };
                 callback(null,res)
             })
         }
@@ -2082,26 +2094,26 @@ class DealWith {
             name     = '',
             option   = {
                 url : 'http://www.wasu.cn/Play/show/id/'+bid
-            }
+            };
         request.get( option, (err,result) => {
             if(err){
-                logger.error('视频详情: ',err)
+                logger.error('视频详情: ',err);
                 return callback(err,{code:102,p:35})
             }
             if(result.statusCode != 200){
-                logger.error('视频详情状态码错误',result.statusCode)
+                logger.error('视频详情状态码错误',result.statusCode);
                 
                 return callback(true,{code:102,p:35})
             }
-            let $ = cheerio.load(result.body)
-            option.url = $('div.play_information_t').eq(0).find(' div.r div.one a').attr('href')
+            let $ = cheerio.load(result.body);
+            option.url = $('div.play_information_t').eq(0).find(' div.r div.one a').attr('href');
             request.get( option, (err, result) => {
                 if(err){
-                    logger.error('专辑信息: ',err)
+                    logger.error('专辑信息: ',err);
                     return callback(err,{code:102,p:35})
                 }
                 if(result.statusCode != 200){
-                    logger.error('专辑信息状态码错误',result.statusCode)
+                    logger.error('专辑信息状态码错误',result.statusCode);
                     
                     return callback(true,{code:102,p:35})
                 }
@@ -2115,7 +2127,7 @@ class DealWith {
                         name : name,
                         avatar : avatar,
                         p : 35
-                    }
+                    };
                 callback(null,res)
             })
         })
@@ -2130,25 +2142,25 @@ class DealWith {
             name      = '',
             option    = {
                 url : data
-            }
+            };
         request.get( option, (err,result) => {
             if(err){
-                logger.debug('暴风PC请求失败',err)
+                logger.debug('暴风PC请求失败',err);
                 return callback(err,{code:102,p:36})
             }
             if(result.statusCode != 200){
-                logger.debug('暴风PC状态码错误',result.statusCode)
+                logger.debug('暴风PC状态码错误',result.statusCode);
                 return callback(true,{code:102,p:36})
             }
             try{
                 let $ = cheerio.load(result.body),
                     script = $('script')[16].children[0].data.replace(/[\s\n\r]/g,''),
                     startIndex = script.indexOf('{"info_box_tpl"'),
-                    endIndex = script.indexOf(';varstatic_storm_json')
+                    endIndex = script.indexOf(';varstatic_storm_json');
                 result = JSON.parse(script.substring(startIndex,endIndex))
             }catch(e){
                 
-                logger.debug('数据解析失败')
+                logger.debug('数据解析失败');
                 return callback(true,{code:102,p:36})
             }
             let res = {
@@ -2156,7 +2168,7 @@ class DealWith {
                 name: result.info_name,
                 avatar: result.info_img,
                 p: 36
-            }
+            };
             callback(null,res)
         })
     }
@@ -2171,30 +2183,30 @@ class DealWith {
             dataJson   = null,
             option     = {
                 url : data
-            }
+            };
         if(host == 'baidu.56.com' || host == 'baishi.pgc.baidu.com'){
             let video = path.match(/\d*\.html/).toString();
             option.url = 'http://baishi.baidu.com/watch/'+video
         }
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('百度视频请求失败',err)
+                logger.debug('百度视频请求失败',err);
                 return callback(err,{code:102,p:37})
             }
             if(result.statusCode != 200){
-                logger.debug('百度视频的状态码错误',result.statusCode)
+                logger.debug('百度视频的状态码错误',result.statusCode);
                 return callback(true,{code:102,p:37})
             }
-            result = result.body.replace(/[\s\n\r]/g,'')
-            startIndex = result.indexOf('{pgcName')
-            endIndex = result.indexOf(');}();!function(){varadmis')
-            dataJson = result.substring(startIndex,endIndex)
+            result = result.body.replace(/[\s\n\r]/g,'');
+            startIndex = result.indexOf('{pgcName');
+            endIndex = result.indexOf(');}();!function(){varadmis');
+            dataJson = result.substring(startIndex,endIndex);
             try{
                 dataJson = dataJson.replace('{','{"').replace(/\'/g,'"').replace(',',',"').replace(/:/g,'":');
                 dataJson = JSON.parse(dataJson)
             }catch (e){
-                logger.debug('百度视频bid解析失败')
-                logger.info(dataJson)
+                logger.debug('百度视频bid解析失败');
+                logger.info(dataJson);
                 return callback(err,{code:102,p:37})
             }
             let res = {
@@ -2203,7 +2215,7 @@ class DealWith {
                 p: 37
             };
             this.baiduAvatar( res.name, (err, avatar) => {
-                res.avatar = avatar
+                res.avatar = avatar;
                 callback(null,res)
             })
         })
@@ -2214,21 +2226,21 @@ class DealWith {
         };
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('百度视频的头像请求失败')
+                logger.debug('百度视频的头像请求失败');
                 return this.baiduAvatar(bname,callback)
             }
             if(result.statusCode != 200){
-                logger.debug('百度视频的状态码错误',result.statusCode)
+                logger.debug('百度视频的状态码错误',result.statusCode);
                 return this.baiduAvatar(bname,callback)
             }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.debug('百度视频数据解析失败')
-                logger.info(result)
+                logger.debug('百度视频数据解析失败');
+                logger.info(result);
                 return this.baiduAvatar(bname,callback)
             }
-            let avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : ''
+            let avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : '';
             callback(null,avatar)
         })
     }
@@ -2240,24 +2252,24 @@ class DealWith {
             name     = '',
             option   = {
                 url : data
-            }
+            };
         request.get( option, (err, result) => {
             if(err){
-                logger.debug('百度百家视频请求失败',err)
+                logger.debug('百度百家视频请求失败',err);
                 return callback(err,{code:102,p:28})
             }
             if(result.statusCode != 200){
-                logger.debug('百度百家的状态码错误',result.statusCode)
+                logger.debug('百度百家的状态码错误',result.statusCode);
                 return callback(true,{code:102,p:28})
             }
-            let $ = cheerio.load(result.body)
-            result = result.body.replace(/[\n\r\s]/g,'')
+            let $ = cheerio.load(result.body);
+            result = result.body.replace(/[\n\r\s]/g,'');
             let startIndex = result.indexOf('videoData'),
                 endIndex = result.indexOf(';window.listInitData'),
-                dataJson = result.substring(startIndex+10,endIndex)
+                dataJson = result.substring(startIndex+10,endIndex);
             if(startIndex === -1 || endIndex === -1){
-                startIndex = result.indexOf('videoData={tplData:')
-                endIndex = result.indexOf(',userInfo:')
+                startIndex = result.indexOf('videoData={tplData:');
+                endIndex = result.indexOf(',userInfo:');
                 dataJson = result.substring(startIndex+19,endIndex)
             }
             if(!$('script')[11].children[0] && !$('script')[12].children[0]){
@@ -2266,8 +2278,8 @@ class DealWith {
             try{
                 dataJson = JSON.parse(dataJson)
             }catch(e){
-                logger.debug('百家号用户数据解析失败')
-                logger.info(dataJson)
+                logger.debug('百家号用户数据解析失败');
+                logger.info(dataJson);
                 return callback(true,{code:102,p:28})
             }
             let res = {
@@ -2275,7 +2287,7 @@ class DealWith {
                 name: dataJson.app.name,
                 avatar: dataJson.app.avatar,
                 p: 28
-            }
+            };
             callback(null,res)
         })
     }
@@ -2377,7 +2389,7 @@ class DealWith {
             headers: {
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'
             }
-        }
+        };
         // logger.debug(options)
         r(options, (error, response, body) => {
             if (error) {
@@ -2393,10 +2405,10 @@ class DealWith {
                 id = $id.attr('data-ytid'),
                 name = $id.text(),
                 avatar = $avatar.attr('data-thumb'),
-                res = {id, name, avatar, p: 39}
-                logger.debug(res)
+                res = {id, name, avatar, p: 39};
+                logger.debug(res);
             callback(null, res)
         })
     }
 }
-module.exports = DealWith
+module.exports = DealWith;
