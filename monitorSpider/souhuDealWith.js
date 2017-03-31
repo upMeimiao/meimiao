@@ -354,8 +354,9 @@ class souhuDealWith {
                 return callback(back.statusCode)
             }
             try{
-                result = eval(back.body)
+                back = eval(back.body)
             }catch (e){
+                logger.debug(back.body)
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口json数据解析失败","doWithResErr","digg")
                 return callback(e)
             }
@@ -364,8 +365,8 @@ class souhuDealWith {
                 return callback(result)
             }
             let data = {
-                up: result.upCount,
-                down: result.downCount
+                up: back.upCount,
+                down: back.downCount
             }
             callback(null,data)
         })

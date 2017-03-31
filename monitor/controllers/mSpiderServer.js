@@ -83,7 +83,7 @@ const getErr = (channel,platform,urlDesc) => {
         curField =`${platform}_${urlDesc}`
             // 获取当前接口对应的错误记录
             mSpiderClient.hget(curKey,curField,(err,result) => {
-                // logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
+                logger.debug("获取当前接口对应的错误记录=",curKey,curField,err,result)
                 if(err){
                     //发生错误，恢复订阅，返回
                     logger.debug("读取redis发生错误")
@@ -91,9 +91,14 @@ const getErr = (channel,platform,urlDesc) => {
                     return 
                 }
                 if(!result){
-                    //结果为空，恢复订阅，返回
-                    logger.debug(`暂无${platform}:${urlDesc}的错误记录`)
-                    mSpiderClient.subscribe("enough")
+                    //error结果为空，删除本次total记录，恢复订阅，返回
+                    logger.debug(`暂无${platform}_${urlDesc}的错误记录`)
+                    mSpiderClient.hdel(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result)=>{
+                        if(err){
+                            return
+                        }
+                        mSpiderClient.subscribe("enough")
+                    })
                     return
                 }
                 //当前接口对应错误
@@ -101,7 +106,7 @@ const getErr = (channel,platform,urlDesc) => {
                       options
                 // 获取当前url对应的全部请求次数
                 mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result) => {
-                    // logger.debug("获取当前url对应的全部请求次数=",curKey,result)
+                    logger.debug("获取当前url对应的全部请求次数=",curKey,result)
                     if(err){
                         //发生错误，恢复订阅，返回
                         logger.debug("读取redis发生错误")
@@ -268,6 +273,7 @@ const judgeResults = (options,emailOptions,numberArr) => {
     let resultObj = JSON.parse(options.result),
         nowDate = new Date(),
         nowTime = nowDate.getTime()
+    logger.debug("开始分析错误并将出错比例存入redis")
     if(resultObj.responseErr.times){
         mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_resposeErr_${nowTime}`,resultObj.responseErr.times+"/"+options.totalResult)
     }else if(resultObj.resultErr.times){
@@ -331,8 +337,7 @@ const judgeResults = (options,emailOptions,numberArr) => {
     else if(resultObj.playNumErr.times){
         emailOptions.errType = "playNumErr"
         emailOptions.errTimes = resultObj.playNumErr.times
-        emailOptions.errDesc = resultObj.playNumErr.desc + ",出错vid为" + resultObj.playNumErr.vids.toString()
-                                + ",对应播放量的值为" + resultObj.playNumErr.props.toString()
+        emailOptions.errDesc = resultObj.playNumErr.desc
         emailOptions.urls = resultObj.playNumErr.errUrls
         setWarnErrTable(emailOptions)
         return
@@ -347,6 +352,7 @@ const judgeResults = (options,emailOptions,numberArr) => {
         sendWarnEmail(emailOptions)
         return
     } else{
+        logger.debug("当前错误未达到报错标准，恢复对enough的监听")
         mSpiderClient.subscribe("enough")
         return
     }

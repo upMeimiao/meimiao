@@ -296,7 +296,7 @@ class spiderCore {
     }
     setTv56Task(){
         let tv56_work = {
-                "name":"tv56","platform":21,"id":210741517,"bname":"Miss排位日记"
+                "name":"tv56","platform":21,"id":142228397,"bname":"暴走漫画官方"
             }
         this.tv56Deal.tv56(tv56_work,(err,result) => {
             logger.debug("tv56 又执行一次")
