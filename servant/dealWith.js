@@ -1288,6 +1288,10 @@ class DealWith {
                 'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
             }
         };
+        if(!vid){
+            vid = data.match(/\/c\/v\d*/).toString().replace('/c/','')
+            options.url = `http://m.56.com/c/${vid}.shtml`
+        }
         r( options, ( err, res, body ) => {
             if(err){
                 logger.error('occur error: ',err);
@@ -1297,10 +1301,11 @@ class DealWith {
                 logger.error('56状态码错误',res.statusCode);
                 return callback(true,{code:102,p:21})
             }
+            //body = body.replace(/[\s\n\r]/g,'');
             let $ = cheerio.load(body,{
                     ignoreWhitespace:true
                 }),
-                scriptData = $('script')[1].children[0].data,
+                scriptData = body.replace(/[\s\n\r]/g,''),
                 reg_id = new RegExp("sohu_user_id:'[0-9]+'"),
                 _id_info = scriptData.match(reg_id),id_info,
                 reg_name = new RegExp("user_name:'[A-Za-z0-9_\u4e00-\u9fa5]+'"),
@@ -1314,11 +1319,24 @@ class DealWith {
                 id_info = _id_info[0];
                 name_info = _name_info[0]
             }else{
-                //logger.debug('---');
+                if(host == 'm.56.com') {
+                    id = body.match(/ugu: '\d*/).toString().replace("ugu: '", '');
+                    name = $('.dy-info h3').text();
+                    avatar = 'http:' + $('div.dy-avatar img').attr('src');
+                    if (id && name) {
+                        res = {
+                            id: id,
+                            name: name,
+                            avatar: avatar,
+                            p: 21
+                        };
+                        return callback(null, res)
+                    }
+                }
                 options.url = data;
                 options.headers = {
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
-                }
+                };
                 options.method = 'GET';
                 r(options, (error, response, body) => {
                     if(error){
