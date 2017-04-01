@@ -2,7 +2,7 @@
     // ---->定时监控redis内容，查看错误是否有重复
 const Redis = require('ioredis')
 const async = require('async')
-const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@127.0.0.1:6379/7`,{
+const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
             return true
@@ -51,11 +51,10 @@ class storage{
 				})
 			}else{
 				//有结果，将本次playNum与result用-拼接,split成数组,做判断，分情况存储
-				let arr
-				result = result + "-" + playNum
-				arr = result.split("-")
-				//记录小于五次，直接将本次输入存入数组，再存入redis
+				let arr = result.split("-")
+				//记录小于10次，直接将本次输入存入数组，再存入redis
 				if(arr.length < 5){
+					arr = result.split("-")
 					arr.push(playNum)
 					mSpiderClint.hset(key,field,arr.join("-"),(err,result) => {
 						if(err){
@@ -65,7 +64,7 @@ class storage{
 						// logger.debug(arr)
 					})
 				} else{
-					//记录大于等于五次，分析是否错误几率过半
+					//记录大于等于5次，分析是否错误几率过半
 					let len = arr.length,
 						i = 0,
 						wrongTimes = 0
@@ -74,28 +73,36 @@ class storage{
 							return i < len
 						},
 						(cb)=>{
-							if(arr[i] < arr[0] || arr[i]/arr[0] > 10){
+							//如果播放量减小10%或者增加十倍以上，wrongTimes ++
+							// logger.debug(arr[i],arr[0])							
+							if(0.9*arr[0] >= arr[i] || arr[i] >= arr[0]*10){
+								logger.debug("当前与第一个作比较i,arr[i],arr[0]",i,arr[i],arr[0])
 								wrongTimes ++
 							}
 							i++
 							cb()
 						},
 						(err,result)=>{
+							//如果wrongTimes>=3，即错误率超过一半，将错误存入redis
+							// logger.debug("wrongTimes==",wrongTimes)
 							if(wrongTimes >= 3){
 								// logger.debug(`${platform}_${vid}播放量错误，近五次记录为${arr}`)
 								this.errStoraging(platform,"",media.bid,`${platform}平台${vid}视频播放量错误${arr}`,"playNumErr",urlDesc,vid,result)
 							}
-							let array = []
+							let playNum
+							// 满10次，将本次第一个或者最后一个元素作为下一组的第一个元素
 							if(arr[4] < arr[0]){
-								array.push(arr[0])
+								playNum = arr[0]
 							} else{
-								array.push(arr[4])
+								playNum = arr[4]
 							}
-							mSpiderClint.hset(key,field,array.join("-"),(err,result) => {
+							//作为下一组的第一个元素存入redis
+							mSpiderClint.hset(key,field,playNum,(err,result) => {
 								if(err){
 									logger.debug("设置播放量连接redis数据库出错")
 									return
 								}
+								wrongTimes = 0
 								// logger.debug(array)
 							})
 						}
@@ -134,27 +141,27 @@ class storage{
 		        	arr3 = ["le_total","meipai_user","meipai_total","bili_user","bili_total"
 		        		,"tudou_user","tudou_fans","tudou_total","ku6_list","56tv_user"
 		        		,"56tv_total","weibo_user","weibo_total","ifeng_total","uctt_list"
-		        		,"baijia_fan","qzone_fan","pptv_list","xinlan_list","fengxing_video"
-		        		,"fengxing_fans","baofeng_theAlbum","baofeng_list"],
-		        	arr4 = ["iqiyi_user","iqiyi_total","iqiyi_list","tencent_list","miaopai_user","miaopai_total"
+		        		,"baijia_fan","qzone_fan","pptv_list","xinlan_list","baofeng_theAlbum","baofeng_list"],
+		        	arr4 = ["iqiyi_user","fengxing_video"
+		        		,"fengxing_fans","iqiyi_total","iqiyi_list","tencent_list","miaopai_user","miaopai_total"
 		        		,"souhu_user","souhu_total","kuaibao_info","kuaibao_commentNum","kuaibao_Expr"
 		        		,"kuaibao_play","kuaibao_field","tudou_list","btime_user","weishi_user","uctt_info"
 		        		,"uctt_commentNum","uctt_Desc"],
-		        	arr5 = ["youku_user","youku_total","toutiao_user","miaopai_videos","bili_videos"
-		        		,"baomihua_list","xiaoying_total","yy_total","56tv_videos","acfun_user","acfun_total"
+		        	arr5 = ["femgxing_comment","youku_user","youku_total","toutiao_user","miaopai_videos","bili_videos"
+		        		,"baomihua_list","xiaoying_total","56tv_videos","acfun_user","acfun_total"
 		        		,"weibo_list","wangyi_video","wangyi_play","qzone_list","v1_list","baiduvideo_info"],
 		        	arr6 = ["meipai_videos","toutiao_list","btime_list","xiaoying_list","ifeng_list","mgtv_commentNum"
 		        		,"mgtv_like","mgtv_desc","mgtv_class","mgtv_play","mgtv_info","cctv_total","cctv_list"
 		        		,"cctv_fans","liVideo_list"],
 		        	arr7 = ["youku_info","souhu_list","baijia_info"],
-		        	arr8 = ["le_Expr","le_info","le_Desc","budejie_user","tencent_vidTag","tencent_view"
+		        	arr8 = ["le_Expr","le_info","le_Desc","yy_total","budejie_user","tencent_vidTag","tencent_view"
 		        		,"yidian_user","yidian_interestId","weishi_list","qzone_info"
 		        		,"qzone_comment","v1_support","v1_comment","v1_info","fengxing_list"
 		        		,"fengxing_info","fengxing_createTime","fengxing_comment","huashu_info"
 		        		,"huashu_comment","huashu_play","baofeng_Desc","baofeng_support","baofeng_comment"],
 		        	arr9 = ["youku_videos","iqiyi_info","iqiyi_Expr","iqiyi_play","iqiyi_comment","toutiao_listInfo"
 		        		,"miaopai_info","tudou_videoTime","tudou_Expr","baomihua_Expr","baomihua_playNum","baomihua_ExprPC"
-		        		,"btime_comment","yy_dlist","56tv_info","56tv_comment","weibo_info","baijia_vidList","pptv_total"
+		        		,"btime_comment","yy_dlist","yy_slist","yy_list","yy_live","56tv_info","56tv_comment","weibo_info","baijia_vidList","pptv_total"
 		        		,"pptv_info","xinlan_support","xinlan_comment","xinlan_info","liVideo_info","meipai_info","bili_info","souhu_info","souhu_commentNum","souhu_digg"
 		        		,"xiaoying_info","budejie_list","acfun_list","ifeng_video","cctv_info"]
 		        if(arr1.indexOf(field) > 0){
@@ -244,7 +251,6 @@ class storage{
 	        // 若没有当前key的错误记录
 	        // errtype times =1 ...
 	        // 若有当前key的错误记录，查看errtype，若有times++，没有times=1
-	        
 	        if (!result || result && !result.length) {
 	        	errObj = {
 					"bid": bid,

@@ -118,8 +118,10 @@ class spiderCore {
                 "name":"youku","platform":1,"id":854459409,"bname":"一色神技能","encodeId":"UMzQxNzgzNzYzNg=="
             }
         this.youkuDeal.youku(youku_work,(err,result) => {
-            logger.debug("youku 又执行一次")
-            this.setYoukuTask()
+            setTimeout(()=>{
+                logger.debug("youku 又执行一次")
+                this.setYoukuTask()
+            },10000)
         })
     }
     setIqiyiTask(){
@@ -127,8 +129,10 @@ class spiderCore {
                 "name":"iqiyi","platform":2,"id":1006283018,"bname":"百湖动漫"
             }
         this.iqiyiDeal.iqiyi(iqiyi_work,(err,result) => {
-            logger.debug("iqiyi 又执行一次")
-            this.setIqiyiTask()
+            setTimeout(()=>{
+                logger.debug("iqiyi 又执行一次")
+                this.setIqiyiTask()
+            },10000)
         })
     }
     setLeTask(){
@@ -136,8 +140,10 @@ class spiderCore {
                 "name":"le","platform":3,"id":102395765,"bname":"四叶草影视_"
             }
         this.leDeal.le(le_work,(err,result) => {
-            logger.debug("le 又执行一次")
-            this.setLeTask()
+            setTimeout(()=>{
+                logger.debug("le 又执行一次")
+                this.setLeTask()
+            },10000)
         })
     }
     setTencentTask(){
@@ -145,8 +151,10 @@ class spiderCore {
                 "name":"tencent","platform":4,"id":"43320d9b51eb813ca7f358a3c1cdb434","bname":"半部喜剧工作室"
             }
         this.tencentDeal.tencent(tencent_work,(err,result) => {
-            logger.debug("tencent 又执行一次")
-            this.setTencentTask()
+            setTimeout(()=>{
+                logger.debug("tencent 又执行一次")
+                this.setTencentTask()
+            },10000)
         })
     }
     setMeipaiTask(){
@@ -154,8 +162,10 @@ class spiderCore {
                 "name":"meipai","platform":5,"id":1046243739,"bname":"茶啊二中"
             }
         this.meipaiDeal.meipai(meipai_work,(err,result) => {
-            logger.debug("meipai 又执行一次")
-            this.setMeipaiTask()
+            setTimeout(()=>{
+                logger.debug("meipai 又执行一次")
+                this.setMeipaiTask()
+            },10000)
         })
     }
     setToutiaoTask(){
@@ -164,8 +174,10 @@ class spiderCore {
                 "name":"toutiao","platform":6,"id":1558215549476865,"bname":"LOL大神第一视角", "user_id": 52915184920, type: "0"
             }
         this.toutiaoDeal.toutiao(toutiao_work,(err,result) => {
-            logger.debug("toutiao 又执行一次")
-            this.setToutiaoTask()
+            setTimeout(()=>{
+                logger.debug("toutiao 又执行一次")
+                this.setToutiaoTask()
+            },10000)
         })
     }
     setMiaopaiTask(){
@@ -173,8 +185,10 @@ class spiderCore {
                 "name":"miaopai","platform":7,"id":"12FegTgfcIlgp1yImocKww__","bname":"暴走汽车"
             }
         this.miaopaiDeal.miaopai(miaopai_work,(err,result) => {
-            logger.debug("miaopai 又执行一次")
-            this.setMiaopaiTask()
+            setTimeout(()=>{
+                logger.debug("miaopai 又执行一次")
+                this.setMiaopaiTask()
+            },10000)
         })
     }
     setBiliTask(){
@@ -182,8 +196,10 @@ class spiderCore {
                 "name":"bili","platform":8,"id":10217261,"bname":"九筒空间站"
             }
         this.biliDeal.bili(bili_work,(err,result) => {
-            logger.debug("bili 又执行一次")
-            this.setBiliTask()
+            setTimeout(()=>{
+                logger.debug("bili 又执行一次")
+                this.setBiliTask()
+            },10000)
         })
     }
     setSouhuTask(){
@@ -191,8 +207,10 @@ class spiderCore {
                 "name":"souhu","platform":9,"id":142228397,"bname":"暴走漫画官方"
             }
         this.souhuDeal.souhu(souhu_work,(err,result) => {
-            logger.debug("souhu 又执行一次")
-            this.setSouhuTask()
+            setTimeout(()=>{
+                logger.debug("souhu 又执行一次")
+                this.setSouhuTask()
+            },10000)
         })
     }
     setKuaibaoTask(){
@@ -200,8 +218,10 @@ class spiderCore {
                 "name":"kuaibao","platform":10,"id":5016129,"bname":"电影恋爱学"
             }
         this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
-            logger.debug("kuaibao 又执行一次")
-            this.setKuaibaoTask()
+            setTimeout(()=>{
+                logger.debug("kuaibao 又执行一次")
+                this.setKuaibaoTask()
+            },10000)
         })
     }
     setYidianTask(){
@@ -209,8 +229,10 @@ class spiderCore {
                 "name":"yidian","platform":11,"id":"m110950","bname":"一色神技能"
             }
         this.yidianDeal.yidian(yidian_work,(err,result) => {
-            logger.debug("yidian 又执行一次")
-            this.setYidianTask()
+            setTimeout(()=>{
+                logger.debug("yidian 又执行一次")
+                this.setYidianTask()
+            },10000)
         })
     }
     setTudouTask(){
@@ -218,8 +240,10 @@ class spiderCore {
                 "name":"tudou","platform":12,"id":109218404,"bname":"辛巴达解说"
             }
         this.tudouDeal.tudou(tudou_work,(err,result) => {
-            logger.debug("tudou 又执行一次")
-            this.setTudouTask()
+            setTimeout(()=>{
+                logger.debug("tudou 又执行一次")
+                this.setTudouTask()
+            },10000)
         })
     }
     setBaomihuaTask(){
@@ -227,8 +251,10 @@ class spiderCore {
                 "name":"baomihua","platform":13,"id":26826,"bname":"寰球大百科"
             }
         this.baomihuaDeal.baomihua(baomihua_work,(err,result) => {
-            logger.debug("baomihua 又执行一次")
-            this.setBaomihuaTask()
+            setTimeout(()=>{
+                logger.debug("baomihua 又执行一次")
+                this.setBaomihuaTask()
+            },10000)
         })
     }
     setKu6Task(){
@@ -236,8 +262,10 @@ class spiderCore {
                 "name":"ku6","platform":14,"id":24710528,"bname":"女神TV"
             }
         this.ku6Deal.ku6(ku6_work,(err,result) => {
-            logger.debug("ku6 又执行一次")
-            this.setKu6Task()
+            setTimeout(()=>{
+                logger.debug("ku6 又执行一次")
+                this.setKu6Task()
+            },10000)
         })
     }
     setBtimeTask(){
@@ -245,8 +273,10 @@ class spiderCore {
                 "name":"btime","platform":15,"id":58128,"bname":"一色神技能"
             }
         this.btimeDeal.btime(btime_work,(err,result) => {
-            logger.debug("btime 又执行一次")
-            this.setBtimeTask()
+            setTimeout(()=>{
+                logger.debug("btime 又执行一次")
+                this.setBtimeTask()
+            },10000)
         })
     }
     setWeishiTask(){
@@ -254,8 +284,10 @@ class spiderCore {
                 "name":"weishi","platform":16,"id":31724433,"bname":"暴走漫画"
             }
         this.weishiDeal.weishi(weishi_work,(err,result) => {
-            logger.debug("weishi 又执行一次")
-            this.setWeishiTask()
+            setTimeout(()=>{
+                logger.debug("weishi 又执行一次")
+                this.setWeishiTask()
+            },10000)
         })
     }
     setXiaoyingTask(){
@@ -263,8 +295,10 @@ class spiderCore {
                 "name":"xiaoying","platform":17,"id":"aXh0U","bname":"开心锤锤"
             }
         this.xiaoyingDeal.xiaoying(xiaoying_work,(err,result) => {
-            logger.debug("xiaoying 又执行一次")
-            this.setXiaoyingTask()
+            setTimeout(()=>{
+                logger.debug("xiaoying 又执行一次")
+                this.setXiaoyingTask()
+            },10000)
         })
     }
     setBudejieTask(){
@@ -272,8 +306,10 @@ class spiderCore {
                 "name":"budejie","platform":18,"id":16826242,"bname":"小罗恶搞"
             }
         this.budejieDeal.budejie(budejie_work,(err,result) => {
-            logger.debug("budejie 又执行一次")
-            this.setBudejieTask()
+            setTimeout(()=>{
+                logger.debug("budejie 又执行一次")
+                this.setBudejieTask()
+            },10000)
         })
     }
     setNeihanTask(){
@@ -281,17 +317,47 @@ class spiderCore {
                 "name":"neihan","platform":19,"id":3536085720,"bname":"新片场"
             }
         this.neihanDeal.neihan(neihan_work,(err,result) => {
-            logger.debug("neihan 又执行一次")
-            this.setNeihanTask()
+            setTimeout(()=>{
+                logger.debug("neihan 又执行一次")
+                this.setNeihanTask()
+            },10000)
         })
     }
     setYyTask(){
-        let yy_work = {
+        let yy_work1 = {
                 "name":"yy","platform":20,"id":1493559120,"bname":"陈翔六点半"
+            },
+            yy_work2 = {
+                "name":"yy","platform":20,"id":1779033582,"bname":"美兮亲故"
+            },
+            yy_work3 = {
+                "name":"yy","platform":20,"id":1506744406,"bname":"女神TV官方"
             }
-        this.yyDeal.yy(yy_work,(err,result) => {
-            logger.debug("yy 又执行一次")
-            this.setYyTask()
+        async.parallel([
+            (cb)=>{
+                this.yyDeal.yy(yy_work1,(err,result) => {
+                    cb()
+                })
+            },
+            (cb)=>{
+                this.yyDeal.yy(yy_work2,(err,result) => {
+                    cb()
+                })
+            },
+            (cb)=>{
+                this.yyDeal.yy(yy_work3,(err,result) => {
+                    cb()
+                })
+            }
+        ],(err,result)=>{
+            if(err){
+                return
+            }
+            logger.debug(null,result)
+            setTimeout(()=>{
+                logger.debug("yy又执行一次")
+                this.setYyTask()
+            },10000)
         })
     }
     setTv56Task(){
@@ -299,8 +365,10 @@ class spiderCore {
                 "name":"tv56","platform":21,"id":142228397,"bname":"暴走漫画官方"
             }
         this.tv56Deal.tv56(tv56_work,(err,result) => {
-            logger.debug("tv56 又执行一次")
-            this.setTv56Task()
+            setTimeout(()=>{
+                logger.debug("tv56 又执行一次")
+                this.setTv56Task()
+            },10000)
         })
     }
     setAcfunTask(){
@@ -308,8 +376,10 @@ class spiderCore {
                 "name":"acfun","platform":22,"id":1010069,"bname":"一条视频"
             }
         this.acfunDeal.acfun(acfun_work,(err,result) => {
-            logger.debug("acfun 又执行一次")
-            this.setAcfunTask()
+            setTimeout(()=>{
+                logger.debug("acfun 又执行一次")
+                this.setAcfunTask()
+            },10000)
         })
     }
     setWeiboTask(){
@@ -317,17 +387,21 @@ class spiderCore {
                 "name":"weibo","platform":23,"id":1895520105,"bname":"爱极客"
             }
         this.weiboDeal.weibo(weibo_work,(err,result) => {
-            logger.debug("weibo 又执行一次")
-            this.setWeiboTask()
+            setTimeout(()=>{
+                logger.debug("weibo 又执行一次")
+                this.setWeiboTask()
+            },10000)
         })
     }
     setIfengTask(){
         let ifeng_work = {
-                "name":"ifeng","platform":24,"id":9666,"bname":"潮人小罗"
+                "name":"ifeng","platform":24,"id":8884,"bname":"一色神技能"
             }
         this.ifengDeal.ifeng(ifeng_work,(err,result) => {
-            logger.debug("ifeng 又执行一次")
-            this.setIfengTask()
+            setTimeout(()=>{
+                logger.debug("ifeng 又执行一次")
+                this.setIfengTask()
+            },10000)
         })
     }
     setWangyiTask(){
@@ -335,8 +409,10 @@ class spiderCore {
                 "name":"wangyi","platform":25,"id":"T1460515715642","bname":"星座不求人"
             }
         this.wangyiDeal.wangyi(wangyi_work,(err,result) => {
-            logger.debug("wangyi 又执行一次")
-            this.setWangyiTask()
+            setTimeout(()=>{
+                logger.debug("wangyi 又执行一次")
+                this.setWangyiTask()
+            },10000)
         })
     }
     setUcttTask(){
@@ -344,8 +420,10 @@ class spiderCore {
                 "name":"uctt","platform":26,"id":"58629bcbb00242cf979933540b8f14ff","bname":"九筒空间站"
             }
         this.ucttDeal.uctt(uctt_work,(err,result) => {
-            logger.debug("uctt 又执行一次")
-            this.setUcttTask()
+            setTimeout(()=>{
+                logger.debug("uctt 又执行一次")
+                this.setUcttTask()
+            },10000)
         })
     }
     setMgtvTask(){
@@ -353,8 +431,10 @@ class spiderCore {
                 "name":"mgtv","platform":27,"id":308703,"bname":"芒果捞星闻"
             }
         this.mgtvDeal.mgtv(mgtv_work,(err,result) => {
-            logger.debug("mgtv 又执行一次")
-            this.setMgtvTask()
+            setTimeout(()=>{
+                logger.debug("mgtv 又执行一次")
+                this.setMgtvTask()
+            },10000)
         })
     }
     setBaijiaTask(){
@@ -362,8 +442,10 @@ class spiderCore {
                 "name":"baijia","platform":28,"id":1549140452549485,"bname":"太阳猫早餐"
             }
         this.baijiaDeal.baijia(baijia_work,(err,result) => {
-            logger.debug("baijia 又执行一次")
-            this.setBaijiaTask()
+            setTimeout(()=>{
+                logger.debug("baijia 又执行一次")
+                this.setBaijiaTask()
+            },10000)
         })
     }
     setQzoneTask(){
@@ -371,8 +453,10 @@ class spiderCore {
                 "name":"qzone","platform":29,"id":1417345227,"bname":"66车讯"
             }
         this.qzoneDeal.qzone(qzone_work,(err,result) => {
-            logger.debug("qzone 又执行一次")
-            this.setQzoneTask()
+            setTimeout(()=>{
+                logger.debug("qzone 又执行一次")
+                this.setQzoneTask()
+            },10000)
         })
     }
     setCctvTask(){
@@ -380,8 +464,10 @@ class spiderCore {
                 "name":"cctv","platform":30,"id":19512760,"bname":"贝瓦网"
             }
         this.cctvDeal.cctv(cctv_work,(err,result) => {
-            logger.debug("cctv 又执行一次")
-            this.setCctvTask()
+            setTimeout(()=>{
+                logger.debug("cctv 又执行一次")
+                this.setCctvTask()
+            },10000)
         })
     }
     setPptvTask(){
@@ -389,8 +475,10 @@ class spiderCore {
                 "name":"pptv","platform":31,"id":8057347,"bname":"飞碟说第二季","encodeId":75395
             }
         this.pptvDeal.pptv(pptv_work,(err,result) => {
-            logger.debug("pptv 又执行一次")
-            this.setPptvTask()
+            setTimeout(()=>{
+                logger.debug("pptv 又执行一次")
+                this.setPptvTask()
+            },10000)
         })
     }
     setXinlanTask(){
@@ -398,8 +486,10 @@ class spiderCore {
                 "name":"xinlan","platform":32,"id":1061,"bname":"二更","encodeId":16
             }
         this.xinlanDeal.xinlan(xinlan_work,(err,result) => {
-            logger.debug("xinlan 又执行一次")
-            this.setXinlanTask()
+            setTimeout(()=>{
+                logger.debug("xinlan 又执行一次")
+                this.setXinlanTask()
+            },10000)
         })
     }
     setV1Task(){
@@ -407,17 +497,41 @@ class spiderCore {
                 "name":"v1","platform":33,"id":8495742,"bname":"qqfibl4jj8","encodeId":3001916
             }
         this.v1Deal.v1(v1_work,(err,result) => {
-            logger.debug("v1 又执行一次")
-            this.setV1Task()
+            setTimeout(()=>{
+                logger.debug("v1 又执行一次")
+                this.setV1Task()
+            },10000)
         })
     }
     setFengxingTask(){
-        let fengxing_work = {
-                "name":"fengxing","platform":34,"id":117523,"bname":"贝瓦故事"
+        let fengxing_work1 = {
+                "name":"fengxing","platform":34,"id":306229,"bname":"二更","type":"专辑"
+            },
+            fengxing_work2 = {
+                "name":"fengxing","platform":34,"id":608,"bname":"飞碟说","type":"视频号"
             }
-        this.fengxingDeal.fengxing(fengxing_work,(err,result) => {
-            logger.debug("fengxing 又执行一次")
-            this.setFengxingTask()
+        async.parallel([
+            (cb)=>{
+                this.fengxingDeal.fengxing(fengxing_work1,(err,result) => {
+                    logger.debug("fengxing 二更又执行一次")
+                })
+                cb()
+            },
+            (cb)=>{
+                this.fengxingDeal.fengxing(fengxing_work2,(err,result) => {
+                    logger.debug("fengxing 飞碟说又执行一次")
+                })
+                cb()
+            }
+        ],(err,result)=>{
+            if(err){
+                logger.debug(err)
+            }
+            logger.debug(null,result)
+            setTimeout(()=>{
+                logger.debug("风行又执行一次")
+                this.setFengxingTask()
+            },10000)
         })
     }
     setHuashuTask(){
@@ -425,8 +539,10 @@ class spiderCore {
                 "name":"huashu","platform":35,"id":63598,"bname":"人类实验室"
             }
         this.huashuDeal.huashu(huashu_work,(err,result) => {
-            logger.debug("huashu 又执行一次")
-            this.setHuashuTask()
+            setTimeout(()=>{
+                logger.debug("huashu 又执行一次")
+                this.setHuashuTask()
+            },10000)
         })
     }
     setBaofengTask(){
@@ -434,8 +550,10 @@ class spiderCore {
                 "name":"baofeng","platform":36,"id":814408,"bname":"小伶玩具双人游戏"
             }
         this.baofengDeal.baofeng(baofeng_work,(err,result) => {
-            logger.debug("baofeng 又执行一次")
-            this.setBaofengTask()
+            setTimeout(()=>{
+                logger.debug("baofeng 又执行一次")
+                this.setBaofengTask()
+            },10000)
         })
     }
     setBaiduvideoTask(){
@@ -443,8 +561,10 @@ class spiderCore {
                 "name":"baiduvideo","platform":37,"id":18680,"bname":"陈翔六点半"
             }
         this.baiduvideoDeal.baiduvideo(baiduvideo_work,(err,result) => {
-            logger.debug("baiduvideo 又执行一次")
-            this.setBaiduvideoTask()
+            setTimeout(()=>{
+                logger.debug("baiduvideo 又执行一次")
+                this.setBaiduvideoTask()
+            },10000)
         })
     }
     setLiVideoTask(){
@@ -452,8 +572,10 @@ class spiderCore {
                 "name":"liVideo","platform":38,"id":134,"bname":"二更"
             }
         this.liVideoDeal.liVideo(liVideo_work,(err,result) => {
-            logger.debug("liVideo 又执行一次")
-            this.setLiVideoTask()
+            setTimeout(()=>{
+                logger.debug("liVideo 又执行一次")
+                this.setLiVideoTask()
+            },10000)
         })
     }
     setTask (callback) {

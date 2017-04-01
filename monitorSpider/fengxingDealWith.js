@@ -165,7 +165,7 @@ class dealWith {
                 return index < length
             },
             (cb) => {
-                logger.debug("fengixng vidObj==============",vidObj)
+                // logger.debug("fengixng vidObj==============",vidObj)
                 let h = vidObj.eq(index).find('a').attr('data-id')
                 option.url = 'http://www.fun.tv/vplay/c-'+task.id+'.h-'+h+'/'
                 request.get( logger, option, (err, result) => {

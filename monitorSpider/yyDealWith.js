@@ -54,20 +54,16 @@ class dealWith {
                 live_num = $('.live-col .title-num').text().replace(/（/g,'').replace(/）/g,''),
                 sq_num = $('.shenqu-col .title-num').text().replace(/（/g,'').replace(/）/g,''),
                 dp_num = $('.duanpai-col .title-num').text().replace(/（/g,'').replace(/）/g,'')
+            if(!$('.fans-link')||!$('.live-col .title-num')||!$('.shenqu-col .title-num')||!$('.duanpai-col .title-num')){
+                this.storaging.errStoraging('yy',option.url,task.id,`yy total接口从dom中获取信息失败`,"domBasedErr","total")
+                return callback()
+            }
             let user = {
                 platform: 20,
                 bid: task.id,
                 fans_num: fans_text.replace(/,/g,'')
             }
-            if(!live_num&&live_num!==0 && !sq_num&&sq_num!==0 && !dp_num&&dp_num!==0 && !fans_text&&user.fans_num!==0){
-                this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
-                return 
-            }
             task.total = Number(live_num) + Number(sq_num) + Number(dp_num)
-            if(!task.total){
-                this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
-                return 
-            }
             async.parallel({
                 live: (callback) => {
                     this.getLive( task, live_num, (err,result) => {
