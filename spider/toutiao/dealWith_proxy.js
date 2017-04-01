@@ -13,8 +13,8 @@ class dealWith {
     constructor(spiderCore) {
         this.core = spiderCore
         this.settings = spiderCore.settings
-        logger = this.settings.logger
-        logger.trace('DealWith instantiation ...')
+        // logger = this.settings.logger
+        // logger.trace('DealWith instantiation ...')
     }
     getHoney() {
         const t = Math.floor((new Date).getTime() / 1e3),
@@ -60,7 +60,7 @@ class dealWith {
                 if(err){
                     return callback(err)
                 }
-                logger.debug(task.id + "_result:",result)
+                // logger.debug(task.id + "_result:",result)
                 callback(null,task.total)
             }
         )
@@ -95,7 +95,7 @@ class dealWith {
                 fans = fans.replace('万','') * 10000
             }
             if(Number(fans) === 0){
-                logger.info('粉丝数发生异常：', result)
+                // logger.info('粉丝数发生异常：', result)
             }
             let user = {
                 platform: task.p,
@@ -126,16 +126,16 @@ class dealWith {
             try{
                 res = JSON.parse(res.body)
             }catch (e){
-                logger.error(`头条用户 ${user.bid} json数据解析失败`)
-                logger.info(res)
+                // logger.error(`头条用户 ${user.bid} json数据解析失败`)
+                // logger.info(res)
                 return callback(e)
             }
             if(res.errno == 0){
-                logger.debug("头条用户:",user.bid + ' back_end')
+                // logger.debug("头条用户:",user.bid + ' back_end')
             }else{
-                logger.error("头条用户:",user.bid + ' back_error')
-                logger.info(res)
-                logger.info(`user info: `,user)
+                // logger.error("头条用户:",user.bid + ' back_error')
+                // logger.info(res)
+                // logger.info(`user info: `,user)
             }
             callback()
         })
@@ -152,15 +152,15 @@ class dealWith {
             try{
                 res = JSON.parse(res.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                logger.info('send error:',res)
+                // logger.error('json数据解析失败')
+                // logger.info('send error:',res)
                 return
             }
             if(res.errno == 0){
-                logger.debug("用户:",user.bid + ' back_end')
+                // logger.debug("用户:",user.bid + ' back_end')
             }else{
-                logger.error("用户:",user.bid + ' back_error')
-                logger.info(res)
+                // logger.error("用户:",user.bid + ' back_error')
+                // logger.info(res)
             }
         })
     }
@@ -172,8 +172,8 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                logger.info('send error:',res)
+                // logger.error('json数据解析失败')
+                // logger.info('send error:',res)
                 return
             }
             if(result.message != 'success'){
@@ -196,7 +196,7 @@ class dealWith {
             if(err){
                 return
             }
-            logger.debug(body.body)
+            // logger.debug(body.body)
         })
     }
     getList ( task, callback ) {
@@ -267,7 +267,7 @@ class dealWith {
                             if(err == 'timeout'){
                                 return callback('Get proxy timesout!!')
                             }
-                            logger.error('Get proxy occur error:' , err)
+                            // logger.error('Get proxy occur error:' , err)
                             times++
                             proxyStatus = false
                             return cb()
@@ -348,7 +348,7 @@ class dealWith {
             let query = URL.parse(video.app_url,true).query
             vid = query.item_id
         }else{
-            logger.debug(video)
+            // logger.debug(video)
             return callback(video)
         }
         media.author = video.detail_source || video.source || task.name
@@ -397,8 +397,8 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             } catch (e) {
-                logger.error('返回JSON格式不正确')
-                logger.error('info:',result)
+                // logger.error('返回JSON格式不正确')
+                // logger.error('info:',result)
                 return callback(e)
             }
             let backData = result.data
@@ -446,10 +446,10 @@ class dealWith {
     sendCache ( media ){
         this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
             if ( err ) {
-                logger.error( '加入缓存队列出现错误：', err )
+                // logger.error( '加入缓存队列出现错误：', err )
                 return
             }
-            logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
+            // logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
         })
     }
 }
