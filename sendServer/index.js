@@ -210,13 +210,13 @@ class sendServer {
             }
             if(result.errno == 0){
                 // logger.debug('staging back end')
-                logger.info('服务器接收到',result.data)
+                logger.info(result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
-            logger.info('客户端发出', list)
+            // logger.info('客户端发出', list)
             logger.debug(`${list.length}个视频 staging back end`)
             list = null
             // newList = null
