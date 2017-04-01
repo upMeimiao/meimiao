@@ -18,9 +18,9 @@ class sendServer {
         }
         this.stagingOption = {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/video/postVideosMore/',
-            // headers: {
-            //     'Content-Type':'application/x-www-form-urlencoded'
-            // }
+            headers: {
+                "content-type": "application/json"
+            }
         }
         this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`,{
             reconnectOnError: function (err) {
@@ -167,7 +167,8 @@ class sendServer {
         // for(let i = 0; i < length; i++){
         //     newList.push(list[i])
         // }
-        this.stagingOption.form = {data: list}
+        this.stagingOption.body = JSON.stringify({data: list})
+        // this.stagingOption.form = {data: list}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
                 logger.error('staging occur error : ', err.message)
