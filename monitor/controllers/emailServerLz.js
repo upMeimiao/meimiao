@@ -13,9 +13,9 @@ const transporter= nodemailer.createTransport({
 exports.sendAlarm = (subject, content) => {
     const mailOptions = {
         from: '"刘泽" <liuze@meimiao.net>', // sender address
-        to: ["liuze@meimiao.net"/*,
+        to: ["liuze@meimiao.net",
+            "changjunhao@meimiao.net"/*,
             "luoqibu@meimiao.net",
-            "changjunhao@meimiao.net",
             "zhupenghui@meimiao.net"*/], // list of receivers
         // to: "liuze@meimiao.net",
         subject: subject, // Subject line
