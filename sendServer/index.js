@@ -18,9 +18,9 @@ class sendServer {
         }
         this.stagingOption = {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/video/postVideosMore/',
-            headers: {
-                'Content-Type':'application/x-www-form-urlencoded'
-            }
+            // headers: {
+            //     'Content-Type':'application/x-www-form-urlencoded'
+            // }
         }
         this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`,{
             reconnectOnError: function (err) {
