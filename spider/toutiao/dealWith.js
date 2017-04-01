@@ -20,12 +20,13 @@ class dealWith {
         const t = Math.floor((new Date).getTime() / 1e3),
             e = t.toString(16).toUpperCase(),
             n = md5(t.toString()).toString().toUpperCase()
-        if (8 != e.length) return {
+        if (8 !== e.length) return {
             as: "479BB4B7254C150",
             cp: "7E0AC8874BB0985"
         }
-        for (var o = n.slice(0, 5), i = n.slice(-5), a = "", r = 0; 5 > r; r++) a += o[r] + e[r]
-        for (var l = "", s = 0; 5 > s; s++) l += e[s + 3] + i[s]
+        let o,l,i,a,r,s
+        for (o = n.slice(0, 5), i = n.slice(-5), a = "", r = 0; 5 > r; r++) a += o[r] + e[r]
+        for (l = "", s = 0; 5 > s; s++) l += e[s + 3] + i[s]
         return {
             as: "A1" + a + e.slice(-3),
             cp: e.slice(0, 3) + l + "E1"
@@ -167,7 +168,7 @@ class dealWith {
                 return sign
             },
             (cb) => {
-                if(index > 500){
+                if(index > 200){
                     sign = false
                     return cb()
                 }
@@ -179,7 +180,7 @@ class dealWith {
                 this.getListInfo(option, (err, result) => {
                     if(err){
                         if(times > 10){
-                            task.total = 10 * index
+                            task.total = 50 * index
                             sign = false
                             if(index == 0){
                                 return cb('failed')
@@ -195,8 +196,8 @@ class dealWith {
                     if(index == 0 && result.data.length > 0){
                         task.uid = result.data[0].creator_uid
                     }
-                    if(!result.data || result.data.length == 0 || index > 500){
-                        task.total = 10 * index
+                    if(!result.data || result.data.length == 0){
+                        task.total = 50 * index
                         sign = false
                         return cb()
                     }

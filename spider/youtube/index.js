@@ -1,20 +1,21 @@
 /**
  * Spider Core
- * Created by junhao on 16/6/20.
+ * Created by ifable on 2017/3/23.
  */
-const kue = require( 'kue' )
-const request = require('request')
-const myRedis = require( '../../lib/myredis.js' )
-const async = require( 'async' )
-const domain = require('domain')
+const kue = require('kue');
+const request = require('request');
+const myRedis = require('../../lib/myredis.js');
+const async = require('async');
+const domain = require('domain');
 
 let logger,settings
 class spiderCore {
-    constructor ( _settings ) {
+    constructor (_settings) {
         settings = _settings
         this.settings = settings
         this.redis = settings.redis
         this.dealWith = new( require('./dealWith'))(this)
+        // this.getProgram = new( require('./getProgram'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }
@@ -62,23 +63,26 @@ class spiderCore {
             //this.test()
         })
     }
-    start () {
+    start() {
         logger.trace('启动函数')
-        this.assembly()
+        // this.assembly()
+        this.test()
+        setInterval(()=>{
+            this.test()
+        }, 1800000)
     }
-    test(){
+    test() {
         let work = {
-            p:35,
-            name:'十月呵护',
-            id:62946
+            p: 39,
+            id:'UCulFhrW_YCwkq_BP16C82mA',
+            name:'Yitiao Video 一条视频'
         }
-        this.dealWith.todo(work, (err,total,uid) => {
+        this.dealWith.todo(work, (err,total) => {
             logger.debug(total)
-            logger.debug(uid)
             logger.debug('end')
         })
     }
-    deal () {
+    deal() {
         let queue = kue.createQueue({
             redis: {
                 port: this.redis.port,
@@ -90,10 +94,10 @@ class spiderCore {
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
         })
-        queue.watchStuckJobs( 1000 )
+        // queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('huashu',this.settings.concurrency, (job,done) => {
-            logger.trace( 'Get huashu task!' )
+        queue.process('YouTube', this.settings.concurrency, (job,done) => {
+            logger.trace( 'Get YouTube task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
             logger.info( work )

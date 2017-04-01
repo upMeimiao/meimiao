@@ -2,21 +2,21 @@
  * Spider Core
  * Created by junhao on 16/6/20.
  */
-const kue = require( 'kue' )
-const request = require('request')
-const myRedis = require( '../../lib/myredis.js' )
-const async = require( 'async' )
-const domain = require('domain')
+const kue = require( 'kue' );
+const request = require('request');
+const myRedis = require( '../../lib/myredis.js' );
+const async = require( 'async' );
+const domain = require('domain');
 
-let logger,settings
+let logger,settings;
 class spiderCore {
     constructor ( _settings ) {
-        settings = _settings
-        this.settings = settings
-        this.redis = settings.redis
-        this.dealWith = new( require('./dealWith'))(this)
-        this.proxy = new( require('./proxy'))(this)
-        logger = settings.logger
+        settings = _settings;
+        this.settings = settings;
+        this.redis = settings.redis;
+        this.dealWith = new( require('./dealWith'))(this);
+        this.proxy = new( require('./proxy'))(this);
+        logger = settings.logger;
         logger.trace('spiderCore instantiation ...')
     }
     assembly ( ) {
@@ -30,8 +30,8 @@ class spiderCore {
                         if(err){
                             return callback(err)
                         }
-                        this.taskDB = cli
-                        logger.debug( "任务信息数据库连接建立...成功" )
+                        this.taskDB = cli;
+                        logger.debug( "任务信息数据库连接建立...成功" );
                         callback()
                     }
                 )
@@ -45,34 +45,34 @@ class spiderCore {
                         if(err){
                             return callback(err)
                         }
-                        this.cache_db = cli
-                        logger.debug( "缓存队列数据库连接建立...成功" )
+                        this.cache_db = cli;
+                        logger.debug( "缓存队列数据库连接建立...成功" );
                         callback()
                     }
                 )
             }
         ],(err, results) => {
             if ( err ) {
-                logger.error( "连接redis数据库出错。错误信息：", err )
-                logger.error( "出现错误，程序终止。" )
-                process.exit()
+                logger.error( "连接redis数据库出错。错误信息：", err );
+                logger.error( "出现错误，程序终止。" );
+                process.exit();
                 return
             }
-            logger.debug( '创建数据库连接完毕' )
+            logger.debug( '创建数据库连接完毕' );
             this.deal()
             //this.test()
         })
     }
     start () {
-        logger.trace('启动函数')
+        logger.trace('启动函数');
         this.assembly()
     }
     test(){
-        let work = { id: '5909185172', p: '23', name: '拜托啦学妹' }
+        let work = { id: '3751469395', p: '23', name: 'ixm解说小漠' };
         this.dealWith.todo(work, (err,total,uid) => {
-            logger.debug(total)
-            logger.debug(uid)
-            logger.debug('end')
+            logger.debug(total);
+            logger.debug(uid);
+            logger.debug('end');
         })
     }
     deal () {
@@ -83,42 +83,42 @@ class spiderCore {
                 auth: this.redis.auth,
                 db: this.redis.jobDB
             }
-        })
+        });
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
-        })
-        queue.watchStuckJobs( 1000 )
-        logger.trace('Queue get ready')
+        });
+        queue.watchStuckJobs( 1000 );
+        logger.trace('Queue get ready');
         queue.process('weibo',this.settings.concurrency, (job,done) => {
-            logger.trace( 'Get weibo task!' )
+            logger.trace( 'Get weibo task!' );
             let work = job.data,
-                key = work.p + ':' + work.id
-            logger.info( work )
-            const d = domain.create()
+                key = work.p + ':' + work.id;
+            logger.info( work );
+            const d = domain.create();
             d.on('error', function(err){
                 done(err)
-            })
+            });
             d.run(()=>{
                 this.dealWith.todo(work, (err,total) => {
                     if(err){
                         return done(err)
                     }
-                    done(null)
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
+                    done(null);
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total);
                     request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
-                            logger.error( 'occur error : ', err )
+                            logger.error( 'occur error : ', err );
                             return
                         }
                         if(res.statusCode != 200 ){
-                            logger.error( `状态码${res.statusCode}` )
-                            logger.info( res )
+                            logger.error( `状态码${res.statusCode}` );
+                            logger.info( res );
                             return
                         }
                         try {
                             body = JSON.parse( body )
                         } catch (e) {
-                            logger.info( '不符合JSON格式' )
+                            logger.info( '不符合JSON格式' );
                             return
                         }
                         if(body.errno == 0){

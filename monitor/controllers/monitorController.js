@@ -82,7 +82,7 @@ const _getFailedTask = () => {
         }
         const filedTask = []
         for (let [index, elem] of body.entries()) {
-            if(elem.error != 'undefined' && elem.error != 'TTL exceeded' && elem.error != '异常错误'){
+            if(elem.error !== 'undefined' && elem.error !== 'TTL exceeded' && elem.error !== '异常错误' && elem.error !== 'This channel is forbidden '){
                 filedTask.push({
                     bid: elem.data.id,
                     bname: elem.data.name,

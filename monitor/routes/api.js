@@ -4,6 +4,7 @@ const cors = require('cors')
 const apiController = require('../controllers/api')
 const emailServer = require('../controllers/emailServer')
 const commentCon = require('../controllers/comment')
+const yitiao = require('../controllers/yitiao')
 
 // const apiCon = new ApiController();
 router.use(restc.express())
@@ -33,4 +34,5 @@ router.route('/alarm')
     .post(emailServer.sendEmail)
 router.get('/aid', commentCon.getAid)
 router.get('/commentList', commentCon.getCommentList)
+router.get('/yitiao', yitiao.getMedia)
 module.exports = router
