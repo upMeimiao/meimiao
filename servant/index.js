@@ -208,6 +208,7 @@ class spiderCore {
                 break
             case 'po.baidu.com':
             case 'baijiahao.baidu.com':
+            case 'sv.baidu.com':
                 handle.baijiaHandle( ctx, remote );
                 break;
             case 'www.pearvideo.com':

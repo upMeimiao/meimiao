@@ -2293,6 +2293,18 @@ class DealWith {
             if(!$('script')[11].children[0] && !$('script')[12].children[0]){
                 dataJson = result.substring(startIndex+19,endIndex)
             }
+            if(host == 'sv.baidu.com'){
+                let bid = $('div.c-gap-top-large.author div.follow').attr('data-appid'),
+                    name = $('div.c-gap-top-large.author div.detail>a').text(),
+                    avatar = $('div.c-gap-top-large.author img.face').attr('src'),
+                    res = {
+                        id: bid,
+                        name: name,
+                        avatar: avatar,
+                        p: 28
+                    }
+                    return callback(null, res)
+            }
             try{
                 dataJson = JSON.parse(dataJson)
             }catch(e){
