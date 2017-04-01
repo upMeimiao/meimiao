@@ -13,7 +13,7 @@ class sendServer {
         this.onlineOption = {
             url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
             headers: {
-                'Content-Type':'application/x-www-form-urlencoded'
+                "content-type": "application/json"
             }
         }
         this.stagingOption = {
@@ -101,8 +101,9 @@ class sendServer {
             newList = null
             return
         }
-        // this.onlineOption.form = {data: list}
-        this.onlineOption.form = {data: newList}
+        // this.onlineOption.body = JSON.stringify({data: list})
+        // this.onlineOption.form = {data: newList}
+        this.onlineOption.body = JSON.stringify({data: newList})
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
                 logger.error('online occur error : ', err.message)
