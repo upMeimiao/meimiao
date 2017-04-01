@@ -80,7 +80,7 @@ class dealWith {
                 this.storaging.errStoraging('cctv',option.url,task.id,"cctv获取fans接口json数据解析失败","doWithResErr","fans")
                 return callback(e)
             }
-            if(!result.data.fans_count){
+            if(!result.data.fans_count&&result.data.fans_count!==0){
                 this.storaging.errStoraging('cctv',option.url,task.id,"cctv获取fans接口返回数据错误","resultErr","fans")
                 return callback(null,result)
             }
@@ -130,8 +130,8 @@ class dealWith {
                 page       = $('div.pagetotal span').eq(1).text().replace(/[\s]/g,'').replace('共','').replace('页','')
                 task.total = total
             //logger.debug(total)
-            if(!total || page){
-                this.storaging.errStoraging('cctv',option.url,task.id,"total从dom中取total与page信息失败","domBasedErr","total")
+            if(!total || !page){
+                this.storaging.errStoraging('cctv',option.url,task.id,"cctv从dom中取total与page信息失败","domBasedErr","total")
                 setTimeout(() => {
                     this.getVidTotal(task,callback)
                 },100)
@@ -288,16 +288,17 @@ class dealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('cctv',`${option.url}`,task.id,`cctv视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"info"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('cctv',`${option.url}`,task.id,`cctv视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"info"*/)
+            // })
+            this.storaging.playNumStorage(media,"info")
             // logger.debug("btime media==============",media)
             callback() 
         })

@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/6/21.
- */
 const moment = require('moment')
 const async = require( 'async' )
 const cheerio = require('cheerio')
@@ -32,7 +29,7 @@ class dealWith {
                         if(err){
                             return callback(err)
                         }
-                        callback(err,result)
+                        callback(null,result)
                     })
                 }
             },
@@ -84,12 +81,12 @@ class dealWith {
                 this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取fans接口json数据解析失败","doWithResErr","fans")
                 return callback(e)
             }
-            // let user = {
-            //     platform: task.p,
-            //     bid: task.id,
-            //     fans_num: result.obj.fansCount
-            // }
-            // task.total = result.obj.videoCount
+            let user = {
+                platform: task.p,
+                bid: task.id,
+                fans_num: result.obj.fansCount
+            }
+            task.total = result.obj.videoCount
             callback()
         })
     }
@@ -122,7 +119,7 @@ class dealWith {
                 result = JSON.parse(result.body)
             }catch (e){
                 this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取total接口json数据解析失败","doWithResErr","total")
-                return
+                return callback(e)
             }
             let page   = result.body.page_num
             this.getVidList(task,page,sign,(err) => {
@@ -171,7 +168,7 @@ class dealWith {
                     }catch (e){
                         logger.error('json数据解析失败')
                         this.storaging.errStoraging('v1',option.url,task.id,"第一视频获取list接口json数据解析失败","doWithResErr","list")
-                        return
+                        return cb()
                     }
                     let length  = result.body.data.length,
                         content = result.body.data
@@ -251,16 +248,17 @@ class dealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('v1',"",task.id,`第一视频视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"vidInfo"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('v1',"",task.id,`第一视频视频播放量减少`,"playNumErr","vidInfo",media.aid,`${result}/${media.play_num}`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"vidInfo"*/)
+                // })
+                this.storaging.playNumStorage(media,"vidInfo")
                 callback()
             }
         )

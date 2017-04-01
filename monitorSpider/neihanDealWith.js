@@ -66,7 +66,7 @@ class dealWith {
                 this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.data || (result.data&&!result.data.followers)){
+            if(!result.data || (result.data&&!result.data.followers&&result.data.followers!==0)){
                 this.storaging.errStoraging('neihan',option.url,task.id,"内涵段子获取user接口返回数据错误","doWithResErr","user")
                 return callback(result)
             }
@@ -75,6 +75,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.data.followers
             }
+            callback()
         })
     }
     getList ( task, callback ) {
@@ -213,17 +214,18 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('neihan',`${url}`,task.id,`内涵段子播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                return
-            }
-            this.storaging.sendDb(media/*,task.id,"list"*/)
-        })
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('neihan',`${url}`,task.id,`内涵段子播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //         return
+        //     }
+        //     this.storaging.sendDb(media/*,task.id,"list"*/)
+        // })
+        this.storaging.playNumStorage(media,"list")
         callback()
     }
     long_t ( raw ){

@@ -61,7 +61,7 @@ class dealWith {
                 this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取list接口json数据解析失败","doWithResErr","list")
                 return this.getVidList( task, callback )
             }
-            if(!result.data || !result.data.length){
+            if(!result.data){
                 return this.getVidList( task, callback )
             }
             let length = result.data.length
@@ -93,26 +93,26 @@ class dealWith {
         async.parallel([
             (cb) => {
                 this.getVideoInfo(task,video.vid,num,(err,result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             },
             (cb) => {
                 this.getComment(task,(err,result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             },
             (cb) => {
                 this.getSupport( task, video.vid, (err, result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             },
             (cb) => {
                 this.getSava( task, video.vid, (err, result) => {
-                    logger.debug(err,result)
+                    cb()
                 })
             }
         ],(err,result) => {
-            if(result[0] == 'next'){
+            if(result[0] == 'next'||!result[0]){
                 return callback()
             }
             let media = {
@@ -130,7 +130,6 @@ class dealWith {
                 support: result[2].supportNumber,
                 save_num: result[3].hasCollect
             }
-            
             callback()
         })
     }
@@ -172,7 +171,7 @@ class dealWith {
                 return callback(null,{hasCollect:''})
             }
             if(!result.content){
-                return
+                return callback()
             }
             callback(null,result.content.list[0])
         })
@@ -242,10 +241,6 @@ class dealWith {
             }
             if(result.statusCode && result.statusCode != 200){
                 this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取comment接口状态码错误","statusErr","comment")
-                return callback()
-            }
-            if(!result.body){
-                this.storaging.errStoraging('xinlan',option.url,task.id,"新蓝网获取comment接口无返回数据","resultErr","comment")
                 return callback()
             }
             try{

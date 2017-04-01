@@ -3,18 +3,19 @@
  */
 const URL = require('url')
 const moment = require('moment')
-const async = require( 'async' )
+const async = require('async')
 const request = require( '../lib/request' )
+const spiderUtils = require('../lib/spiderUtils')
 const md5 = require('js-md5')
 
 let logger,api
-class toutiaoDealWith {
+class dealWith {
     constructor(spiderCore) {
         this.core = spiderCore
         this.settings = spiderCore.settings
         this.storaging = new (require('./storaging'))(this)
-        logger = this.settings.logger
         api = this.settings.spiderAPI
+        logger = this.settings.logger
         logger.trace('toutiaoDealWith instantiation ...')
     }
     getHoney() {
@@ -34,23 +35,23 @@ class toutiaoDealWith {
     }
     toutiao ( task, callback) {
         task.total = 0
+        task.uid = ''
+        if(task.user_id){
+            task.uid = task.user_id
+        }
         async.parallel(
             {
                 user: (callback) => {
-                    this.getUser(task,(err,result)=>{
-                        if(err){
-                            return setTimeout(()=>{
-                                this.getUser(task,(err,result)=>{
-                                    return callback(err,result)
-                                }, 1000)
-                            })
-                        }
-                        callback(err,result)
+                    this.getUser(task,(err)=>{
+                        callback(null,"用户信息已返回")
                     })
                 },
                 media: (callback) => {
-                    this.getList(task,(err,result)=>{
-                        callback(err,result)
+                    this.getList(task,(err)=>{
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,"视频信息已返回")
                     })
                 }
             },
@@ -58,19 +59,18 @@ class toutiaoDealWith {
                 if(err){
                     return callback(err)
                 }
-                callback(err,result)
+                callback(null,result)
             }
         )
     }
     getUser ( task, callback ){
-        if(!task.encodeId || task.encodeId == '0'){
-            this.getUserId(task)
+        if(!task.user_id){
             return callback()
         }
         const option = {
-            url: api.toutiao.user + task.encodeId,
+            url: api.toutiao.user + task.user_id,
             ua: 3,
-            own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
+            own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.0.5 JsSdk/2.0 NetType/WIFI (News 5.9.0 10.200000)'
         }
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("toutiao",option.url,"user")
@@ -85,56 +85,114 @@ class toutiaoDealWith {
                 } else{
                     errType = "responseErr"
                 }
-                this.storaging.errStoraging("toutiao",option.url,task.id,err.code || "error",errType,"user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,err.code || "error",errType,"user")
                 return callback(err)
             }
-            if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取user接口状态码错误","statusErr","user")
-                return callback()
-            }
-            if(!result.body){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口无返回值","resultErr","user")
-                return callback()
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取粉丝接口状态码错误${result.statusCode}`,"statusErr","user")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             } catch (e){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝json数据解析失败","doWithResErr","user")
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取粉丝接口json数据解析错误`,"doWithResErr","user")
                 return callback(e)
             }
             if( result.message != 'success' || !result.data ){
-                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取粉丝接口发生错误${result.message}`,"responseErr","user")
-
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取粉丝接口返回数据错误`,"resultErr","user")
                 return callback('fail')
             }
             let fans = result.data.total_cnt
-            if(Number(fans) === 0 && result.data.users.length !== 0 ){
-                return callback('fail')
-            }
             if( typeof fans == 'string' && fans.indexOf('万') != -1 ){
                 fans = fans.replace('万','') * 10000
-            }
-            if(Number(fans) === 0){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取粉丝接口粉丝数发生异常：","responseErr","user")
-                return
             }
             let user = {
                 platform: task.p,
                 bid: task.id,
                 fans_num: fans
             }
-            // if(task.id == '6204859881' || task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
-            //     this.core.fans_db.sadd(task.id, JSON.stringify({
-            //         num: fans,
-            //         time: new Date().getTime()
-            //     }))
-            // }
-            // this.storaging.succStorage("toutiao",option.url,"user")
+            callback(null,user)
         })
     }
-    getUserId(task) {
-        request.get(logger, {url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`},(err, result)=>{
-            this.storaging.totalStorage ("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
+    getList(task, callback) {
+        let referer = '/2/user/profile/v3/?to_html=1&refer=default&source=search&version_code=5.9.4&app_name=news_article&vid=AA078A72-B7CD-45CB-8F86-BCDB28C3D6C1&device_id=32511333712&channel=App%20Store&resolution=1242*2208&aid=13&ab_version=95360,100770,100734,101516,101786,101539,101479,101533,100846,101117,101778,97142,90764,101586,101558,92439,101294,100404,100755,100786,101710,98040,100825,101405,101308,101797,100948&ab_feature=z2&ab_group=z2&openudid=2142f5f6a7d2e38576de8383f79ba12ebc56e1b8&live_sdk_version=1.3.0&idfv=AA078A72-B7CD-45CB-8F86-BCDB28C3D6C1&ac=WIFI&os_version=10.2&ssmix=a&device_platform=iphone&iid=7241944320&ab_client=a1,f2,f7,e1&device_type=iPhone%206S%20Plus&idfa=00000000-0000-0000-0000-000000000000'
+        let index = 0,times = 0,
+            sign = true,
+            option = {
+                headers: {
+                    accept: 'application/json',
+                    'x-requested-with': 'XMLHttpRequest',
+                    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.4.1 JsSdk/2.0 NetType/WIFI (News 5.9.4 10.200000)'
+                }
+            },
+            hot_time = '',
+            protocol = ['http://lf.snssdk.com','http://ic.snssdk.com','https://lf.snssdk.com','https://ic.snssdk.com'],
+            protocolNum
+        async.whilst(
+            () => {
+                return sign
+            },
+            (cb) => {
+                if(index > 500){
+                    sign = false
+                    return cb()
+                }
+                const {as, cp} = this.getHoney()
+                times++
+                protocolNum = Math.floor(Math.random()*4)
+                option.url = protocol[protocolNum] + this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
+                option.headers.referer = protocol[protocolNum] + referer + `&media_id=${task.id}`
+                this.getListInfo(task, option, (err, result) => {
+                    this.storaging.totalStorage ("toutiao",option.url,"list")
+                    if(err){
+                        if(times > 10){
+                            task.total = 10 * index
+                            sign = false
+                            if(index == 0){
+                                return cb('failed')
+                            }
+                            return cb()
+                        }else{
+                            return setTimeout(()=>{
+                                cb()
+                            }, 5000 * times)
+                        }
+                    }
+                    if(!result){
+                        this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口返回数据错误`,"resultErr","list")
+                        return callback(err,result)
+                    }
+                    if(result.message != "success"){
+                        this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口状态码错误${result.massage}`,"statusErr","list")
+                        return callback(result.massage)
+                    }
+                    times = 0
+                    if(index == 0 && result.data.length > 0){
+                        task.uid = result.data[0].creator_uid
+                    }
+                    if(!result.data || result.data.length == 0 || index > 500){
+                        task.total = 10 * index
+                        sign = false
+                        return cb()
+                    }
+                    hot_time = result.next.max_behot_time
+                    this.deal( task, result.data,(err) => {
+                        index++
+                        cb()
+                    })
+                })
+            },
+            (err,result) => {
+                if(err){
+                    return callback(err)
+                }
+                callback()
+            }
+        )
+    }
+    getListInfo(task, option, callback) {
+        request.get(logger, option, (err,result) => {
+            this.storaging.totalStorage ("toutiao",option.url,"listInfo")
             if(err){
                 let errType
                 if(err.code){
@@ -146,156 +204,27 @@ class toutiaoDealWith {
                 } else{
                     errType = "responseErr"
                 }
-                this.storaging.errStoraging("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,err.code || "error",errType,"userId")
-                return
+                this.storaging.errStoraging('toutiao',option.url,task.id,err.code || "error",errType,"listInfo")
+                return callback()
             }
-            if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,"toutiao获取userId接口状态码错误","statusErr","userId")
-                return
-            }
-            if(!result.body){
-                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,"toutiao list接口无返回数据","resultErr","userId")
-                return
+            if( result.statusCode != 200){
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取listInfo接口状态码错误${result.statusCode}`,"statusErr","listInfo")
+                return callback(result.statusCode)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
-                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,"今日头条获取粉丝Id接口json数据解析失败","doWithResErr","userId")
-                return
+                this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取listInfo接口json数据解析错误`,"doWithResErr","listInfo")
+                return callback(e)
             }
-            if(result.message != 'success'){
-                this.storaging.errStoraging('toutiao',`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,task.id,`今日头条获取粉丝Id接口发生错误${result.message}`,"responseErr","userId")
-                return
+            if(result.has_more === false){
+                //logger.error(result)
+                return callback('has_more_error')
             }
-            //let userId = result.data.user_id
-            // this.storaging.succStorage("toutiao",`http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}`,"userId")
+            callback(null, result)
         })
     }
-    getList ( task, callback ) {
-        let index = 0,times = 0,proxyStatus = false,proxy = '',
-            sign = true,
-            option = {
-                ua: 3,
-                own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
-            },
-            hot_time = null
-        async.whilst(
-            () => {
-                return sign
-            },
-            (cb) => {
-                if(index > 500){
-                    sign = false
-                    task.total = 10 * index
-                    return cb()
-                }
-                const {as, cp} = this.getHoney()
-                if(hot_time){
-                    option.url = 'http://ic.snssdk.com' + api.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
-                }else{
-                    option.url = 'http://ic.snssdk.com' + api.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time="
-                }
-                if(proxyStatus && proxy){
-                    option.proxy = proxy
-                    request.get( logger, option, (err,result) => {
-                        this.storaging.totalStorage("toutiao",option.url,"list")
-                        if(err){
-                            times++
-                            proxyStatus = false
-                            this.core.proxy.back(proxy, false)
-                            return cb()
-                        }
-                        times = 0
-                        try{
-                            result = JSON.parse(result.body)
-                        }catch (e){
-                            // logger.error('json数据解析失败')
-                            // logger.error(result.body)
-                            times++
-                            proxyStatus = false
-                            this.core.proxy.back(proxy, false)
-                            return cb()
-                        }
-                        if(result.has_more === false){
-                            times++
-                            proxyStatus = false
-                            this.core.proxy.back(proxy, false)
-                            return cb()
-                        }
-                        times = 0
-                        if(!result.data || result.data.length == 0){
-                            task.total = 10 * index
-                            sign = false
-                            return cb()
-                        }
-                        hot_time = result.next.max_behot_time
-                        this.deal( task, result.data,(err) => {
-                            index++
-                            cb()
-                        })
-                    })
-                } else {
-                    this.core.proxy.need(times, (err, _proxy) => {
-                        if(err) {
-                            if(err == 'timeout'){
-                                return callback('Get proxy timesout!!')
-                            }
-                            logger.error('Get proxy occur error:' , err)
-                            times++
-                            proxyStatus = false
-                            return cb()
-                        }
-                        times = 0
-                        option.proxy = _proxy
-                        request.get( logger, option, (err,result) => {
-                            if(err){
-                                times++
-                                proxyStatus = false
-                                this.core.proxy.back(_proxy, false)
-                                return cb()
-                            }
-                            times = 0
-                            try{
-                                result = JSON.parse(result.body)
-                            }catch (e){
-                                // logger.error('json数据解析失败')
-                                // logger.error(result.body)
-                                times++
-                                proxyStatus = false
-                                this.core.proxy.back(_proxy, false)
-                                return cb()
-                            }
-                            if(result.has_more === false){
-                                times++
-                                proxyStatus = false
-                                this.core.proxy.back(_proxy, false)
-                                return cb()
-                            }
-                            times = 0
-                            proxyStatus = true
-                            proxy = _proxy
-                            if(!result.data || result.data.length == 0){
-                                task.total = 10 * index
-                                sign = false
-                                return cb()
-                            }
-                            hot_time = result.next.max_behot_time
-                            this.deal( task, result.data,(err) => {
-                                index++
-                                cb()
-                            })
-                        })
-                    })
-                }
-            },
-            (err,result) => {
-                this.core.proxy.back(proxy, true)
-                callback()
-            }
-        )
-    }
-    deal( task, list, callback ){
+    deal(task, list, callback){
         let index = 0,
             length = list.length
         async.whilst(
@@ -309,11 +238,13 @@ class toutiaoDealWith {
                 })
             },
             (err,result) => {
-                callback()
+                setTimeout(() => {
+                    callback()
+                }, 5000)
             }
         )
     }
-    getInfo ( task, video, callback) {
+    getInfo(task, video, callback) {
         const media = {}
         let vid
         if(video.str_item_id){
@@ -322,7 +253,7 @@ class toutiaoDealWith {
             let query = URL.parse(video.app_url,true).query
             vid = query.item_id
         }else{
-            // logger.debug(video)
+            logger.debug(video)
             return callback(video)
         }
         media.author = task.name
@@ -358,64 +289,20 @@ class toutiaoDealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('toutiao',`http://m.toutiao.com/i${vid}/info/`,task.id,`今日头条播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
-            }
-            this.storaging.sendDb(media/*,task.id,"play"*/)
-        })
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('toutiao',``,task.id,`今日头条播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //     }
+        //     this.storaging.sendDb(media/*,task.id,"play"*/)
+        // })
+        this.storaging.playNumStorage(media,"play")
         callback()
     }
-    getPlayNum ( vid, callback ) {
-        let option = {
-            url: `http://m.toutiao.com/i${vid}/info/`,
-        }
-        request.get( logger, option, ( err, result ) => {
-            this.storaging.totalStorage ("toutiao",option.url,"play")
-            if(err){
-                let errType
-                if(err.code){
-                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
-                        errType = "timeoutErr"
-                    } else{
-                        errType = "responseErr"
-                    }
-                } else{
-                    errType = "responseErr"
-                }
-                this.storaging.errStoraging("toutiao",option.url,task.id,err.code || "error",errType,"play")
-                return callback(err)
-            }
-            if(result.statusCode && result.statusCode != 200){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取play接口状态码错误","statusErr","play")
-                return callback()
-            }
-            if(!result.body){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条play接口无返回数据","resultErr","play")
-                return callback()
-            }
-            try{
-                result = JSON.parse(result.body)
-            } catch (e) {
-                logger.error('返回JSON格式不正确')
-                logger.error('info:',result)
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取playNum接口返回JSON格式不正确","doWithResErr","play")
-                return callback(e)
-            }
-            let backData = result.data
-            if(!backData){
-                this.storaging.errStoraging('toutiao',option.url,task.id,"今日头条获取playNum接口返回数据为空","doWithResErr","play")
-                return callback(true)
-            }
-            // this.storaging.succStorage("toutiao",option.url,"play")
-            callback(null,backData.video_play_count)
-        })
-    }
-    _tag ( raw ){
+    _tag(raw) {
         if(!raw){
             return ''
         }
@@ -428,7 +315,7 @@ class toutiaoDealWith {
         }
         return ''
     }
-    long_t( time ){
+    long_t(time) {
         if(!time){
             return null
         }
@@ -441,7 +328,7 @@ class toutiaoDealWith {
         }
         return long_t
     }
-    _v_img(video){
+    _v_img(video) {
         // if(video.cover_image_infos && video.cover_image_infos.length != 0 && video.cover_image_infos[0].width && video.cover_image_infos[0].height){
         //     return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`
         // }
@@ -450,6 +337,15 @@ class toutiaoDealWith {
         }
         return null
     }
+    sendCache(media) {
+        this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
+            if ( err ) {
+                logger.error( '加入缓存队列出现错误：', err )
+                return
+            }
+            logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
+        })
+    }
 }
 
-module.exports = toutiaoDealWith
+module.exports = dealWith

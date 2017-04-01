@@ -1,11 +1,7 @@
-/**
- * Created by junhao on 16/6/21.
- */
-
 const async = require( 'async' )
 const cheerio = require('cheerio')
 const request = require('../lib/request.js')
-
+const spiderUtils = require('../lib/spiderUtils')
 let logger,api
 class dealWith {
     constructor ( spiderCore ){
@@ -67,10 +63,6 @@ class dealWith {
                     }
                     callback()
                 })
-            }
-            if(!aid){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音从dom中获取TheAlbum失败","domBasedErr","TheAlbum")
-                return callback()
             }
             this.getVidList( task, aid, (err) => {
                 if(err){
@@ -142,9 +134,9 @@ class dealWith {
             task.total = result.album_info.videos_num
             let videoList = result.video_list,
                 length = videoList.length
-            if(!task.total||!videoList||!length){
-                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取list接口返回数据错误","resultErr","list")
-                return callback(null,result)
+            if(!videoList||videoList&&!videoList.length){
+                this.storaging.errStoraging('baofeng',option.url,task.id,"暴风影音获取list接口返回数据为空","resultErr","list")
+                return callback()
             }
             this.deal( task, videoList, length, () => {
                 callback()
@@ -173,17 +165,17 @@ class dealWith {
             [
                 (cb) => {
                     this.support( task, video.vid, (err, result) => {
-                        logger.debug(err,result)
+                        cb(err,result)
                     })
                 },
                 (cb) => {
                     this.getDesc( task, index, (err, result) => {
-                        logger.debug(err,result)
+                        cb(err,result)
                     })
                 },
                 (cb) => {
                     this.getComment( task, video.vid, (err, result) => {
-                        logger.debug(err,result)
+                        cb(err,result)
                     })
                 }
             ],
@@ -193,7 +185,7 @@ class dealWith {
                     platform: task.p,
                     bid: task.id,
                     aid: video.vid,
-                    title: video.v_sub_title.substr(0,100).replace(/"/g,''),
+                    title: spiderUtils.stringHandling(video.v_sub_title,100),
                     a_create_time: video.update_time.substring(0,10),
                     long_t: video.video_time/1000,
                     support: result[0].u,

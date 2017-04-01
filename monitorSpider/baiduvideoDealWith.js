@@ -66,7 +66,7 @@ class dealWith {
                     fans_num: fan
                 }
             task.total = $('div.num-sec').eq(1).find('p.num').text()
-            if(!fan || !listData){
+            if(!fan&&fan!==0 || !listData){
                 this.storaging.errStoraging('baiduvideo',option.url,task.id,`百度视频获取total接口从dom获取信息失败`,"domBasedErr","total")
                 return callback(result)
             }
@@ -202,16 +202,17 @@ class dealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('baiduvideo',"",task.id,`百度视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"info"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('baiduvideo',"",task.id,`百度视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"info"*/)
+                // })
+                this.storaging.playNumStorage(media,"info")
                 callback()
             }
         )
@@ -262,7 +263,7 @@ class dealWith {
             }
             let $ = cheerio.load(result.body),
                 playNum = $('p.title-info .play').text().replace('次','')
-            if(!playNum){
+            if(!playNum&&playNum!==0){
                 this.storaging.errStoraging("baiduvideo",option.url,task.id,"百度视频从dom中获取播放量失败","domBasedErr","info")
                 return callback(null,'')
             }

@@ -67,7 +67,7 @@ class meipaiDealWith {
                 this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝接口json数据解析失败","doWithResErr","user")
                 return callback()
             }
-            if(!result.id||!result.followers_count){
+            if(!result.id||!result.followers_count&&result.followers_count!==0){
                 this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取粉丝接口返回数据错误","resultErr","user")
                 return callback()
             }
@@ -76,6 +76,7 @@ class meipaiDealWith {
                 bid: result.id,
                 fans_num: result.followers_count
             }
+            callback()
         })
     }
     getTotal ( task,callback ) {
@@ -233,8 +234,14 @@ class meipaiDealWith {
             if(result.lives){
                 return callback(result)
             }
-            if(!result.caption||!result.plays_count||!result.comments_count||!result.likes_count||!result.reposts_count||!result.created_at||!result.cover_pic){
-                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info接口返回数据错误","doWithResErr","info")
+            if(!result.caption
+                ||!result.plays_count&&result.plays_count!==0
+                ||!result.comments_count&&result.comments_count!==0
+                ||!result.likes_count&&result.likes_count!==0
+                ||!result.reposts_count&&result.reposts_count!==0
+                ||!result.created_at
+                ||!result.cover_pic){
+                this.storaging.errStoraging('meipai',option.url,task.id,"美拍获取info接口返回数据错误","resultErr","info")
                 return callback(result)
             }
             let title,_tags = [],__tags = [],tags = '',tagArr
@@ -276,16 +283,17 @@ class meipaiDealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"videos"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('meipai',`${api.meipai.media}${media.aid}`,task.id,`美拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"videos"*/)
+            // })
+            this.storaging.playNumStorage(media,"videos")
             callback()
         })
     }

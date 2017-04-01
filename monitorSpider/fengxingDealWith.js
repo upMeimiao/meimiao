@@ -165,6 +165,7 @@ class dealWith {
                 return index < length
             },
             (cb) => {
+                // logger.debug("fengixng vidObj==============",vidObj)
                 let h = vidObj.eq(index).find('a').attr('data-id')
                 option.url = 'http://www.fun.tv/vplay/c-'+task.id+'.h-'+h+'/'
                 request.get( logger, option, (err, result) => {
@@ -238,19 +239,19 @@ class dealWith {
                 }
                 //logger.error(errType)
                 this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"vidList")
-                return this.getVideoList(task,callback)
+                return this.getVidList(task,callback)
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
                 this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取vidList接口状态码错误","statusErr","vidList")
-                return this.getVideoList(task,callback)
+                return this.getVidList(task,callback)
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败')
                 this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取vidList接口json数据解析失败","doWithResErr","vidList")
-                return this.getVideoList(task,callback)
+                return this.getVidList(task,callback)
             }
             let length  = result.episodes.length,
                 content = result.episodes
@@ -320,16 +321,17 @@ class dealWith {
                     if(playNumStr.indexOf(",") >= 0){
                         media.play_num = Number(this.getNumber(playNumStr))
                     }
-                    this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                        if(err){
-                            logger.debug("读取redis出错")
-                            return
-                        }
-                        if(result > media.play_num){
-                            this.storaging.errStoraging('fengxing',"",task.id,`风行网视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                        }
-                        this.storaging.sendDb(media/*,task.id,"list"*/)
-                    })
+                    // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                    //     if(err){
+                    //         logger.debug("读取redis出错")
+                    //         return
+                    //     }
+                    //     if(result > media.play_num){
+                    //         this.storaging.errStoraging('fengxing',"",task.id,`风行网视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                    //     }
+                    //     this.storaging.sendDb(media/*,task.id,"list"*/)
+                    // }
+                    this.storaging.playNumStorage(media,"list")
                     callback()
                 }
             )            
@@ -488,19 +490,19 @@ class dealWith {
                     errType = "responseErr"
                 }
                 //logger.error(errType)
-                this.storaging.errStoraging("fengxing",option.url,task.id,err.code || "error",errType,"creatTime")
+                this.storaging.errStoraging("fengxing",option.url,id,err.code || "error",errType,"creatTime")
                 return callback(err)
             }
             if(result.statusCode && result.statusCode != 200){
                 logger.error('风行状态码错误',result.statusCode)
-                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取creatTime接口状态码错误","statusErr","creatTime")
+                this.storaging.errStoraging('fengxing',option.url,id,"风行网获取creatTime接口状态码错误","statusErr","creatTime")
                 return callback(true)
             }
             try{
                 result = JSON.parse(result.body)
             }catch(e){
                 logger.error('json数据解析失败')
-                this.storaging.errStoraging('fengxing',option.url,task.id,"风行网获取creatTime接口json数据解析失败","doWithResErr","creatTime")
+                this.storaging.errStoraging('fengxing',option.url,id,"风行网获取creatTime接口json数据解析失败","doWithResErr","creatTime")
                 return callback(e)
             }
             result.data.number = result.data.number+' 00:00:00'

@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/6/21.
- */
 const moment = require('moment')
 const async = require( 'async' )
 const request = require('../lib/request.js')
@@ -135,7 +132,7 @@ class dealWith {
                         },300)
                     }
                     if(result.statusCode && result.statusCode != 200){
-                        this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口状态码错误","statusErr","list")
+                        this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取list接口状态码错误${result.statusCode}`,"statusErr","list")
                         return callback( task, callback )
                     }
                     num = 0
@@ -262,18 +259,19 @@ class dealWith {
                 play_num: result[0].singlefeed['7'].videoplaycnt
             }
             if(!media.play_num){
-                return
+                return callback()
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('qzone',"",task.id,`QQ空间播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"info"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return callback()
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('qzone',"",task.id,`QQ空间播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"info"*/)
+            // })
+            this.storaging.playNumStorage(media,"info")
             callback()
         })
     }
@@ -314,7 +312,9 @@ class dealWith {
                 return callback(null,'抛掉当前的')
             }
             result = result.data.all_videolist_data[0]
-            
+            if(!result){
+                return callback(null,'抛掉当前的')
+            }
             if(result.singlefeed['7'].coverurl['0'] == undefined){
                 result.v_img = ''
             }else if(result.singlefeed['7'].coverurl['0'].url == undefined){
@@ -361,7 +361,7 @@ class dealWith {
                 this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取comment接口json数据解析失败","doWithResErr","comment")
                 return callback(null,'')
             }
-            if(!result.cmtnum||!result.fwdnum){
+            if(!result.cmtnum && result.cmtnum != 0 || !result.fwdnum && result.fwdnum != 0 ){
                 this.storaging.errStoraging('qzone',option.url,task.id,`QQ空间获取comment接口返回数据错误`,"resultErr","comment")
                 return callback(result)
             }

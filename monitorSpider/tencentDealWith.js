@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/6/20.
- */
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/request' )
@@ -23,12 +20,18 @@ class tencentDealWith {
             {
                 user: (callback) => {
                     this.getUser(task,(err,res)=>{
-                        callback(err,res)
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,res)
                     })
                 },
                 media: (callback) => {
                     this.getTotal(task,(err,res)=>{
-                        callback(err,res)
+                        if(err){
+                            return callback(err)
+                        }
+                        callback(null,res)
                     })
                 }
             },
@@ -36,7 +39,7 @@ class tencentDealWith {
                 if(err){
                     return callback(err)
                 }
-                callback(err,result)
+                callback(null,result)
             }
         )
     }
@@ -120,7 +123,7 @@ class tencentDealWith {
                 this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取user接口jsonp解析错误","resultErr","user")
                 return callback(e)
             }
-            if(!result.followcount){
+            if(!result.followcount&&result.followcount!==0){
                 this.storaging.errStoraging('tencent',option.url,task.id,"腾讯视频获取user接口返回数据错误","resultErr","user")
                 return callback()
             }
@@ -129,7 +132,7 @@ class tencentDealWith {
                 bid: task.id,
                 fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g,'')) * 10000
             }
-            // this.storaging.succStorage("tencent",option.url,"user")
+            callback()
         })
     }
     getList ( task, total, callback ) {
@@ -271,17 +274,7 @@ class tencentDealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('tencent',"",task.id,`腾讯视频播放量减少`,"playNumErr","view",media.aid,`${result}/${media.play_num}`)
-                        return
-                    }
-                    this.storaging.sendDb(media/*,task.id,"view"*/)
-                })
+                this.storaging.playNumStorage(media,"view")
                 if(!media.comment_num){
                     delete media.comment_num
                 }

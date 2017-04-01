@@ -1,6 +1,3 @@
-/**
- * Created by ifable on 16/6/21.
- */
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/request' )
@@ -63,7 +60,7 @@ class billDealWith {
             }
             if( result.statusCode != 200){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取粉丝${result.statusCode}`,"statusErr","user")
-                return callback()
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
@@ -81,10 +78,11 @@ class billDealWith {
                     bid: userInfo.mid,
                     fans_num: userInfo.fans
                 }
-            if(!user.fans_num){
+            if(!user.fans_num&&user.fans_num!==0){
                 this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取粉丝数失败","resultErr","user")
                 return callback()
             }
+            callback()
         })
     }
     getTotal ( task, callback) {
@@ -109,7 +107,7 @@ class billDealWith {
             }
             if( result.statusCode != 200){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取total接口${result.statusCode}`,"statusErr","total")
-                return callback()
+                return callback(result.statusCode)
             }
             try {
                 result = JSON.parse(result.body)
@@ -118,10 +116,6 @@ class billDealWith {
                 return callback(e)
             }
             if(!result.data){
-                this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口返回数据错误","resultErr","total")
-                return callback()
-            }
-            if(!result.data.count || !result.data.pages){
                 this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口返回数据错误","resultErr","total")
                 return callback()
             }
@@ -234,7 +228,7 @@ class billDealWith {
             }
             if(back.statusCode != 200){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取info${back.statusCode}`,"responseErr","info")
-                return callback(true)
+                return callback(back.statusCode)
             }
             try {
                 back = JSON.parse(back.body)
@@ -244,7 +238,7 @@ class billDealWith {
             }
             if(back.code != 0){
                 this.storaging.errStoraging('bili',option.url,task.id,`哔哩哔哩获取info接口返回数据code错误${back.code}`,"resultErr","info")
-                return
+                return callback(back.code)
             }
             let tagStr = ''
             if(back.data.tags && back.data.tags.length != 0){
@@ -273,18 +267,19 @@ class billDealWith {
             }
             
             if(!media.play_num){
-                return
+                return callback()
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"videos"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('miaopai',`${api.miaopai.media}${media.aid}`,task.bid,`秒拍播放量减少`,"playNumErr","videos",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"videos"*/)
+            // })
+            this.storaging.playNumStorage(media,"videos")
             callback()
         })
     }

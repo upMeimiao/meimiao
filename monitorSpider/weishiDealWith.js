@@ -51,7 +51,7 @@ class dealWith {
                 this.storaging.errStoraging('weishi',option.url,task.id,"微视获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.data||result.data && (!result.data.uid||!result.data.follower_num)){
+            if(!result.data){
                 this.storaging.errStoraging('weishi',option.url,task.id,"微视获取user接口返回数据错误","resultErr","user")
                 return callback(result)
             }
@@ -185,16 +185,17 @@ class dealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('weishi',`${url}`,task.id,`微视视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"list"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('weishi',`${url}`,task.id,`微视视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"list"*/)
+                // })
+                this.storaging.playNumStorage(media,"list")
                 index++
                 cb()
             },

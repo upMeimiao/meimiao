@@ -67,14 +67,10 @@ class dealWith {
                 result = JSON.parse(result.body)
             }catch(e){
                 this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取user接口json数据解析失败","doWithResErr","user")
-                return
+                return callback(e)
             }
             let fans = result.data.subscriptions ? result.data.subscriptions : ''
-            logger.debug("ku6 fans",fans)
-            if(!fans){
-                this.storaging.errStoraging('ku6',option.url,task.id,"酷6获取user接口返回数据错误","resultErr","user")
-                return
-            }
+            callback()
                 // ,
                 // user = {
                 //     platform: 14,
@@ -240,16 +236,17 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-            }
-            this.storaging.sendDb(media/*,task.id,"info"*/)
-        })
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('ku6',`${api.ku6.allInfo}${task.id}&pn=${index}`,task.id,`酷6视频播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+        //     }
+        //     this.storaging.sendDb(media/*,task.id,"info"*/)
+        // })
+        this.storaging.playNumStorage(media,"info")
         callback()
     }
     _tag ( raw ){

@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/7/28.
- */
 const moment = require('moment')
 const async = require( 'async' )
 const request = require( '../lib/request' )
@@ -74,7 +71,7 @@ class dealWith {
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.result || result.result && !result.result.ChannelInfo.RssNum){
+            if(!result.result){
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取user接口返回数据错误","resultErr","user")
                 return callback(null,result)
             }
@@ -84,6 +81,7 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.ChannelInfo.RssNum
             }
+            callback()
         })
     }
     getList ( task, callback ) {
@@ -210,19 +208,20 @@ class dealWith {
                 save_num: Number(result[0].collectCount) + Number(result[1].CollectionCount),
                 v_img: video.IMGURL
             }
-            if(!media.play_num){
-                return
+            if(!media.play_num && media.play_num != 0){
+                return callback()
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,"${media.author}_${media.aid}",(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('baomihua',`${api.baomihua.playNum}${task.id}&flvid=${media.aid}`,task.id,`爆米花视频播放量减少`,"playNumErr","playNum",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"playNum"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,"${media.author}_${media.aid}",(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return callback()
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('baomihua',`${api.baomihua.playNum}${task.id}&flvid=${media.aid}`,task.id,`爆米花视频播放量减少`,"playNumErr","playNum",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"playNum"*/)
+            // })
+            this.storaging.playNumStorage(media,"playNum")
             callback()
         })
     }
@@ -329,7 +328,7 @@ class dealWith {
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花playNum接口eval错误","doWithResErr","playNum")
                 return callback(e)
             }
-            if(!result.appinfo[0].playCount){
+            if(!result.appinfo[0].playCount&&result.appinfo[0].playCount!==0){
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花playNum接口返回数据错误","doWithResErr","playNum")
                 return callback(result)
             }

@@ -63,10 +63,6 @@ class dealWith {
                 bid: task.id,
                 fans_num: result.infoList[0].weMedia.followNo
             }
-            if(!task.total||!user.fans_num||!result.infoList[0].weMedia.totalPage){
-                this.storaging.errStoraging('ifeng',option.url,task.id,"凤凰号获取total接口返回数据错误","resultErr","total")
-                return callback(result)
-            }
             this.getList(task, result.infoList[0].weMedia.totalPage, (err,result) => {
                 if(err){
                     return callback(err)
@@ -199,16 +195,17 @@ class dealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('acfun',`${option.url}`,task.id,`凤凰号视频播放量减少`,"playNumErr","video",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"video"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('ifeng',`${option.url}`,task.id,`凤凰号视频播放量减少`,"playNumErr","video",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"video"*/)
+            // })
+            this.storaging.playNumStorage(media,"video")
             // logger.debug("ifeng media==============",media)
             callback()
         })

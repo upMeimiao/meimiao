@@ -222,6 +222,9 @@
 			"videoAlbum":"http://v.baidu.com/i/albumlist?type=2&id=",
   			"videoList":"http://v.baidu.com/i/albumvideos?type=time&id=",
   			"videoInfo":"http://xiyou.cctv.com/interface/index?videoId="
-		}
+		},
+		"liVideo": {
+	        "list": "http://app.pearvideo.com/clt/jsp/v2/getNodeConts.jsp?sort=0&nodeId="
+	    }
 	}
 }

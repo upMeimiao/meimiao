@@ -54,20 +54,16 @@ class dealWith {
                 live_num = $('.live-col .title-num').text().replace(/（/g,'').replace(/）/g,''),
                 sq_num = $('.shenqu-col .title-num').text().replace(/（/g,'').replace(/）/g,''),
                 dp_num = $('.duanpai-col .title-num').text().replace(/（/g,'').replace(/）/g,'')
+            if(!$('.fans-link')||!$('.live-col .title-num')||!$('.shenqu-col .title-num')||!$('.duanpai-col .title-num')){
+                this.storaging.errStoraging('yy',option.url,task.id,`yy total接口从dom中获取信息失败`,"domBasedErr","total")
+                return callback()
+            }
             let user = {
                 platform: 20,
                 bid: task.id,
                 fans_num: fans_text.replace(/,/g,'')
             }
-            if(!live_num && !sq_num && !dp_num && !fans_text){
-                this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
-                return 
-            }
             task.total = Number(live_num) + Number(sq_num) + Number(dp_num)
-            if(!task.total){
-                this.storaging.errStoraging('yy',option.url,task.id,"yy从dom中获取视频分类及数量失败","domBasedErr","total")
-                return 
-            }
             async.parallel({
                 live: (callback) => {
                     this.getLive( task, live_num, (err,result) => {
@@ -327,16 +323,17 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-            }
-            this.storaging.sendDb(media/*,task.id,"list"*/)
-        })
+        // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //     }
+        //     this.storaging.sendDb(media/*,task.id,"list"*/)
+        // })
+        this.storaging.playNumStorage(media,"list")
         callback()
     }
     getInfo ( task, url, type, data, callback ) {
@@ -378,16 +375,17 @@ class dealWith {
         if(!media.play_num){
             return
         }
-        this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
-            if(err){
-                logger.debug("读取redis出错")
-                return
-            }
-            if(result > media.play_num){
-                this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-            }
-            this.storaging.sendDb(media)
-        })
+        // this.core.MSDB.hget(`apiMonitor:${media.author}:play_num:${media.aid}`,"play_num",(err,result)=>{
+        //     if(err){
+        //         logger.debug("读取redis出错")
+        //         return
+        //     }
+        //     if(result > media.play_num){
+        //         this.storaging.errStoraging('yy',`${url}`,task.id,`yy视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+        //     }
+        //     this.storaging.sendDb(media)
+        // })
+        this.storaging.playNumStorage(media,"list")
         if(!media.long_t){
             delete media.long_t
         }

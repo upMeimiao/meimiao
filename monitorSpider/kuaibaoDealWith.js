@@ -1,6 +1,3 @@
-/**
- * Created by junhao on 16/6/20.
- */
 const async = require( 'async' )
 const request = require( '../lib/request' )
 let logger,api
@@ -35,7 +32,7 @@ class kuaibaoDealWith {
             if ( err ) {
                 return callback(err)
             }
-            callback(err,result)
+            callback(null,result)
         })
     }
     getDevId() {
@@ -87,7 +84,7 @@ class kuaibaoDealWith {
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取粉丝接口异常错误","resultErr","user")
                 return callback()
             }
-            if(!userInfo.subCount){
+            if(!userInfo.subCount&&userInfo.subCount!==0){
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取粉丝接口返回数据错误","resultErr","user")
                 return callback()
             }
@@ -96,6 +93,7 @@ class kuaibaoDealWith {
                 bid: task.id,
                 fans_num: userInfo.subCount
             }
+            callback(null,user)
         })
     }
     getVideos ( task, callback ) {
@@ -297,16 +295,17 @@ class kuaibaoDealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"play"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('kuaibao',`${api.kuaibao.play}&devid=${task.devId}`,task.id,`快报播放量减少`,"playNumErr","play",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"play"*/)
+            // })
+            this.storaging.playNumStorage(media,"play")
             callback()
         })
     }
@@ -407,7 +406,6 @@ class kuaibaoDealWith {
                 return callback()
             }
             // this.storaging.succStorage("kuaibao",option.url,"Expr")
-
             callback(null,data)
         })
     }
@@ -488,15 +486,10 @@ class kuaibaoDealWith {
                 result = eval(result.body)
             }catch (e){
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口json数据解析失败","doWithResErr","field")
-                logger.error(result)
                 return callback(e)
             }
-            if(result && !result.video){
+            if(!result.video){
                 this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口返回数据为空","resultErr","field")
-                return callback(null, null)
-            }
-            if(!result.video.tot||!result.video.pic||!result.video.tags||!result.video.ctypename){
-                this.storaging.errStoraging('kuaibao',option.url,task.id,"快报获取field接口返回数据错误","resultErr","field")
                 return callback(null, null)
             }
             const backData = {

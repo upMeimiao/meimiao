@@ -94,6 +94,7 @@ class dealWith {
             //     bid: task.id,
             //     fans_num: fans_num
             // }
+            callback()
         })
     }
     getInterestId ( task, callback ) {

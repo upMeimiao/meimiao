@@ -195,14 +195,6 @@ class dealWith {
                         })
                         return
                     }
-                    if(!result){
-                        this.storaging.errStoraging('weibo',option.url,task.id,"微博获取list接口无返回数据","resultErr","list")
-                        return
-                    }
-                    if(!result.body){
-                        this.storaging.errStoraging('weibo',option.url,task.id,"微博获取list接口无返回数据","resultErr","list")
-                        return
-                    }
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
@@ -310,16 +302,17 @@ class dealWith {
                 if(!media.play_num){
                     delete media.play_num
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('weibo',"",task.id,`微博视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"list"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('weibo',"",task.id,`微博视频播放量减少`,"playNumErr","list",media.aid,`${result}/${media.play_num}`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"list"*/)
+                // })
+                this.storaging.playNumStorage(media,"list")
                 // logger.debug("weibo media==============",media)
                 callback()
             })
@@ -334,7 +327,6 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("weibo",option.url,"info")
             if(err){
-                logger.debug('单个视频信息请求错误',err.message)
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {

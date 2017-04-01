@@ -66,7 +66,7 @@ class souhuDealWith {
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            if(!result.data || (result.data&&(!result.data.user_id||!result.data.total_fans_count))){
+            if(!result.data){
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取粉丝返回数据错误","resultErr","user")
                 return callback(result)
             }
@@ -76,6 +76,7 @@ class souhuDealWith {
                     bid: userInfo.user_id,
                     fans_num: userInfo.total_fans_count
                 }
+            callback()
         })
     }
     getTotal ( task, callback ) {
@@ -261,16 +262,17 @@ class souhuDealWith {
             if(!media.play_num){
                 return
             }
-            this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                if(err){
-                    logger.debug("读取redis出错")
-                    return
-                }
-                if(result > media.play_num){
-                    this.storaging.errStoraging('souhu',"",task.id,`搜狐播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                }
-                this.storaging.sendDb(media/*,task.id,"info"*/)
-            })
+            // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+            //     if(err){
+            //         logger.debug("读取redis出错")
+            //         return
+            //     }
+            //     if(result > media.play_num){
+            //         this.storaging.errStoraging('souhu',"",task.id,`搜狐播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+            //     }
+            //     this.storaging.sendDb(media/*,task.id,"info"*/)
+            // })
+            this.storaging.playNumStorage(media,"info")
             callback()
         })
     }
@@ -308,7 +310,13 @@ class souhuDealWith {
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取info接口返回结果错误","resultErr","info")
                 return callback(result)
             }
-            if(!result.data.video_name||!result.data.video_desc||!result.data.create_time||!result.data.first_cate_name||!result.data.play_count||!result.data.keyword||!result.data.total_duration){
+            if(!result.data.video_name
+                ||!result.data.video_desc
+                ||!result.data.create_time
+                ||!result.data.first_cate_name
+                ||!result.data.play_count&&result.data.play_count!==0
+                ||!result.data.keyword
+                ||!result.data.total_duration){
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取info接口返回结果错误","resultErr","info")
                 return callback(result)
             }
@@ -352,18 +360,19 @@ class souhuDealWith {
                 return callback(back.statusCode)
             }
             try{
-                result = eval(back.body)
+                back = eval(back.body)
             }catch (e){
+                logger.debug(back.body)
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口json数据解析失败","doWithResErr","digg")
                 return callback(e)
             }
-            if(!result.upCount||!result.downCount){
+            if(!back.upCount&&back.upCount!==0||!back.downCount&&back.downCount!==0){
                 this.storaging.errStoraging('souhu',option.url,task.id,"搜狐获取digg接口返回数据错误","resultErr","digg")
-                return callback(result)
+                return callback(data)
             }
             let data = {
-                up: result.upCount,
-                down: result.downCount
+                up: back.upCount,
+                down: back.downCount
             }
             callback(null,data)
         })

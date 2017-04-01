@@ -83,7 +83,7 @@ class dealWith {
                 this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口异常","resultErr","user")
                 return callback(true)
             }
-            if(!userInfo[0].fansCount){
+            if(!userInfo[0].fansCount&&userInfo[0].fansCount!==0){
                 this.storaging.errStoraging('tv56',option.url,task.id,"tv56获取user接口返回数据错误","resultErr","user")
                 return callback(result)
             }
@@ -256,16 +256,17 @@ class dealWith {
                 if(!media.play_num){
                     return
                 }
-                this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
-                    if(err){
-                        logger.debug("读取redis出错")
-                        return
-                    }
-                    if(result > media.play_num){
-                        this.storaging.errStoraging('tv56',"",`tv56播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
-                    }
-                    this.storaging.sendDb(media/*,task.id,"info"*/)
-                })
+                // this.core.MSDB.hget(`apiMonitor:play_num`,`${media.author}_${media.aid}`,(err,result)=>{
+                //     if(err){
+                //         logger.debug("读取redis出错")
+                //         return
+                //     }
+                //     if(result > media.play_num){
+                //         this.storaging.errStoraging('tv56',"",`tv56播放量减少`,"playNumErr","info",media.aid,`${result}/${media.play_num}`)
+                //     }
+                //     this.storaging.sendDb(media/*,task.id,"info"*/)
+                // })
+                this.storaging.playNumStorage(media,"info")
                 // logger.debug("tv56 media==============",media)
                 //logger.debug(media)
                 callback()
