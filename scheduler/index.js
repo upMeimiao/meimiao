@@ -199,7 +199,7 @@ class scheduler {
                     return this.emit('task_set_create',raw)
                 }
                 const time = new Date().getTime()
-                if( (body.state === 'active' || body.state === 'delayed') && time - body.created_at > 3600000){
+                if( (body.state === 'active' || body.state === 'delayed') && time - body.updated_at > 3600000){
                     return this.emit('task_set_create',raw)
                 }
                 if( body.state === 'failed' ){
