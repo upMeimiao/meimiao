@@ -69,7 +69,7 @@ class spiderCore {
         this.test()
         setInterval(()=>{
             this.test()
-        }, 1800000)
+        }, 250000)
     }
     test() {
         let work = {
