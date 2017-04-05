@@ -74,7 +74,7 @@ class storage{
 						},
 						(cb)=>{
 							//如果播放量减小10%或者增加十倍以上，wrongTimes ++
-							logger.debug(arr[i],arr[0])							
+							// logger.debug(arr[i],arr[0])							
 							if(arr[i] <= 0.9*arr[0] || arr[i] >= arr[0]*10){
 								// logger.debug("当前与第一个作比较i,arr[i],arr[0]",i,arr[i],arr[0])
 								wrongTimes ++
