@@ -16,8 +16,8 @@ class spiderCore {
         this.redis = settings.redis
         this.dealWith = new(require('./dealWith_proxy'))(this)
         this.proxy = new(require('./proxy'))(this)
-        logger = settings.logger
-        logger.trace('spiderCore instantiation ...')
+        // logger = settings.logger
+        // logger.trace('spiderCore instantiation ...')
     }
     assembly ( ) {
         async.parallel([
@@ -31,7 +31,7 @@ class spiderCore {
                             return callback(err)
                         }
                         this.taskDB = cli
-                        logger.debug( "任务信息数据库连接建立...成功" )
+                        // logger.debug( "任务信息数据库连接建立...成功" )
                         callback()
                     }
                 )
@@ -46,7 +46,7 @@ class spiderCore {
                             return callback(err)
                         }
                         this.cache_db = cli
-                        logger.debug( "缓存队列数据库连接建立...成功" )
+                        // logger.debug( "缓存队列数据库连接建立...成功" )
                         callback()
                     }
                 )
@@ -61,25 +61,25 @@ class spiderCore {
                             return callback(err)
                         }
                         this.fans_db = cli
-                        logger.debug( "缓存队列数据库连接建立...成功" )
+                        // logger.debug( "缓存队列数据库连接建立...成功" )
                         callback()
                     }
                 )
             }
         ],(err, results) => {
             if ( err ) {
-                logger.error( "连接redis数据库出错。错误信息：", err )
-                logger.error( "出现错误，程序终止。" )
+                // logger.error( "连接redis数据库出错。错误信息：", err )
+                // logger.error( "出现错误，程序终止。" )
                 process.exit()
                 return
             }
-            logger.debug( '创建数据库连接完毕' )
+            // logger.debug( '创建数据库连接完毕' )
             this.deal()
             //this.test()
         })
     }
     start () {
-        logger.trace('启动函数')
+        // logger.trace('启动函数')
         this.assembly()
     }
     test(){
@@ -99,15 +99,15 @@ class spiderCore {
             }
         })
         queue.on( 'error', function( err ) {
-            logger.error( 'Oops... ', err )
+            // logger.error( 'Oops... ', err )
         })
         queue.watchStuckJobs( 1000 )
-        logger.trace('Queue get ready')
+        // logger.trace('Queue get ready')
         queue.process('toutiao',this.settings.concurrency, (job,done) => {
-            logger.trace( 'Get toutiao task!' )
+            // logger.trace( 'Get toutiao task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
-            logger.info( work )
+            // logger.info( work )
             const d = domain.create()
             d.on('error', function(err){
                 done(err)
@@ -121,24 +121,24 @@ class spiderCore {
                     this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
                     request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
-                            logger.error( 'occur error : ', err )
+                            // logger.error( 'occur error : ', err )
                             return
                         }
                         if(res.statusCode != 200 ){
-                            logger.error( `状态码${res.statusCode}` )
-                            logger.info( res )
+                            // logger.error( `状态码${res.statusCode}` )
+                            // logger.info( res )
                             return
                         }
                         try {
                             body = JSON.parse( body )
                         } catch (e) {
-                            logger.info( '不符合JSON格式' )
+                            // logger.info( '不符合JSON格式' )
                             return
                         }
                         if(body.errno == 0){
-                            logger.info(body.errmsg)
+                            // logger.info(body.errmsg)
                         }else{
-                            logger.info(body)
+                            // logger.info(body)
                         }
                     })
                 })

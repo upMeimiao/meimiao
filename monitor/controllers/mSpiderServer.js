@@ -23,7 +23,7 @@ exports.start = () => {
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        logger.debug("获取到msg和data",data)
+        // logger.debug("获取到msg和data",data)
         let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
@@ -49,7 +49,7 @@ exports.start = () => {
 //     mSpiderClient.expire(key,6*60*60)
 // }
 const toSendWarnEmail = (emailOptions,callback) => {
-        logger.debug("toSendWarnEmail",emailOptions)
+        // logger.debug("toSendWarnEmail",emailOptions)
         let newDate = new Date(),
             day = newDate.getDay(),
             newTime =newDate.getTime(),
@@ -61,7 +61,10 @@ const toSendWarnEmail = (emailOptions,callback) => {
             errDesc = emailOptions["errDesc"],
             errObj = emailOptions["errObj"],
             errType = emailOptions["errType"],
-            errTimes = emailOptions["errTimes"]
+            errTimes = emailOptions["errTimes"],
+            firstTime = emailOptions["firstTime"],
+            lastTime = emailOptions["lastTime"]
+            // logger.debug("firstTime lastTime",firstTime,lastTime)
         mSpiderClient.hget("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,(err,result)=>{
             if(err){
                 mSpiderClient.subscribe("enough")
@@ -75,13 +78,19 @@ const toSendWarnEmail = (emailOptions,callback) => {
                         return
                     }
                     //发送邮件
-                    sendWarnEmail(platform,urlDesc,totalTimes,errTimes,errDesc,errType)
+                    sendWarnEmail(platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,firstTime,lastTime)
                 })
                 return
             }
-            //有错误记录，查看错误记录时间与当前时间的间隔，间隔在半小时之内，不发,不存
+            //有错误记录，查看错误记录时间与当前时间的间隔，间隔在半小时之内，不发,只存
             if(time - result <= 30*60*1000){
-                mSpiderClient.subscribe("enough")
+                mSpiderClient.hset("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,time,(err,result)=>{
+                    if(err){
+                        mSpiderClient.subscribe("enough")
+                        return
+                    }
+                    mSpiderClient.subscribe("enough")
+                })
                 return
             }
             //间隔在半小时之外，存入当前，发邮件
@@ -91,18 +100,33 @@ const toSendWarnEmail = (emailOptions,callback) => {
                     return
                 }
                 //发送邮件
-                sendWarnEmail(platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid)
+                sendWarnEmail(platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,firstTime,lastTime)
             })
         })
+        mSpiderClient.expire("apiMonitor:errToSand",24*60*60)
 }
-const sendWarnEmail = (platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid)=>{
+const sendWarnEmail = (platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,firstTime,lastTime)=>{
     let subject = `接口监控：${platform}平台${urlDesc}接口报警`,
-        tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td></tr>`
+        tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td><td>错误首发时间</td><td>错误最近时间</td></tr>`,
+        fstDate = new Date(firstTime),
+        lastDate = new Date(lastTime),
+        fstYear = fstDate.getFullYear(),
+        fstMonth = fstDate.getMonth() + 1,
+        fstDay = fstDate.getDate(),
+        fstHours = fstDate.getHours(),
+        fstMinutes = fstDate.getMinutes(),
+        lastYear = lastDate.getFullYear(),
+        lastMonth = lastDate.getMonth() + 1,
+        lastDay = lastDate.getDate(),
+        lastHours = lastDate.getHours(),
+        lastMinutes = lastDate.getMinutes(),
+        fstTime = `${fstYear}年${fstMonth}月${fstDay}日${fstHours}时${fstMinutes}分`,
+        lastsTime = `${lastYear}年${lastMonth}月${lastDay}日${lastHours}时${lastMinutes}分`
         //遍历key，获取所有错误信息，发送邮件
     if(errTimes > totalTimes){
         errTimes = totalTimes
     }
-    tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td></tr>`
+    tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td><td>${fstTime}</td><td>${lastsTime}</td></tr>`
     content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
     emailServerLz.sendAlarm(subject,content)
@@ -1409,22 +1433,22 @@ const weiboJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.6]
+            numberArr = [1,0.3,0.3,0.5,1,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.6]
+            numberArr = [1,0.3,0.3,0.5,1,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.6]
+            numberArr = [1,0.3,0.3,0.5,1,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,1,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
     }

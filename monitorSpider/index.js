@@ -16,44 +16,44 @@ class spiderCore {
         this.settings = settings
         this.redis = settings.redis
         // this.dealWith = new( require('./dealWith'))(this)
-        this.youkuDeal = new (require('./youkuDealWith'))(this)
-        this.iqiyiDeal = new (require('./iqiyiDealWith'))(this)
-        this.leDeal = new (require('./leDealWith'))(this)
-        this.tencentDeal = new (require('./tencentDealWith'))(this)
-        this.meipaiDeal = new (require('./meipaiDealWith'))(this)
-        this.toutiaoDeal = new (require('./toutiaoDealWith'))(this)
-        this.miaopaiDeal = new (require('./miaopaiDealWith'))(this)
-        this.biliDeal = new (require('./biliDealWith'))(this)
-        this.souhuDeal = new (require('./souhuDealWith'))(this)
-        this.kuaibaoDeal = new (require('./kuaibaoDealWith'))(this)
-        this.yidianDeal = new (require('./yidianDealWith'))(this)
-        this.tudouDeal = new (require('./tudouDealWith'))(this)
-        this.baomihuaDeal = new (require('./baomihuaDealWith'))(this)
-        this.ku6Deal = new (require('./ku6DealWith'))(this)
-        this.btimeDeal = new (require('./btimeDealWith'))(this)
-        this.weishiDeal = new (require('./weishiDealWith'))(this)
-        this.xiaoyingDeal = new (require('./xiaoyingDealWith'))(this)
-        this.budejieDeal = new (require('./budejieDealWith'))(this)
-        this.neihanDeal = new (require('./neihanDealWith'))(this)
-        this.yyDeal = new (require('./yyDealWith'))(this)
-        this.tv56Deal = new (require('./tv56DealWith'))(this)
-        this.acfunDeal = new (require('./acfunDealWith'))(this)
-        this.weiboDeal = new (require('./weiboDealWith'))(this)
-        this.ifengDeal = new (require('./ifengDealWith'))(this)
-        this.wangyiDeal = new (require('./wangyiDealWith'))(this)  
-        this.ucttDeal = new (require('./ucttDealWith'))(this)
-        this.mgtvDeal = new (require('./mgtvDealWith'))(this)
-        this.baijiaDeal = new (require('./baijiaDealWith'))(this)
-        this.qzoneDeal = new (require('./qzoneDealWith'))(this)
-        this.cctvDeal = new (require('./cctvDealWith'))(this)
-        this.pptvDeal = new (require('./pptvDealWith'))(this)
-        this.xinlanDeal = new (require('./xinlanDealWith'))(this)
-        this.v1Deal = new (require('./v1DealWith'))(this)
-        this.fengxingDeal = new (require('./fengxingDealWith'))(this)
-        this.huashuDeal = new (require('./huashuDealWith'))(this)
-        this.baofengDeal = new (require('./baofengDealWith'))(this)
-        this.baiduvideoDeal = new (require('./baiduvideoDealWith'))(this)
-        this.liVideoDeal = new (require('./liVideoDealWith'))(this)         
+        this.youkuDeal = new (require('./dealWith/youkuDealWith'))(this)
+        this.iqiyiDeal = new (require('./dealWith/iqiyiDealWith'))(this)
+        this.leDeal = new (require('./dealWith/leDealWith'))(this)
+        this.tencentDeal = new (require('./dealWith/tencentDealWith'))(this)
+        this.meipaiDeal = new (require('./dealWith/meipaiDealWith'))(this)
+        this.toutiaoDeal = new (require('./dealWith/toutiaoDealWith'))(this)
+        this.miaopaiDeal = new (require('./dealWith/miaopaiDealWith'))(this)
+        this.biliDeal = new (require('./dealWith/biliDealWith'))(this)
+        this.souhuDeal = new (require('./dealWith/souhuDealWith'))(this)
+        this.kuaibaoDeal = new (require('./dealWith/kuaibaoDealWith'))(this)
+        this.yidianDeal = new (require('./dealWith/yidianDealWith'))(this)
+        this.tudouDeal = new (require('./dealWith/tudouDealWith'))(this)
+        this.baomihuaDeal = new (require('./dealWith/baomihuaDealWith'))(this)
+        this.ku6Deal = new (require('./dealWith/ku6DealWith'))(this)
+        this.btimeDeal = new (require('./dealWith/btimeDealWith'))(this)
+        this.weishiDeal = new (require('./dealWith/weishiDealWith'))(this)
+        this.xiaoyingDeal = new (require('./dealWith/xiaoyingDealWith'))(this)
+        this.budejieDeal = new (require('./dealWith/budejieDealWith'))(this)
+        this.neihanDeal = new (require('./dealWith/neihanDealWith'))(this)
+        this.yyDeal = new (require('./dealWith/yyDealWith'))(this)
+        this.tv56Deal = new (require('./dealWith/tv56DealWith'))(this)
+        this.acfunDeal = new (require('./dealWith/acfunDealWith'))(this)
+        this.weiboDeal = new (require('./dealWith/weiboDealWith'))(this)
+        this.ifengDeal = new (require('./dealWith/ifengDealWith'))(this)
+        this.wangyiDeal = new (require('./dealWith/wangyiDealWith'))(this)  
+        this.ucttDeal = new (require('./dealWith/ucttDealWith'))(this)
+        this.mgtvDeal = new (require('./dealWith/mgtvDealWith'))(this)
+        this.baijiaDeal = new (require('./dealWith/baijiaDealWith'))(this)
+        this.qzoneDeal = new (require('./dealWith/qzoneDealWith'))(this)
+        this.cctvDeal = new (require('./dealWith/cctvDealWith'))(this)
+        this.pptvDeal = new (require('./dealWith/pptvDealWith'))(this)
+        this.xinlanDeal = new (require('./dealWith/xinlanDealWith'))(this)
+        this.v1Deal = new (require('./dealWith/v1DealWith'))(this)
+        this.fengxingDeal = new (require('./dealWith/fengxingDealWith'))(this)
+        this.huashuDeal = new (require('./dealWith/huashuDealWith'))(this)
+        this.baofengDeal = new (require('./dealWith/baofengDealWith'))(this)
+        this.baiduvideoDeal = new (require('./dealWith/baiduvideoDealWith'))(this)
+        this.liVideoDeal = new (require('./dealWith/liVideoDealWith'))(this)         
         this.proxy = new (require('./proxy'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
@@ -119,9 +119,9 @@ class spiderCore {
             }
         this.youkuDeal.youku(youku_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("youku 又执行一次")
+                // logger.debug("youku 又执行一次")
                 this.setYoukuTask()
-            },10000)
+            },12000)
         })
     }
     setIqiyiTask(){
@@ -130,9 +130,9 @@ class spiderCore {
             }
         this.iqiyiDeal.iqiyi(iqiyi_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("iqiyi 又执行一次")
+                // logger.debug("iqiyi 又执行一次")
                 this.setIqiyiTask()
-            },10000)
+            },12000)
         })
     }
     setLeTask(){
@@ -141,9 +141,9 @@ class spiderCore {
             }
         this.leDeal.le(le_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("le 又执行一次")
+                // logger.debug("le 又执行一次")
                 this.setLeTask()
-            },10000)
+            },12000)
         })
     }
     setTencentTask(){
@@ -152,9 +152,9 @@ class spiderCore {
             }
         this.tencentDeal.tencent(tencent_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("tencent 又执行一次")
+                // logger.debug("tencent 又执行一次")
                 this.setTencentTask()
-            },10000)
+            },12000)
         })
     }
     setMeipaiTask(){
@@ -163,9 +163,9 @@ class spiderCore {
             }
         this.meipaiDeal.meipai(meipai_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("meipai 又执行一次")
+                // logger.debug("meipai 又执行一次")
                 this.setMeipaiTask()
-            },10000)
+            },12000)
         })
     }
     setToutiaoTask(){
@@ -175,9 +175,9 @@ class spiderCore {
             }
         this.toutiaoDeal.toutiao(toutiao_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("toutiao 又执行一次")
+                // logger.debug("toutiao 又执行一次")
                 this.setToutiaoTask()
-            },10000)
+            },12000)
         })
     }
     setMiaopaiTask(){
@@ -186,9 +186,9 @@ class spiderCore {
             }
         this.miaopaiDeal.miaopai(miaopai_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("miaopai 又执行一次")
+                // logger.debug("miaopai 又执行一次")
                 this.setMiaopaiTask()
-            },10000)
+            },12000)
         })
     }
     setBiliTask(){
@@ -197,9 +197,9 @@ class spiderCore {
             }
         this.biliDeal.bili(bili_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("bili 又执行一次")
+                // logger.debug("bili 又执行一次")
                 this.setBiliTask()
-            },10000)
+            },12000)
         })
     }
     setSouhuTask(){
@@ -208,9 +208,9 @@ class spiderCore {
             }
         this.souhuDeal.souhu(souhu_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("souhu 又执行一次")
+                // logger.debug("souhu 又执行一次")
                 this.setSouhuTask()
-            },10000)
+            },12000)
         })
     }
     setKuaibaoTask(){
@@ -219,9 +219,9 @@ class spiderCore {
             }
         this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("kuaibao 又执行一次")
+                // logger.debug("kuaibao 又执行一次")
                 this.setKuaibaoTask()
-            },10000)
+            },12000)
         })
     }
     setYidianTask(){
@@ -230,9 +230,9 @@ class spiderCore {
             }
         this.yidianDeal.yidian(yidian_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("yidian 又执行一次")
+                // logger.debug("yidian 又执行一次")
                 this.setYidianTask()
-            },10000)
+            },12000)
         })
     }
     setTudouTask(){
@@ -241,9 +241,9 @@ class spiderCore {
             }
         this.tudouDeal.tudou(tudou_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("tudou 又执行一次")
+                // logger.debug("tudou 又执行一次")
                 this.setTudouTask()
-            },10000)
+            },12000)
         })
     }
     setBaomihuaTask(){
@@ -252,9 +252,9 @@ class spiderCore {
             }
         this.baomihuaDeal.baomihua(baomihua_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("baomihua 又执行一次")
+                // logger.debug("baomihua 又执行一次")
                 this.setBaomihuaTask()
-            },10000)
+            },12000)
         })
     }
     setKu6Task(){
@@ -263,9 +263,9 @@ class spiderCore {
             }
         this.ku6Deal.ku6(ku6_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("ku6 又执行一次")
+                // logger.debug("ku6 又执行一次")
                 this.setKu6Task()
-            },10000)
+            },12000)
         })
     }
     setBtimeTask(){
@@ -274,9 +274,9 @@ class spiderCore {
             }
         this.btimeDeal.btime(btime_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("btime 又执行一次")
+                // logger.debug("btime 又执行一次")
                 this.setBtimeTask()
-            },10000)
+            },12000)
         })
     }
     setWeishiTask(){
@@ -285,9 +285,9 @@ class spiderCore {
             }
         this.weishiDeal.weishi(weishi_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("weishi 又执行一次")
+                // logger.debug("weishi 又执行一次")
                 this.setWeishiTask()
-            },10000)
+            },12000)
         })
     }
     setXiaoyingTask(){
@@ -296,9 +296,9 @@ class spiderCore {
             }
         this.xiaoyingDeal.xiaoying(xiaoying_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("xiaoying 又执行一次")
+                // logger.debug("xiaoying 又执行一次")
                 this.setXiaoyingTask()
-            },10000)
+            },12000)
         })
     }
     setBudejieTask(){
@@ -307,9 +307,9 @@ class spiderCore {
             }
         this.budejieDeal.budejie(budejie_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("budejie 又执行一次")
+                // logger.debug("budejie 又执行一次")
                 this.setBudejieTask()
-            },10000)
+            },12000)
         })
     }
     setNeihanTask(){
@@ -318,9 +318,9 @@ class spiderCore {
             }
         this.neihanDeal.neihan(neihan_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("neihan 又执行一次")
+                // logger.debug("neihan 又执行一次")
                 this.setNeihanTask()
-            },10000)
+            },12000)
         })
     }
     setYyTask(){
@@ -332,6 +332,9 @@ class spiderCore {
             },
             yy_work3 = {
                 "name":"yy","platform":20,"id":1506744406,"bname":"女神TV官方"
+            },
+            yy_work4 = {
+                "name":"yy","platform":20,"id":5032677,"bname":"千羽"
             }
         async.parallel([
             (cb)=>{
@@ -348,6 +351,11 @@ class spiderCore {
                 this.yyDeal.yy(yy_work3,(err,result) => {
                     cb()
                 })
+            },
+            (cb)=>{
+                this.yyDeal.yy(yy_work4,(err,result) => {
+                    cb()
+                })
             }
         ],(err,result)=>{
             if(err){
@@ -355,9 +363,9 @@ class spiderCore {
             }
             logger.debug(null,result)
             setTimeout(()=>{
-                logger.debug("yy又执行一次")
+                // logger.debug("yy又执行一次")
                 this.setYyTask()
-            },10000)
+            },12000)
         })
     }
     setTv56Task(){
@@ -366,9 +374,9 @@ class spiderCore {
             }
         this.tv56Deal.tv56(tv56_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("tv56 又执行一次")
+                // logger.debug("tv56 又执行一次")
                 this.setTv56Task()
-            },10000)
+            },12000)
         })
     }
     setAcfunTask(){
@@ -377,9 +385,9 @@ class spiderCore {
             }
         this.acfunDeal.acfun(acfun_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("acfun 又执行一次")
+                // logger.debug("acfun 又执行一次")
                 this.setAcfunTask()
-            },10000)
+            },12000)
         })
     }
     setWeiboTask(){
@@ -388,9 +396,9 @@ class spiderCore {
             }
         this.weiboDeal.weibo(weibo_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("weibo 又执行一次")
+                // logger.debug("weibo 又执行一次")
                 this.setWeiboTask()
-            },10000)
+            },12000)
         })
     }
     setIfengTask(){
@@ -399,9 +407,9 @@ class spiderCore {
             }
         this.ifengDeal.ifeng(ifeng_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("ifeng 又执行一次")
+                // logger.debug("ifeng 又执行一次")
                 this.setIfengTask()
-            },10000)
+            },12000)
         })
     }
     setWangyiTask(){
@@ -410,9 +418,9 @@ class spiderCore {
             }
         this.wangyiDeal.wangyi(wangyi_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("wangyi 又执行一次")
+                // logger.debug("wangyi 又执行一次")
                 this.setWangyiTask()
-            },10000)
+            },12000)
         })
     }
     setUcttTask(){
@@ -421,9 +429,9 @@ class spiderCore {
             }
         this.ucttDeal.uctt(uctt_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("uctt 又执行一次")
+                // logger.debug("uctt 又执行一次")
                 this.setUcttTask()
-            },10000)
+            },12000)
         })
     }
     setMgtvTask(){
@@ -432,9 +440,9 @@ class spiderCore {
             }
         this.mgtvDeal.mgtv(mgtv_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("mgtv 又执行一次")
+                // logger.debug("mgtv 又执行一次")
                 this.setMgtvTask()
-            },10000)
+            },12000)
         })
     }
     setBaijiaTask(){
@@ -443,9 +451,9 @@ class spiderCore {
             }
         this.baijiaDeal.baijia(baijia_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("baijia 又执行一次")
+                // logger.debug("baijia 又执行一次")
                 this.setBaijiaTask()
-            },10000)
+            },12000)
         })
     }
     setQzoneTask(){
@@ -454,9 +462,9 @@ class spiderCore {
             }
         this.qzoneDeal.qzone(qzone_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("qzone 又执行一次")
+                // logger.debug("qzone 又执行一次")
                 this.setQzoneTask()
-            },10000)
+            },12000)
         })
     }
     setCctvTask(){
@@ -465,9 +473,9 @@ class spiderCore {
             }
         this.cctvDeal.cctv(cctv_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("cctv 又执行一次")
+                // logger.debug("cctv 又执行一次")
                 this.setCctvTask()
-            },10000)
+            },12000)
         })
     }
     setPptvTask(){
@@ -476,9 +484,9 @@ class spiderCore {
             }
         this.pptvDeal.pptv(pptv_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("pptv 又执行一次")
+                // logger.debug("pptv 又执行一次")
                 this.setPptvTask()
-            },10000)
+            },12000)
         })
     }
     setXinlanTask(){
@@ -487,9 +495,9 @@ class spiderCore {
             }
         this.xinlanDeal.xinlan(xinlan_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("xinlan 又执行一次")
+                // logger.debug("xinlan 又执行一次")
                 this.setXinlanTask()
-            },10000)
+            },12000)
         })
     }
     setV1Task(){
@@ -498,9 +506,9 @@ class spiderCore {
             }
         this.v1Deal.v1(v1_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("v1 又执行一次")
+                // logger.debug("v1 又执行一次")
                 this.setV1Task()
-            },10000)
+            },12000)
         })
     }
     setFengxingTask(){
@@ -513,13 +521,13 @@ class spiderCore {
         async.parallel([
             (cb)=>{
                 this.fengxingDeal.fengxing(fengxing_work1,(err,result) => {
-                    logger.debug("fengxing 二更又执行一次")
+                    // logger.debug("fengxing 二更又执行一次")
                 })
                 cb()
             },
             (cb)=>{
                 this.fengxingDeal.fengxing(fengxing_work2,(err,result) => {
-                    logger.debug("fengxing 飞碟说又执行一次")
+                    // logger.debug("fengxing 飞碟说又执行一次")
                 })
                 cb()
             }
@@ -529,9 +537,9 @@ class spiderCore {
             }
             logger.debug(null,result)
             setTimeout(()=>{
-                logger.debug("风行又执行一次")
+                // logger.debug("风行又执行一次")
                 this.setFengxingTask()
-            },10000)
+            },12000)
         })
     }
     setHuashuTask(){
@@ -540,9 +548,9 @@ class spiderCore {
             }
         this.huashuDeal.huashu(huashu_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("huashu 又执行一次")
+                // logger.debug("huashu 又执行一次")
                 this.setHuashuTask()
-            },10000)
+            },12000)
         })
     }
     setBaofengTask(){
@@ -551,9 +559,9 @@ class spiderCore {
             }
         this.baofengDeal.baofeng(baofeng_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("baofeng 又执行一次")
+                // logger.debug("baofeng 又执行一次")
                 this.setBaofengTask()
-            },10000)
+            },12000)
         })
     }
     setBaiduvideoTask(){
@@ -562,9 +570,9 @@ class spiderCore {
             }
         this.baiduvideoDeal.baiduvideo(baiduvideo_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("baiduvideo 又执行一次")
+                // logger.debug("baiduvideo 又执行一次")
                 this.setBaiduvideoTask()
-            },10000)
+            },12000)
         })
     }
     setLiVideoTask(){
@@ -573,9 +581,9 @@ class spiderCore {
             }
         this.liVideoDeal.liVideo(liVideo_work,(err,result) => {
             setTimeout(()=>{
-                logger.debug("liVideo 又执行一次")
+                // logger.debug("liVideo 又执行一次")
                 this.setLiVideoTask()
-            },10000)
+            },12000)
         })
     }
     setTask (callback) {

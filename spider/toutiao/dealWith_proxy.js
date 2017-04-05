@@ -16,21 +16,6 @@ class dealWith {
         logger = this.settings.logger
         logger.trace('DealWith instantiation ...')
     }
-    getHoney() {
-        const t = Math.floor((new Date).getTime() / 1e3),
-            e = t.toString(16).toUpperCase(),
-            n = md5(t.toString()).toString().toUpperCase()
-        if (8 != e.length) return {
-            as: "479BB4B7254C150",
-            cp: "7E0AC8874BB0985"
-        }
-        for (var o = n.slice(0, 5), i = n.slice(-5), a = "", r = 0; 5 > r; r++) a += o[r] + e[r]
-        for (var l = "", s = 0; 5 > s; s++) l += e[s + 3] + i[s]
-        return {
-            as: "A1" + a + e.slice(-3),
-            cp: e.slice(0, 3) + l + "E1"
-        }
-    }
     todo ( task, callback) {
         task.total = 0
         async.parallel(
@@ -41,8 +26,8 @@ class dealWith {
                             return setTimeout(()=>{
                                 this.getUser(task,()=>{
                                     return callback(null,"用户信息已返回")
-                                }, 1000)
-                            })
+                                })
+                            }, 1000)
                         }
                         callback(null,"用户信息已返回")
                     })
@@ -212,12 +197,12 @@ class dealWith {
                 return sign
             },
             (cb) => {
-                if(index > 500){
+                if(index > 200){
                     sign = false
-                    task.total = 10 * index
+                    task.total = 50 * index
                     return cb()
                 }
-                const {as, cp} = this.getHoney()
+                const {as, cp} = getHoney()
                 if(hot_time){
                     option.url = 'http://ic.snssdk.com' + this.settings.spiderAPI.toutiao.newList + task.id + '&cp=' + cp + "&as=" + as + "&max_behot_time=" + hot_time
                 }else{
@@ -251,7 +236,7 @@ class dealWith {
                         }
                         times = 0
                         if(!result.data || result.data.length == 0){
-                            task.total = 10 * index
+                            task.total = 50 * index
                             sign = false
                             return cb()
                         }
@@ -302,7 +287,7 @@ class dealWith {
                             proxyStatus = true
                             proxy = _proxy
                             if(!result.data || result.data.length == 0){
-                                task.total = 10 * index
+                                task.total = 50 * index
                                 sign = false
                                 return cb()
                             }
@@ -453,5 +438,20 @@ class dealWith {
         })
     }
 }
-
+function getHoney() {
+    const t = Math.floor((new Date).getTime() / 1e3),
+        e = t.toString(16).toUpperCase(),
+        n = md5(t.toString()).toString().toUpperCase()
+    if (8 !== e.length) return {
+        as: "479BB4B7254C150",
+        cp: "7E0AC8874BB0985"
+    }
+    let o,l,i,a,r,s
+    for (o = n.slice(0, 5), i = n.slice(-5), a = "", r = 0; 5 > r; r++) a += o[r] + e[r]
+    for (l = "", s = 0; 5 > s; s++) l += e[s + 3] + i[s]
+    return {
+        as: "A1" + a + e.slice(-3),
+        cp: e.slice(0, 3) + l + "E1"
+    }
+}
 module.exports = dealWith

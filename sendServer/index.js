@@ -13,16 +13,23 @@ class sendServer {
         this.onlineOption = {
             url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
             headers: {
-                'Content-Type':'application/x-www-form-urlencoded'
+                // "content-type": "application/json"
             }
         }
         this.stagingOption = {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/video/postVideosMore/',
             headers: {
-                'Content-Type':'application/x-www-form-urlencoded'
+                "content-type": "application/json"
             }
         }
         this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`,{
+            reconnectOnError: function (err) {
+                if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
+                    return true
+                }
+            }
+        })
+        this.redis_yiitao = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/12`,{
             reconnectOnError: function (err) {
                 if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
                     return true
@@ -75,22 +82,28 @@ class sendServer {
         })
     }
     sendOnline(list, time){
-        if(list.length ==0){
+        if(list.length === 0){
             list = null
             return
         }
-        // let newList = []
-        // for (let [index, elem] of list.entries()) {
-        //     if(elem.platform < 32 || elem.platform == 34){
-        //         newList.push(elem)
-        //     }
-        // }
-        // if(newList.length ==0){
-        //     list = null
-        //     newList = null
-        //     return
-        // }
-        this.onlineOption.form = {data: list}
+        let newList = []
+        for (let [index, elem] of list.entries()) {
+            if(elem.platform < 39){
+                newList.push(elem)
+            }
+            if(elem.bid == '375520641'){
+                let key = elem.bid + '_send_' + new Date().getHours()
+                this.redis_yiitao.sadd(key, JSON.stringify(elem))
+            }
+        }
+        if(newList.length === 0){
+            list = null
+            newList = null
+            return
+        }
+        // this.onlineOption.body = JSON.stringify({data: list})
+        this.onlineOption.form = {data: newList}
+        // this.onlineOption.body = JSON.stringify({data: newList})
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
                 logger.error('online occur error : ', err.message)
@@ -98,7 +111,7 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
-                    // newList = null
+                    newList = null
                 }else{
                     setTimeout(() => {
                         this.emit('send_data', list, time)
@@ -113,7 +126,7 @@ class sendServer {
                 if(time > 3){
                     list = null
                     time = null
-                    // newList = null
+                    newList = null
                 }else{
                     setTimeout(() => {
                         this.emit('send_data', list, time)
@@ -129,20 +142,20 @@ class sendServer {
                 //logger.error(JSON.stringify(newList))
                 list = null
                 time = null
-                // newList = null
+                newList = null
                 return
             }
             if(result.errno == 0){
                 //logger.debug('online back end')
-                //logger.debug(result.data)
+                logger.debug('online back end',result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
-            //logger.debug(`${newList.length}个视频 online back end`)
+            logger.debug(`${newList.length}个视频 online back end`)
             list = null
-            // newList = null
+            newList = null
             time = null
         })
     }
@@ -155,7 +168,8 @@ class sendServer {
         // for(let i = 0; i < length; i++){
         //     newList.push(list[i])
         // }
-        this.stagingOption.form = {data: list}
+        this.stagingOption.body = JSON.stringify({data: list})
+        // this.stagingOption.form = {data: list}
         request.post(this.stagingOption, (err, res, result) => {
             if(err){
                 logger.error('staging occur error : ', err.message)
@@ -197,14 +211,15 @@ class sendServer {
                 return
             }
             if(result.errno == 0){
-                logger.debug('staging back end')
-                logger.debug(result.data)
+                // logger.debug('staging back end')
+                logger.info(result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
-            //logger.debug(`${list.length}个视频 staging back end`)
+            // logger.info('客户端发出', list)
+            logger.debug(`${list.length}个视频 staging back end`)
             list = null
             // newList = null
             time = null

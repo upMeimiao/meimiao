@@ -43,7 +43,7 @@
     },
     "toutiao": {
       "user": "http://is.snssdk.com/user/followed/?version_code=5.9.5&app_name=news_article&openudid=2142f5f6a7d2e38576de8383f79ba12ebc56e1c8&live_sdk_version=1.6.5&count=50&offset=0&user_id=",
-      "newList": "/pgc/ma/?page_type=0&output=json&is_json=1&count=10&version=2&media_id=",
+      "newList": "/pgc/ma/?page_type=0&output=json&is_json=1&count=50&version=2&media_id=",
       "list": "http://toutiao.com/ma_mobile/?page_type=0&count=10&version=2&media_id=",
       "info_old": "http://is.snssdk.com/2/article/information/v14/?aggr_type=2&group_id=",
       "info": "http://a3.pstatp.com/article/full/12/2/",
@@ -222,6 +222,13 @@
       "shenquList": "http://www.yy.com/u/works/s?yyno=",
       "duanpaiList": "http://www.yy.com/u/works/d?yyno=",
       "liveList": "http://www.yy.com/u/live/queryPlayback.json?pageSize=20&yy="
+    },
+    "liVideo": {
+      "list": "http://app.pearvideo.com/clt/jsp/v2/getNodeConts.jsp?sort=0&nodeId="
+    },
+    "youtube": {
+      "channel": "https://m.youtube.com/channel/",
+      "info": "https://m.youtube.com/watch"
     }
   },
   "servantAPI": {

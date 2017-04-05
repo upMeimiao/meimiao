@@ -74,6 +74,9 @@ class dealWith {
             }catch (e){
                 return callback(e.message)
             }
+            if(body.code !== 1){
+                return callback(body.desc)
+            }
             let userInfo = body.data.channelOwnerInfo,
                 user = {
                     platform: 1,
@@ -167,6 +170,9 @@ class dealWith {
                 logger.error('json数据解析失败')
                 logger.info('total error:',body)
                 return callback(e)
+            }
+            if(body.code !== 1){
+                return callback(body.desc)
             }
             let data = body.data
             if(!data){
@@ -310,6 +316,10 @@ class dealWith {
                     a_create_time: video.publishtime
                 }
                 spiderUtils.saveCache( this.core.cache_db, 'cache', media )
+                if(media.bid == '375520641'){
+                    let key = media.bid + '_' + new Date().getHours()
+                    this.core.yitiao.sadd(key, JSON.stringify(media))
+                }
                 index++
                 cb()
             },

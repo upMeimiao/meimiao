@@ -9,10 +9,10 @@ spider_1="10.163.223.12"
 spider_2="10.163.216.52"
 spider_3="10.28.227.35"
 spider_4="10.28.227.72"
-spider_5="10.161.93.13"
-spider_6="10.252.29.87"
+spider_5="10.31.32.107"
+spider_6="10.31.32.113"
 spider_7="10.28.227.41"
-spider_8="10.144.191.122"
+spider_8="10.31.32.95"
 spider_9="10.30.144.86"
 
 echo $1
@@ -232,6 +232,9 @@ then
                 ;;
             '百家号')
                 ssh root@${loop} 'pm2 reload 百家号'
+                ;;
+            '梨视频')
+                ssh root@${loop} 'pm2 reload 梨视频'
                 ;;
             esac
             echo

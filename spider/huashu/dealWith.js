@@ -40,8 +40,14 @@ class dealWith {
                 logger.debug('视频列表解析失败')
                 return callback(e)
             }
-            let vidInfo     = result[1].aggData[0].aggRel,
-                contents    = result[1].aggData[0].aggChild.data[0].tele_data,
+            for(let i = 0; i < result[1].aggData.length; i++){
+                if(result[1].aggData[i].name == '华数'){
+                    result = result[1].aggData[i]
+                    break
+                }
+            }
+            let vidInfo     = result.aggRel,
+                contents    = result.aggChild.data[0].tele_data,
                 length      = contents.length
                 task.listid = vidInfo.video_sid
             task.total     = length
@@ -117,11 +123,11 @@ class dealWith {
                 },
                 (cb) => {
                     if(task.type == 'list2'){
-                        this.getPlay( video.episodeid, (err,result) => {
+                        this.getPlay( video.episodeid, 0, (err,result) => {
                             cb(err,result)
                         })
                     }else{
-                        this.getPlay( video.assetid, (err,result) => {
+                        this.getPlay( video.assetid, 0, (err,result) => {
                             cb(err,result)
                         })
                     }
@@ -164,6 +170,9 @@ class dealWith {
                         play_num: result[2],
                         comment_num: result[1]
                     }
+                }
+                if(!media.play_num){
+                    delete media.play_num
                 }
                 spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
@@ -212,20 +221,28 @@ class dealWith {
             callback(null,result.cmt_sum)
         })
     }
-    getPlay( vid, callback ){
+    getPlay( vid, times, callback ){
         let option = {
             url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}&jsoncallback=jsonp`
         }
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('播放量请求失败',err)
-                return this.getPlay( vid, callback )
+                times++
+                if(times < 10){
+                    return callback(null, null)
+                }
+                return this.getPlay( vid, times, callback )
             }
             try{
                 result = eval(result.body)
             }catch (e){
                 logger.debug('播放量解析失败')
-                return this.getPlay( vid, callback )
+                times++
+                if(times < 10){
+                    return callback(null, null)
+                }
+                return this.getPlay( vid, times, callback )
             }
             result = result ? Number(result.replace(/,/g,'')) : ''
             callback(null,result)
