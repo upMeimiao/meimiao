@@ -66,7 +66,7 @@ class redis{
                 // 稍后再试
                 return callback(null,true)
             }
-            logger.debug('borrow:', proxy)
+            // logger.debug('borrow:', proxy)
             let i = 0, time = parseInt(Date.now() / 1000)
             db.ZRANGEBYSCORE('bproxy', '-inf', time - 120, (err, result) => {
                 async.whilst(
@@ -93,7 +93,7 @@ class redis{
         data.status = data.status ? data.status : false
         db.zscore('bproxy', data.proxy, (err, proxy) => {
             if(proxy){
-                logger.debug('back:', data)
+                // logger.debug('back:', data)
                 if(data.status){
                     db.zrem('bproxy', data.proxy)
                     db.sadd('proxy', data.proxy)
