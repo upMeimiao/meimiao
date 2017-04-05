@@ -295,6 +295,7 @@ class dealWith {
             comment_section = null
             media = spiderUtils.deleteProperty(media)
             logger.debug(media)
+            spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
         });
     }
