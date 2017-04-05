@@ -316,10 +316,6 @@ class dealWith {
                     a_create_time: video.publishtime
                 }
                 spiderUtils.saveCache( this.core.cache_db, 'cache', media )
-                if(media.bid == '375520641'){
-                    let key = media.bid + '_' + new Date().getHours()
-                    this.core.yitiao.sadd(key, JSON.stringify(media))
-                }
                 index++
                 cb()
             },

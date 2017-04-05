@@ -96,7 +96,7 @@ const _getFailedTask = () => {
 }
 const _saveInactiveLog = (info) => {
     let numArr = []
-    for(let i = 0; i < 37; i++){
+    for(let i = 0; i < 38; i++){
         numArr[i] = 0
     }
     for (let [index, item] of info.entries()) {

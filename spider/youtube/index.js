@@ -65,11 +65,11 @@ class spiderCore {
     }
     start() {
         logger.trace('启动函数')
-        // this.assembly()
-        this.test()
-        setInterval(()=>{
-            this.test()
-        }, 1800000)
+        this.assembly()
+        // this.test()
+        // setInterval(()=>{
+        //     this.test()
+        // }, 250000)
     }
     test() {
         let work = {
@@ -96,7 +96,7 @@ class spiderCore {
         })
         // queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('YouTube', this.settings.concurrency, (job,done) => {
+        queue.process('YouTube', 100, (job,done) => {
             logger.trace( 'Get YouTube task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
@@ -110,9 +110,8 @@ class spiderCore {
                     if(err){
                         return done(err)
                     }
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total, ( err, result) => {
-                        done(null)
-                    })
+                    done(null)
+                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
                     request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )

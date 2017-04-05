@@ -36,7 +36,8 @@ const platformMap = new Map([
     [35,'华数TV'],
     [36,'暴风影音'],
     [37,'百度视频'],
-    [38,'梨视频']
+    [38,'梨视频'],
+    [39,'YouTube']
 ])
 const platform = [
     {id:1,name:'优酷'},
@@ -76,7 +77,8 @@ const platform = [
     {id:35,name:'华数TV'},
     {id:36,name:'暴风影音'},
     {id:37,name:'百度视频'},
-    {id:38,name:'梨视频'}
+    {id:38,name:'梨视频'},
+    {id:39,name:'YouTube'}
 ]
 const vm = new Vue({
     el: '#app',

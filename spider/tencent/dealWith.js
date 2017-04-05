@@ -54,9 +54,9 @@ class dealWith {
                 return callback(err)
             }
             try {
-                result = JSON.parse(result.body.substring(6, result.body.length - 1))
+                result = JSON.parse(result.body.substring(6, result.body.length - 1).replace(//g,''))
             } catch (e){
-                logger.error(result.body.substring(6, result.body.length - 1))
+                logger.error(result.body.substring(6, result.body.length - 1).replace(//g,''))
                 return callback(e)
             }
             if(result.s != 'o'){
@@ -184,9 +184,9 @@ class dealWith {
                         return cb()
                     }
                     try {
-                        result = JSON.parse(result.body.substring(6, result.body.length - 1))
+                        result = JSON.parse(result.body.substring(6, result.body.length - 1).replace(//g,''))
                     } catch (e){
-                        logger.error(result.body.substring(6, result.body.length - 1))
+                        logger.error(result.body.substring(6, result.body.length - 1).replace(//g,''))
                         sign++
                         return cb()
                     }

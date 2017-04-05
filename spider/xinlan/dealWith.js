@@ -190,7 +190,8 @@ class dealWith {
             if(err){
                 logger.debug('单个视频请求失败 ', err)
                 if(num <= 1){
-                    return this.getVideoInfo( task, num++, callback )
+                    num++
+                    return this.getVideoInfo( vid, num, callback )
                 }
                 return callback(null,'next')
             }
@@ -200,7 +201,8 @@ class dealWith {
             } catch(e){
                 logger.error('新蓝网单个数据解析失败')
                 if(num <= 1){
-                    return this.getVideoInfo( task, num++, callback )
+                    num++
+                    return this.getVideoInfo( vid, num, callback )
                 }
                 return callback(null,'next')
             }

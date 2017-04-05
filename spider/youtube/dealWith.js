@@ -72,12 +72,12 @@ class dealWith {
     }
     channelDeal(task, fansInfo, listArg, callback){
         async.parallel({
-            // user: (callback) => {
-            //     this.sendUser(fansInfo,()=>{
-            //         callback(null,'用户信息已返回')
-            //     })
-            //     this.sendStagingUser(fansInfo)
-            // },
+            user: (callback) => {
+                this.sendUser(fansInfo,()=>{
+                    callback(null,'用户信息已返回')
+                })
+                this.sendStagingUser(fansInfo)
+            },
             media: (callback) => {
                 this.getList(task, listArg, (err) => {
                     if(err){
@@ -103,20 +103,20 @@ class dealWith {
         request(options,(err,res,body) => {
             if(err){
                 logger.error( 'occur error : ', err )
-                logger.info(`返回优酷用户 ${user.bid} 连接服务器失败`)
+                logger.info(`返回YouTube用户 ${user.bid} 连接服务器失败`)
                 return callback(err)
             }
             try{
                 body = JSON.parse(body)
             }catch (e){
-                logger.error(`优酷用户 ${user.bid} json数据解析失败`)
+                logger.error(`YouTube用户 ${user.bid} json数据解析失败`)
                 logger.info(body)
                 return callback(e)
             }
             if(body.errno == 0){
-                logger.debug("优酷用户:",user.bid + ' back_end')
+                logger.debug("YouTube用户:",user.bid + ' back_end')
             }else{
-                logger.error("优酷用户:",user.bid + ' back_error')
+                logger.error("YouTube用户:",user.bid + ' back_error')
                 logger.info(body)
                 logger.info(`user info: `,user)
             }
@@ -295,6 +295,7 @@ class dealWith {
             comment_section = null
             media = spiderUtils.deleteProperty(media)
             logger.debug(media)
+            spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
         });
     }

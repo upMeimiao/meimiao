@@ -13,7 +13,7 @@ class sendServer {
         this.onlineOption = {
             url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
             headers: {
-                // "content-type": "application/json"
+                "content-type": "application/json"
             }
         }
         this.stagingOption = {
@@ -23,13 +23,6 @@ class sendServer {
             }
         }
         this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`,{
-            reconnectOnError: function (err) {
-                if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
-                    return true
-                }
-            }
-        })
-        this.redis_yiitao = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/12`,{
             reconnectOnError: function (err) {
                 if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
                     return true
@@ -91,10 +84,6 @@ class sendServer {
             if(elem.platform < 39){
                 newList.push(elem)
             }
-            if(elem.bid == '375520641'){
-                let key = elem.bid + '_send_' + new Date().getHours()
-                this.redis_yiitao.sadd(key, JSON.stringify(elem))
-            }
         }
         if(newList.length === 0){
             list = null
@@ -102,8 +91,8 @@ class sendServer {
             return
         }
         // this.onlineOption.body = JSON.stringify({data: list})
-        this.onlineOption.form = {data: newList}
-        // this.onlineOption.body = JSON.stringify({data: newList})
+        // this.onlineOption.form = {data: newList}
+        this.onlineOption.body = JSON.stringify({data: newList})
         request.post(this.onlineOption, (err, res, result) => {
             if(err){
                 logger.error('online occur error : ', err.message)
@@ -212,14 +201,14 @@ class sendServer {
             }
             if(result.errno == 0){
                 // logger.debug('staging back end')
-                logger.info(result.data)
+                // logger.info(result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
             // logger.info('客户端发出', list)
-            logger.debug(`${list.length}个视频 staging back end`)
+            // logger.debug(`${list.length}个视频 staging back end`)
             list = null
             // newList = null
             time = null

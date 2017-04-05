@@ -24,7 +24,7 @@ const _inactiveTaskAlarm = () => {
     let i = 1,key,inactiveArr = []
     async.whilst(
         () => {
-            return i <= 37
+            return i <= 39
         },
         (cb) => {
             key = "inactive:" + i
@@ -98,7 +98,7 @@ const _failedPretreatment = (info) => {
     }
     let emailContent = ''
     for (let [index, elem] of info.entries()) {
-        if(elem && elem.p != 6 && elem.p != 14){
+        if(elem){
             emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，bid：${elem.bid}，bname：${elem.bname}</p>`
         }
     }

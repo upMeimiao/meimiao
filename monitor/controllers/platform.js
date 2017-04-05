@@ -35,6 +35,8 @@ const platformMap = new Map([
     [34,'风行网'],
     [35,'华数TV'],
     [36,'暴风影音'],
-    [37,'百度视频']
+    [37,'百度视频'],
+    [38,'梨视频'],
+    [39,'YouTube']
 ])
 module.exports = platformMap

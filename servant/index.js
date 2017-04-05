@@ -50,7 +50,7 @@ class spiderCore {
             ctx = {req, res};
         if(query.site && query.site === 'youtube'){
             logger.debug(remote)
-            handle.youtubeHandle(ctx,remote.replace('www.zennew.me','www.youtube.com'))
+            handle.youtubeHandle(ctx,remote)
             return
         }
         switch (hostname){
@@ -208,6 +208,7 @@ class spiderCore {
                 break
             case 'po.baidu.com':
             case 'baijiahao.baidu.com':
+            case 'sv.baidu.com':
                 handle.baijiaHandle( ctx, remote );
                 break;
             case 'www.pearvideo.com':
@@ -218,10 +219,7 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
-            case 'www.zennew.me':
                 _youtubeReq(ctx, remote)
-                // logger.debug(new Buffer(remote, 'base64').toString())
-                // handle.youtubeHandle(ctx,remote.replace('www.zennew.me','www.youtube.com'))
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`);
@@ -238,23 +236,6 @@ function _youtubeReq(ctx, remote) {
         "port": 2017,
         "path": `/?url=${encodeURIComponent(remote.replace('www.youtube.com','').replace('m.youtube.com',''))}&site=youtube`,
     }
-    // let options = {
-    //     url: `http://47.88.137.212:2017/?url=${encodeURIComponent(remote)}&site=youtube`,
-    //     timeout: 7000
-    // }
-    // request(options, (err, res, body)=> {
-    //     if(err || res.statusCode !== 200){
-    //         logger.debug(err.message)
-    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`);
-    //         ctx.res.writeHead(502);
-    //         ctx.res.end()
-    //         return
-    //     }
-    //     logger.debug(body)
-    //     ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-    //     ctx.res.writeHead(200)
-    //     ctx.res.end(body)
-    // })
     const req = HTTP.request(options, (res) => {
         const chunks = [];
         res.on("data", (chunk) => {
