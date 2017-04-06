@@ -305,7 +305,7 @@ function _desc(raw) {
     if(!raw || raw.length === 0 || !raw[0].description || !raw[0].description.runs || raw[0].description.runs.length === 0 || !raw[0].description.runs[0].text){
         return ''
     }
-    return spiderUtils.stringHandling(raw[0].description.runs[0].text)
+    return spiderUtils.stringHandling(raw[0].description.runs[0].text, 100)
 }
 function _class(raw) {
     let str = ''
