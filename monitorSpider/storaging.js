@@ -88,7 +88,7 @@ class storage{
 							if(wrongTimes >= 3){
 								//如果五个的最后一个是错误数据，将本次与最后一个作比较，
 								// logger.debug(`${platform}_${vid}播放量错误，近五次记录为${arr}`)
-								//如果异常报错，删除上次数据，存入本次数据
+								//如果异常,报错
 								if(arr[4] <= 0.9*arr[0] || arr[4] >= arr[0]*10
 								  && playNum <= 0.9*arr[4]|| playNum >= arr[4]*10){
 									this.errStoraging(platform,"",media.bid,`${platform}平台${vid}视频播放量错误${arr}`,"playNumErr",urlDesc,vid,result)
@@ -136,9 +136,9 @@ class storage{
 		        		,"wangyi_user","mgtv_list","baiduvideo_total"],
 		        	arr2 = ["tencent_total","tencent_user","wangyi_list","v1_fans","v1_total"
 		        		,"v1_fans","huashu_vidList","baiduvideo_list","baofeng_aid"],
-		        	arr3 = ["le_total","meipai_user","meipai_total","bili_user","bili_total"
+		        	arr3 = ["le_total","meipai_user","meipai_total","ifeng_total","bili_user","bili_total"
 		        		,"tudou_user","tudou_fans","tudou_total","ku6_list","56tv_user"
-		        		,"56tv_total","weibo_user","weibo_total","ifeng_total","uctt_list"
+		        		,"56tv_total","weibo_user","weibo_total","uctt_list"
 		        		,"baijia_fan","qzone_fan","pptv_list","xinlan_list","baofeng_theAlbum","baofeng_list"],
 		        	arr4 = ["iqiyi_user"
 		        		,"iqiyi_total","iqiyi_list","tencent_list","miaopai_user","miaopai_total"
@@ -155,13 +155,13 @@ class storage{
 		        	arr8 = ["le_Expr","le_info","le_Desc","yy_total","huashu_info"
 		        		,"huashu_comment","huashu_play","budejie_user","tencent_vidTag","tencent_view"
 		        		,"yidian_user","yidian_interestId","weishi_list","qzone_info"
-		        		,"qzone_comment","v1_support","v1_comment","v1_info","baofeng_Desc","baofeng_support","baofeng_comment"],
+		        		,"qzone_comment","v1_support","v1_comment","ifeng_video","v1_info","baofeng_Desc","baofeng_support","baofeng_comment"],
 		        	arr9 = ["youku_videos","fengxing_list"
 		        		,"fengxing_info","fengxing_createTime","fengxing_comment","iqiyi_info","iqiyi_Expr","iqiyi_play","iqiyi_comment","toutiao_listInfo"
 		        		,"miaopai_info","tudou_videoTime","tudou_Expr","baomihua_Expr","baomihua_playNum","baomihua_ExprPC"
 		        		,"btime_comment","yy_dlist","yy_slist","yy_list","yy_live","56tv_info","56tv_comment","weibo_info","baijia_vidList","pptv_total"
 		        		,"pptv_info","xinlan_support","xinlan_comment","xinlan_info","liVideo_info","meipai_info","bili_info","souhu_info","souhu_commentNum","souhu_digg"
-		        		,"xiaoying_info","budejie_list","acfun_list","ifeng_video","cctv_info"]
+		        		,"xiaoying_info","budejie_list","acfun_list","cctv_info"]
 		        if(arr1.indexOf(field) > 0){
 		        	if(totalObj.times >= 3){
 		        		mSpiderClint.publish("enough",`${platform}-${urlDesc}`)

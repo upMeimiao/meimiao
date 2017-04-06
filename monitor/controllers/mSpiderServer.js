@@ -107,7 +107,7 @@ const toSendWarnEmail = (emailOptions,callback) => {
 }
 const sendWarnEmail = (platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,firstTime,lastTime)=>{
     let subject = `接口监控：${platform}平台${urlDesc}接口报警`,
-        tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td><td>错误首发时间</td><td>错误最近时间</td></tr>`,
+        tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td><td>接口首次调用时间</td><td>接口最近调用时间</td></tr>`,
         fstDate = new Date(firstTime),
         lastDate = new Date(lastTime),
         fstYear = fstDate.getFullYear(),
