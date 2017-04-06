@@ -1433,22 +1433,22 @@ const weiboJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
     }
