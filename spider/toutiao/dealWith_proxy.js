@@ -229,9 +229,13 @@ class dealWith {
                             return cb()
                         }
                         if(result.has_more === false){
+                            if(task.id == '5800750710' && index === 0){
+                                sign = false
+                                return cb()
+                            }
                             times++
                             proxyStatus = false
-                            this.core.proxy.back(proxy, false)
+                            this.core.proxy.back(proxy, true)//原来是false
                             return cb()
                         }
                         times = 0
@@ -278,9 +282,13 @@ class dealWith {
                                 return cb()
                             }
                             if(result.has_more === false){
+                                if(task.id == '5800750710' && index === 0){
+                                    sign = false
+                                    return cb()
+                                }
                                 times++
                                 proxyStatus = false
-                                this.core.proxy.back(_proxy, false)
+                                this.core.proxy.back(_proxy, true)//原来是false
                                 return cb()
                             }
                             times = 0
