@@ -43,8 +43,8 @@ class scheduler {
                 //this.emit('task_loaded',test_data)
                 const rule = new schedule.RecurrenceRule();
                 const osName = os.hostname()
-                if (osName === 'iFabledeMacBook-Pro.local') {
-                // if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
+                // if (osName === 'iFabledeMacBook-Pro.local') {
+                if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
                     this.createServer()
                 } else {
                     switch (osName){
