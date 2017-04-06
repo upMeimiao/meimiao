@@ -5,7 +5,7 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
-var events = require('events')
+const events = require('events')
 const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
@@ -126,7 +126,7 @@ const sendWarnEmail = (platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,
     if(errTimes > totalTimes){
         errTimes = totalTimes
     }
-    tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td><td>${fstTime}</td><td>${lastsTime}</td></tr>`
+    let tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td><td>${fstTime}</td><td>${lastsTime}</td></tr>`,
     content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
     emailServerLz.sendAlarm(subject,content)
