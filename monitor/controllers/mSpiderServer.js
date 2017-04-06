@@ -23,7 +23,7 @@ exports.start = () => {
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        // logger.debug("获取到msg和data",data)
+        logger.debug("获取到msg和data",data)
         let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
@@ -1433,22 +1433,22 @@ const weiboJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [1,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [1,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [1,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.6,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.8,0.8]
             judgeResults(options,emailOptions,numberArr)
             break
     }

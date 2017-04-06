@@ -4,7 +4,14 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require('../../lib/request.js')
-
+const Redis = require('ioredis')
+const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/4`,{
+    reconnectOnError: function (err) {
+        if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
+            return true
+        }
+    }
+})
 let logger,api
 class dealWith {
     constructor ( spiderCore ){
@@ -19,11 +26,16 @@ class dealWith {
         task.total = 0
         task.page = 1
         //logger.debug('---')
-        this.getUserInfo( task, ( err,result ) => {
+        mSpiderClint.flushdb((err,result)=>{
             if(err){
-                return callback(err.message)
+                return callback(err,result)
             }
-            callback(err,result)
+            this.getUserInfo( task, ( err,result ) => {
+                if(err){
+                    return callback(err.message)
+                }
+                callback(err,result)
+            })
         })
     }
 
@@ -39,7 +51,6 @@ class dealWith {
                     if(err == 'timeout'){
                         return callback(null,'timeout')
                     }
-                    logger.error('Get proxy occur error:', err.message)
                     times++
                     proxyStatus = false
                     this.core.proxy.back(proxy, false)
@@ -66,25 +77,36 @@ class dealWith {
             request.get( logger, option, ( err, result ) => {
                 this.storaging.totalStorage ("weibo",option.url,"user")
                 if(err){
-                    let errType
+                    let errType,errDesc
                     if(err.code){
+                        errDesc = err.code
                         if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
                             errType = "timeoutErr"
                         } else{
                             errType = "responseErr"
                         }
+                        this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"user")
+                    } else if(err.status){
+                        if(500 > Number(err.status) && Number(err.status) >= 400){
+                            errType = "statusErr",
+                            errDesc = "微博user接口proxy error过多"
+                            this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"user")
+                        }else if(Number(err.status) >= 500){
+                            errType = "responseErr",
+                            errDesc = "微博user接口请求错误"
+                            this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"user")
+                        }
                     } else{
-                        errType = "responseErr"
+                        errType = "responseErr",
+                        errDesc = "response error"
+                        this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"user")
                     }
-                    //logger.error(errType)
-                    this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"user")
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
                 }
                 try{
                     result = JSON.parse(result.body)
                 } catch (e){
-                    logger.error(`json解析错误`)
                     this.storaging.errStoraging('weibo',option.url,task.id,"微博user接口json解析错误","doWithResErr","user")
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
@@ -129,18 +151,30 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("weibo",option.url,"total")
             if (err) {
-                let errType
+                let errType,errDesc
                 if(err.code){
+                    errDesc = err.code
                     if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
                         errType = "timeoutErr"
                     } else{
                         errType = "responseErr"
                     }
+                    this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"total") 
+                } else if(err.status){
+                    if(500 > Number(err.status) && Number(err.status) >= 400){
+                        errType = "statusErr",
+                        errDesc = "微博total接口proxy error过多"
+                        this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"total") 
+                    }else if(Number(err.status) >= 500){
+                        errType = "responseErr",
+                        errDesc = "微博total接口请求错误"
+                        this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"total") 
+                    }
                 } else{
-                    errType = "responseErr"
-                }
-                //logger.error(errType)
-                this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"total")   
+                    errType = "responseErr",
+                    errDesc = "response error"
+                    this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"total") 
+                }  
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
@@ -153,7 +187,6 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('weibo',option.url,task.id,"微博total接口json解析错误","doWithResErr","total")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
@@ -206,19 +239,30 @@ class dealWith {
                 request.get( logger, option, ( err, result ) => {
                     this.storaging.totalStorage ("weibo",option.url,"list")
                     if (err) {
-                        let errType
+                        let errType,errDesc
                         if(err.code){
+                            errDesc = err.code
                             if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
                                 errType = "timeoutErr"
                             } else{
                                 errType = "responseErr"
                             }
+                            this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"list")
+                        } else if(err.status){
+                            if(500 > Number(err.status) && Number(err.status) >= 400){
+                                errType = "statusErr",
+                                errDesc = "微博list接口proxy error过多"
+                                this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"list")
+                            }else if(Number(err.status) >= 500){
+                                errType = "responseErr",
+                                errDesc = "微博list接口请求错误"
+                                this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"list")
+                            }
                         } else{
-                            errType = "responseErr"
+                            errType = "responseErr",
+                            errDesc = "response error"
+                            this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"list")
                         }
-                        //logger.error(errType)
-                        this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"list")   
-                        
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -231,7 +275,6 @@ class dealWith {
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('weibo',option.url,task.id,"微博list接口json解析错误","doWithResErr","list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
@@ -360,30 +403,30 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("weibo",option.url,"info")
             if(err){
-                let errType
+                let errType,errDesc
                 if(err.code){
+                    errDesc = err.code
                     if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
                         errType = "timeoutErr"
                     } else{
                         errType = "responseErr"
                     }
-                } else{
-                    errType = "responseErr"
-                }
-                //logger.error(errType)
-                this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"info")   
-                        
-                this.core.proxy.back(proxy, false)
-                this.getProxy((err, proxy) => {
-                    if (proxy == 'timeout') {
-                        return callback(null,'抛掉当前的')
+                    this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"info") 
+                } else if(err.status){
+                    if(500 > Number(err.status) && Number(err.status) >= 400){
+                        errType = "statusErr",
+                        errDesc = "微博info接口proxy error过多"
+                        this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"info") 
+                    }else if(Number(err.status) >= 500){
+                        errType = "responseErr",
+                        errDesc = "微博info接口请求错误"
+                        this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"info") 
                     }
-                    this.getVideoInfo( task, id, proxy, callback )
-                })
-                return
-            }
-            if(!result || (result && !result.body)){
-                this.storaging.errStoraging('weibo',option.url,task.id,"微博获取info接口无返回数据","resultErr","info")
+                } else{
+                    errType = "responseErr",
+                    errDesc = "response error"
+                    this.storaging.errStoraging("weibo",option.url,task.id,errDesc,errType,"info") 
+                }    
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
@@ -396,7 +439,6 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('weibo',option.url,task.id,"微博info接口json数据解析失败","doWithResErr","info")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
