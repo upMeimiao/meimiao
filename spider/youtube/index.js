@@ -96,7 +96,7 @@ class spiderCore {
         })
         // queue.watchStuckJobs( 1000 )
         logger.trace('Queue get ready')
-        queue.process('YouTube', 100, (job,done) => {
+        queue.process('YouTube', this.settings.concurrency, (job,done) => {
             logger.trace( 'Get YouTube task!' )
             let work = job.data,
                 key = work.p + ':' + work.id
@@ -111,7 +111,7 @@ class spiderCore {
                         return done(err)
                     }
                     done(null)
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
+                    // this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total)
                     request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err )

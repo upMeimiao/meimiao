@@ -18,10 +18,10 @@
     "ip":"127.0.0.1",
     "port": 3001
   },
-  "concurrency": 7,
-  "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideos/",
-  "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
-  "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+  "concurrency": 100,
+  "sendUrl": "http://www.meimiaoip.com/index.php/Spider/video/postVideosMore/",
+  "sendFans": "http://www.meimiaoip.com/index.php/Spider/Fans/postFans",
+  "update": "http://www.meimiaoip.com/index.php/spider/videoO/postVUpdate",
   "spiderAPI": {
     "youtube": {
       "channel": "https://m.youtube.com/channel/",

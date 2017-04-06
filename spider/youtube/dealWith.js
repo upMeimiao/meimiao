@@ -73,10 +73,11 @@ class dealWith {
     channelDeal(task, fansInfo, listArg, callback){
         async.parallel({
             user: (callback) => {
-                this.sendUser(fansInfo,()=>{
-                    callback(null,'用户信息已返回')
-                })
+                // this.sendUser(fansInfo,()=>{
+                //     callback(null,'用户信息已返回')
+                // })
                 this.sendStagingUser(fansInfo)
+                callback(null,'用户信息已返回')
             },
             media: (callback) => {
                 this.getList(task, listArg, (err) => {

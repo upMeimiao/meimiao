@@ -26,7 +26,7 @@
   },
   "concurrency": 7,
   "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV/rxdebug/2015",
-  "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideos/",
+  "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideosMore/",
   "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
   "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
   "interval": 10000,

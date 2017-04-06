@@ -11,7 +11,8 @@ class sendServer {
         this.settings = settings
         logger = settings.logger
         this.onlineOption = {
-            url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
+            url: settings.sendUrl,
+            // url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
             headers: {
                 "content-type": "application/json"
             }
