@@ -36,7 +36,7 @@ class sendServer {
         this.emit('get_lists')
         setInterval(() => {
             this.emit('get_lists')
-        }, 1000)
+        }, this.settings.send_interval)
     }
     start () {
         logger.trace('启动函数')
