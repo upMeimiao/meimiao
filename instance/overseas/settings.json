@@ -1,7 +1,7 @@
 {
   "redis": {
     "port": 6379,
-    "host": "127.0.0.1",
+    "host": "r-t4n464c318a826d4.redis.singapore.rds.aliyuncs.com",
     "auth": "C19prsPjHs52CHoA0vm",
     "userDB": 0,
     "taskDB": 1,
@@ -21,5 +21,11 @@
   "concurrency": 7,
   "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideos/",
   "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
-  "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
+  "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+  "spiderAPI": {
+    "youtube": {
+      "channel": "https://m.youtube.com/channel/",
+      "info": "https://m.youtube.com/watch"
+    }
+  }
 }
