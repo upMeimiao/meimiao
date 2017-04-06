@@ -137,13 +137,14 @@ class sendServer {
             }
             if(result.errno == 0){
                 //logger.debug('online back end')
-                logger.debug('online back end',result.data)
+                logger.debug(`${newList.length}个视频 online back end`)
+                // logger.debug('online back end',result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
-            logger.debug(`${newList.length}个视频 online back end`)
+            // logger.debug(`${newList.length}个视频 online back end`)
             list = null
             newList = null
             time = null
