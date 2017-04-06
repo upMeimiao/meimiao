@@ -149,6 +149,17 @@ class dealWith {
                             task.total = 10 * index
                             sign = false
                             if(index == 0){
+                                let errType
+                                if(err.code){
+                                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
+                                        errType = "timeoutErr"
+                                    } else{
+                                        errType = "responseErr"
+                                    }
+                                } else{
+                                    errType = "responseErr"
+                                }
+                                this.storaging.errStoraging('toutiao',option.url,task.id,err.code || "error",errType,"list")
                                 return cb('failed')
                             }
                             return cb()
@@ -162,9 +173,9 @@ class dealWith {
                         this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口返回数据错误`,"resultErr","list")
                         return callback(err,result)
                     }
-                    if(result.message != "success"){
-                        this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口状态码错误${result.massage}`,"statusErr","list")
-                        return callback(result.massage)
+                    if(!result.data){
+                        this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口返回数据错误`,"resultErr","list")
+                        return callback(err,result)
                     }
                     times = 0
                     if(index == 0 && result.data.length > 0){
