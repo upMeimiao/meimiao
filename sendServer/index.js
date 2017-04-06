@@ -202,6 +202,7 @@ class sendServer {
             if(result.errno == 0){
                 // logger.debug('staging back end')
                 // logger.info(result.data)
+                logger.debug(`${list.length}个视频 staging back end`)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
