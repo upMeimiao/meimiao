@@ -151,7 +151,7 @@ class scheduler {
     origin_youtube(raw) {
         const options = {
             method : 'POST',
-            url: 'http://47.88.137.212:2888',
+            url: 'http://spider-overseas.meimiaoip.com:51905/origin/sc/',
             headers: {
                 "content-type": "application/json"
             },

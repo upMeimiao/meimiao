@@ -48,7 +48,7 @@ class spiderCore {
         const remote = query.url,
             hostname = URL.parse(remote,true).hostname,
             ctx = {req, res};
-        if(query.site && query.site === 'youtube'){
+        if(query.site && query.site === 39){
             logger.debug(remote)
             handle.youtubeHandle(ctx,remote)
             return
@@ -219,7 +219,7 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
-                _youtubeReq(ctx, remote)
+                _youtubeReq(ctx, remote, 39)
                 break
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`);
@@ -229,12 +229,12 @@ class spiderCore {
         }
     }
 }
-function _youtubeReq(ctx, remote) {
+function _youtubeReq(ctx, remote, platform) {
     const options = {
         "method": "GET",
-        "hostname": "47.88.137.212",
-        "port": 2017,
-        "path": `/?url=${encodeURIComponent(remote.replace('www.youtube.com','').replace('m.youtube.com',''))}&site=youtube`,
+        "hostname": "spider-overseas.meimiaoip.com",
+        "port": "51905",
+        "path": `/origin/bidfetcher/?url=${encodeURIComponent(remote.replace('www.youtube.com','').replace('m.youtube.com',''))}&platform=${platform}`
     }
     const req = HTTP.request(options, (res) => {
         const chunks = [];
