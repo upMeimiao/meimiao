@@ -27,6 +27,11 @@ router.route('/statusMonitor')
       next()
     })
     .get(apiController.findData)
+router.route('/changeStatus')
+    .get((req, res) => {
+        res.status(405).send()
+    })
+    .post(apiController.changeStatus)
 router.route('/alarm')
     .get((req, res) => {
         res.status(405).send()

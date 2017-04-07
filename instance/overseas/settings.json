@@ -24,6 +24,7 @@
   "sendUrl": "http://www.meimiaoip.com/index.php/Spider/video/postVideosMore/",
   "sendFans": "http://www.meimiaoip.com/index.php/Spider/Fans/postFans",
   "update": "http://www.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+  "origin_update": "http://spider-monitor.meimiaoip.com/api/changeStatus",
   "spiderAPI": {
     "youtube": {
       "channel": "https://m.youtube.com/channel/",
