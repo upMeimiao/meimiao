@@ -19,7 +19,7 @@
     "port": 3001
   },
   "concurrency": 100,
-  "send_interval": 5000,
+  "send_interval": 30000,
   "interval": 10000,
   "sendUrl": "http://www.meimiaoip.com/index.php/Spider/video/postVideosMore/",
   "sendFans": "http://www.meimiaoip.com/index.php/Spider/Fans/postFans",
