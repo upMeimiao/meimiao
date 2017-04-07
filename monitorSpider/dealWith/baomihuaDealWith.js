@@ -119,13 +119,16 @@ class dealWith {
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取视频列表接口json数据解析失败","doWithResErr","list")
                         return cb()
                     }
                     result = result.result
                     if(!result.VideoList || result.VideoList == 'null'){
                         sign = false
+                        return cb()
+                    }
+                    if(!result.allCount&&result.allCount!==0){
+                        this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花获取视频列表接口返回数据错误","resultErr","list")
                         return cb()
                     }
                     task.total = result.allCount
@@ -257,6 +260,10 @@ class dealWith {
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花Expr接口json数据解析失败","doWithResErr","Expr")
                 return callback(e)
             }
+            if(!result.result||result.result&&!result.result.item[0]){
+                this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花Expr接口返回数据错误","resultErr","Expr")
+                return callback()
+            }
             callback(null,result.result.item[0])
         })
     }
@@ -287,7 +294,6 @@ class dealWith {
             try{
                 result = eval(result.body)
             } catch (e){
-                logger.error('getExpr jsonp error')
                 this.storaging.errStoraging('baomihua',option.url,task.id,"爆米花ExprPC接口eval错误","doWithResErr","ExprPC")
                 return callback(e)
             }

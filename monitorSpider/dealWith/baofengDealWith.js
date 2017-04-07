@@ -64,6 +64,10 @@ class dealWith {
                     callback()
                 })
             }
+            if(!aid){
+                this.storaging.errStoraging('baofeng',option.url,task.id,`暴风影音获取TheAlbum接口返回数据错误`,"resultErr","TheAlbum")
+                return callback()
+            }
             this.getVidList( task, aid, (err) => {
                 if(err){
                     return callback(err)

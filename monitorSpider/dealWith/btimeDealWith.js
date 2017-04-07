@@ -65,6 +65,10 @@ class dealWith {
                 this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口返回数据为空","resultErr","user")
                 return callback(JSON.stringify(result))
             }
+            if(!result.data.fans&&result.data.fans!==0){
+                this.storaging.errStoraging('btime',option.url,task.id,"北京时间user接口返回数据为空","resultErr","user")
+                return callback(JSON.stringify(result))
+            }
             let user = {
                 platform: 15,
                 bid: task.id,
@@ -113,6 +117,10 @@ class dealWith {
                     } catch(e){
                         this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口json数据解析失败","doWithResErr","list")
                         return callback(e)
+                    }
+                    if(!result.data){
+                        this.storaging.errStoraging('btime',option.url,task.id,"北京时间list接口返回数据错误","resultErr","list")
+                        return callback()
                     }
                     let list = result.data
                     if(list.length !=0){

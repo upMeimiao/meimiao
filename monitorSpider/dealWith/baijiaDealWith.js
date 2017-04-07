@@ -64,6 +64,10 @@ class dealWith {
                 index++
                 return
             }
+            if(!dataJson || dataJson && !dataJson.app.fans_cnt && dataJson.app.fans_cnt !== 0){
+                this.storaging.errStoraging('baijia',option.url,task.id,"百家号获取fan接口返回数据错误","resultErr","fan")
+                return
+            }
             let user = {
                 bid: task.id,
                 platform: task.p,
@@ -249,7 +253,7 @@ class dealWith {
             try{
                 dataJson = JSON.parse(dataJson)
             }catch(e){
-                this.storaging.errStoraging('baijia',option.url,task.id,`百家号获取info接口json数据解析错误`,"statusErr","info")
+                this.storaging.errStoraging('baijia',option.url,task.id,`百家号获取info接口json数据解析错误`,"doWithResErr","info")
                 return callback(null,{long_t:'',a_create_time:'',playNum:''})
             }
             let time = dataJson.video ? dataJson.video.time_length : 'json' + dataJson.article.content
@@ -257,6 +261,10 @@ class dealWith {
                 long_t: this.getVidTime(time),
                 playNum: dataJson.video ? dataJson.video.playcnt : dataJson.article.read_amount
             } 
+            if(!res.playNum && res.playNum !== 0){
+                this.storaging.errStoraging('baijia',option.url,task.id,`百家号获取info接口返回数据错误`,"resultErr","info")
+                return
+            }
             callback(null,res)
         })
     }

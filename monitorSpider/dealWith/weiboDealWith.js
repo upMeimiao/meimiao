@@ -66,18 +66,6 @@ class dealWith {
             request.get( logger, option, ( err, result ) => {
                 this.storaging.totalStorage ("weibo",option.url,"user")
                 if(err){
-                    let errType
-                    if(err.code){
-                        if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
-                            errType = "timeoutErr"
-                        } else{
-                            errType = "responseErr"
-                        }
-                    } else{
-                        errType = "responseErr"
-                    }
-                    //logger.error(errType)
-                    this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"user")
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
                 }
@@ -129,18 +117,6 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("weibo",option.url,"total")
             if (err) {
-                let errType
-                if(err.code){
-                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
-                        errType = "timeoutErr"
-                    } else{
-                        errType = "responseErr"
-                    }
-                } else{
-                    errType = "responseErr"
-                }
-                //logger.error(errType)
-                this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"total")   
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {
@@ -206,19 +182,6 @@ class dealWith {
                 request.get( logger, option, ( err, result ) => {
                     this.storaging.totalStorage ("weibo",option.url,"list")
                     if (err) {
-                        let errType
-                        if(err.code){
-                            if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
-                                errType = "timeoutErr"
-                            } else{
-                                errType = "responseErr"
-                            }
-                        } else{
-                            errType = "responseErr"
-                        }
-                        //logger.error(errType)
-                        this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"list")   
-                        
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
                             if (proxy == 'timeout') {
@@ -360,19 +323,6 @@ class dealWith {
         request.get( logger, option, ( err, result ) => {
             this.storaging.totalStorage ("weibo",option.url,"info")
             if(err){
-                let errType
-                if(err.code){
-                    if(err.code == "ESOCKETTIMEDOUT" || "ETIMEDOUT"){
-                        errType = "timeoutErr"
-                    } else{
-                        errType = "responseErr"
-                    }
-                } else{
-                    errType = "responseErr"
-                }
-                //logger.error(errType)
-                this.storaging.errStoraging("weibo",option.url,task.id,err.code || "error",errType,"info")   
-                        
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
                     if (proxy == 'timeout') {

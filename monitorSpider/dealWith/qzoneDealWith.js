@@ -73,7 +73,7 @@ class dealWith {
                 this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口json数据解析失败","doWithResErr","fan")
                 return this.getFan( task, callback )
             }
-            if(!result.data.data.total){
+            if(!result.data.data.total && result.data.data.total !== 0){
                 this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取list接口返回数据错误","resultErr","fan")
                 return this.getFan( task, callback )
             }
@@ -312,7 +312,7 @@ class dealWith {
                 return callback(null,'抛掉当前的')
             }
             result = result.data.all_videolist_data[0]
-            if(!result){
+            if(!result || result && !result.singlefeed['7']){
                 this.storaging.errStoraging('qzone',option.url,task.id,"QQ空间获取info接口返回数据错误","resultErr","info")
                 return callback(null,'抛掉当前的')
             }
