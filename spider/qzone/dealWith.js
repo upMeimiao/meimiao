@@ -298,11 +298,13 @@ class dealWith {
                 logger.info(result)
                 return callback(null,'抛掉当前的')
             }
-            if(result.data == undefined){
+            if(!result.data){
                 return callback(null,'抛掉当前的')
             }
             result = result.data.all_videolist_data[0]
-            
+            if(!result || !result.singlefeed){
+                return callback(null,'抛掉当前的')
+            }
             if(result.singlefeed['7'].coverurl['0'] == undefined){
                 result.v_img = ''
             }else if(result.singlefeed['7'].coverurl['0'].url == undefined){
