@@ -296,8 +296,6 @@ class dealWith {
             comment_section = null
             media = spiderUtils.deleteProperty(media)
             // logger.debug(media)
-            this.core.debugdb.sadd(`yuotube:${task.id}`, media.aid)
-            this.core.debugdb.rpush(`yuotube:${task.id}:${new Date().getHours()}`, media.aid)
             spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
         });
