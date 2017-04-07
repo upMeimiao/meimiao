@@ -4,14 +4,6 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require('../../lib/request.js')
-const Redis = require('ioredis')
-const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/4`,{
-    reconnectOnError: function (err) {
-        if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
-            return true
-        }
-    }
-})
 let logger,api
 class dealWith {
     constructor ( spiderCore ){
@@ -25,17 +17,11 @@ class dealWith {
     weibo ( task, callback ) {
         task.total = 0
         task.page = 1
-        //logger.debug('---')
-        mSpiderClint.flushdb((err,result)=>{
+        this.getUserInfo( task, ( err,result ) => {
             if(err){
-                return callback(err,result)
+                return callback(err.message)
             }
-            this.getUserInfo( task, ( err,result ) => {
-                if(err){
-                    return callback(err.message)
-                }
-                callback(err,result)
-            })
+            callback(err,result)
         })
     }
 

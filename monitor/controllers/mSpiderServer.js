@@ -30,7 +30,7 @@ exports.start = () => {
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        logger.debug("获取到msg和data",data)
+        // logger.debug("获取到msg和data",data)
         let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
