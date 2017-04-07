@@ -84,3 +84,11 @@ exports.findData = (req, res) => {
         res.json(result)
     })
 }
+exports.changeStatus = (req, res) => {
+    redis.hmset(req.body.key, 'update', req.body.time, 'video_number', req.body.total, (err, result) => {
+        if(err){
+            return res.status(502).send()
+        }
+        res.json(result)
+    })
+}
