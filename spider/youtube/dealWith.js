@@ -202,7 +202,7 @@ class dealWith {
                         conetents = body.content.continuation_contents
                         if(conetents.continuations[0].item_type === 'previous_continuation_data'){
                             sign = false;
-                            task.total = 30 * index
+                            task.total = 30 * (index - 1) + conetents.contents.length
                         } else {
                             options.qs.itct = conetents.continuations[0].click_tracking_params
                             options.qs.ctoken = conetents.continuations[0].continuation
@@ -295,7 +295,9 @@ class dealWith {
             swfcfg = null
             comment_section = null
             media = spiderUtils.deleteProperty(media)
-            logger.debug(media)
+            // logger.debug(media)
+            this.core.debugdb.sadd(`yuotube:${task.id}`, media.aid)
+            this.core.debugdb.rpush(`yuotube:${task.id}:${new Date().getHours()}`, media.aid)
             spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
         });
