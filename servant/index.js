@@ -31,8 +31,9 @@ class spiderCore {
     }
     getHandle(req, res){
         if (req.url === '/favicon.ico' || URL.parse(req.url).pathname !== '/'){
+            logger.debug(URL.parse(req.url).pathname)
             res.writeHead(404,{'Content-Type': 'text/html;charset=utf-8'});
-            res.end('dd');
+            res.end(URL.parse(req.url).pathname);
             return
         }
         this.dispatch( req, res )
