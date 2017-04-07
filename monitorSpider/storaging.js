@@ -134,32 +134,32 @@ class storage{
 	        	totalObj.times = result.times
 	        	let arr1 = ["kuaibao_user","kuaibao_videos","ku6_user","ku6_total"
 		        		,"wangyi_user","mgtv_list","baiduvideo_total"],
-		        	arr2 = ["tencent_total","tencent_user","wangyi_list","v1_fans","v1_total"
+		        	arr2 = ["tencent_total","qzone_fan","tencent_user","wangyi_list","v1_fans","v1_total"
 		        		,"v1_fans","huashu_vidList","baiduvideo_list","baofeng_aid"],
-		        	arr3 = ["le_total","meipai_user","meipai_total","ifeng_total","bili_user","bili_total"
+		        	arr3 = ["le_total","meipai_user","weibo_user","weibo_total","meipai_total","ifeng_total","bili_user","bili_total"
 		        		,"tudou_user","tudou_fans","tudou_total","ku6_list","56tv_user"
-		        		,"56tv_total","weibo_user","weibo_total","uctt_list"
-		        		,"baijia_fan","qzone_fan","pptv_list","xinlan_list","baofeng_theAlbum","baofeng_list"],
+		        		,"56tv_total","uctt_list"
+		        		,"baijia_fan","pptv_list","xinlan_list","baofeng_theAlbum","baofeng_list"],
 		        	arr4 = ["iqiyi_user"
 		        		,"iqiyi_total","iqiyi_list","tencent_list","miaopai_user","miaopai_total"
-		        		,"souhu_user","souhu_total","kuaibao_info","kuaibao_commentNum","kuaibao_Expr"
+		        		,"souhu_user","souhu_total","qzone_list","kuaibao_info","kuaibao_commentNum","kuaibao_Expr"
 		        		,"kuaibao_play","kuaibao_field","tudou_list","btime_user","weishi_user"
-		        		,"uctt_commentNum","uctt_Desc"],
+		        		,"uctt_commentNum","uctt_Desc","weibo_list"],
 		        	arr5 = ["uctt_info","youku_user","youku_total","toutiao_user","miaopai_videos","bili_videos"
 		        		,"baomihua_list","xiaoying_total","56tv_videos","acfun_user","acfun_total"
-		        		,"weibo_list","wangyi_video","wangyi_play","qzone_list","v1_list","baiduvideo_info"],
+		        		,"wangyi_video","wangyi_play","v1_list","baiduvideo_info"],
 		        	arr6 = ["fengxing_fans","fengxing_video","meipai_videos","toutiao_list","btime_list","xiaoying_list","ifeng_list","mgtv_commentNum"
 		        		,"mgtv_like","mgtv_desc","mgtv_class","mgtv_play","mgtv_info","cctv_total","cctv_list"
 		        		,"cctv_fans","liVideo_list"],
-		        	arr7 = ["youku_info","souhu_list","baijia_info"],
+		        	arr7 = ["youku_info","souhu_list","qzone_info","baijia_info"],
 		        	arr8 = ["le_Expr","le_info","le_Desc","yy_total","huashu_info"
 		        		,"huashu_comment","huashu_play","budejie_user","tencent_vidTag","tencent_view"
-		        		,"yidian_user","yidian_interestId","weishi_list","qzone_info"
+		        		,"yidian_user","yidian_interestId","weishi_list","weibo_info"
 		        		,"qzone_comment","v1_support","v1_comment","ifeng_video","v1_info","baofeng_Desc","baofeng_support","baofeng_comment"],
 		        	arr9 = ["youku_videos","fengxing_list"
 		        		,"fengxing_info","fengxing_createTime","fengxing_comment","iqiyi_info","iqiyi_Expr","iqiyi_play","iqiyi_comment","toutiao_listInfo"
 		        		,"miaopai_info","tudou_videoTime","tudou_Expr","baomihua_Expr","baomihua_playNum","baomihua_ExprPC"
-		        		,"btime_comment","yy_dlist","yy_slist","yy_list","yy_live","56tv_info","56tv_comment","weibo_info","baijia_vidList","pptv_total"
+		        		,"btime_comment","yy_dlist","yy_slist","yy_list","yy_live","56tv_info","56tv_comment","baijia_vidList","pptv_total"
 		        		,"pptv_info","xinlan_support","xinlan_comment","xinlan_info","liVideo_info","meipai_info","bili_info","souhu_info","souhu_commentNum","souhu_digg"
 		        		,"xiaoying_info","budejie_list","acfun_list","cctv_info"]
 		        if(arr1.indexOf(field) > 0){

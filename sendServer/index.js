@@ -11,7 +11,8 @@ class sendServer {
         this.settings = settings
         logger = settings.logger
         this.onlineOption = {
-            url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
+            url: settings.sendUrl,
+            // url: "http://100.98.39.12/index.php/Spider/video/postVideosMore/",//settings.sendUrl,
             headers: {
                 "content-type": "application/json"
             }
@@ -35,7 +36,7 @@ class sendServer {
         this.emit('get_lists')
         setInterval(() => {
             this.emit('get_lists')
-        }, 1000)
+        }, this.settings.send_interval)
     }
     start () {
         logger.trace('启动函数')
@@ -136,13 +137,14 @@ class sendServer {
             }
             if(result.errno == 0){
                 //logger.debug('online back end')
-                logger.debug('online back end',result.data)
+                logger.debug(`${newList.length}个视频 online back end`)
+                // logger.debug('online back end',result.data)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)
                 //logger.error('media info: ',list)
             }
-            logger.debug(`${newList.length}个视频 online back end`)
+            // logger.debug(`${newList.length}个视频 online back end`)
             list = null
             newList = null
             time = null
@@ -202,6 +204,7 @@ class sendServer {
             if(result.errno == 0){
                 // logger.debug('staging back end')
                 // logger.info(result.data)
+                logger.debug(`${list.length}个视频 staging back end`)
             }else{
                 //logger.error('staging back error')
                 logger.error(result)

@@ -5,7 +5,7 @@ const moment = require('moment')
 const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
-var events = require('events')
+const events = require('events')
 const storageClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/6`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
@@ -30,7 +30,7 @@ exports.start = () => {
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        // logger.debug("获取到msg和data",data)
+        logger.debug("获取到msg和data",data)
         let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
@@ -133,7 +133,7 @@ const sendWarnEmail = (platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,
     if(errTimes > totalTimes){
         errTimes = totalTimes
     }
-    tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td><td>${fstTime}</td><td>${lastsTime}</td></tr>`
+    let tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td><td>${fstTime}</td><td>${lastsTime}</td></tr>`,
     content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
     emailServerLz.sendAlarm(subject,content)
@@ -1440,22 +1440,22 @@ const weiboJudgeErr = (options) => {
     switch(options.urlDesc){
         case "user":
             emailOptions.urlDesc = "user"
-            numberArr = [1,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "total":
             emailOptions.urlDesc = "total"
-            numberArr = [1,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "list":
             emailOptions.urlDesc = "list"
-            numberArr = [1,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
         case "info":
             emailOptions.urlDesc = "info"
-            numberArr = [0.6,0.3,0.3,0.5,1,0.6]
+            numberArr = [0.6,0.3,0.3,0.5,0.6,0.6]
             judgeResults(options,emailOptions,numberArr)
             break
     }

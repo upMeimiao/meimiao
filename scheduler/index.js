@@ -1,9 +1,10 @@
-const kue = require( 'kue' )
-const request = require( 'request' )
-const util = require( 'util' )
+const kue = require('kue')
+const request = require('request')
+const HTTP = require('http')
+const util = require('util')
 const os = require('os')
-const events = require( 'events' )
-const myRedis = require( '../lib/myredis.js' )
+const events = require('events')
+const myRedis = require('../lib/myredis.js')
 const schedule = require('node-schedule')
 
 let logger
@@ -42,26 +43,27 @@ class scheduler {
                 //this.emit('task_loaded',test_data)
                 const rule = new schedule.RecurrenceRule();
                 const osName = os.hostname()
-                switch (osName){
-                    case 'servant_3':
-                        rule.second = [0,10,20,30,40,50]
-                        // rule.minute = [0,2,4,6,8,10,11,12,14,16,18,20,22,24,25,26,28,30,31,32,34,36,38,40,42,44,46,48,50,52,54,56,58]
-                        break
-                    case 'iZ28ilm78mlZ':
-                        // rule.minute = [1,3,5,7,9,11,13,15,16,17,19,20,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59]
-                        rule.second = [5,15,25,35,45,55]
-                        break
-                    default:
-                        rule.second = [0,5,10,15,20,25,30,35,40,45,50,55]
-                        break
+                // if (osName === 'iFabledeMacBook-Pro.local') {
+                if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
+                    this.createServer()
+                } else {
+                    switch (osName){
+                        case 'servant_3':
+                            rule.second = [0,10,20,30,40,50]
+                            // rule.minute = [0,2,4,6,8,10,11,12,14,16,18,20,22,24,25,26,28,30,31,32,34,36,38,40,42,44,46,48,50,52,54,56,58]
+                            break
+                        case 'iZ28ilm78mlZ':
+                            // rule.minute = [1,3,5,7,9,11,13,15,16,17,19,20,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59]
+                            rule.second = [5,15,25,35,45,55]
+                            break
+                        default:
+                            rule.second = [0,5,10,15,20,25,30,35,40,45,50,55]
+                            break
+                    }
+                    const j = schedule.scheduleJob(rule, () =>{
+                        this.getTask()
+                    })
                 }
-                //rule.minute = [0,6,12,18,24,30,36,42,48,54]
-                const j = schedule.scheduleJob(rule, () =>{
-                    this.getTask()
-                })
-                // setInterval( () => {
-                //     this.getTask()
-                // }, 300000)
             }
         )
     }
@@ -84,13 +86,9 @@ class scheduler {
         })
         this.on( 'task_create', ( raw ) => {
             this.createQueue( raw )
-            // if( raw.p == 6){
-            //     this.getUserId( raw ,( err, result ) => {
-            //         this.createQueue( result )
-            //     })
-            // }else{
-            //     this.createQueue( raw )
-            // }
+        })
+        this.on('origin_youtube', (raw) => {
+            this.origin_youtube(raw)
         })
         this.on( 'redis_error', ( raw ) => {
             /**
@@ -99,6 +97,36 @@ class scheduler {
             logger.error(raw)
         })
         this.assembly()
+    }
+    createServer() {
+        const server = HTTP.createServer((req, res) => {
+            switch (req.method){
+                case 'POST':
+                    this.handle(req, res);
+                    break;
+                default:
+                    res.setHeader('Content-Type',`text/html;charset=utf-8`);
+                    res.writeHead(400);
+                    res.end();
+                    break
+            }
+        });
+        server.listen(2888, () => {
+            logger.debug(`Server running at 2888 port`);
+        })
+    }
+    handle(req, res) {
+        let postData = "",body
+        req.addListener("data", (data) => {
+            postData += data
+        })
+        req.addListener("end", () => {
+            body = JSON.parse(postData)
+            this.emit('task_check_kue', body.data)
+        })
+        res.setHeader('Content-Type',`application/json;charset=utf-8`)
+        res.writeHead(200)
+        res.end(JSON.stringify({status: 'ok'}))
     }
     getTask () {
         request.get(this.settings.url, (err,res,body) => {
@@ -120,8 +148,28 @@ class scheduler {
             this.emit('task_loaded',body)
         })
     }
-    createQueue ( raw ) {
-        if( (raw.p == 12 && (raw.id == '366570608' || raw.id == '102599789' || raw.id == '113077877' || raw.id == '120663556' || raw.id == '113077233' || raw.id == '113077988' || raw.id == '120663663' || raw.id == '120663623' || raw.id == '113077745' || raw.id == '113077370' || raw.id == '366571453' || raw.id == '120663699'))|| (raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206') || (raw.p == 1 && (raw.id == '85879440' || raw.id == '1051381206' || raw.id == '1125009518'))){
+    origin_youtube(raw) {
+        const options = {
+            method : 'POST',
+            url: 'http://spider-overseas.meimiaoip.com:51905/origin/sc/',
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                data: raw
+            })
+        }
+        request(options,(err, res, body)=>{
+            console.log(body)
+        })
+    }
+    createQueue (raw) {
+        if(Number(raw.p) === 39 && !raw.origin){
+            raw.origin = true
+            this.emit('origin_youtube', raw)
+            return
+        }
+        if((raw.p == 12 && (raw.id == '366570608' || raw.id == '102599789' || raw.id == '113077877' || raw.id == '120663556' || raw.id == '113077233' || raw.id == '113077988' || raw.id == '120663663' || raw.id == '120663623' || raw.id == '113077745' || raw.id == '113077370' || raw.id == '366571453' || raw.id == '120663699'))|| (raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206') || (raw.p == 1 && (raw.id == '85879440' || raw.id == '1051381206' || raw.id == '1125009518'))){
             return
         }
         let job = this.queue.create( raw.platform , {
@@ -171,11 +219,14 @@ class scheduler {
     //         callback(null,raw)
     //     })
     // }
-    checkKue ( raw ) {
+    checkKue (raw) {
+        if((Number(raw.p) === 39 && !raw.origin) || (Number(raw.p) === 39) && raw.first){
+            return this.emit('task_set_create',raw)
+        }
         const key = raw.p + ':' + raw.id
-        this.taskDB.hget( key, 'kue_id',(err,result)=>{
-            if( err ){
-                scheduler.emit( 'redis_error', {db: 'taskDB',action: 2})
+        this.taskDB.hget(key, 'kue_id', (err, result)=>{
+            if (err) {
+                scheduler.emit('redis_error', {db: 'taskDB',action: 2})
                 return
             }
             const url = `http://${this.settings.kue.ip}:3000/api/job/${result}`

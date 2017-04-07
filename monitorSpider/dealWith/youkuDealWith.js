@@ -263,7 +263,11 @@ class youkuDealWith {
                 return callback()
             }
             //根据已存redis内容判断body内容是否正确,正确则存入数据库，错误则记录错误
-            let videos = body.videos            // this.storaging.succStorage("youku",options.url,"info")
+            let videos = body.videos 
+            if(!videos || videos && !videos.length){
+                this.storaging.errStoraging('youku',options.url,task.id,"优酷获取视频详情接口返回数据错误","resultErr","info")
+                return callback()
+            }
             this.youkuDeal( task, videos, list, (err,result) => {
                 callback(err,result)
             })

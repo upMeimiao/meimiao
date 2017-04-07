@@ -229,7 +229,7 @@ class dealWith {
                             return cb()
                         }
                         if(result.has_more === false){
-                            if(task.id == '5800750710' && index === 0){
+                            if((task.id == '5800750710' || task.id == '51174033215') && index === 0){
                                 sign = false
                                 return cb()
                             }
@@ -282,7 +282,7 @@ class dealWith {
                                 return cb()
                             }
                             if(result.has_more === false){
-                                if(task.id == '5800750710' && index === 0){
+                                if((task.id == '5800750710' || task.id == '51174033215') && index === 0){
                                     sign = false
                                     return cb()
                                 }

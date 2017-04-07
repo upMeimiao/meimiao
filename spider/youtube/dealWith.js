@@ -73,10 +73,11 @@ class dealWith {
     channelDeal(task, fansInfo, listArg, callback){
         async.parallel({
             user: (callback) => {
-                this.sendUser(fansInfo,()=>{
-                    callback(null,'用户信息已返回')
-                })
+                // this.sendUser(fansInfo,()=>{
+                //     callback(null,'用户信息已返回')
+                // })
                 this.sendStagingUser(fansInfo)
+                callback(null,'用户信息已返回')
             },
             media: (callback) => {
                 this.getList(task, listArg, (err) => {
@@ -201,7 +202,7 @@ class dealWith {
                         conetents = body.content.continuation_contents
                         if(conetents.continuations[0].item_type === 'previous_continuation_data'){
                             sign = false;
-                            task.total = 30 * index
+                            task.total = 30 * (index - 1) + conetents.contents.length
                         } else {
                             options.qs.itct = conetents.continuations[0].click_tracking_params
                             options.qs.ctoken = conetents.continuations[0].continuation
@@ -294,7 +295,7 @@ class dealWith {
             swfcfg = null
             comment_section = null
             media = spiderUtils.deleteProperty(media)
-            logger.debug(media)
+            // logger.debug(media)
             spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
         });
@@ -304,7 +305,7 @@ function _desc(raw) {
     if(!raw || raw.length === 0 || !raw[0].description || !raw[0].description.runs || raw[0].description.runs.length === 0 || !raw[0].description.runs[0].text){
         return ''
     }
-    return spiderUtils.stringHandling(raw[0].description.runs[0].text)
+    return spiderUtils.stringHandling(raw[0].description.runs[0].text, 100)
 }
 function _class(raw) {
     let str = ''

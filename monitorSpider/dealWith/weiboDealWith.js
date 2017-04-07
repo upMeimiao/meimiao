@@ -4,7 +4,14 @@
 const moment = require('moment')
 const async = require( 'async' )
 const request = require('../../lib/request.js')
-
+const Redis = require('ioredis')
+const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/4`,{
+    reconnectOnError: function (err) {
+        if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
+            return true
+        }
+    }
+})
 let logger,api
 class dealWith {
     constructor ( spiderCore ){
@@ -19,11 +26,16 @@ class dealWith {
         task.total = 0
         task.page = 1
         //logger.debug('---')
-        this.getUserInfo( task, ( err,result ) => {
+        mSpiderClint.flushdb((err,result)=>{
             if(err){
-                return callback(err.message)
+                return callback(err,result)
             }
-            callback(err,result)
+            this.getUserInfo( task, ( err,result ) => {
+                if(err){
+                    return callback(err.message)
+                }
+                callback(err,result)
+            })
         })
     }
 
@@ -39,7 +51,6 @@ class dealWith {
                     if(err == 'timeout'){
                         return callback(null,'timeout')
                     }
-                    logger.error('Get proxy occur error:', err.message)
                     times++
                     proxyStatus = false
                     this.core.proxy.back(proxy, false)
@@ -72,7 +83,6 @@ class dealWith {
                 try{
                     result = JSON.parse(result.body)
                 } catch (e){
-                    logger.error(`json解析错误`)
                     this.storaging.errStoraging('weibo',option.url,task.id,"微博user接口json解析错误","doWithResErr","user")
                     this.core.proxy.back(proxy, false)
                     return this.getUserInfo( task, callback )
@@ -129,7 +139,6 @@ class dealWith {
             try{
                 result = JSON.parse(result.body)
             }catch (e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('weibo',option.url,task.id,"微博total接口json解析错误","doWithResErr","total")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
@@ -194,7 +203,6 @@ class dealWith {
                     try{
                         result = JSON.parse(result.body)
                     }catch (e){
-                        logger.error('json数据解析失败')
                         this.storaging.errStoraging('weibo',option.url,task.id,"微博list接口json解析错误","doWithResErr","list")
                         this.core.proxy.back(proxy, false)
                         this.getProxy((err, proxy) => {
@@ -332,21 +340,9 @@ class dealWith {
                 })
                 return
             }
-            if(!result || (result && !result.body)){
-                this.storaging.errStoraging('weibo',option.url,task.id,"微博获取info接口无返回数据","resultErr","info")
-                this.core.proxy.back(proxy, false)
-                this.getProxy((err, proxy) => {
-                    if (proxy == 'timeout') {
-                        return callback(null,'抛掉当前的')
-                    }
-                    this.getVideoInfo( task, id, proxy, callback )
-                })
-                return
-            }
             try{
                 result = JSON.parse(result.body)
             } catch(e){
-                logger.error('json数据解析失败')
                 this.storaging.errStoraging('weibo',option.url,task.id,"微博info接口json数据解析失败","doWithResErr","info")
                 this.core.proxy.back(proxy, false)
                 this.getProxy((err, proxy) => {
