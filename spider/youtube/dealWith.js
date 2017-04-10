@@ -299,8 +299,8 @@ class dealWith {
             video_main_content = null
             swfcfg = null
             comment_section = null
+            logger.debug(media.aid)
             media = spiderUtils.deleteProperty(media)
-            // logger.debug(media)
             spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
         });
