@@ -1675,9 +1675,9 @@ resolve@^1.1.6:
   dependencies:
     path-parse "^1.0.5"
 
-restc@0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/restc/-/restc-0.0.6.tgz#2430906ea3a195d0561de06405ce019cdbae47a0"
+restc@0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/restc/-/restc-0.0.7.tgz#53010185a44bd61ab4e9e5395c5aff099fda5cd4"
 
 right-align@^0.1.1:
   version "0.1.3"
