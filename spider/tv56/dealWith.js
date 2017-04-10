@@ -285,6 +285,10 @@ class dealWith {
                 logger.info('info error:',body)
                 return callback(e)
             }
+            if(body.status !== 200){
+                logger.debug(body)
+                return callback(body.statusText)
+            }
             callback(null,body.data)
         })
     }
