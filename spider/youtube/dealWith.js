@@ -275,6 +275,7 @@ class dealWith {
             try {
                 body = JSON.parse(body.replace(')]}\'',''))
             } catch (e){
+                logger.error(`info json parse:${e.message}`)
                 return callback(e.message)
             }
             // logger.debug(body)
