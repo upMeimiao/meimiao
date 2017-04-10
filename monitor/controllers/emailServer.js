@@ -13,7 +13,7 @@ const transporter= nodemailer.createTransport({
 exports.sendAlarm = (subject, content) => {
     const mailOptions = {
         from: '"常君豪" <changjunhao@meimiao.net>', // sender address
-        to: ['changjunhao@meimiao.net','zhupenghui@meimiao.net',], // list of receivers
+        to: ['changjunhao@meimiao.net','zhupenghui@meimiao.net','liuze@meimiao.net',], // list of receivers
         subject: subject, // Subject line
         text: content, // plaintext body
         html: content // html body

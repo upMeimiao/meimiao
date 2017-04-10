@@ -4,6 +4,8 @@
 const nodemailer = require('nodemailer')
 
 const transporter= nodemailer.createTransport({
+    pool: true,
+    maxConnections: 10,
     service: 'QQex', // no need to set host or port etc.
     auth: {
         user: 'liuze@meimiao.net',
