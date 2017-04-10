@@ -6,6 +6,13 @@ const logging = require( 'log4js' )
 const logger = logging.getLogger('接口监控')
 const async = require('async')
 const events = require('events')
+const storageClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/6`,{
+    reconnectOnError: function (err) {
+        if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
+            return true
+        }
+    }
+})
 const mSpiderClient = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/7`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
@@ -23,7 +30,7 @@ exports.start = () => {
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        logger.debug("获取到msg和data",data)
+        // logger.debug("获取到msg和data",data)
         let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
@@ -141,7 +148,7 @@ const getErr = (channel,platform,urlDesc) => {
         i,
         curField =`${platform}_${urlDesc}`
             // 获取当前接口对应的错误记录
-            mSpiderClient.hget(curKey,curField,(err,result) => {
+            storageClient.hget(curKey,curField,(err,result) => {
                 // logger.debug("获取当前接口对应的错误记录=",curKey,curField)
                 if(err){
                     //发生错误，恢复订阅，返回
@@ -165,7 +172,7 @@ const getErr = (channel,platform,urlDesc) => {
                 let　 errResult = result,
                       options
                 // 获取当前url对应的全部请求次数
-                mSpiderClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result) => {
+                storageClient.hget(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result) => {
                     // logger.debug("获取当前url对应的全部请求次数=",curKey,result)
                     if(err){
                         //发生错误，恢复订阅，返回
@@ -195,12 +202,12 @@ const getErr = (channel,platform,urlDesc) => {
                     }
                     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~options",options)
                     //删除本次监听的数据
-                    mSpiderClient.hdel(curKey,curField,(err,result)=>{
+                    storageClient.hdel(curKey,curField,(err,result)=>{
                         if(err){
                             return
                         }
                         // logger.debug(`key:${curKey}-field:${curField}已删除`)
-                        mSpiderClient.hdel("apiMonitor:all",`${platform}_${urlDesc}`,(err,result)=>{
+                        storageClient.hdel("apiMonitor:all",`${platform}_${urlDesc}`,(err,result)=>{
                             if(err){
                                 return
                             }

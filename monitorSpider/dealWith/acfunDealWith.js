@@ -74,8 +74,12 @@ class dealWith {
                 this.storaging.errStoraging('acfun',option.url,task.id,"acfun获取user接口json数据解析失败","doWithResErr","user")
                 return callback(e)
             }
-            let data = result.data,
-                user = {
+            let data = result.data
+            if(!data || !data.followed && data.followed !== 0){
+                this.storaging.errStoraging('acfun',option.url,task.id,"acfun获取user接口返回数据错误","resultErr","user")
+                return callback()
+            }
+            let user = {
                     platform: task.p,
                     bid: task.id,
                     fans_num: data.followed
@@ -115,6 +119,10 @@ class dealWith {
             } catch(e){
                 this.storaging.errStoraging('acfun',option.url,task.id,"acfun获取total接口json数据解析失败","doWithResErr","total")
                 return callback(e)
+            }
+            if(!result.totalcount||!result.totalpage){
+                this.storaging.errStoraging('acfun',option.url,task.id,"acfun获取total接口返回数据错误","resultErr","total")
+                return callback()
             }
             task.total = result.totalcount
             let page = result.totalpage
@@ -166,6 +174,10 @@ class dealWith {
                         return cb()
                     }
                     let list = result.contents
+                    if(!list || list && !list.length){
+                        this.storaging.errStoraging('acfun',option.url,task.id,"acfun获取list接口返回数据错误","resultErr","list")
+                        return cb()
+                    }
                     if(list){
                         this.deal( task,option.url,list, () => {
                             sign++

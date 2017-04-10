@@ -119,6 +119,10 @@ class billDealWith {
                 this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口返回数据错误","resultErr","total")
                 return callback()
             }
+            if(!result.data.count||!result.data.pages){
+                this.storaging.errStoraging('bili',option.url,task.id,"哔哩哔哩获取total接口返回数据错误","resultErr","total")
+                return callback()
+            }
             task.total = result.data.count
             // this.storaging.succStorage("bili",option.url,"total")
             this.getVideos( task, result.data.pages, () => {
