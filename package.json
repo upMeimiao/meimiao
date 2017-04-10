@@ -40,11 +40,7 @@
     "restc": "0.0.7",
     "socket.io": "^1.7.3"
   },
-  "author": {
-    "name": "Junhao",
-    "email": "changjunhao@meimiao.net",
-    "url": "http://blog.ifable.cn"
-  },
+  "author": "Front end group of Mei Miao",
   "repository": {
     "type": "git",
     "url": "http://git.meimiao.net/qiaosuan_spider/code.git"
