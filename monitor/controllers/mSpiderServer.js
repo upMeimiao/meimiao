@@ -24,13 +24,13 @@ let platform,message
 exports.start = () => {
     let  eventEmitter = new events.EventEmitter()
     mSpiderClient.subscribe("enough")
-    logger.debug("开始监听enough频道")
+    // logger.debug("开始监听enough频道")
     mSpiderClient.on("message",(channel,message)=>{
         let data = {"channel":channel,"message":message}
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        logger.debug("获取到msg和data",data)
+        // logger.debug("获取到msg和data",data)
         let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
@@ -54,7 +54,7 @@ const toSendWarnEmail = (emailOptions,callback) => {
             errTimes = emailOptions["errTimes"],
             firstTime = emailOptions["firstTime"],
             lastTime = emailOptions["lastTime"]
-            logger.debug("firstTime lastTime",firstTime,lastTime)
+            // logger.debug("firstTime lastTime",firstTime,lastTime)
         storageClient.hget("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,(err,result)=>{
             if(err){
                 return
@@ -136,12 +136,12 @@ const getErr = (channel,platform,urlDesc) => {
                 }
                 if(!result){
                     //error结果为空，删除本次total记录，恢复订阅，返回
-                    logger.debug(`暂无${platform}_${urlDesc}的错误记录`)
+                    // logger.debug(`暂无${platform}_${urlDesc}的错误记录`)
                     mSpiderClient.hdel(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result)=>{
                         if(err){
                             return
                         }
-                        logger.debug("读取error结果为空，删除本次total记录，恢复订阅")
+                        // logger.debug("读取error结果为空，删除本次total记录，恢复订阅")
                         // mSpiderClient.subscribe("enough")
                     })
                     return
@@ -184,12 +184,12 @@ const getErr = (channel,platform,urlDesc) => {
                         if(err){
                             return
                         }
-                        logger.debug(`key:${curKey}-field:${curField}已删除`)
+                        // logger.debug(`key:${curKey}-field:${curField}已删除`)
                         storageClient.hdel("apiMonitor:all",`${platform}_${urlDesc}`,(err,result)=>{
                             if(err){
                                 return
                             }
-                            logger.debug(`key:apiMonitor:all-field:${platform}_${urlDesc}已删除`)
+                            // logger.debug(`key:apiMonitor:all-field:${platform}_${urlDesc}已删除`)
                             //开始判断各平台错误几率
                             judgePlatsError(platform,options)
                         })
