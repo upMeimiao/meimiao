@@ -222,6 +222,7 @@ class dealWith {
     }
     deal(task, list, callback) {
         let index = 0
+        logger.debug(`list length: ${list.length}`)
         async.whilst(
             () => {
                 return index < list.length
@@ -299,7 +300,7 @@ class dealWith {
             video_main_content = null
             swfcfg = null
             comment_section = null
-            logger.debug(media.aid)
+            // logger.debug(media.aid)
             media = spiderUtils.deleteProperty(media)
             spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
