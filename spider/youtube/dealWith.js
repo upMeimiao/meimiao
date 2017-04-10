@@ -73,11 +73,11 @@ class dealWith {
     channelDeal(task, fansInfo, listArg, callback){
         async.parallel({
             user: (callback) => {
-                // this.sendUser(fansInfo,()=>{
-                //     callback(null,'用户信息已返回')
-                // })
+                this.sendUser(fansInfo,()=>{
+                    callback(null,'用户信息已返回')
+                })
                 this.sendStagingUser(fansInfo)
-                callback(null,'用户信息已返回')
+                // callback(null,'用户信息已返回')
             },
             media: (callback) => {
                 this.getList(task, listArg, (err) => {
@@ -222,12 +222,18 @@ class dealWith {
     }
     deal(task, list, callback) {
         let index = 0
+        // logger.debug(`list length: ${list.length}`)
         async.whilst(
             () => {
                 return index < list.length
             },
             (cb) => {
                 this.getInfo(task, list[index], (err) => {
+                    // if(err){
+                    //     return setTimeout(()=>{
+                    //         cb()
+                    //     }, 500)
+                    // }
                     index++
                     cb()
                 })
@@ -269,6 +275,7 @@ class dealWith {
             try {
                 body = JSON.parse(body.replace(')]}\'',''))
             } catch (e){
+                logger.error(`info json parse:${e.message}`)
                 return callback(e.message)
             }
             // logger.debug(body)
@@ -294,8 +301,8 @@ class dealWith {
             video_main_content = null
             swfcfg = null
             comment_section = null
+            // logger.debug(media.aid)
             media = spiderUtils.deleteProperty(media)
-            // logger.debug(media)
             spiderUtils.saveCache(this.core.cache_db, 'cache', media)
             callback()
         });
