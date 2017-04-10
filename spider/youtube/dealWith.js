@@ -229,11 +229,11 @@ class dealWith {
             },
             (cb) => {
                 this.getInfo(task, list[index], (err) => {
-                    if(err){
-                        return setTimeout(()=>{
-                            cb()
-                        }, 500)
-                    }
+                    // if(err){
+                    //     return setTimeout(()=>{
+                    //         cb()
+                    //     }, 500)
+                    // }
                     index++
                     cb()
                 })
