@@ -222,7 +222,7 @@ class dealWith {
     }
     deal(task, list, callback) {
         let index = 0
-        logger.debug(`list length: ${list.length}`)
+        // logger.debug(`list length: ${list.length}`)
         async.whilst(
             () => {
                 return index < list.length
