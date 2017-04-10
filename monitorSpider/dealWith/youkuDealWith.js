@@ -80,6 +80,13 @@ class youkuDealWith {
                 this.storaging.errStoraging("youku",options.url,task.id,"优酷获取用户信息接口json数据解析失败","doWithResErr","user")
                 return callback(e.message)
             }
+            if(body.code !== 1){
+                return callback(body.desc)
+            }
+            if(!body.data){
+                this.storaging.errStoraging('youku',options.url,task.id,body.desc,"resultErr","user")
+                return callback(true)
+            }
             let userInfo = body.data.channelOwnerInfo,
                 user = {
                     platform: 1,
@@ -130,6 +137,9 @@ class youkuDealWith {
                 // logger.debug('total error:',body)
                 return callback(e)
             }
+            if(body.code !== 1){
+                return callback(body.desc)
+            }
             let data = body.data
             if(!data){
                 this.storaging.errStoraging('youku',options.url,task.id,body.desc,"resultErr","total")
@@ -137,10 +147,10 @@ class youkuDealWith {
             }
             let total = data.total
             task.total = total
-            if(total % 20 != 0){
-                page = Math.ceil(total / 20)
+            if(total % 50 != 0){
+                page = Math.ceil(total / 50)
             }else{
-                page = total / 20
+                page = total / 50
             }
             // this.storaging.succStorage("youku",options.url,"total")
             this.youkuGetVideos(task,page, (err,result) => {
@@ -262,13 +272,11 @@ class youkuDealWith {
             if(body && body.total == 0){
                 return callback()
             }
-            //根据已存redis内容判断body内容是否正确,正确则存入数据库，错误则记录错误
-            let videos = body.videos 
-            if(!videos || videos && !videos.length){
+            if(!body.videos || body.videos && !body.videos.length){
                 this.storaging.errStoraging('youku',options.url,task.id,"优酷获取视频详情接口返回数据错误","resultErr","info")
                 return callback()
             }
-            this.youkuDeal( task, videos, list, (err,result) => {
+            this.youkuDeal( task, body.videos, list, (err,result) => {
                 callback(err,result)
             })
         })

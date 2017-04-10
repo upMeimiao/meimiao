@@ -30,31 +30,14 @@ exports.start = () => {
         eventEmitter.emit('gotMsg',data)
     })
     eventEmitter.on('gotMsg', (data) => {
-        // logger.debug("获取到msg和data",data)
+        logger.debug("获取到msg和data",data)
         let arr = data.message.split("-"),
             channel = data.channel,
             platform = arr[0],
             urlDesc = arr[1]
-        mSpiderClient.unsubscribe(channel,(err,result)=>{
-            if(err){
-                logger.debug("err",err)
-                return
-            }
-            logger.debug(`取消订阅${channel}成功，开始分析`)
-            getErr(channel,platform,urlDesc)
-        })
+        getErr(channel,platform,urlDesc)
     })
 }
-// const setWarnErrTable = (emailOptions) => {
-//     let key = `apiMonitor:warnTable:${emailOptions.hourStr}`,
-//         field = `${emailOptions.platform}_${emailOptions.urlDesc}_${emailOptions.errType}`
-//     mSpiderClient.hset(key,field,JSON.stringify(emailOptions),(err,result) => {
-//         if(err){
-//             return
-//         }
-//     })
-//     mSpiderClient.expire(key,6*60*60)
-// }
 const toSendWarnEmail = (emailOptions,callback) => {
         // logger.debug("toSendWarnEmail",emailOptions)
         let newDate = new Date(),
@@ -71,52 +54,47 @@ const toSendWarnEmail = (emailOptions,callback) => {
             errTimes = emailOptions["errTimes"],
             firstTime = emailOptions["firstTime"],
             lastTime = emailOptions["lastTime"]
-            // logger.debug("firstTime lastTime",firstTime,lastTime)
-        mSpiderClient.hget("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,(err,result)=>{
+            logger.debug("firstTime lastTime",firstTime,lastTime)
+        storageClient.hget("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,(err,result)=>{
             if(err){
-                mSpiderClient.subscribe("enough")
                 return
             }
             if(!result){
                 //没有错误记录，记录错误并发邮件
-                mSpiderClient.hset("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,time,(err,result)=>{
+                storageClient.hset("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,time,(err,result)=>{
                     if(err){
-                        mSpiderClient.subscribe("enough")
                         return
                     }
                     //发送邮件
-                    sendWarnEmail(platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,firstTime,lastTime)
+                    sendWarnEmail(emailOptions)
                 })
                 return
             }
             //有错误记录，查看错误记录时间与当前时间的间隔，间隔在半小时之内，不发,只存
             if(time - result <= 30*60*1000){
-                mSpiderClient.hset("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,time,(err,result)=>{
+                storageClient.hset("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,time,(err,result)=>{
                     if(err){
-                        mSpiderClient.subscribe("enough")
                         return
                     }
-                    mSpiderClient.subscribe("enough")
                 })
                 return
             }
             //间隔在半小时之外，存入当前，发邮件
-            mSpiderClient.hset("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,time,(err,result)=>{
+            storageClient.hset("apiMonitor:errToSand",`${platform}_${urlDesc}_${errType}`,time,(err,result)=>{
                 if(err){
-                    mSpiderClient.subscribe("enough")
                     return
                 }
                 //发送邮件
-                sendWarnEmail(platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,firstTime,lastTime)
+                sendWarnEmail(emailOptions)
             })
         })
-        mSpiderClient.expire("apiMonitor:errToSand",24*60*60)
+        storageClient.expire("apiMonitor:errToSand",24*60*60)
 }
-const sendWarnEmail = (platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,firstTime,lastTime)=>{
-    let subject = `接口监控：${platform}平台${urlDesc}接口报警`,
+const sendWarnEmail = (emailOptions)=>{
+    let subject = `接口监控：${emailOptions.platform}平台${emailOptions.urlDesc}接口报警`,
         tableHead = `<tr><td>平台</td><td>账号id</td><td>接口描述</td><td>错误类型</td><td>错误描述</td><td>错误次数</td><td>接口总请求次数</td><td>接口首次调用时间</td><td>接口最近调用时间</td></tr>`,
-        fstDate = new Date(firstTime),
-        lastDate = new Date(lastTime),
+        fstDate = new Date(emailOptions.firstTime),
+        lastDate = new Date(emailOptions.lastTime),
         fstYear = fstDate.getFullYear(),
         fstMonth = fstDate.getMonth() + 1,
         fstDay = fstDate.getDate(),
@@ -130,14 +108,14 @@ const sendWarnEmail = (platform,urlDesc,totalTimes,errTimes,errDesc,errType,bid,
         fstTime = `${fstYear}年${fstMonth}月${fstDay}日${fstHours}时${fstMinutes}分`,
         lastsTime = `${lastYear}年${lastMonth}月${lastDay}日${lastHours}时${lastMinutes}分`
         //遍历key，获取所有错误信息，发送邮件
-    if(errTimes > totalTimes){
-        errTimes = totalTimes
+    if(emailOptions.errTimes > emailOptions.totalTimes){
+        emailOptions.errTimes = emailOptions.totalTimes
     }
-    let tableBody = `<tr><td>${platform}</td><td>${bid}</td><td>${urlDesc}</td><td>${errType}</td><td>${errDesc}</td><td>${errTimes}</td><td>${totalTimes}</td><td>${fstTime}</td><td>${lastsTime}</td></tr>`,
+    let tableBody = `<tr><td>${emailOptions.platform}</td><td>${emailOptions.bid}</td><td>${emailOptions.urlDesc}</td><td>${emailOptions.errType}</td><td>${emailOptions.errDesc}</td><td>${emailOptions.errTimes}</td><td>${emailOptions.totalTimes}</td><td>${fstTime}</td><td>${lastsTime}</td></tr>`,
     content = `<style>table{border-collapse:collapse;margin:20px;}table,th,td{border: 1px solid #000;}</style><table>${tableHead}${tableBody}</table>`
     // logger.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",subject,content)
     emailServerLz.sendAlarm(subject,content)
-    mSpiderClient.subscribe("enough")
+    emailOptions = null
 }
 const getErr = (channel,platform,urlDesc) => {
     // logger.debug("进入getErr",platform,urlDesc)
@@ -153,18 +131,18 @@ const getErr = (channel,platform,urlDesc) => {
                 if(err){
                     //发生错误，恢复订阅，返回
                     logger.debug("读取redis发生错误")
-                    mSpiderClient.subscribe("enough")
+                    // mSpiderClient.subscribe("enough")
                     return 
                 }
                 if(!result){
                     //error结果为空，删除本次total记录，恢复订阅，返回
-                    // logger.debug(`暂无${platform}_${urlDesc}的错误记录`)
+                    logger.debug(`暂无${platform}_${urlDesc}的错误记录`)
                     mSpiderClient.hdel(`apiMonitor:all`,`${platform}_${urlDesc}`,(err,result)=>{
                         if(err){
                             return
                         }
-                        // logger.debug("读取error结果为空，删除本次total记录，恢复订阅")
-                        mSpiderClient.subscribe("enough")
+                        logger.debug("读取error结果为空，删除本次total记录，恢复订阅")
+                        // mSpiderClient.subscribe("enough")
                     })
                     return
                 }
@@ -177,18 +155,18 @@ const getErr = (channel,platform,urlDesc) => {
                     if(err){
                         //发生错误，恢复订阅，返回
                         logger.debug("读取redis发生错误")
-                        mSpiderClient.subscribe("enough")
+                        // mSpiderClient.subscribe("enough")
                         return
                     }
                     if(!result){
                         //无结果，恢复订阅，返回
-                        // logger.debug(`暂无${platform}:${urlDesc}的请求记录`)
-                        mSpiderClient.subscribe("enough")
+                        logger.debug(`暂无${platform}:${urlDesc}的请求记录`)
+                        // mSpiderClient.subscribe("enough")
                         return
                     }
                     result = JSON.parse(result)
                     if(result.times <= 1){
-                        mSpiderClient.subscribe("enough")
+                        // mSpiderClient.subscribe("enough")
                         return
                     }
                     // logger.debug(result,result.times)
@@ -206,12 +184,12 @@ const getErr = (channel,platform,urlDesc) => {
                         if(err){
                             return
                         }
-                        // logger.debug(`key:${curKey}-field:${curField}已删除`)
+                        logger.debug(`key:${curKey}-field:${curField}已删除`)
                         storageClient.hdel("apiMonitor:all",`${platform}_${urlDesc}`,(err,result)=>{
                             if(err){
                                 return
                             }
-                            // logger.debug(`key:apiMonitor:all-field:${platform}_${urlDesc}已删除`)
+                            logger.debug(`key:apiMonitor:all-field:${platform}_${urlDesc}已删除`)
                             //开始判断各平台错误几率
                             judgePlatsError(platform,options)
                         })
@@ -327,7 +305,7 @@ const judgePlatsError = (platform,options) => {
             break
         case "huashu":
             huashuJudgeErr(options)
-                            break
+            break
         case "baofeng":
             baofengJudgeErr(options)
             break
@@ -349,17 +327,17 @@ const judgeResults = (options,emailOptions,numberArr) => {
         nowTime = nowDate.getTime()
     // logger.debug("开始分析错误并将出错比例存入redis")
     // if(resultObj.responseErr.times){
-    //     mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_responseErr_${nowTime}`,resultObj.responseErr.times+"/"+options.totalResult)
+    //     storageClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_responseErr_${nowTime}`,resultObj.responseErr.times+"/"+options.totalResult)
     // }else if(resultObj.resultErr.times){
-    //     mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_resultErr_${nowTime}`,resultObj.resultErr.times+"/"+options.totalResult)
+    //     storageClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_resultErr_${nowTime}`,resultObj.resultErr.times+"/"+options.totalResult)
     // }else if(resultObj.doWithResErr.times){
-    //     mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_doWithResErr_${nowTime}`,resultObj.doWithResErr.times+"/"+options.totalResult)
+    //     storageClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_doWithResErr_${nowTime}`,resultObj.doWithResErr.times+"/"+options.totalResult)
     // }else if(resultObj.domBasedErr.times){
-    //     mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_domBasedErr_${nowTime}`,resultObj.domBasedErr.times+"/"+options.totalResult)
+    //     storageClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_domBasedErr_${nowTime}`,resultObj.domBasedErr.times+"/"+options.totalResult)
     // }else if(resultObj.timeoutErr.times){
-    //     mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_timeoutErr_${nowTime}`,resultObj.timeoutErr.times+"/"+options.totalResult)
+    //     storageClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_timeoutErr_${nowTime}`,resultObj.timeoutErr.times+"/"+options.totalResult)
     // }else if(resultObj.statusErr.times){
-    //     mSpiderClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_statusErr_${nowTime}`,resultObj.statusErr.times+"/"+options.totalResult)
+    //     storageClient.hset(`apiMonitor:errTable`,`${emailOptions.platform}_${options.urlDesc}_statusErr_${nowTime}`,resultObj.statusErr.times+"/"+options.totalResult)
     // }
     if(resultObj.responseErr.times 
         && resultObj.responseErr.times/(+options.totalResult) > numberArr[0]){
@@ -427,9 +405,11 @@ const judgeResults = (options,emailOptions,numberArr) => {
         return
     } else{
         // logger.debug("当前错误未达到报错标准，恢复对enough的监听")
-        mSpiderClient.subscribe("enough")
+        // mSpiderClient.subscribe("enough")
         return
     }
+    options = null
+    numberArr = []
 }
 /*
     // const getLiVideoError = () => {
