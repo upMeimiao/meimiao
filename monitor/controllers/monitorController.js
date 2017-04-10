@@ -41,13 +41,13 @@ const _getInactiveTask = () => {
         for (let [index, elem] of body.entries()) {
             if(moment().valueOf() - elem.created_at < 30 * 60 * 1000){
                 if(moment().minute() > 30){
-                    if(moment(elem.created_at).minute() > 30){
+                    if(moment(Number(elem.created_at)).minute() > 30){
                         inactiveTask.push({
                             p: Number(elem.data.p)
                         })
                     }
                 } else {
-                    if(moment(elem.created_at).minute() < 30){
+                    if(moment(Number(elem.created_at)).minute() < 30){
                         inactiveTask.push({
                             p: Number(elem.data.p)
                         })
