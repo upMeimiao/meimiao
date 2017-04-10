@@ -164,14 +164,14 @@ class dealWith {
             page,
             option,
             list
-        if(total % 25 == 0){
+        if(total % 25 === 0){
             page = total / 25
         }else{
             page = Math.ceil(total / 25)
         }
         async.whilst(
             () => {
-                return sign <= page
+                return sign <= Math.min(page, 400)
             },
             (cb) => {
                 logger.debug("开始获取第"+ sign +"页视频列表")
@@ -209,10 +209,10 @@ class dealWith {
         )
     }
     deal ( task, list, callback ) {
-        let index = 0
+        let index = 0,length = list.length
         async.whilst(
             () => {
-                return index < list.length
+                return index < length
             },
             (cb) => {
                 this.getInfo(task,list[index], (err) => {
@@ -227,34 +227,33 @@ class dealWith {
     }
     getInfo ( task, data, callback ) {
         async.parallel([
-                (cb) => {
-                    this.getView(data.vid, (err,num) => {
-                        if(err){
-                            cb(err)
-                        }else {
-                            cb(null,num)
-                        }
-                    })
-                },
-                (cb) => {
-                    this.getComment(data.vid, (err,num) => {
-                        if(err){
-                            cb(err)
-                        }else {
-                            cb(null,num)
-                        }
-                    })
-                },
-                (cb) => {
-                    this.getVidTag(data.vid, (err,tags) => {
-                        if(err){
-                            cb(err)
-                        }else {
-                            cb(null,tags)
-                        }
-                    })
-                }
-            ],
+            (cb) => {
+                this.getView(data.vid, (err,num) => {
+                    if(err){
+                        cb(err)
+                    }else {
+                        cb(null,num)
+                    }
+                })
+            },
+            (cb) => {
+                this.getComment(data.vid, (err,num) => {
+                    if(err){
+                        cb(err)
+                    }else {
+                        cb(null,num)
+                    }
+                })
+            },
+            (cb) => {
+                this.getVidTag(data.vid, (err,tags) => {
+                    if(err){
+                        cb(err)
+                    }else {
+                        cb(null,tags)
+                    }
+                })
+            }],
             (err,result) => {
                 if(err){
                     return callback(err)
@@ -268,11 +267,11 @@ class dealWith {
                     desc: data.desc.substr(0,100).replace(/"/g,''),
                     play_num: result[0],
                     comment_num: result[1],
-                    a_create_time: this.time(data.uploadtime),
+                    a_create_time: time(data.uploadtime),
                     // 新加字段
                     v_img: data.pic,
-                    long_t: this.long_t(data.duration),
-                    tag: this.tags(result[2])
+                    long_t: long_t(data.duration),
+                    tag: tags(result[2])
                 }
                 if(!media.comment_num){
                     delete media.comment_num
@@ -392,36 +391,36 @@ class dealWith {
             callback(null,tagStr)
         })
     }
-    time ( string ) {
-        if(string.indexOf("-") != -1){
-            return moment(string).unix()
-        }
-        if(string.indexOf("小时") != -1){
-            string = string.substring(0, string.indexOf("小时"))
-            return moment(moment().subtract(Number(string), 'h').format("YYYY-MM-DD")).unix()
-        }
-        if(string.indexOf("分钟") != -1){
-            return moment(moment().format("YYYY-MM-DD")).unix()
-        }
+}
+function tags(raw) {
+    if(typeof raw === 'string'){
+        return raw.replace(/\s+/g,',').replace(/"/g,'').replace(/\[/g,'').replace(/\]/g,'')
     }
-    long_t( time ){
-        let timeArr = time.split(':'),
-            long_t  = ''
-        if(timeArr.length == 2){
-            long_t = moment.duration( `00:${time}`).asSeconds()
-        }else if(timeArr.length == 3){
-            long_t = moment.duration(time).asSeconds()
-        }
-        return long_t
+    if(Object.prototype.toString.call(raw) === '[object Array]'){
+        return raw.join(',')
     }
-    tags( raw ){
-        if(typeof raw == 'string'){
-            return raw.replace(/\s+/g,',').replace(/"/g,'').replace(/\[/g,'').replace(/\]/g,'')
-        }
-        if(Object.prototype.toString.call(raw) === '[object Array]'){
-            return raw.join(',')
-        }
-        return ''
+    return ''
+}
+function long_t(time) {
+    let timeArr = time.split(':'),
+        long_t  = ''
+    if(timeArr.length === 2){
+        long_t = moment.duration( `00:${time}`).asSeconds()
+    }else if(timeArr.length === 3){
+        long_t = moment.duration(time).asSeconds()
+    }
+    return long_t
+}
+function time(string) {
+    if(string.indexOf("-") !== -1){
+        return moment(string).unix()
+    }
+    if(string.indexOf("小时") !== -1){
+        string = string.substring(0, string.indexOf("小时"))
+        return moment(moment().subtract(Number(string), 'h').format("YYYY-MM-DD")).unix()
+    }
+    if(string.indexOf("分钟") !== -1){
+        return moment(moment().format("YYYY-MM-DD")).unix()
     }
 }
 module.exports = dealWith
