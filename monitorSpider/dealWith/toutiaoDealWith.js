@@ -173,15 +173,11 @@ class dealWith {
                         this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口返回数据错误`,"resultErr","list")
                         return callback(err,result)
                     }
-                    if(!result.data){
-                        this.storaging.errStoraging('toutiao',option.url,task.id,`今日头条获取list接口返回数据错误`,"resultErr","list")
-                        return callback(err,result)
-                    }
                     times = 0
                     if(index == 0 && result.data.length > 0){
                         task.uid = result.data[0].creator_uid
                     }
-                    if(!result.data || result.data.length == 0 || index > 500){
+                    if(!result.data || result.data.length == 0){
                         task.total = 10 * index
                         sign = false
                         return cb()
