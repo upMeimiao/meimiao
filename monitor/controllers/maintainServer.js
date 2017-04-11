@@ -3,6 +3,7 @@ const moment = require('moment')
 const kue = require('kue')
 const Redis = require('ioredis')
 const request = require('request')
+const platformMap = require('./platform')
 
 const redis = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/1`,{
     reconnectOnError: function (err) {
@@ -53,9 +54,9 @@ const failedJobRemove = (num) => {
 const monitorBanned = () => {
     redis.zrangebyscore('channel:banned', '-1', '(0', (err, result) => {
         if(err || !result || result.length === 0)return
-        let key = [],content=''
+        let key = [], content = ''
         for (let [index, elem] of result.entries()) {
-            content += `<p>平台：${elem.split('_')[0]}，ID：${elem.split('_')[1]}</p>`
+            content += `<p>平台：${platformMap.get(Number(elem.split('_')[0]))}，ID：${elem.split('_')[1]}，用户名：${elem.split('_')[2]}</p>`
             key[index] = ['zadd', 'channel:banned', 1, elem]
         }
         redis.pipeline(key).exec()

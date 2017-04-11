@@ -150,7 +150,7 @@ class dealWith {
             }
             if(result.status !== 'success'){
                 if(result.code === 41){
-                    spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id)
+                    spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id + '_' + task.name)
                     return callback()
                 }
                 return callback(`code:${result.code},reason:${result.reason}`)
