@@ -48,10 +48,9 @@ class dealWith {
             }
             async.parallel({
                 user: (callback) => {
-                    /*this.sendUser( user,(err,result) => {
+                    this.sendUser( user,(err,result) => {
                         callback(null,'用户信息已返回')
-                    })*/
-                    callback(null,'用户信息已返回')
+                    })
                     this.sendStagingUser(user)
                 },
                 media: (callback) => {
@@ -127,6 +126,9 @@ class dealWith {
             own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
         },
             list = null
+        if(page == 0){
+            page = 1;
+        }
         async.whilst(
             () => {
                 return index <= Math.min(page,500)
@@ -185,7 +187,6 @@ class dealWith {
             ua: 3,
             own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
         },media;
-
         request.get(logger, option, (err, result) => {
             if(err){
                 return callback(err)
