@@ -27,10 +27,10 @@ exports.sendAlarm = (subject, content) => {
 exports.sendEmail = (req, res) => {
     const mailOptions = {
         from: '"常君豪" <changjunhao@meimiao.net>', // sender address
-        to: 'changjunhao@meimiao.net', // list of receivers
-        subject: '报警', // Subject line
-        text: '测试', // plaintext body
-        html: `<b>测试</b>` // html body
+        to: ['changjunhao@meimiao.net','luoqibu@meimiao.net','limojin@meimiao.net'], // list of receivers
+        subject: req.body.subject, // Subject line
+        text: req.body.content, // plaintext body
+        html: req.body.content // html body
     }
 
 // send mail with defined transport object
