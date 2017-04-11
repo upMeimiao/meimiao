@@ -48,9 +48,10 @@ class dealWith {
             }
             async.parallel({
                 user: (callback) => {
-                    this.sendUser( user,(err,result) => {
+                    /*this.sendUser( user,(err,result) => {
                         callback(null,'用户信息已返回')
-                    })
+                    })*/
+                    callback(null,'用户信息已返回')
                     this.sendStagingUser(user)
                 },
                 media: (callback) => {
@@ -183,7 +184,8 @@ class dealWith {
             url: this.settings.spiderAPI.ifeng.info + video.memberItem.guid,
             ua: 3,
             own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
-        },media
+        },media;
+
         request.get(logger, option, (err, result) => {
             if(err){
                 return callback(err)
@@ -195,24 +197,79 @@ class dealWith {
                 logger.error('json error: ',result.body)
                 return callback(err)
             }
-            media = {
-                author: task.name,
-                platform: task.p,
-                bid: task.id,
-                aid: result.itemId,
-                title: result.title ? result.title.substr(0,100).replace(/"/g,'') : 'btwk_caihongip',
-                desc: result.abstractDesc ? result.abstractDesc.substr(0,100).replace(/"/g,'') : (result.name ? result.name.substr(0,100).replace(/"/g,'') : ''),
-                play_num: result.playTime,
-                comment_num: result.commentNo,
-                a_create_time: moment(result.createDate).format('X'),
-                v_img: result.image,
-                long_t: result.duration,
-                tag: video.tag,
-                v_url: video.memberItem.pcUrl
+            async.parallel(
+                [
+                    (cb) => {
+                        option.url = `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${video.memberItem.guid}ding&format=js&serverid=1&var=ding`;
+                        option.own_ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36';
+                        this._ding(option,(err, result) => {
+                            cb(result)
+                        })
+                    },
+                    (cb) => {
+                        option.url = `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${video.memberItem.guid}cai&format=js&serverid=1&var=cai`;
+                        option.own_ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36';
+                        this._cai(option,(err, result) => {
+                            cb(result)
+                        })
+                    }
+                ],
+                (err, data) => {
+                    media = {
+                        author: task.name,
+                        platform: task.p,
+                        bid: task.id,
+                        aid: result.itemId,
+                        title: result.title ? result.title.substr(0,100).replace(/"/g,'') : 'btwk_caihongip',
+                        desc: result.abstractDesc ? result.abstractDesc.substr(0,100).replace(/"/g,'') : (result.name ? result.name.substr(0,100).replace(/"/g,'') : ''),
+                        play_num: result.playTime,
+                        comment_num: result.commentNo,
+                        a_create_time: moment(result.createDate).format('X'),
+                        v_img: result.image,
+                        long_t: result.duration,
+                        tag: video.tag,
+                        support: data[0],
+                        step: data[1],
+                        v_url: video.memberItem.pcUrl
+                    };
+                    spiderUtils.saveCache( this.core.cache_db, 'cache', media );
+                    callback()
+                }
+            );
+
+        })
+    }
+    _ding( option, callback ){
+        request.get(logger, option, (err, result) => {
+            if(err){
+                logger.debug('凤凰视频顶量请求失败信息',err)
+                return callback(null,'')
             }
-            spiderUtils.saveCache( this.core.cache_db, 'cache', media )
-            callback()
+            result = result.body.replace('var ding=','').replace(';','');
+            try {
+                result = JSON.parse(result)
+            }catch (e){
+                logger.debug('凤凰视频顶量解析失败',result);
+                return callback(null,'')
+            }
+            return callback(null,result.browse);
+        })
+    }
+    _cai( option, callback ){
+        request.get(logger, option, (err, result) => {
+            if(err){
+                logger.debug('凤凰视频顶量请求失败信息',err)
+                return callback(null,'')
+            }
+            result = result.body.replace('var cai=','').replace(';','');
+            try {
+                result = JSON.parse(result)
+            }catch (e){
+                logger.debug('凤凰视频顶量解析失败');
+                return callback(null,'')
+            }
+            return callback(null,result.browse);
         })
     }
 }
-module.exports = dealWith
+module.exports = dealWith;
