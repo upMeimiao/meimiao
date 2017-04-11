@@ -204,7 +204,7 @@ class dealWith {
                 video = list[index]
                 this.getInfo( video.channel.scid, (err, result) => {
                     data = {
-                        author: video.channel.ext.owner.nick,
+                        author: task.name,
                         platform: 7,
                         bid: task.id,
                         aid:video.channel.scid,
