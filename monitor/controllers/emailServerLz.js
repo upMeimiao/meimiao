@@ -8,16 +8,14 @@ const transporter= nodemailer.createTransport({
     maxConnections: 10,
     service: 'QQex', // no need to set host or port etc.
     auth: {
-        user: 'liuze@meimiao.net',
-        pass: 'Lz0004202215'
+        user: 'changjunhao@meimiao.net',
+        pass: 'Verona:2319446'
     }
 })
 exports.sendAlarm = (subject, content) => {
     const mailOptions = {
-        from: '"刘泽" <liuze@meimiao.net>', // sender address
-        to: ["liuze@meimiao.net",
-            "changjunhao@meimiao.net",
-            "zhupenghui@meimiao.net","luoqibu@meimiao.net"], // list of receivers
+        from: '"常君豪" <changjunhao@meimiao.net>',
+        to: ["changjunhao@meimiao.net", "zhupenghui@meimiao.net","luoqibu@meimiao.net"], // list of receivers
         subject: subject, // Subject line
         text: content, // plaintext body
         html: content // html body
@@ -26,22 +24,5 @@ exports.sendAlarm = (subject, content) => {
         if(error){
             console.log("error in sending Email",error)
         }
-    })
-}
-exports.sendEmail = (req, res) => {
-    const mailOptions = {
-        from: '"刘泽" <liuze@meimiao.net>', // sender address
-        to: 'liuze@meimiao.net', // list of receivers
-        subject: '报警', // Subject line
-        text: '测试', // plaintext body
-        html: `<b>测试</b>` // html body
-    }
-
-// send mail with defined transport object
-    transporter.sendMail(mailOptions, (error, info) => {
-        if(error){
-            return res.status(500).json({error: error})
-        }
-        res.json({message: info.response})
     })
 }
