@@ -141,20 +141,20 @@ class dealWith {
         }
         request.get( logger, option, (  err, result ) => {
             if(err){
-                return callback(err)
+                return callback(err.message)
             }
             try{
-                result = JSON.parse( result.body )
+                result = JSON.parse(result.body)
             } catch (e){
-                return callback(e)
+                return callback(e.message)
             }
-            if( result.status != 'success' ){
-                return callback(result.status)
+            if(result.status !== 'success'){
+                return callback(`code:${result.code},reason:${result.reason}`)
             }
-            if( result.result.length == 0){
+            if(result.result.length === 0){
                 return callback( true )
             }
-            if(result.result[0].ctype == 'interest_navigation'){
+            if(result.result[0].ctype === 'interest_navigation'){
                 if( !result.result[0].columns || result.result[0].columns.length < 2){
                     return callback( true )
                 }

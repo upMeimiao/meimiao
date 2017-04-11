@@ -158,14 +158,14 @@ class dealWith {
         }
         request.get(logger, option, (err,result) => {
             if (err) {
-                return callback(err)
+                return callback(err.message)
             }
             try {
                 result = JSON.parse(result.body)
             } catch (e) {
                 logger.error('json数据解析失败')
                 logger.error(result)
-                return callback(e)
+                return callback(e.message)
             }
             if(result.total !== 0){
                 task.total = result.total * 42
