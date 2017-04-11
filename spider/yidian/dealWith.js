@@ -149,6 +149,10 @@ class dealWith {
                 return callback(e.message)
             }
             if(result.status !== 'success'){
+                if(result.code === 41){
+                    spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id)
+                    return callback()
+                }
                 return callback(`code:${result.code},reason:${result.reason}`)
             }
             if(result.result.length === 0){
@@ -238,9 +242,9 @@ class dealWith {
                     aid: video.itemid ? video.itemid : video.docid,
                     title: video.title ? video.title.substr(0,100).replace(/"/g,'') : 'btwk_caihongip',
                     desc: video.summary ? video.summary.substr(0,100).replace(/"/g,'') : '',
-                    class: this._class(video),
-                    tag: this._tag(video),
-                    v_img: this._v_img(video),
+                    class: _class(video),
+                    tag: _tag(video),
+                    v_img: _v_img(video),
                     long_t: video.duration ? Math.round(video.duration) : null,
                     save_num: video.like ? video.like : 0,
                     comment_num: video.comment_count ? video.comment_count : 0,
@@ -248,19 +252,8 @@ class dealWith {
                     step: video.down ? video.down: 0,
                     a_create_time: moment(video.date).unix()
                 }
-                if(!media.long_t){
-                    delete media.long_t
-                }
-                if(!media.tag){
-                    delete media.tag
-                }
-                if(!media.class){
-                    delete media.class
-                }
-                if(!media.v_img){
-                    delete media.v_img
-                }
-                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
+                media = spiderUtils.deleteProperty(media)
+                spiderUtils.saveCache(this.core.cache_db, 'cache', media)
                 index++
                 cb()
             },
@@ -269,42 +262,41 @@ class dealWith {
             }
         )
     }
-    _v_img ( raw ){
-        if( !raw ){
-            return null
-        }
-        if( raw.image ){
-            return raw.image
-        }
-        if( raw.image_urls && raw.image_urls.length != 0 ){
-            return raw.image_urls[0]
-        }
+}
+function _v_img(raw){
+    if (!raw) {
         return null
     }
-    _tag ( raw ){
-        if( !raw ){
-            return null
-        }
-        if( raw.keywords && raw.keywords.length != 0 ) {
-            return raw.keywords.join(',')
-        }
+    if (raw.image) {
+        return raw.image
+    }
+    if (raw.image_urls && raw.image_urls.length !== 0) {
+        return raw.image_urls[0]
+    }
+    return null
+}
+function _tag(raw){
+    if (!raw) {
         return null
     }
-    _class ( raw ){
-        if( !raw ){
-            return null
-        }
-        if( !raw.vsct ){
-            return null
-        }
-        let vsctStr
-        if( typeof raw.vsct == 'string' ){
-            vsctStr = raw.vsct.replace(/\//g,',')
-        }
-        if( Object.prototype.toString.call(raw.vsct) === '[object Array]' && raw.length != 0 ){
-            vsctStr = raw.vsct[0].replace(/vsct\/\//g,'').replace(/\//g,',')
-        }
-        return vsctStr
+    if (raw.keywords && raw.keywords.length !== 0) {
+        return raw.keywords.join(',')
     }
+    return null
+}
+function _class(raw){
+    if (!raw) {
+        return null
+    }
+    if (!raw.vsct) {
+        return null
+    }
+    if (typeof raw.vsct === 'string') {
+        return raw.vsct.replace(/\//g,',')
+    }
+    if (Object.prototype.toString.call(raw.vsct) === '[object Array]' && raw.length !== 0) {
+        return raw.vsct[0].replace(/vsct\/\//g,'').replace(/\//g,',')
+    }
+    return null
 }
 module.exports = dealWith

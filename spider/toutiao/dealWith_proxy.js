@@ -229,7 +229,8 @@ class dealWith {
                             return cb()
                         }
                         if(result.has_more === false){
-                            if((task.id == '5800750710' || task.id == '51174033215') && index === 0){
+                            if(index === 0){
+                                spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id)
                                 sign = false
                                 return cb()
                             }
@@ -282,7 +283,8 @@ class dealWith {
                                 return cb()
                             }
                             if(result.has_more === false){
-                                if((task.id == '5800750710' || task.id == '51174033215') && index === 0){
+                                if(index === 0){
+                                    spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id)
                                     sign = false
                                     return cb()
                                 }
