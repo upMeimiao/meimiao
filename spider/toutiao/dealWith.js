@@ -256,8 +256,7 @@ class dealWith {
         )
     }
     getInfo(task, video, callback) {
-        const media = {}
-        let vid
+        let media = {},vid
         if(video.str_item_id){
             vid = video.str_item_id
         }else if(video.app_url){
@@ -278,25 +277,12 @@ class dealWith {
         media.support = video.digg_count || null
         media.step = video.bury_count || null
         media.save_num = video.repin_count || null
+        media.forward_num = video.share_count || null
         media.a_create_time = video.publish_time
         media.v_img = this._v_img(video)
         media.long_t = this.long_t(video.video_duration_str)
         media.tag = this._tag(video.label)
-        if(!media.support){
-            delete media.support
-        }
-        if(!media.step){
-            delete media.step
-        }
-        if(!media.save_num){
-            delete media.save_num
-        }
-        if(!media.long_t){
-            delete media.long_t
-        }
-        if(!media.v_img){
-            delete media.v_img
-        }
+        media = spiderUtils.deleteProperty(media)
         spiderUtils.saveCache( this.core.cache_db, 'cache', media )
         callback()
     }
