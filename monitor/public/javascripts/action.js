@@ -184,20 +184,20 @@ const vm = new Vue({
         refresh: function () {
             this.init()
             this.loading = true
-            this.$http.get('http://spider-monitor.meimiaoip.com/api/statusMonitor?p='+ this.radio).then((response) => {
-                const result = response.body,
-                    infos = result.infos
-                if(infos.length !== result.count){
-                    console.log('获取过程有错误')
-                }
-                this.items = this.bingo = infos
-                this.loading = false
-                this.$message({
-                    message: `获取 ${platformMap.get(this.radio)} ${this.items.length} 个IP`,
-                    type: 'success',
-                    duration: 5000
-                })
-            }, (response) => {
+            fetch('http://spider-monitor.meimiaoip.com/api/statusMonitor?p='+ this.radio).then(response => response.json())
+                .then(data => {
+                    const infos = data.infos
+                    if(infos.length !== data.count){
+                        console.log('获取过程有错误')
+                    }
+                    this.items = this.bingo = infos
+                    this.loading = false
+                    this.$message({
+                        message: `获取 ${platformMap.get(this.radio)} ${this.items.length} 个IP`,
+                        type: 'success',
+                        duration: 5000
+                    })
+                }).catch(e => {
                 this.loading = false
                 this.items = this.bingo = []
                 this.$message({
@@ -205,7 +205,6 @@ const vm = new Vue({
                     type: 'error',
                     duration: 10000
                 })
-                // error callback
             })
         }
     },
@@ -219,17 +218,16 @@ const vm = new Vue({
                 duration: 360000
             })
         })
-        this.$http.get('http://spider-monitor.meimiaoip.com/api/statusMonitor').then((response) => {
-            this.infos = response.body.infos
+        let worker = new Worker('./javascripts/worker.js')
+        worker.onmessage = (event) => {
+            this.infos = event.data
             this.$notify({
                 title: 'IP发现消息',
                 message: `全平台共${this.infos.length}个IP`,
-                type: 'success',
-                duration: 360000
+                duration: 360000,
+                type: 'success'
             })
-        }, (response) => {
-            // error callback
-        })
+        }
     },
     mounted: function () {
 
