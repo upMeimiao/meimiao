@@ -221,11 +221,11 @@ const vm = new Vue({
         })
         this.$http.get('http://spider-monitor.meimiaoip.com/api/statusMonitor').then((response) => {
             this.infos = response.body.infos
-            this.$notify.info({
+            this.$notify({
                 title: 'IP发现消息',
                 message: `全平台共${this.infos.length}个IP`,
-                duration: 360000,
-                type: 'success'
+                type: 'success',
+                duration: 360000
             })
         }, (response) => {
             // error callback
