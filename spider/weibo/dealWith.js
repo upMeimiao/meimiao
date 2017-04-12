@@ -75,6 +75,10 @@ class dealWith {
                     this.core.proxy.back(proxy, false);
                     return this.getUserInfo( task, callback )
                 }
+                if(result.errno && result.errno === 20003){
+                    spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id + '_' + task.name);
+                    return callback()
+                }
                 let user = {
                     platform: task.p,
                     bid: task.id,
