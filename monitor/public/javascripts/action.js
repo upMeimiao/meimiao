@@ -85,6 +85,7 @@ const vm = new Vue({
     data: {
         loading: true,
         platform: platform,
+        disabled: true,
         radio: 1,
         input: '',
         select: '1',
@@ -221,6 +222,7 @@ const vm = new Vue({
         let worker = new Worker('./javascripts/worker.js')
         worker.onmessage = (event) => {
             this.infos = event.data
+            this.disabled = false
             this.$notify({
                 title: 'IP发现消息',
                 message: `全平台共${this.infos.length}个IP`,
