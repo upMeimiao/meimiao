@@ -66,7 +66,7 @@ class dealWith {
                 logger.error( 'occur error : ', err )
                 return callback(err.message)
             }
-            if(res.statusCode != 200){
+            if(res.statusCode !== 200){
                 return callback(res.statusCode)
             }
             try {
@@ -160,7 +160,7 @@ class dealWith {
                 logger.error( 'occur error : ', error )
                 return callback(error)
             }
-            if(response.statusCode != 200){
+            if(response.statusCode !== 200){
                 logger.error(`total error code: ${response.statusCode}`)
                 return callback(response.statusCode)
             }
@@ -172,17 +172,22 @@ class dealWith {
                 return callback(e)
             }
             if(body.code !== 1){
+                logger.error(body)
+                if(body.code === -503){
+                    spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id + '_' + task.name)
+                    return callback()
+                }
                 return callback(body.desc)
             }
             let data = body.data
-            if(!data){
-                logger.error('未知错误')
-                logger.error(body)
-                return callback('code-012')
-            }
+            // if(!data){
+            //     logger.error('未知错误')
+            //     logger.error(body)
+            //     return callback('code-012')
+            // }
             let total = data.total
             task.total = total
-            if(total % 50 != 0){
+            if(total % 50 !== 0){
                 page = Math.ceil(total / 50)
             }else{
                 page = total / 50
@@ -213,7 +218,7 @@ class dealWith {
                         logger.error( 'occur error : ', error )
                         return cb()
                     }
-                    if(response.statusCode != 200){
+                    if(response.statusCode !== 200){
                         logger.error(`list error code: ${response.statusCode}`)
                         return cb()
                     }
@@ -265,7 +270,7 @@ class dealWith {
                 logger.error( 'info occur error: ', error )
                 return callback(error)
             }
-            if(response.statusCode != 200){
+            if(response.statusCode !== 200){
                 logger.error(`info error code: ${response.statusCode}`)
                 return callback(response.statusCode)
             }
@@ -315,7 +320,7 @@ class dealWith {
                     step: result.down_count,
                     a_create_time: video.publishtime
                 }
-                spiderUtils.saveCache( this.core.cache_db, 'cache', media )
+                spiderUtils.saveCache(this.core.cache_db, 'cache', media)
                 index++
                 cb()
             },
