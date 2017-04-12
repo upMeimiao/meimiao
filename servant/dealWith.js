@@ -684,17 +684,18 @@ class DealWith {
         let pathname = URL.parse(data,true).pathname,
             test = pathname.indexOf('html'),
             option = {},v_id;
-        if(pathname.startsWith('/albumplay') && test> 0){
-            let v_array = pathname.split('/');
-            v_id = (v_array[v_array.length-1].split('.'))[0];
-            option.url = `http://www.tudou.com/tvp/getItemInfo.action?ic=${v_id}&app=5`
-        }else if( test > 0 ){
-            let v_array = pathname.split('/');
-            v_id = (v_array[v_array.length-1].split('.'))[0];
+        if(pathname.startsWith('/albumplay')){
+            let v_array = pathname.split('/')
+            v_id = (v_array[v_array.length-1].split('.'))[0]
+            option.url = api.tudou.url + v_id
+            // option.url = `http://www.tudou.com/tvp/getItemInfo.action?ic=${v_id}&app=5`
+        }else if(pathname.startsWith('/listplay')){
+            let v_array = pathname.split('/')
+            v_id = (v_array[v_array.length-1].split('.'))[0]
             option.url = api.tudou.url + v_id
         }else{
-            let v_array = pathname.split('/');
-            v_id = v_array[3];
+            let v_array = pathname.split('/')
+            v_id = v_array[3]
             option.url = api.tudou.url + v_id
         }
         request.get ( option, ( err, result) => {
@@ -702,9 +703,8 @@ class DealWith {
                 logger.error( 'occur error : ', err );
                 return callback(err,{code:102,p:12})
             }
-            if(result.statusCode != 200 ){
+            if(result.statusCode !== 200 ){
                 logger.error('土豆状态码错误',result.statusCode);
-                
                 return callback(true,{code:102,p:12})
             }
             try{
@@ -714,29 +714,32 @@ class DealWith {
                 return callback(e,{code:102,p:12})
             }
             let res;
-            if(pathname.startsWith('/albumplay')){
-                res = {
-                    id: result.oid,
-                    name: result.onic,
-                    p: 12
-                };
-                return this.tudouAvatar( result.ocode, (err, result) => {
-                    if(err){
-                        callback(err,result)
-                    }
-                    res.avatar = result;
-                    callback(null,res)
-                })
-            }
+            // if(pathname.startsWith('/albumplay')){
+            //     res = {
+            //         id: result.oid,
+            //         name: result.onic,
+            //         p: 12
+            //     };
+            //     return this.tudouAvatar( result.ocode, (err, result) => {
+            //         if(err){
+            //             callback(err,result)
+            //         }
+            //         res.avatar = result;
+            //         callback(null,res)
+            //     })
+            // }
             if(!result.detail){
                 return callback(true,{code:102,p:12})
+            }
+            if(result.detail.tags !== '自频道'){
+                return callback(true,{code:103,p:12})
             }
             res = {
                 id: result.detail.userid,
                 name: result.detail.username,
-                avatar: result.detail.channel_pic_220_220,
+                avatar: result.detail.channel_pic_220_220 || result.detail.channel_pic,
                 p: 12
-            };
+            }
             callback(null,res)
         })
     }
