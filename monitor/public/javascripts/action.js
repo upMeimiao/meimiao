@@ -221,14 +221,23 @@ const vm = new Vue({
         })
         let worker = new Worker('./javascripts/worker.js')
         worker.onmessage = (event) => {
-            this.infos = event.data
-            this.disabled = false
-            this.$notify({
-                title: 'IP发现消息',
-                message: `全平台共${this.infos.length}个IP`,
-                duration: 360000,
-                type: 'success'
-            })
+            if(event.data.infos){
+                this.infos = event.data.infos
+                this.disabled = false
+                this.$notify({
+                    title: 'IP发现消息',
+                    message: `全平台共${this.infos.length}个IP`,
+                    duration: 360000,
+                    type: 'success'
+                })
+            }else{
+                this.$notify({
+                    title: 'IP发现消息',
+                    message: `后台获取失败`,
+                    duration: 360000,
+                    type: 'error'
+                })
+            }
         }
     },
     mounted: function () {
