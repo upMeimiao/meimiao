@@ -126,17 +126,7 @@ class dealWith {
         }
         request.get(logger, option, (err,result) => {
             if(err){
-                if(task.id == 'mEpTsCBR3q2uyDUc'){
-                    return callback()
-                }
                 logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            if(result.statusCode != 200){
-                if(task.id == 'mEpTsCBR3q2uyDUc'){
-                    return callback()
-                }
-                logger.error( 'http code error : ', result.statusCode )
                 return callback(err)
             }
             try {
@@ -148,10 +138,10 @@ class dealWith {
             }
             let videos_count = result.total,page
             task.total = videos_count
-            if(videos_count%20 == 0){
-                page = videos_count/20
+            if(videos_count % 20 === 0){
+                page = videos_count / 20
             }else{
-                page = Math.floor(videos_count/20)+1
+                page = Math.floor(videos_count / 20) + 1
             }
             this.getVideos(task,page, () => {
                 callback()

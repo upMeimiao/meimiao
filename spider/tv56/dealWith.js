@@ -65,6 +65,7 @@ class dealWith {
             let userInfo = result.data,user
             if(userInfo.length === 0){
                 logger.error('异常')
+                spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id + '_' + task.name)
                 return callback(true)
             }
             user = {

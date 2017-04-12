@@ -281,18 +281,5 @@ class dealWith {
             callback(null,result.data.total)
         })
     }
-    _long_t ( time ){
-        if( !time ){
-            return ''
-        }
-        let timeArr = time.split(':'),
-            long_t  = ''
-        if(timeArr.length == 2){
-            long_t = moment.duration( `00:${time}`).asSeconds()
-        }else if(timeArr.length == 3){
-            long_t = moment.duration(time).asSeconds()
-        }
-        return long_t
-    }
 }
 module.exports = dealWith
