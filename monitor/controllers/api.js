@@ -10,8 +10,8 @@ const redis = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.r
     }
 })
 
-const _getServerData = (callback) => {
-    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getTaskStatus/rxdebug/2015', (err,res,body) => {
+const _getServerData = (p, callback) => {
+    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getTaskStatus?p=' + p, (err,res,body) => {
         if(err){
             return callback(err)
         }
@@ -31,7 +31,7 @@ const _getServerData = (callback) => {
     })
 }
 const _getInfo = (list, callback) => {
-    const getRedisData = ( item, callback ) => {
+    const getRedisData = (item, callback) => {
         const key = item.platform + ":" + item.bid
         let info
         redis.hmget( key, 'init', 'create', 'video_number', 'update', (err,result)=>{
@@ -62,22 +62,22 @@ const _getInfo = (list, callback) => {
 exports.findData = (req, res) => {
     async.waterfall([
         (callback) => {
-            _getServerData( (err,result) => {
-                if( err ){
+            _getServerData(req.query.p || '', (err,result) => {
+                if(err){
                     return callback(err)
                 }
                 callback(null, result)
             })
         },
         (list, callback) => {
-            _getInfo( list, (err, info)=>{
+            _getInfo(list, (err, info)=>{
                 if(err){
                     return callback(err)
                 }
                 callback(null, info)
             })
         }
-    ], function (err, result) {
+    ], (err, result) => {
         if(err){
             return res.status(502).send()
         }
