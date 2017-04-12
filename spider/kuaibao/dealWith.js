@@ -75,8 +75,11 @@ class dealWith {
                 logger.info('json error:',result.body)
                 return callback()
             }
-            let userInfo = result.channelInfo
-            if(!userInfo){
+            if(result.ret === 1){
+                spiderUtils.banned(this.core.taskDB, task.p + '_' + task.id + '_' + task.name)
+                return callback()
+            }
+            if(!result.channelInfo){
                 logger.error('userInfo异常错误')
                 logger.error(result)
                 return callback()
@@ -84,7 +87,7 @@ class dealWith {
             let user = {
                 platform: 10,
                 bid: task.id,
-                fans_num: userInfo.subCount
+                fans_num: result.channelInfo.subCount
             }
             this.sendUser (user,(err,result)=>{
                 callback()
