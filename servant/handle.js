@@ -18,6 +18,9 @@ class Handle {
                 case 102:
                     data = {errno:102,errmsg:'获取信息过程出错',data:{platform:result.p}};
                     break;
+                case 103:
+                    data = {errno:103,errmsg:'不是自频道',data:{platform:result.p}}
+                    break
                 default:
                     data = {errno:999,errmsg:'未知错误',data:{platform:result.p}};
                     break;
