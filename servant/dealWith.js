@@ -2440,5 +2440,53 @@ class DealWith {
             callback(null, res)
         })
     }
+    facebook( data, callback ) {
+        let urlObj = URL.parse(data, true),
+            pathname = urlObj.pathname,
+            query = urlObj.query,
+            aid = null,
+            option = {
+                ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
+                proxy: 'http://127.0.0.1:56777',
+                referer: `https://www.facebook.com/pg/${pathname.split('/')[1]}/videos/?ref=page_internal`
+            },
+            res, bid, name, avatar, $;
+        if(query.type){
+            aid = pathname.split('/')[4];
+        }else {
+            aid = pathname.split('/')[3];
+        }
+        option.url = `https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={"type":"3","source":"12","v":"${aid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`;
+        //logger.debug(option.url);
+        request.get( option, (err, result) => {
+            if(err){
+                logger.debug('facebook请求失败', err);
+                return callback(err,{code:102,p:40})
+            }
+            if(result.statusCode != 200){
+                logger.debug('facebook状态码错误', result.statusCode);
+                return callback(true,{code:102,p:40})
+            }
+            try{
+                result = result.body.replace(/for \(;;\);/,'').replace(/[\n\r]/g,'');
+                result = JSON.parse(result)
+            }catch (e){
+                logger.debug('facebook解析失败',result);
+                return callback(e,{code:102,p:40})
+            }
+            result = result.jsmods.markup;
+            $ = cheerio.load(result[6][1].__html);
+            bid = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a').eq(1).attr('href').match(/vb\.\d*/).toString().replace('vb.','');
+            name = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a>span').text();
+            avatar = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a>img').attr('src');
+            res = {
+                id: bid,
+                name: name,
+                avatar: avatar,
+                p: 40
+            };
+            callback(null,res);
+        })
+    }
 }
 module.exports = DealWith;

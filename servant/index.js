@@ -219,8 +219,11 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
-                _youtubeReq(ctx, remote, 39)
-                break
+                _youtubeReq(ctx, remote, 39);
+                break;
+            case 'www.facebook.com':
+                handle.facebookHandle( ctx, remote );
+                break;
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`);
                 res.writeHead(200);
