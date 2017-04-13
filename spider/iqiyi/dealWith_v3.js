@@ -1,9 +1,9 @@
 /**
  * Created by ifable on 2016/11/15.
  */
-const async = require('async')
+const async = require( 'async' )
 const cheerio = require('cheerio')
-const request = require('../../lib/request')
+const request = require( '../../lib/request' )
 const spiderUtils = require('../../lib/spiderUtils')
 let logger
 const jsonp = function (data) {
@@ -180,67 +180,54 @@ class dealWith {
         })
     }
     getListN(task, callback) {
-        let index = 1,flag = 0,$,video=[],
+        let index = 1,flag = 0,$,titleDom,
             sign = true
         const option = {
             ua: 1,
-            referer: `http://www.iqiyi.com/paopao/u/${task.id}/upload/`
+            referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
         }
         async.whilst(
             () => {
                 return sign
             },
             ( cb ) => {
-                if(index > 250){
+                if(index > 209){
                     sign = false
-                    task.total = 40 * (index -1)
+                    task.total = 24 * (index -1)
                     return cb()
                 }
-                option.url = `http://timeline.i.iqiyi.com/timeline-api/get_user_timeline?uids=${task.id}&page=${index}&page_size=40&feed_types=30&t=${new Date().getTime()}`
-                request.get(logger, option, (err,result) => {
+                option.url = `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=${index}`
+                request.get( logger, option, (err,result) => {
                     if(err){
                         return setTimeout(()=>{
-                            if(flag > 4){
-                                task.total = 40 * (index -1)
+                            if(flag > 2){
+                                task.total = 24 * (index -1)
                                 sign = false
                                 flag = null
                             }
                             flag++
                             cb()
-                        }, 1000)
+                        }, 3000)
                     }
-                    try {
-                        result = JSON.parse(result.body)
-                    } catch (e){
-                        logger.error(e)
-                        return setTimeout(()=>{
-                            if(flag > 4){
-                                task.total = 40 * (index -1)
-                                sign = false
-                                flag = null
-                            }
-                            flag++
-                            cb()
-                        }, 1000)
-                    }
-                    if(result.code !== 'A00000'){
-                        flag++
-                        return cb()
-                    }
-                    if(result.data.feeds.length === 0){
-                        task.total = 40 * (index -1)
+                    flag = null
+                    $ = cheerio.load(result.body,{
+                        ignoreWhitespace:true
+                    })
+                    titleDom = $('p.mod-piclist_info_title a')
+                    let video = []
+                    if(titleDom.length === 0){
+                        task.total = 24 * (index -1)
                         sign = false
                         return cb()
                     }
-                    for(let i = 0; i < result.data.feeds.length; i++){
+                    for(let i = 0 ;i<titleDom.length;i++){
                         video.push({
-                            id: result.data.feeds[i].resourceContent.videoInfos[0].tvId,
-                            title: result.data.feeds[i].resourceContent.videoInfos[0].title,
-                            link: result.data.feeds[i].resourceContent.videoInfos[0].videoLink
+                            title: titleDom[i].children[0].data,
+                            link: titleDom[i].attribs['href']
                         })
                     }
-                    result = null
-                    this.dealN(task, video, (err) => {
+                    //logger.debug(video)
+                    this.getIds(task, video, (err) => {
                         index++
                         cb()
                     })
@@ -251,26 +238,37 @@ class dealWith {
             }
         )
     }
-    dealN(task, video, callback ){
-        let index = 0,
-            length = video.length
+    getIds(task, raw, callback) {
+        let index = 0,flag = 0,$,id
+        const option = {
+            ua: 1
+        }
         async.whilst(
             () => {
-                return index < length
+                return index < raw.length
             },
             (cb) => {
-                this.info(task,video[index], (err) => {
+                option.url = raw[index].link
+                request.get(logger, option, (err, result) => {
                     if(err){
-                        //setTimeout(cb,600)
-                        index++
+                        flag++
+                        if(flag > 2){
+                            index++
+                        }
                         return cb()
                     }
-                    index++
-                    cb()
-                    //setTimeout(cb,600)
+                    flag = null
+                    $ = cheerio.load(result.body,{
+                        ignoreWhitespace:true
+                    })
+                    id = $('#flashbox').attr('data-player-tvid')
+                    this.info(task, {id: id, title: raw[index].title, link: raw[index].link},(err)=>{
+                        index++
+                        cb()
+                    })
                 })
             },
-            ( err, result ) => {
+            (err, result) => {
                 callback()
             }
         )
@@ -403,8 +401,8 @@ class dealWith {
                     platform: 2,
                     bid: task.id,
                     aid: id,
-                    title: title ? spiderUtils.stringHandling(title, 80) : 'btwk_caihongip',
-                    desc: spiderUtils.stringHandling(result[0].desc, 100),
+                    title: title ? title.substr(0,100).replace(/"/g,'') : 'btwk_caihongip',
+                    desc: result[0].desc.substr(0,100).replace(/"/g,''),
                     play_num: result[2],
                     support: result[1].data.up,
                     step: result[1].data.down,
@@ -419,19 +417,18 @@ class dealWith {
                 if(media.comment_num < 0){
                     delete media.comment_num
                 }
-                // logger.debug(media)
                 spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
         )
     }
-    getInfo(id, link, callback ) {
+    getInfo ( id, link, callback ) {
         let option = {
             url: this.api.info + id + "?callback=jsonp&status=1",
             referer: link,
             ua: 1
         }
-        request.get(logger, option, (err,result) => {
+        request.get( logger, option, (err,result) => {
             if(err){
                 return callback(err)
             }
@@ -444,7 +441,7 @@ class dealWith {
                 logger.error(result)
                 return callback(e)
             }
-            if(playData.code !== 'A00000'){
+            if(playData.code != 'A00000'){
                 return callback(true)
             }
             //console.log(playData)
@@ -458,7 +455,7 @@ class dealWith {
                 seconds = playData.data.duration,
                 v_url = playData.data.url,
                 type = ''
-            if(typeArr && typeArr.length !== 0 ){
+            if(typeArr && typeArr.length !=0 ){
                 const t_arr = []
                 for(let index in typeArr){
                     t_arr[index] = typeArr[index].name
@@ -485,10 +482,10 @@ class dealWith {
                         return callback(null,data)
                     }
                     data.comment = result
-                    callback(null, data)
+                    callback(null,data)
                 })
             }else{
-                callback(null, data)
+                callback(null,data)
             }
         })
     }
@@ -502,57 +499,63 @@ class dealWith {
             if(err){
                 return callback(err)
             }
+            //logger.debug(result)
+            let infoData
             try {
-                result = eval(result.body)
+                infoData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
                 logger.error(result)
                 return callback(e)
             }
-            if(result.code !== 'A00000'){
+            if(infoData.code != 'A00000'){
                 return callback(true)
             }
-            callback(null,result)
+            callback(null,infoData)
         })
     }
-    getPlay (id, link, callback ) {
+    getPlay ( id, link, callback ) {
         const option = {
             url: this.api.play + id + '/?callback=jsonp',
             referer: link,
             ua: 1
         }
-        request.get(logger, option, (err,result) => {
+        request.get( logger, option, (err,result) => {
             if(err){
                 return callback(err)
             }
+            //logger.debug(result)
+            let infoData
             try {
-                result = eval(result.body)
+                infoData = eval(result.body)
             } catch (e){
                 logger.error('eval错误:',e)
                 logger.error(result)
                 return callback(e)
             }
-            callback(null, result[0][id])
+            callback(null,infoData[0][id])
         })
     }
-    getComment(qitanId, albumId, tvId, link, callback) {
+    getComment (qitanId,albumId,tvId,link,callback){
         const option = {
             url: `http://cmts.iqiyi.com/comment/tvid/${qitanId}_${tvId}_hot_2?is_video_page=true&albumid=${albumId}`,
             referer: link,
             ua: 1
         }
-        request.get(logger, option, (err,result) => {
+        request.get( logger, option, (err,result) => {
             if(err){
                 return callback(err)
             }
+            //logger.debug(result)
+            let infoData
             try {
-                result = JSON.parse(result.body)
+                infoData = JSON.parse(result.body)
             } catch (e){
                 logger.error('json err:',e)
                 logger.error(result)
                 return callback(e)
             }
-            callback(null, result.data.$comment$get_video_comments.data.count)
+            callback(null,infoData.data.$comment$get_video_comments.data.count)
         })
     }
 }
