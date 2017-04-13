@@ -180,7 +180,7 @@ class dealWith {
         })
     }
     getListN(task, callback) {
-        let index = 1,flag = 0,$,video=[],
+        let index = 1,flag = 0,$,video=[],page = 2,//预设
             sign = true
         const option = {
             ua: 1,
@@ -188,49 +188,56 @@ class dealWith {
         }
         async.whilst(
             () => {
-                return sign
+                return sign && index <= Math.min(page, 200)
             },
-            ( cb ) => {
-                if(index > 250){
-                    sign = false
-                    task.total = 40 * (index -1)
-                    return cb()
-                }
+            (cb) => {
                 option.url = `http://timeline.i.iqiyi.com/timeline-api/get_user_timeline?uids=${task.id}&page=${index}&page_size=40&feed_types=30&t=${new Date().getTime()}`
                 request.get(logger, option, (err,result) => {
                     if(err){
-                        return setTimeout(()=>{
-                            if(flag > 4){
-                                task.total = 40 * (index -1)
-                                sign = false
-                                flag = null
-                            }
-                            flag++
-                            cb()
-                        }, 1000)
+                        logger.error(err)
+                        if(flag > 4){
+                            index++
+                            return cb()
+                        }else{
+                            return setTimeout(()=>{
+                                flag++
+                                cb()
+                            }, 1000)
+                        }
                     }
                     try {
                         result = JSON.parse(result.body)
                     } catch (e){
                         logger.error(e)
-                        return setTimeout(()=>{
-                            if(flag > 4){
-                                task.total = 40 * (index -1)
-                                sign = false
-                                flag = null
-                            }
-                            flag++
-                            cb()
-                        }, 1000)
+                        if(flag > 4){
+                            index++
+                            return cb()
+                        }else{
+                            return setTimeout(()=>{
+                                flag++
+                                cb()
+                            }, 1000)
+                        }
                     }
                     if(result.code !== 'A00000'){
-                        flag++
+                        index++
                         return cb()
                     }
-                    if(result.data.feeds.length === 0){
-                        task.total = 40 * (index -1)
+                    if(index === 1 && result.data.feeds.length === 0){
                         sign = false
                         return cb()
+                    }
+                    if(index !== 1 && result.data.feeds.length === 0){
+                        index++
+                        return cb()
+                    }
+                    if(index === 1){
+                        task.total = result.data.feeds[0].userInfo.publicVideoCount
+                        if(task.total % 40 !== 0){
+                            page = Math.ceil(task.total / 40)
+                        }else{
+                            page = task.total / 40
+                        }
                     }
                     for(let i = 0; i < result.data.feeds.length; i++){
                         video.push({
@@ -334,7 +341,7 @@ class dealWith {
             }
         )
     }
-    deal( task, ids, titles, links, callback ){
+    deal(task, ids, titles, links, callback) {
         let index = 0,data,
             length = ids.length
         async.whilst(
@@ -363,7 +370,7 @@ class dealWith {
             }
         )
     }
-    info ( task, info, callback ) {
+    info(task, info, callback) {
         let id = info.id, title = info.title,link = info.link
         async.parallel(
             [
