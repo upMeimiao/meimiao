@@ -159,13 +159,27 @@ const vm = new Vue({
             }
             let list = []
             if(this.select === '1'){
-                this.infos.find((value, index, arr) => {
+                this.items.find((value, index, arr) => {
                     if(value.bid === this.input){
                         list.push(value)
                     }
                 })
             }
             if(this.select === '2'){
+                this.items.find((value, index, arr) => {
+                    if(value.bname.includes(this.input)){
+                        list.push(value)
+                    }
+                })
+            }
+            if(this.select === '3'){
+                this.infos.find((value, index, arr) => {
+                    if(value.bid === this.input){
+                        list.push(value)
+                    }
+                })
+            }
+            if(this.select === '4'){
                 this.infos.find((value, index, arr) => {
                     if(value.bname.includes(this.input)){
                         list.push(value)
