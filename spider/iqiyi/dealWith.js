@@ -195,7 +195,7 @@ class dealWith {
                 request.get(logger, option, (err,result) => {
                     if(err){
                         logger.error(err)
-                        if(flag > 4){
+                        if(flag > 2){
                             index++
                             return cb()
                         }else{
@@ -208,16 +208,8 @@ class dealWith {
                     try {
                         result = JSON.parse(result.body)
                     } catch (e){
-                        logger.error(e)
-                        if(flag > 4){
-                            index++
-                            return cb()
-                        }else{
-                            return setTimeout(()=>{
-                                flag++
-                                cb()
-                            }, 1000)
-                        }
+                        index++
+                        return cb()
                     }
                     if(result.code !== 'A00000'){
                         index++
