@@ -78,8 +78,6 @@ class spiderCore {
                 break;
             case 'www.miaopai.com':
             case 'm.miaopai.com':
-            case 'wsqncdn.miaopai.com':
-            case 'gslb.miaopai.com':
                 handle.miaopaiHandle( ctx, remote );
                 break;
             case 'www.bilibili.com':
@@ -224,6 +222,9 @@ class spiderCore {
                 _youtubeReq(ctx, remote, 39)
                 break
             default:
+                if(remote.includes('miaopai.com')){
+                    return handle.miaopaiHandle(ctx, remote, 'default')
+                }
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`);
                 res.writeHead(200);
                 res.end(JSON.stringify({errno:100,errmsg:'暂不支持该平台或该URL不是播放页地址'}));
