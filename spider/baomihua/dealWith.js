@@ -59,6 +59,9 @@ class dealWith {
                 return callback(e)
             }
             result = result.result
+            if(!result.ChannelInfo){
+                return callback(JSON.stringify(result))
+            }
             let user = {
                 platform: 13,
                 bid: task.id,
