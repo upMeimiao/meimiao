@@ -212,7 +212,7 @@ class dealWith {
             total = result.cardlistInfo.total;
             if(!total){
                 logger.error('当前微博信息获取存在问题待解决');
-                return callback(JSON.stringify(result.cardlistInfo))
+                return callback(JSON.stringify(result))
             }
             this.getVidList( task, data, total, proxy, () => {
                 callback()
