@@ -19,7 +19,7 @@ class dealWith {
         task.page = 1;
         this.getUserInfo( task, ( err ) => {
             if(err){
-                return callback(err.message)
+                return callback(err)
             }
             callback( null, task.total )
         })
@@ -90,12 +90,18 @@ class dealWith {
                 }
                 if(result.tabsInfo.tabs[2].title !== '视频'){
                     task.NoVideo = true;
-                    this.getVidTotal( task, result, proxy, () => {
+                    this.getVidTotal( task, result, proxy, (err) => {
+                        if(err){
+                            return callback(err)
+                        }
                         callback()
                     })
                 }else{
                     task.NoVideo = false;
-                    this.getVidTotal( task, result, proxy, () => {
+                    this.getVidTotal( task, result, proxy, (err) => {
+                        if(err){
+                            return callback(err)
+                        }
                         callback()
                     })
                 }
@@ -204,7 +210,10 @@ class dealWith {
                 return
             }
             total = result.cardlistInfo.total;
-            //task.total = total
+            if(!total){
+                logger.error('当前微博信息获取存在问题待解决');
+                return callback(JSON.stringify(result.cardlistInfo))
+            }
             this.getVidList( task, data, total, proxy, () => {
                 callback()
             })
