@@ -192,6 +192,9 @@ class spiderCore {
             case 'm.youtube.com':
                 handle.youtubeHandle( ctx, verifyData );
                 break;
+            case 'www.facebook.com':
+                handle.facebookHandle( ctx, verifyData );
+                break;
             default:
                 res.setHeader('Content-Type',`text/plain;charset=utf-8`)
                 res.writeHead(200)

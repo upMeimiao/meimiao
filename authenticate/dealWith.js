@@ -3072,5 +3072,98 @@ class DealWith {
         }
         callback(null,null)
     }
+    facebook( verifyData, callback ) {
+        let htmlUrl = verifyData.remote,
+            userVal = verifyData.verifyCode.replace(/\s/g, ""),
+            urlObj  = URL.parse(htmlUrl, true),
+            host    = urlObj.hostname,
+            path    = urlObj.pathname,
+            query   = urlObj.query,
+            bid     = '',
+            aid     = '',
+            cycle   = true,
+            offset  = 0,
+            option  = {
+                method: 'POST',
+                url: 'https://www.facebook.com/ajax/ufi/comment_fetch.php?dpr=1',
+                proxy: 'http://127.0.0.1:56777',
+                headers: {
+                    referer: 'https://www.facebook.com/yitiaotv/videos/vb.374308376088256/641513322701092/?type=3&theater',
+                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                    'cookie':'datr=uarsWNHwHCDMME4QegGkXoHN;locale=zh_CN;'
+                },
+                formData: {
+                    //ft_ent_identifier:641513322701092,
+                    offset: 0,
+                    length: 50,
+                    orderingmode: 'recent_activity',
+                    feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
+                    __user: '0',
+                    __a: '1',
+                    __dyn: '7AzHK4GgN1t2u6XolwCCwKAKGzEy4S-C11xG3Kq2i5U4e2O2K48hzlyUrxuE99XyEjKewExmt0gKum4UpyEl-9Dxm5Euz8bo5S9J7wHx61YCBxm9geFUpAypk48uwkpo5y16xCWK547ESubz8-',
+                    lsd: 'AVpZN3FE'
+                }
+            };
+        if(query.type){
+            aid = path.split('/')[4];
+        }
+        aid = path.split('/')[3];
+        option.formData.ft_ent_identifier = aid;
+        async.whilst(
+            () => {
+                return cycle
+            },
+            (cb) => {
+                option.formData.offset = offset;
+                req(option, (error, response, body) => {
+                    if(error){
+                        logger.debug('评论列表请求失败',error.message);
+                        return callback(error,{code:103,p:40})
+                    }
+                    if(response.statusCode != 200){
+                        logger.debug('评论状态码错误',response.statusCode);
+                        return callback(true,{code:103,p:40})
+                    }
+                    /*logger.debug(option)
+                    logger.debug(body)*/
+                    try{
+                        body = body.replace('for (;;);','').replace(/[\n\r]/g,'');
+                        body = JSON.parse(body);
+                    }catch (e){
+                        logger.debug('解析失败',body);
+                        return cb()
+                    }
+                    body = body.jsmods.require[0][3][1];
+                    if(body.comments.length <= 0){
+                        cycle = false;
+                        return cb()
+                    }
+                    this.facedeal(body, userVal, (err, result) => {
+                        if (err == 'OK'){
+                            return callback(null,result)
+                        }
+                        offset += 50;
+                        cb()
+                    })
+                })
+            },
+            (err, result) => {
+                logger.debug('结束')
+                callback(null,{code:105,p:40})
+            }
+        )
+    }
+    facedeal(comments, userVal, callback) {
+        let user    = {};
+        for(let i = 0; i < comments.comments.length; i++){
+            if(comments.comments[i].body.text.replace(/\s/,'') == userVal){
+                user.p = 40;
+                user.id = comments.comments[i].author;
+                user.name = comments.profiles[user.id].name;
+                return callback('OK',user)
+            }
+        }
+        callback()
+    }
 }
 module.exports = DealWith;
