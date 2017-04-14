@@ -373,6 +373,13 @@ const xiangkan = () => {
     let spider = new (require('./spider/xiangkan'))(settings);
     spider.start()
 };
+const facebook = () => {
+    let logger = logging.getLogger('facebook',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/facebook'))(settings);
+    spider.start()
+};
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level);
     settings['logger'] = logger;
@@ -524,6 +531,9 @@ switch (options['a']){
         break;
     case 'youtube':
         youtube()
+        break
+    case 'facebook':
+        facebook()
         break
     case 'test':
         test();

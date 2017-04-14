@@ -52,18 +52,18 @@ class dealWith {
                 request(options, (error, response, body) => {
                     if(error){
                         logger.debug('LI视频总量请求失败',error);
-                        return this.getVidTotal(task,callback)
+                        return this.getListInfo(task,callback)
                     }
                     if(response.statusCode != 200){
                         logger.debug('LI视频状态码错误',response.statusCode);
-                        return this.getVidTotal(task,callback)
+                        return this.getListInfo(task,callback)
                     }
                     try{
                         body = JSON.parse(body)
                     }catch (e){
                         logger.debug('梨视频数据解析失败');
                         logger.debug(body);
-                        return this.getVidTotal(task,callback)
+                        return this.getListInfo(task,callback)
                     }
                     task.total += body.contList.length;
                     if(body.contList.length <= 0){
