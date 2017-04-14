@@ -100,10 +100,10 @@ class Handle {
         })
     }
     miaopaiHandle ( ctx, remote ) {
-        if(!((remote.includes('.htm') && remote.includes('/show/')) || remote.includes('/show/channel/'))){
-            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`);
-            ctx.res.writeHead(200);
-            ctx.res.end(JSON.stringify(this.preResult(err,{code:101,p:7})));
+        if(!(remote.includes('wsqncdn.miaopai.com') || remote.includes('gslb.miaopai.com') || (remote.includes('.htm') && remote.includes('/show/')) || remote.includes('/show/channel/'))){
+            ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+            ctx.res.writeHead(200)
+            ctx.res.end(JSON.stringify(this.preResult(true,{code:101,p:7})))
             return
         }
         dealWith.miaopai( remote, ( err, result ) => {

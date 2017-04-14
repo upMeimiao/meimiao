@@ -148,7 +148,7 @@ class DealWith {
         let start = pathname.lastIndexOf('/'),
             end = pathname.lastIndexOf('.'),
             id = pathname.substring(start+1,end);
-        if(hostname == 'm.miaopai.com'){
+        if(hostname === 'm.miaopai.com'){
             id = pathname.substring(start+1)
         }
         let option = {

@@ -78,6 +78,8 @@ class spiderCore {
                 break;
             case 'www.miaopai.com':
             case 'm.miaopai.com':
+            case 'wsqncdn.miaopai.com':
+            case 'gslb.miaopai.com':
                 handle.miaopaiHandle( ctx, remote );
                 break;
             case 'www.bilibili.com':
