@@ -6,9 +6,7 @@ const async = require( 'async' );
 const request = require( '../../lib/request' );
 const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
-const j0fXGmqRxMFvCIqsyE0 = function (data) {
-    return data
-}
+const req = require('request');
 
 let logger;
 class dealWith {
@@ -20,13 +18,157 @@ class dealWith {
     }
     todo ( task, callback ) {
         task.total = 0;
-        this.getListInfo(task,(err) => {
-            if(err){
-                return callback(err)
+        async.series(
+            {
+                user: (cb) => {
+                    this.getUser(task, (err) => {
+                        if(err){
+                            return cb(err)
+                        }
+                        cb(null,'用户信息已返回')
+                    })
+                },
+                media: (cb) => {
+                    this.getListInfo(task,(err) => {
+                        cb(null,'视频信息已返回')
+                    })
+                }
+            },
+            (err, result) => {
+                logger.debug('result', result);
+                if(err){
+                    return callback(err);
+                }
+                callback(null,task.total)
             }
-            callback(null,task.total)
+        );
+    }
+    getUser( task, callback ){
+        let option = {
+            method: 'POST',
+            url: `https://www.facebook.com/pages/call_to_action/fetch_dialog_data/?id=${task.id}&surface=pages_actions_unit&unit_type=VIEWER&dpr=1`,
+            proxy: 'http://127.0.0.1:56777',
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 }'
+            },
+            formData: {
+                __user: '0',
+                __a: '1'
+            }
+        };
+        req(option, (error, response, body) => {
+            if(error){
+                logger.debug('用户信息请求失败',error);
+                return callback(error)
+            }
+            if(response.statusCode != 200){
+                logger.debug('状态码错误',response.statusCode);
+                return callback(`用户信息状态码错误${response.statusCode}`);
+            }
+            try {
+                body = body.replace('for (;;);','');
+                body = JSON.parse(body);
+            } catch (e){
+                logger.debug('用户信息解析失败');
+                logger.info(body);
+                return callback(e)
+            }
+            let url = body.payload.pageUrl + 'likes/?ref=page_internal'
+            this.getUserInfo(task, url, (err) => {
+                callback()
+            })
         })
-        
+    }
+    getUserInfo( task, url, callback ){
+        let option = {
+            url: url,
+            proxy: 'http://127.0.0.1:56777',
+            referer: url,
+            ua: 2
+        };
+        request.get( logger, option, (err, result) => {
+            if(err){
+                logger.debug('错误信息：',err);
+                return this.getUserInfo(task,url,callback)
+            }
+            result = result.body.replace(/[\n\r]/g,'');
+            let $ = cheerio.load(result),
+                script = $('script')[5].children[0].data,
+                fans;
+                script = script.replace('new (require("ServerJS"))().setServerFeatures("iw").handle(','').replace(');','');
+            try{
+                script = JSON.parse(script);
+            }catch (e) {
+                logger.debug('粉丝数据解析失败',script);
+                return this.getUserInfo(task,url,callback)
+            }
+            for (let i = 0; i < script.require.length; i++){
+                if(script.require[i][1] == 'renderFollowsData'){
+                    fans = script.require[i][3][3]
+                    break;
+                }
+            }
+            let res = {
+                bid: task.id,
+                platform: task.p,
+                fans_num: fans
+            };
+            //this.sendUser(res);
+            this.sendStagingUser(res);
+            callback()
+        })
+    }
+    sendUser (user){
+        let option = {
+            url: this.settings.sendFans,
+            data: user
+        };
+        request.post( logger, option, (err,back) => {
+            if(err){
+                logger.error( 'occur error : ', err );
+                logger.info(`返回facebook视频用户 ${user.bid} 连接服务器失败`);
+                return
+            }
+            try{
+                back = JSON.parse(back.body)
+            }catch (e){
+                logger.error(`facebook视频用户 ${user.bid} json数据解析失败`);
+                logger.info(back);
+                return;
+            }
+            if(back.errno == 0){
+                logger.debug("facebook视频用户:",user.bid + ' back_end');
+            }else{
+                logger.error("facebook视频用户:",user.bid + ' back_error');
+                logger.info(back);
+                logger.info(`user info: `,user)
+            }
+        })
+    }
+    sendStagingUser (user){
+        let option = {
+            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
+            data: user
+        };
+        request.post( logger, option,(err,result) => {
+            if(err){
+                logger.error( 'occur error : ', err );
+                return;
+            }
+            try{
+                result = JSON.parse(result.body)
+            }catch (e){
+                logger.error('json数据解析失败');
+                logger.info('send error:',result);
+                return
+            }
+            if(result.errno == 0){
+                logger.debug("用户:",user.bid + ' back_end');
+            }else{
+                logger.error("用户:",user.bid + ' back_error');
+                logger.info(result);
+            }
+        })
     }
     getListInfo( task, callback ){
         let option = {
