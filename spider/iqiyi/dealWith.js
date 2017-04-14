@@ -167,6 +167,9 @@ class dealWith {
                 logger.error(result)
                 return callback(e.message)
             }
+            if(result.code !== 'A00000'){
+                return callback(JSON.stringify(result))
+            }
             if(result.total !== 0){
                 task.total = result.total * 42
                 this.getList(task, result.total, (err) => {
