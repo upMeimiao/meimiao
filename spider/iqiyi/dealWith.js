@@ -158,7 +158,7 @@ class dealWith {
         }
         request.get(logger, option, (err,result) => {
             if (err) {
-                return callback(err.message)
+                return callback(JSON.stringify(err))
             }
             try {
                 result = JSON.parse(result.body)
