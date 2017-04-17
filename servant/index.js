@@ -59,6 +59,8 @@ class spiderCore {
             handle.facebookHandle(ctx, remote);
             return
         }
+        logger.debug(hostname)
+        logger.debug(remote)
         switch (hostname){
             case 'v.youku.com':
                 handle.youkuHandle( ctx, remote );
