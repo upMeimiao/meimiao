@@ -195,9 +195,9 @@
       "list": "http://wsm.qq.com/weishi/t/other.php?v=p&reqnum=20&pageflag=2&uid="
     },
     "xiaoying": {
-      "userInfo": "https://w.api.xiaoying.co/webapi2/rest/user/detail?appkey=30000000&auid=",
-      "videoInfo": "https://w.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&puid=",
-      "List": "http://v.api.xiaoying.co/api/rest/v/vq"
+      "userInfo": "http://viva.api.xiaoying.co/webapi2/rest/user/detail?appkey=10000000&auid=",
+      "videoInfo": "https://viva.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&ver=1&puid=",
+      "List": "http://viva.api.xiaoying.co/api/rest/v/vq"
     },
     "xinlan": {
       "listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
