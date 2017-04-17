@@ -49,12 +49,12 @@ class spiderCore {
             hostname = URL.parse(remote,true).hostname,
             ctx = {req, res};
         logger.debug(query)
-        if(query.platform && query.platform === 39){
+        if(query.platform && query.platform === '39'){
             logger.debug(remote)
             handle.youtubeHandle(ctx,remote)
             return
         }
-        if(query.platform && query.platform === 40){
+        if(query.platform && query.platform === '40'){
             logger.debug(remote)
             handle.facebookHandle(ctx, remote);
             return
