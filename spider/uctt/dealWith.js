@@ -52,7 +52,6 @@ class dealWith {
                         return cb()
                     }
                     let length = result.data.length
-                    task.total += length
                     if(length <= 0){
                         page = 0
                         return cb() 
@@ -98,7 +97,11 @@ class dealWith {
 
     getInfo( task, data, callback ){
         let aid = data.xss_item_id,
-            _id = data._id
+            _id = data._id;
+        if(data.other_info && !data.other_info.video_filename){
+            logger.debug('当前文章不是视频');
+            return callback()
+        }
         async.waterfall(
             [
                 (cb) => {
@@ -132,6 +135,7 @@ class dealWith {
                 if(!media.support){
                     delete media.support
                 }
+                task.total++;
                 spiderUtils.saveCache( this.core.cache_db, 'cache', media )
                 callback()
             }
