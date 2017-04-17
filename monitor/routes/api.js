@@ -5,6 +5,7 @@ const apiController = require('../controllers/api')
 const emailServer = require('../controllers/emailServer')
 const commentCon = require('../controllers/comment')
 const yitiao = require('../controllers/yitiao')
+const uctt = require('../controllers/uctt')
 
 // const apiCon = new ApiController();
 router.use(restc.express())
@@ -40,4 +41,5 @@ router.route('/alarm')
 router.get('/aid', commentCon.getAid)
 router.get('/commentList', commentCon.getCommentList)
 router.get('/yitiao', yitiao.getMedia)
+router.get('/uctt', uctt.getAids)
 module.exports = router
