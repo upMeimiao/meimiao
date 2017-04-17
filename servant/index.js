@@ -230,6 +230,7 @@ class spiderCore {
                 _youtubeReq(ctx, remote, 40);
                 break;
             default:
+                logger.debug(remote)
                 if(remote.includes('miaopai.com')){
                     return handle.miaopaiHandle(ctx, remote, 'default')
                 }
