@@ -227,9 +227,11 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
+                logger.debug(remote)
                 _youtubeReq(ctx, remote, 39);
                 break;
             case 'www.facebook.com':
+                logger.debug(remote)
                 _youtubeReq(ctx, remote, 40);
                 break;
             default:
