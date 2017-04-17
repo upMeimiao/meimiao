@@ -2443,5 +2443,51 @@ class DealWith {
             callback(null, res)
         })
     }
+    renren ( data, callback ){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            hash     = urlObj.hash,
+            res      = null,
+            vid      = host == 'rr.tv' ? hash.split('/')[2] : urlObj.query.id,
+            avatar   = null,
+            options = {
+                method: 'POST',
+                url: 'http://web.rr.tv/v3plus/video/detail',
+                headers:
+                    { clienttype: 'web',
+                        clientversion: '0.1.0',
+                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                        referer: 'http//rr.tv/',
+                        'content-type': 'multipart/form-data; boundary=---011000010111000001101001'
+                    },
+                formData: {
+                    videoId: `${vid}`
+                }
+        };
+        r(options, (error, response, body) => {
+            if(error){
+                logger.debug('视频接口请求失败',error.message);
+                return callback(error, {code:102,p:41})
+            }
+            if(response.statusCode != 200){
+                logger.debug('视频接口状态码错误',response.statusCode);
+                return callback(response.statusCode, {code:102,p:41})
+            }
+            try{
+                body = JSON.parse(body);
+            }catch (e){
+                logger.debug('数据解析失败：',body);
+                return callback(e,{code:103,p:41})
+            }
+            avatar = body.data.videoDetailView.author.headImgUrl || 'https://img.rr.tv/static/images/20170307/img_me_userpic.png';
+            res = {
+                id: body.data.videoDetailView.author.id,
+                name: body.data.videoDetailView.author.nickName,
+                avatar: avatar,
+                p: 41
+            };
+            callback(null,res)
+        })
+    }
 }
 module.exports = DealWith;
