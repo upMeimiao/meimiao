@@ -2450,7 +2450,6 @@ class DealWith {
             aid = null,
             option = {
                 ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
-                proxy: 'http://127.0.0.1:56777',
                 referer: `https://www.facebook.com/pg/${pathname.split('/')[1]}/videos/?ref=page_internal`
             },
             res, bid, name, avatar, $;

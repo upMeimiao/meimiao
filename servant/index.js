@@ -48,7 +48,6 @@ class spiderCore {
         const remote = query.url,
             hostname = URL.parse(remote,true).hostname,
             ctx = {req, res};
-        logger.debug(query)
         if(query.platform && query.platform === '39'){
             logger.debug(remote)
             handle.youtubeHandle(ctx,remote)
