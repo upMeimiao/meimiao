@@ -227,15 +227,15 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
-                logger.debug(remote)
+                logger.debug(230,remote)
                 _youtubeReq(ctx, remote, 39);
                 break;
             case 'www.facebook.com':
-                logger.debug(remote)
+                logger.debug(234,remote)
                 _youtubeReq(ctx, remote, 40);
                 break;
             default:
-                logger.debug(remote)
+                logger.debug(238,remote)
                 if(remote.includes('miaopai.com')){
                     return handle.miaopaiHandle(ctx, remote, 'default')
                 }
@@ -247,6 +247,7 @@ class spiderCore {
     }
 }
 function _youtubeReq(ctx, remote, platform) {
+    logger.debug(250,remote)
     const options = {
         "method": "GET",
         "hostname": "spider-overseas.meimiaoip.com",
