@@ -307,7 +307,7 @@ class dealWith {
                 }
             }
             time = $('a._39g5>abbr').attr('data-utime');
-            title = spiderUtils.stringHandling($('span.hasCaption').text(),50);
+            title = spiderUtils.stringHandling($('span.hasCaption').text(),80);
             desc = spiderUtils.stringHandling($('span.hasCaption').text(),100);
             playNum = $('div._4p3v>span.fcg').text().replace('次播放','').replace(/[\s,]/g,'');
             v_img = _$('img._1445').attr('style').replace('background-image: url(','').replace(');','');

@@ -98,11 +98,11 @@ class dealWith {
     getInfo( task, data, callback ){
         let aid = data.xss_item_id,
             _id = data._id;
-        // if(data.other_info && !data.other_info.video_filename){
-        //     this.core.article.sadd('article', aid)
-        //     logger.debug('当前文章不是视频');
-        //     return callback()
-        // }
+        if(!data.other_info){
+            this.core.article.sadd('article', aid)
+            logger.debug('当前文章不是视频');
+            return callback()
+        }
         async.waterfall(
             [
                 (cb) => {
