@@ -20,15 +20,15 @@ class dealWith {
             url: 'http://viva.api.xiaoying.co/api/rest/d/dg',
             headers: {
                 'content-type': 'application/x-www-form-urlencoded',
-                'User-Agent':'XiaoYing/5.3.5 (iPhone; iOS 10.1.1; Scale/3.00)'
+                'User-Agent':'XiaoYing/5.3.5 (iPhone; iOS 10.3.1; Scale/3.00)'
             },
             form: {
                 a: 'dg',
                 b: '1.0',
                 c: '20007700',
                 e: 'DIqmr4fb',
-                i: '{"a":"[I]a8675492c8816a22c28a1b97f890ae144a8a4fa3","b":"zh_CN"}',
-                j: '6a0ea6a13e76e627121ee75c2b371ef2',
+                i: '{"a":"[I]260d0f794e6df08042add854eab6508727a81004","b":"zh_CN"}',
+                j: '8d5a78584410eae6ede6e4cd36d471a1',
                 k: 'xysdkios20130711'
             }
         }
@@ -57,7 +57,8 @@ class dealWith {
     getTotal (task,callback){
         logger.debug('开始获取视频总数')
         let option = {
-            url: this.settings.spiderAPI.xiaoying.userInfo + task.id
+            ua: 1,
+            url: this.settings.spiderAPI.xiaoying.userInfo + task.id + '&_=' + new Date().getTime()
         }
         request.get(logger, option, (err,result) => {
             if(err){
@@ -157,10 +158,27 @@ class dealWith {
     getList( task, total, callback) {
         let sign = 1,
             page
-        if(total%20 == 0){
+        if(total % 20 === 0){
             page = total / 20
         }else{
-            page = Math.ceil(total/20)
+            page = Math.ceil(total / 20)
+        }
+        let options = {
+            method: 'POST',
+            url: this.settings.spiderAPI.xiaoying.List,
+            headers:{
+                'content-type': 'application/x-www-form-urlencoded',
+                'user-agent': 'XiaoYing/5.7.4 (iPhone; iOS 10.3.1; Scale/3.00)'
+            },
+            form:{
+                a: 'vq',
+                b: '1.0',
+                c: 20006700,
+                e: 'DIqmr4fb',
+                h: this.core.h,
+                j: '97203a5d5a0b3894b3b8b74bee12411a' ,
+                k: 'xysdkios20130711'
+            }
         }
         async.whilst(
             () => {
@@ -168,24 +186,7 @@ class dealWith {
             },
             (cb) => {
                 logger.debug('开始获取第' + sign + '页视频列表')
-                let options = {
-                    method: 'POST',
-                    url: this.settings.spiderAPI.xiaoying.List,
-                    headers:{
-                        'content-type': 'application/x-www-form-urlencoded',
-                        'user-agent': 'XiaoYing/5.0.5 (iPhone; iOS 9.3.3; Scale/3.00)'
-                    },
-                    form:{
-                        a: 'vq',
-                        b: '1.0',
-                        c: 20006700,
-                        e: 'DIqmr4fb',
-                        h: this.core.h,
-                        i: `{"a":"${task.id}","b":20,"c":${sign}}`,
-                        j: '21f1acbe43a8d2adaa5137312c44301e' ,
-                        k: 'xysdkios20130711'
-                    }
-                }
+                options.form.i = `{"a":"${task.id}","b":20,"c":${sign}}`
                 newRequest(options, (err, response, body) => {
                     if(err){
                         logger.error( 'occur error : ', err );
@@ -234,6 +235,8 @@ class dealWith {
     }
     getInfo ( task, data, callback ) {
         let option = {
+            ua: 1,
+            referer: `http://xiaoying.tv/v/${data.l}/1/`,
             url: this.settings.spiderAPI.xiaoying.videoInfo + data.l
         }
         request.get(logger, option, (err,result) => {
@@ -258,11 +261,11 @@ class dealWith {
                     platform: 17,
                     bid: task.id,
                     aid: result.videoinfo.puid,
-                    title: result.videoinfo.title.substr(0,100).replace(/"/g,''),
-                    desc: result.videoinfo.desc.substr(0,100).replace(/"/g,''),
+                    title: result.videoinfo.title ? spiderUtils.stringHandling(result.videoinfo.title, 80) : 'btwk_caihongip',
+                    desc: spiderUtils.stringHandling(result.videoinfo.desc, 100),
                     tag: result.videoinfo.tags,
                     v_img: result.videoinfo.coverurl,
-                    long_t: this.long_t(result.videoinfo.duration),
+                    long_t: long_t(result.videoinfo.duration),
                     play_num: result.videoinfo.playcount,
                     forward_num: result.videoinfo.forwardcount,
                     comment_num: result.videoinfo.commentCount,
@@ -273,15 +276,15 @@ class dealWith {
             callback()
         })
     }
-    long_t( time ){
-        let timeArr = time.split(':'),
-            long_t  = ''
-        if(timeArr.length == 2){
-            long_t = moment.duration( `00:${time}`).asSeconds()
-        }else if(timeArr.length == 3){
-            long_t = moment.duration(time).asSeconds()
-        }
-        return long_t
+}
+function long_t(time){
+    let timeArr = time.split(':'),
+        long_t  = ''
+    if(timeArr.length === 2){
+        long_t = moment.duration(`00:${time}`).asSeconds()
+    }else if(timeArr.length === 3){
+        long_t = moment.duration(time).asSeconds()
     }
+    return long_t
 }
 module.exports = dealWith
