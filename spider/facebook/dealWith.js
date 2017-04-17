@@ -2,21 +2,21 @@
  * Created by zhupenghui on 17/4/12.
  */
 const moment = require('moment');
-const async = require( 'async' );
-const request = require( '../../lib/request' );
+const async = require('neo-async');
+const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
 const req = require('request');
 
 let logger;
 class dealWith {
-    constructor ( spiderCore ){
+    constructor(spiderCore){
         this.core = spiderCore;
         this.settings = spiderCore.settings;
         logger = this.settings.logger;
         logger.trace('DealWith instantiation ...')
     }
-    todo ( task, callback ) {
+    todo(task, callback) {
         task.total = 0;
         async.series(
             {
@@ -30,6 +30,9 @@ class dealWith {
                 },
                 media: (cb) => {
                     this.getListInfo(task,(err) => {
+                        if(err){
+                            return cb(err)
+                        }
                         cb(null,'视频信息已返回')
                     })
                 }
@@ -47,7 +50,7 @@ class dealWith {
         let option = {
             method: 'POST',
             url: `https://www.facebook.com/pages/call_to_action/fetch_dialog_data/?id=${task.id}&surface=pages_actions_unit&unit_type=VIEWER&dpr=1`,
-            proxy: 'http://127.0.0.1:56777',
+            // proxy: 'http://127.0.0.1:56777',
             headers: {
                 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 }'
             },
@@ -82,7 +85,7 @@ class dealWith {
     getUserInfo( task, url, callback ){
         let option = {
             url: url,
-            proxy: 'http://127.0.0.1:56777',
+            // proxy: 'http://127.0.0.1:56777',
             referer: url,
             ua: 2
         };
@@ -113,8 +116,9 @@ class dealWith {
                 platform: task.p,
                 fans_num: fans
             };
+            logger.debug(res)
             //this.sendUser(res);
-            this.sendStagingUser(res);
+            // this.sendStagingUser(res);
             callback()
         })
     }
@@ -173,7 +177,7 @@ class dealWith {
     getListInfo( task, callback ){
         let option = {
                 ua: 2,
-                proxy: 'http://127.0.0.1:56777',
+                // proxy: 'http://127.0.0.1:56777',
                 referer: 'https://www.facebook.com'
             },
             cursor = null,
@@ -253,16 +257,17 @@ class dealWith {
                     bid: task.id,
                     aid: aid,
                     title: result[0].title,
-                    a_create_time: result[0].time,
+                    desc: result[0].desc,
                     v_img: result[0].v_img,
                     support: result[0].ding,
-                    desc: result[0].desc,
                     v_url: result[0].playUrl,
                     comment_num: result[0].commentNum,
                     play_num: result[0].playNum,
-                    forward_num: result[0].sharecount
+                    forward_num: result[0].sharecount,
+                    a_create_time: result[0].time
                 };
-                spiderUtils.saveCache( this.core.cache_db, 'cache', media );
+                logger.debug(media)
+                // spiderUtils.saveCache(this.core.cache_db, 'cache', media);
                 callback()
             }
         )
@@ -271,7 +276,7 @@ class dealWith {
         let option = {
                 url: `${this.settings.spiderAPI.facebook.vidInfo}"v":"${vid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`,
                 ua: 2,
-                proxy: 'http://127.0.0.1:56777',
+                // proxy: 'http://127.0.0.1:56777',
                 referer: `https://www.facebook.com/pg/${task.id}/videos/?ref=page_internal`
             },
             dataJson = null,

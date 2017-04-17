@@ -37,6 +37,7 @@ const platformMap = new Map([
     [36,'暴风影音'],
     [37,'百度视频'],
     [38,'梨视频'],
-    [39,'YouTube']
+    [39,'YouTube'],
+    [40,'Facebook']
 ])
 module.exports = platformMap

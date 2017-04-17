@@ -164,7 +164,7 @@ class scheduler {
         })
     }
     createQueue (raw) {
-        if(Number(raw.p) === 39 && !raw.origin){
+        if((Number(raw.p) === 39 || Number(raw.p) === 40) && !raw.origin){
             raw.origin = true
             this.emit('origin_youtube', raw)
             return
@@ -223,7 +223,7 @@ class scheduler {
     //     })
     // }
     checkKue (raw) {
-        if((Number(raw.p) === 39 && !raw.origin) || (Number(raw.p) === 39) && raw.first){
+        if(((Number(raw.p) === 39 || Number(raw.p) === 40) && !raw.origin) || (Number(raw.p) === 39 || Number(raw.p) === 40) && raw.first){
             return this.emit('task_set_create',raw)
         }
         const key = raw.p + ':' + raw.id

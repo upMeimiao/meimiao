@@ -24,7 +24,7 @@ const _inactiveTaskAlarm = () => {
     let i = 1,key,inactiveArr = []
     async.whilst(
         () => {
-            return i <= 39
+            return i <= 40
         },
         (cb) => {
             key = "inactive:" + i
@@ -88,7 +88,7 @@ const _inactivePretreatment = (info) => {
             emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，未激活个数：${elem.num}</p>`
         }
     }
-    if(emailContent != ''){
+    if(emailContent !== ''){
         emailServer.sendAlarm('任务未激活',emailContent)
     }
 }
@@ -102,7 +102,7 @@ const _failedPretreatment = (info) => {
             emailContent += `<p>平台：${platformMap.get(Number(elem.p))}，bid：${elem.bid}，bname：${elem.bname}</p>`
         }
     }
-    if(emailContent != ''){
+    if(emailContent !== ''){
         emailServer.sendAlarm('任务失败',emailContent)
     }
 }

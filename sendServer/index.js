@@ -109,7 +109,7 @@ class sendServer {
                 }
                 return
             }
-            if(res.statusCode != 200){
+            if(res.statusCode !== 200){
                 logger.error(`online errorCode: ${res.statusCode}`)
                 logger.error(result)
                 time++
@@ -135,7 +135,7 @@ class sendServer {
                 newList = null
                 return
             }
-            if(result.errno == 0){
+            if(Number(result.errno) === 0){
                 //logger.debug('online back end')
                 logger.debug(`${newList.length}个视频 online back end`)
                 // logger.debug('online back end',result.data)
@@ -151,7 +151,7 @@ class sendServer {
         })
     }
     send_staging(list, time) {
-        if(list.length ==0){
+        if(list.length === 0){
             list = null
             return
         }
@@ -176,7 +176,7 @@ class sendServer {
                 }
                 return
             }
-            if(res.statusCode != 200){
+            if(res.statusCode !== 200){
                 logger.error(`staging errorCode: ${res.statusCode}`)
                 logger.error(result)
                 time++
@@ -201,7 +201,7 @@ class sendServer {
                 time = null
                 return
             }
-            if(result.errno == 0){
+            if(Number(result.errno) === 0){
                 // logger.debug('staging back end')
                 // logger.info(result.data)
                 logger.debug(`${list.length}个视频 staging back end`)

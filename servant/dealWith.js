@@ -2466,7 +2466,7 @@ class DealWith {
                 logger.debug('facebook请求失败', err);
                 return callback(err,{code:102,p:40})
             }
-            if(result.statusCode != 200){
+            if(result.statusCode !== 200){
                 logger.debug('facebook状态码错误', result.statusCode);
                 return callback(true,{code:102,p:40})
             }

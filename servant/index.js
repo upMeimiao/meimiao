@@ -53,6 +53,11 @@ class spiderCore {
             handle.youtubeHandle(ctx,remote)
             return
         }
+        if(query.site && query.site === 40){
+            logger.debug(remote)
+            handle.facebookHandle(ctx, remote);
+            return
+        }
         switch (hostname){
             case 'v.youku.com':
                 handle.youkuHandle( ctx, remote );
@@ -222,7 +227,7 @@ class spiderCore {
                 _youtubeReq(ctx, remote, 39);
                 break;
             case 'www.facebook.com':
-                handle.facebookHandle( ctx, remote );
+                _youtubeReq(ctx, remote, 40);
                 break;
             default:
                 if(remote.includes('miaopai.com')){
@@ -240,7 +245,7 @@ function _youtubeReq(ctx, remote, platform) {
         "method": "GET",
         "hostname": "spider-overseas.meimiaoip.com",
         "port": "51905",
-        "path": `/origin/bidfetcher/?url=${encodeURIComponent(remote.replace('www.youtube.com','').replace('m.youtube.com',''))}&platform=${platform}`
+        "path": `/origin/bidfetcher/?url=${encodeURIComponent(remote.replace('www.youtube.com','').replace('m.youtube.com','').replace('www.facebook.com',''))}&platform=${platform}`
     }
     const req = HTTP.request(options, (res) => {
         const chunks = [];

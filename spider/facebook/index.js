@@ -58,7 +58,7 @@ class spiderCore {
                 return
             }
             logger.debug( '创建数据库连接完毕' );
-            //this.deal();
+            // this.deal();
             this.test()
         })
     }
@@ -89,10 +89,10 @@ class spiderCore {
         queue.on( 'error', function( err ) {
             logger.error( 'Oops... ', err )
         });
-        queue.watchStuckJobs( 1000 );
+        // queue.watchStuckJobs( 1000 );
         logger.trace('Queue get ready');
-        queue.process('liVideo',this.settings.concurrency, (job,done) => {
-            logger.trace( 'Get liVideo task!' );
+        queue.process('Facebook', this.settings.concurrency, (job,done) => {
+            logger.trace( 'Get Facebook task!' );
             let work = job.data,
                 key = work.p + ':' + work.id;
             logger.info( work );
@@ -112,7 +112,7 @@ class spiderCore {
                             logger.error( 'occur error : ', err );
                             return
                         }
-                        if(res.statusCode != 200 ){
+                        if(res.statusCode !== 200 ){
                             logger.error( `状态码${res.statusCode}` );
                             logger.info( res );
                             return
@@ -123,7 +123,7 @@ class spiderCore {
                             logger.info( '不符合JSON格式' );
                             return
                         }
-                        if(body.errno == 0){
+                        if(Number(body.errno) === 0){
                             logger.info(body.errmsg)
                         }else{
                             logger.info(body)

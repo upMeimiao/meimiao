@@ -82,7 +82,7 @@ const _getFailedTask = () => {
         }
         const filedTask = []
         for (let [index, elem] of body.entries()) {
-            if(elem.error != 'undefined' && elem.error != 'TTL exceeded' && elem.error != '异常错误'){
+            if(elem.error !== 'undefined' && elem.error !== 'TTL exceeded' && elem.error !== '异常错误'){
                 filedTask.push({
                     bid: elem.data.id,
                     bname: elem.data.name,
@@ -96,7 +96,7 @@ const _getFailedTask = () => {
 }
 const _saveInactiveLog = (info) => {
     let numArr = []
-    for(let i = 0; i < 38; i++){
+    for(let i = 0; i < 39; i++){
         numArr[i] = 0
     }
     for (let [index, item] of info.entries()) {
