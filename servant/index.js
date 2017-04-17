@@ -48,6 +48,7 @@ class spiderCore {
         const remote = query.url,
             hostname = URL.parse(remote,true).hostname,
             ctx = {req, res};
+        logger.debug(query)
         if(query.platform && query.platform === 39){
             logger.debug(remote)
             handle.youtubeHandle(ctx,remote)
@@ -247,6 +248,7 @@ function _youtubeReq(ctx, remote, platform) {
         "port": "51905",
         "path": `/origin/bidfetcher/?url=${encodeURIComponent(remote.replace('www.youtube.com','').replace('m.youtube.com','').replace('www.facebook.com',''))}&platform=${platform}`
     }
+    logger.debug(options)
     const req = HTTP.request(options, (res) => {
         const chunks = [];
         res.on("data", (chunk) => {
