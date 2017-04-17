@@ -266,6 +266,7 @@ class dealWith {
                     forward_num: result[0].sharecount,
                     a_create_time: result[0].time
                 };
+                media = spiderUtils.deleteProperty(media)
                 logger.debug(media)
                 // spiderUtils.saveCache(this.core.cache_db, 'cache', media);
                 callback()
@@ -280,7 +281,7 @@ class dealWith {
                 referer: `https://www.facebook.com/pg/${task.id}/videos/?ref=page_internal`
             },
             dataJson = null,
-            time, title, desc, playNum, playUrl, commentNum, ding, sharecount, $, _$, v_img;
+            time, title, desc, playNum, commentNum, ding, sharecount, $, _$, v_img;
         request.get(logger, option, (err, result) => {
             if(err){
                 logger.debug('facebook单个视频信息接口请求失败',err);
@@ -313,24 +314,22 @@ class dealWith {
             v_img = decodeURIComponent(v_img);
             dataJson = result.jsmods.require;
             for (let i = 0; i < dataJson.length; i++){
-                if(dataJson[i][0] == 'UFIController' && dataJson[i][3][1].ftentidentifier == vid){
+                if(dataJson[i][0] === 'UFIController' && dataJson[i][3][1].ftentidentifier == vid){
                     commentNum = dataJson[i][3][2].feedbacktarget.commentcount;
                     ding = dataJson[i][3][2].feedbacktarget.likecount;
                     sharecount = dataJson[i][3][2].feedbacktarget.sharecount;
-                    playUrl = 'https://www.facebook.com' + dataJson[i][3][2].feedbacktarget.permalink;
                     break;
                 }
             }
             dataJson = {
-                time: time || '',
-                title: title || '',
+                time: time || null,
+                title: title || 'btwk_caihongip',
                 desc: desc || '',
-                playNum: playNum,
+                playNum: playNum || null,
                 v_img: v_img || '',
-                commentNum: commentNum,
-                ding: ding,
-                sharecount: sharecount,
-                playUrl: playUrl || ''
+                commentNum: commentNum || null,
+                ding: ding || null,
+                sharecount: sharecount || null
             };
             return callback(null,dataJson)
         })
