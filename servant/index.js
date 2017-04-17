@@ -38,7 +38,6 @@ class spiderCore {
         this.dispatch( req, res )
     }
     dispatch(req, res) {
-        logger.debug(req.url)
         res.setHeader('Access-Control-Allow-Origin','*');
         const query = URL.parse(req.url,true).query;
         if(!query.url){
@@ -49,12 +48,12 @@ class spiderCore {
         const remote = query.url,
             hostname = URL.parse(remote,true).hostname,
             ctx = {req, res};
-        if(query.site && query.site === 39){
+        if(query.site && query.platform === 39){
             logger.debug(remote)
             handle.youtubeHandle(ctx,remote)
             return
         }
-        if(query.site && query.site === 40){
+        if(query.site && query.platform === 40){
             logger.debug(remote)
             handle.facebookHandle(ctx, remote);
             return
@@ -227,15 +226,12 @@ class spiderCore {
             //     break;
             case 'www.youtube.com':
             case 'm.youtube.com':
-                logger.debug(230,remote)
                 _youtubeReq(ctx, remote, 39);
                 break;
             case 'www.facebook.com':
-                logger.debug(234,remote)
                 _youtubeReq(ctx, remote, 40);
                 break;
             default:
-                logger.debug(238,remote)
                 if(remote.includes('miaopai.com')){
                     return handle.miaopaiHandle(ctx, remote, 'default')
                 }
@@ -247,7 +243,6 @@ class spiderCore {
     }
 }
 function _youtubeReq(ctx, remote, platform) {
-    logger.debug(250,remote)
     const options = {
         "method": "GET",
         "hostname": "spider-overseas.meimiaoip.com",
