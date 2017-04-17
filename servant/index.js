@@ -38,6 +38,7 @@ class spiderCore {
         this.dispatch( req, res )
     }
     dispatch(req, res) {
+        logger.debug(req.url)
         res.setHeader('Access-Control-Allow-Origin','*');
         const query = URL.parse(req.url,true).query;
         if(!query.url){
