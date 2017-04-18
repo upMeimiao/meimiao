@@ -118,7 +118,7 @@ class dealWith {
             };
             logger.debug(res)
             //this.sendUser(res);
-            // this.sendStagingUser(res);
+            this.sendStagingUser(res);
             callback()
         })
     }
@@ -268,7 +268,7 @@ class dealWith {
                 };
                 media = spiderUtils.deleteProperty(media)
                 logger.debug(media)
-                // spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+                spiderUtils.saveCache(this.core.cache_db, 'cache', media);
                 callback()
             }
         )
