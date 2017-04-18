@@ -6,7 +6,6 @@ const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
-const req = require('request');
 
 let logger;
 class dealWith {
@@ -53,9 +52,8 @@ class dealWith {
             referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
             ua: 1
         };
-        request.get( logger, option, (err, result) => {
+        request.get(logger, option, (err, result) => {
             if(err){
-                logger.debug('错误信息：',err);
                 return callback(err)
             }
             result = result.body.replace(/[\n\r]/g,'');
@@ -66,11 +64,11 @@ class dealWith {
             try{
                 script = JSON.parse(script);
             }catch (e) {
-                logger.debug('粉丝数据解析失败',script);
+                logger.error('粉丝数据解析失败',script);
                 return callback(e)
             }
             for (let i = 0; i < script.require.length; i++){
-                if(script.require[i][1] == 'renderFollowsData'){
+                if(script.require[i][1] === 'renderFollowsData'){
                     fans = script.require[i][3][3]
                     break;
                 }
@@ -93,23 +91,21 @@ class dealWith {
         };
         request.post( logger, option, (err,back) => {
             if(err){
-                logger.error( 'occur error : ', err );
-                logger.info(`返回facebook视频用户 ${user.bid} 连接服务器失败`);
                 return
             }
             try{
                 back = JSON.parse(back.body)
             }catch (e){
                 logger.error(`facebook视频用户 ${user.bid} json数据解析失败`);
-                logger.info(back);
+                logger.error(back);
                 return;
             }
             if(back.errno == 0){
                 logger.debug("facebook视频用户:",user.bid + ' back_end');
             }else{
                 logger.error("facebook视频用户:",user.bid + ' back_error');
-                logger.info(back);
-                logger.info(`user info: `,user)
+                logger.error(back);
+                logger.error(`user info: `,user)
             }
         })
     }
@@ -118,23 +114,22 @@ class dealWith {
             url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
             data: user
         };
-        request.post( logger, option,(err,result) => {
+        request.post(logger, option, (err, result) => {
             if(err){
-                logger.error( 'occur error : ', err );
                 return;
             }
             try{
                 result = JSON.parse(result.body)
             }catch (e){
                 logger.error('json数据解析失败');
-                logger.info('send error:',result);
+                logger.error('send error:',result);
                 return
             }
             if(result.errno == 0){
                 logger.debug("用户:",user.bid + ' back_end');
             }else{
                 logger.error("用户:",user.bid + ' back_error');
-                logger.info(result);
+                logger.error(result);
             }
         })
     }
@@ -156,15 +151,14 @@ class dealWith {
                 option.url = `${this.settings.spiderAPI.facebook.list}{"last_fbid":${lastVid},"page":${task.id},"playlist":null,"cursor":"${cursor}"}&__user=0&__a=1`;
                 request.get(logger, option, (err, result) => {
                     if(err){
-                        logger.debug('facebook视频列表请求失败',err);
                         return this.getListInfo(task,callback)
                     }
                     try{
                         result = result.body.replace(/for \(;;\);/,'').replace(/[\n\r]/g,'');
                         result = JSON.parse(result)
                     }catch (e){
-                        logger.debug('facebook视频数据解析失败');
-                        logger.debug(result);
+                        logger.error('facebook视频数据解析失败');
+                        logger.error(result);
                         return this.getListInfo(task,callback)
                     }
                     $ = cheerio.load(result.payload);
@@ -205,6 +199,7 @@ class dealWith {
         )
     }
     getMedia( task, video, callback ){
+        logger.debug(202, video)
         let aid = video.find('div._3v4h>a').attr('href').split('/')[3];
         async.series(
             [
@@ -248,14 +243,14 @@ class dealWith {
             time, title, desc, playNum, commentNum, ding, sharecount, $, _$, v_img;
         request.get(logger, option, (err, result) => {
             if(err){
-                logger.debug('facebook单个视频信息接口请求失败',err);
+                logger.error('facebook单个视频信息接口请求失败',err);
                 return this.getVidInfo(task, vid, callback)
             }
             try {
                 result = result.body.replace(/for \(;;\);/,'').replace(/[\n\r]/g,'');
                 result = JSON.parse(result)
             }catch (e){
-                logger.debug('facebook单个视频信息解析失败',result);
+                logger.error('facebook单个视频信息解析失败',result);
                 return this.getVidInfo(task, vid, callback)
             }
             for(let i = 0; i < result.jsmods.markup.length; i++){
