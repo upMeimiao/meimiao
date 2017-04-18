@@ -199,7 +199,7 @@ class dealWith {
         )
     }
     getMedia( task, video, callback ){
-        logger.debug(202, video)
+        logger.debug(202, video.find('div._3v4h>a'))
         let aid = video.find('div._3v4h>a').attr('href').split('/')[3];
         async.series(
             [
