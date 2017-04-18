@@ -109,8 +109,8 @@ class spiderCore {
                         return done(err)
                     }
                     done(null);
-                    this.taskDB.hmset( key, 'update', (new Date().getTime()), 'video_number', total);
-                    request.post( settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
+                    request.post(settings.origin_update,{form: {key, time: new Date().getTime(), total}})
+                    request.post(settings.update, {form:{platform:work.p,bid: work.id}},(err,res,body) => {
                         if(err){
                             logger.error( 'occur error : ', err );
                             return

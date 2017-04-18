@@ -46,48 +46,12 @@ class dealWith {
             }
         );
     }
-    getUser( task, callback ){
-        let option = {
-            method: 'POST',
-            url: `https://www.facebook.com/pages/call_to_action/fetch_dialog_data/?id=${task.id}&surface=pages_actions_unit&unit_type=VIEWER&dpr=1`,
-            // proxy: 'http://127.0.0.1:56777',
-            headers: {
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 }'
-            },
-            formData: {
-                __user: '0',
-                __a: '1'
-            }
-        };
-        req(option, (error, response, body) => {
-            if(error){
-                logger.debug('用户信息请求失败',error);
-                return callback(error)
-            }
-            if(response.statusCode != 200){
-                logger.debug('状态码错误',response.statusCode);
-                return callback(`用户信息状态码错误${response.statusCode}`);
-            }
-            try {
-                body = body.replace('for (;;);','');
-                body = JSON.parse(body);
-            } catch (e){
-                logger.debug('用户信息解析失败');
-                logger.info(body);
-                return callback(e)
-            }
-            let url = body.payload.pageUrl + 'likes/?ref=page_internal'
-            this.getUserInfo(task, url, (err) => {
-                callback()
-            })
-        })
-    }
     getUserInfo(task, callback){
         let option = {
             url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
             // proxy: 'http://127.0.0.1:56777',
             referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-            ua: 2
+            ua: 1
         };
         request.get( logger, option, (err, result) => {
             if(err){
