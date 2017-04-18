@@ -21,7 +21,7 @@ class dealWith {
         async.series(
             {
                 user: (cb) => {
-                    this.getUser(task, (err) => {
+                    this.getUserInfo(task, (err) => {
                         if(err){
                             return cb(err)
                         }
@@ -82,17 +82,17 @@ class dealWith {
             })
         })
     }
-    getUserInfo( task, url, callback ){
+    getUserInfo(task, callback){
         let option = {
-            url: url,
+            url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
             // proxy: 'http://127.0.0.1:56777',
-            referer: url,
+            referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
             ua: 2
         };
         request.get( logger, option, (err, result) => {
             if(err){
                 logger.debug('错误信息：',err);
-                return this.getUserInfo(task,url,callback)
+                return callback(err)
             }
             result = result.body.replace(/[\n\r]/g,'');
             let $ = cheerio.load(result),
@@ -103,7 +103,7 @@ class dealWith {
                 script = JSON.parse(script);
             }catch (e) {
                 logger.debug('粉丝数据解析失败',script);
-                return this.getUserInfo(task,url,callback)
+                return callback(e)
             }
             for (let i = 0; i < script.require.length; i++){
                 if(script.require[i][1] == 'renderFollowsData'){
