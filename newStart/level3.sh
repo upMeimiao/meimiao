@@ -79,4 +79,8 @@ echo "启动梨视频"
 pm2 start ~/newStart/liVideo.json
 echo "任务梨视频启动完成"
 
+echo "启动人人视频"
+pm2 start ~/newStart/renren.json
+echo "任务梨视频启动完成"
+
 echo "第四优先级任务启动完成"

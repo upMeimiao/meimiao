@@ -125,6 +125,8 @@ http://momentjs.cn/
 37. 百度视频
 38. 梨视频
 39. YouTube
+40. Facebook
+41. 人人视频
 
 ## 流程图
 ![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)
