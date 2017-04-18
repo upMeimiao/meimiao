@@ -38,6 +38,7 @@ const platformMap = new Map([
     [37,'baiduVideo'],
     [38,'liVideo'],
     [39,'YouTube'],
-    [40,'Facebook']
+    [40,'Facebook'],
+    [41,'renren']
 ])
 module.exports = platformMap

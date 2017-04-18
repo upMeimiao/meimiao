@@ -229,6 +229,10 @@ class spiderCore {
             case 'www.facebook.com':
                 _youtubeReq(ctx, remote, 40);
                 break;
+            case 'rr.tv':
+            case 'mobile.rr.tv':
+                handle.renrenHandle(ctx, remote )
+                break
             default:
                 if(remote.includes('miaopai.com')){
                     return handle.miaopaiHandle(ctx, remote, 'default')

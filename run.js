@@ -380,6 +380,13 @@ const facebook = () => {
     let spider = new (require('./spider/facebook'))(settings);
     spider.start()
 };
+const renren = () => {
+    let logger = logging.getLogger('人人视频',options['i'],log_level);
+    settings['logger'] = logger;
+    settings['instance'] = options['i'];
+    let spider = new (require('./spider/renren'))(settings);
+    spider.start()
+};
 const test = () => {
     let logger = logging.getLogger('monitor',options['i'],log_level);
     settings['logger'] = logger;
@@ -534,6 +541,9 @@ switch (options['a']){
         break
     case 'facebook':
         facebook()
+        break
+    case 'renren':
+        renren()
         break
     case 'test':
         test();

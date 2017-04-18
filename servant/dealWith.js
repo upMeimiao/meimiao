@@ -2453,32 +2453,32 @@ class DealWith {
                 referer: `https://www.facebook.com/pg/${pathname.split('/')[1]}/videos/?ref=page_internal`
             },
             res, bid, name, avatar, $;
-        if(query.type){
+        if (query.type) {
             aid = pathname.split('/')[4];
-        }else {
+        } else {
             aid = pathname.split('/')[3];
         }
         option.url = `https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={"type":"3","source":"12","v":"${aid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`;
         //logger.debug(option.url);
-        request.get( option, (err, result) => {
-            if(err){
+        request.get(option, (err, result) => {
+            if (err) {
                 logger.debug('facebook请求失败', err);
-                return callback(err,{code:102,p:40})
+                return callback(err, {code: 102, p: 40})
             }
-            if(result.statusCode !== 200){
+            if (result.statusCode !== 200) {
                 logger.debug('facebook状态码错误', result.statusCode);
-                return callback(true,{code:102,p:40})
+                return callback(true, {code: 102, p: 40})
             }
-            try{
-                result = result.body.replace(/for \(;;\);/,'').replace(/[\n\r]/g,'');
+            try {
+                result = result.body.replace(/for \(;;\);/, '').replace(/[\n\r]/g, '');
                 result = JSON.parse(result)
-            }catch (e){
-                logger.debug('facebook解析失败',result);
-                return callback(e,{code:102,p:40})
+            } catch (e) {
+                logger.debug('facebook解析失败', result);
+                return callback(e, {code: 102, p: 40})
             }
             result = result.jsmods.markup;
             $ = cheerio.load(result[6][1].__html);
-            bid = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a').eq(1).attr('href').match(/vb\.\d*/).toString().replace('vb.','');
+            bid = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a').eq(1).attr('href').match(/vb\.\d*/).toString().replace('vb.', '');
             name = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a>span').text();
             avatar = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a>img').attr('src');
             res = {
@@ -2487,7 +2487,53 @@ class DealWith {
                 avatar: avatar,
                 p: 40
             };
-            callback(null,res);
+            callback(null, res);
+        })
+    }
+
+    renren ( data, callback ){
+        let urlObj   = URL.parse(data,true),
+            host     = urlObj.hostname,
+            hash     = urlObj.hash,
+            res      = null,
+            vid      = host === 'rr.tv' ? hash.split('/')[2] : urlObj.query.id,
+            avatar   = null,
+            options = {
+                method: 'POST',
+                url: 'http://web.rr.tv/v3plus/video/detail',
+                headers:
+                    { clienttype: 'web',
+                        clientversion: '0.1.0',
+                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                        referer: 'http//rr.tv/'
+                    },
+                form: {
+                    videoId: vid
+                }
+        };
+        r(options, (error, response, body) => {
+            if(error){
+                logger.debug('视频接口请求失败',error.message);
+                return callback(error, {code:102,p:41})
+            }
+            if(response.statusCode != 200){
+                logger.debug('视频接口状态码错误',response.statusCode);
+                return callback(response.statusCode, {code:102,p:41})
+            }
+            try{
+                body = JSON.parse(body);
+            }catch (e){
+                logger.debug('数据解析失败：',body);
+                return callback(e,{code:103,p:41})
+            }
+            avatar = body.data.videoDetailView.author.headImgUrl || 'https://img.rr.tv/static/images/20170307/img_me_userpic.png';
+            res = {
+                id: body.data.videoDetailView.author.id,
+                name: body.data.videoDetailView.author.nickName,
+                avatar: avatar,
+                p: 41
+            };
+            callback(null,res)
         })
     }
 }
