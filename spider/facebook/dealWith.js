@@ -199,8 +199,8 @@ class dealWith {
         )
     }
     getMedia( task, video, callback ){
-        logger.debug(202, video.find('div._3v4h>a'))
-        let aid = video.find('div._3v4h>a').attr('href').split('/')[3];
+        let aid = video.find('div._3v4h>a').attr('href');
+        aid = aid ? aid.split('/')[3] : video.find('div._5asl>a.__-q').attr('href').split('/')[3];
         async.series(
             [
                 (cb) => {
