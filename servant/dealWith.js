@@ -2450,16 +2450,95 @@ class DealWith {
             aid = null,
             option = {
                 ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
-                referer: `https://www.facebook.com/pg/${pathname.split('/')[1]}/videos/?ref=page_internal`
+                referer: `https://www.facebook.com/pg/${pathname.split('/')[1]}/videos/?ref=page_internal`,
+                proxy: 'http://127.0.0.1:56777'
             },
             res, bid, name, avatar, $;
         if (query.type) {
             aid = pathname.split('/')[4];
-        } else {
+        }else if(/\d+/.test(pathname.split('/')[3])){
             aid = pathname.split('/')[3];
+        }else if(pathname.split('/')[3] == 'videos'){
+            option.url = data;
+            option.referer = 'https://www.facebook.com';
+            return request.get(option, (err, result) => {
+                if (err) {
+                    logger.debug('facebook视频列表页请求失败', err);
+                    return callback(err, {code: 102, p: 40})
+                }
+                let $ = cheerio.load(result.body),
+                    script = $('script')[5].children[0].data,
+                    name;
+                try{
+                    script = script.replace('new (require("ServerJS"))().setServerFeatures("iw").handle(','').replace(');','');
+                    script = JSON.parse(script)
+                }catch (e){
+                    logger.debug('视频列表页解析失败',script);
+                    return callback(err, {code: 102, p: 40})
+                }
+                for (let i = 0; i < script.markup.length; i++){
+                    if(script.markup[i] && script.markup[i][2] == 1){
+                        $ = cheerio.load(script.markup[i][1].__html);
+                        name = $('span._33vv').text();
+                    }
+                }
+                for(let i = 0; i < script.require.length; i++){
+                    if(script.require[i] && script.require[i][3] && script.require[i][3][1]){
+                        if(script.require[i][3][1].name && script.require[i][3][1].name == name){
+                            res = {
+                                id: script.require[i][3][1].pageID,
+                                name: name,
+                                avatar: script.require[i][3][1].usernameEditDialogProfilePictureURI,
+                                p: 40
+                            };
+                        }
+                    }
+                }
+                return callback(null,res)
+            });
+        }else if(pathname.split('/').length <= 3){
+            option.url = data;
+            option.referer = 'https://www.facebook.com';
+            return request.get(option, (err, result) => {
+                if (err) {
+                    logger.debug('facebook视频列表页请求失败', err);
+                    return callback(err, {code: 102, p: 40})
+                }
+                let $ = cheerio.load(result.body),
+                    script = $('script')[5].children[0].data,
+                    name,
+                    startIndex = null,
+                    endIndex = null,
+                    isEnd = script.indexOf('new (require("ServerJS"))().setServerFeatures("iw").handle(');
+                if(isEnd === -1){
+                    script = $('script')[11].children[0].data;
+                    startIndex = script.indexOf('.schedule(');
+                    endIndex = script.indexOf(', function()');
+                    script = script.substring(startIndex+10,endIndex)
+                    try{
+                        script = JSON.parse(script)
+                    }catch (e){
+                        logger.debug('-1视频列表页解析失败',result.body);
+                        return callback(err, {code: 102, p: 40})
+                    }
+                    $ = cheerio.load(script.content.__html);
+                    bid = JSON.parse($('div.notTransparent.coverPhotoSection').attr('data-store')).log_data.page_id;
+                    name = $('div._4g34._1p72 span._1p7o').text();
+                    startIndex = $('div._4g33._1p70 i').attr('style').indexOf('url("');
+                    endIndex = $('div._4g33._1p70 i').attr('style').indexOf('")');
+                    avatar = $('div._4g33._1p70 i').attr('style').substring(startIndex+5,endIndex);
+                    res = {
+                        id: bid,
+                        name: name,
+                        avatar: avatar,
+                        p: 40
+                    };
+                    //logger.debug(startIndex,'---',endIndex)
+                    return callback(null, res);
+                }
+            });
         }
         option.url = `https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={"type":"3","source":"12","v":"${aid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`;
-        //logger.debug(option.url);
         request.get(option, (err, result) => {
             if (err) {
                 logger.debug('facebook请求失败', err);
