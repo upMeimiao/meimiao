@@ -1030,7 +1030,7 @@ class DealWith {
             v_array = path.split('/'),
             id = v_array[2],
             option = {
-                url: api.xiaoying.url + id
+                url: api.xiaoying.url + id + `&_=${new Date().getTime()}`
             };
         request.get( option, (err,result) => {
             if(err){
