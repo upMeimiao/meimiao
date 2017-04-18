@@ -201,6 +201,7 @@ class dealWith {
     getMedia( task, video, callback ){
         let aid = video.find('div._3v4h>a').attr('href');
         aid = aid ? aid.split('/')[3] : video.find('div._5asl>a.__-q').attr('href').split('/')[3];
+        let time = video.find('div._5ig6').text();
         async.series(
             [
                 (cb) => {
@@ -223,6 +224,7 @@ class dealWith {
                     comment_num: result[0].commentNum,
                     play_num: result[0].playNum,
                     forward_num: result[0].sharecount,
+                    long_t: spiderUtils.longTime(time),
                     a_create_time: result[0].time
                 };
                 media = spiderUtils.deleteProperty(media)
