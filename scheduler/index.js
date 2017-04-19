@@ -49,12 +49,10 @@ class scheduler {
               } else {
                 switch (osName) {
                   case 'servant_3':
-                    rule.second = [0];
-                    // rule.second = [0, 6, 12, 18, 24, 30, 36, 45, 51, 57];
+                    rule.second = [0, 6, 12, 18, 24, 30, 36, 45, 51, 57];
                     break;
                   case 'iZ28ilm78mlZ':
-                    rule.second = [30];
-                    // rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
+                    rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
                     break;
                   default:
                     rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24,
