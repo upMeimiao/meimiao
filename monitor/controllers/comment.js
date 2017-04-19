@@ -6,9 +6,7 @@ const pidMap = require('../../taskArray');
 
 const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/3', {
   reconnectOnError(err) {
-    if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
-      return true;
-    }
+    return err.message.slice(0, 'READONLY'.length) === 'READONLY';
   }
 });
 
@@ -18,7 +16,8 @@ exports.getAid = (req, res) => {
     key = `c:${p}:${bid}`;
   redis.smembers(key, (err, result) => {
     if (err) {
-      return res.status(502).json({ status: false });
+      res.status(502).json({ status: false });
+      return;
     }
     const list = [];
     for (const [index, elem] of result.entries()) {
@@ -43,7 +42,8 @@ exports.getCommentList = (req, res) => {
     key = `c:${p}:${bid}:${aid}`;
   redis.smembers(key, (err, result) => {
     if (err) {
-      return res.status(502).json({ status: false });
+      res.status(502).json({ status: false });
+      return;
     }
     const list = [];
     for (const [index, elem] of result.entries()) {

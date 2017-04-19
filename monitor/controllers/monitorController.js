@@ -1,5 +1,4 @@
 const Redis = require('ioredis');
-const schedule = require('node-schedule');
 const async = require('async');
 const request = require('request');
 const crypto = require('crypto');
@@ -9,14 +8,62 @@ const logging = require('log4js');
 const logger = logging.getLogger('状态监控');
 const monitorClint = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/5', {
   reconnectOnError(err) {
-    if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
-      return true;
-    }
+    return err.message.slice(0, 'READONLY'.length) === 'READONLY';
   }
 });
-const taskStatusMonitor = () => {
-  setInterval(_getFailedTask, 60000);
-  setInterval(_getInactiveTask, 60000);
+const _saveInactiveLog = (info) => {
+  const numArr = [];
+  for (let i = 0; i < 39; i += 1) {
+    numArr[i] = 0;
+  }
+  for (const [index, item] of info.entries()) {
+    numArr[item.p - 1] += 1;
+  }
+  let i = 1, key;
+  async.whilst(
+    () => i <= numArr.length,
+    (cb) => {
+      key = `inactive:${i}`;
+      monitorClint.hmset(key, 'p', i, 'num', numArr[i - 1], () => {
+        i += 1;
+        cb();
+      });
+    }
+  );
+};
+const _saveFailedLog = (info) => {
+  let i = 0, task, key, hash;
+  async.whilst(
+    () => i < info.length,
+    (cb) => {
+      task = info[i];
+      hash = crypto.createHash('md5');
+      hash.update(`${task.p}:${task.bid}`);
+      key = `failed:${hash.digest('hex')}`;
+      monitorClint.hmget(key, 'times', 'firstTime', 'lastTime', (err, result) => {
+        if (result[0] && Number(task.failed_at) !== Number(result[1])) {
+          if (task.failed_at < result[1]) {
+            monitorClint.hmset(key, 'times', Number(result[0]) + 1, 'firstTime', task.failed_at, 'lastTime', result[1]);
+          } else if (task.failed_at > result[2]) {
+            monitorClint.hmset(key, 'times', Number(result[0]) + 1, 'lastTime', task.failed_at);
+          } else {
+            monitorClint.hmset(key, 'times', Number(result[0]) + 1);
+          }
+          delete task.failed_at;
+          monitorClint.sadd('failed', JSON.stringify(task));
+        }
+        if (!result[0]) {
+          monitorClint.hmset(key, 'times', 1, 'firstTime', task.failed_at, 'lastTime', task.failed_at);
+          // monitorClint.expire(key, 200)
+          monitorClint.expire(key, 86400);
+          delete task.failed_at;
+          monitorClint.sadd('failed', JSON.stringify(task));
+        }
+        i += 1;
+        cb();
+      });
+    }
+  );
 };
 const _getInactiveTask = () => {
   const options = {
@@ -52,9 +99,9 @@ const _getInactiveTask = () => {
           });
         }
       }
-            // inactiveTask.push({
-            //     p: Number(elem.data.p)
-            // })
+      // inactiveTask.push({
+      //     p: Number(elem.data.p)
+      // })
     }
     _saveInactiveLog(inactiveTask);
   });
@@ -92,59 +139,9 @@ const _getFailedTask = () => {
     _saveFailedLog(filedTask);
   });
 };
-const _saveInactiveLog = (info) => {
-  const numArr = [];
-  for (let i = 0; i < 39; i++) {
-    numArr[i] = 0;
-  }
-  for (const [index, item] of info.entries()) {
-    numArr[item.p - 1]++;
-  }
-  let i = 1, key;
-  async.whilst(
-        () => i <= numArr.length,
-        (cb) => {
-          key = `inactive:${i}`;
-          monitorClint.hmset(key, 'p', i, 'num', numArr[i - 1], (err, result) => {
-            i++;
-            cb();
-          });
-        }
-    );
-};
-const _saveFailedLog = (info) => {
-  let i = 0, task, key, hash;
-  async.whilst(
-        () => i < info.length,
-        (cb) => {
-          task = info[i];
-          hash = crypto.createHash('md5');
-          hash.update(`${task.p}:${task.bid}`);
-          key = `failed:${hash.digest('hex')}`;
-          monitorClint.hmget(key, 'times', 'firstTime', 'lastTime', (err, result) => {
-            if (result[0] && task.failed_at != result[1]) {
-              if (task.failed_at < result[1]) {
-                monitorClint.hmset(key, 'times', Number(result[0]) + 1, 'firstTime', task.failed_at, 'lastTime', result[1]);
-              } else if (task.failed_at > result[2]) {
-                monitorClint.hmset(key, 'times', Number(result[0]) + 1, 'lastTime', task.failed_at);
-              } else {
-                monitorClint.hmset(key, 'times', Number(result[0]) + 1);
-              }
-              delete task.failed_at;
-              monitorClint.sadd('failed', JSON.stringify(task));
-            }
-            if (!result[0]) {
-              monitorClint.hmset(key, 'times', 1, 'firstTime', task.failed_at, 'lastTime', task.failed_at);
-                    // monitorClint.expire(key, 200)
-              monitorClint.expire(key, 86400);
-              delete task.failed_at;
-              monitorClint.sadd('failed', JSON.stringify(task));
-            }
-            i++;
-            cb();
-          });
-        }
-    );
+const taskStatusMonitor = () => {
+  setInterval(_getFailedTask, 60000);
+  setInterval(_getInactiveTask, 60000);
 };
 taskStatusMonitor();
 exports.monitorClint = monitorClint;

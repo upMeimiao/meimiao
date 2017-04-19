@@ -3,6 +3,7 @@ oneTimeTask/avatar/*.js
 authenticate/**/*.js
 lib/req.js
 monitorSpider/**/*.js
-
+monitor/controllers/mSpiderServer.js
+monitor/public/**/*.js
 servant/dealWith.js
 spider/*/*.js

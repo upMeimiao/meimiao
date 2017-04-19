@@ -20,7 +20,7 @@ exports.sendAlarm = (subject, content) => {
     text: content, // plaintext body
     html: content // html body
   };
-  transporter.sendMail(mailOptions, (error, info) => {
+  transporter.sendMail(mailOptions, (error) => {
     if (error) {
       console.log('error in sending Email', error);
     }

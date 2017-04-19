@@ -32,7 +32,8 @@ const _inactiveTaskAlarm = () => {
       client.hget(key, 'num', (err, result) => {
         if (err) {
           i += 1;
-          return cb();
+          cb();
+          return;
         }
         if (result > 0) {
           inactiveArr.push({
@@ -79,7 +80,7 @@ const _getFailedInfo = (info, callback) => {
         cb(null, null);
         return;
       }
-      if (result[1] < new Date().getTime() - 1800000){
+      if (result[1] < new Date().getTime() - 1800000) {
         cb(null, null);
         return;
       }
@@ -105,7 +106,8 @@ const _failedTaskAlarm = () => {
       client.sscan('failed', cursor, 'count', 100, (err, result) => {
         if (err) {
           logger.debug(err);
-          return cb();
+          cb();
+          return;
         }
         if (Number(result[0]) === 0) {
           sign = false;

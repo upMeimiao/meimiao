@@ -13,14 +13,14 @@ const transporter = nodemailer.createTransport({
 exports.sendAlarm = (subject, content) => {
   const mailOptions = {
     from: '"常君豪" <changjunhao@meimiao.net>', // sender address
-    to: ['changjunhao@meimiao.net', 'zhupenghui@meimiao.net',], // list of receivers
+    to: ['changjunhao@meimiao.net', 'zhupenghui@meimiao.net'], // list of receivers
     subject, // Subject line
     text: content, // plaintext body
     html: content // html body
   };
-  transporter.sendMail(mailOptions, (error, info) => {
+  transporter.sendMail(mailOptions, (error) => {
     if (error) {
-
+      console.log(error);
     }
   });
 };
@@ -36,7 +36,8 @@ exports.sendEmail = (req, res) => {
 // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      return res.status(500).json({ error });
+      res.status(500).json({ error });
+      return;
     }
     res.json({ message: info.response });
   });
