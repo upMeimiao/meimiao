@@ -316,6 +316,9 @@ class DealWith {
                         avatar: back.data.user.avatar,
                         p: 2
                     };
+                if(Number(res.id) <= 100){
+                    return callback(true,{code:103,p:2})
+                }
                 callback(null,res)
             })
         })
