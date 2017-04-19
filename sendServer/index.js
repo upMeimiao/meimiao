@@ -48,13 +48,13 @@ class sendServer {
       this.sendOnline(raw, time);
     });
     this.on('send_data_staging', (raw, time) => {
-      this.send_staging(raw, time);
+      this.sendStaging(raw, time);
     });
     this.assembly();
   }
   getData() {
     const key = [], list = [];
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 500; i += 1) {
       key[i] = ['lpop', 'cache'];
     }
     this.redis.pipeline(
@@ -94,7 +94,7 @@ class sendServer {
     request.post(this.onlineOption, (err, res, result) => {
       if (err) {
         logger.error('online occur error : ', err.message);
-        time++;
+        time += 1;
         if (time > 3) {
           list = null;
           time = null;
@@ -109,7 +109,7 @@ class sendServer {
       if (res.statusCode !== 200) {
         logger.error(`online errorCode: ${res.statusCode}`);
         logger.error(result);
-        time++;
+        time += 1;
         if (time > 3) {
           list = null;
           time = null;
@@ -126,46 +126,46 @@ class sendServer {
       } catch (e) {
         logger.error('online 返回数据 json数据解析失败');
         logger.error(result);
-                // logger.error(JSON.stringify(newList))
+        // logger.error(JSON.stringify(newList))
         list = null;
         time = null;
         newList = null;
         return;
       }
       if (Number(result.errno) === 0) {
-                // logger.debug('online back end')
+        // logger.debug('online back end')
         logger.debug(`${newList.length}个视频 online back end`);
-                // logger.debug('online back end',result.data)
+        // logger.debug('online back end',result.data)
       } else {
-                // logger.error('staging back error')
+        // logger.error('staging back error')
         logger.error(result);
-                // logger.error('media info: ',list)
+        // logger.error('media info: ',list)
       }
-            // logger.debug(`${newList.length}个视频 online back end`)
+      // logger.debug(`${newList.length}个视频 online back end`)
       list = null;
       newList = null;
       time = null;
     });
   }
-  send_staging(list, time) {
+  sendStaging(list, time) {
     if (list.length === 0) {
       list = null;
       return;
     }
-        // let newList = [],length = Math.min(list.length,150)
-        // for(let i = 0; i < length; i++){
-        //     newList.push(list[i])
-        // }
+    // let newList = [],length = Math.min(list.length,150)
+    // for(let i = 0; i < length; i++){
+    //     newList.push(list[i])
+    // }
     this.stagingOption.body = JSON.stringify({ data: list });
-        // this.stagingOption.form = {data: list}
+    // this.stagingOption.form = {data: list}
     request.post(this.stagingOption, (err, res, result) => {
       if (err) {
         logger.error('staging occur error : ', err.message);
-        time++;
+        time += 1;
         if (time > 3) {
           list = null;
           time = null;
-                    // newList = null
+          // newList = null
         } else {
           setTimeout(() => {
             this.emit('send_data_staging', list, time);
@@ -176,11 +176,11 @@ class sendServer {
       if (res.statusCode !== 200) {
         logger.error(`staging errorCode: ${res.statusCode}`);
         logger.error(result);
-        time++;
+        time += 1;
         if (time > 3) {
           list = null;
           time = null;
-                    // newList = null
+          // newList = null
         } else {
           setTimeout(() => {
             this.emit('send_data_staging', list, time);
@@ -199,18 +199,18 @@ class sendServer {
         return;
       }
       if (Number(result.errno) === 0) {
-                // logger.debug('staging back end')
-                // logger.info(result.data)
+        // logger.debug('staging back end')
+        // logger.info(result.data)
         logger.debug(`${list.length}个视频 staging back end`);
       } else {
-                // logger.error('staging back error')
+        // logger.error('staging back error')
         logger.error(result);
-                // logger.error('media info: ',list)
+        // logger.error('media info: ',list)
       }
-            // logger.info('客户端发出', list)
-            // logger.debug(`${list.length}个视频 staging back end`)
+      // logger.info('客户端发出', list)
+      // logger.debug(`${list.length}个视频 staging back end`)
       list = null;
-            // newList = null
+      // newList = null;
       time = null;
     });
   }

@@ -1,2 +1,7 @@
+sendServer/index_v1.js
+oneTimeTask/avatar/*.js
+lib/req.js
+monitorSpider/**/*.js
+monitor/**/*.js
 servant/dealWith.js
 spider/*/*.js

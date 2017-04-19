@@ -50,17 +50,16 @@ class scheduler {
                 switch (osName) {
                   case 'servant_3':
                     rule.second = [0, 6, 12, 18, 24, 30, 36, 45, 51, 57];
-                    // rule.minute = [0,2,4,6,8,10,11,12,14,16,18,20,22,24,25,26,28,30,31,32,34,36,38,40,42,44,46,48,50,52,54,56,58]
                     break;
                   case 'iZ28ilm78mlZ':
-                    // rule.minute = [1,3,5,7,9,11,13,15,16,17,19,20,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59]
                     rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
                     break;
                   default:
-                    rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57];
+                    rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24,
+                      27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57];
                     break;
                 }
-                const j = schedule.scheduleJob(rule, () => {
+                schedule.scheduleJob(rule, () => {
                   this.getTask();
                 });
               }
@@ -88,7 +87,7 @@ class scheduler {
       this.createQueue(raw);
     });
     this.on('origin_youtube', (raw) => {
-      this.origin_youtube(raw);
+      this.originOverseas(raw);
     });
     this.on('redis_error', (raw) => {
             /**
@@ -149,7 +148,7 @@ class scheduler {
       this.emit('task_loaded', body);
     });
   }
-  origin_youtube(raw) {
+  originOverseas(raw) {
     const options = {
       method: 'POST',
       url: 'http://spider-overseas.meimiaoip.com:51905/origin/sc/',
@@ -165,34 +164,29 @@ class scheduler {
     });
   }
   createQueue(raw) {
-    if ((Number(raw.p) === 39 || Number(raw.p) === 40) && !raw.origin) {
+    const p = Number(raw.p);
+    if ((p === 39 || p === 40) && !raw.origin) {
       raw.origin = true;
       this.emit('origin_youtube', raw);
       return;
     }
-    if ((raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206')) {
+    if ((p === 6 && raw.id === '6116731501') || (p === 2 && raw.id === '1045961206')) {
       return;
     }
-        // if((raw.p == 12 && (raw.id == '366570608' || raw.id == '102599789' || raw.id == '113077877' || raw.id == '120663556' || raw.id == '113077233' || raw.id == '113077988' || raw.id == '120663663' || raw.id == '120663623' || raw.id == '113077745' || raw.id == '113077370' || raw.id == '366571453' || raw.id == '120663699'))|| (raw.p == 6 && raw.id == '6116731501') || (raw.p == 2 && raw.id == '1045961206')){
-        //     return
-        // }
     let job = this.queue.create(raw.platform, {
       id: raw.id,
       p: raw.p,
       name: raw.name,
       encodeId: raw.encodeId,
       type: raw.type
-            // user_id: raw.uid
+      // user_id: raw.uid
     }).priority('critical').backoff({ delay: 150 * 1000, type: 'fixed' }).removeOnComplete(true);
-        // if(raw.p == 6 || ((raw.p == 2 && raw.id == '1060140460') || (raw.p == 2 && raw.id == '1045961206'))){
-        //     job.ttl(10800000)
-        // }
-    if (raw.p != 6 && !(raw.p == 2 && raw.id == '1060140460') && !(raw.p == 2 && raw.id == '1045961206')) {
+    if (p !== 6 && !(p === 2 && raw.id === '1060140460') && !(p === 2 && raw.id === '1045961206')) {
       job.attempts(5);
     }
-        // if(!job.data.user_id){
-        //     delete job.data.user_id
-        // }
+    // if(!job.data.user_id){
+    //     delete job.data.user_id
+    // }
     if (job.data.type === 0) {
       delete job.data.type;
     }
@@ -212,20 +206,11 @@ class scheduler {
       raw = null;
     });
   }
-    // getUserId ( raw, callback ){
-    //     const key = raw.p + ':' + raw.id
-    //     this.taskDB.hget( key, 'uid',(err,result)=>{
-    //         if( err ){
-    //             scheduler.emit( 'redis_error', {db: 'taskDB',action: 2})
-    //             return callback(err,raw)
-    //         }
-    //         raw.uid = result
-    //         callback(null,raw)
-    //     })
-    // }
   checkKue(raw) {
-    if (((Number(raw.p) === 39 || Number(raw.p) === 40) && !raw.origin) || (Number(raw.p) === 39 || Number(raw.p) === 40) && raw.first) {
-      return this.emit('task_set_create', raw);
+    const p = Number(raw.p);
+    if (((p === 39 || p === 40) && !raw.origin) || ((p === 39 || p === 40) && raw.first)) {
+      this.emit('task_set_create', raw);
+      return;
     }
     const key = `${raw.p}:${raw.id}`;
     this.taskDB.hget(key, 'kue_id', (err, result) => {
@@ -234,10 +219,10 @@ class scheduler {
         return;
       }
       const url = `http://${this.settings.kue.ip}:3000/api/job/${result}`;
-            // const url = `http://127.0.0.1:3000/api/job/${result}`
-      request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
-        if (err) {
-          logger.error('occur error : ', err);
+      // const url = `http://127.0.0.1:3000/api/job/${result}`
+      request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (error, res, body) => {
+        if (error) {
+          logger.error('occur error : ', error);
           return;
         }
         if (res.statusCode !== 200) {
@@ -251,14 +236,16 @@ class scheduler {
           return;
         }
         if (body.error) {
-          return this.emit('task_set_create', raw);
+          this.emit('task_set_create', raw);
+          return;
         }
         const time = new Date().getTime();
         if ((body.state === 'active' || body.state === 'delayed') && time - body.updated_at > 3600000) {
-          return this.emit('task_set_create', raw);
+          this.emit('task_set_create', raw);
+          return;
         }
         if (body.state === 'failed') {
-          return this.emit('task_set_create', raw);
+          this.emit('task_set_create', raw);
         }
       });
     });

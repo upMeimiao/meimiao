@@ -29,7 +29,7 @@ if (options.h) {
   userArgv.showHelp();
   process.exit();
 }
-const settings = require(`./instance/${options.i}/` + 'settings.json');
+const settings = require(`./instance/${options.i}/settings.json`);
 settings.instance = options.i;
 // log level
 let logLevel = 'TRACE';
@@ -44,7 +44,7 @@ const scheduler = () => {
 const servant = () => {
   const logger = logging.getLogger('平台', options.i, logLevel);
   settings.logger = logger;
-  settings.port = parseInt(options.p);
+  settings.port = parseInt(options.p, 10);
   settings.instance = options.i;
   const spider = new (require('./servant'))(settings);
   spider.start();
