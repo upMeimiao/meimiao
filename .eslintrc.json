@@ -16,6 +16,7 @@
     "import/no-dynamic-require": "off",
     "one-var": "off",
     "one-var-declaration-per-line": "off",
-    "class-methods-use-this": 1
+    "class-methods-use-this": 1,
+    "linebreak-style": "off"
   }
 }

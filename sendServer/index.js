@@ -1,4 +1,3 @@
-const async = require('async');
 const request = require('request');
 const util = require('util');
 const events = require('events');
@@ -25,9 +24,7 @@ class sendServer {
     };
     this.redis = new Redis(`redis://:${settings.redis.auth}@${settings.redis.host}:${settings.redis.port}/${settings.redis.cache_db}`, {
       reconnectOnError(err) {
-        if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
-          return true;
-        }
+        return err.message.slice(0, 'READONLY'.length) === 'READONLY';
       }
     });
     logger.trace('sendServer instantiation ...');
@@ -91,8 +88,8 @@ class sendServer {
       newList = null;
       return;
     }
-        // this.onlineOption.body = JSON.stringify({data: list})
-        // this.onlineOption.form = {data: newList}
+    // this.onlineOption.body = JSON.stringify({data: list})
+    // this.onlineOption.form = {data: newList}
     this.onlineOption.body = JSON.stringify({ data: newList });
     request.post(this.onlineOption, (err, res, result) => {
       if (err) {
