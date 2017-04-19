@@ -2,6 +2,7 @@ const URL = require('url');
 const cheerio = require('cheerio');
 const request = require( '../lib/req' );
 const r = require('request');
+
 const jsonp = function (data) {
     return data
 };
