@@ -252,6 +252,9 @@ class spiderCore {
       case 'mobile.rr.tv':
         this.handle.renrenHandle(ctx, remote);
         break;
+      case 'www.click-v.com':
+        this.handle.dianshiHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');

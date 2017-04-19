@@ -2619,5 +2619,46 @@ class DealWith {
             callback(null,res)
         })
     }
+  dianshi ( data, callback ){
+    let urlObj   = URL.parse(data,true),
+      res      = null,
+      vid      = urlObj.query.videoId,
+      options = {
+        method: 'POST',
+        url: 'https://prod2.click-v.com/ds_platform/video/getVideoDetails',
+        headers:
+          {
+            'content-type': 'application/json',
+            'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+          },
+        body: { videoId: vid },
+        json: true
+      };
+    r(options, (error, response, body) => {
+      if(error){
+        logger.debug('视频接口请求失败',error.message);
+        return callback(error, {code:102,p:41})
+      }
+      if(response.statusCode != 200){
+        logger.debug('视频接口状态码错误',response.statusCode);
+        return callback(response.statusCode, {code:102,p:41})
+      }
+      try{
+        if(typeof body != 'object'){
+          body = JSON.parse(body)
+        }
+      }catch (e){
+        logger.debug('数据解析失败：',body);
+        return callback(e,{code:103,p:41})
+      }
+      res = {
+        id: body.data.brand.brandId,
+        name: body.data.brand.brandName,
+        avatar: body.data.brand.brandIconUrl,
+        p: 41
+      };
+      callback(null,res)
+    })
+  }
 }
 module.exports = DealWith;
