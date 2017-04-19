@@ -43,48 +43,48 @@ echo "启动微博"
 pm2 start ~/newStart/weibo.json
 echo "任务微博启动完成"
 
-echo "第一优先级任务启动完成"
-
-echo "启动第二级别任务"
-
 echo "启动乐视"
 pm2 start ~/newStart/le.json
 echo "任务乐视启动完成"
-
-echo "启动一点资讯"
-pm2 start ~/newStart/yidian.json
-echo "任务一点资讯启动完成"
 
 echo "启动土豆"
 pm2 start ~/newStart/tudou.json
 echo "任务土豆启动完成"
 
-echo "启动爆米花"
-pm2 start ~/newStart/baomihua.json
-echo "任务爆米花启动完成"
+echo "第一优先级任务启动完成"
 
-echo "启动网易"
-pm2 start ~/newStart/wangyi.json
-echo "任务网易启动完成"
+echo "启动第二级别任务"
+
+echo "启动一点资讯"
+pm2 start ~/newStart/yidian.json
+echo "任务一点资讯启动完成"
+
+echo "启动56视频"
+pm2 start ~/newStart/tv56.json
+echo "任务56视频启动完成"
 
 echo "启动AcFun"
 pm2 start ~/newStart/acfun.json
 echo "任务AcFun启动完成"
 
+echo "启动网易"
+pm2 start ~/newStart/wangyi.json
+echo "任务网易启动完成"
+
 echo "启动UC头条"
 pm2 start ~/newStart/uctt.json
 echo "任务UC头条启动完成"
 
-echo "启动凤凰号"
-pm2 start ~/newStart/ifeng.json
-echo "任务凤凰号启动完成"
-
-echo "启动百度百家"
-pm2 start ~/newStart/baijia.json
-echo "任务百度百家启动完成"
+echo "启动芒果TV"
+pm2 start ~/newStart/mgtv.json
+echo "任务芒果TV启动完成"
 
 echo "启动QQ空间"
 pm2 start ~/newStart/qzone.json
 echo "任务启动QQ空间完成"
+
+echo "启动PPTV"
+pm2 start ~/newStart/pptv.json
+echo "任务启动完成"
 
 echo "第二优先级任务启动完成"

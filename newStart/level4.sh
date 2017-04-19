@@ -53,11 +53,7 @@ echo "任务土豆启动完成"
 
 echo "第一优先级任务启动完成"
 
-echo "启动第四级别任务"
-
-echo "启动暴风影音"
-pm2 start ~/newStart/baofeng.json
-echo "任务暴风影音启动完成"
+echo "启动第五级别任务"
 
 echo "启动微视"
 pm2 start ~/newStart/weishi.json
@@ -75,16 +71,16 @@ echo "启动新蓝网"
 pm2 start ~/newStart/xinlan.json
 echo "任务新蓝网启动完成"
 
-echo "启动梨视频"
-pm2 start ~/newStart/liVideo.json
-echo "任务梨视频启动完成"
+echo "启动YY"
+pm2 start ~/newStart/yy.json
+echo "任务YY启动完成"
 
-echo "启动第一视频"
-pm2 start ~/newStart/v1.json
-echo "任务第一视频启动完成"
+echo "启动百度视频"
+pm2 start ~/newStart/baiduVideo.json
+echo "任务百度视频启动完成"
 
-echo "启动CCTV"
-pm2 start ~/newStart/cctv.json
-echo "任务启动完成"
+echo "启动人人视频"
+pm2 start ~/newStart/renren.json
+echo "任务人人视频启动完成"
 
 echo "第四优先级任务启动完成"
