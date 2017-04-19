@@ -3165,5 +3165,72 @@ class DealWith {
         }
         callback()
     }
+    renren( verifyData, callback ){
+        let htmlUrl  = verifyData.remote,
+            userVal  = verifyData.verifyCode.replace(/\s/g,""),
+            urlObj   = URL.parse(htmlUrl,true),
+            hash     = urlObj.hash,
+            cycle    = true,
+            page     = 1,
+            option   = {
+                url: 'http://web.rr.tv/v3plus/comment/list',
+                headers:{
+                    Referer: 'http://rr.tv/',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                    clientType: 'web',
+                    clientVersion: '0.1.0'
+                },
+                data: {
+                    videoId: hash.split('/')[2]
+                }
+            };
+            async.whilst(
+                () => {
+                    return cycle
+                },
+                (cb) => {
+                    option.data.page = page;
+                    request.post(logger, option, (err, result) => {
+                        if(err){
+                            logger.debug('评论信息请求失败',err);
+                            return cb()
+                        }
+                        try{
+                            result = JSON.parse(result.body);
+                        }catch (e){
+                            logger.debug('解析失败',result.body);
+                            return cb()
+                        }
+                        if(result.data.results <= 0){
+                            cycle = false;
+                            return cb()
+                        }
+                        this.renrendeal(result.data.results, userVal, (err, result) => {
+                            if(result){
+                                return callback(null,result)
+                            }
+                            page++;
+                            cb()
+                        })
+                    })
+                },
+                (err, result) => {
+                    logger.debug('结束，信息没找到');
+                    callback(null,{code:105,p:41})
+                }
+            )
+    }
+    renrendeal( commens, userVal, callback ){
+        let data = {};
+        for(let i = 0; i < commens.length; i++){
+            if(userVal == commens[i].content.replace(/\s/g,'')){
+                data.id = commens[i].author.id;
+                data.name = commens[i].author.nickName;
+                data.p = 41;
+                return callback(null,data)
+            }
+        }
+        callback()
+    }
 }
 module.exports = DealWith;

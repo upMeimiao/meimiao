@@ -195,10 +195,14 @@ class spiderCore {
             case 'www.facebook.com':
                 handle.facebookHandle( ctx, verifyData );
                 break;
+            case 'rr.tv':
+            case 'mobile.rr.tv':
+                handle.renrenHandle( ctx, verifyData );
+                break;
             default:
-                res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-                res.writeHead(200)
-                res.end(JSON.stringify({errno:100,errmsg:'暂不支持该平台或该URL非合法校验地址'}))
+                res.setHeader('Content-Type',`text/plain;charset=utf-8`);
+                res.writeHead(200);
+                res.end(JSON.stringify({errno:100,errmsg:'暂不支持该平台或该URL非合法校验地址'}));
                 return
         }
     }
