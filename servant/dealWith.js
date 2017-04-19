@@ -634,20 +634,24 @@ class DealWith {
                 return callback(true,{code:102,p:11})
             }
             let $ = cheerio.load(result.body),
-                name = $('#source-name').text(),
-                href = $('#source-name').attr('href');
+                name = $('#source-name').text() || $('div.wemedia-wrapper a.wemedia-name').text(),
+                href = $('#source-name').attr('href') || $('div.wemedia-wrapper a.wemedia-name').attr('href');
             if(!name || !href){
                 logger.error(`url可能不是播放页地址:${data}`);
                 return callback(true,{code:101,p:11})
             }
-            let h_array = href.split('='),
+            let h_array = href.split('=').length <= 1 ? href.split('/') : href.split('='),
                 v_id = h_array[h_array.length-1],
                 docid = $('.interact>span').eq(0).attr('data-docid'),
                 res = {
                     id: v_id,
                     name: name,
-                    p: 11
+                    p: 11,
+                    avatar: docid || $('div.wemedia-wrapper a>img').attr('src')
                 };
+            if(!docid){
+              return callback(null,res)
+            }
             this.yidianAvatar( docid, (err, result) => {
                 if(err){
                     return callback(err,result)
