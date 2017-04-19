@@ -166,7 +166,6 @@ class scheduler {
     });
   }
   createQueue(raw) {
-    logger.debug(raw)
     const p = Number(raw.p);
     if ((p === 39 || p === 40) && !raw.origin) {
       raw.origin = true;
@@ -210,6 +209,7 @@ class scheduler {
     });
   }
   checkKue(raw) {
+    logger.debug(raw);
     const p = Number(raw.p);
     if (((p === 39 || p === 40) && !raw.origin) || ((p === 39 || p === 40) && raw.first)) {
       this.emit('task_set_create', raw);
