@@ -2643,14 +2643,6 @@ class DealWith {
         logger.debug('视频接口状态码错误',response.statusCode);
         return callback(response.statusCode, {code:102,p:41})
       }
-      try{
-        if(typeof body != 'object'){
-          body = JSON.parse(body)
-        }
-      }catch (e){
-        logger.debug('数据解析失败：',body);
-        return callback(e,{code:103,p:41})
-      }
       res = {
         id: body.data.brand.brandId,
         name: body.data.brand.brandName,

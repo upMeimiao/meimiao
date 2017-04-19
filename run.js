@@ -388,6 +388,13 @@ const renren = () => {
   const spider = new (require('./spider/renren'))(settings);
   spider.start();
 };
+const dianshi = () => {
+  const logger = logging.getLogger('点视', options.i, logLevel);
+  settings.logger = logger;
+  settings.instance = options.i;
+  const spider = new (require('./spider/dianshi'))(settings);
+  spider.start();
+};
 const test = () => {
   const logger = logging.getLogger('monitor', options.i, logLevel);
   settings.logger = logger;
@@ -545,6 +552,9 @@ switch (options.a) {
     break;
   case 'renren':
     renren();
+    break;
+  case 'dianshi':
+    dianshi();
     break;
   case 'test':
     test();
