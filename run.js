@@ -1,8 +1,6 @@
 const logging = require('./lib/logger.js');
 // arguments parse
-const userArgv = require('optimist');
-
-userArgv.usage('Usage: $0 -i [instance name] -a [crawl|test|config|proxy|schedule]  -p [num] -l[url] -h')
+const userArgv = require('optimist').usage('Usage: $0 -i [instance name] -a [crawl|test|config|proxy|schedule]  -p [num] -l[url] -h')
     .options('i', {
       alias: 'instance',
       default: 'scheduler',
@@ -24,6 +22,7 @@ userArgv.usage('Usage: $0 -i [instance name] -a [crawl|test|config|proxy|schedul
       alias: 'help',
       describe: 'Help infomation'
     });
+
 const options = userArgv.argv;
 if (options.h) {
   userArgv.showHelp();
