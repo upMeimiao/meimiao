@@ -457,7 +457,7 @@ class DealWith {
           });
         });
       } else {
-        if(back.vppinfo){
+        if(!back.vppinfo){
           callback(err, { code: 104, p: 4 })
           return;
         }
