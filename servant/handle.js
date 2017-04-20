@@ -21,6 +21,9 @@ class Handle {
         case 103:
           data = { errno: 103, errmsg: '不是自频道', data: { platform: result.p } };
           break;
+        case 104:
+          data = { errno: 104, errmsg: '请不要选择最新发布的视频', data: { platform: result.p } };
+          break;
         default:
           data = { errno: 999, errmsg: '未知错误', data: { platform: result.p } };
           break;
