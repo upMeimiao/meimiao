@@ -45,4 +45,11 @@ router.get('/comment/:p/:aid', (req, res) => {
     }
   });
 });
+router.get('/mblog', (req, res) => {
+  res.sendFile('mblog.html', options, (err) => {
+    if (err) {
+      res.render('error', { error: err, message: '哦哦，页面飞了' });
+    }
+  });
+});
 module.exports = router;
