@@ -458,7 +458,7 @@ class DealWith {
         });
       } else {
         if(!back.vppinfo){
-          callback(err, { code: 104, p: 4 })
+          callback(true, { code: 104, p: 4 })
           return;
         }
         const nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault;
