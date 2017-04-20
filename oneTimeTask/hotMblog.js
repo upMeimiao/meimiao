@@ -18,7 +18,7 @@ function send(data, callback) {
   score += 1;
   const option = {
     method: 'POST',
-    url: 'http://localhost:3001/api/hotWeibo',
+    url: 'http://spider-monitor.meimiaoip.com/api/hotWeibo',
     headers: {
       'content-type': 'application/json',
     },
