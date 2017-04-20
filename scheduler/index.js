@@ -27,44 +27,44 @@ class scheduler {
   }
   assembly() {
     myRedis.createClient(this.redis.host,
-            this.redis.port,
-            this.redis.taskDB,
-            this.redis.auth,
-            (err, cli) => {
-              if (err) {
-                logger.error('连接redis数据库出错。错误信息：', err);
-                logger.error('出现错误，程序终止。');
-                this.emit('redis_error', { db: 'taskDB', action: 0 });
-                process.exit();
-                return;
-              }
-              this.taskDB = cli;
-              logger.debug('任务信息数据库连接建立...成功');
-                // this.emit('task_loaded',test_data)
-              const rule = new schedule.RecurrenceRule();
-              const osName = os.hostname();
-                // if (osName === 'iFabledeMacBook-Pro.local') {
-              if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
-                this.createServer();
-              } else {
-                switch (osName) {
-                  case 'servant_3':
-                    rule.second = [0, 6, 12, 18, 24, 30, 36, 45, 51, 57];
-                    break;
-                  case 'iZ28ilm78mlZ':
-                    rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
-                    break;
-                  default:
-                    rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24,
-                      27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57];
-                    break;
-                }
-                schedule.scheduleJob(rule, () => {
-                  this.getTask();
-                });
-              }
-            }
-        );
+      this.redis.port,
+      this.redis.taskDB,
+      this.redis.auth,
+      (err, cli) => {
+        if (err) {
+          logger.error('连接redis数据库出错。错误信息：', err);
+          logger.error('出现错误，程序终止。');
+          this.emit('redis_error', { db: 'taskDB', action: 0 });
+          process.exit();
+          return;
+        }
+        this.taskDB = cli;
+        logger.debug('任务信息数据库连接建立...成功');
+        // this.emit('task_loaded',test_data)
+        const rule = new schedule.RecurrenceRule();
+        const osName = os.hostname();
+        // if (osName === 'iFabledeMacBook-Pro.local') {
+        if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
+          this.createServer();
+        } else {
+          switch (osName) {
+            case 'servant_3':
+              rule.second = [0, 6, 12, 18, 24, 30, 36, 45, 51, 57];
+              break;
+            case 'iZ28ilm78mlZ':
+              rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
+              break;
+            default:
+              rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24,
+                27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57];
+              break;
+          }
+          schedule.scheduleJob(rule, () => {
+            this.getTask();
+          });
+        }
+      }
+    );
   }
   start() {
     logger.trace('启动函数');
@@ -90,9 +90,9 @@ class scheduler {
       this.originOverseas(raw);
     });
     this.on('redis_error', (raw) => {
-            /**
-             * todo send email
-             */
+      /**
+       * todo send email
+       */
       logger.error(raw);
     });
     this.assembly();

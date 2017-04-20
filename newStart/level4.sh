@@ -83,4 +83,8 @@ echo "启动人人视频"
 pm2 start ~/newStart/renren.json
 echo "任务人人视频启动完成"
 
+echo "启动点视"
+pm2 start ~/newStart/dianshi.json
+echo "任务点视启动完成"
+
 echo "第四优先级任务启动完成"

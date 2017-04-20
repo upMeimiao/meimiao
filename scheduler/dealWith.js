@@ -27,15 +27,15 @@ class dealWith {
     );
   }
   classify(_, callback) {
-        // const platform = platformMap.get(Number(_.p)),
-        // baseInfo = {
-        //     id: _.id,
-        //     p: _.p,
-        //     name: _.name,
-        //     platform: platform,
-        //     encodeId: _.encodeId ? _.encodeId : '',
-        //     type: _.type ? _.type : ''
-        // }
+    // const platform = platformMap.get(Number(_.p)),
+    // baseInfo = {
+    //     id: _.id,
+    //     p: _.p,
+    //     name: _.name,
+    //     platform: platform,
+    //     encodeId: _.encodeId ? _.encodeId : '',
+    //     type: _.type ? _.type : ''
+    // }
     const platform = platformMap.get(Number(_.platform)),
       baseInfo = {
         id: _.bid,

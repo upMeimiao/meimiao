@@ -70,9 +70,9 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '12460403',
-      name: '喵招',
-      p: 41
+      id: '775',
+      name: '吃货羽沫旅行记',
+      p: 42
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
@@ -93,8 +93,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('renren', this.settings.concurrency, (job, done) => {
-      logger.trace('Get renren task!');
+    queue.process('dianshi', this.settings.concurrency, (job, done) => {
+      logger.trace('Get dianshi task!');
       const work = job.data,
         key = `${work.p}:${work.id}`;
       logger.info(work);
@@ -138,6 +138,5 @@ class spiderCore {
       });
     });
   }
-
 }
 module.exports = spiderCore;
