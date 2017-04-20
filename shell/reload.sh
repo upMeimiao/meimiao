@@ -239,6 +239,9 @@ then
             '人人视频')
                 ssh root@${loop} 'pm2 reload 人人视频'
                 ;;
+            '点视')
+                ssh root@${loop} 'pm2 reload 点视'
+                ;;
             esac
             echo
             echo "--------------$2数据发送服务重启完成，退出服务器$loop --------------"
