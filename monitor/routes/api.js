@@ -6,6 +6,7 @@ const emailServer = require('../controllers/emailServer');
 const commentCon = require('../controllers/comment');
 const yitiao = require('../controllers/yitiao');
 const uctt = require('../controllers/uctt');
+const mblog = require('../controllers/hotWeibo');
 
 // const apiCon = new ApiController();
 router.use(restc.express());
@@ -42,4 +43,7 @@ router.get('/aid', commentCon.getAid);
 router.get('/commentList', commentCon.getCommentList);
 router.get('/yitiao', yitiao.getMedia);
 router.get('/uctt', uctt.getAids);
+router.route('/hotWeibo')
+  .get(mblog.getMblog)
+  .post(mblog.saveMblog);
 module.exports = router;
