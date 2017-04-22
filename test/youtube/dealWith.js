@@ -183,7 +183,6 @@ class dealWith {
             logger.error(response.statusCode);
             return cb();
           }
-          logger.debug(body);
           try {
             body = JSON.parse(body.replace(')]}\'', '').replace('\\U000267cc', '\\ud859\\udfcc'));
           } catch (e) {
@@ -191,7 +190,6 @@ class dealWith {
             // logger.error(body);
             return cb();
           }
-          logger.debug(index);
           index += 1;
           logger.debug(body.content.continuation_contents);
           if (body.content.continuation_contents.contents[0].continuations) {
@@ -216,9 +214,7 @@ class dealWith {
             conetent = conetents.contents;
           }
           body = null;
-          logger.debug(sign || index > 333)
-          cb();
-          // this.deal(task, conetent, () => cb());
+          this.deal(task, conetent, () => cb());
         });
       },
       () => {
