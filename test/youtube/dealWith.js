@@ -211,7 +211,8 @@ class dealWith {
             conetent = conetents.contents;
           }
           body = null;
-          this.deal(task, conetent, () => cb());
+          cb();
+          // this.deal(task, conetent, () => cb());
         });
       },
       () => {
@@ -260,6 +261,7 @@ class dealWith {
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       }
     };
+    logger.debug(options);
     request(options, (error, response, body) => {
       if (error) {
         logger.error('info error : ', error.message);
