@@ -185,7 +185,7 @@ class dealWith {
           }
           logger.debug(body);
           try {
-            body = JSON.parse(body.replace(')]}\'', ''));
+            body = JSON.parse(body.replace(')]}\'', '').replace('\\U000267cc', '\\ud859\\udfcc'));
           } catch (e) {
             logger.error(e);
             // logger.error(body);
