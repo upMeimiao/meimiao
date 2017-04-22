@@ -395,10 +395,10 @@ const dianshi = () => {
   spider.start();
 };
 const test = () => {
-  const logger = logging.getLogger('monitor', options.i, logLevel);
+  const logger = logging.getLogger('测试', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./monitor'))(settings);
+  const spider = new (require('./test/youtube'))(settings);
   spider.start();
 };
 switch (options.a) {

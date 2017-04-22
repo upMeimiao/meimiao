@@ -60,23 +60,23 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      this.deal();
-      // this.test();
+      // this.deal();
+      this.test();
     });
   }
   start() {
     logger.trace('启动函数');
     this.assembly();
-    // this.test()
-    // setInterval(()=>{
-    //     this.test()
-    // }, 250000)
+        // this.test()
+        // setInterval(()=>{
+        //     this.test()
+        // }, 250000)
   }
   test() {
     const work = {
       p: 39,
-      id: 'UCulFhrW_YCwkq_BP16C82mA',
-      name: 'Yitiao Video 一条视频'
+      id: 'UCJsq4QYu9BaxXDk0qR8Ms3w',
+      name: '美食台 Food Video'
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
