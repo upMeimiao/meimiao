@@ -184,11 +184,12 @@ class dealWith {
             logger.error(response.statusCode);
             return cb();
           }
+          logger.debug(JSON.parse(body.replace(')]}\'', '')));
           try {
             body = JSON.parse(body.replace(')]}\'', ''));
           } catch (e) {
             logger.error(e);
-            logger.error(body);
+            // logger.error(body);
             return cb();
           }
           logger.debug(index);
