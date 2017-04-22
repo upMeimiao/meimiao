@@ -174,6 +174,7 @@ class dealWith {
     async.whilst(
       () => sign || index > 333,
       (cb) => {
+        logger.debug(options);
         request(options, (error, response, body) => {
           if (error) {
             return cb();
@@ -186,9 +187,9 @@ class dealWith {
           } catch (e) {
             return cb();
           }
+          logger.debug(index);
           index += 1;
           logger.debug(body.content.continuation_contents);
-          logger.debug(index);
           if (body.content.continuation_contents.contents[0].continuations) {
             conetents = body.content.continuation_contents.contents[0];
             if (conetents.continuations.length === 0) {
@@ -211,6 +212,7 @@ class dealWith {
             conetent = conetents.contents;
           }
           body = null;
+          logger.debug(sign || index > 333)
           cb();
           // this.deal(task, conetent, () => cb());
         });
@@ -261,7 +263,6 @@ class dealWith {
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       }
     };
-    logger.debug(options);
     request(options, (error, response, body) => {
       if (error) {
         logger.error('info error : ', error.message);
