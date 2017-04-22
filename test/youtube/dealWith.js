@@ -191,7 +191,6 @@ class dealWith {
             return cb();
           }
           index += 1;
-          logger.debug(body.content.continuation_contents);
           if (body.content.continuation_contents.contents[0].continuations) {
             conetents = body.content.continuation_contents.contents[0];
             if (conetents.continuations.length === 0) {
@@ -276,9 +275,9 @@ class dealWith {
         body = JSON.parse(body.replace(')]}\'', ''));
       } catch (e) {
         logger.error(`info json parse:${e.message}`);
+        logger.error(body);
         return callback(e.message);
       }
-      // logger.debug(body)
       let { video_main_content, swfcfg, comment_section } = body.content;
       body = null;
       let media = {
@@ -301,6 +300,9 @@ class dealWith {
       video_main_content = null;
       swfcfg = null;
       comment_section = null;
+      if (media.aid === '1tdkNxAClrw') {
+        logger.debug(media);
+      }
       // logger.debug(media.aid)
       media = spiderUtils.deleteProperty(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
