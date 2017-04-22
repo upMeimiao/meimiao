@@ -177,14 +177,18 @@ class dealWith {
         logger.debug(options);
         request(options, (error, response, body) => {
           if (error) {
+            logger.error(error);
             return cb();
           }
           if (response.statusCode !== 200) {
+            logger.error(response.statusCode);
             return cb();
           }
           try {
             body = JSON.parse(body.replace(')]}\'', ''));
           } catch (e) {
+            logger.error(e);
+            logger.error(body);
             return cb();
           }
           logger.debug(index);
