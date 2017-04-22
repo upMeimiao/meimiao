@@ -174,7 +174,6 @@ class dealWith {
     async.whilst(
       () => sign || index > 333,
       (cb) => {
-        logger.debug(options);
         request(options, (error, response, body) => {
           if (error) {
             logger.error(error);
@@ -184,7 +183,7 @@ class dealWith {
             logger.error(response.statusCode);
             return cb();
           }
-          logger.debug(JSON.parse(body.replace(')]}\'', '')));
+          logger.debug(body);
           try {
             body = JSON.parse(body.replace(')]}\'', ''));
           } catch (e) {
