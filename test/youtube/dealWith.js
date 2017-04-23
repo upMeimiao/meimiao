@@ -184,7 +184,7 @@ class dealWith {
             return cb();
           }
           try {
-            body = JSON.parse(body.replace(')]}\'', '').replace('\\U000267cc', '\\ud859\\udfcc'));
+            body = JSON.parse(body.replace(')]}\'', '').replace(/\\U000[a-zA-Z0-9]{5}/g, ''));
           } catch (e) {
             logger.error(e);
             // logger.error(body);
@@ -272,7 +272,7 @@ class dealWith {
         return callback(JSON.stringify({ statusCode: response.statusCode }));
       }
       try {
-        body = JSON.parse(body.replace(')]}\'', ''));
+        body = JSON.parse(body.replace(')]}\'', '').replace(/\\U000[a-zA-Z0-9]{5}/g, ''));
       } catch (e) {
         logger.error(`info json parse:${e.message}`);
         logger.error(body);
