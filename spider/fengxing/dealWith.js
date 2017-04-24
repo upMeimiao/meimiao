@@ -182,11 +182,10 @@ class dealWith {
                         logger.error( '视频总量接口请求错误 : ', err )
                         return cb()
                     }
-                    $ = cheerio.load(result.body),
-                    dataJson = $('script')[6].children[0].data.replace(/[\s\n\r]/g,'')
-                    startIndex = dataJson.indexOf('{"dvideos":')
-                    endIndex = dataJson.indexOf(';window.shareInfo')
-                    dataJson = dataJson.substring(startIndex,endIndex)
+                    result = result.body.replace(/[\s\n\r]/g,'');
+                    startIndex = result.indexOf('{"dvideos":')
+                    endIndex = result.indexOf(';window.shareInfo')
+                    dataJson = result.substring(startIndex,endIndex)
                     try{
                         dataJson = JSON.parse(dataJson)
                     }catch(e){
