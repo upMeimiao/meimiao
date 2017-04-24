@@ -1,5 +1,8 @@
 sendServer/index_v1.js
 spider/qzone/dealWith-v1.js
+spider/iqiyi/dealWith_v1.js
+spider/iqiyi/dealWith_v2.js
+spider/iqiyi/dealWith_v3.js
 oneTimeTask/avatar/*.js
 authenticate/**/*.js
 lib/req.js
