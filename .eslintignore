@@ -1,4 +1,5 @@
 sendServer/index_v1.js
+spider/qzone/dealWith-v1.js
 oneTimeTask/avatar/*.js
 authenticate/**/*.js
 lib/req.js

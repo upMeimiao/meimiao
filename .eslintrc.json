@@ -18,6 +18,7 @@
     "one-var-declaration-per-line": "off",
     "class-methods-use-this": 1,
     "linebreak-style": "off",
+    "no-eval": "warn",
     "no-restricted-syntax": ["error", "WithStatement", "BinaryExpression[operator='in']"]
   }
 }
