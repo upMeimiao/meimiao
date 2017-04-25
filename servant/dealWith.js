@@ -462,7 +462,7 @@ class DealWith {
           return;
         }
         const nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault;
-        if (!back.result || nameIs) {
+        if (nameIs && nameIs !== '' ) {
           res = {
             id: back.vppinfo.euin,
             name: nameIs,
