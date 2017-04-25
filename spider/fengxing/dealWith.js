@@ -401,6 +401,7 @@ class dealWith {
       if (err) {
         logger.error('time接口请求错误 : ', err);
         callback(err);
+        // TODO 错误重试
         return;
       }
       try {

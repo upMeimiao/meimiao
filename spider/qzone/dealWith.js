@@ -60,7 +60,7 @@ class dealWith {
       if (err) {
         logger.debug('用户粉丝数请求失败');
         times += 1;
-        this.getFan(task, callback);
+        this.getFan(task, times, callback);
         return;
       }
       try {
