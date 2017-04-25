@@ -54,10 +54,10 @@ const _longT = (time) => {
   return longT;
 };
 const _vImg = (video) => {
-  if (video.cover_image_infos && video.cover_image_infos.length !== 0
-    && video.cover_image_infos[0].width && video.cover_image_infos[0].height) {
-    return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`;
-  }
+  // if (video.cover_image_infos && video.cover_image_infos.length !== 0
+  //   && video.cover_image_infos[0].width && video.cover_image_infos[0].height) {
+  //   return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`;
+  // }
   if (video.middle_image) {
     return video.middle_image;
   }
@@ -75,17 +75,17 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (cb) => {
-          this.getUser(task, (err) => {
-            if (err) {
-              setTimeout(() => {
-                this.getUser(task, () => callback(null, '用户信息已返回'));
-              }, 1000);
-              return;
-            }
-            cb(null, '用户信息已返回');
-          });
-        },
+        // user: (cb) => {
+        //   this.getUser(task, (err) => {
+        //     if (err) {
+        //       setTimeout(() => {
+        //         this.getUser(task, () => callback(null, '用户信息已返回'));
+        //       }, 1000);
+        //       return;
+        //     }
+        //     cb(null, '用户信息已返回');
+        //   });
+        // },
         media: (cb) => {
           this.getList(task, (err) => {
             if (err) {
@@ -242,15 +242,20 @@ class dealWith {
     });
   }
   getList(task, callback) {
-    let index = 0, times = 0, proxyStatus = false, proxy = '',
+    let index = 0, proxyStatus = false, proxy = '',
       sign = true,
       hotTime = null;
     const option = {
       ua: 3,
       own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
     };
+    const self = this;
+    async function getProxy() {
+      const proxyData = await self.core.proxy.need(5);
+      return proxyData;
+    }
     async.whilst(
-      () => sign && index > 200,
+      () => sign && index < 200,
       (cb) => {
         const { as, cp } = getHoney();
         if (hotTime) {
@@ -262,19 +267,16 @@ class dealWith {
           option.proxy = proxy;
           request.get(logger, option, (err, result) => {
             if (err) {
-              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
               cb();
               return;
             }
-            times = 0;
             try {
               result = JSON.parse(result.body);
             } catch (e) {
               logger.error('json数据解析失败');
-              logger.error(result.body);
-              times += 1;
+              // logger.error(result.body);
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
               cb();
@@ -286,13 +288,11 @@ class dealWith {
                 cb();
                 return;
               }
-              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, true);// 原来是false
               cb();
               return;
             }
-            times = 0;
             if (!result.data || result.data.length === 0) {
               task.total = 50 * index;
               sign = false;
@@ -306,68 +306,56 @@ class dealWith {
             });
           });
         } else {
-          this.core.proxy.need(times, (error, _proxy) => {
-            if (error) {
-              if (error === 'timeout') {
-                callback('Get proxy timesout!!');
-                return;
-              }
-              logger.error('Get proxy occur error:', error);
-              times += 1;
-              proxyStatus = false;
-              cb();
-              return;
-            }
-            times = 0;
-            option.proxy = _proxy;
-            request.get(logger, option, (err, result) => {
-              if (err) {
-                times += 1;
-                proxyStatus = false;
-                this.core.proxy.back(_proxy, false);
-                cb();
-                return;
-              }
-              times = 0;
-              try {
-                result = JSON.parse(result.body);
-              } catch (e) {
-                logger.error('json数据解析失败');
-                logger.error(result.body);
-                times += 1;
-                proxyStatus = false;
-                this.core.proxy.back(_proxy, false);
-                cb();
-                return;
-              }
-              if (result.has_more === false) {
-                if ((task.id === '5800750710' || task.id === '5800835780' || task.id === '51174033215' || task.id === '52378452732') && index === 0) {
+          getProxy()
+            .then((_proxy) => {
+              option.proxy = _proxy;
+              request.get(logger, option, (err, result) => {
+                if (err) {
+                  proxyStatus = false;
+                  this.core.proxy.back(_proxy, false);
+                  cb();
+                  return;
+                }
+                try {
+                  result = JSON.parse(result.body);
+                } catch (e) {
+                  logger.error('json数据解析失败');
+                  // logger.error(result.body);
+                  proxyStatus = false;
+                  this.core.proxy.back(_proxy, false);
+                  cb();
+                  return;
+                }
+                if (result.has_more === false) {
+                  if ((task.id === '5800750710' || task.id === '5800835780' || task.id === '51174033215' || task.id === '52378452732') && index === 0) {
+                    sign = false;
+                    cb();
+                    return;
+                  }
+                  proxyStatus = false;
+                  this.core.proxy.back(_proxy, true);// 原来是false
+                  cb();
+                  return;
+                }
+                proxyStatus = true;
+                proxy = _proxy;
+                if (!result.data || result.data.length === 0) {
+                  task.total = 50 * index;
                   sign = false;
                   cb();
                   return;
                 }
-                times += 1;
-                proxyStatus = false;
-                this.core.proxy.back(_proxy, true);// 原来是false
-                cb();
-                return;
-              }
-              times = 0;
-              proxyStatus = true;
-              proxy = _proxy;
-              if (!result.data || result.data.length === 0) {
-                task.total = 50 * index;
-                sign = false;
-                cb();
-                return;
-              }
-              hotTime = result.next.max_behot_time;
-              this.deal(task, result.data, () => {
-                index += 1;
-                cb();
+                hotTime = result.next.max_behot_time;
+                this.deal(task, result.data, () => {
+                  index += 1;
+                  cb();
+                });
               });
+            })
+            .catch(() => {
+              proxyStatus = false;
+              cb();
             });
-          });
         }
       },
       () => {
@@ -422,7 +410,7 @@ class dealWith {
     media.long_t = _longT(video.video_duration_str);
     media.tag = _tag(video.label);
     media = spiderUtils.deleteProperty(media);
-    logger.debug('medis info: ', media);
+    // logger.debug('medis info: ', media);
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
     callback();
   }
