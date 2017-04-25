@@ -15,4 +15,4 @@ var os = python.import('os');
 
 var path = require('path');
 
-assert(os.path.basename(os.getcwd()) == path.basename(process.cwd()));
+console.log(os.path.basename(os.getcwd()) == path.basename(process.cwd()));
