@@ -192,7 +192,7 @@ class dealWith {
           logger.debug(_data);
           try {
             body = JSON.parse(body.replace(')]}\'', '').replace(/\\U000[a-zA-Z0-9]{5}/g, ''));
-          } catch (e) {
+          } catch (e) {e
             logger.error(e);
             // logger.error(body);
             return cb();
