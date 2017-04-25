@@ -43,14 +43,15 @@ class dealWith {
       request.get(logger, option, (err, result) => {
         if (err) {
           logger.error('视频总量接口请求错误 : ', err);
-          return this.getVideo(task, callback);
+          callback(err);
+          return;
         }
         const $ = cheerio.load(result.body),
           vidObj = $('div.mod-wrap-in.mod-li-lay.chan-mgtp>div');
         async.parallel(
           {
             user: (cb) => {
-              this.getFans(task, () => {
+              this.getFans(task, 0, () => {
                 cb(null, '粉丝数信息已返回');
               });
             },
@@ -60,8 +61,8 @@ class dealWith {
               });
             }
           },
-          (error, result) => {
-            logger.debug(`${task.id}_result`, result);
+          (error, _result) => {
+            logger.debug(`${task.id}_result`, _result);
             callback(null, task.total);
           }
         );
@@ -71,21 +72,23 @@ class dealWith {
       request.get(logger, option, (err, result) => {
         if (err) {
           logger.error('视频总量接口请求错误 : ', err);
-          return this.getVideo(task, callback);
+          callback(err);
+          return;
         }
         try {
           result = JSON.parse(result.body);
         } catch (e) {
           logger.error('视频总量数据解析失败');
           logger.info(result);
-          return this.getVideo(task, callback);
+          callback(e.message);
+          return;
         }
         task.total = result.total;
         this.getVidList(task, callback);
       });
     }
   }
-  getFans(task, callback) {
+  getFans(task, times, callback) {
     const name = encodeURIComponent(task.name),
       option = {
         url: `http://www.fun.tv/search/?word=${name}&type=site`
@@ -93,7 +96,13 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('风行网的粉丝数请求失败');
-        return this.getFans(task, callback);
+        times += 1;
+        if (times <= 3) {
+          this.getFans(task, times, callback);
+          return;
+        }
+        callback(err);
+        return;
       }
       const $ = cheerio.load(result.body),
         list = $('div.search-result>div.search-item'),
@@ -101,14 +110,15 @@ class dealWith {
           bid: task.id,
           platform: 34
         };
-      for (let i = 0; i < list.length; i++) {
-        const bid = list.eq(i).attr('block').match(/g_\d*/).toString().replace('g_', '');
+      for (let i = 0; i < list.length; i += 1) {
+        const bid = list.eq(i).attr('block').match(/g_\d*/).toString()
+          .replace('g_', '');
         if (task.id == bid) {
           user.fans_num = list.eq(i).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text();
           logger.info(user);
           this.sendUser(user);
           this.sendStagingUser(user);
-          return callback();
+          callback();
         }
       }
     });
@@ -131,7 +141,7 @@ class dealWith {
         logger.info(back);
         return;
       }
-      if (back.errno == 0) {
+      if (Number(back.errno) === 0) {
         logger.debug('风行用户:', `${user.bid} back_end`);
       } else {
         logger.error('风行用户:', `${user.bid} back_error`);
@@ -157,7 +167,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('风行用户:', `${user.bid} back_end`);
       } else {
         logger.error('风行用户:', `${user.bid} back_error`);
@@ -184,7 +194,8 @@ class dealWith {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频总量接口请求错误 : ', err);
-            return cb();
+            cb();
+            return;
           }
           result = result.body.replace(/[\s\n\r]/g, '');
           startIndex = result.indexOf('{"dvideos":');
@@ -195,7 +206,8 @@ class dealWith {
           } catch (e) {
             logger.debug(dataJson);
             logger.debug('视频列表解析失败');
-            return cb();
+            cb();
+            return;
           }
           length = dataJson.dvideos[0].videos.length;
           content = dataJson.dvideos[0].videos;
@@ -221,14 +233,16 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('列表接口请求错误 : ', err);
-        return this.getVideoList(task, callback);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info(result);
-        return this.getVideoList(task, callback);
+        callback(e);
+        return;
       }
       const length = result.episodes.length,
         content = result.episodes;
@@ -321,7 +335,7 @@ class dealWith {
         [
           (cb) => {
             this.getComment(vid, (err, result) => {
-              cb(null, result);
+              cb(err, result);
             });
           }
         ],
@@ -329,14 +343,16 @@ class dealWith {
             request.get(logger, option, (err, result) => {
               if (err) {
                 logger.error('单个视频接口请求错误 : ', err);
-                return this.getVideoInfo(task, vid, callback);
+                callback(err);
+                return;
               }
               try {
                 result = JSON.parse(result.body);
               } catch (e) {
                 logger.error('json数据解析失败');
                 logger.info(result);
-                return this.getVideoInfo(task, vid, callback);
+                callback(e);
+                return;
               }
               result.release = result.release.replace(/[年月]/g, '-').replace('日', '');
               const time = new Date(`${result.release} 00:00:00`);
@@ -351,8 +367,8 @@ class dealWith {
       async.waterfall(
         [
           (cb) => {
-            this.getCreatTime(task.id, vid, (err, result) => {
-              cb(null, result);
+            this.getCreatTime(task.id, vid, (error, result) => {
+              cb(error, result);
             });
           }
         ],
@@ -360,13 +376,14 @@ class dealWith {
             request.get(logger, option, (err, result) => {
               if (err) {
                 logger.error('单个DOM接口请求错误 : ', err);
-                return this.getVideoInfo(task, vid, callback);
+                callback(err);
+                return;
               }
               const $ = cheerio.load(result.body),
                 vidClass = $('div.crumbsline a').eq(1).text(),
-                comment_num = $('a.commentbtn span.count').text(),
+                commentNum = $('a.commentbtn span.count').text(),
                 res = {
-                  comment_num: comment_num || '',
+                  comment_num: commentNum || '',
                   class: vidClass || '',
                   time: data || ''
                 };
@@ -383,18 +400,18 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('time接口请求错误 : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
-      result.data.number = `${result.data.number} 00:00:00`;
-      const time = moment(result.data.number, 'YYYYMMDD HH:mm:ss').format('X');
-      result.data.number = time;
+      result.data.number = moment(`${result.data.number} 00:00:00`, 'YYYYMMDD HH:mm:ss').format('X');
       callback(null, result.data.number);
     });
   }
@@ -405,14 +422,16 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('评论接口请求错误 : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       callback(null, result.data.total_num);
     });
