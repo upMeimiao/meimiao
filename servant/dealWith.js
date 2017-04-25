@@ -412,11 +412,11 @@ class DealWith {
           }
           let $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-                    // if(num.length){
-                    //     return callback(true,{code:102,p:4})
-                    // }
+          // if(num.length){
+          //  return callback(true,{code:102,p:4})
+          // }
           let user = $('.user_info'),
-                        // name = user.attr('title'),
+            // name = user.attr('title'),
             href = user.attr('href'),
             idDom = $('.btn_book'),
             id = href.substring(href.lastIndexOf('/') + 1);
@@ -462,7 +462,7 @@ class DealWith {
           return;
         }
         const nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault;
-        if (!back.result || !nameIs) {
+        if (!back.result || nameIs) {
           res = {
             id: back.vppinfo.euin,
             name: nameIs,
@@ -480,7 +480,6 @@ class DealWith {
           }
           if (result.statusCode != 200) {
             logger.error('腾讯状态码错误2', result.statusCode);
-
             return callback(true, { code: 102, p: 4 });
           }
           let $ = cheerio.load(result.body),
@@ -503,8 +502,15 @@ class DealWith {
 
               return callback(true, { code: 102, p: 4 });
             }
-            let $ = cheerio.load(result.body),
-              name = $('h2.user_info_name').html();
+            const $ = cheerio.load(result.body),
+              nameDom1 = $('h2.user_info_name'),
+              nameDom2 = $('#userInfoNick');
+            let name;
+            if (nameDom1.length === 0) {
+              name = nameDom2.text();
+            } else {
+              name = nameDom1.html();
+            }
             res = {
               id,
               name,

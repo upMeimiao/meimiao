@@ -198,7 +198,7 @@ class dealWith {
     let page = 1;
     const total = task.total % 20 === 0 ? task.total / 20 : Math.ceil(task.total / 20);
     async.whilst(
-      () => page < Math.min(total, 500),
+      () => page <= Math.min(total, 500),
       (cb) => {
         options.form.page = page;
         req(options, (error, response, body) => {
