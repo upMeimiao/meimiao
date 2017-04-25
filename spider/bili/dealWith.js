@@ -53,14 +53,16 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         logger.error('用户信息 : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info('json error:', result.body);
-        return callback(e);
+        callback(e);
+        return;
       }
       const userInfo = result.data,
         user = {
@@ -83,14 +85,16 @@ class dealWith {
       if (err) {
         logger.error('occur error : ', err);
         logger.info(`返回哔哩哔哩用户 ${user.bid} 连接服务器失败`);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         back = JSON.parse(back.body);
       } catch (e) {
         logger.error(`哔哩哔哩用户 ${user.bid} json数据解析失败`);
         logger.info(back);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (Number(back.errno) === 0) {
         logger.debug('哔哩哔哩用户:', `${user.bid} back_end`);
@@ -134,14 +138,16 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('获取视频总量 : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       task.total = result.data.count;
       this.getVideos(task, result.data.pages, () => {
@@ -150,7 +156,7 @@ class dealWith {
     });
   }
   getVideos(task, pages, callback) {
-    let option, sign = 1, flag = 0;
+    let option, sign = 1;// flag = 0;
     async.whilst(
       () => sign <= Math.min(pages, 334),
       (cb) => {
@@ -160,43 +166,45 @@ class dealWith {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频列表 : ', err);
-            flag += 1;
-            if (flag > 3) {
-              sign += 1;
-              cb();
-            } else {
-              setTimeout(() => {
-                cb();
-              }, 300);
-              return;
-            }
+            // flag += 1;
+            // if (flag > 3) {
+            //   sign += 1;
+            //   cb();
+            // } else {
+            //   setTimeout(() => {
+            //     cb();
+            //   }, 300);
+            //   return;
+            // }
+            sign += 1;
+            cb();
+            return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.error('json数据解析失败');
             logger.info('list error:', result.body);
-            flag += 1;
-            if (flag > 3) {
-              sign += 1;
-              cb();
-            } else {
-              setTimeout(() => {
-                cb();
-              }, 300);
-              return;
-            }
+            sign += 1;
+            cb();
+            return;
+            // flag += 1;
+            // if (flag > 3) {
+            //   sign += 1;
+            //   cb();
+            // } else {
+            //   setTimeout(() => {
+            //     cb();
+            //   }, 300);
+            //   return;
+            // }
           }
-          flag = null;
-          if (!result.data) {
+          // flag = null;
+          if (!result.data || !result.data.vlist) {
             logger.debug(result);
             sign += 1;
-            return cb();
-          }
-          if (!result.data.vlist || result.data.vlist == 'null') {
-            logger.debug(result);
-            sign += 1;
-            return cb();
+            cb();
+            return;
           }
           this.deal(task, result.data.vlist, () => {
             sign += 1;
@@ -215,11 +223,7 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        this.getInfo(task, list[index], (err) => {
-          if (err) {
-            index += 1;
-            return cb();
-          }
+        this.getInfo(task, list[index], () => {
           index += 1;
           cb();
         });
@@ -236,20 +240,23 @@ class dealWith {
     request.get(logger, option, (err, back) => {
       if (err) {
         logger.error('单个视频详细信息 : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         back = JSON.parse(back.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info('info error:', back.body);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (back.code != 0) {
-        return callback();
+      if (Number(back.code) !== 0) {
+        callback();
+        return;
       }
       let tagStr = '';
-      if (back.data.tags && back.data.tags.length != 0) {
+      if (back.data.tags && back.data.tags.length !== 0) {
         tagStr = back.data.tags.join(',');
       }
       const media = {
