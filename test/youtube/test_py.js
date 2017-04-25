@@ -12,7 +12,7 @@
 
 var python = require('python.js');
 var os = python.import('os');
-
+var sys = python.import('sys');
 var path = require('path');
 
 console.log(os.path.basename(os.getcwd()) == path.basename(process.cwd()));
