@@ -171,7 +171,7 @@ class dealWith {
       forward_num: data.shareTimes,
       v_img: data.videoCoverUrl,
       class: data.classifyName,
-      // v_url: `http://www.click-v.com/v3/html/videoshare.html?userId=0&videoId=${data.videoId}`,
+      a_create_time: data.effectTime.substring(0,10),
       desc: spiderUtils.stringHandling(data.videoDescription, 100),
       long_t: data.videoLength
     };
