@@ -54,11 +54,13 @@ class dealWith {
                 return callback(err)
             }
             try {
-                result = JSON.parse(result.body.substring(6, result.body.length - 1).replace(//g,''))
+                result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g,'')
+                result = JSON.parse(result.substring(1,result.length-1))
             } catch (e){
-                logger.error(result.body.substring(6, result.body.length - 1).replace(//g,''))
-                return callback(e)
+                logger.error('解析失败',result)
+                return
             }
+
             if(result.s != 'o'){
                 logger.error(`异常错误${result.em}`)
                 return callback(result.em)
@@ -184,9 +186,10 @@ class dealWith {
                         return cb()
                     }
                     try {
-                        result = JSON.parse(result.body.substring(6, result.body.length - 1).replace(//g,''))
+                      result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g,'')
+                      result = JSON.parse(result.substring(1,result.length-1))
                     } catch (e){
-                        logger.error(result.body.substring(6, result.body.length - 1).replace(//g,''))
+                        logger.error('列表解析失败',result)
                         sign++
                         return cb()
                     }
