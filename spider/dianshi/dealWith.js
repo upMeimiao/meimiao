@@ -171,11 +171,10 @@ class dealWith {
       forward_num: data.shareTimes,
       v_img: data.videoCoverUrl,
       class: data.classifyName,
-      a_create_time: data.effectTime.substring(0,10),
+      a_create_time: Math.round(data.effectTime / 1000),
       desc: spiderUtils.stringHandling(data.videoDescription, 100),
       long_t: data.videoLength
     };
-    // 没有发布时间
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
     callback();
   }
