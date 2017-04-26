@@ -186,7 +186,7 @@ class dealWith {
                         return cb()
                     }
                     try {
-                      result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g,'')
+                      result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g,'')
                       result = JSON.parse(result.substring(1,result.length-1))
                     } catch (e){
                         logger.error('列表解析失败',result)
