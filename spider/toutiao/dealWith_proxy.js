@@ -1,69 +1,14 @@
 /**
  * Created by junhao on 2016/12/7.
  */
-const URL = require('url');
-const moment = require('moment');
-const async = require('async');
-const crypto = require('crypto');
-const request = require('../../lib/request');
-const spiderUtils = require('../../lib/spiderUtils');
+const URL = require('url')
+const moment = require('moment')
+const async = require( 'async' )
+const request = require( '../../lib/request' )
+const spiderUtils = require('../../lib/spiderUtils')
+const md5 = require('js-md5')
 
 let logger
-const getHoney = () => {
-  const hash = crypto.createHash('md5');
-  const t = Math.floor((new Date()).getTime() / 1e3),
-    e = t.toString(16).toUpperCase(),
-    n = hash.update(t.toString()).digest('hex').toUpperCase();
-  if (e.length !== 8) {
-    return {
-      as: '479BB4B7254C150',
-      cp: '7E0AC8874BB0985'
-    };
-  }
-  let o, l, i, a, r, s;
-  for (o = n.slice(0, 5), i = n.slice(-5), a = '', r = 0; r < 5; r += 1) a += o[r] + e[r];
-  for (l = '', s = 0; s < 5; s += 1) l += e[s + 3] + i[s];
-  return {
-    as: `A1${a}${e.slice(-3)}`,
-    cp: `${e.slice(0, 3) + l}E1`
-  };
-};
-const _tag = (raw) => {
-  if (!raw) {
-    return '';
-  }
-  const _tagArr = [];
-  if (raw.length !== 0) {
-    for (const elem of raw.entries()) {
-      _tagArr.push(elem[1]);
-    }
-    return _tagArr.join(',');
-  }
-  return '';
-};
-const _longT = (time) => {
-  if (!time) {
-    return null;
-  }
-  const timeArr = time.split(':');
-  let longT = '';
-  if (timeArr.length === 2) {
-    longT = moment.duration(`00:${time}`).asSeconds();
-  } else if (timeArr.length === 3) {
-    longT = moment.duration(time).asSeconds();
-  }
-  return longT;
-};
-const _vImg = (video) => {
-  // if (video.cover_image_infos && video.cover_image_infos.length !== 0
-  //   && video.cover_image_infos[0].width && video.cover_image_infos[0].height) {
-  //   return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`;
-  // }
-  if (video.middle_image) {
-    return video.middle_image;
-  }
-  return null;
-};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore
@@ -411,11 +356,12 @@ class dealWith {
     media.save_num = video.repin_count || null
     media.forward_num = video.share_count || null
     media.a_create_time = video.publish_time
-    media.v_img = _vImg(video);
-    media.long_t = _longT(video.video_duration_str);
-    media.tag = _tag(video.label);
+    media.v_img = this._v_img(video)
+    media.long_t = this.long_t(video.video_duration_str)
+    media.tag = this._tag(video.label)
     media = spiderUtils.deleteProperty(media)
     //logger.debug('medis info: ',media)
+    // this.sendCache( media )
     spiderUtils.saveCache( this.core.cache_db, 'cache', media )
     callback()
   }
@@ -440,6 +386,66 @@ class dealWith {
       }
       callback(null,backData.video_play_count)
     })
+  }
+  _tag ( raw ){
+    if(!raw){
+      return ''
+    }
+    let _tagArr = []
+    if(raw.length != 0){
+      for(let i in raw){
+        _tagArr.push(raw[i])
+      }
+      return _tagArr.join(',')
+    }
+    return ''
+  }
+  long_t( time ){
+    if(!time){
+      return null
+    }
+    let timeArr = time.split(':'),
+      long_t  = ''
+    if(timeArr.length == 2){
+      long_t = moment.duration( `00:${time}`).asSeconds()
+    }else if(timeArr.length == 3){
+      long_t = moment.duration(time).asSeconds()
+    }
+    return long_t
+  }
+  _v_img(video){
+    // if(video.cover_image_infos && video.cover_image_infos.length != 0 && video.cover_image_infos[0].width && video.cover_image_infos[0].height){
+    //     return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`
+    // }
+    if(video.middle_image){
+      return video.middle_image
+    }
+    return null
+  }
+  sendCache ( media ){
+    this.core.cache_db.rpush( 'cache', JSON.stringify( media ),  ( err, result ) => {
+      if ( err ) {
+        logger.error( '加入缓存队列出现错误：', err )
+        return
+      }
+      logger.debug(`今日头条 ${media.aid} 加入缓存队列`)
+    })
+  }
+}
+function getHoney() {
+  const t = Math.floor((new Date).getTime() / 1e3),
+    e = t.toString(16).toUpperCase(),
+    n = md5(t.toString()).toString().toUpperCase()
+  if (8 !== e.length) return {
+    as: "479BB4B7254C150",
+    cp: "7E0AC8874BB0985"
+  }
+  let o,l,i,a,r,s
+  for (o = n.slice(0, 5), i = n.slice(-5), a = "", r = 0; 5 > r; r++) a += o[r] + e[r]
+  for (l = "", s = 0; 5 > s; s++) l += e[s + 3] + i[s]
+  return {
+    as: "A1" + a + e.slice(-3),
+    cp: e.slice(0, 3) + l + "E1"
   }
 }
 module.exports = dealWith
