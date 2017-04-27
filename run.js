@@ -1,27 +1,33 @@
 const logging = require('./lib/logger.js');
 // arguments parse
-const userArgv = require('optimist').usage('Usage: $0 -i [instance name] -a [crawl|test|config|proxy|schedule]  -p [num] -l[url] -h')
-    .options('i', {
-      alias: 'instance',
-      default: 'scheduler',
-      describe: 'Specify a instance',
-      demand: true
-    })
-    .options('a', {
-      alias: 'action',
-      default: 'scheduler',
-      describe: 'Specify a action[crawl|test|config|proxy|schedule]',
-      demand: true
-    })
-    .options('p', {
-      alias: 'port',
-      default: 2016,
-      describe: 'Specify a service port, for config service and proxy router'
-    })
-    .options('h', {
-      alias: 'help',
-      describe: 'Help infomation'
-    });
+const userArgv = require('optimist')
+  .usage('Usage: $0 -i [instance name] -a [schedule|proxy|servant|auth|monitor|server]  -p [num] -t [video|comment] -h')
+  .options('i', {
+    alias: 'instance',
+    default: 'master',
+    describe: 'Specify a instance',
+    demand: true
+  })
+  .options('a', {
+    alias: 'action',
+    default: 'scheduler',
+    describe: 'Specify a action[schedule|proxy|servant|auth|monitor|server]',
+    demand: true
+  })
+  .options('p', {
+    alias: 'port',
+    default: 2016,
+    describe: 'Specify a service port, for config service and proxy router'
+  })
+  .options('t', {
+    alias: 'type',
+    default: 'video',
+    describe: 'Specify a action type[video|comment]'
+  })
+  .options('h', {
+    alias: 'help',
+    describe: 'Help infomation'
+  });
 
 const options = userArgv.argv;
 if (options.h) {
@@ -32,11 +38,18 @@ const settings = require(`./instance/${options.i}/settings.json`);
 settings.instance = options.i;
 // log level
 let logLevel = 'TRACE';
+let spiderDir;
+if (options.t === 'video') {
+  spiderDir = './spider/';
+} else {
+  spiderDir = './spiderComment/';
+}
 if (settings.log_level)logLevel = settings.log_level;
 const scheduler = () => {
   const logger = logging.getLogger('调度中心', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
+  settings.type = options.t;
   const spider = new (require('./scheduler'))(settings);
   spider.start();
 };
@@ -60,6 +73,7 @@ const server = () => {
   const logger = logging.getLogger('数据中心', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
+  settings.type = options.t;
   const spider = new (require('./sendServer'))(settings);
   spider.start();
 };
@@ -83,6 +97,7 @@ const kueMonitor = () => {
   const logger = logging.getLogger('Kue监控', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
+  settings.type = options.t;
   const spider = new (require('./kueMonitor'))(settings);
   spider.start();
 };
@@ -97,301 +112,301 @@ const tencent = () => {
   const logger = logging.getLogger('腾讯视频', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/tencent'))(settings);
+  const spider = new (require(`${spiderDir}tencent`))(settings);
   spider.start();
 };
 const kuaibao = () => {
   const logger = logging.getLogger('天天快报', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/kuaibao'))(settings);
+  const spider = new (require(`${spiderDir}kuaibao`))(settings);
   spider.start();
 };
 const souhu = () => {
   const logger = logging.getLogger('搜狐视频', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/souhu'))(settings);
+  const spider = new (require(`${spiderDir}souhu`))(settings);
   spider.start();
 };
 const toutiao = () => {
   const logger = logging.getLogger('今日头条', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/toutiao'))(settings);
+  const spider = new (require(`${spiderDir}toutiao`))(settings);
   spider.start();
 };
 const le = () => {
   const logger = logging.getLogger('乐视', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/le'))(settings);
+  const spider = new (require(`${spiderDir}le`))(settings);
   spider.start();
 };
 const bili = () => {
   const logger = logging.getLogger('bili', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/bili'))(settings);
+  const spider = new (require(`${spiderDir}bili`))(settings);
   spider.start();
 };
 const meipai = () => {
   const logger = logging.getLogger('美拍', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/meipai'))(settings);
+  const spider = new (require(`${spiderDir}meipai`))(settings);
   spider.start();
 };
 const miaopai = () => {
   const logger = logging.getLogger('秒拍', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/miaopai'))(settings);
+  const spider = new (require(`${spiderDir}miaopai`))(settings);
   spider.start();
 };
 const youku = () => {
   const logger = logging.getLogger('优酷', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/youku'))(settings);
+  const spider = new (require(`${spiderDir}youku`))(settings);
   spider.start();
 };
 const iqiyi = () => {
   const logger = logging.getLogger('爱奇艺', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/iqiyi'))(settings);
+  const spider = new (require(`${spiderDir}iqiyi`))(settings);
   spider.start();
 };
 const yidian = () => {
   const logger = logging.getLogger('一点资讯', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/yidian'))(settings);
+  const spider = new (require(`${spiderDir}yidian`))(settings);
   spider.start();
 };
 const tudou = () => {
   const logger = logging.getLogger('土豆', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/tudou'))(settings);
+  const spider = new (require(`${spiderDir}tudou`))(settings);
   spider.start();
 };
 const baomihua = () => {
   const logger = logging.getLogger('爆米花', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/baomihua'))(settings);
+  const spider = new (require(`${spiderDir}baomihua`))(settings);
   spider.start();
 };
 const ku6 = () => {
   const logger = logging.getLogger('酷6', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/ku6'))(settings);
+  const spider = new (require(`${spiderDir}ku6`))(settings);
   spider.start();
 };
 const btime = () => {
   const logger = logging.getLogger('北京时间', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/btime'))(settings);
+  const spider = new (require(`${spiderDir}btime`))(settings);
   spider.start();
 };
 const weishi = () => {
   const logger = logging.getLogger('微视', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/weishi'))(settings);
+  const spider = new (require(`${spiderDir}weishi`))(settings);
   spider.start();
 };
 const xiaoying = () => {
   const logger = logging.getLogger('小影', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/xiaoying'))(settings);
+  const spider = new (require(`${spiderDir}xiaoying`))(settings);
   spider.start();
 };
 const budejie = () => {
   const logger = logging.getLogger('不得姐', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/budejie'))(settings);
+  const spider = new (require(`${spiderDir}budejie`))(settings);
   spider.start();
 };
 const neihan = () => {
   const logger = logging.getLogger('内涵段子', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/neihan'))(settings);
+  const spider = new (require(`${spiderDir}neihan`))(settings);
   spider.start();
 };
 const yy = () => {
   const logger = logging.getLogger('yy', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/yy'))(settings);
+  const spider = new (require(`${spiderDir}yy`))(settings);
   spider.start();
 };
 const acfun = () => {
   const logger = logging.getLogger('acfun', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/acfun'))(settings);
+  const spider = new (require(`${spiderDir}acfun`))(settings);
   spider.start();
 };
 const weibo = () => {
   const logger = logging.getLogger('微博', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/weibo'))(settings);
+  const spider = new (require(`${spiderDir}weibo`))(settings);
   spider.start();
 };
 const tv56 = () => {
   const logger = logging.getLogger('56视频', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/tv56'))(settings);
+  const spider = new (require(`${spiderDir}tv56`))(settings);
   spider.start();
 };
 const ifeng = () => {
   const logger = logging.getLogger('凤凰自媒体', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/ifeng'))(settings);
+  const spider = new (require(`${spiderDir}ifeng`))(settings);
   spider.start();
 };
 const uctt = () => {
   const logger = logging.getLogger('UC头条', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/uctt'))(settings);
+  const spider = new (require(`${spiderDir}uctt`))(settings);
   spider.start();
 };
 const wangyi = () => {
   const logger = logging.getLogger('网易号', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/wangyi'))(settings);
+  const spider = new (require(`${spiderDir}wangyi`))(settings);
   spider.start();
 };
 const mgtv = () => {
   const logger = logging.getLogger('芒果TV', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/mgtv'))(settings);
+  const spider = new (require(`${spiderDir}mgtv`))(settings);
   spider.start();
 };
 const qzone = () => {
   const logger = logging.getLogger('QQ空间', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/qzone'))(settings);
+  const spider = new (require(`${spiderDir}qzone`))(settings);
   spider.start();
 };
 const cctv = () => {
   const logger = logging.getLogger('CCTV', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/cctv'))(settings);
+  const spider = new (require(`${spiderDir}cctv`))(settings);
   spider.start();
 };
 const pptv = () => {
   const logger = logging.getLogger('pptv', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/pptv'))(settings);
+  const spider = new (require(`${spiderDir}pptv`))(settings);
   spider.start();
 };
 const xinlan = () => {
   const logger = logging.getLogger('新蓝网', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/xinlan'))(settings);
+  const spider = new (require(`${spiderDir}xinlan`))(settings);
   spider.start();
 };
 const v1 = () => {
   const logger = logging.getLogger('第一视频', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/v1'))(settings);
+  const spider = new (require(`${spiderDir}v1`))(settings);
   spider.start();
 };
 const fengxing = () => {
   const logger = logging.getLogger('风行网', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/fengxing'))(settings);
+  const spider = new (require(`${spiderDir}fengxing`))(settings);
   spider.start();
 };
 const huashu = () => {
   const logger = logging.getLogger('华数', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/huashu'))(settings);
+  const spider = new (require(`${spiderDir}huashu`))(settings);
   spider.start();
 };
 const baofeng = () => {
   const logger = logging.getLogger('暴风', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/baofeng'))(settings);
+  const spider = new (require(`${spiderDir}baofeng`))(settings);
   spider.start();
 };
 const baiduVideo = () => {
   const logger = logging.getLogger('百度视频', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/baiduVideo'))(settings);
+  const spider = new (require(`${spiderDir}baiduVideo`))(settings);
   spider.start();
 };
 const baijia = () => {
   const logger = logging.getLogger('百度百家', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/baijia'))(settings);
+  const spider = new (require(`${spiderDir}baijia`))(settings);
   spider.start();
 };
 const liVideo = () => {
   const logger = logging.getLogger('梨视频', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/liVideo'))(settings);
+  const spider = new (require(`${spiderDir}liVideo`))(settings);
   spider.start();
 };
 const youtube = () => {
   const logger = logging.getLogger('YouTube', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/youtube'))(settings);
+  const spider = new (require(`${spiderDir}youtube`))(settings);
   spider.start();
 };
 const xiangkan = () => {
   const logger = logging.getLogger('小米想看', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/xiangkan'))(settings);
+  const spider = new (require(`${spiderDir}xiangkan`))(settings);
   spider.start();
 };
 const facebook = () => {
   const logger = logging.getLogger('facebook', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/facebook'))(settings);
+  const spider = new (require(`${spiderDir}facebook`))(settings);
   spider.start();
 };
 const renren = () => {
   const logger = logging.getLogger('人人视频', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/renren'))(settings);
+  const spider = new (require(`${spiderDir}renren`))(settings);
   spider.start();
 };
 const dianshi = () => {
   const logger = logging.getLogger('点视', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./spider/dianshi'))(settings);
+  const spider = new (require(`${spiderDir}dianshi`))(settings);
   spider.start();
 };
 const test = () => {
