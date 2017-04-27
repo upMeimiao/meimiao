@@ -19,7 +19,7 @@ class dealWith {
         logger.trace('DealWith instantiation ...')
     }
     todo ( task, callback ) {
-        task.total = 0
+        task.total = 0;
         this.getVidList( task, ( err ) => {
             if(err){
                 return callback( err )
@@ -96,7 +96,8 @@ class dealWith {
     getAllInfo( task, video, callback ){
         async.parallel([
             (cb) => {
-                this.getVideoInfo(video.url,(err,result) => {
+                task.isSkip = 0;
+                this.getVideoInfo(task, video.url,(err,result) => {
                     if(err){
                         return cb(err)
                     }
@@ -134,7 +135,7 @@ class dealWith {
             callback()
         })
     }
-    getVideoInfo( url, callback ){
+    getVideoInfo(task, url, callback ){
         let vid    = url.match(/show\/\w*\.html/).toString().replace(/show\//,''),
             option = {
                 url: url,
@@ -143,12 +144,18 @@ class dealWith {
             }
         request.get( logger, option, ( err, result ) => {
             if(err){
-                logger.debug('单个视频请求失败 ' + err)
+                logger.debug('单个视频请求失败 ', err);
+                if(err.status === 404){
+                    callback('next');
+                    return;
+                }
                 setTimeout(() => {
+                    task.isSkip += 1;
                     this.getVideoInfo( url, callback )
-                },100)
-                return
+                },100);
+                return;
             }
+            task.isSkip = 0;
             let $ = cheerio.load(result.body),
                 //script = $('script')[2].children[0].data,
                 time = result.body.match(/"duration":\d+/) ? result.body.match(/"duration":\d+/).toString().replace('"duration":','') : '',
@@ -175,7 +182,7 @@ class dealWith {
         }
         request.get( logger, option, (err, result) => {
             if(err){
-                logger.error( 'occur error : ', err )
+                logger.error( 'occur error : ', err );
                 return callback(err)
             }
             try {
