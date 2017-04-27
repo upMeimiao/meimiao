@@ -167,7 +167,7 @@ class dealWith {
       }
       tags.replace(',', '');
       const res = {
-        class: $('div#video-info .bd .crumbs a').text(),
+        class: $('div#video-info .bd .crumbs a').text() || '',
         tag: tags,
         desc,
         time
