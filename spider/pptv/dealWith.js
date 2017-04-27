@@ -95,8 +95,7 @@ class dealWith {
   getAllInfo(task, video, callback) {
     async.parallel([
       (cb) => {
-        task.isSkip = 0;
-        this.getVideoInfo(task, video.url, (err, result) => {
+        this.getVideoInfo(task, video.url, 0, (err, result) => {
           if (err) {
             cb();
             return;
@@ -137,7 +136,7 @@ class dealWith {
       callback();
     });
   }
-  getVideoInfo(task, url, callback) {
+  getVideoInfo(task, url, times, callback) {
     const vid = url.match(/show\/\w*\.html/).toString().replace(/show\//, ''),
       option = {
         url,
@@ -147,17 +146,16 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('单个视频请求失败 ', err);
-        if (err.status === 404) {
+        if (err.status === 404 || times > 3) {
           callback('next');
           return;
         }
         setTimeout(() => {
-          task.isSkip += 1;
-          this.getVideoInfo(url, callback);
+          times += 1
+          this.getVideoInfo(task, url, times, callback);
         }, 100);
         return;
       }
-      task.isSkip = 0;
       const $ = cheerio.load(result.body),
         time = result.body.match(/"duration":\d+/) ? result.body.match(/"duration":\d+/).toString().replace('"duration":', '') : '',
         tag = $('div#video-info .bd .tabs a');
