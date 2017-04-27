@@ -311,6 +311,11 @@ class dealWith {
       if (!result || !result.singlefeed) {
         return callback(null, '抛掉当前的');
       }
+      if(result.singlefeed['1'] && result.singlefeed['1'].user && result.singlefeed['1'].user.uin !== task.id){
+        // logger.debug('当前视频被删掉或者是数据错误');
+        callback(null, '抛掉当前的');
+        return;
+      }
       if (!result.singlefeed['7'].coverurl['0']) {
         result.v_img = '';
       } else if (!result.singlefeed['7'].coverurl['0'].url) {
@@ -318,6 +323,7 @@ class dealWith {
       } else {
         result.v_img = result.singlefeed['7'].coverurl['0'].url;
       }
+      logger.debug(result);
       callback(null, result);
     });
   }
