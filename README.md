@@ -128,6 +128,7 @@ http://momentjs.cn/
 40. Facebook
 41. 人人视频
 42. 点视
+43. 小米想看（spider未支持，巧发支持）
 
 ## 流程图
 ![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)
