@@ -53,9 +53,10 @@ class commentScheduler {
               31, 34, 37, 40, 43, 46, 49, 52, 55, 58];
             break;
         }
-        schedule.scheduleJob(rule, () => {
-          this.getTask();
-        });
+        this.getTask();
+        // schedule.scheduleJob(rule, () => {
+        //   this.getTask();
+        // });
       }
     );
   }
@@ -139,7 +140,7 @@ class commentScheduler {
     });
   }
   checkKue(raw) {
-    return this.emit('task_set_create', raw);
+    // return this.emit('task_set_create', raw);
     const key = `c:${raw.p}:${raw.aid}`;
     this.taskDB.hget(key, 'kue_id', (error, result) => {
       if (error) {

@@ -8,7 +8,7 @@ class commentHandle {
     this.logger.debug('评论任务处理模块 实例化...');
   }
   rawLoop(raw) {
-    const data = raw,
+    const data = raw.data,
       len = data ? data.length : 0;
     let i = 0;
     async.whilst(
@@ -25,16 +25,6 @@ class commentHandle {
     );
   }
   classify(_, callback) {
-    // const platform = platformMap.get(Number(_.p)),
-    // baseInfo = {
-    //     id: _.id,
-    //     p: _.p,
-    //     name: _.name,
-    //     platform: platform,
-    //     encodeId: _.encodeId ? _.encodeId : '',
-    //     type: _.type ? _.type : ''
-    // }
-    _ = JSON.parse(_);
     const platform = platformMap.get(Number(_.platform)),
       baseInfo = {
         p: _.platform,
@@ -73,6 +63,7 @@ class commentHandle {
       raw.comment_id = 0;
       raw.comment_time = 0;
       raw.comment_num = 0;
+      this.scheduler.emit('task_create', raw);
     });
   }
   setCreate(raw) {
