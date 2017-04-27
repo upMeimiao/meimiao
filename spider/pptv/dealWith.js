@@ -97,7 +97,7 @@ class dealWith {
       (cb) => {
         this.getVideoInfo(task, video.url, 0, (err, result) => {
           if (err) {
-            cb();
+            cb(err);
             return;
           }
           cb(null, result);
@@ -106,7 +106,7 @@ class dealWith {
       (cb) => {
         this.getTotal(video.id, (err, result) => {
           if (err) {
-            cb();
+            cb(err);
             return;
           }
           cb(null, result);
