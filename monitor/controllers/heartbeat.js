@@ -6,7 +6,7 @@ const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.r
   }
 });
 exports.do = (io, socket) => {
-  setInterval(() => {
+  const query = () => {
     redis.pipeline(
       [
         ['llen', 'cache'],
@@ -29,5 +29,9 @@ exports.do = (io, socket) => {
       }
       socket.emit('cache', { videoNum, commentNum });
     });
+  };
+  query();
+  setInterval(() => {
+    query();
   }, 300000);
 };
