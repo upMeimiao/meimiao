@@ -29,5 +29,5 @@ exports.do = (io, socket) => {
       }
       socket.emit('cache', { videoNum, commentNum });
     });
-  }, 3000);
+  }, 300000);
 };
