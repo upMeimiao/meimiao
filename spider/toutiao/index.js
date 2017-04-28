@@ -14,7 +14,7 @@ class spiderCore {
     settings = _settings;
     this.settings = settings;
     this.redis = settings.redis;
-    this.dealWith = new (require('./dealWith_backup'))(this);
+    this.dealWith = new (require('./dealWith_proxy'))(this);
     this.proxy = new (require('./proxy'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');

@@ -39,6 +39,7 @@ const platformMap = new Map([
   [38, '梨视频'],
   [39, 'YouTube'],
   [40, 'Facebook'],
-  [41, '人人视频']
+  [41, '人人视频'],
+  [42, '点视']
 ]);
 module.exports = platformMap;

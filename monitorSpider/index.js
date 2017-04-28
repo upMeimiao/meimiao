@@ -213,17 +213,17 @@ class spiderCore {
             },12000)
         })
     }
-    setKuaibaoTask(){
-        let kuaibao_work = {
-                "name":"kuaibao","platform":10,"id":5016129,"bname":"电影恋爱学"
-            }
-        this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
-            setTimeout(()=>{
-                // logger.debug("kuaibao 又执行一次")
-                this.setKuaibaoTask()
-            },12000)
-        })
-    }
+    // setKuaibaoTask(){
+    //     let kuaibao_work = {
+    //             "name":"kuaibao","platform":10,"id":5016129,"bname":"电影恋爱学"
+    //         }
+    //     this.kuaibaoDeal.kuaibao(kuaibao_work,(err,result) => {
+    //         setTimeout(()=>{
+    //             // logger.debug("kuaibao 又执行一次")
+    //             this.setKuaibaoTask()
+    //         },12000)
+    //     })
+    // }
     setYidianTask(){
         let yidian_work = {
                 "name":"yidian","platform":11,"id":"m110950","bname":"一色神技能"
@@ -624,10 +624,10 @@ class spiderCore {
                 this.setSouhuTask()
                 callback()
             },
-            (callback) => {
-                this.setKuaibaoTask()
-                callback()
-            },
+            // (callback) => {
+            //     this.setKuaibaoTask()
+            //     callback()
+            // },
             (callback) => {
                 this.setYidianTask()
                 callback()
