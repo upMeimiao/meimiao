@@ -272,7 +272,7 @@ class dealWith {
         platform: task.p,
         bid: task.id,
         aid: video.key,
-        title: result[0].singlefeed['4'].summary.substring(0, 100).replace(/"/g, ''),
+        title: spiderUtils.stringHandling(result[0].singlefeed['4'].summary, 100),
         support: result[0].singlefeed['11'].num,
         long_t: result[0].singlefeed['7'].videotime / 1000,
         v_img: result[0].v_img,
@@ -323,7 +323,6 @@ class dealWith {
       } else {
         result.v_img = result.singlefeed['7'].coverurl['0'].url;
       }
-      logger.debug(result);
       callback(null, result);
     });
   }
