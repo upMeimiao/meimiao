@@ -1,5 +1,5 @@
 {
-  "name"        : "Kue监控",
+  "name"        : "评论Kue监控",
   "script"      : "/root/qiaosuan/run.js",
   "args"        : ["-i","comment","-a","kue","-t","comment"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
