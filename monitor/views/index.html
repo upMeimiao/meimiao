@@ -31,7 +31,7 @@
             </el-col>
         </el-row>
         <el-row style="width: 1260px;margin: 0 auto;">
-            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border show-summary style="width: 100%;"  :row-class-name="tableRowClassName" max-height="750">
+            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border :summary-method="getSummaries" show-summary style="width: 100%;"  :row-class-name="tableRowClassName" max-height="750">
                 <el-table-column align="center" prop="p"  :formatter="show_pname" label="平台">
                 </el-table-column>
                 <el-table-column align="center" prop="bid" width="280"  label="ID">
