@@ -111,7 +111,7 @@ const vm = new Vue({
           return;
         }
         if (index !== 3) {
-          sums[index] = 'N/A';
+          sums[index] = '';
           return;
         }
         const values = data.map(item => Number(item[column.property]));
