@@ -15,7 +15,7 @@ const _tags = (raw) => {
     return raw.join(',');
   }
   return '';
-}
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;

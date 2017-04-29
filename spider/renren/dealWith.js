@@ -16,7 +16,7 @@ const _tags = (raw) => {
     str += `,${raw[i].name}`;
   }
   return str.replace(',', '');
-}
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;

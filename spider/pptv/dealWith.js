@@ -151,7 +151,7 @@ class dealWith {
           return;
         }
         setTimeout(() => {
-          times += 1
+          times += 1;
           this.getVideoInfo(task, url, times, callback);
         }, 100);
         return;

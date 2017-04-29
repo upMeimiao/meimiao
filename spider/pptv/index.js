@@ -23,35 +23,35 @@ class spiderCore {
     async.parallel([
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.taskDB,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        callback(err);
-                        return;
-                      }
-                      this.taskDB = cli;
-                      logger.debug('任务信息数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.taskDB,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.taskDB = cli;
+            logger.debug('任务信息数据库连接建立...成功');
+            callback();
+          }
+        );
       },
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.cache_db,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        callback(err);
-                        return;
-                      }
-                      this.cache_db = cli;
-                      logger.debug('缓存队列数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.cache_db,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.cache_db = cli;
+            logger.debug('缓存队列数据库连接建立...成功');
+            callback();
+          }
+        );
       }
     ], (err) => {
       if (err) {
