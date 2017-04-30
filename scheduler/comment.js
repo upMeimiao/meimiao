@@ -54,10 +54,10 @@ class commentScheduler {
               31, 34, 37, 40, 43, 46, 49, 52, 55, 58];
             break;
         }
-        this.getTask();
-        // schedule.scheduleJob(rule, () => {
-        //   this.getTask();
-        // });
+        // this.getTask();
+        schedule.scheduleJob(rule, () => {
+          this.getTask();
+        });
       }
     );
   }

@@ -121,6 +121,7 @@ class dealWith {
           callback();
           return;
         }
+        logger.debug(comments[index].passport.profile_url.match(/user\/\d*/))
         comment = {
           cid: comments[index].comment_id,
           content: spiderUtils.stringHandling(comments[index].content),

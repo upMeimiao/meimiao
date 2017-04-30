@@ -92,6 +92,7 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
+      logger.debug(result.data)
       task.lastId = result.data.commentid[0].id;
       task.lastTime = result.data.commentid[0].time;
       task.addCount = task.cNum - task.commentNum;
