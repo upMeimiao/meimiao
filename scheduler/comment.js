@@ -5,6 +5,7 @@ const os = require('os');
 const events = require('events');
 const myRedis = require('../lib/myredis.js');
 const schedule = require('node-schedule');
+const _getTask = require('./getTask');
 
 class commentScheduler {
   constructor(scheduler) {
@@ -89,24 +90,31 @@ class commentScheduler {
     this.assembly();
   }
   getTask() {
-    request.get(this.settings.url, (err, res, body) => {
-      if (err) {
-        this.logger.error('occur error : ', err);
-        return;
+    _getTask.getTask('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=30&platform=',
+      (err, result) => {
+        if (!err) {
+          this.emit('task_loaded', result);
+        }
       }
-      if (res.statusCode !== 200) {
-        return;
-      }
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        this.logger.error('json数据解析失败');
-        this.logger.info(body);
-        return;
-      }
-      this.logger.debug(body);
-      this.emit('task_loaded', body);
-    });
+    );
+    // request.get(this.settings.url, (err, res, body) => {
+    //   if (err) {
+    //     this.logger.error('occur error : ', err);
+    //     return;
+    //   }
+    //   if (res.statusCode !== 200) {
+    //     return;
+    //   }
+    //   try {
+    //     body = JSON.parse(body);
+    //   } catch (e) {
+    //     this.logger.error('json数据解析失败');
+    //     this.logger.info(body);
+    //     return;
+    //   }
+    //   this.logger.debug(body);
+    //   this.emit('task_loaded', body);
+    // });
   }
   createQueue(raw) {
     let jobType;

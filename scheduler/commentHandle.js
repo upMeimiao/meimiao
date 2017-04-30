@@ -8,7 +8,7 @@ class commentHandle {
     this.logger.debug('评论任务处理模块 实例化...');
   }
   rawLoop(raw) {
-    const data = raw.data,
+    const data = raw, // raw.d,
       len = data ? data.length : 0;
     let i = 0;
     async.whilst(
