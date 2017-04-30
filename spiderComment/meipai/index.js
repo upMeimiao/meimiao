@@ -127,6 +127,7 @@ class spiderCore {
             done(err);
             return;
           }
+          done();
           if (!addCount == 0) {
             this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
           }

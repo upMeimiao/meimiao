@@ -47,7 +47,6 @@ class dealWith {
       groupId = groupId.replace(',next', '}').replace(/'/g, '"').replace(/:/g, '":').replace(/,/g, ',"')
         .replace('{', '{"')
         .replace('http"', 'http');
-      logger.debug('groupId', groupId)
       groupId = JSON.parse(groupId).group_id;
       if (!groupId) {
         task.group_id = task.aid;
