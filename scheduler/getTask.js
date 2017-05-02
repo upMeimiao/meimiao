@@ -93,6 +93,15 @@ const getTask = (url, callback) => {
         cb(null, body.data);
       });
     },
+    yidian: (cb) => {
+      request(`${url}11`, (err, res, body) => {
+        if (err || res.statusCode !== 200) {
+          cb('error');
+        }
+        body = JSON.parse(body);
+        cb(null, body.data);
+      });
+    },
     acfun: (cb) => {
       request(`${url}22`, (err, res, body) => {
         if (err || res.statusCode !== 200) {
@@ -116,6 +125,7 @@ const getTask = (url, callback) => {
         .concat(results.bili)
         // .concat(results.sohu)
         .concat(results.kuaibao)
+        .concat(results.yidian)
         .concat(results.acfun);
       callback(null, raw);
     }
