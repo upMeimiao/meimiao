@@ -15,7 +15,7 @@ class commentSend {
       }
     };
     this.stagingOption = {
-      url: 'http://staging-dev.meimiaoip.com/index.php/Spider/video/postVideosMore/',
+      url: 'http://staging-dev.meimiaoip.com/index.php/Spider/comment/postComments',
       headers: {
         'content-type': 'application/json'
       }
@@ -184,8 +184,8 @@ class commentSend {
       }
       if (Number(result.errno) === 0) {
         // this.logger.debug('staging back end')
-        this.logger.info(result.data)
-        this.logger.debug(`${list.length}个视频 staging back end`);
+        this.logger.info(result.data);
+        this.logger.debug(`${list.length}个评论 staging back end`);
       } else {
         // this.logger.error('staging back error')
         this.logger.error(result);
