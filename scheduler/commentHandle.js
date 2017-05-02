@@ -25,6 +25,10 @@ class commentHandle {
     );
   }
   classify(_, callback) {
+    if (_ == 1) {
+      callback();
+      return;
+    }
     const platform = platformMap.get(Number(_.platform)),
       baseInfo = {
         p: _.platform,
@@ -33,9 +37,6 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
-    if (!baseInfo.p) {
-      this.logger.error('classify error', _);
-    }
     this.scheduler.emit('task_init', baseInfo);
     callback();
   }
