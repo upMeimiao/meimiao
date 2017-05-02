@@ -20,13 +20,13 @@ class hostTime {
   todo(task, callback) {
     task.hostTotal = 0;
     task.timeTotal = 0;
-    this.getTime(task, (err) => {
+    this.getTime(task, () => {
       callback(null, 0, 0);
     });
   }
   getTime(task, callback) {
     let page = 1,
-      total = Number(this.settings.commentTotal) % 5 == 0 ? Number(this.settings.commentTotal) / 5 : Math.ceil(Number(this.settings.commentTotal) / 5),
+      total = Number(this.settings.commentTotal) % 5 === 0 ? Number(this.settings.commentTotal) / 5 : Math.ceil(Number(this.settings.commentTotal) / 5),
       option = {};
     async.whilst(
             () => page <= total,
@@ -37,30 +37,34 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('不得姐评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('不得姐评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (!result || !result.data) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.data.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.data, (err) => {
-                  page++;
+                this.deal(task, result.data, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
@@ -76,8 +80,9 @@ class hostTime {
               time = new Date(comments[index].ctime);
               time = moment(time).format('X');
               if (!comments[index].content) {
-                index++;
-                return cb();
+                index += 1;
+                cb();
+                return;
               }
               comment = {
                 cid: comments[index].id,
@@ -94,10 +99,10 @@ class hostTime {
                 }
               };
               Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
+              index += 1;
               cb();
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );

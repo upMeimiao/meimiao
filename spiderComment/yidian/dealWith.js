@@ -40,7 +40,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('一点咨询评论总量请求失败', err);
-        callback(err);
+        callback(err)
         return;
       }
       try {
@@ -73,14 +73,12 @@ class dealWith {
   }
   commentList(task, total, callback) {
     let page = 1,
-      lastCommentId = '',
-      option;
+      lastCommentId = '';
+    const option = {};
     async.whilst(
       () => page <= total,
       (cb) => {
-        option = {
-          url: this.settings.yidian + task.aid + lastCommentId
-        };
+        option.url = this.settings.yidian + task.aid + lastCommentId;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('一点咨询评论列表请求失败', err);
@@ -121,7 +119,7 @@ class dealWith {
       (cb) => {
         time = new Date(comments[index].createAt);
         time = moment(time).format('X');
-        if (task.commentId == comments[index].comment_id || task.commentTime >= time) {
+        if (task.commentId === comments[index].comment_id || task.commentTime >= time) {
           task.isEnd = true;
           callback();
           return;

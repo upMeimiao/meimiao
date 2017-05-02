@@ -78,7 +78,7 @@ class dealWith {
       () => page <= total,
       (cb) => {
         option = {
-          url: `${this.settings.souhu.list}${task.topicId}&page_no=${page}&_${new Date().getTime()}`
+          url: `${this.settings.souhu.list}${task.topicId}&page_no=${page}&_=${new Date().getTime()}`
         };
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -121,6 +121,7 @@ class dealWith {
           callback();
           return;
         }
+        logger.debug(comments[index].passport.profile_url);
         comment = {
           cid: comments[index].comment_id,
           content: spiderUtils.stringHandling(comments[index].content),
@@ -132,11 +133,14 @@ class dealWith {
           step: comments[index].floor_count,
           reply: comments[index].reply_count,
           c_user: {
-            uid: comments[index].passport.profile_url.match(/user\/\d*/).toString().replace('user/', ''),
+            uid: comments[index].passport.profile_url ? comments[index].passport.profile_url.match(/user\/(\d)*/)[1] : null,
             uname: comments[index].passport.nickname,
             uavatar: comments[index].passport.img_url
           }
         };
+        if (!comment.c_user.uid) {
+          delete comment.c_user.uid;
+        }
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();

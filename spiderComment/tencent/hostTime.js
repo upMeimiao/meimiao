@@ -18,7 +18,7 @@ class hostTime {
   todo(task, callback) {
     task.hostTotal = 0;
     task.timeTotal = 0;
-    this.commentId(task, (err) => {
+    this.commentId(task, () => {
       callback();
     });
   }
@@ -29,7 +29,8 @@ class hostTime {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('腾讯评论id请求失败', err);
-        return this.commentId(task, callback);
+        this.commentId(task, callback);
+        return;
       }
       try {
         result = eval(result.body);
@@ -38,14 +39,14 @@ class hostTime {
         logger.info(result);
         return this.commentId(task, callback);
       }
-      this.getTime(task, result.comment_id, (err, result) => {
-        callback(null, result);
+      this.getTime(task, result.comment_id, (error, data) => {
+        callback(null, data);
       });
     });
   }
   getTime(task, commentId, callback) {
     let page = 0,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
+      total = Number(this.settings.commentTotal) % 20 === 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
       option = {},
       lastId = 0;
     async.whilst(
@@ -57,34 +58,37 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('乐视评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('乐视评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.data.commentid.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.data.commentid, (err) => {
+                this.deal(task, result.data.commentid, () => {
                   lastId = result.data.last;
-                  page++;
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       comment;
     async.whilst(
             () => index < length,
@@ -105,10 +109,10 @@ class hostTime {
                 }
               };
               Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
+              index += 1;
               cb();
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );

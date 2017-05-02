@@ -50,7 +50,7 @@ class spiderCore {
                     }
                 );
       }
-    ], (err, results) => {
+    ], (err) => {
       if (err) {
         logger.error('连接redis数据库出错。错误信息：', err);
         logger.error('出现错误，程序终止。');
@@ -58,8 +58,8 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      this.deal();
-            // this.test()
+      // this.deal();
+      this.test();
     });
   }
   start() {
