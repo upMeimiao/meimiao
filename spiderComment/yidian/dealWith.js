@@ -3,7 +3,7 @@
 */
 const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
+const spiderUtils = require('../../lib/spiderUtils');
 const moment = require('moment');
 
 let logger;
@@ -128,7 +128,7 @@ class dealWith {
         }
         comment = {
           cid: comments[index].comment_id,
-          content: Utils.stringHandling(comments[index].comment),
+          content: spiderUtils.stringHandling(comments[index].comment),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -139,7 +139,7 @@ class dealWith {
             uname: comments[index].nickname
           }
         };
-        Utils.saveCache(this.core.cache_db, 'comment_cache', comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
