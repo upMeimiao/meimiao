@@ -124,7 +124,7 @@ class commentScheduler {
     if (Number(raw.taskType) === 1) {
       jobType = `comment_update_${raw.platform}`;
     }
-    if (!jobType) {
+    if (jobType === undefined) {
       this.logger.error('jobType error:', raw);
     }
     let job = this.queue.create(jobType, {
