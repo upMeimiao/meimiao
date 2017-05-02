@@ -5,10 +5,6 @@ const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
 const async = require('async');
 
-const jsonp = function (data) {
-  return data;
-};
-
 let logger;
 class hostTime {
   constructor(spiderCore) {
@@ -22,12 +18,12 @@ class hostTime {
     async.parallel(
       {
         hot: (cb) => {
-          this.getHot(task, (err) => {
+          this.getHot(task, () => {
             cb(null, '热门评论数据完成');
           });
         },
         time: (cb) => {
-          this.getTime(task, (err) => {
+          this.getTime(task, () => {
             cb(null, '最新评论数据完成');
           });
         }
@@ -39,8 +35,8 @@ class hostTime {
         );
   }
   getHot(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
+    let page = 1;
+    const total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
       option = {};
     async.whilst(
             () => page <= total,
@@ -49,33 +45,36 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('bili评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('bili评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.data.replies.length <= 0) {
                   page = total + 1;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.data.replies, (err) => {
-                  page++;
+                this.deal(task, result.data.replies, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   getTime(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
+    let page = 1;
+    const total = Number(this.settings.commentTotal) % 20 === 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
       option = {};
     async.whilst(
             () => page <= total,
@@ -84,35 +83,37 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('bili评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('bili评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.data.replies.length <= 0) {
                   page = total + 1;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.data.replies, (err) => {
-                  page++;
+                this.deal(task, result.data.replies, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
-      comment,
-      time;
+    const length = comments.length;
+    let index = 0,
+      comment;
     async.whilst(
             () => index < length,
             (cb) => {
@@ -132,10 +133,10 @@ class hostTime {
                 }
               };
               Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
+              index += 1;
               cb();
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );

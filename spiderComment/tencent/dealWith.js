@@ -92,12 +92,16 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
-      logger.debug(result.data)
+      if (result.data.commentid.length === 0) {
+        callback(null, 'add_0');
+        return;
+      }
       task.lastId = result.data.commentid[0].id;
       task.lastTime = result.data.commentid[0].time;
       task.addCount = task.cNum - task.commentNum;
       logger.error(task.lastId);
       this.commentList(task, total, commentId, () => {
+        callback(null, 'add_0');
         callback();
       });
     });

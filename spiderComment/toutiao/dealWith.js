@@ -43,11 +43,15 @@ class dealWith {
       result = result.body.replace(/[\s\n\r]/g, '');
       startIndex = result.indexOf('player=');
       endIndex = result.indexOf(',nextSiblings');
-      groupId = result.substring(startIndex + 7, endIndex + 5);
-      groupId = groupId.replace(',next', '}').replace(/'/g, '"').replace(/:/g, '":').replace(/,/g, ',"')
-        .replace('{', '{"')
-        .replace('http"', 'http');
-      groupId = JSON.parse(groupId).group_id;
+      if (startIndex === -1 || endIndex === -1) {
+        groupId = task.aid;
+      } else {
+        groupId = result.substring(startIndex + 7, endIndex + 5);
+        groupId = groupId.replace(',next', '}').replace(/'/g, '"').replace(/:/g, '":').replace(/,/g, ',"')
+          .replace('{', '{"')
+          .replace('http"', 'http');
+        groupId = JSON.parse(groupId).group_id;
+      }
       if (!groupId) {
         task.group_id = task.aid;
       } else if (groupId == task.aid) {
@@ -64,7 +68,6 @@ class dealWith {
     let offset = 0,
       cycle = true,
       option;
-    logger.debug(task.group_id);
     async.whilst(
       () => cycle,
       (cb) => {

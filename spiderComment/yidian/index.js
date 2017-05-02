@@ -58,8 +58,8 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      this.deal();
-            // this.test()
+      // this.deal();
+      this.test()
     });
   }
   start() {
@@ -71,7 +71,7 @@ class spiderCore {
       bid: 'm81955',
       aid: 'V_00ggwNkL',
       p: 11,
-      taskType: 1,
+      taskType: 0,
       commentId: 0,
       commentTime: 0,
       commentNum: 0

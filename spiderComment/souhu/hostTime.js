@@ -18,29 +18,30 @@ class hostTime {
   todo(task, callback) {
     task.hostTotal = 0;
     task.timeTotal = 0;
-    this.totalPage(task, (err) => {
+    this.totalPage(task, () => {
       callback();
     });
   }
   totalPage(task, callback) {
-    let option = {
-        url: `${this.settings.souhu.topicId}http://my.tv.sohu.com/pl/${task.bid}/${task.aid}.shtml&topic_source_id=bk${task.aid}`
-      },
-      total = 0;
+    const option = {
+      url: `${this.settings.souhu.topicId}http://my.tv.sohu.com/pl/${task.bid}/${task.aid}.shtml&topic_source_id=bk${task.aid}`
+    };
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('bili评论总量请求失败', err);
-        return this.totalPage(task, callback);
+        this.totalPage(task, callback);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('bili评论数据解析失败');
         logger.info(result);
-        return this.totalPage(task, callback);
+        this.totalPage(task, callback);
+        return;
       }
       task.topicId = result.topic_id;
-      this.getTime(task, (err) => {
+      this.getTime(task, () => {
         callback();
       });
     });
@@ -58,33 +59,36 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('搜狐评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('搜狐评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.comments.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.comments, (err) => {
-                  page++;
+                this.deal(task, result.comments, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       comment;
     async.whilst(
             () => index < length,
@@ -100,16 +104,19 @@ class hostTime {
                 step: comments[index].floor_count,
                 reply: comments[index].reply_count,
                 c_user: {
-                  uid: comments[index].passport.profile_url.match(/user\/\d*/).toString().replace('user/', ''),
+                  uid: comments[index].passport.profile_url ? comments[index].passport.profile_url.match(/user\/(\d)*/)[1] : null,
                   uname: comments[index].passport.nickname,
                   uavatar: comments[index].passport.img_url
                 }
               };
+              if (!comment.c_user.uid) {
+                delete comment.c_user.uid;
+              }
               Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
+              index += 1;
               cb();
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
