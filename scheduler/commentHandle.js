@@ -33,6 +33,9 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
+    if (!baseInfo.p) {
+      this.logger.error('classify error', _);
+    }
     this.scheduler.emit('task_init', baseInfo);
     callback();
   }
