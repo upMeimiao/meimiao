@@ -59,6 +59,7 @@ class dealWith {
       url: `http://coral.qq.com/article/${task.commentId}/comment?commentid=&reqnum=20`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('天天快报评论总量请求失败', err);
@@ -74,7 +75,7 @@ class dealWith {
         return;
       }
       task.cNum = result.data.total;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || result.data.commentid.length === 0) {
         callback(null, 'add_0');
         return;
       }

@@ -72,13 +72,13 @@ class dealWith {
     });
   }
   commentList(task, total, callback) {
-    let page = 1,
-      lastCommentId = '';
+    let lastCommentId = '',
+      cycle = true;
     const option = {};
     async.whilst(
-      () => page <= total,
+      () => cycle,
       (cb) => {
-        option.url = this.settings.yidian + task.aid + lastCommentId;
+        option.url = `http://www.yidianzixun.com/home/q/getcomments?_=${new Date().getTime()}&docid=${task.aid}&s=&count=20&last_comment_id=${lastCommentId}&appid=web_yidian`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('一点咨询评论列表请求失败', err);
@@ -93,13 +93,17 @@ class dealWith {
             cb();
             return;
           }
+          if (result.comments.length === 0) {
+            cycle = false;
+            cb('error');
+            return;
+          }
           this.deal(task, result.comments, () => {
             if (task.isEnd) {
               callback();
               return;
             }
-            page += 1;
-            lastCommentId = `&last_comment_id=${result.comments[result.comments.length - 1].comment_id}`;
+            lastCommentId = `${result.comments[result.comments.length - 1].comment_id}`;
             cb();
           });
         });
