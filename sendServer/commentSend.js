@@ -1,7 +1,7 @@
 const request = require('request');
 const util = require('util');
 const events = require('events');
-const fs = require('fs');
+
 class commentSend {
   constructor(sendServer) {
     events.EventEmitter.call(this);
@@ -25,9 +25,9 @@ class commentSend {
   }
   assembly() {
     this.emit('get_lists');
-    // setInterval(() => {
-    //   this.emit('get_lists');
-    // }, this.settings.send_interval);
+    setInterval(() => {
+      this.emit('get_lists');
+    }, this.settings.send_interval);
   }
   start() {
     this.logger.trace('启动函数');
@@ -142,13 +142,6 @@ class commentSend {
       return;
     }
     this.stagingOption.body = JSON.stringify({ data: list });
-    fs.writeFile('staging.log', this.stagingOption.body, (err) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      console.log('The file was saved!');
-    });
     request.post(this.stagingOption, (err, res, result) => {
       if (err) {
         this.logger.error('staging occur error : ', err.message);
