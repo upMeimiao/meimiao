@@ -99,7 +99,6 @@ class dealWith {
       task.lastId = result.data.commentid[0].id;
       task.lastTime = result.data.commentid[0].time;
       task.addCount = task.cNum - task.commentNum;
-      logger.error(task.lastId);
       this.commentList(task, total, commentId, () => {
         callback(null, 'add_0');
         callback();
@@ -125,8 +124,7 @@ class dealWith {
           try {
             result = JSON.parse(result.body);
           } catch (e) {
-            logger.debug('腾讯评论数据解析失败');
-            logger.info(result);
+            logger.error('腾讯评论数据解析失败', result);
             cb();
             return;
           }
