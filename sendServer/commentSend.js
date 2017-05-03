@@ -142,7 +142,7 @@ class commentSend {
       return;
     }
     this.stagingOption.body = JSON.stringify({ data: list });
-    fs.writeFile('~/qiaosuan/staging.log', this.stagingOption.body, (err) => {
+    fs.writeFile('staging.log', this.stagingOption.body, (err) => {
       if (err) {
         console.log(err);
         return;
