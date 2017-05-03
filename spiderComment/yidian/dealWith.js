@@ -40,7 +40,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('一点咨询评论总量请求失败', err);
-        callback(err)
+        callback(err);
         return;
       }
       try {
