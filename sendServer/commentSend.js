@@ -25,9 +25,9 @@ class commentSend {
   }
   assembly() {
     this.emit('get_lists');
-    setInterval(() => {
-      this.emit('get_lists');
-    }, this.settings.send_interval);
+    // setInterval(() => {
+    //   this.emit('get_lists');
+    // }, this.settings.send_interval);
   }
   start() {
     this.logger.trace('启动函数');
