@@ -100,7 +100,6 @@ class dealWith {
       task.lastTime = result.data.commentid[0].time;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, commentId, () => {
-        callback(null, 'add_0');
         callback();
       });
     });
