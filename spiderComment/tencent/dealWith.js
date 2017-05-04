@@ -39,6 +39,7 @@ class dealWith {
     const option = {
       url: this.settings.tencent.commentId + task.aid
     };
+    logger.debug(option.url);
     request.get(logger, option, (error, result) => {
       if (error) {
         logger.debug('腾讯评论id请求失败', error);
@@ -51,6 +52,10 @@ class dealWith {
         logger.debug('腾讯数据解析失败');
         logger.info(result);
         callback(e);
+        return;
+      }
+      if (result.comment_id == 0) {
+        callback(null, 'add_0');
         return;
       }
       this.totalPage(task, result.comment_id, (err, raw) => {
@@ -67,6 +72,7 @@ class dealWith {
       url: `https://coral.qq.com/article/${commentId}/comment?reqnum=20&commentid=0`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('腾讯评论总量请求失败', err);

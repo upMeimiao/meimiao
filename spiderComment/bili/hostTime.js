@@ -35,9 +35,9 @@ class hostTime {
         );
   }
   getHot(task, callback) {
-    let page = 1;
-    const total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option = {};
+    let page = 1,
+      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20);
+    const option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
@@ -53,6 +53,11 @@ class hostTime {
                 } catch (e) {
                   logger.debug('bili评论数据解析失败');
                   logger.info(result);
+                  cb();
+                  return;
+                }
+                if (result.code == '12002') {
+                  total = -1;
                   cb();
                   return;
                 }
@@ -73,42 +78,48 @@ class hostTime {
         );
   }
   getTime(task, callback) {
-    let page = 1;
-    const total = Number(this.settings.commentTotal) % 20 === 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option = {};
+    let page = 1,
+      total = Number(this.settings.commentTotal) % 20 === 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20);
+    const option = {};
     async.whilst(
-            () => page <= total,
-            (cb) => {
-              option.url = `${this.settings.bili.time}${task.aid}&pn=${page}`;
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.debug('bili评论列表请求失败', err);
-                  cb();
-                  return;
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.debug('bili评论数据解析失败');
-                  logger.info(result);
-                  cb();
-                  return;
-                }
-                if (result.data.replies.length <= 0) {
-                  page = total + 1;
-                  cb();
-                  return;
-                }
-                this.deal(task, result.data.replies, () => {
-                  page += 1;
-                  cb();
-                });
-              });
-            },
-            () => {
-              callback();
-            }
-        );
+      () => page <= total,
+      (cb) => {
+        option.url = `${this.settings.bili.time}${task.aid}&pn=${page}`;
+        logger.debug(option.url)
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('bili评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('bili评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          if (result.code == '12002') {
+            total = -1;
+            cb();
+            return;
+          }
+          if (result.data.replies.length <= 0) {
+            page = total + 1;
+            cb();
+            return;
+          }
+          this.deal(task, result.data.replies, () => {
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, comments, callback) {
     const length = comments.length;

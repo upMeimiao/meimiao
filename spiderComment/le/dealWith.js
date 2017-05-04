@@ -36,6 +36,7 @@ class dealWith {
       url: `${this.settings.le.list}${task.aid}&page=1`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('乐视评论总量请求失败', err);
@@ -51,7 +52,7 @@ class dealWith {
         return;
       }
       task.cNum = result.total;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || result.data.length <= 0) {
         callback(null, 'add_0');
         return;
       }

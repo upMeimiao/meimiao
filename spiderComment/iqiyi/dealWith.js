@@ -36,6 +36,7 @@ class dealWith {
       url: `${this.settings.iqiyi.list}${task.aid}&tvid=${task.aid}&page=1`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('爱奇艺评论总量请求失败', err);
@@ -87,6 +88,11 @@ class dealWith {
           } catch (e) {
             logger.debug('爱奇艺评论数据解析失败');
             logger.info(result);
+            cb();
+            return;
+          }
+          if (!result.data.comments) {
+            page += 1;
             cb();
             return;
           }
