@@ -90,31 +90,31 @@ class commentScheduler {
     this.assembly();
   }
   getTask() {
-    _getTask.getTask('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=120&platform=',
-      (err, result) => {
-        if (!err) {
-          this.emit('task_loaded', result);
-        }
+    // _getTask.getTask('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=120&platform=',
+    //   (err, result) => {
+    //     if (!err) {
+    //       this.emit('task_loaded', result);
+    //     }
+    //   }
+    // );
+    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=500&platform=2-3-4-5-6-7-8-9-10-11-22', (err, res, body) => {
+      if (err) {
+        this.logger.error('occur error : ', err);
+        return;
       }
-    );
-    // request.get(this.settings.url, (err, res, body) => {
-    //   if (err) {
-    //     this.logger.error('occur error : ', err);
-    //     return;
-    //   }
-    //   if (res.statusCode !== 200) {
-    //     return;
-    //   }
-    //   try {
-    //     body = JSON.parse(body);
-    //   } catch (e) {
-    //     this.logger.error('json数据解析失败');
-    //     this.logger.info(body);
-    //     return;
-    //   }
-    //   this.logger.debug(body);
-    //   this.emit('task_loaded', body);
-    // });
+      if (res.statusCode !== 200) {
+        return;
+      }
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        this.logger.error('json数据解析失败');
+        this.logger.info(body);
+        return;
+      }
+      this.logger.debug(body);
+      this.emit('task_loaded', body);
+    });
   }
   createQueue(raw) {
     let jobType;
