@@ -62,6 +62,10 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 50) === 0 ? total / 50 : Math.ceil(total / 50);
       }
+      if (result.data.commentList.length <= 0) {
+        callback();
+        return;
+      }
       const comment = result.data.commentContentArr[`c${result.data.commentList[0]}`];
       task.lastTime = moment(new Date(comment.postDate)).format('X');
       task.lastId = comment.cid;

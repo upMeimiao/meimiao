@@ -19,7 +19,7 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.videoTotal(task, (err, result) => {
+    this.videoTotal(task, () => {
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
@@ -39,13 +39,15 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         logger.debug('人人视频评论接口请求失败', err);
-        return this.getVidInfo(task, vid, callback);
+        this.videoTotal(task, callback);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('人人视频评论信息解析失败', result);
-        return this.getVidInfo(task, vid, callback);
+        this.videoTotal(task, callback);
+        return;
       }
       task.cNum = result.data.total;
       if ((task.cNum - task.commentNum) <= 0) {
@@ -53,7 +55,12 @@ class dealWith {
         task.lastId = task.commentId;
         task.lastTime = task.commentTime;
         task.addCount = 0;
-        return callback();
+        callback();
+        return;
+      }
+      if (result.data.results <= 0) {
+        callback();
+        return;
       }
       task.lastId = result.data.results[0].id;
       task.lastTime = result.data.results[0].createTime;
@@ -64,89 +71,91 @@ class dealWith {
     });
   }
   commentInfo(task, callback) {
-    	let page = 1,
-      cycle = true,
-      option = {
-        url: 'http://web.rr.tv/v3plus/comment/list',
-        headers: {
-          Referer: 'http://rr.tv/',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-          clientType: 'web',
-          clientVersion: '0.1.0'
-        },
-        data: {
-          videoId: task.aid
-        }
-        	};
-    	async.whilst(
-			() => cycle,
-			(cb) => {
-  option.data.page = page;
-  request.post(logger, option, (err, result) => {
-    if (err) {
-                    	logger.debug(option);
-      logger.debug('人人视频评论列表接口请求失败', err);
-      return cb();
-    }
-    try {
-      result = JSON.parse(result.body);
-    } catch (e) {
-      logger.debug('解析失败', result.body);
-      return cb();
-    }
-    if (result.data.results <= 0) {
-                    	cycle = false;
-                    	return cb();
-    }
-    this.deal(task, result.data.results, (err) => {
-                    	if (task.isEnd) {
-                    		cycle = false;
-                    }
-      page++;
-                    	cb();
-    });
-  });
-},
-			(err, result) => {
-  callback();
-}
+    let page = 1,
+      cycle = true;
+    const option = {
+      url: 'http://web.rr.tv/v3plus/comment/list',
+      headers: {
+        Referer: 'http://rr.tv/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+        clientType: 'web',
+        clientVersion: '0.1.0'
+      },
+      data: {
+        videoId: task.aid
+      }
+    };
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.data.page = page;
+        request.post(logger, option, (err, result) => {
+          if (err) {
+            logger.debug(option);
+            logger.debug('人人视频评论列表接口请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('解析失败', result.body);
+            cb();
+            return;
+          }
+          if (result.data.results <= 0) {
+            cycle = false;
+            cb();
+            return;
+          }
+          this.deal(task, result.data.results, () => {
+            if (task.isEnd) {
+              cycle = false;
+            }
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
 		);
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       cid,
       comment;
     async.whilst(
 			() => index < length,
 			(cb) => {
-  cid = comments[index].id;
-  if (task.commentId == cid || task.commentTime >= comments[index].createTime) {
-    task.isEnd = true;
-    return callback();
-  }
-  comment = {
-    cid,
-    content: Utils.stringHandling(comments[index].content),
-    platform: task.p,
-    bid: task.bid,
-    aid: task.aid,
-    ctime: comments[index].createTime,
-    support: comments[index].likeCount,
-    c_user: {
-      uid: comments[index].author.id,
-      uname: comments[index].author.nickName,
-      uavatar: comments[index].author.headImgUrl
-    }
-  };
-  Utils.commentCache(this.core.cache_db, comment);
-				// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
-  index++;
-  cb();
-},
-			(err, result) => {
-  callback();
-}
+        cid = comments[index].id;
+        if (task.commentId == cid || task.commentTime >= comments[index].createTime) {
+          task.isEnd = true;
+          return callback();
+        }
+        comment = {
+          cid,
+          content: Utils.stringHandling(comments[index].content),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: comments[index].createTime,
+          support: comments[index].likeCount,
+          c_user: {
+            uid: comments[index].author.id,
+            uname: comments[index].author.nickName,
+            uavatar: comments[index].author.headImgUrl
+          }
+        };
+        Utils.commentCache(this.core.cache_db, comment);
+        index += 1;
+        cb();
+      },
+			() => {
+        callback();
+      }
 		);
   }
 }

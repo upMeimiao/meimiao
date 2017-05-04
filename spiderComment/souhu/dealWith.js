@@ -52,7 +52,7 @@ class dealWith {
         return;
       }
       task.cNum = result.cmt_sum;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || result.comments.length <= 0) {
         callback(null, 'add_0');
         return;
       }

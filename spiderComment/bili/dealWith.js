@@ -50,6 +50,10 @@ class dealWith {
         callback(e);
         return;
       }
+      if (result.code == '12002') {
+        callback(null, 'add0');
+        return;
+      }
       task.cNum = result.data.page.count;
       if ((task.cNum - task.commentNum) <= 0) {
         callback(null, 'add_0');

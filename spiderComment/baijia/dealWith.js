@@ -51,10 +51,14 @@ class dealWith {
       if ((task.cNum - task.commentNum) === 0) {
         return callback(null, 'add_0');
       }
+      if (result.data.reply_list.length <= 0) {
+        callback();
+        return;
+      }
       task.lastTime = result.data.reply_list[0].time;
       task.lastId = result.data.reply_list[0].reply_id;
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, (err) => {
+      this.commentList(task, () => {
         callback();
       });
     });
