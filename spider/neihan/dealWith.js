@@ -42,15 +42,15 @@ class dealWith {
           cb(null, '用户信息已返回');
         });
       },
-      // media: (cb) => {
-      //   this.getList(task, (err) => {
-      //     if (err) {
-      //       cb(err);
-      //       return;
-      //     }
-      //     cb(null, '视频信息已返回');
-      //   });
-      // }
+      media: (cb) => {
+        this.getList(task, (err) => {
+          if (err) {
+            cb(err);
+            return;
+          }
+          cb(null, '视频信息已返回');
+        });
+      }
     }, (err, result) => {
       if (err) {
         callback(err);
