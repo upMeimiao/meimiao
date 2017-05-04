@@ -220,7 +220,7 @@ class dealWith {
           aid,
           title: result[0].title,
           desc: result[0].desc,
-          v_img: result[0].vImg,
+          v_img: video.find('div._46-h img').attr('src'),
           support: result[0].ding,
           v_url: result[0].playUrl,
           comment_num: result[0].commentNum,
@@ -230,7 +230,7 @@ class dealWith {
           a_create_time: result[0].time
         };
         media = spiderUtils.deleteProperty(media);
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         callback();
       }
