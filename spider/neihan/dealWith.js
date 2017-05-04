@@ -6,6 +6,27 @@ const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
+const longT = (raw) => {
+  if (!raw) {
+    return '';
+  }
+  return Math.round(raw);
+};
+const _vImg = (raw) => {
+  if (!raw) {
+    return '';
+  }
+  if (!raw.large_cover && !raw.medium_cover) {
+    return '';
+  }
+  if (raw.large_cover.url_list && raw.large_cover.url_list.length > 0) {
+    return raw.large_cover.url_list[0].url;
+  }
+  if (raw.medium_cover.url_list && raw.medium_cover.url_list.length > 0) {
+    return raw.medium_cover.url_list[0].url;
+  }
+  return '';
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -16,22 +37,24 @@ class dealWith {
   todo(task, callback) {
     task.total = 0;
     async.parallel({
-      user: (callback) => {
-        this.getUser(task, (err) => {
-          callback(null, '用户信息已返回');
+      user: (cb) => {
+        this.getUser(task, () => {
+          cb(null, '用户信息已返回');
         });
       },
-      media: (callback) => {
-        this.getList(task, (err) => {
-          if (err) {
-            return callback(err);
-          }
-          callback(null, '视频信息已返回');
-        });
-      }
+      // media: (cb) => {
+      //   this.getList(task, (err) => {
+      //     if (err) {
+      //       cb(err);
+      //       return;
+      //     }
+      //     cb(null, '视频信息已返回');
+      //   });
+      // }
     }, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       logger.debug('result : ', result);
       callback(null, task.total);
@@ -44,21 +67,23 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback();
+        callback();
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info('json error :', result.body);
-        return callback();
+        callback();
+        return;
       }
       const user = {
         platform: 19,
         bid: task.id,
         fans_num: result.data.followers
       };
-      this.sendUser(user, (err) => {
+      this.sendUser(user, () => {
         callback();
       });
       this.sendStagingUser(user);
@@ -73,16 +98,18 @@ class dealWith {
       if (err) {
         logger.error('occur error : ', err);
         logger.info(`返回内涵段子用户 ${user.bid} 连接服务器失败`);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error(`内涵段子用户 ${user.bid} json数据解析失败`);
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('内涵段子用户:', `${user.bid} back_end`);
       } else {
         logger.error('内涵段子用户:', `${user.bid} back_error`);
@@ -109,7 +136,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -118,100 +145,96 @@ class dealWith {
     });
   }
   getList(task, callback) {
+    const option = {};
     let sign = 1,
       isSign = true,
-      option,
       time;
     async.whilst(
-            () => isSign,
-            (cb) => {
-              logger.debug(`开始获取第${sign}页视频列表`);
-              if (!time) {
-                option = {
-                  url: `${this.settings.spiderAPI.neihan.medialist + task.id}&min_time=0`
-                };
-              } else {
-                option = {
-                  url: `${this.settings.spiderAPI.neihan.medialist + task.id}&max_time=${time}`
-                };
-              }
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.error(`occur error : ${err}`);
-                  return cb();
-                }
-                if (result.statusCode != 200) {
-                  logger.error('code error: ', result.statusCode);
-                  logger.error(sign);
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.error('json数据解析失败');
-                  logger.error('json error: ', result.body);
-                  logger.error(sign);
-                  sign++;
-                  return cb();
-                }
-                const list = result.data.data;
-                if (list.length != 0) {
-                  this.deal(task, list, () => {
-                    time = list[list.length - 1].group ? list[list.length - 1].group.online_time : list[list.length - 1].online_time;
-                    sign++;
-                    cb();
-                  });
-                } else {
-                  task.total = sign * 20;
-                  isSign = false;
-                  cb();
-                }
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => isSign,
+      (cb) => {
+        logger.debug(`开始获取第${sign}页视频列表`);
+        if (!time) {
+          option.url = `${this.settings.spiderAPI.neihan.medialist + task.id}&min_time=0`;
+        } else {
+          option.url = `${this.settings.spiderAPI.neihan.medialist + task.id}&max_time=${time}`;
+        }
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error(`occur error : ${err}`);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.error('json error: ', result.body);
+            logger.error(sign);
+            sign += 1;
+            cb();
+            return;
+          }
+          const list = result.data.data;
+          if (list.length !== 0) {
+            this.deal(task, list, () => {
+              time = list[list.length - 1].group ?
+                list[list.length - 1].group.online_time : list[list.length - 1].online_time;
+              sign += 1;
+              cb();
+            });
+          } else {
+            task.total = sign * 20;
+            isSign = false;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, list, callback) {
     let index = 0;
     async.whilst(
-            () => index < list.length,
-            (cb) => {
-              if (!list[index].group) {
-                index++;
-                return cb();
-              }
-              const group = list[index].group;
-              if (!group) {
-                index++;
-                return cb();
-              }
-              const type = group.media_type;
-              if (type == 3) {
-                this.getInfo(task, list[index], (err) => {
-                  index++;
-                  cb();
-                });
-              } else {
-                index++;
-                cb();
-              }
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < list.length,
+      (cb) => {
+        if (!list[index].group) {
+          index += 1;
+          cb();
+          return;
+        }
+        const group = list[index].group;
+        if (!group) {
+          index += 1;
+          cb();
+          return;
+        }
+        const type = group.media_type;
+        if (Number(type) === 3) {
+          this.getInfo(task, list[index], () => {
+            index += 1;
+            cb();
+          });
+        } else {
+          index += 1;
+          cb();
+        }
+      },
+      () => {
+        callback();
+      }
+  );
   }
   getInfo(task, data, callback) {
-    let group = data.group,
-      title;
-    if (group.title != '') {
+    const group = data.group;
+    let title;
+    if (group.title !== '') {
       title = group.title;
     } else {
       title = 'btwk_caihongip';
     }
-    const media = {
+    let media = {
       author: group.user.name,
       platform: 19,
       bid: task.id,
@@ -225,39 +248,13 @@ class dealWith {
       support: group.digg_count,
       step: group.bury_count,
       a_create_time: group.create_time,
-      v_img: this._v_img(group),
-      long_t: group.duration ? this.long_t(group.duration) : null,
+      v_img: _vImg(group),
+      long_t: group.duration ? longT(group.duration) : null,
       class: group.category_name
     };
-    if (!media.long_t) {
-      delete media.long_t;
-    }
-    if (!media.v_img) {
-      delete media.v_img;
-    }
+    media = spiderUtils.deleteProperty(media);
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
     callback();
-  }
-  long_t(raw) {
-    if (!raw) {
-      return '';
-    }
-    return Math.round(raw);
-  }
-  _v_img(raw) {
-    if (!raw) {
-      return '';
-    }
-    if (!raw.large_cover && !raw.medium_cover) {
-      return '';
-    }
-    if (raw.large_cover.url_list && raw.large_cover.url_list.length > 0) {
-      return raw.large_cover.url_list[0].url;
-    }
-    if (raw.medium_cover.url_list && raw.medium_cover.url_list.length > 0) {
-      return raw.medium_cover.url_list[0].url;
-    }
-    return '';
   }
 }
 module.exports = dealWith;

@@ -138,7 +138,7 @@
       "api": "http://api.miaopai.com/m/shot_channel.json?version=6.3.7&os=ios&page="
     },
     "neihan": {
-      "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?user_id=",
+      "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?device_platform=iphone&user_id=",
       "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id="
     },
     "pptv": {
