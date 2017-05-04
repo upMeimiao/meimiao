@@ -44,10 +44,10 @@ class commentScheduler {
         const osName = os.hostname();
         switch (osName) {
           case 'servant_3':
-            rule.second = [1, 7, 13, 19, 25, 31, 37, 43, 49, 55];
+            rule.second = [1, 21, 41];
             break;
           case 'iZ28ilm78mlZ':
-            rule.second = [4, 10, 16, 22, 28, 34, 40, 46, 52, 58];
+            rule.second = [1, 21, 41];
             break;
           default:
             rule.second = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28,
@@ -90,7 +90,7 @@ class commentScheduler {
     this.assembly();
   }
   getTask() {
-    _getTask.getTask('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=30&platform=',
+    _getTask.getTask('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=120&platform=',
       (err, result) => {
         if (!err) {
           this.emit('task_loaded', result);
