@@ -29,7 +29,7 @@ class dealWith {
         return;
       }
       if (result === 'add_0') {
-        callback(null);
+        callback();
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);

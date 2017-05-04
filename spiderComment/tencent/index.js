@@ -127,7 +127,7 @@ class spiderCore {
             done(err);
             return;
           }
-          done(null);
+          done();
           if (total) {
             this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
           }
@@ -149,7 +149,7 @@ class spiderCore {
             done(err);
             return;
           }
-          done(null);
+          done();
           this.taskDB.hmset(key, 'update', (new Date().getTime()));
         });
       });
