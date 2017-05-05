@@ -120,20 +120,22 @@ class dealWith {
       () => {
         callback();
       }
-		);
+    );
   }
   deal(task, comments, callback) {
-    const length = comments.length;
-    let index = 0,
+    let length = comments.length,
+      index = 0,
       cid,
       comment;
     async.whilst(
-			() => index < length,
-			(cb) => {
+      () => index < length,
+      (cb) => {
         cid = comments[index].id;
         if (task.commentId == cid || task.commentTime >= comments[index].createTime) {
           task.isEnd = true;
-          return callback();
+          length = 0;
+          cb();
+          return;
         }
         comment = {
           cid,
@@ -153,10 +155,10 @@ class dealWith {
         index += 1;
         cb();
       },
-			() => {
+      () => {
         callback();
       }
-		);
+    );
   }
 }
 
