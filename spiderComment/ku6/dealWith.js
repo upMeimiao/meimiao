@@ -21,32 +21,40 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.totalPage(task, (err, result) => {
-      if (result == 'add_0') {
-        return callback(null);
+      if (err) {
+        callback(err);
+        return;
+      }
+      if (result === 'add_0') {
+        callback(null);
+        return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
   totalPage(task, callback) {
-    let option = {
-        url: `${this.settings.ku6 + task.aid}&pn=1`
-      },
-      total = 0;
+    const option = {
+      url: `${this.settings.ku6 + task.aid}&pn=1`
+    };
+    let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('ku6评论总量请求失败', err);
-        return this.totalPage(task, callback);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('ku6评论数据解析失败');
         logger.info(result.body);
-        return this.totalPage(task, callback);
+        callback(e);
+        return;
       }
       task.cNum = result.data.count;
-      if ((task.cNum - task.commentNum) <= 0) {
-        return callback(null, 'add_0');
+      if ((task.cNum - task.commentNum) <= 0 || result.data.list.length <= 0) {
+        callback(null, 'add_0');
+        return;
       }
       if (task.commentNum <= 0) {
         total = (task.cNum % 20) == 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
@@ -57,7 +65,7 @@ class dealWith {
       task.lastTime = result.data.list[0].commentCtime.toString().substring(0, 10);
       task.lastId = result.data.list[0].id;
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, total, (err) => {
+      this.commentList(task, total, () => {
         callback();
       });
     });
@@ -66,73 +74,79 @@ class dealWith {
     let page = 1,
       option;
     async.whilst(
-			() => page <= total,
-			(cb) => {
-  option = {
-    url: `${this.settings.ku6 + task.aid}&pn=${page}`
-  };
-  request.get(logger, option, (err, result) => {
-    if (err) {
-      logger.debug('ku6评论列表请求失败', err);
-      return cb();
-    }
-    try {
-      result = JSON.parse(result.body);
-    } catch (e) {
-      logger.debug('ku6评论数据解析失败');
-      logger.info(result);
-      return cb();
-    }
-    this.deal(task, result.data.list, (err) => {
-      if (task.isEnd) {
-        return callback();
+      () => page <= total,
+      (cb) => {
+        option = {
+          url: `${this.settings.ku6 + task.aid}&pn=${page}`
+        };
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('ku6评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('ku6评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          this.deal(task, result.data.list, () => {
+            if (task.isEnd) {
+              total = -1;
+              cb(null, 'add_0');
+              return;
+            }
+            page += 1;
+            cb();
+          });
+        });
+      },
+      (err, result) => {
+        callback(null, result);
       }
-      page++;
-      cb();
-    });
-  });
-},
-			(err, result) => {
-  callback();
-}
-		);
+    );
   }
   deal(task, comments, callback) {
     let length = comments.length,
       index = 0,
       comment;
     async.whilst(
-			() => index < length,
-			(cb) => {
-  if (task.commentId == comments[index].id || task.commentTime >= comments[index].commentCtime.toString().substring(0, 10)) {
-    task.isEnd = true;
-    return callback();
-  }
-  this.getAvatar(comments[index].commentAuthorId, (err, result) => {
-    comment = {
-      cid: comments[index].id,
-      content: Utils.stringHandling(comments[index].commentContent),
-      platform: task.p,
-      bid: task.bid,
-      aid: task.aid,
-      ctime: comments[index].commentCtime.toString().substring(0, 10),
-      support: comments[index].commentCount,
-      c_user: {
-        uid: comments[index].commentAuthorId,
-        uname: comments[index].commentAuthor,
-        uavatar: result
+      () => index < length,
+      (cb) => {
+        if (task.commentId == comments[index].id || task.commentTime >= comments[index].commentCtime.toString().substring(0, 10)) {
+          task.isEnd = true;
+          length = 0;
+          callback();
+          return;
+        }
+        this.getAvatar(comments[index].commentAuthorId, (err, result) => {
+          comment = {
+            cid: comments[index].id,
+            content: Utils.stringHandling(comments[index].commentContent),
+            platform: task.p,
+            bid: task.bid,
+            aid: task.aid,
+            ctime: comments[index].commentCtime.toString().substring(0, 10),
+            support: comments[index].commentCount,
+            c_user: {
+              uid: comments[index].commentAuthorId,
+              uname: comments[index].commentAuthor,
+              uavatar: result
+            }
+          };
+          Utils.commentCache(this.core.cache_db, comment);
+          // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+          index += 1;
+          cb();
+        });
+      },
+      () => {
+        callback();
       }
-    };
-    Utils.commentCache(this.core.cache_db, comment);
-					// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
-    index++;
-    cb();
-  });
-},
-			(err, result) => {
-  callback();
-}
-		);
+    );
   }
   getAvatar(uid, callback) {
     const option = {
@@ -142,11 +156,10 @@ class dealWith {
       if (err) {
         logger.debug('用户主页请求失败');
       }
-      let $ = cheerio.load(result.body),
+      const $ = cheerio.load(result.body),
         avatar = $('a.headPhoto>img').attr('src');
       callback(null, avatar);
     });
   }
 }
-
 module.exports = dealWith;
