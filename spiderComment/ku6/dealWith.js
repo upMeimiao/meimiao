@@ -96,7 +96,7 @@ class dealWith {
           this.deal(task, result.data.list, () => {
             if (task.isEnd) {
               total = -1;
-              cb();
+              cb(null, 'add_0');
               return;
             }
             page += 1;
@@ -104,8 +104,8 @@ class dealWith {
           });
         });
       },
-      () => {
-        callback();
+      (err, result) => {
+        callback(null, result);
       }
     );
   }
