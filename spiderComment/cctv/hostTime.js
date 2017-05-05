@@ -4,7 +4,7 @@
 const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
 const async = require('async');
-const md5 = require('js-md5');
+const crypto = require('crypto');
 const moment = require('moment');
 
 let logger;
@@ -66,10 +66,12 @@ class hostTime {
     let index = 0,
       comment,
       time,
-      cid;
+      cid,
+      md5;
     async.whilst(
             () => index < length,
             (cb) => {
+              md5 = crypto.createHash('md5');
               time = new Date(comments[index].pubdate);
               time = moment(time).format('X');
               cid = md5(task.aid + comments[index].pid + time);
