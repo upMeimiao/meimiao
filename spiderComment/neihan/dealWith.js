@@ -1,9 +1,9 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -125,7 +125,7 @@ class dealWith {
         }
         comment = {
           cid: comments[index].comment_id,
-          content: Utils.stringHandling(comments[index].text),
+          content: spiderUtils.stringHandling(comments[index].text),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -138,8 +138,7 @@ class dealWith {
             uavatar: comments[index].avatar_url
           }
         };
-        Utils.commentCache(this.core.cache_db, comment);
-        // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
