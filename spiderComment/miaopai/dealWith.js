@@ -1,12 +1,12 @@
 /**
 * Created by junhao on 2017/2/08.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
 const URL = require('url');
-const md5 = require('crypto').createHash('md5');
+const crypto = require('crypto');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -38,8 +38,8 @@ class dealWith {
     const option = {
       url: `${this.settings.miaopai}${task.aid}&page=1`
     };
+    const md5 = crypto.createHash('md5');
     let total = 0;
-    logger.debug(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('秒拍评论总量请求失败', err);
@@ -73,9 +73,8 @@ class dealWith {
         comment = $('div.vid_hid'),
         url = comment.eq(0).find('div.hid_con>a').attr('data-link'),
         uid = URL.parse(url, true).query.suid,
-        content = comment.eq(0).find('p.hid_con_txt2').html(),
-        cid = md5.update(uid + content).digest('hex');
-      task.lastId = cid;
+        content = comment.eq(0).find('p.hid_con_txt2').html();
+      task.lastId = md5.update(uid + content).digest('hex');
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
         callback();
@@ -84,15 +83,13 @@ class dealWith {
   }
   commentList(task, total, callback) {
     let page = 1,
-      option,
       $,
       comments;
+    const option = {};
     async.whilst(
       () => page <= total,
       (cb) => {
-        option = {
-          url: `${this.settings.miaopai}${task.aid}&page=${page}`
-        };
+        option.url = `${this.settings.miaopai}${task.aid}&page=${page}`;
         logger.debug(333);
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -129,17 +126,14 @@ class dealWith {
   deal(task, comments, callback) {
     const length = comments.length;
     let index = 0,
-      comment,
-      url,
-      uid,
-      content,
-      cid;
+      comment, url, uid, content, cid, md5;
     async.whilst(
       () => index < length,
       (cb) => {
         url = comments.eq(index).find('div.hid_con>a').attr('data-link');
         uid = URL.parse(url, true).query.suid;
         content = comments.eq(index).find('p.hid_con_txt2').text();
+        md5 = crypto.createHash('md5');
         cid = md5.update(uid + content).digest('hex');
         if (task.commentId == cid) {
           callback();
