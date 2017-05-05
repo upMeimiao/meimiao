@@ -1,9 +1,9 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -24,7 +24,7 @@ class dealWith {
         callback(err);
         return;
       }
-      if (result == 'add_0') {
+      if (result === 'add_0') {
         callback(null);
         return;
       }
@@ -56,10 +56,10 @@ class dealWith {
         endIndex = result.indexOf(';varcolumnName=');
         data = result.substring(startIndex + 13, endIndex).replace(/[\s\n\r]/g, '');
       }
+      if (typeNum === 1) {
+        data = data.replace(',"video', '}');
+      }
       try {
-        if (typeNum === 1) {
-          data = data.replace(',"video', '}');
-        }
         data = JSON.parse(data);
       } catch (e) {
         logger.debug('vid数据解析失败');
@@ -180,7 +180,7 @@ class dealWith {
         }
         comment = {
           cid: comments.newest[index].comment_id,
-          content: Utils.stringHandling(comments.newest[index].comment_contents),
+          content: spiderUtils.stringHandling(comments.newest[index].comment_contents),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -191,8 +191,7 @@ class dealWith {
             uavatar: comments.newest[index].userFace
           }
         };
-        Utils.commentCache(this.core.cache_db, comment);
-				// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
