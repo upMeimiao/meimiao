@@ -25,11 +25,10 @@ class hostTime {
     });
   }
   getTime(task, callback) {
-    let page = 1,
-      RetryNum = 0,
+    let page = 1;
+    const option = {},
       total = this.settings.commentTotal % 50 === 0 ?
-        this.settings.commentTotal / 50 : Math.ceil(this.settings.commentTotal / 50);;
-    const option = {};
+        this.settings.commentTotal / 50 : Math.ceil(this.settings.commentTotal / 50);
     async.whilst(
       () => page < total,
       (cb) => {
@@ -38,10 +37,9 @@ class hostTime {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('acfun评论列表请求失败', err);
-            if (RetryNum >= 2) {
-              total = -1;
+            if (err.status == 500) {
+              page += 1;
             }
-            RetryNum += 1;
             cb();
             return;
           }
