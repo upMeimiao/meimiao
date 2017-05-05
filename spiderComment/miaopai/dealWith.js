@@ -1,6 +1,6 @@
 /**
-* Created by junhao on 2017/2/08.
-*/
+ * Created by junhao on 2017/2/08.
+ */
 const async = require('async');
 const cheerio = require('cheerio');
 const URL = require('url');
@@ -90,7 +90,6 @@ class dealWith {
       () => page <= total,
       (cb) => {
         option.url = `${this.settings.miaopai}${task.aid}&page=${page}`;
-        logger.debug(333);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('秒拍评论列表请求失败', err);
