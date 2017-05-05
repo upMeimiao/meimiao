@@ -52,7 +52,7 @@ class dealWith {
         return;
       }
       task.cNum = result.data.count;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || result.data.comments.length <= 0) {
         callback(null, 'add_0');
         return;
       }
@@ -98,7 +98,7 @@ class dealWith {
           }
           this.deal(task, result.data.comments, () => {
             if (task.isEnd) {
-              callback();
+              callback(null, 'add_0');
               return;
             }
             page += 1;
