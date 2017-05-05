@@ -1,7 +1,6 @@
 /**
-* Created by junhao on 2017/2/10.
-*/
-
+ * Created by junhao on 2017/2/10.
+ */
 const async = require('async');
 const cheerio = require('cheerio');
 const moment = require('moment');
@@ -43,10 +42,10 @@ class dealWith {
       url: `${this.settings.btime.list1}http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${task.aid}&page=1&_=${new Date().getTime()}`
     };
     let total = 0;
-    request.get(logger, option, (error, result) => {
-      if (error) {
-        logger.debug('btime评论总量请求失败', error);
-        callback(error);
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.debug('btime评论总量请求失败', err);
+        callback(err);
         return;
       }
       try {
@@ -54,26 +53,27 @@ class dealWith {
       } catch (e) {
         logger.debug('btime评论数据解析失败');
         logger.info(result.body);
-        callback(e);
+        callback(err);
         return;
       }
       task.cNum = result.data.total;
+      if ((task.cNum - task.commentNum) === 0) {
+        callback();
+        return;
+      }
       if (task.commentNum <= 0) {
         total = (task.cNum % 5) === 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
-      } else if ((task.cNum - task.commentNum) === 0) {
-        callback(null, 'add_0');
-        return;
       } else if ((task.cNum - task.commentNum) > 0) {
         total = (task.cNum - task.commentNum);
         total = (total % 5) === 0 ? total / 5 : Math.ceil(total / 5);
       }
-      if (task.cNum === 0) {
-        this.videoDom(task, (err) => {
-          if (err) {
-            callback(err);
+      if (task.cNum == 0) {
+        this.videoDom(task, (error, data) => {
+          if (error) {
+            callback(error);
             return;
           }
-          callback(null, result);
+          callback(null, data);
         });
       } else {
         let time = new Date(result.data.comments[0].pdate);
@@ -92,21 +92,21 @@ class dealWith {
     const option = {
       url: `http://item.btime.com/${task.aid}`
     };
-    request.get(logger, option, (error, result) => {
-      if (error) {
+    request.get(logger, option, (err, result) => {
+      if (err) {
         logger.debug('视频DOM请求失败');
-        callback(error);
+        callback(err);
         return;
       }
       const $ = cheerio.load(result.body),
         url = $('span.dianzan').attr('data-key').match(/2F\w*\.shtml/).toString()
           .replace('2F', '');
-      this.getTotal(task, url, (err, raw) => {
-        if (err) {
-          callback(err);
+      this.getTotal(task, url, (error, data) => {
+        if (error) {
+          callback(error);
           return;
         }
-        callback(null, raw);
+        callback(null, data);
       });
     });
   }
@@ -131,11 +131,12 @@ class dealWith {
         return;
       }
       task.cNum = result.data.total;
-      if (task.commentNum <= 0) {
-        total = (task.cNum % 5) === 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
-      } else if ((task.cNum - task.commentNum) === 0) {
+      if ((task.cNum - task.commentNum) === 0 || result.data.comments.length <= 0) {
         callback(null, 'add_0');
         return;
+      }
+      if (task.commentNum <= 0) {
+        total = (task.cNum % 5) === 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
       } else if ((task.cNum - task.commentNum) > 0) {
         total = (task.cNum - task.commentNum);
         total = (total % 5) === 0 ? total / 5 : Math.ceil(total / 5);
@@ -177,7 +178,8 @@ class dealWith {
           }
           this.deal(task, result.data.comments, () => {
             if (task.isEnd) {
-              callback();
+              total = -1;
+              cb();
               return;
             }
             page += 1;
@@ -191,25 +193,27 @@ class dealWith {
     );
   }
   deal(task, comments, callback) {
-    const length = comments.length;
-    let index = 0, time, data,
+    let length = comments.length,
+      index = 0,
       comment;
     async.whilst(
       () => index < length,
       (cb) => {
-        time = moment(new Date(comments[index].pdate)).format('X');
-        data = comments[index].user_info;
+        let time = new Date(comments[index].pdate),
+          data = comments[index].user_info;
+        time = moment(time).format('X');
         try {
           data = JSON.parse(data);
         } catch (e) {
           logger.debug('评论信息解析失败');
           logger.info(data);
-          callback();
+          cb();
           return;
         }
         if (task.commentId == comments[index].id || task.commentTime >= time) {
           task.isEnd = true;
-          callback();
+          length = 0;
+          cb();
           return;
         }
         comment = {
@@ -236,5 +240,4 @@ class dealWith {
     );
   }
 }
-
 module.exports = dealWith;
