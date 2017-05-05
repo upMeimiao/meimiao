@@ -77,7 +77,8 @@ class dealWith {
   }
   commentList(task, total, callback) {
     const option = {};
-    let page = 1;
+    let page = 1,
+      RetryNum = 0;
     async.whilst(
       () => page <= total,
       (cb) => {
@@ -85,6 +86,10 @@ class dealWith {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('acfun评论列表请求失败', err);
+            if (RetryNum >= 2) {
+              total = -1;
+            }
+            RetryNum += 1;
             cb();
             return;
           }
