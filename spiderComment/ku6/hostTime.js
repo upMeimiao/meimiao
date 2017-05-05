@@ -6,10 +6,6 @@ const Utils = require('../../lib/spiderUtils');
 const async = require('async');
 const cheerio = require('cheerio');
 
-const jsonp = function (data) {
-  return data;
-};
-
 let logger;
 class hostTime {
   constructor(spiderCore) {
@@ -20,7 +16,7 @@ class hostTime {
   todo(task, callback) {
     task.hostTotal = 0;
     task.timeTotal = 0;
-    this.getTime(task, (err) => {
+    this.getTime(task, () => {
       callback();
     });
   }
@@ -37,26 +33,29 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('ku6评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('ku6评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.data.list.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.data.list, (err) => {
-                  page++;
+                this.deal(task, result.data.list, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
@@ -84,11 +83,11 @@ class hostTime {
                   }
                 };
                 Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-                index++;
+                index += 1;
                 cb();
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
@@ -101,7 +100,7 @@ class hostTime {
       if (err) {
         logger.debug('用户主页请求失败');
       }
-      let $ = cheerio.load(result.body),
+      const $ = cheerio.load(result.body),
         avatar = $('a.headPhoto>img').attr('src');
       callback(null, avatar);
     });
