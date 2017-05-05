@@ -69,6 +69,11 @@ class hostTime {
                   cb();
                   return;
                 }
+                if (result.errCode != 0) {
+                  total = -1;
+                  cb();
+                  return;
+                }
                 if (result.data.commentid.length <= 0) {
                   page += total;
                   cb();
