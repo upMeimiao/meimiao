@@ -2,7 +2,7 @@
  * Created by dell on 2017/3/9.
  */
 const request = require('../../lib/request');
-const Utils = require('../../lib/spiderUtils');
+const spiderUtils = require('../../lib/spiderUtils');
 const async = require('async');
 const moment = require('moment');
 
@@ -19,12 +19,12 @@ class hostTime {
     async.parallel(
       {
         hot: (cb) => {
-          this.getHot(task, (err) => {
+          this.getHot(task, () => {
             cb(null, '热门评论完成');
           });
         },
         time: (cb) => {
-          this.getTime(task, (err) => {
+          this.getTime(task, () => {
             cb(null, '最新评论完成');
           });
         }
@@ -36,98 +36,105 @@ class hostTime {
         );
   }
   getHot(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option,
-      offset = 0;
+    let page = 1, offset = 0;
+    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+        Number(this.settings.commentTotal) / 20 :
+        Math.ceil(Number(this.settings.commentTotal) / 20),
+      option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
-              option = {
-                url: `http://sdk.comment.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/comments/hotList?limit=20&headLimit=1&tailLimit=2&offset=${offset}&ibc=jssdk`
-              };
+              option.url = `http://sdk.comment.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/comments/hotList?limit=20&headLimit=1&tailLimit=2&offset=${offset}&ibc=jssdk`;
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('网易评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('网易评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.commentIds.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result, (err) => {
-                  page++;
+                this.deal(task, result, () => {
+                  page += 1;
                   offset += 20;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   getTime(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option,
-      offset = 0;
+    let page = 1, offset = 0;
+    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+        Number(this.settings.commentTotal) / 20 :
+        Math.ceil(Number(this.settings.commentTotal) / 20),
+      option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
-              option = {
-                url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`
-              };
+              option.url = `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`;
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('网易评论列表请求失败', err);
-                  return cb();
+                  cb()
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('网易评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.commentIds.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result, (err) => {
-                  page++;
+                this.deal(task, result, () => {
+                  page += 1;
                   offset += 20;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   deal(task, comments, callback) {
-    let length = comments.commentIds.length,
-      index = 0,
+    const cidArr = [];
+    let index = 0,
       time,
       comment,
       commentData;
+    for (const key in comments.comments) {
+      cidArr.push(key);
+    }
     async.whilst(
-            () => index < length,
+            () => index < cidArr.length,
             (cb) => {
-              commentData = comments.comments[comments.commentIds[index]];
+              commentData = comments.comments[cidArr[index]];
               time = new Date(commentData.createTime);
               time = moment(time).format('X');
               comment = {
                 cid: commentData.commentId,
-                content: Utils.stringHandling(commentData.content),
+                content: spiderUtils.stringHandling(commentData.content),
                 platform: task.p,
                 bid: task.bid,
                 aid: task.aid,
@@ -140,11 +147,11 @@ class hostTime {
                   uavatar: commentData.user.avatar
                 }
               };
-              Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
+              spiderUtils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
+              index += 1;
               cb();
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );

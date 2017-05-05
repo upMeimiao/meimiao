@@ -3,9 +3,9 @@
  * Created by junhao on 2017/2/08.
  */
 const kue = require('kue');
-const myRedis = require('../../lib/myredis.js');
 const async = require('async');
 const domain = require('domain');
+const myRedis = require('../../lib/myredis.js');
 
 let logger, settings;
 class spiderCore {
@@ -78,7 +78,7 @@ class spiderCore {
       bid: 'T1464171889509',
       aid: 'CAV5MAUU',
       p: 25,
-      taskType: 1,
+      taskType: 0,
       commentId: 0,
       commentTime: 0,
       commentNum: 0

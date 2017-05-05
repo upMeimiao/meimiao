@@ -1,6 +1,6 @@
 /**
-* Created by junhao on 2017/2/10.
-*/
+ * Created by junhao on 2017/2/10.
+ */
 const async = require('async');
 const moment = require('moment');
 const request = require('../../lib/request');
@@ -34,8 +34,9 @@ class dealWith {
   }
   totalPage(task, callback) {
     const option = {
-      url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=0&limit=20`
-    };
+        url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=0&limit=20`
+      },
+      cidArr = [];
     let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -62,7 +63,14 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
-      const comment = result.comments[result.commentIds[0]],
+      for (const key in result.comments) {
+        cidArr.push(key);
+      }
+      if (cidArr.length <= 0) {
+        callback();
+        return;
+      }
+      const comment = result.comments[cidArr[0]],
         time = new Date(comment.createTime);
       task.lastTime = moment(time).format('X');
       task.lastId = comment.commentId;
@@ -74,12 +82,14 @@ class dealWith {
   }
   commentList(task, total, callback) {
     let page = 1,
-      offset = 0;
-    const option = {};
+      offset = 0,
+      option;
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`;
+        option = {
+          url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`
+        };
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('网易评论列表请求失败', err);
@@ -96,7 +106,8 @@ class dealWith {
           }
           this.deal(task, result, () => {
             if (task.isEnd) {
-              callback();
+              total = -1;
+              cb();
               return;
             }
             page += 1;
@@ -111,20 +122,24 @@ class dealWith {
     );
   }
   deal(task, comments, callback) {
-    const length = comments.commentIds.length;
+    const cidArr = [];
     let index = 0,
       commentData,
       time,
       comment;
+    for (const key in comments.comments) {
+      cidArr.push(key);
+    }
     async.whilst(
-      () => index < length,
+      () => index < cidArr.length,
       (cb) => {
-        commentData = comments.comments[comments.commentIds[index]];
+        commentData = comments.comments[cidArr[index]];
         time = new Date(commentData.createTime);
         time = moment(time).format('X');
         if (task.commentId == commentData.commentId || task.commentTime >= time) {
           task.isEnd = true;
-          callback();
+          index += cidArr.length;
+          cb();
           return;
         }
         comment = {
@@ -152,5 +167,4 @@ class dealWith {
     );
   }
 }
-
 module.exports = dealWith;
