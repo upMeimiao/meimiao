@@ -76,7 +76,7 @@ class spiderCore {
       bid: '73200',
       aid: '127015',
       p: 22,
-      taskType: 1,
+      taskType: 0,
       commentId: 0,
       commentTime: 0,
       commentNum: 0
