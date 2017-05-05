@@ -26,41 +26,54 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.totalPage(task, (err, result) => {
-      if (result == 'add_0') {
-        return callback(null);
+      if (err) {
+        callback(err);
+        return;
+      }
+      if (result === 'add_0') {
+        callback(null);
+        return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
   totalPage(task, callback) {
-    let option = {
-        url: `${this.settings.btime.list1}http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${task.aid}&page=1&_=${new Date().getTime()}`
-      },
-      total = 0;
+    const option = {
+      url: `${this.settings.btime.list1}http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${task.aid}&page=1&_=${new Date().getTime()}`
+    };
+    let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('btime评论总量请求失败', err);
-        return this.totalPage(task, callback);
+        callback(err);
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.debug('btime评论数据解析失败');
         logger.info(result.body);
-        return this.totalPage(task, callback);
+        callback(err);
+        return;
       }
       task.cNum = result.data.total;
+      if ((task.cNum - task.commentNum) === 0) {
+        callback();
+        return;
+      }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 5) == 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
-      }			else if ((task.cNum - task.commentNum) === 0) {
-        return callback(null, 'add_0');
-      }			else if ((task.cNum - task.commentNum) > 0) {
+        total = (task.cNum % 5) === 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
+      } else if ((task.cNum - task.commentNum) > 0) {
         total = (task.cNum - task.commentNum);
-        total = (total % 5) == 0 ? total / 5 : Math.ceil(total / 5);
+        total = (total % 5) === 0 ? total / 5 : Math.ceil(total / 5);
       }
       if (task.cNum == 0) {
-        this.videoDom(task, (err, result) => {
-          callback(null, result);
+        this.videoDom(task, (error, data) => {
+          if (error) {
+            callback(error);
+            return;
+          }
+          callback(null, data);
         });
       } else {
         let time = new Date(result.data.comments[0].pdate);
@@ -69,7 +82,7 @@ class dealWith {
         task.lastId = result.data.comments[0].id;
         task.addCount = task.cNum - task.commentNum;
         task.url = null;
-        this.commentList(task, total, (err) => {
+        this.commentList(task, total, () => {
           callback(null, '');
         });
       }
@@ -82,136 +95,149 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('视频DOM请求失败');
-        return this.videoDom(task, callback);
+        callback(err);
+        return;
       }
-      let $ = cheerio.load(result.body),
+      const $ = cheerio.load(result.body),
         url = $('span.dianzan').attr('data-key').match(/2F\w*\.shtml/).toString().replace('2F', '');
-      this.getTotal(task, url, (err, result) => {
-        callback(null, result);
+      this.getTotal(task, url, (error, data) => {
+        if (error) {
+          callback(error);
+          return;
+        }
+        callback(null, data);
       });
     });
   }
   getTotal(task, url, callback) {
     task.url = url;
-    let option = {
-        url: `${this.settings.btime.list1}http%253A%252F%252Fnews.btime.com%252Fwemedia%252F20170217%252F${url}&page=1&_=${new Date().getTime()}`
-      },
-      total = 0;
-		// logger.debug(option.url)
+    const option = {
+      url: `${this.settings.btime.list1}http%253A%252F%252Fnews.btime.com%252Fwemedia%252F20170217%252F${url}&page=1&_=${new Date().getTime()}`
+    };
+    let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('第二种视频总量请求失败');
-        return this.getTotal(task, url, callback);
+        callback(err);
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.debug('btime评论数据解析失败');
         logger.info(result.body);
-        return this.totalPage(task, callback);
+        callback(e);
+        return;
       }
       task.cNum = result.data.total;
+      if ((task.cNum - task.commentNum) === 0 || result.data.comments.length <= 0) {
+        callback(null, 'add_0');
+        return;
+      }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 5) == 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
-      }			else if ((task.cNum - task.commentNum) === 0) {
-        return callback(null, 'add_0');
-      }			else if ((task.cNum - task.commentNum) > 0) {
+        total = (task.cNum % 5) === 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
+      } else if ((task.cNum - task.commentNum) > 0) {
         total = (task.cNum - task.commentNum);
-        total = (total % 5) == 0 ? total / 5 : Math.ceil(total / 5);
+        total = (total % 5) === 0 ? total / 5 : Math.ceil(total / 5);
       }
       let time = new Date(result.data.comments[0].pdate);
       time = moment(time).format('X');
       task.lastTime = time;
       task.lastId = result.data.comments[0].id;
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, total, (err) => {
+      this.commentList(task, total, () => {
         callback(null, '');
       });
     });
   }
   commentList(task, total, callback) {
-    let page = 1,
-      option = {};
+    let page = 1;
+    const option = {};
     async.whilst(
-			() => page <= total,
-			(cb) => {
-  if (task.url) {
-    option.url = `${this.settings.btime.list1}http%253A%252F%252Fnews.btime.com%252Fwemedia%252F20170217%252F${task.url}&page=${page}&_=${new Date().getTime()}`;
-  } else {
-    option.url = `${this.settings.btime.list1}http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${task.aid}&page=${page}&_=${new Date().getTime()}`;
-  }
-  request.get(logger, option, (err, result) => {
-    if (err) {
-      logger.debug('btime评论列表请求失败', err);
-      return cb();
-    }
-    try {
-      result = eval(result.body);
-    } catch (e) {
-      logger.debug('btime评论数据解析失败');
-      logger.info(result);
-      return cb();
-    }
-    this.deal(task, result.data.comments, (err) => {
-      if (task.isEnd) {
-        return callback();
+      () => page <= total,
+      (cb) => {
+        if (task.url) {
+          option.url = `${this.settings.btime.list1}http%253A%252F%252Fnews.btime.com%252Fwemedia%252F20170217%252F${task.url}&page=${page}&_=${new Date().getTime()}`;
+        } else {
+          option.url = `${this.settings.btime.list1}http%253A%252F%252Frecord.btime.com%252Fnews%253Fid%253D${task.aid}&page=${page}&_=${new Date().getTime()}`;
+        }
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('btime评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = eval(result.body);
+          } catch (e) {
+            logger.debug('btime评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          this.deal(task, result.data.comments, () => {
+            if (task.isEnd) {
+              total = -1;
+              cb();
+              return;
+            }
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
       }
-      page++;
-      cb();
-    });
-  });
-},
-			(err, result) => {
-  callback();
-}
-		);
+    );
   }
   deal(task, comments, callback) {
     let length = comments.length,
       index = 0,
       comment;
     async.whilst(
-			() => index < length,
-			(cb) => {
-  let time = new Date(comments[index].pdate),
-    data = comments[index].user_info;
-  time = moment(time).format('X');
-  try {
-    data = JSON.parse(data);
-  } catch (e) {
-    logger.debug('评论信息解析失败');
-    logger.info(data);
-    return callback();
+      () => index < length,
+      (cb) => {
+        let time = new Date(comments[index].pdate),
+          data = comments[index].user_info;
+        time = moment(time).format('X');
+        try {
+          data = JSON.parse(data);
+        } catch (e) {
+          logger.debug('评论信息解析失败');
+          logger.info(data);
+          cb();
+          return;
+        }
+        if (task.commentId == comments[index].id || task.commentTime >= time) {
+          task.isEnd = true;
+          length = 0;
+          cb();
+          return;
+        }
+        comment = {
+          cid: comments[index].id,
+          content: Utils.stringHandling(comments[index].message),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: time,
+          support: comments[index].likes,
+          c_user: {
+            uid: comments[index].uid,
+            uname: data.user_name,
+            uavatar: data.img_url
+          }
+        };
+        Utils.commentCache(this.core.cache_db, comment);
+        // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
-  if (task.commentId == comments[index].id || task.commentTime >= time) {
-    task.isEnd = true;
-    return callback();
-  }
-  comment = {
-    cid: comments[index].id,
-    content: Utils.stringHandling(comments[index].message),
-    platform: task.p,
-    bid: task.bid,
-    aid: task.aid,
-    ctime: time,
-    support: comments[index].likes,
-    c_user: {
-      uid: comments[index].uid,
-      uname: data.user_name,
-      uavatar: data.img_url
-    }
-  };
-  Utils.commentCache(this.core.cache_db, comment);
-				// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
-  index++;
-  cb();
-},
-			(err, result) => {
-  callback();
 }
-		);
-  }
-
-}
-
 module.exports = dealWith;

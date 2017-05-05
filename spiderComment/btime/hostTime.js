@@ -45,11 +45,12 @@ class hostTime {
         return;
       }
       task.cNum = result.data.total;
+      if ((task.cNum - task.commentNum) === 0) {
+        callback();
+        return;
+      }
       if (task.commentNum <= 0) {
         total = (task.cNum % 5) === 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
-      } else if ((task.cNum - task.commentNum) === 0) {
-        callback(null, 'add_0');
-        return;
       } else if ((task.cNum - task.commentNum) > 0) {
         total = (task.cNum - task.commentNum);
         total = (total % 5) === 0 ? total / 5 : Math.ceil(total / 5);
@@ -97,20 +98,24 @@ class hostTime {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('第二种视频总量请求失败');
-        return this.getTotal(task, url, callback);
+        this.getTotal(task, url, callback);
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.debug('btime评论数据解析失败');
         logger.info(result.body);
-        return this.totalPage(task, callback);
+        this.totalPage(task, callback);
+        return;
       }
       task.cNum = result.data.total;
+      if ((task.cNum - task.commentNum) === 0 || result.data.comments.length <= 0) {
+        callback();
+        return;
+      }
       if (task.commentNum <= 0) {
         total = (task.cNum % 5) === 0 ? task.cNum / 5 : Math.ceil(task.cNum / 5);
-      } else if ((task.cNum - task.commentNum) === 0) {
-        return callback(null, 'add_0');
       } else if ((task.cNum - task.commentNum) > 0) {
         total = (task.cNum - task.commentNum);
         total = (total % 5) === 0 ? total / 5 : Math.ceil(total / 5);
