@@ -98,7 +98,7 @@ class dealWith {
           }
           this.deal(task, result.data.comments, () => {
             if (task.isEnd) {
-              callback();
+              callback(null, 'add_0');
               return;
             }
             page += 1;
