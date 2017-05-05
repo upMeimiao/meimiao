@@ -43,7 +43,11 @@ class dealWith {
         return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      commentId = result.match(/commentId="\d*/).toString().replace('commentId="', '');
+      if (!result.match(/commentId="(\d*)/)) {
+        callback();
+        return;
+      }
+      commentId = result.match(/commentId="(\d*)/)[1];
       task.commentId = commentId;
       this.totalPage(task, (err, raw) => {
         if (err) {
@@ -72,6 +76,10 @@ class dealWith {
         logger.debug('天天快报评论数据解析失败');
         logger.info(result);
         callback(e);
+        return;
+      }
+      if (result.errCode !== 0) {
+        callback();
         return;
       }
       task.cNum = result.data.total;
