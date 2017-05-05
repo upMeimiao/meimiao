@@ -4,7 +4,7 @@
 const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
 const async = require('async');
-const md5 = require('crypto').createHash('md5');
+const crypto = require('crypto');
 
 let logger;
 class hostTime {
@@ -64,11 +64,13 @@ class hostTime {
     const length = comments.length;
     let index = 0,
       comment,
-      cid;
+      cid,
+      md5;
     async.whilst(
       () => index < length,
       (cb) => {
-        cid = md5.update(task.bid + comments[index].user_id + comments[index].time).digest('md5');
+        md5 = crypto.createHash('md5');
+        cid = md5.update(task.bid + comments[index].user_id + comments[index].time).digest('hex');
         comment = {
           cid,
           content: Utils.stringHandling(comments[index].content),

@@ -4,7 +4,7 @@
 const request = require('../../lib/request');
 const async = require('async');
 const Utils = require('../../lib/spiderUtils');
-const md5 = require('crypto').createHash('md5');
+const crypto = require('crypto');
 
 let logger;
 class dealWith {
@@ -21,6 +21,10 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.total(task, (err, result) => {
+      if (err) {
+        callback(err);
+        return;
+      }
       if (result == 'add_0') {
         callback(null);
         return;
@@ -59,6 +63,7 @@ class dealWith {
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
       const comment = result.data.comment[0],
+        md5 = crypto.createHash('md5'),
         cid = md5.update(task.bid + comment.user_id + comment.time).digest('hex');
       task.lastTime = comment.time;
       task.lastId = cid;
@@ -109,10 +114,12 @@ class dealWith {
     const length = comments.length;
     let index = 0,
       cid,
-      comment;
+      comment,
+      md5;
     async.whilst(
       () => index < length,
       (cb) => {
+        md5 = crypto.createHash('md5');
         cid = md5.update(task.bid + comments[index].user_id + comments[index].time).digest('hex');
         if (task.commentId == cid || task.commentTime >= comments[index].time) {
           task.isEnd = true;
