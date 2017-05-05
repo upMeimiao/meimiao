@@ -25,15 +25,14 @@ class hostTime {
     });
   }
   getTime(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 5 === 0 ? Number(this.settings.commentTotal) / 5 : Math.ceil(Number(this.settings.commentTotal) / 5),
+    let page = 1;
+    const total = Number(this.settings.commentTotal) % 5 === 0 ?
+        Number(this.settings.commentTotal) / 5 : Math.ceil(Number(this.settings.commentTotal) / 5),
       option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
-              option = {
-                url: `${this.settings.budejie}${task.aid}&page=${page}`
-              };
+              option.url = `${this.settings.budejie}${task.aid}&page=${page}`;
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('不得姐评论列表请求失败', err);
