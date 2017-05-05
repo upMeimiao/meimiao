@@ -73,10 +73,10 @@ class spiderCore {
   }
   test() {
     const work = {
-      bid: 'Psn~aT6DzNIJwBDs',
-      aid: 'EPm-MhaK7TtO9HUMu9rDxA__',
+      bid: '95K-YNYTi9Iqo-~4',
+      aid: 'AOXEHTUfHXLcWcGLQFPJIA__',
       p: 7,
-      taskType: 0,
+      taskType: 1,
       commentId: 0,
       commentTime: 0,
       commentNum: 0
