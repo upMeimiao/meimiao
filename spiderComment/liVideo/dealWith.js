@@ -22,8 +22,13 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.getIds(task, (err, result) => {
-      if (result == 'add_0') {
-        return callback(null);
+      if (err) {
+        callback(err);
+        return;
+      }
+      if (result === 'add_0') {
+        callback(null);
+        return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
@@ -35,18 +40,19 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论列表Id获取失败', err);
-        return this.getIds(task, callback);
+        callback(err);
+        return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      let postId = result.match(/postId="\d*/).toString().replace('postId="', ''),
+      const postId = result.match(/postId="\d*/).toString().replace('postId="', ''),
         postUserId = result.match(/postUserId="\d*/).toString().replace('postUserId="', '');
       if (postId && postUserId) {
-        this.commentList(task, postId, postUserId, (err) => {
+        this.commentList(task, postId, postUserId, () => {
           callback();
         });
       } else {
         logger.debug('两个Id获取失败');
-        return this.getIds(task, callback);
+        callback('error');
       }
     });
   }
@@ -56,40 +62,42 @@ class dealWith {
       cycle = true,
       $ = null;
     async.whilst(
-			() => cycle,
-			(cb) => {
-  option = {
-    url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`
-  };
-  request.get(logger, option, (err, result) => {
-    if (err) {
-      logger.debug('梨视频评论列表请求失败', err);
-      return cb();
-    }
-    $ = cheerio.load(result.body);
-    if (!task.lastId) {
-      task.lastId = $('.comm-li').first().attr('id');
-      task.lastTime = $('.comm-li').first().attr('id');
-      task.lastTime = this.time($('.comm-li').first().find('.date').text());
-    }
-    this.deal(task, $('.comm-li'), (err) => {
-      score = $('.comm-li').last().attr('data-score');
-      if (score == '' || score == undefined) {
-        cycle = false;
-        return cb();
+      () => cycle,
+      (cb) => {
+        option = {
+          url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`
+        };
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('梨视频评论列表请求失败', err);
+            cb();
+            return;
+          }
+          $ = cheerio.load(result.body);
+          if (!task.lastId) {
+            task.lastId = $('.comm-li').first().attr('id');
+            task.lastTime = $('.comm-li').first().attr('id');
+            task.lastTime = this.time($('.comm-li').first().find('.date').text());
+          }
+          this.deal(task, $('.comm-li'), () => {
+            score = $('.comm-li').last().attr('data-score');
+            if (score == '' || score == undefined) {
+              cycle = false;
+              cb();
+              return;
+            }
+            if (task.isEnd) {
+              cycle = false;
+            }
+            cb();
+          });
+        });
+      },
+      () => {
+        task.addCount = task.cNum - task.commentNum;
+        callback();
       }
-      if (task.isEnd) {
-        cycle = false;
-      }
-      cb();
-    });
-  });
-},
-			(err, result) => {
-  task.addCount = task.cNum - task.commentNum;
-  callback();
-}
-		);
+    );
   }
   deal(task, comments, callback) {
     let length = comments.length,
@@ -100,39 +108,38 @@ class dealWith {
       comment;
     task.cNum += length;
     async.whilst(
-			() => index < length,
-			(cb) => {
-  commentData = comments.eq(index);
-  time = this.time(commentData.find('.date').text());
-  if (task.commentId == commentData.attr('id') || task.commentTime >= time) {
-    task.isEnd = true;
-    return callback();
-  }
-  comment = {
-    cid: commentData.attr('id'),
-    content: Utils.stringHandling(commentData.find('.comm-cont').text()),
-    platform: task.p,
-    bid: task.bid,
-    aid: task.aid,
-    ctime: time,
-    step: commentData.find('.cai').text(),
-    support: commentData.find('.zan').text(),
-    reply: commentData.find('.ping').text(),
-    c_user: {
-      uname: commentData.find('.comm-name').text(),
-      uavatar: avatar
-    }
-  };
-				// logger.debug(comment.content)
-  Utils.commentCache(this.core.cache_db, comment);
-				// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
-  index++;
-  cb();
-},
-			(err, result) => {
-  callback();
-}
-		);
+      () => index < length,
+      (cb) => {
+        commentData = comments.eq(index);
+        time = this.time(commentData.find('.date').text());
+        if (task.commentId == commentData.attr('id') || task.commentTime >= time) {
+          task.isEnd = true;
+          return callback();
+        }
+        comment = {
+          cid: commentData.attr('id'),
+          content: Utils.stringHandling(commentData.find('.comm-cont').text()),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: time,
+          step: commentData.find('.cai').text(),
+          support: commentData.find('.zan').text(),
+          reply: commentData.find('.ping').text(),
+          c_user: {
+            uname: commentData.find('.comm-name').text(),
+            uavatar: avatar
+          }
+        };
+        Utils.commentCache(this.core.cache_db, comment);
+        // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
   time(time) {
     let time1 = null,

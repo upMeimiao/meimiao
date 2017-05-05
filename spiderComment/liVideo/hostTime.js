@@ -20,12 +20,12 @@ class hostTime {
     async.parallel(
       {
         hot: (cb) => {
-          this.getHot(task, (err, result) => {
+          this.getHot(task, () => {
             cb(null, '热门评论数据完成');
           });
         },
         time: (cb) => {
-          this.getIds(task, (err, result) => {
+          this.getIds(task, () => {
             cb(null, '最新评论数据完成');
           });
         }
@@ -37,19 +37,20 @@ class hostTime {
         );
   }
   getHot(task, callback) {
-    let option = {
-        url: `http://www.pearvideo.com/video_${task.aid}`
-      },
-      comments,
+    const option = {
+      url: `http://www.pearvideo.com/video_${task.aid}`
+    };
+    let comments,
       $;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('视频详情页请求失败', err);
-        return this.getHot(task, callback);
+        this.getHot(task, callback);
+        return;
       }
       $ = cheerio.load(result.body);
       comments = $('.hot-comment .main-comm-list .hotcommentping');
-      this.deal(task, comments, (err) => {
+      this.deal(task, comments, () => {
         callback();
       });
     });
@@ -61,18 +62,19 @@ class hostTime {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论列表Id获取失败', err);
-        return this.getIds(task, callback);
+        this.getIds(task, callback);
+        return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      let postId = result.match(/postId="\d*/).toString().replace('postId="', ''),
+      const postId = result.match(/postId="\d*/).toString().replace('postId="', ''),
         postUserId = result.match(/postUserId="\d*/).toString().replace('postUserId="', '');
       if (postId && postUserId) {
-        this.getTime(task, postId, postUserId, (err) => {
+        this.getTime(task, postId, postUserId, () => {
           callback();
         });
       } else {
         logger.debug('两个Id获取失败');
-        return this.getIds(task, callback);
+        this.getIds(task, callback);
       }
     });
   }
@@ -90,27 +92,29 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('梨视频评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 $ = cheerio.load(result.body);
-                this.deal(task, $('.comm-li'), (err) => {
+                this.deal(task, $('.comm-li'), () => {
                   score = $('.comm-li').last().attr('data-score');
                   if (score == '' || score == undefined) {
                     cycle = false;
-                    return cb();
+                    cb();
+                    return;
                   }
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       commentData,
       time,
       comment,
@@ -137,10 +141,10 @@ class hostTime {
                 }
               };
               Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
+              index += 1;
               cb();
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
