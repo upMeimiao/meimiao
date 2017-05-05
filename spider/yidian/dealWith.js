@@ -7,6 +7,54 @@ const spiderUtils = require('../../lib/spiderUtils');
 const moment = require('moment');
 
 let logger;
+const _aid = (video) => {
+  if (!video) {
+    return null;
+  }
+  if (video.itemid && video.itemid !== 'video') {
+    return video.itemid;
+  }
+  if (video.docid) {
+    return video.docid;
+  }
+  return null;
+};
+const _vImg = (raw) => {
+  if (!raw) {
+    return null;
+  }
+  if (raw.image) {
+    return raw.image;
+  }
+  if (raw.image_urls && raw.image_urls.length !== 0) {
+    return raw.image_urls[0];
+  }
+  return null;
+};
+const _tag = (raw) => {
+  if (!raw) {
+    return null;
+  }
+  if (raw.keywords && raw.keywords.length !== 0) {
+    return raw.keywords.join(',');
+  }
+  return null;
+};
+const _class = (raw) => {
+  if (!raw) {
+    return null;
+  }
+  if (!raw.vsct) {
+    return null;
+  }
+  if (typeof raw.vsct === 'string') {
+    return raw.vsct.replace(/\//g, ',');
+  }
+  if (Object.prototype.toString.call(raw.vsct) === '[object Array]' && raw.length !== 0) {
+    return raw.vsct[0].replace(/vsct\/\//g, '').replace(/\//g, ',');
+  }
+  return null;
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -18,28 +66,30 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (callback) => {
-          this.getUser(task, (err) => {
-            callback(null, '用户信息已返回');
+        user: (cb) => {
+          this.getUser(task, () => {
+            cb(null, '用户信息已返回');
           });
         },
-        media: (callback) => {
+        media: (cb) => {
           this.getInterestId(task, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '视频信息已返回');
+            cb(null, '视频信息已返回');
           });
         }
       },
-            (err, result) => {
-              if (err) {
-                return callback(err);
-              }
-              logger.debug(`${task.id}_result:`, result);
-              callback(null, task.total);
-            }
-        );
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        logger.debug(`${task.id}_result:`, result);
+        callback(null, task.total);
+      }
+    );
   }
   getUser(task, callback) {
     const option = {
@@ -49,38 +99,41 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (result.status != 'success') {
-        return callback(true);
+      if (result.status !== 'success') {
+        callback(true);
+        return;
       }
-      let fans_str = result.result.channels[task.id].replace('人订阅', ''),
-        fans_num, user;
-      if (fans_str.indexOf('万') != -1) {
-        fans_num = fans_str.replace('万', '') * 10000;
-      } else if (fans_str.indexOf('亿') != -1) {
-        fans_num = fans_str.replace('亿', '') * 100000000;
+      const fansStr = result.result.channels[task.id].replace('人订阅', '');
+      let fansNum;
+      if (fansStr.indexOf('万') !== -1) {
+        fansNum = fansStr.replace('万', '') * 10000;
+      } else if (fansStr.indexOf('亿') !== -1) {
+        fansNum = fansStr.replace('亿', '') * 100000000;
       } else {
-        fans_num = Number(fans_str);
+        fansNum = Number(fansStr);
       }
-      if (isNaN(fans_num)) {
-        return callback(true);
+      if (isNaN(fansNum)) {
+        callback(true);
+        return;
       }
-      user = {
+      const user = {
         platform: 11,
         bid: task.id,
-        fans_num
+        fans_num: fansNum
       };
-            /* this.sendUser ( user,(err,result) => {
-                callback()
-            })*/
+      this.sendUser(user, () => {
+        callback();
+      });
       this.sendStagingUser(user);
-      callback();
     });
   }
   sendUser(user, callback) {
@@ -90,16 +143,18 @@ class dealWith {
     };
     request.post(logger, option, (err, back) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         back = JSON.parse(back.body);
       } catch (e) {
         logger.error(`一点资讯用户 ${user.bid} json数据解析失败`);
         logger.error(back);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (back.errno == 0) {
+      if (Number(back.errno) === 0) {
         logger.debug('一点资讯用户:', `${user.bid} back_end`);
       } else {
         logger.error('一点资讯用户:', `${user.bid} back_error`);
@@ -125,7 +180,7 @@ class dealWith {
         logger.error('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -141,154 +196,131 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err.message);
+        callback(err.message);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        return callback(e.message);
+        callback(e.message);
+        return;
       }
       if (result.status !== 'success') {
         if (result.code === 41) {
           spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
-          return callback();
+          callback();
+          return;
         }
-        return callback(`code:${result.code},reason:${result.reason}`);
+        callback(`code:${result.code},reason:${result.reason}`);
+        return;
       }
       if (result.result.length === 0) {
-        return callback(true);
+        callback(true);
+        return;
       }
       if (result.result[0].ctype === 'interest_navigation') {
         if (!result.result[0].columns || result.result[0].columns.length < 2) {
-          return callback(true);
+          callback(true);
+          return;
         }
         task.interest_id = result.result[0].columns[1].interest_id;
-        this.getList(task, 'video', (err, result) => callback());
+        this.getList(task, 'video', () => callback());
       } else {
-        this.getList(task, 'all', (err, result) => callback());
+        this.getList(task, 'all', () => callback());
       }
     });
   }
   getList(task, type, callback) {
-    let sign = true, cstart = 0, cend = 50,
-      option = {
-        ua: 1
-      };
+    let sign = true, cstart = 0, cend = 50;
+    const option = {
+      ua: 1
+    };
     async.whilst(
-            () => sign,
-            (cb) => {
-              if (type == 'video') {
-                option.url = `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-vertical&interest_id=${task.interest_id}&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`;
-              } else {
-                option.url = `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`;
-              }
-              option.referer = `http://www.yidianzixun.com/home?page=channel&id=${task.id}`;
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  cstart += 50;
-                  cend += 50;
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  return cb();
-                }
-                if (!result.result) {
-                  return cb();
-                }
-                if (result.result.length == 0) {
-                  sign = false;
-                  task.total = cstart;
-                  return cb();
-                }
-                if (result.code != 0) {
-                  return cb();
-                }
-                this.deal(task, result.result, (err, result) => {
-                  cstart += 50;
-                  cend += 50;
-                  cb();
-                });
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign,
+      (cb) => {
+        if (type === 'video') {
+          option.url = `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-vertical&interest_id=${task.interest_id}&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`;
+        } else {
+          option.url = `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`;
+        }
+        option.referer = `http://www.yidianzixun.com/home?page=channel&id=${task.id}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            cstart += 50;
+            cend += 50;
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            cb();
+            return;
+          }
+          if (!result.result) {
+            cb();
+            return;
+          }
+          if (result.result.length === 0) {
+            sign = false;
+            task.total = cstart;
+            cb();
+            return;
+          }
+          if (result.code != 0) {
+            cb();
+            return;
+          }
+          this.deal(task, result.result, () => {
+            cstart += 50;
+            cend += 50;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, list, callback) {
-    let index = 0, length = list.length, video, media;
+    let index = 0, video, media;
+    const length = list.length;
     async.whilst(
-            () => index < length,
-            (cb) => {
-              video = list[index];
-              if (video.ctype != 'video_live') {
-                index++;
-                return cb();
-              }
-              media = {
-                author: task.name,
-                platform: task.p,
-                bid: task.id,
-                aid: video.itemid ? video.itemid : video.docid,
-                title: video.title ? video.title.substr(0, 100).replace(/"/g, '') : 'btwk_caihongip',
-                desc: video.summary ? video.summary.substr(0, 100).replace(/"/g, '') : '',
-                class: _class(video),
-                tag: _tag(video),
-                v_img: _v_img(video),
-                long_t: video.duration ? Math.round(video.duration) : null,
-                save_num: video.like ? video.like : 0,
-                comment_num: video.comment_count ? video.comment_count : 0,
-                support: video.up ? video.up : 0,
-                step: video.down ? video.down : 0,
-                a_create_time: moment(video.date).unix()
-              };
-              media = spiderUtils.deleteProperty(media);
-              spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-              index++;
-              cb();
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        video = list[index];
+        if (video.ctype !== 'video_live') {
+          index += 1;
+          cb();
+          return;
+        }
+        media = {
+          author: task.name,
+          platform: task.p,
+          bid: task.id,
+          aid: _aid(video),
+          title: video.title ? video.title.substr(0, 100).replace(/"/g, '') : 'btwk_caihongip',
+          desc: video.summary ? video.summary.substr(0, 100).replace(/"/g, '') : '',
+          class: _class(video),
+          tag: _tag(video),
+          v_img: _vImg(video),
+          long_t: video.duration ? Math.round(video.duration) : null,
+          save_num: video.like ? video.like : 0,
+          comment_num: video.comment_count ? video.comment_count : 0,
+          support: video.up ? video.up : 0,
+          step: video.down ? video.down : 0,
+          a_create_time: moment(video.date).unix()
+        };
+        media = spiderUtils.deleteProperty(media);
+        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
-}
-function _v_img(raw) {
-  if (!raw) {
-    return null;
-  }
-  if (raw.image) {
-    return raw.image;
-  }
-  if (raw.image_urls && raw.image_urls.length !== 0) {
-    return raw.image_urls[0];
-  }
-  return null;
-}
-function _tag(raw) {
-  if (!raw) {
-    return null;
-  }
-  if (raw.keywords && raw.keywords.length !== 0) {
-    return raw.keywords.join(',');
-  }
-  return null;
-}
-function _class(raw) {
-  if (!raw) {
-    return null;
-  }
-  if (!raw.vsct) {
-    return null;
-  }
-  if (typeof raw.vsct === 'string') {
-    return raw.vsct.replace(/\//g, ',');
-  }
-  if (Object.prototype.toString.call(raw.vsct) === '[object Array]' && raw.length !== 0) {
-    return raw.vsct[0].replace(/vsct\/\//g, '').replace(/\//g, ',');
-  }
-  return null;
 }
 module.exports = dealWith;

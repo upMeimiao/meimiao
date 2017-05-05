@@ -74,9 +74,8 @@ class spiderCore {
   test() {
     const work = {
       p: 11,
-      name: '关爱八卦成长协会',
-      id: 'm194469',
-      encodeId: 13
+      name: '天天逗事',
+      id: 'm145748'
     };
     this.dealWith.todo(work, (err, total, uid) => {
       logger.debug(total);
@@ -100,7 +99,7 @@ class spiderCore {
     logger.trace('Queue get ready');
     queue.process('yidian', this.settings.concurrency, (job, done) => {
       logger.trace('Get yidian task!');
-      let work = job.data,
+      const work = job.data,
         key = `${work.p}:${work.id}`;
       logger.info(work);
       const d = domain.create();
@@ -112,31 +111,32 @@ class spiderCore {
           if (err) {
             return done(err);
           }
-          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'video_number', total, (err, result) => {
-            done(null);
-          });
-          request.post(settings.update, { form: { platform: work.p, bid: work.id } }, (err, res, body) => {
-            if (err) {
-              logger.error('occur error : ', err);
-              return;
-            }
-            if (res.statusCode != 200) {
-              logger.error(`状态码${res.statusCode}`);
-              logger.info(res);
-              return;
-            }
-            try {
-              body = JSON.parse(body);
-            } catch (e) {
-              logger.info('不符合JSON格式');
-              return;
-            }
-            if (body.errno == 0) {
-              logger.info(body.errmsg);
-            } else {
-              logger.info(body);
-            }
-          });
+          done(null);
+          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'video_number', total);
+          request.post(settings.update,
+            { form: { platform: work.p, bid: work.id } },
+            (error, res, body) => {
+              if (error) {
+                logger.error('occur error : ', error);
+                return;
+              }
+              if (res.statusCode !== 200) {
+                logger.error(`状态码${res.statusCode}`);
+                logger.info(res);
+                return;
+              }
+              try {
+                body = JSON.parse(body);
+              } catch (e) {
+                logger.info('不符合JSON格式');
+                return;
+              }
+              if (Number(body.errno) === 0) {
+                logger.info(body.errmsg);
+              } else {
+                logger.info(body);
+              }
+            });
         });
       });
     });
