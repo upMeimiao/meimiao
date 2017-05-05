@@ -3,7 +3,7 @@
 */
 const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
+const spiderUtils = require('../../lib/spiderUtils');
 const moment = require('moment');
 
 let logger;
@@ -21,45 +21,61 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.totalPage(task, (err, result) => {
-      if (result == 'add_0') {
-        return callback(null);
+      if (err) {
+        callback(err);
+        return;
+      }
+      if (result === 'add_0') {
+        callback(null);
+        return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
   totalPage(task, callback) {
-    let option = {
+    const option = {
         url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=0&limit=20`
       },
-      total = 0;
+      cidArr = [];
+    let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('网易评论总量请求失败', err);
-        return this.totalPage(task, callback);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('网易评论数据解析失败');
         logger.info(result.body);
-        return this.totalPage(task, callback);
+        callback(e);
+        return;
       }
       task.cNum = result.newListSize;
       if ((task.cNum - task.commentNum) <= 0) {
-        return callback(null, 'add_0');
+        callback(null, 'add_0');
+        return;
       }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 20) == 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
+        total = (task.cNum % 20) === 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
       } else {
         total = (task.cNum - task.commentNum);
-        total = (total % 20) == 0 ? total / 20 : Math.ceil(total / 20);
+        total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
-      let comment = result.comments[result.commentIds[0]],
+      for (const key in result.comments) {
+        cidArr.push(key);
+      }
+      if (cidArr.length <= 0) {
+        callback();
+        return;
+      }
+      const comment = result.comments[cidArr[0]],
         time = new Date(comment.createTime);
       task.lastTime = moment(time).format('X');
       task.lastId = comment.commentId;
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, total, (err) => {
+      this.commentList(task, total, () => {
         callback();
       });
     });
@@ -69,80 +85,86 @@ class dealWith {
       offset = 0,
       option;
     async.whilst(
-			() => page <= total,
-			(cb) => {
-  option = {
-    url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`
-  };
-  request.get(logger, option, (err, result) => {
-    if (err) {
-      logger.debug('网易评论列表请求失败', err);
-      return cb();
-    }
-    try {
-      result = JSON.parse(result.body);
-    } catch (e) {
-      logger.debug('网易评论数据解析失败');
-      logger.info(result);
-      return cb();
-    }
-    this.deal(task, result, (err) => {
-      if (task.isEnd) {
-        return callback();
+      () => page <= total,
+      (cb) => {
+        option = {
+          url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`
+        };
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('网易评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('网易评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          this.deal(task, result, () => {
+            if (task.isEnd) {
+              total = -1;
+              cb();
+              return;
+            }
+            page += 1;
+            offset += 20;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
       }
-      page++;
-      offset += 20;
-      cb();
-    });
-  });
-},
-			(err, result) => {
-  callback();
-}
-		);
+    );
   }
   deal(task, comments, callback) {
-    let length = comments.commentIds.length,
-      index = 0,
+    const cidArr = [];
+    let index = 0,
       commentData,
       time,
       comment;
-    async.whilst(
-			() => index < length,
-			(cb) => {
-  commentData = comments.comments[comments.commentIds[index]];
-  time = new Date(commentData.createTime);
-  time = moment(time).format('X');
-  if (task.commentId == commentData.commentId || task.commentTime >= time) {
-    task.isEnd = true;
-    return callback();
-  }
-  comment = {
-    cid: commentData.commentId,
-    content: Utils.stringHandling(commentData.content),
-    platform: task.p,
-    bid: task.bid,
-    aid: task.aid,
-    ctime: time,
-    support: commentData.vote,
-    step: commentData.against,
-    reply: commentData.favCount,
-    c_user: {
-      uname: commentData.user.nickname,
-      uavatar: commentData.user.avatar
+    for (const key in comments.comments) {
+      cidArr.push(key);
     }
-  };
-  Utils.commentCache(this.core.cache_db, comment);
-				// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
-  index++;
-  cb();
-},
-			(err, result) => {
-  callback();
-}
-		);
+    async.whilst(
+      () => index < cidArr.length,
+      (cb) => {
+        commentData = comments.comments[cidArr[index]];
+        time = new Date(commentData.createTime);
+        time = moment(time).format('X');
+        if (task.commentId == commentData.commentId || task.commentTime >= time) {
+          task.isEnd = true;
+          index += cidArr.length;
+          cb();
+          return;
+        }
+        comment = {
+          cid: commentData.commentId,
+          content: spiderUtils.stringHandling(commentData.content),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: time,
+          support: commentData.vote,
+          step: commentData.against,
+          reply: commentData.favCount,
+          c_user: {
+            uname: commentData.user.nickname,
+            uavatar: commentData.user.avatar
+          }
+        };
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
-
 }
-
 module.exports = dealWith;

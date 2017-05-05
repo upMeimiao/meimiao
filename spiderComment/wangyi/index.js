@@ -58,8 +58,8 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      this.deal();
-            // this.test()
+      // this.deal();
+      this.test();
     });
   }
   start() {
@@ -73,7 +73,7 @@ class spiderCore {
       bid: 'T1464171889509',
       aid: 'CAV5MAUU',
       p: 25,
-      taskType: 1,
+      taskType: 0,
       commentId: 0,
       commentTime: 0,
       commentNum: 0
