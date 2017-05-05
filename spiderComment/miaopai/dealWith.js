@@ -6,7 +6,7 @@ const async = require('async');
 const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
 const URL = require('url');
-const md5 = require('js-md5');
+const md5 = require('crypto').createHash('md5');
 
 let logger;
 class dealWith {
@@ -39,6 +39,7 @@ class dealWith {
       url: `${this.settings.miaopai}${task.aid}&page=1`
     };
     let total = 0;
+    logger.debug(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('秒拍评论总量请求失败', err);
@@ -64,12 +65,16 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
+      if (!result.html) {
+        callback();
+        return;
+      }
       const $ = cheerio.load(result.html),
         comment = $('div.vid_hid'),
         url = comment.eq(0).find('div.hid_con>a').attr('data-link'),
         uid = URL.parse(url, true).query.suid,
         content = comment.eq(0).find('p.hid_con_txt2').html(),
-        cid = md5(uid + content);
+        cid = md5.update(uid + content).digest('hex');
       task.lastId = cid;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
@@ -88,6 +93,7 @@ class dealWith {
         option = {
           url: `${this.settings.miaopai}${task.aid}&page=${page}`
         };
+        logger.debug(333);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('秒拍评论列表请求失败', err);
@@ -134,7 +140,7 @@ class dealWith {
         url = comments.eq(index).find('div.hid_con>a').attr('data-link');
         uid = URL.parse(url, true).query.suid;
         content = comments.eq(index).find('p.hid_con_txt2').text();
-        cid = md5(uid + content);
+        cid = md5.update(uid + content).digest('hex');
         if (task.commentId == cid) {
           callback();
           task.isEnd = true;
