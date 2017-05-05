@@ -51,16 +51,20 @@ class dealWith {
         callback(e);
         return;
       }
+      if (result.status == 300) {
+        callback();
+        return;
+      }
       task.cNum = result.data.count;
       if ((task.cNum - task.commentNum) <= 0 || result.data.list.length <= 0) {
         callback(null, 'add_0');
         return;
       }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 20) == 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
+        total = (task.cNum % 20) === 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
       } else {
         total = (task.cNum - task.commentNum);
-        total = (total % 20) == 0 ? total / 20 : Math.ceil(total / 20);
+        total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
       task.lastTime = result.data.list[0].commentCtime.toString().substring(0, 10);
       task.lastId = result.data.list[0].id;
