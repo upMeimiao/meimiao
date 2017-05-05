@@ -6,8 +6,9 @@ const async = require('async');
 const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
 const URL = require('url');
-const md5 = require('crypto').createHash('md5');
+const crypto = require('crypto');
 
+const hash = crypto.createHash('md5');
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -36,10 +37,10 @@ class dealWith {
   }
   totalPage(task, callback) {
     const option = {
-      url: `${this.settings.miaopai}${task.aid}&page=1`
-    };
+        url: `${this.settings.miaopai}${task.aid}&page=1`
+      },
+      md5 = crypto.createHash('md5');
     let total = 0;
-    logger.debug(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('秒拍评论总量请求失败', err);
@@ -75,6 +76,7 @@ class dealWith {
         uid = URL.parse(url, true).query.suid,
         content = comment.eq(0).find('p.hid_con_txt2').html(),
         cid = md5.update(uid + content).digest('hex');
+      logger.debug('---', cid);
       task.lastId = cid;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
@@ -93,7 +95,6 @@ class dealWith {
         option = {
           url: `${this.settings.miaopai}${task.aid}&page=${page}`
         };
-        logger.debug(333);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('秒拍评论列表请求失败', err);
@@ -133,10 +134,12 @@ class dealWith {
       url,
       uid,
       content,
-      cid;
+      cid,
+      md5;
     async.whilst(
       () => index < length,
       (cb) => {
+        md5 = crypto.createHash('md5');
         url = comments.eq(index).find('div.hid_con>a').attr('data-link');
         uid = URL.parse(url, true).query.suid;
         content = comments.eq(index).find('p.hid_con_txt2').text();
