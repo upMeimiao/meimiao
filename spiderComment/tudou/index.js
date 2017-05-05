@@ -3,9 +3,9 @@
  * Created by junhao on 2017/2/08.
  */
 const kue = require('kue');
-const myRedis = require('../../lib/myredis.js');
 const async = require('async');
 const domain = require('domain');
+const myRedis = require('../../lib/myredis.js');
 
 let logger, settings;
 class spiderCore {
@@ -22,35 +22,37 @@ class spiderCore {
     async.parallel([
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.taskDB,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        return callback(err);
-                      }
-                      this.taskDB = cli;
-                      logger.debug('任务信息数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.taskDB,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.taskDB = cli;
+            logger.debug('任务信息数据库连接建立...成功');
+            callback();
+          }
+        );
       },
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.cache_db,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        return callback(err);
-                      }
-                      this.cache_db = cli;
-                      logger.debug('缓存队列数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.cache_db,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.cache_db = cli;
+            logger.debug('缓存队列数据库连接建立...成功');
+            callback();
+          }
+        );
       }
-    ], (err, results) => {
+    ], (err) => {
       if (err) {
         logger.error('连接redis数据库出错。错误信息：', err);
         logger.error('出现错误，程序终止。');
@@ -58,8 +60,11 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      // this.deal();
-      this.test();
+      if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+        this.deal();
+      } else {
+        this.test();
+      }
     });
   }
   start() {
@@ -105,11 +110,11 @@ class spiderCore {
     queue.on('error', (err) => {
       logger.error('Oops... ', err);
     });
-    queue.watchStuckJobs(1000);
+    // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
     queue.process('comment_tudou', this.settings.concurrency, (job, done) => {
       logger.trace('Get tudou task!');
-      let work = job.data,
+      const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
       const d = domain.create();
@@ -117,15 +122,11 @@ class spiderCore {
         done(err);
       });
       d.run(() => {
-        this.dealWith.todo(work, (err, total, lastId, lastTime, addCount) => {
+        this.dealWith.todo(work, (err, total, lastId, lastTime) => {
           if (err) {
-            return done(err);
+            done(err);
+            return;
           }
-          logger.debug(total);
-          logger.debug(lastId);
-          logger.debug(lastTime);
-          logger.debug(addCount);
-          logger.debug('end');
           done(null);
           if (total) {
             this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
@@ -135,7 +136,7 @@ class spiderCore {
     });
     queue.process('comment_update_tudou', this.settings.concurrency, (job, done) => {
       logger.trace('Get tudou task!');
-      let work = job.data,
+      const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
       const d = domain.create();
@@ -143,13 +144,11 @@ class spiderCore {
         done(err);
       });
       d.run(() => {
-        this.dealWith.todo(work, (err, hostTotal, timeTotal) => {
+        this.dealWith.todo(work, (err) => {
           if (err) {
-            return done(err);
+            done(err);
+            return;
           }
-          logger.debug(hostTotal);
-          logger.debug(timeTotal);
-          logger.debug('end');
           done(null);
           this.taskDB.hmset(key, 'update', (new Date().getTime()));
         });

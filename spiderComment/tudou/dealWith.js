@@ -1,8 +1,8 @@
 /**
 * Created by junhao on 2017/2/08.
 */
-const request = require('../../lib/request');
 const async = require('async');
+const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
@@ -141,7 +141,7 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        if (task.commentId == comments[index].commentId ||task.commentTime >= comments[index].publish_time / 1000) {
+        if (task.commentId == comments[index].commentId || task.commentTime >= comments[index].publish_time / 1000) {
           task.isEnd = true;
           length = 0;
           cb();
@@ -161,7 +161,7 @@ class dealWith {
             uavatar: comments[index].userpic
           }
         };
-        spiderUtils.saveCache(this.core.cache_db,'comment_cache',comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
