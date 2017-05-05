@@ -5,7 +5,7 @@ const request = require('../../lib/request');
 const async = require('async');
 const Utils = require('../../lib/spiderUtils');
 const moment = require('moment');
-const md5 = require('crypto').createHash('md5');
+const crypto = require('crypto');
 
 let logger;
 class dealWith {
@@ -59,7 +59,8 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 10) === 0 ? total / 10 : Math.ceil(total / 10);
       }
-      const comment = result.content[0];
+      const comment = result.content[0],
+        md5 = crypto.createHash('md5');
       let time = new Date(comment.pubdate);
       time = moment(time).format('X');
       task.lastTime = time;
@@ -111,10 +112,12 @@ class dealWith {
     let index = 0,
       time,
       comment,
-      cid;
+      cid,
+      md5;
     async.whilst(
       () => index < length,
       (cb) => {
+        md5 = crypto.createHash('md5');
         time = new Date(comments[index].pubdate);
         time = moment(time).format('X');
         cid = md5.update(task.aid + comments[index].pid + time).digest('hex');
