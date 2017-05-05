@@ -1,10 +1,11 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
+
 
 let logger;
 class dealWith {
@@ -57,10 +58,10 @@ class dealWith {
         return;
       }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 20) == 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
+        total = (task.cNum % 20) === 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
       } else {
         total = (task.cNum - task.commentNum);
-        total = (total % 20) == 0 ? total / 20 : Math.ceil(total / 20);
+        total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
       task.lastTime = result.data.list[0].commentCtime.toString().substring(0, 10);
       task.lastId = result.data.list[0].id;
@@ -125,7 +126,7 @@ class dealWith {
         this.getAvatar(comments[index].commentAuthorId, (err, result) => {
           comment = {
             cid: comments[index].id,
-            content: Utils.stringHandling(comments[index].commentContent),
+            content: spiderUtils.stringHandling(comments[index].commentContent),
             platform: task.p,
             bid: task.bid,
             aid: task.aid,
@@ -137,8 +138,7 @@ class dealWith {
               uavatar: result
             }
           };
-          Utils.commentCache(this.core.cache_db, comment);
-          // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+          spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
           index += 1;
           cb();
         });
@@ -155,6 +155,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('用户主页请求失败');
+        return;
       }
       const $ = cheerio.load(result.body),
         avatar = $('a.headPhoto>img').attr('src');
