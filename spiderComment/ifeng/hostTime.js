@@ -5,10 +5,6 @@ const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
 const async = require('async');
 
-const jsonp = function (data) {
-  return data;
-};
-
 let logger;
 class hostTime {
   constructor(spiderCore) {
@@ -20,6 +16,10 @@ class hostTime {
     task.hostTotal = 0;
     task.timeTotal = 0;
     this.getVid(task, (err) => {
+      if (err) {
+        callback(err);
+        return;
+      }
       callback(null, 0, 0);
     });
   }
@@ -30,7 +30,8 @@ class hostTime {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('Dom结构请求失败');
-        return this.getVid(task, callback);
+        this.getVid(task, callback);
+        return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
       let startIndex = result.indexOf('videoinfo={'),
@@ -54,16 +55,17 @@ class hostTime {
       } catch (e) {
         logger.debug('vid数据解析失败');
         logger.info(data);
-        return this.getVid(task, callback);
+        this.getVid(task, callback);
+        return;
       }
       if (data.id && data.id.length > 10) {
-        this.getTime(task, data.id, (err, result) => {
-          callback(null, result);
+        this.getTime(task, data.id, (error, res) => {
+          callback(null, res);
         });
       } else {
         data.vid = data.videoid ? data.videoid : data.vid;
-        this.getTime(task, data.vid, (err, result) => {
-          callback(null, result);
+        this.getTime(task, data.vid, (error, res) => {
+          callback(null, res);
         });
       }
     });
@@ -81,26 +83,29 @@ class hostTime {
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('凤凰评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('凤凰评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.comments.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.comments, (err) => {
-                  page++;
+                this.deal(task, result.comments, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
@@ -126,10 +131,10 @@ class hostTime {
                 }
               };
               Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
+              index += 1;
               cb();
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );

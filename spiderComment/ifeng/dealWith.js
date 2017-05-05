@@ -20,8 +20,13 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.getVid(task, (err, result) => {
+      if (err) {
+        callback(err);
+        return;
+      }
       if (result == 'add_0') {
-        return callback(null);
+        callback(null);
+        return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
@@ -31,17 +36,17 @@ class dealWith {
       url: `http://v.ifeng.com/m/video_${task.aid}.shtml`,
       ua: 1
     };
-		// logger.debug(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('Dom结构请求失败');
-        return this.getVid(task, callback);
+        callback(err);
+        return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
       let startIndex = result.indexOf('videoinfo={'),
         endIndex = result.indexOf(',"videoLargePoster"'),
-        data = `{${result.substring(startIndex + 11, endIndex)}}`,
-        typeNum = null;
+        data = `{${result.substring(startIndex + 11, endIndex)}}`;
+      const typeNum = null;
       if (endIndex !== 1) {
         endIndex = result.indexOf(';varcolumnName');
         data = result.substring(startIndex + 10, endIndex);
@@ -59,52 +64,64 @@ class dealWith {
       } catch (e) {
         logger.debug('vid数据解析失败');
         logger.info(data);
-        return this.getVid(task, callback);
+        callback(e);
+        return;
       }
       if (data.id && data.id.length > 10) {
-        this.totalPage(task, data.id, (err, result) => {
-          callback(null, result);
+        this.totalPage(task, data.id, (error, res) => {
+          if (error) {
+            callback(error);
+            return;
+          }
+          callback(null, res);
         });
       } else {
         data.vid = data.videoid ? data.videoid : data.vid;
-        this.totalPage(task, data.vid, (err, result) => {
-          callback(null, result);
+        this.totalPage(task, data.vid, (error, res) => {
+          if (error) {
+            callback(error);
+            return;
+          }
+          callback(null, res);
         });
       }
     });
   }
   totalPage(task, vid, callback) {
-    let option = {
-        url: `${this.settings.ifeng}${vid}&p=1`
-      },
-      total = 0;
+    const option = {
+      url: `${this.settings.ifeng}${vid}&p=1`
+    };
+    let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('凤凰评论总量请求失败', err);
-        return this.totalPage(task, callback);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('凤凰评论数据解析失败');
         logger.info(result.body);
-        return this.totalPage(task, callback);
+        callback(e);
+        return;
       }
       task.cNum = result.count;
       if ((task.cNum - task.commentNum) <= 0) {
-        return callback(null, 'add_0');
+        callback(null, 'add_0');
+        return;
       }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 10) == 0 ? task.cNum / 10 : Math.ceil(task.cNum / 10);
+        total = (task.cNum % 10) === 0 ? task.cNum / 10 : Math.ceil(task.cNum / 10);
       } else {
         total = (task.cNum - task.commentNum);
-        total = (total % 10) == 0 ? total / 10 : Math.ceil(total / 10);
+        total = (total % 10) === 0 ? total / 10 : Math.ceil(total / 10);
       }
 
       task.lastTime = result.comments.newest[0].create_time;
       task.lastId = result.comments.newest[0].comment_id;
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, total, vid, (err) => {
+      this.commentList(task, total, vid, () => {
         callback();
       });
     });
@@ -113,72 +130,76 @@ class dealWith {
     let page = 1,
       option;
     async.whilst(
-			() => page <= total,
-			(cb) => {
-  option = {
-    url: `${this.settings.ifeng}${vid}&p=${page}`
-  };
-  request.get(logger, option, (err, result) => {
-    if (err) {
-      logger.debug('凤凰评论列表请求失败', err);
-      return cb();
-    }
-    try {
-      result = JSON.parse(result.body);
-    } catch (e) {
-      logger.debug('凤凰评论数据解析失败');
-      logger.info(result);
-      return cb();
-    }
-    this.deal(task, result.comments, (err) => {
-      if (task.isEnd) {
-        return callback();
+      () => page <= total,
+      (cb) => {
+        option = {
+          url: `${this.settings.ifeng}${vid}&p=${page}`
+        };
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('凤凰评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('凤凰评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          this.deal(task, result.comments, () => {
+            if (task.isEnd) {
+              total = -1;
+              cb(null, 'add_0');
+              return;
+            }
+            page += 1;
+            cb();
+          });
+        });
+      },
+      (err, result) => {
+        callback(null, result);
       }
-      page++;
-      cb();
-    });
-  });
-},
-			(err, result) => {
-  callback();
-}
-		);
+    );
   }
   deal(task, comments, callback) {
     let length = comments.newest.length,
       index = 0,
       comment;
     async.whilst(
-			() => index < length,
-			(cb) => {
-  if (task.commentId == comments.newest[index].comment_id || task.commentTime >= comments.newest[index].create_time) {
-    task.isEnd = true;
-    return callback();
-  }
-  comment = {
-    cid: comments.newest[index].comment_id,
-    content: Utils.stringHandling(comments.newest[index].comment_contents),
-    platform: task.p,
-    bid: task.bid,
-    aid: task.aid,
-    ctime: comments.newest[index].create_time,
-    c_user: {
-      uid: comments.newest[index].user_id,
-      uname: comments.newest[index].uname,
-      uavatar: comments.newest[index].userFace
-    }
-  };
-  Utils.commentCache(this.core.cache_db, comment);
+      () => index < length,
+      (cb) => {
+        if (task.commentId == comments.newest[index].comment_id || task.commentTime >= comments.newest[index].create_time) {
+          task.isEnd = true;
+          length = -1;
+          cb();
+          return;
+        }
+        comment = {
+          cid: comments.newest[index].comment_id,
+          content: Utils.stringHandling(comments.newest[index].comment_contents),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: comments.newest[index].create_time,
+          c_user: {
+            uid: comments.newest[index].user_id,
+            uname: comments.newest[index].uname,
+            uavatar: comments.newest[index].userFace
+          }
+        };
+        Utils.commentCache(this.core.cache_db, comment);
 				// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
-  index++;
-  cb();
-},
-			(err, result) => {
-  callback();
-}
-		);
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
-
 }
-
 module.exports = dealWith;
