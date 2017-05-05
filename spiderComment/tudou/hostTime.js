@@ -2,12 +2,9 @@
  * Created by dell on 2017/3/9.
  */
 const request = require('../../lib/request');
-const Utils = require('../../lib/spiderUtils');
+const spiderUtils = require('../../lib/spiderUtils');
 const async = require('async');
 
-const jsonp = function (data) {
-  return data;
-};
 let logger;
 class hostTime {
   constructor(spiderCore) {
@@ -18,7 +15,11 @@ class hostTime {
   todo(task, callback) {
     task.hostTotal = 0;
     task.timeTotal = 0;
-    this.commentId(task, (err, result) => {
+    this.commentId(task, (err) => {
+      if (err) {
+        callback(err);
+        return;
+      }
       callback();
     });
   }
@@ -29,140 +30,148 @@ class hostTime {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('土豆的评论Id请求失败');
-        return this.commentId(task, callback);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('土豆的id数据解析失败');
         logger.info(result);
-        return this.commentId(task, callback);
+        callback(e);
+        return;
       }
       task.commentId = result.result.vid;
       async.parallel(
         {
           hot: (cb) => {
-            this.getHot(task, (err, result) => {
+            this.getHot(task, () => {
               cb(null, '热门评论数据完成');
             });
           },
           time: (cb) => {
-            this.getTime(task, (err, result) => {
+            this.getTime(task, () => {
               cb(null, '最新评论数据完成');
             });
           }
         },
-                (err, result) => {
-                  logger.debug('result: ', result);
-                  callback();
-                }
-            );
+        (error, data) => {
+          logger.debug('result: ', data);
+          callback();
+        }
+      );
     });
   }
   getHot(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option;
+    let page = 1;
+    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+        Number(this.settings.commentTotal) / 20 :
+        Math.ceil(Number(this.settings.commentTotal) / 20),
+      option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
-              option = {
-                url: `${this.settings.tudou.list + task.commentId}&method=getHotCmt&page=${page}`
-              };
+              option.url = `${this.settings.tudou.list + task.commentId}&method=getHotCmt&page=${page}`;
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('土豆评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('土豆评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.data.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.data, (err) => {
-                  page++;
+                this.deal(task, result.data, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   getTime(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option;
+    let page = 1;
+    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+        Number(this.settings.commentTotal) / 20 :
+        Math.ceil(Number(this.settings.commentTotal) / 20),
+      option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
-              option = {
-                url: `${this.settings.tudou.list + task.commentId}&method=getCmt&page=${page}`
-              };
+              option.url = `${this.settings.tudou.list + task.commentId}&method=getCmt&page=${page}`;
               request.get(logger, option, (err, result) => {
                 if (err) {
                   logger.debug('土豆评论列表请求失败', err);
-                  return cb();
+                  cb();
+                  return;
                 }
                 try {
                   result = JSON.parse(result.body);
                 } catch (e) {
                   logger.debug('土豆评论数据解析失败');
                   logger.info(result);
-                  return cb();
+                  cb();
+                  return;
                 }
                 if (result.data.length <= 0) {
                   page += total;
-                  return cb();
+                  cb();
+                  return;
                 }
-                this.deal(task, result.data, (err) => {
-                  page++;
+                this.deal(task, result.data, () => {
+                  page += 1;
                   cb();
                 });
               });
             },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       comment;
     logger.debug(length);
     async.whilst(
-            () => index < length,
-            (cb) => {
-              comment = {
-                cid: comments[index].commentId,
-                content: Utils.stringHandling(comments[index].content),
-                platform: task.p,
-                bid: task.bid,
-                aid: task.aid,
-                ctime: comments[index].publish_time / 1000,
-                support: '',
-                c_user: {
-                  uid: comments[index].userID,
-                  uname: comments[index].username,
-                  uavatar: comments[index].userpic
-                }
-              };
-              Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
-              cb();
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        comment = {
+          cid: comments[index].commentId,
+          content: spiderUtils.stringHandling(comments[index].content),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: comments[index].publish_time / 1000,
+          support: '',
+          c_user: {
+            uid: comments[index].userID,
+            uname: comments[index].username,
+            uavatar: comments[index].userpic
+          }
+        };
+        spiderUtils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
 }
 module.exports = hostTime;

@@ -58,8 +58,8 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      this.deal();
-            // this.test()
+      // this.deal();
+      this.test();
     });
   }
   start() {
@@ -68,8 +68,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      bid: '375520641',
-      aid: 'qxWomb6ApKc',
+      bid: '120284249',
+      aid: 'EIGpjYMT-Yk',
       p: 12,
       taskType: 1,
       commentId: 0,
