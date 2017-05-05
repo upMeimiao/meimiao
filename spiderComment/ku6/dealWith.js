@@ -155,6 +155,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('用户主页请求失败');
+        callback(err);
         return;
       }
       const $ = cheerio.load(result.body),
