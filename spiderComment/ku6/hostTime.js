@@ -44,6 +44,11 @@ class hostTime {
                   cb();
                   return;
                 }
+                if (result.status == 300) {
+                  total = -1;
+                  cb();
+                  return;
+                }
                 if (result.data.list.length <= 0) {
                   page += total;
                   cb();

@@ -52,6 +52,10 @@ class dealWith {
         callback(e);
         return;
       }
+      if (result.status == 300) {
+        callback();
+        return;
+      }
       task.cNum = result.data.count;
       if ((task.cNum - task.commentNum) <= 0 || result.data.list.length <= 0) {
         callback(null, 'add_0');
