@@ -18,39 +18,40 @@ class hostTime {
     async.parallel(
       {
         hot: (cb) => {
-          this.getHot(task, (err) => {
+          this.getHot(task, () => {
             cb(null, '热门评论数据完成');
           });
         },
         time: (cb) => {
-          this.getTime(task, (err) => {
+          this.getTime(task, () => {
             cb(null, '最新评论数据完成');
           });
         }
       },
-            (err, result) => {
+            () => {
               callback();
             }
         );
   }
   getHot(task, callback) {
-    let page = 1,
-      option = {
-        url: `${this.settings.neihan}${task.aid}&offset=0`
-      };
+    const option = {
+      url: `${this.settings.neihan}${task.aid}&offset=0`
+    };
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('内涵评论列表请求失败', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('内涵评论数据解析失败');
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
-      this.deal(task, result.data.top_comments, (err) => {
+      this.deal(task, result.data.top_comments, () => {
         callback();
       });
     });
@@ -61,69 +62,72 @@ class hostTime {
       option = {},
       offset = 0;
     async.whilst(
-            () => page <= total,
-            (cb) => {
-              option = {
-                url: `${this.settings.neihan}${task.aid}&offset=${offset}`
-              };
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.debug('内涵评论列表请求失败', err);
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.debug('内涵评论数据解析失败');
-                  logger.info(result);
-                  return cb();
-                }
-                if (result.data.recent_comments.length <= 0) {
-                  page += total;
-                  return cb();
-                }
-                this.deal(task, result.data.recent_comments, (err) => {
-                  page++;
-                  offset += 20;
-                  cb();
-                });
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => page <= total,
+      (cb) => {
+        option = {
+          url: `${this.settings.neihan}${task.aid}&offset=${offset}`
+        };
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('内涵评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('内涵评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          if (result.data.recent_comments.length <= 0) {
+            page += total;
+            cb();
+            return;
+          }
+          this.deal(task, result.data.recent_comments, () => {
+            page += 1;
+            offset += 20;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       comment;
     async.whilst(
-            () => index < length,
-            (cb) => {
-              comment = {
-                cid: comments[index].comment_id,
-                content: Utils.stringHandling(comments[index].text),
-                platform: task.p,
-                bid: task.bid,
-                aid: task.aid,
-                ctime: comments[index].create_time,
-                support: comments[index].digg_count,
-                step: comments[index].bury_count,
-                c_user: {
-                  uid: comments[index].user_id,
-                  uname: comments[index].user_name,
-                  uavatar: comments[index].avatar_url
-                }
-              };
-              Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
-              cb();
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        comment = {
+          cid: comments[index].comment_id,
+          content: Utils.stringHandling(comments[index].text),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: comments[index].create_time,
+          support: comments[index].digg_count,
+          step: comments[index].bury_count,
+          c_user: {
+            uid: comments[index].user_id,
+            uname: comments[index].user_name,
+            uavatar: comments[index].avatar_url
+          }
+        };
+        Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
 }
 module.exports = hostTime;
