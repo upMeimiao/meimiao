@@ -1,9 +1,9 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -19,7 +19,11 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.videoTotal(task, () => {
+    this.videoTotal(task, (err) => {
+      if (err) {
+        callback(err);
+        return;
+      }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
@@ -39,14 +43,14 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         logger.debug('人人视频评论接口请求失败', err);
-        this.videoTotal(task, callback);
+        callback(err);
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('人人视频评论信息解析失败', result);
-        this.videoTotal(task, callback);
+        callback(err);
         return;
       }
       task.cNum = result.data.total;
@@ -139,7 +143,7 @@ class dealWith {
         }
         comment = {
           cid,
-          content: Utils.stringHandling(comments[index].content),
+          content: spiderUtils.stringHandling(comments[index].content),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -151,7 +155,7 @@ class dealWith {
             uavatar: comments[index].author.headImgUrl
           }
         };
-        Utils.commentCache(this.core.cache_db, comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
