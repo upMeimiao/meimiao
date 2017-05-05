@@ -43,7 +43,7 @@ class dealWith {
         return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      if (!result.match(/commentId="(\d*)/)) {
+      if (!result.match(/commentId="(\d*)/)[1]) {
         callback();
         return;
       }
