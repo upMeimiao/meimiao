@@ -37,7 +37,11 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('单个视频请求失败');
-        callback(err);
+        if (err.status && err.status === 404) {
+          callback();
+        } else {
+          callback(err);
+        }
         return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
