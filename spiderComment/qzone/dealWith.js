@@ -4,7 +4,7 @@
 const request = require('../../lib/request');
 const async = require('async');
 const Utils = require('../../lib/spiderUtils');
-const md5 = require('js-md5');
+const md5 = require('crypto').createHash('md5');
 
 const _Callback = function (data) {
   return data;
@@ -25,44 +25,52 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.total(task, (err, result) => {
-      if (result == 'add_0') {
-        return callback(null);
+      if (err) {
+        callback(err);
+        return;
+      }
+      if (result === 'add_0') {
+        callback(null);
+        return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
   total(task, callback) {
-    let option = {
-        url: `${this.settings.qzone + task.bid}&tid=${task.aid}&pos=0`
-      },
-      total = 0;
+    const option = {
+      url: `${this.settings.qzone + task.bid}&tid=${task.aid}&pos=0`
+    };
+    let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('qzone的评论总数请求失败');
-        return this.total(task, callback);
+        callback(err);
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.debug('qzone数据解析失败');
         logger.info(result);
-        return this.total(task, callback);
+        callback(e);
+        return;
       }
       task.cNum = result.cmtnum;
-      if ((task.cNum - task.commentNum) <= 0) {
-        return callback(null, 'add_0');
+      if ((task.cNum - task.commentNum) <= 0 || result.commentlist.length <= 0) {
+        callback(null, 'add_0');
+        return;
       }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 20) == 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
+        total = (task.cNum % 20) === 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
       } else {
         total = (task.cNum - task.commentNum);
-        total = (total % 20) == 0 ? total / 20 : Math.ceil(total / 20);
+        total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
       const comment = result.commentlist[0];
       task.lastTime = comment.create_time;
-      task.lastId = md5(task.aid + comment.uin + comment.create_time);
+      task.lastId = md5.update(task.aid + comment.uin + comment.create_time).digest('hex');
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, total, (err) => {
+      this.commentList(task, total, () => {
         callback();
       });
     });
@@ -72,75 +80,80 @@ class dealWith {
       pos = 0,
       option;
     async.whilst(
-			() => page < total,
-			(cb) => {
-  option = {
-    url: `${this.settings.qzone + task.bid}&tid=${task.aid}&pos=${pos}`
-  };
-  request.get(logger, option, (err, result) => {
-    if (err) {
-      logger.debug('qzone评论列表请求失败', err);
-      return cb();
-    }
-    try {
-      result = eval(result.body);
-    } catch (e) {
-      logger.debug('qzone评论数据解析失败');
-      logger.info(result);
-      return cb();
-    }
-    this.deal(task, result.commentlist, (err) => {
-      if (task.isEnd) {
-        return cb();
+      () => page < total,
+      (cb) => {
+        option = {
+          url: `${this.settings.qzone + task.bid}&tid=${task.aid}&pos=${pos}`
+        };
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('qzone评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = eval(result.body);
+          } catch (e) {
+            logger.debug('qzone评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          this.deal(task, result.commentlist, () => {
+            if (task.isEnd) {
+              total = -1;
+              cb();
+              return;
+            }
+            page += 1;
+            pos += 20;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
       }
-      page++;
-      pos += 20;
-      cb();
-    });
-  });
-},
-			(err, result) => {
-  callback();
-}
-		);
+    );
   }
   deal(task, comments, callback) {
     let length = comments.length,
       index = 0,
+      cid,
       comment;
     async.whilst(
-			() => index < length,
-			(cb) => {
-  const cid = md5(task.aid + comments[index].uin + comments[index].create_time);
-  if (task.commentId == cid || task.commentTime >= comments[index].create_time) {
-    task.isEnd = true;
-    return callback();
+      () => index < length,
+      (cb) => {
+        cid = md5.update(task.aid + comments[index].uin + comments[index].create_time).digest('hex');
+        if (task.commentId == cid || task.commentTime >= comments[index].create_time) {
+          task.isEnd = true;
+          length = 0;
+          cb();
+          return;
+        }
+        comment = {
+          cid,
+          content: Utils.stringHandling(comments[index].content),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: comments[index].create_time,
+          reply: comments[index].replyNum,
+          c_user: {
+            uid: comments[index].uin,
+            uname: comments[index].name,
+            uavatar: `http://qlogo3.store.qq.com/qzone/${comments[index].uin}/${comments[index].uin}/100`
+          }
+        };
+        Utils.commentCache(this.core.cache_db, comment);
+        // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
-  comment = {
-    cid,
-    content: Utils.stringHandling(comments[index].content),
-    platform: task.p,
-    bid: task.bid,
-    aid: task.aid,
-    ctime: comments[index].create_time,
-    reply: comments[index].replyNum,
-    c_user: {
-      uid: comments[index].uin,
-      uname: comments[index].name,
-      uavatar: `http://qlogo3.store.qq.com/qzone/${comments[index].uin}/${comments[index].uin}/100`
-    }
-  };
-  Utils.commentCache(this.core.cache_db, comment);
-				// Utils.saveCache(this.core.cache_db,'comment_cache',comment)
-  index++;
-  cb();
-},
-			(err, result) => {
-  callback();
 }
-		);
-  }
-
-}
-
 module.exports = dealWith;
