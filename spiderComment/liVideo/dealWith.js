@@ -1,13 +1,35 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
 const moment = require('moment');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
+const _time = (time) => {
+  let time1;
+  if (!time) {
+    logger.debug('评论时间不存在');
+    return '';
+  }
+  if (time.includes('刚刚')) {
+    return moment().unix();
+  }
+  if (time.includes('分钟')) {
+    time = time.replace('分钟前', '');
+    time = Number(moment().unix()) - (Number(time) * 60);
+    return time;
+  }
+  time1 = time.split(' ')[0].split('-');
+  const time2 = `${time.split(' ')[1]}:00`;
+  if (time1.length < 3) {
+    time1 = `${new Date().getFullYear()}-${time1.join('-')} `;
+  }
+  time = new Date(time1 + time2);
+  return moment(time).format('X');
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -81,7 +103,7 @@ class dealWith {
           }
           this.deal(task, $('.comm-li'), () => {
             score = $('.comm-li').last().attr('data-score');
-            if (score == '' || score == undefined) {
+            if (score === '' || score === undefined) {
               cycle = false;
               cb();
               return;
@@ -100,8 +122,8 @@ class dealWith {
     );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       commentData,
       time,
       avatar,
@@ -111,14 +133,15 @@ class dealWith {
       () => index < length,
       (cb) => {
         commentData = comments.eq(index);
-        time = this.time(commentData.find('.date').text());
+        time = _time(commentData.find('.date').text());
         if (task.commentId == commentData.attr('id') || task.commentTime >= time) {
           task.isEnd = true;
-          return callback();
+          callback();
+          return;
         }
         comment = {
           cid: commentData.attr('id'),
-          content: Utils.stringHandling(commentData.find('.comm-cont').text()),
+          content: spiderUtils.stringHandling(commentData.find('.comm-cont').text()),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -131,8 +154,7 @@ class dealWith {
             uavatar: avatar
           }
         };
-        Utils.commentCache(this.core.cache_db, comment);
-        // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
@@ -140,29 +162,6 @@ class dealWith {
         callback();
       }
     );
-  }
-  time(time) {
-    let time1 = null,
-      time2 = null;
-    if (!time) {
-      logger.debug('评论时间不存在');
-      return '';
-    }
-    if (time.includes('刚刚')) {
-      return moment().unix();
-    }
-    if (time.includes('分钟')) {
-      time = time.replace('分钟前', '');
-      time = Number(moment().unix()) - (Number(time) * 60);
-      return time;
-    }
-    time1 = time.split(' ')[0].split('-');
-    time2 = `${time.split(' ')[1]}:00`;
-    if (time1.length < 3) {
-      time1 = `${new Date().getFullYear()}-${time1.join('-')} `;
-    }
-    time = new Date(time1 + time2);
-    return moment(time).format('X');
   }
 }
 

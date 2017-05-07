@@ -1,9 +1,9 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -20,8 +20,12 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     this.total(task, (err, result) => {
-      if (result == 'add_0') {
-        callback(null);
+      if (err) {
+        callback(err);
+        return;
+      }
+      if (result === 'add_0') {
+        callback();
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -35,7 +39,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('暴风网的评论总数请求失败');
-        this.total(task, callback);
+        callback(err);
         return;
       }
       try {
@@ -43,7 +47,7 @@ class dealWith {
       } catch (e) {
         logger.debug('暴风网数据解析失败');
         logger.info(result);
-        this.total(task, callback);
+        callback(e);
         return;
       }
       task.cNum = result.total;
@@ -119,7 +123,7 @@ class dealWith {
         }
         comment = {
           cid: comments[index].id,
-          content: Utils.stringHandling(comments[index].yestxt),
+          content: spiderUtils.stringHandling(comments[index].yestxt),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -130,7 +134,7 @@ class dealWith {
             uavatar: comments[index].faceimg
           }
         };
-        Utils.commentCache(this.core.cache_db, comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
