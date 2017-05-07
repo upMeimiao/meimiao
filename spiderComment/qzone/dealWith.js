@@ -1,10 +1,10 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
-const md5 = require('crypto').createHash('md5');
+const crypto = require('crypto');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 const _Callback = function (data) {
   return data;
@@ -67,6 +67,7 @@ class dealWith {
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
       const comment = result.commentlist[0];
+      const md5 = crypto.createHash('md5');
       task.lastTime = comment.create_time;
       task.lastId = md5.update(task.aid + comment.uin + comment.create_time).digest('hex');
       task.addCount = task.cNum - task.commentNum;
@@ -118,12 +119,13 @@ class dealWith {
   }
   deal(task, comments, callback) {
     let length = comments.length,
-      index = 0,
+      index = 0, md5,
       cid,
       comment;
     async.whilst(
       () => index < length,
       (cb) => {
+        md5 = crypto.createHash('md5');
         cid = md5.update(task.aid + comments[index].uin + comments[index].create_time).digest('hex');
         if (task.commentId == cid || task.commentTime >= comments[index].create_time) {
           task.isEnd = true;
@@ -133,7 +135,7 @@ class dealWith {
         }
         comment = {
           cid,
-          content: Utils.stringHandling(comments[index].content),
+          content: spiderUtils.stringHandling(comments[index].content),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -145,8 +147,7 @@ class dealWith {
             uavatar: `http://qlogo3.store.qq.com/qzone/${comments[index].uin}/${comments[index].uin}/100`
           }
         };
-        Utils.commentCache(this.core.cache_db, comment);
-        // Utils.saveCache(this.core.cache_db,'comment_cache',comment)
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },

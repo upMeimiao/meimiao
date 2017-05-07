@@ -10,24 +10,28 @@ class proxy {
   }
   need(times, callback) {
     if (times > 4) {
-      return callback('timeout!');
+      callback('timeout!');
+      return;
     }
     logger.trace('Send a Require command');
     request(`http://${settings.proxy.host}:${settings.proxy.port}`, (err, res, body) => {
       if (err) {
         logger.debug('err:', err);
-        return setTimeout(() => this.need(times + 1, callback), 3000);
+        setTimeout(() => this.need(times + 1, callback), 3000);
+        return;
       }
       let proxy;
       try {
         proxy = JSON.parse(body);
       } catch (e) {
         logger.error('Decode response occur error!');
-        return callback(e.message);
+        callback(e.message);
+        return;
       }
       if (proxy.proxy) {
         logger.debug(proxy.proxy);
-        return callback(null, proxy.proxy);
+        callback(null, proxy.proxy);
+        return;
       }
       setTimeout(() => {
         logger.debug('setTImeout');
@@ -39,11 +43,13 @@ class proxy {
     request.post(`http://${settings.proxy.host}:${settings.proxy.port}/?proxy=${proxy}&status=${status}`, (err, res, body) => {
       if (err) {
         if (callback) {
-          return callback(res);
+          callback(res);
+          return;
         }
       }
       if (callback) {
-        return callback(res);
+        callback(res);
+        return;
       }
     });
   }
