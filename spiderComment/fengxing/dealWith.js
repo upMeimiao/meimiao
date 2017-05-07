@@ -1,10 +1,10 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('async');
-const Utils = require('../../lib/spiderUtils');
 const crypto = require('crypto');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -25,7 +25,7 @@ class dealWith {
         callback(err);
         return;
       }
-      if (result == 'add_0') {
+      if (result === 'add_0') {
         callback(null);
         return;
       }
@@ -128,7 +128,7 @@ class dealWith {
         }
         comment = {
           cid,
-          content: Utils.stringHandling(comments[index].content),
+          content: spiderUtils.stringHandling(comments[index].content),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -140,7 +140,7 @@ class dealWith {
             uavatar: comments[index].user_icon.orig
           }
         };
-        Utils.commentCache(this.core.cache_db, comment);
+        spiderUtils.commentCache(this.core.cache_db, comment);
         index += 1;
         cb();
       },
