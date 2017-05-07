@@ -140,7 +140,7 @@ class dealWith {
             uavatar: comments[index].user_icon.orig
           }
         };
-        spiderUtils.commentCache(this.core.cache_db, comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },

@@ -164,7 +164,7 @@ class dealWith {
             uavatar: comments[index].passport.img_url
           }
         };
-        spiderUtils.commentCache(this.core.cache_db, comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
       },
