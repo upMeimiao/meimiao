@@ -7,6 +7,18 @@ const async = require('async');
 const cheerio = require('cheerio');
 const moment = require('moment');
 
+const _cookie = (arr) => {
+  const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let cookie = '';
+  for (const num of arr) {
+    cookie += '-';
+    for (let i = 0; i < num; i += 1) {
+      const random = Math.floor(Math.random() * str.length);
+      cookie += str[random];
+    }
+  }
+  return cookie.replace('-', '');
+};
 let logger;
 class hostTime {
   constructor(spiderCore) {
@@ -57,24 +69,35 @@ class hostTime {
   }
   getIds(task, callback) {
     const option = {
-      url: `http://www.pearvideo.com/video_${task.aid}`
+      url: `http://app.pearvideo.com/clt/jsp/v2/content.jsp?contId=${task.aid}`,
+      ua: 3,
+      own_ua: 'LiVideoIOS/2.2.1 (iPhone; iOS 10.3.1; Scale/3.00)',
+      headers: {
+        Cookie: `PEAR_UUID=${_cookie([8, 4, 4, 4, 12])}`
+      }
     };
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论列表Id获取失败', err);
-        this.getIds(task, callback);
+        callback(err);
         return;
       }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      const postId = result.match(/postId="\d*/).toString().replace('postId="', ''),
-        postUserId = result.match(/postUserId="\d*/).toString().replace('postUserId="', '');
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.debug('视频信息解析失败', result.body);
+        callback(e);
+        return;
+      }
+      const postId = result.postInfo.postId,
+        postUserId = result.content.authors[0].userId;
       if (postId && postUserId) {
         this.getTime(task, postId, postUserId, () => {
           callback();
         });
       } else {
         logger.debug('两个Id获取失败');
-        this.getIds(task, callback);
+        callback('error');
       }
     });
   }
