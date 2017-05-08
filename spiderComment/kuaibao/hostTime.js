@@ -31,7 +31,11 @@ class hostTime {
         return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      commentId = result.match(/commentId="\d*/).toString().replace('commentId="', '');
+      if (!result.match(/commentId="(\d*)/) || !result.match(/commentId="(\d*)/)[1]) {
+        callback();
+        return;
+      }
+      commentId = result.match(/commentId="(\d*)/)[1];
       task.commentId = commentId;
       this.getTime(task, (error, data) => {
         callback(null, data);
