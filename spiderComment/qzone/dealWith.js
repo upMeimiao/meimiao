@@ -79,7 +79,8 @@ class dealWith {
   commentList(task, total, callback) {
     let page = 0,
       pos = 0,
-      option;
+      option,
+      num = 0;
     async.whilst(
       () => page < total,
       (cb) => {
@@ -96,8 +97,12 @@ class dealWith {
           try {
             result = eval(result.body);
           } catch (e) {
-            logger.debug('qzone评论数据解析失败');
-            logger.info(result);
+            logger.debug('qzone评论数据解析失败', result.body);
+            result = result.body.replace(/[\s\n\r]/g, '');
+            result = result.match(/&pos=(\d*)/)[1];
+            if (Number(result) < pos) {
+              total = 0;
+            }
             cb();
             return;
           }

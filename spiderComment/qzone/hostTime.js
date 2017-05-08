@@ -24,11 +24,11 @@ class hostTime {
     });
   }
   getTime(task, callback) {
-    let page = 0, pos = 0;
-    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+    let page = 0, pos = 0,
+      total = Number(this.settings.commentTotal) % 20 === 0 ?
         Number(this.settings.commentTotal) / 20 :
-        Math.ceil(Number(this.settings.commentTotal) / 20),
-      option = {};
+        Math.ceil(Number(this.settings.commentTotal) / 20);
+    const option = {};
     async.whilst(
       () => page <= total,
       (cb) => {
@@ -42,8 +42,12 @@ class hostTime {
           try {
             result = eval(result.body);
           } catch (e) {
-            logger.debug('qzone评论数据解析失败');
-            logger.info(result.body);
+            logger.debug('qzone评论数据解析失败', result.body);
+            result = result.body.replace(/[\s\n\r]/g, '');
+            result = result.match(/&pos=(\d*)/)[1];
+            if (Number(result) < pos) {
+              total = 0;
+            }
             cb();
             return;
           }
