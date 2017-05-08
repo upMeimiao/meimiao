@@ -79,8 +79,7 @@ class dealWith {
   commentList(task, total, callback) {
     let page = 0,
       pos = 0,
-      option,
-      num = 0;
+      option;
     async.whilst(
       () => page < total,
       (cb) => {
@@ -103,6 +102,11 @@ class dealWith {
             if (Number(result) < pos) {
               total = 0;
             }
+            cb();
+            return;
+          }
+          if (!result.commentlist) {
+            total = 0;
             cb();
             return;
           }
