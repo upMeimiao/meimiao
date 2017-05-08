@@ -56,7 +56,7 @@ class dealWith {
         return;
       }
       task.cNum = result.cmtnum;
-      if ((task.cNum - task.commentNum) <= 0 || result.commentlist.length <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || !result.commentlist || result.commentlist.length <= 0) {
         callback(null, 'add_0');
         return;
       }
@@ -86,6 +86,7 @@ class dealWith {
         option = {
           url: `${this.settings.qzone + task.bid}&tid=${task.aid}&pos=${pos}`
         };
+        logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('qzone评论列表请求失败', err);
