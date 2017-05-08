@@ -73,7 +73,9 @@ class dealWith {
   commentList(task, total, callback) {
     const option = {};
     let page = 1,
-      hotScore = -1;
+      hotScore = -1,
+      comments,
+      length;
     async.whilst(
       () => page <= total,
       (cb) => {
@@ -92,13 +94,18 @@ class dealWith {
             cb();
             return;
           }
+          comments = result.data.comments;
+          length = comments.length;
+          if (length <= 0) {
+            total = -1;
+            cb();
+            return;
+          }
           this.deal(task, result.data, () => {
             if (task.isEnd) {
               callback();
               return;
             }
-            const comments = result.data.comments,
-              length = comments.length;
             page += 1;
             hotScore = result.data.comments_map[comments[length - 1]].hotScore;
             cb();
