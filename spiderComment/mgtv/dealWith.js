@@ -53,14 +53,14 @@ class dealWith {
             cb();
             return;
           }
-          task.cNum += result.data.length;
-          if (!task.lastId) {
-            task.lastId = result.data[0].commentId;
-          }
           if (result.data.length <= 0) {
             cycle = false;
             cb();
             return;
+          }
+          task.cNum += result.data.length;
+          if (!task.lastId) {
+            task.lastId = result.data[0].commentId;
           }
           this.deal(task, result.data, () => {
             if (task.isEnd) {
