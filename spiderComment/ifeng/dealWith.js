@@ -19,7 +19,7 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.getVid(task, (err, result) => {
+    this.getCid(task, (err, result) => {
       if (err) {
         callback(err);
         return;
@@ -31,67 +31,46 @@ class dealWith {
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
-  getVid(task, callback) {
+  getCid(task, callback) {
     const option = {
-      url: `http://v.ifeng.com/m/video_${task.aid}.shtml`,
+      url: `http://v.ifeng.com/docvlist/${task.aid}.js`,
       ua: 1
     };
+    let cid;
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('Dom结构请求失败');
-        callback(err);
+        logger.debug('评论ID请求失败', err);
         return;
       }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      let startIndex = result.indexOf('videoinfo={'),
-        endIndex = result.indexOf(',"videoLargePoster"'),
-        data = `{${result.substring(startIndex + 11, endIndex)}}`;
-      const typeNum = null;
-      if (endIndex !== 1) {
-        endIndex = result.indexOf(';varcolumnName');
-        data = result.substring(startIndex + 10, endIndex);
-      }
-      if (startIndex !== 1) {
-        startIndex = result.indexOf('varvideoinfo=');
-        endIndex = result.indexOf(';varcolumnName=');
-        data = result.substring(startIndex + 13, endIndex).replace(/[\s\n\r]/g, '');
-      }
-      if (typeNum === 1) {
-        data = data.replace(',"video', '}');
-      }
+      result = result.body;
+      const startIndex = result.indexOf('{"guidList"'),
+        endIndex = result.indexOf(';bsCallback');
+      let data = result.substring(startIndex, endIndex);
       try {
         data = JSON.parse(data);
       } catch (e) {
-        logger.debug('vid数据解析失败');
-        logger.info(data);
+        logger.debug('vid数据解析失败', data);
         callback(e);
         return;
       }
-      if (data.id && data.id.length > 10) {
-        this.totalPage(task, data.id, (error, res) => {
-          if (error) {
-            callback(error);
-            return;
-          }
-          callback(null, res);
-        });
-      } else {
-        data.vid = data.videoid ? data.videoid : data.vid;
-        this.totalPage(task, data.vid, (error, res) => {
-          if (error) {
-            callback(error);
-            return;
-          }
-          callback(null, res);
-        });
+      for (const key in data.guidList) {
+        cid = key;
       }
+      this.totalPage(task, cid, (error, res) => {
+        if (error) {
+          callback(error);
+          return;
+        }
+        callback(null, res);
+      });
     });
   }
-  totalPage(task, vid, callback) {
+  totalPage(task, cid, callback) {
     const option = {
-      url: `${this.settings.ifeng}${vid}&p=1`
+      url: `${this.settings.ifeng}${cid}&p=1`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('凤凰评论总量请求失败', err);
@@ -121,19 +100,19 @@ class dealWith {
       task.lastTime = result.comments.newest[0].create_time;
       task.lastId = result.comments.newest[0].comment_id;
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, total, vid, () => {
+      this.commentList(task, total, cid, () => {
         callback();
       });
     });
   }
-  commentList(task, total, vid, callback) {
+  commentList(task, total, cid, callback) {
     let page = 1,
       option;
     async.whilst(
       () => page <= total,
       (cb) => {
         option = {
-          url: `${this.settings.ifeng}${vid}&p=${page}`
+          url: `${this.settings.ifeng}${cid}&p=${page}`
         };
         request.get(logger, option, (err, result) => {
           if (err) {
