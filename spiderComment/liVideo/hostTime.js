@@ -87,7 +87,12 @@ class hostTime {
             () => cycle,
             (cb) => {
               option = {
-                url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`
+                url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`,
+                ua: 2,
+                Referer: `http://app.pearvideo.com/clt/page/v2/topic_comm.jsp?postId=${postId}&contId=${task.aid}`,
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
               };
               request.get(logger, option, (err, result) => {
                 if (err) {

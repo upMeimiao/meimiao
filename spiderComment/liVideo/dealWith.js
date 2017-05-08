@@ -57,7 +57,8 @@ class dealWith {
   }
   getIds(task, callback) {
     const option = {
-      url: `http://www.pearvideo.com/video_${task.aid}`
+      url: `http://www.pearvideo.com/video_${task.aid}`,
+      ua: 1
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -87,7 +88,12 @@ class dealWith {
       () => cycle,
       (cb) => {
         option = {
-          url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`
+          url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`,
+          ua: 2,
+          Referer: `http://app.pearvideo.com/clt/page/v2/topic_comm.jsp?postId=${postId}&contId=${task.aid}`,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
         };
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -99,7 +105,7 @@ class dealWith {
           if (!task.lastId) {
             task.lastId = $('.comm-li').first().attr('id');
             task.lastTime = $('.comm-li').first().attr('id');
-            task.lastTime = this.time($('.comm-li').first().find('.date').text());
+            task.lastTime = _time($('.comm-li').first().find('.date').text());
           }
           this.deal(task, $('.comm-li'), () => {
             score = $('.comm-li').last().attr('data-score');
