@@ -97,7 +97,7 @@ class commentScheduler {
     //     }
     //   }
     // );
-    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=500&platform=34-35-36-38-17-18-19-20-21-24-25-26-27-28-29-30-31-32-33-7-10-12-15-22', (err, res, body) => {
+    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=500&platform=34-35-36-38-17-18-19-20-21-24-26-27-28-29-30-31-32-33-7-10-12-15-22', (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
         return;
