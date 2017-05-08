@@ -40,6 +40,10 @@ class dealWith {
     let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
+        if (err.status === 404) {
+          callback();
+          return;
+        }
         logger.debug('网易评论总量请求失败', err);
         callback(err);
         return;

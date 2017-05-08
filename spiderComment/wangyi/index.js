@@ -75,8 +75,8 @@ class spiderCore {
     // vid => VCAV5MAUU
     // 需要做处理把开头的v去掉
     const work = {
-      bid: 'T1464171889509',
-      aid: 'CAV5MAUU',
+      bid: 'T1460515714367',
+      aid: 'BLKGM6BO',
       p: 25,
       taskType: 0,
       commentId: 0,

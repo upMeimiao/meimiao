@@ -36,17 +36,20 @@ class hostTime {
         );
   }
   getHot(task, callback) {
-    let page = 1, offset = 0;
-    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+    let page = 1, offset = 0,
+      total = Number(this.settings.commentTotal) % 20 === 0 ?
         Number(this.settings.commentTotal) / 20 :
-        Math.ceil(Number(this.settings.commentTotal) / 20),
-      option = {};
+        Math.ceil(Number(this.settings.commentTotal) / 20);
+    const option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
               option.url = `http://sdk.comment.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/comments/hotList?limit=20&headLimit=1&tailLimit=2&offset=${offset}&ibc=jssdk`;
               request.get(logger, option, (err, result) => {
                 if (err) {
+                  if (err.status === 404) {
+                    total = -1;
+                  }
                   logger.debug('网易评论列表请求失败', err);
                   cb();
                   return;
@@ -77,19 +80,22 @@ class hostTime {
         );
   }
   getTime(task, callback) {
-    let page = 1, offset = 0;
-    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+    let page = 1, offset = 0,
+      total = Number(this.settings.commentTotal) % 20 === 0 ?
         Number(this.settings.commentTotal) / 20 :
-        Math.ceil(Number(this.settings.commentTotal) / 20),
-      option = {};
+        Math.ceil(Number(this.settings.commentTotal) / 20);
+    const option = {};
     async.whilst(
             () => page <= total,
             (cb) => {
               option.url = `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`;
               request.get(logger, option, (err, result) => {
                 if (err) {
+                  if (err.status === 404) {
+                    total = -1;
+                  }
                   logger.debug('网易评论列表请求失败', err);
-                  cb()
+                  cb();
                   return;
                 }
                 try {
