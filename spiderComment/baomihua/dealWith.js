@@ -37,6 +37,7 @@ class dealWith {
       url: `${this.settings.baomihua + task.aid}&page=1`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('爆米花评论总量请求失败', err);
@@ -49,6 +50,10 @@ class dealWith {
         logger.debug('爆米花评论数据解析失败');
         logger.info(result.body);
         callback(e);
+        return;
+      }
+      if (result.result.errcode == -1) {
+        callback();
         return;
       }
       task.cNum = result.result.action.reviewCount;
