@@ -40,6 +40,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论ID请求失败', err);
+        callback(err);
         return;
       }
       result = result.body;
