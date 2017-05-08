@@ -35,6 +35,7 @@ class dealWith {
     const option = {
       url: this.settings.tudou.commentId + task.aid
     };
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('土豆的评论Id请求失败');
@@ -79,7 +80,7 @@ class dealWith {
         return;
       }
       task.cNum = result.total;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || result.data.length <= 0) {
         callback(null, 'add_0');
         return;
       }

@@ -69,38 +69,38 @@ class hostTime {
         Math.ceil(Number(this.settings.commentTotal) / 20),
       option = {};
     async.whilst(
-            () => page <= total,
-            (cb) => {
-              option.url = `${this.settings.tudou.list + task.commentId}&method=getHotCmt&page=${page}`;
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.debug('土豆评论列表请求失败', err);
-                  cb();
-                  return;
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.debug('土豆评论数据解析失败');
-                  logger.info(result);
-                  cb();
-                  return;
-                }
-                if (result.data.length <= 0) {
-                  page += total;
-                  cb();
-                  return;
-                }
-                this.deal(task, result.data, () => {
-                  page += 1;
-                  cb();
-                });
-              });
-            },
-            () => {
-              callback();
-            }
-        );
+      () => page <= total,
+      (cb) => {
+        option.url = `${this.settings.tudou.list + task.commentId}&method=getHotCmt&page=${page}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('土豆评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('土豆评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          if (result.data.length <= 0) {
+            page += total;
+            cb();
+            return;
+          }
+          this.deal(task, result.data, () => {
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getTime(task, callback) {
     let page = 1;
@@ -109,38 +109,38 @@ class hostTime {
         Math.ceil(Number(this.settings.commentTotal) / 20),
       option = {};
     async.whilst(
-            () => page <= total,
-            (cb) => {
-              option.url = `${this.settings.tudou.list + task.commentId}&method=getCmt&page=${page}`;
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.debug('土豆评论列表请求失败', err);
-                  cb();
-                  return;
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.debug('土豆评论数据解析失败');
-                  logger.info(result);
-                  cb();
-                  return;
-                }
-                if (result.data.length <= 0) {
-                  page += total;
-                  cb();
-                  return;
-                }
-                this.deal(task, result.data, () => {
-                  page += 1;
-                  cb();
-                });
-              });
-            },
-            () => {
-              callback();
-            }
-        );
+      () => page <= total,
+      (cb) => {
+        option.url = `${this.settings.tudou.list + task.commentId}&method=getCmt&page=${page}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('土豆评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('土豆评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          if (result.data.length <= 0) {
+            page += total;
+            cb();
+            return;
+          }
+          this.deal(task, result.data, () => {
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, comments, callback) {
     const length = comments.length;
