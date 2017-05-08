@@ -49,9 +49,9 @@ class dealWith {
   }
   getUser(task, callback) {
     const option = {
-      url: `http://m.iqiyi.com/u/${task.id}`,
-      referer: `http://m.iqiyi.com/u/${task.id}`,
-      ua: 2
+      url: `http://www.iqiyi.com/u/${task.id}`,
+      referer: `http://www.iqiyi.com/u/${task.id}`,
+      ua: 1
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -59,14 +59,14 @@ class dealWith {
         return;
       }
       const $ = cheerio.load(result.body),
-        fansDom = $('span.c-num-fans');
+        fansDom = $('em.count a');
       if (fansDom.length === 0) {
         this.get_user(task, () => {
           callback();
         });
         return;
       }
-      const fans = fansDom.attr('data-num'),
+      const fans = fansDom.attr('data-countnum'),
         user = {
           platform: 2,
           bid: task.id,
@@ -97,7 +97,6 @@ class dealWith {
           bid: task.id,
           fans_num: fansDom.substring(2)
         };
-      // logger.debug(user)
       this.sendUser(user, () => {
         callback();
       });
