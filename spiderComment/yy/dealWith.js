@@ -20,6 +20,11 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
+    const len = task.aid.split('_').length;
+    if (len > 1) {
+      callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
+      return;
+    }
     this.totalPage(task, (err, result) => {
       if (err) {
         callback(err);
