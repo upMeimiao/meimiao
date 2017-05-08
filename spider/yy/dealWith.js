@@ -2,10 +2,10 @@
  * Created by yunsong on 16/8/5.
  */
 const async = require('async');
-const request = require('../../lib/request');
-const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
 const moment = require('moment');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -19,7 +19,8 @@ class dealWith {
     task.total = 0;
     this.getTotal(task, (err) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       callback(null, task.total);
     });
@@ -29,63 +30,63 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.yy.userInfo + task.id
     };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('occur error : ', err);
-        return callback(err);
+    request.get(logger, option, (error, result) => {
+      if (error) {
+        logger.error('occur error : ', error);
+        callback(error);
+        return;
       }
-      if (result.statusCode != 200) {
-        logger.error('yy状态码错误', result.statusCode);
-        logger.info(result);
-        return callback(true);
-      }
-      let $ = cheerio.load(result.body),
-        fans_text = $('.fans-link').text(),
-        live_num = $('.live-col .title-num').text().replace(/（/g, '').replace(/）/g, ''),
-        sq_num = $('.shenqu-col .title-num').text().replace(/（/g, '').replace(/）/g, ''),
-        dp_num = $('.duanpai-col .title-num').text().replace(/（/g, '').replace(/）/g, '');
+      const $ = cheerio.load(result.body),
+        fansText = $('.fans-link').text(),
+        liveNum = $('.live-col .title-num').text().replace(/（/g, '').replace(/）/g, ''),
+        sqNum = $('.shenqu-col .title-num').text().replace(/（/g, '').replace(/）/g, ''),
+        dpNum = $('.duanpai-col .title-num').text().replace(/（/g, '').replace(/）/g, '');
       const user = {
         platform: 20,
         bid: task.id,
-        fans_num: fans_text.replace(/,/g, '')
+        fans_num: fansText.replace(/,/g, '')
       };
-      task.total = Number(live_num) + Number(sq_num) + Number(dp_num);
+      task.total = Number(liveNum) + Number(sqNum) + Number(dpNum);
       async.parallel({
-        user: (callback) => {
-          this.sendUser(user, (err, result) => {
-            callback(null, '用户信息已返回');
+        user: (cb) => {
+          this.sendUser(user, () => {
+            cb(null, '用户信息已返回');
           });
           this.sendStagingUser(user);
         },
-        live: (callback) => {
-          this.getLive(task, live_num, (err) => {
+        live: (cb) => {
+          this.getLive(task, liveNum, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '直播回放信息已返回');
+            cb(null, '直播回放信息已返回');
           });
         },
-        shenqu: (callback) => {
-          this.getSlist(task, sq_num, (err) => {
+        shenqu: (cb) => {
+          this.getSlist(task, sqNum, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '神曲视频信息已返回');
+            cb(null, '神曲视频信息已返回');
           });
         },
-        duanpai: (callback) => {
-          this.getDlist(task, dp_num, (err) => {
+        duanpai: (cb) => {
+          this.getDlist(task, dpNum, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '短拍视频信息已返回');
+            cb(null, '短拍视频信息已返回');
           });
         }
-      }, (err, result) => {
+      }, (err, raw) => {
         if (err) {
-          return callback(err);
+          callback(err);
+          return;
         }
-        logger.debug('result : ', result);
+        logger.debug('result : ', raw);
         callback();
       });
     });
@@ -99,16 +100,18 @@ class dealWith {
       if (err) {
         logger.error('occur error : ', err);
         logger.info(`返回YY用户 ${user.bid} 连接服务器失败`);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error(`YY用户 ${user.bid} json数据解析失败`);
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('yy用户:', `${user.bid} back_end`);
       } else {
         logger.error('yy用户:', `${user.bid} back_error`);
@@ -135,7 +138,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -144,166 +147,168 @@ class dealWith {
     });
   }
   getLive(task, total, callback) {
+    const option = {};
     let sign = 1,
-      option = {},
       page, list;
-    if (total % 20 == 0) {
+    if (total % 20 === 0) {
       page = total / 20;
     } else {
       page = Math.ceil(total / 20);
     }
     async.whilst(
-            () => sign <= page,
-            (cb) => {
-              logger.debug(`开始获取第${sign}页直播回放列表`);
-              option.url = `${this.settings.spiderAPI.yy.liveList + task.id}&pageNum=${sign}`;
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.error('occur error: ', err);
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.error('json数据解析失败');
-                  logger.info(result);
-                  return cb();
-                }
-                list = result.data.list;
-                if (list) {
-                  this.deal(task, list, '直播回放', () => {
-                    sign++;
-                    cb();
-                  });
-                } else {
-                  sign++;
-                  cb();
-                }
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign <= page,
+      (cb) => {
+        logger.debug(`开始获取第${sign}页直播回放列表`);
+        option.url = `${this.settings.spiderAPI.yy.liveList + task.id}&pageNum=${sign}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error: ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          list = result.data.list;
+          if (list) {
+            this.deal(task, list, '直播回放', () => {
+              sign += 1;
+              cb();
+            });
+          } else {
+            sign += 1;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getSlist(task, total, callback) {
+    const option = {};
     let sign = 1,
-      option,
       page,
       list;
-    if (total % 20 == 0) {
+    if (total % 20 === 0) {
       page = total / 20;
     } else {
       page = Math.ceil(total / 20);
     }
     async.whilst(
-            () => sign <= page,
-            (cb) => {
-              logger.debug(`开始获取第${sign}页神曲视频列表`);
-              option = {
-                url: `${this.settings.spiderAPI.yy.shenquList + task.id}&p=${sign}`
-              };
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.error('occur error: ', err);
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.error('json数据解析失败');
-                  logger.info(result);
-                  return cb();
-                }
-                list = result.data;
-                if (list) {
-                  this.deal(task, list, '神曲', () => {
-                    sign++;
-                    cb();
-                  });
-                } else {
-                  sign++;
-                  cb();
-                }
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign <= page,
+      (cb) => {
+        logger.debug(`开始获取第${sign}页神曲视频列表`);
+        option.url = `${this.settings.spiderAPI.yy.shenquList + task.id}&p=${sign}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error: ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          list = result.data;
+          if (list) {
+            this.deal(task, list, '神曲', () => {
+              sign += 1;
+              cb();
+            });
+          } else {
+            sign += 1;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getDlist(task, total, callback) {
+    const option = {};
     let sign = 1,
-      option,
       page,
       list;
-    if (total % 20 == 0) {
+    if (total % 20 === 0) {
       page = total / 20;
     } else {
       page = Math.ceil(total / 20);
     }
     async.whilst(
-            () => sign <= page,
-            (cb) => {
-              logger.debug(`开始获取第${sign}页短拍视频列表`);
-              option = {
-                url: `${this.settings.spiderAPI.yy.duanpaiList + task.id}&p=${sign}`
-              };
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.error('occur error: ', err);
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.error('json数据解析失败');
-                  logger.info(result);
-                  return cb();
-                }
-                list = result.data;
-                if (list) {
-                  this.deal(task, list, '短片', () => {
-                    sign++;
-                    cb();
-                  });
-                } else {
-                  sign++;
-                  cb();
-                }
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign <= page,
+      (cb) => {
+        logger.debug(`开始获取第${sign}页短拍视频列表`);
+        option.url = `${this.settings.spiderAPI.yy.duanpaiList + task.id}&p=${sign}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error: ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          list = result.data;
+          if (list) {
+            this.deal(task, list, '短片', () => {
+              sign += 1;
+              cb();
+            });
+          } else {
+            sign += 1;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, list, type, callback) {
     let index = 0, video;
     async.whilst(
-            () => index < list.length,
-            (cb) => {
-              video = list[index];
-              if (video.pid) {
-                this.getInfoL(task, type, video, (err) => {
-                  index++;
-                  cb();
-                });
-              } else {
-                this.getInfo(task, type, video, (err) => {
-                  index++;
-                  cb();
-                });
-              }
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < list.length,
+      (cb) => {
+        video = list[index];
+        if (video.pid) {
+          this.getInfoL(task, type, video, () => {
+            index += 1;
+            cb();
+          });
+        } else {
+          this.getInfo(task, type, video, () => {
+            index += 1;
+            cb();
+          });
+        }
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getInfoL(task, type, data, callback) {
     let title = data.title;
-    if (title == '') {
+    if (title === '') {
       title = 'btwk_caihongip';
     }
     const media = {
@@ -324,21 +329,21 @@ class dealWith {
   }
   getInfo(task, type, data, callback) {
     let title, play = data.watchCount;
-    if (type == '神曲') {
+    if (type === '神曲') {
       title = data.songname;
     }
-    if (type == '短片') {
+    if (type === '短片') {
       title = data.resdesc;
     }
-    if (title == '') {
+    if (title === '') {
       title = 'btwk_caihongip';
     }
-    if (play.indexOf('万') != -1) {
+    if (play.indexOf('万') !== -1) {
       play = play.replace('万', '') * 10000;
-    } else if (play.indexOf('亿') != -1) {
+    } else if (play.indexOf('亿') !== -1) {
       play = play.replace('亿', '') * 100000000;
     }
-    let time = data.addtime,
+    const time = data.addtime,
       a_create_time = moment(time).format('X'),
       media = {
         author: data.ownername,
