@@ -4,7 +4,7 @@
 const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
 const async = require('async');
-const md5 = require('crypto').createHash('md5');
+const crypto = require('crypto');
 
 const _Callback = function (data) {
   return data;
@@ -24,16 +24,15 @@ class hostTime {
     });
   }
   getTime(task, callback) {
-    let page = 0,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option = {},
-      pos = 0;
+    let page = 0, pos = 0;
+    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+        Number(this.settings.commentTotal) / 20 :
+        Math.ceil(Number(this.settings.commentTotal) / 20),
+      option = {};
     async.whilst(
       () => page <= total,
       (cb) => {
-        option = {
-          url: `${this.settings.qzone + task.bid}&tid=${task.aid}&pos=${pos}`
-        };
+        option.url = `${this.settings.qzone + task.bid}&tid=${task.aid}&pos=${pos}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('qzone评论列表请求失败', err);
@@ -68,11 +67,14 @@ class hostTime {
   deal(task, comments, callback) {
     const length = comments.length;
     let index = 0,
-      comment;
+      comment,
+      md5,
+      cid;
     async.whilst(
       () => index < length,
       (cb) => {
-        const cid = md5(task.aid + comments[index].uin + comments[index].create_time);
+        md5 = crypto.createHash('md5');
+        cid = md5.update(task.aid + comments[index].uin + comments[index].create_time).digest('hex');
         comment = {
           cid,
           content: Utils.stringHandling(comments[index].content),
