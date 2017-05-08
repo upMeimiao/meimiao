@@ -52,8 +52,12 @@ class dealWith {
         callback(e);
         return;
       }
+      if (!result || result == '') {
+        callback();
+        return;
+      }
       task.cNum = result.total;
-      if ((task.cNum - task.commentNum) <= 0 || result.content.length <= 0) {
+      if ((task.cNum - task.commentNum) <= 0) {
         callback(null, 'add_0');
         return;
       }
