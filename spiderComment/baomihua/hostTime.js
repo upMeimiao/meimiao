@@ -25,38 +25,42 @@ class hostTime {
     const total = Number(this.settings.commentTotal) % 20 === 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
       option = {};
     async.whilst(
-            () => page <= total,
-            (cb) => {
-              option.url = `${this.settings.baomihua + task.aid}&page=${page}`;
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.debug('爆米花评论列表请求失败', err);
-                  cb();
-                  return;
-                }
-                try {
-                  result = JSON.parse(result.body.replace(/[\\]/g, '').replace(/[\s\r\n]/g, ''));
-                } catch (e) {
-                  logger.debug('爆米花评论数据解析失败');
-                  logger.info(result);
-                  cb();
-                  return;
-                }
-                if (result.data.item.length <= 0) {
-                  page += total;
-                  cb();
-                  return;
-                }
-                this.deal(task, result.result.item, () => {
-                  page += 1;
-                  cb();
-                });
-              });
-            },
-            () => {
-              callback();
-            }
-        );
+      () => page <= total,
+      (cb) => {
+        option.url = `${this.settings.baomihua + task.aid}&page=${page}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('爆米花评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body.replace(/[\\]/g, '').replace(/[\s\r\n]/g, ''));
+          } catch (e) {
+            logger.debug('爆米花评论数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          if (result.result.errcode == -1) {
+            callback();
+            return;
+          }
+          if (result.result.item.length <= 0) {
+            page += total;
+            cb();
+            return;
+          }
+          this.deal(task, result.result.item, () => {
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, comments, callback) {
     const length = comments.length;
