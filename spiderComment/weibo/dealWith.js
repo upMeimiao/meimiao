@@ -144,7 +144,7 @@ class dealWith {
           total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
         }
         task.lastId = result.data[0].id;
-        task.lastTime = this.creatTime(result.data[0].created_at);
+        task.lastTime = createTime(result.data[0].created_at);
         logger.debug(task.lastTime);
         task.addCount = task.cNum - task.commentNum;
         this.commentList(task, total, proxy, () => {
