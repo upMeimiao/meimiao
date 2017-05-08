@@ -74,9 +74,7 @@ class dealWith {
       url: `http://app.pearvideo.com/clt/jsp/v2/content.jsp?contId=${task.aid}`,
       ua: 3,
       own_ua: 'LiVideoIOS/2.2.1 (iPhone; iOS 10.3.1; Scale/3.00)',
-      headers: {
-        Cookie: `PEAR_UUID=${_cookie([8, 4, 4, 4, 12])}`
-      }
+      Cookie: `PEAR_UUID=${_cookie([8, 4, 4, 4, 12])}`
     };
     logger.debug(option);
     request.get(logger, option, (err, result) => {
