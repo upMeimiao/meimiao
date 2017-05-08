@@ -3,10 +3,15 @@
 */
 const moment = require('moment');
 const async = require('async');
+const crypto = require('crypto');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
+const sign = (e) => {
+  const md5 = crypto.createHash('md5');
+  return md5.update(`100-DDwODVkv&6c4aa6af6560efff5df3c16c704b49f1&${e}`).digest('hex');
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
