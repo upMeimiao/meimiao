@@ -25,9 +25,11 @@ class hostTime {
   getTime(task, callback) {
     let page = 1,
       $,
-      comments;
-    const total = Number(this.settings.commentTotal) % 20 === 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
-      option = {};
+      comments,
+      total = Number(this.settings.commentTotal) % 20 === 0 ?
+        Number(this.settings.commentTotal) / 20 :
+        Math.ceil(Number(this.settings.commentTotal) / 20);
+    const option = {};
     async.whilst(
       () => page <= total,
       (cb) => {
@@ -35,6 +37,11 @@ class hostTime {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('秒拍评论列表请求失败', err);
+            cb();
+            return;
+          }
+          if (!result.body || result.body == '') {
+            total = -1;
             cb();
             return;
           }
@@ -80,7 +87,7 @@ class hostTime {
         url = comments.eq(index).find('div.hid_con>a').attr('data-link');
         uid = URL.parse(url, true).query.suid;
         content = comments.eq(index).find('p.hid_con_txt2').text();
-        cid = md5(uid + content).digest('hex');
+        cid = md5.update(uid + content).digest('hex');
         comment = {
           cid,
           content: spiderUtils.stringHandling(content),

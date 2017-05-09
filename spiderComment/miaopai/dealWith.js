@@ -49,8 +49,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('秒拍评论数据解析失败');
-        logger.info(result);
+        logger.debug('秒拍评论数据解析失败', result.body);
         callback(e);
         return;
       }
@@ -96,12 +95,16 @@ class dealWith {
             cb();
             return;
           }
+          if (!result.body || result.body == '') {
+            total = -1;
+            cb();
+            return;
+          }
           try {
             result = result.body.toString();
             result = JSON.parse(result);
           } catch (e) {
-            logger.debug('秒拍评论数据解析失败');
-            logger.info('---', result.body);
+            logger.debug('秒拍评论数据解析失败---', result.body);
             cb();
             return;
           }
