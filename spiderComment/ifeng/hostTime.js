@@ -35,8 +35,18 @@ class hostTime {
         return;
       }
       result = result.body;
+      if (result.match(/404.shtml/)) {
+        logger.debug('该视频已被删除', result.match(/404.shtml/)[0]);
+        callback();
+        return;
+      }
       const startIndex = result.indexOf('{"guidList"'),
         endIndex = result.indexOf(';bsCallback');
+      if ((startIndex || endIndex) == -1) {
+        logger.debug('没有评论', startIndex, '--', endIndex);
+        callback();
+        return;
+      }
       let data = result.substring(startIndex, endIndex);
       try {
         data = JSON.parse(data);

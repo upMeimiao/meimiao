@@ -73,8 +73,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      bid: '9595',
-      aid: '4565638',
+      bid: '9419',
+      aid: '4573661',
       p: 24,
       taskType: 0,
       commentId: 0,
