@@ -36,6 +36,7 @@ class dealWith {
       url: `http://m.uczzd.cn/iflow/api/v2/cmt/article/${task.aid}/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue=-1`
     };
     let total = 0;
+    logger.debug(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('uc评论总量请求失败', err);
@@ -60,6 +61,10 @@ class dealWith {
       } else {
         total = (task.cNum - task.commentNum);
         total = (total % 10) === 0 ? total / 10 : Math.ceil(total / 10);
+      }
+      if (!result.data.comments || result.data.comments == '') {
+        callback();
+        return;
       }
       const comment = result.data.comments_map[result.data.comments[0]];
       task.lastTime = comment.time.toString().substring(0, 10);
