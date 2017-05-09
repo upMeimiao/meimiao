@@ -51,6 +51,10 @@ class dealWith {
         callback(e);
         return;
       }
+      if (!result.obj) {
+        callback();
+        return;
+      }
       task.cNum = result.obj.paginator.items;
       if ((task.cNum - task.commentNum) <= 0) {
         callback(null, 'add_0');
@@ -79,6 +83,7 @@ class dealWith {
       () => page <= total,
       (cb) => {
         option.url = `${this.settings.v1}${task.aid}&pageNo=${page}&_${new Date().getTime()}`;
+        logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('v1评论列表请求失败', err);
@@ -131,8 +136,11 @@ class dealWith {
           aid: task.aid,
           ctime: time,
           c_user: {
-            uid: comments[index].userInfo.userId,
-            uname: comments[index].userInfo.userName ? comments[index].userInfo.userName : comments[index].userInfo.nickname
+            uid: comments[index].userInfo ?
+              comments[index].userInfo.userId : comments[index].userId,
+            uname: comments[index].userInfo ?
+              (comments[index].userInfo.userName || comments[index].userInfo.nickname) :
+              comments[index].auditor
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
