@@ -64,7 +64,8 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.total(task, (err, result) => {
+    const num = 0;
+    this.total(task, num, (err, result) => {
       if (err) {
         callback(err);
         return;
@@ -101,14 +102,18 @@ class dealWith {
       });
     }
   }
-  total(task, callback) {
+  total(task, num, callback) {
     const option = {
       url: `${this.settings.weibo.comment + task.aid}&page=1`
     };
     let total = 0;
+    if (num > 2) {
+      callback();
+      return;
+    }
     this.getProxy((err, proxy) => {
       if (proxy === 'timeout') {
-        callback('timeout ~');
+        this.total(task, callback);
         return;
       }
       if (!proxy) {
@@ -120,7 +125,7 @@ class dealWith {
         if (error) {
           logger.debug('微博的评论总数请求失败');
           this.core.proxy.back(proxy, false);
-          this.total(task, callback);
+          this.total(task, num, callback);
           return;
         }
         try {
@@ -129,7 +134,11 @@ class dealWith {
           logger.debug('微博数据解析失败');
           logger.info(result);
           this.core.proxy.back(proxy, false);
-          this.total(task, callback);
+          this.total(task, num, callback);
+          return;
+        }
+        if (result.ok && result.ok == 2) {
+          this.total(task, num += 1, callback);
           return;
         }
         task.cNum = result.total_number;
@@ -165,15 +174,12 @@ class dealWith {
       (cb) => {
         option.url = `${this.settings.weibo.comment + task.aid}&page=${page}`;
         option.proxy = proxy;
+        logger.debug(option.url);
         request.get(logger, option, (error, result) => {
           if (error) {
             logger.debug('微博评论列表请求失败', error);
             this.core.proxy.back(proxy, false);
             this.getProxy((err, _proxy) => {
-              if (proxy === 'timeout') {
-                callback('timeout ~');
-                return;
-              }
               proxy = _proxy;
               cb();
             });
@@ -186,18 +192,20 @@ class dealWith {
             logger.info(result);
             this.core.proxy.back(proxy, false);
             this.getProxy((err, _proxy) => {
-              if (proxy === 'timeout') {
-                callback('timeout ~');
-                return;
-              }
               proxy = _proxy;
               cb();
             });
             return;
           }
+          if (!result.data) {
+            page += 1;
+            cb();
+            return;
+          }
           this.deal(task, result.data, () => {
             if (task.isEnd) {
-              callback();
+              total = -1;
+              cb();
               return;
             }
             page += 1;
