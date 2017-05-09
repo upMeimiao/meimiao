@@ -27,7 +27,7 @@
   "url": "http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV",
   "sendUrl": "http://staging-dev.meimiaoip.com/index.php/Spider/comment/postComments",
   "youku":{
-    "list":"https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=",
+    "list":"http://p.comments.youku.com/ycp/comment/pc/commentList?app=100-DDwODVkv&objectType=1&listType=0&pageSize=30&objectId=",
     "commentId":"http://play-ali.youku.com/play/get.json?ct=10&vid="
   },
   "iqiyi":{
