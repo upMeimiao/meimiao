@@ -69,7 +69,7 @@ class videoSend {
     }
     let newList = [];
     for (const [index, elem] of list.entries()) {
-      if (elem.platform < 40) {
+      if (elem.platform < 40 && elem.platform != 29) {
         newList.push(elem);
       }
     }
