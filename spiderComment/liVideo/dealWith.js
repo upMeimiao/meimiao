@@ -76,7 +76,7 @@ class dealWith {
       own_ua: 'LiVideoIOS/2.2.1 (iPhone; iOS 10.3.1; Scale/3.00)',
       Cookie: `PEAR_UUID=${_cookie([8, 4, 4, 4, 12])}`
     };
-    logger.debug(option);
+    // logger.debug(option);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论列表Id获取失败', err);
@@ -90,14 +90,18 @@ class dealWith {
         callback(e);
         return;
       }
+      if (result.resultCode == 5 || result.resultMsg == '该文章已经下线！') {
+        callback();
+        return;
+      }
       const postId = result.postInfo.postId,
-        postUserId = result.content.authors[0].userId;
-      if (postId && postUserId) {
+        postUserId = result.content.authors != '' ? result.content.authors[0].userId : '';
+      if (postId) {
         this.commentList(task, postId, postUserId, () => {
           callback();
         });
       } else {
-        logger.debug('两个Id获取失败');
+        logger.debug('postId获取失败');
         callback('error');
       }
     });
@@ -121,6 +125,11 @@ class dealWith {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('梨视频评论列表请求失败', err);
+            cb();
+            return;
+          }
+          if (!result.body || result.body == '') {
+            cycle = false;
             cb();
             return;
           }

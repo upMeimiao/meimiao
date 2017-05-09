@@ -89,14 +89,18 @@ class hostTime {
         callback(e);
         return;
       }
+      if (result.resultCode == 5 || result.resultMsg == '该文章已经下线！') {
+        callback();
+        return;
+      }
       const postId = result.postInfo.postId,
-        postUserId = result.content.authors[0].userId;
-      if (postId && postUserId) {
+        postUserId = result.content.authors != '' ? result.content.authors[0].userId : '';
+      if (postId) {
         this.getTime(task, postId, postUserId, () => {
           callback();
         });
       } else {
-        logger.debug('两个Id获取失败');
+        logger.debug('postId获取失败');
         callback('error');
       }
     });
@@ -107,38 +111,43 @@ class hostTime {
       cycle = true,
       $ = null;
     async.whilst(
-            () => cycle,
-            (cb) => {
-              option = {
-                url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`,
-                ua: 2,
-                Referer: `http://app.pearvideo.com/clt/page/v2/topic_comm.jsp?postId=${postId}&contId=${task.aid}`,
-                headers: {
-                  'X-Requested-With': 'XMLHttpRequest'
-                }
-              };
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.debug('梨视频评论列表请求失败', err);
-                  cb();
-                  return;
-                }
-                $ = cheerio.load(result.body);
-                this.deal(task, $('.comm-li'), () => {
-                  score = $('.comm-li').last().attr('data-score');
-                  if (score == '' || score == undefined) {
-                    cycle = false;
-                    cb();
-                    return;
-                  }
-                  cb();
-                });
-              });
-            },
-            () => {
-              callback();
+      () => cycle,
+      (cb) => {
+        option = {
+          url: `http://app.pearvideo.com/clt/page/v2/topic_comm_loading.jsp?parentId=${postId}&pageidx=2&score=${score}&postUserId=${postUserId}&mrd=${Math.random()}`,
+          ua: 2,
+          Referer: `http://app.pearvideo.com/clt/page/v2/topic_comm.jsp?postId=${postId}&contId=${task.aid}`,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        };
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('梨视频评论列表请求失败', err);
+            cb();
+            return;
+          }
+          if (!result.body || result.body == '') {
+            cycle = false;
+            cb();
+            return;
+          }
+          $ = cheerio.load(result.body);
+          this.deal(task, $('.comm-li'), () => {
+            score = $('.comm-li').last().attr('data-score');
+            if (score == '' || score == undefined) {
+              cycle = false;
+              cb();
+              return;
             }
-        );
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, comments, callback) {
     const length = comments.length;
