@@ -10,7 +10,7 @@ class proxy {
   }
   need(times, callback) {
     if (times > 4) {
-      callback('timeout!');
+      callback('timeout');
       return;
     }
     logger.trace('Send a Require command');

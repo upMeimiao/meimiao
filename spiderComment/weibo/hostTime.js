@@ -21,25 +21,25 @@ class hostTime {
     async.parallel(
       {
         hot: (cb) => {
-          this.getHot(task, (err) => {
+          this.getHot(task, () => {
             cb(null, '热门评论完成');
           });
         },
         time: (cb) => {
-          this.getTime(task, (err) => {
+          this.getTime(task, () => {
             cb(null, '最新评论完成');
           });
         }
       },
-            (err, result) => {
-              logger.debug('result: ', result);
-              callback();
-            }
-        );
+      (err, result) => {
+        logger.debug('result: ', result);
+        callback();
+      }
+    );
   }
   getProxy(callback) {
+    const proxy = '';
     let proxyStatus = false,
-      proxy = '',
       times = 0;
     if (proxyStatus && proxy) {
       callback(null, proxy);
@@ -47,13 +47,15 @@ class hostTime {
       this.core.proxy.need(times, (err, _proxy) => {
         if (err) {
           if (err == 'timeout') {
-            return callback(null, 'timeout');
+            callback(null, 'timeout');
+            return;
           }
           logger.error('Get proxy occur error:', err);
-          times++;
+          times += 1;
           proxyStatus = false;
           this.core.proxy.back(_proxy, false);
-          return callback(null, false);
+          callback(null, false);
+          return;
         }
         times = 0;
         callback(null, _proxy);
@@ -61,129 +63,145 @@ class hostTime {
     }
   }
   getHot(task, callback) {
+    const total = Number(this.settings.commentTotal) % 10 === 0 ?
+        Number(this.settings.commentTotal) / 10 :
+        Math.ceil(Number(this.settings.commentTotal) / 10);
     let page = 1,
-      total = Number(this.settings.commentTotal) % 10 == 0 ? Number(this.settings.commentTotal) / 10 : Math.ceil(Number(this.settings.commentTotal) / 10),
       option,
       proxy = '';
     this.getProxy((err, _proxy) => {
-      if (_proxy == 'timeout') {
-        return callback('timeout ~');
+      if (_proxy === 'timeout') {
+        callback();
+        return;
       }
       if (!_proxy) {
-        return this.getHot(task, callback);
+        this.getHot(task, callback);
+        return;
       }
       proxy = _proxy;
       async.whilst(
-                () => page <= total,
-                (cb) => {
-                  option = {
-                    url: `${this.settings.weibo.hot}${page}&id=${task.aid}`,
-                    proxy
-                  };
-                  request.get(logger, option, (err, result) => {
-                    if (err) {
-                      logger.debug('微博热门评论列表请求失败', err);
-                      this.core.proxy.back(proxy, false);
-                      return this.getProxy((err, _proxy) => {
-                        if (proxy == 'timeout') {
-                          return callback('timeout ~');
-                        }
-                        proxy = _proxy;
-                        cb();
-                      });
-                    }
-                    try {
-                      result = JSON.parse(result.body);
-                    } catch (e) {
-                      logger.debug('微博热门评论数据解析失败');
-                      logger.info(result.body);
-                      this.core.proxy.back(proxy, false);
-                      return this.getProxy((err, _proxy) => {
-                        if (proxy == 'timeout') {
-                          return callback('timeout ~');
-                        }
-                        proxy = _proxy;
-                        cb();
-                      });
-                    }
-                    result = result[0].card_group ? result[0].card_group : (result[1] ? result[1].card_group : []);
-                    if (result.length <= 0) {
-                      page += total;
-                      return cb();
-                    }
-                    this.deal(task, result, (err) => {
-                      page++;
-                      cb();
-                    });
-                  });
-                },
-                (err, result) => {
-                  callback();
-                }
-            );
+        () => page <= total,
+        (cb) => {
+          option = {
+            url: `${this.settings.weibo.hot}${page}&id=${task.aid}`,
+            proxy
+          };
+          logger.debug(option.url);
+          request.get(logger, option, (error, result) => {
+            if (error) {
+              logger.debug('微博热门评论列表请求失败', error);
+              this.core.proxy.back(proxy, false);
+              this.getProxy((erro, __proxy) => {
+                proxy = __proxy;
+                cb();
+              });
+              return;
+            }
+            try {
+              result = JSON.parse(result.body);
+            } catch (e) {
+              logger.debug('微博热门评论数据解析失败');
+              logger.info(result.body);
+              this.core.proxy.back(proxy, false);
+              this.getProxy((erro, __proxy) => {
+                proxy = __proxy;
+                cb();
+              });
+              return;
+            }
+            result = result[0].card_group ?
+              result[0].card_group :
+              (result[1] ? result[1].card_group : []);
+            if (!result) {
+              page += 1;
+              cb();
+              return;
+            }
+            if (result.length <= 0) {
+              page += total;
+              cb();
+              return;
+            }
+            this.deal(task, result, () => {
+              page += 1;
+              cb();
+            });
+          });
+        },
+        () => {
+          callback();
+        }
+      );
     });
   }
   getTime(task, callback) {
+    const total = Number(this.settings.commentTotal) % 20 === 0 ?
+        Number(this.settings.commentTotal) / 20 :
+        Math.ceil(Number(this.settings.commentTotal) / 20);
     let page = 1,
-      total = Number(this.settings.commentTotal) % 20 == 0 ? Number(this.settings.commentTotal) / 20 : Math.ceil(Number(this.settings.commentTotal) / 20),
       option,
       proxy = '';
     this.getProxy((err, _proxy) => {
-      if (_proxy == 'timeout') {
-        return callback('timeout ~');
+      if (_proxy === 'timeout') {
+        this.getHot(task, callback);
+        return;
       }
       if (!_proxy) {
-        return this.getHot(task, callback);
+        this.getHot(task, callback);
+        return;
       }
       proxy = _proxy;
       async.whilst(
-                () => page <= total,
-                (cb) => {
-                  option = {
-                    url: `${this.settings.weibo.time}${page}&id=${task.aid}`,
-                    proxy
-                  };
-                  request.get(logger, option, (err, result) => {
-                    if (err) {
-                      logger.debug('微博最新评论列表请求失败', err);
-                      this.core.proxy.back(proxy, false);
-                      return this.getProxy((err, _proxy) => {
-                        if (proxy == 'timeout') {
-                          return callback('timeout ~');
-                        }
-                        proxy = _proxy;
-                        cb();
-                      });
-                    }
-                    try {
-                      result = JSON.parse(result.body);
-                    } catch (e) {
-                      logger.debug('微博最新评论数据解析失败');
-                      logger.info(result.body);
-                      this.core.proxy.back(proxy, false);
-                      return this.getProxy((err, _proxy) => {
-                        if (proxy == 'timeout') {
-                          return callback('timeout ~');
-                        }
-                        proxy = _proxy;
-                        cb();
-                      });
-                    }
-                    result = result[0].card_group ? result[0].card_group : (result[1] ? result[1].card_group : []);
-                    if (result.length <= 0) {
-                      page += total;
-                      return cb();
-                    }
-                    this.deal(task, result, (err) => {
-                      page++;
-                      cb();
-                    });
-                  });
-                },
-                (err, result) => {
-                  callback();
-                }
-            );
+        () => page <= total,
+        (cb) => {
+          option = {
+            url: `${this.settings.weibo.time}${page}&id=${task.aid}`,
+            proxy
+          };
+          request.get(logger, option, (error, result) => {
+            if (error) {
+              logger.debug('微博最新评论列表请求失败', error);
+              this.core.proxy.back(proxy, false);
+              this.getProxy((erro, __proxy) => {
+                proxy = __proxy;
+                cb();
+              });
+              return;
+            }
+            try {
+              result = JSON.parse(result.body);
+            } catch (e) {
+              logger.debug('微博最新评论数据解析失败');
+              logger.info(result.body);
+              this.core.proxy.back(proxy, false);
+              this.getProxy((erro, __proxy) => {
+                proxy = __proxy;
+                cb();
+              });
+              return;
+            }
+            result = result[0].card_group ?
+              result[0].card_group : (result[1] ? result[1].card_group : []);
+            if (!result) {
+              page += 1;
+              cb();
+              return;
+            }
+            if (result.length <= 0) {
+              page += total;
+              cb();
+              return;
+            }
+            this.deal(task, result, () => {
+              page += 1;
+              cb();
+            });
+          });
+        },
+        () => {
+          callback();
+        }
+      );
     });
   }
   deal(task, comments, callback) {
@@ -192,33 +210,33 @@ class hostTime {
       time,
       comment;
     async.whilst(
-            () => index < length,
-            (cb) => {
-              time = this.creatTime(comments[index].created_at);
-              comment = {
-                cid: comments[index].id,
-                content: Utils.stringHandling(comments[index].text),
-                platform: task.p,
-                bid: task.bid,
-                aid: task.aid,
-                ctime: time,
-                support: comments[index].like_counts,
-                step: '',
-                reply: '',
-                c_user: {
-                  uid: comments[index].user.id,
-                  uname: comments[index].user.screen_name,
-                  uavatar: comments[index].user.profile_image_url
-                }
-              };
-              Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
-              index++;
-              cb();
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        time = this.creatTime(comments[index].created_at);
+        comment = {
+          cid: comments[index].id,
+          content: Utils.stringHandling(comments[index].text),
+          platform: task.p,
+          bid: task.bid,
+          aid: task.aid,
+          ctime: time,
+          support: comments[index].like_counts,
+          step: '',
+          reply: '',
+          c_user: {
+            uid: comments[index].user.id,
+            uname: comments[index].user.screen_name,
+            uavatar: comments[index].user.profile_image_url
+          }
+        };
+        Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
   creatTime(time) {
     let newTime;
@@ -253,6 +271,7 @@ class hostTime {
       time = new Date(time);
       return moment(time).format('X');
     }
+    return '';
   }
 }
 module.exports = hostTime;
