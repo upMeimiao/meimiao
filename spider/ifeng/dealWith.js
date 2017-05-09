@@ -156,6 +156,11 @@ class dealWith {
             cb();
             return;
           }
+          if (!result.infoList) {
+            logger.debug('偶然性的数据返回失败');
+            cb();
+            return;
+          }
           if (result.infoList.length <= 0) {
             index += 1;
             cb();
