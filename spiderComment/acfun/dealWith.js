@@ -39,6 +39,10 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('acfun评论总量请求失败', err);
+        if (err.status == 500) {
+          callback();
+          return;
+        }
         callback(err);
         return;
       }
