@@ -40,14 +40,15 @@ class hostTime {
     );
   }
   getHot(task, callback) {
-    const option = {};
+    const option = {},
+      time = parseInt(new Date().getTime() / 1000);
     let total = this.settings.commentTotal % 30 === 0 ?
         this.settings.commentTotal / 30 : Math.ceil(this.settings.commentTotal / 30),
       page = 1;
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(new Date().getTime())}&time=${new Date().getTime()}`;
+        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(time)}&time=${time}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('热门评论请求失败', err);
@@ -61,7 +62,10 @@ class hostTime {
             cb();
             return;
           }
-          // logger.debug('---', result.data);
+          if (result.code && result.code == -4) {
+            cb();
+            return;
+          }
           if (!result.data.hot || result.data.hot.length <= 0) {
             total = -1;
             cb();
@@ -82,11 +86,12 @@ class hostTime {
     let page = 1,
      total = this.settings.commentTotal % 100 === 0 ?
         this.settings.commentTotal / 100 : Math.ceil(this.settings.commentTotal / 100);
-    const option = {};
+    const option = {},
+      time = parseInt(new Date().getTime() / 1000);
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(new Date().getTime())}&time=${new Date().getTime()}`;
+        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(time)}&time=${time}`;
         logger.debug(option.url)
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -101,7 +106,10 @@ class hostTime {
             cb();
             return;
           }
-          // logger.debug('+++++', result.data);
+          if (result.code && result.code == -4) {
+            cb();
+            return;
+          }
           if (!result.data.comment || result.data.comment.length <= 0) {
             total = -1;
             cb();

@@ -37,9 +37,10 @@ class dealWith {
     });
   }
   totalPage(task, callback) {
-    const option = {
-      url: `${this.settings.youku.list}${task.aid}&currentPage=1&sign=${sign(new Date().getTime())}&time=${new Date().getTime()}`
-    };
+    const time = parseInt(new Date().getTime() / 1000),
+      option = {
+        url: `${this.settings.youku.list}${task.aid}&currentPage=1&sign=${sign(time)}&time=${time}`
+      };
     let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -53,6 +54,10 @@ class dealWith {
         logger.debug('优酷评论总量数据解析失败');
         logger.info(result);
         callback(err);
+        return;
+      }
+      if (result.code && result.code == -4) {
+        this.totalPage(task, callback);
         return;
       }
       task.cNum = result.data.totalSize;
@@ -76,11 +81,12 @@ class dealWith {
   }
   commentList(task, total, callback) {
     let page = 1;
-    const option = {};
+    const option = {},
+      time = parseInt(new Date().getTime() / 1000);
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(new Date().getTime())}&time=${new Date().getTime()}`;
+        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(time)}&time=${time}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('优酷评论列表请求失败', err);
@@ -92,6 +98,10 @@ class dealWith {
           } catch (e) {
             logger.debug('优酷评论数据解析失败');
             logger.info(result);
+            cb();
+            return;
+          }
+          if (result.code && result.code == -4) {
             cb();
             return;
           }
