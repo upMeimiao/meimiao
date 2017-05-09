@@ -92,6 +92,9 @@ class dealWith {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('秒拍评论列表请求失败', err);
+            if (err.status >= 500) {
+              page += 1;
+            }
             cb();
             return;
           }
