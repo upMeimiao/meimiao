@@ -38,11 +38,17 @@ class dealWith {
     });
   }
   totalPage(task, callback) {
-    const option = {
-      url: `${this.settings.yy}${task.aid}&index=0`
-    };
-    const md5 = crypto.createHash('md5');
+    const option = {},
+      md5 = crypto.createHash('md5'),
+      isType = task.aid.substring(0, 1);
     let total = 0;
+    if (isType == 1) {
+      task.type = 4;
+    } else if (isType == 9) {
+      task.type = 3;
+    }
+    option.url = `${this.settings.yy}${task.aid}&index=0&type=${task.type}`;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('yy评论总量请求失败', err);
@@ -69,7 +75,6 @@ class dealWith {
         total = (total % 10) === 0 ? total / 10 : Math.ceil(total / 10);
       }
       const cid = (result.data.list[0].yyno + result.data.list[0].content);
-      // task.lastTime = result.data.recent_comments[0].create_time
       task.lastId = md5.update(cid).digest('hex');
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
@@ -84,7 +89,7 @@ class dealWith {
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.yy}${task.aid}&index=${index}`;
+        option.url = `${this.settings.yy}${task.aid}&index=${index}&type=${task.type}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('yy评论列表请求失败', err);
@@ -105,7 +110,7 @@ class dealWith {
               return;
             }
             page += 1;
-            index += 10;
+            index += 100;
             cb();
           });
         });

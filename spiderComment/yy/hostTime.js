@@ -26,17 +26,23 @@ class hostTime {
     });
   }
   getTime(task, callback) {
+    const isType = task.aid.substring(0, 1);
     let page = 1,
       option,
       index = 0;
-    const total = Number(this.settings.commentTotal) % 10 === 0 ?
-      Number(this.settings.commentTotal) / 10 :
-      Math.ceil(Number(this.settings.commentTotal) / 10);
+    if (isType == 1) {
+      task.type = 4;
+    } else if (isType == 9) {
+      task.type = 3;
+    }
+    const total = Number(this.settings.commentTotal) % 100 === 0 ?
+      Number(this.settings.commentTotal) / 100 :
+      Math.ceil(Number(this.settings.commentTotal) / 100);
     async.whilst(
       () => page <= total,
       (cb) => {
         option = {
-          url: `${this.settings.yy}${task.aid}&index=${index}`
+          url: `${this.settings.yy}${task.aid}&index=${index}&type=${task.type}`
         };
         request.get(logger, option, (err, result) => {
           if (err) {
