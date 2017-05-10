@@ -73,7 +73,7 @@
   "xiaoying":"http://viva.api.xiaoying.co/api/rest/p/pa",
   "budejie":"http://api.budejie.com/api/api_open.php?a=datalist&per=5&c=comment&data_id=",
   "neihan":"http://neihanshequ.com/m/api/get_essay_comments/?app_name=neihanshequ_web&group_id=",
-  "yy":"http://www.yy.com/video/play/page/danmu?type=4&size=10&resid=",
+  "yy":"http://www.yy.com/video/play/page/danmu?size=100&resid=",
   "tv56":{
     "total":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_category_id=9001&page_size=10&hot_size=30&topic_owner_id=&topic_source_id=bk",
     "list":"http://changyan.sohu.com/api/2/topic/comments?client_id=cyqyBluaj&page_size=20&topic_id="
