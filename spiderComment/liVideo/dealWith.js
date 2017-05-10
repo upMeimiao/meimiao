@@ -90,7 +90,7 @@ class dealWith {
         callback(e);
         return;
       }
-      if (result.resultCode == 5 || result.resultMsg == '该文章已经下线！') {
+      if (result.resultCode == 5 || result.resultMsg == '该文章已经下线！' || !result.postInfo) {
         callback();
         return;
       }
