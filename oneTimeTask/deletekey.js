@@ -1,7 +1,7 @@
 const Redis = require('ioredis');
 const async = require('async');
 
-const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/3', {
+const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/1', {
   reconnectOnError(err) {
     return err.message.slice(0, 'READONLY'.length) === 'READONLY';
   }
@@ -11,7 +11,7 @@ function delkey(key, callback) {
     callback();
   });
 }
-function loop(info) {
+function loop(info, callback) {
   let i = 0;
   const len = info.length;
   async.whilst(
@@ -24,7 +24,8 @@ function loop(info) {
     },
     () => {
       console.log('end');
-      redis.quit();
+      callback();
+      // redis.quit();
       // redis.scan('0', 'MATCH', 'c:*', 'COUNT', '2000', (err, result) => {
       //   if (result.length === 0) {
       //     console.log('end');
@@ -36,9 +37,14 @@ function loop(info) {
     }
   );
 }
-redis.keys('c:*', (err, result) => {
-  loop(result);
-});
-// redis.scan('0', 'MATCH', 'c:*', 'COUNT', '2000', (err, result) => {
-//   loop(result[1]);
+// redis.keys('c:*', (err, result) => {
+//   loop(result);
 // });
+const start = (k) => {
+  redis.scan(k, 'MATCH', 'c:*', 'COUNT', '2000', (err, result) => {
+    loop(result[1], () => {
+      start(result[0]);
+    });
+  });
+};
+start(0);
