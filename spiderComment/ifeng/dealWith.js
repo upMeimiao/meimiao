@@ -33,7 +33,7 @@ class dealWith {
   }
   getCid(task, callback) {
     const option = {
-      url: `http://v.ifeng.com/docvlist/${task.aid}.js`,
+      url: `http://v.ifeng.com/docvlist/${task.aid}-1.js`,
       ua: 1
     };
     let cid;
@@ -44,15 +44,15 @@ class dealWith {
         return;
       }
       result = result.body;
-      if (result.match(/404.shtml/)) {
+      if (!result || result.length <= 0 || result.match(/404.shtml/)) {
         logger.debug('该视频已被删除', result.match(/404.shtml/)[0]);
         callback();
         return;
       }
-      const startIndex = result.indexOf('{"guidList"'),
-        endIndex = result.indexOf(';bsCallback');
-      if ((startIndex || endIndex) == -1) {
-        logger.debug('没有评论', startIndex, '--', endIndex);
+      const startIndex = result.indexOf('var data='),
+        endIndex = result.indexOf(';bsCallback.getSinglePage');
+      if ((startIndex || endIndex) === -1) {
+        logger.debug('没有评论', startIndex, '---', endIndex);
         callback();
         return;
       }
@@ -64,10 +64,7 @@ class dealWith {
         callback(e);
         return;
       }
-      for (const key in data.guidList) {
-        cid = key;
-      }
-      this.totalPage(task, cid, (error, res) => {
+      this.totalPage(task, data.dataList[0].guid, (error, res) => {
         if (error) {
           callback(error);
           return;
