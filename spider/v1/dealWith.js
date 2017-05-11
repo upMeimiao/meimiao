@@ -154,16 +154,17 @@ class dealWith {
         return;
       }
       const page = result.body.page_num;
-      this.getVidList(task, page, sign, () => {
+      this.getVidList(task, page, () => {
         callback();
       });
     });
   }
 
-  getVidList(task, page, sign, callback) {
+  getVidList(task, page, callback) {
     const option = {};
     let length = null,
-      content = null;
+      content = null,
+      sign = 0;
     async.whilst(
       () => sign < page,
       (cb) => {
