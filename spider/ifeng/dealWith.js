@@ -23,7 +23,7 @@ class dealWith {
   }
   getTotal(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.ifeng.medialist + task.id}&pageNo=1`,
+      url: `${this.settings.spiderAPI.ifeng.medialist + task.id}&pageNo=1&platformType=iPhone&protocol=1.0.1`,
       ua: 3,
       own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
     };
@@ -141,7 +141,7 @@ class dealWith {
       () => index <= Math.min(page, 500),
       (cb) => {
         logger.debug(`开始获取第${index}页视频列表`);
-        option.url = `${this.settings.spiderAPI.ifeng.medialist + task.id}&pageNo=${index}`;
+        option.url = `${this.settings.spiderAPI.ifeng.medialist + task.id}&pageNo=${index}&platformType=iPhone&protocol=1.0.1`;
         request.get(logger, option, (err, result) => {
           if (err) {
             cb();
