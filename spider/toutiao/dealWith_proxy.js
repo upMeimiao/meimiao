@@ -225,7 +225,7 @@ class dealWith {
               return cb();
             }
             if (result.has_more === false) {
-              if ((task.id == '5800750710' || task.id == '6104275014' || task.id == '6976935001' || task.id == '6037403091' || task.id == '5800835780' || task.id == '51174033215') && index === 0) {
+              if ((task.id == '5800750710' || task.id == '6542432526' || task.id == '6104275014' || task.id == '6976935001' || task.id == '6037403091' || task.id == '5800835780' || task.id == '51174033215') && index === 0) {
                 sign = false;
                 return cb();
               }
@@ -278,7 +278,7 @@ class dealWith {
                 return cb();
               }
               if (result.has_more === false) {
-                if ((task.id == '5800750710' || task.id == '6104275014' || task.id == '6976935001' || task.id == '6037403091' || task.id == '5800835780' || task.id == '51174033215' || task.id == '52378452732') && index === 0) {
+                if ((task.id == '5800750710' || task.id == '6542432526' || task.id == '6104275014' || task.id == '6976935001' || task.id == '6037403091' || task.id == '5800835780' || task.id == '51174033215' || task.id == '52378452732') && index === 0) {
                   sign = false;
                   return cb();
                 }
