@@ -1,7 +1,7 @@
 {
   "name"        : "acFun",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","acfun","-a","acfun"],
+  "args"        : ["-i","master","-a","acfun"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

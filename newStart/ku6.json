@@ -1,7 +1,7 @@
 {
   "name"        : "酷6",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","ku6","-a","ku6"],
+  "args"        : ["-i","master","-a","ku6"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

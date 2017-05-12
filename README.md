@@ -2,6 +2,8 @@
 
 ------
 
+> README只提供有限的信息，更详细的资料请查阅[WIKI](http://git.meimiao.net/qiaosuan_spider/code/wikis)
+
 ## 监控系统
 
 [Kue监控](http://spider-kue.meimiaoip.com/kue) 
@@ -15,7 +17,6 @@
 
 > * master：主分支，用于线上环境部署
 > * staging：用于测试环境部署的分支
-> * taskSheet：添加任务分片的逻辑进行重构的分支
 > * 任务调度模块 —— scheduler文件夹
 > * 数据发送模块 —— sendServer文件夹
 > * 获取用户信息模块 —— servant文件夹
@@ -122,45 +123,12 @@ http://momentjs.cn/
 35. 华数TV
 36. 暴风影音
 37. 百度视频
+38. 梨视频
+39. YouTube
+40. Facebook
+41. 人人视频
+42. 点视
+43. 小米想看（spider未支持，巧发支持）
 
-## 从服务器拿到的任务信息
-```
-{
-errno: 0,
-errmsg: "获取成功",
-data: [
-        {
-            id: "406",
-            bid: "2320443191",
-            platform: "2",
-            type: "0",
-            encodeId: "",
-            bname: "papi酱"
-        },
-        {
-            id: "409",
-            bid: "283217183",
-            platform: "9",
-            type: "0",
-            encodeId: "",
-            bname: "papi酱"
-        },
-        {
-            id: "5",
-            bid: "m110950",
-            platform: "11",
-            type: "0",
-            encodeId: "",
-            bname: "一色神技能"
-        },
-        {
-            id: "92",
-            bid: "m81955",
-            platform: "11",
-            type: "0",
-            encodeId: "",
-            bname: "陈翔六点半"
-        }
-    ]
-}
-```
+## 流程图
+![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)

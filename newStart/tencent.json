@@ -1,7 +1,7 @@
 {
   "name"        : "腾讯视频",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","tencent","-a","tencent"],
+  "args"        : ["-i","master","-a","tencent"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

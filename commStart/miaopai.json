@@ -1,0 +1,13 @@
+{
+  "name"        : "秒拍",
+  "script"      : "/root/qiaosuan/run.js",
+  "args"        : ["-i","comment","-a","miaopai","-t","comment"],
+  "log_date_format"  : "YYYY-MM-DD HH:mm Z",
+  "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
+  "watch"       : false,
+  "node_args"   : "",
+  "cwd"         : "/root/qiaosuan",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
