@@ -394,19 +394,19 @@ class DealWith {
         logger.error('occur error : ', err);
         return callback(err, { code: 102, p: 4 });
       }
-      if (result.statusCode != 200) {
+      if (result.statusCode !== 200) {
         logger.error('腾讯状态码错误1', result.statusCode);
         return callback(true, { code: 102, p: 4 });
       }
       const back = eval(result.body);
-      if (back.result && (back.result.code == -200 || back.result.code == -12)) {
+      if (!back.ugc || !back.vppinfo || !back.vppinfo.isvpp || back.result && (back.result.code == -200 || back.result.code == -12)) {
         option.url = data;
         request.get(option, (err, result) => {
           if (err) {
             logger.error('occur error : ', err);
             return callback(err, { code: 102, p: 4 });
           }
-          if (result.statusCode != 200) {
+          if (result.statusCode !== 200) {
             logger.error('腾讯状态码错误2', result.statusCode);
             return callback(true, { code: 102, p: 4 });
           }
@@ -426,7 +426,7 @@ class DealWith {
               logger.error('occur error : ', err);
               return callback(err, { code: 102, p: 4 });
             }
-            if (result.statusCode != 200) {
+            if (result.statusCode !== 200) {
               logger.error('腾讯状态码错误3', result.statusCode);
               return callback(true, { code: 102, p: 4 });
             }
@@ -435,7 +435,7 @@ class DealWith {
               nameDom2 = $('#userInfoNick'),
               name,
               avatar;
-            if (nameDom.length == 0) {
+            if (nameDom.length === 0) {
               name = nameDom2.text();
               id = idDom.attr('r-subscribe');
             } else {
@@ -449,7 +449,6 @@ class DealWith {
             res = {
               id,
               name,
-              type: 2,
               avatar,
               p: 4
             };
@@ -457,17 +456,16 @@ class DealWith {
           });
         });
       } else {
-        if(!back.vppinfo){
-          callback(true, { code: 104, p: 4 })
-          return;
-        }
+        // if(!back.vppinfo){
+        //   callback(true, { code: 104, p: 4 })
+        //   return;
+        // }
         const nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault;
         if (nameIs && nameIs !== '' ) {
           res = {
             id: back.vppinfo.euin,
             name: nameIs,
             avatar: back.vppinfo.avatar ? (back.vppinfo.avatar.replace('/60', '/0')) : '',
-            type: 1,
             p: 4
           };
           return callback(null, res);
@@ -478,17 +476,13 @@ class DealWith {
             logger.error('occur error : ', err);
             return callback(err, { code: 102, p: 4 });
           }
-          if (result.statusCode != 200) {
+          if (result.statusCode !== 200) {
             logger.error('腾讯状态码错误2', result.statusCode);
             return callback(true, { code: 102, p: 4 });
           }
           let $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-                        // if(num.length){
-                        //     return callback(true,{code:102,p:4})
-                        // }
           let user = $('.user_info'),
-                            // name = user.attr('title'),
             href = user.attr('href'),
             id = href.substring(href.lastIndexOf('/') + 1);
           option.url = href;
@@ -497,9 +491,8 @@ class DealWith {
               logger.error('occur error : ', err);
               return callback(err, { code: 102, p: 4 });
             }
-            if (result.statusCode != 200) {
+            if (result.statusCode !== 200) {
               logger.error('腾讯状态码错误3', result.statusCode);
-
               return callback(true, { code: 102, p: 4 });
             }
             const $ = cheerio.load(result.body),
@@ -515,7 +508,6 @@ class DealWith {
               id,
               name,
               avatar: $('#userAvatar').attr('src') ? $('#userAvatar').attr('src') : '',
-              type: 2,
               p: 4
             };
             return callback(null, res);
