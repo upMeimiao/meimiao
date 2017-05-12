@@ -10,6 +10,38 @@ const jsonp = function (data) {
   return data;
 };
 let logger;
+const tags = (raw) => {
+  if (typeof raw === 'string') {
+    return raw.replace(/\s+/g, ',').replace(/"/g, '').replace(/\[/g, '').replace(/\]/g, '');
+  }
+  if (Object.prototype.toString.call(raw) === '[object Array]') {
+    return raw.join(',');
+  }
+  return '';
+};
+const longT = (time) => {
+  const timeArr = time.split(':');
+  let _longT = '';
+  if (timeArr.length === 2) {
+    _longT = moment.duration(`00:${time}`).asSeconds();
+  } else if (timeArr.length === 3) {
+    _longT = moment.duration(time).asSeconds();
+  }
+  return _longT;
+};
+const time = (string) => {
+  if (string.indexOf('-') !== -1) {
+    return moment(string).unix();
+  }
+  if (string.indexOf('小时') !== -1) {
+    string = string.substring(0, string.indexOf('小时'));
+    return moment(moment().subtract(Number(string), 'h').format('YYYY-MM-DD')).unix();
+  }
+  if (string.indexOf('分钟') !== -1) {
+    return moment(moment().format('YYYY-MM-DD')).unix();
+  }
+  return '';
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -21,59 +53,66 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (callback) => {
-          this.getUser(task, (err) => {
-            callback(null, '用户信息已返回');
+        user: (cb) => {
+          this.getUser(task, () => {
+            cb(null, '用户信息已返回');
           });
         },
-        media: (callback) => {
+        media: (cb) => {
           this.getTotal(task, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '视频信息已返回');
+            cb(null, '视频信息已返回');
           });
         }
       },
-            (err, result) => {
-              if (err) {
-                return callback(err);
-              }
-              logger.debug(`${task.id}_result:`, result);
-              callback(null, task.total);
-            }
-        );
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        logger.debug(`${task.id}_result:`, result);
+        callback(null, task.total);
+      }
+    );
   }
   getTotal(task, callback) {
     logger.debug('开始获取视频总数');
     const option = {
       url: `${this.settings.spiderAPI.tencent.videoList + task.id}&pagenum=1`
     };
+    logger.debug(option)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g, '');
         result = JSON.parse(result.substring(1, result.length - 1));
       } catch (e) {
         logger.error('解析失败', result);
+        callback(e);
         return;
       }
-
-      if (result.s != 'o') {
+      if (result.s !== 'o') {
         logger.error(`异常错误${result.em}`);
-        return callback(result.em);
+        callback(result.em);
+        return;
       }
-      if (!result.vtotal) {
+      if (!result.vtotal && result.vtotal !== 0) {
         logger.error('异常错误');
-        return callback(true);
+        callback(JSON.stringify(result));
+        return;
       }
       task.total = result.vtotal;
       this.getList(task, result.vtotal, (err) => {
         if (err) {
-          return callback(err);
+          callback(err);
+          return;
         }
         callback();
       });
@@ -86,24 +125,22 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback();
-      }
-      if (result.statusCode != 200) {
-        logger.error('tencent code error: ', result.statusCode);
-        return callback();
+        callback();
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.error('tencent jsonp error: ', result);
-        return callback();
+        callback();
+        return;
       }
       const user = {
         platform: 4,
         bid: task.id,
-        fans_num: result.followcount.indexOf('万') == -1 ? result.followcount : Number(result.followcount.replace(/万/g, '')) * 10000
+        fans_num: result.followcount.indexOf('万') === -1 ? result.followcount : Number(result.followcount.replace(/万/g, '')) * 10000
       };
-      this.sendUser(user, (err, result) => {
+      this.sendUser(user, () => {
         callback();
       });
       this.sendStagingUser(user);
@@ -118,16 +155,18 @@ class dealWith {
       if (err) {
         logger.error('occur error : ', err);
         logger.info(`返回腾讯视频用户 ${user.bid} 连接服务器失败`);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         back = JSON.parse(back.body);
       } catch (e) {
         logger.error(`腾讯视频用户 ${user.bid} json数据解析失败`);
         logger.info(back);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (back.errno == 0) {
+      if (Number(back.errno) === 0) {
         logger.debug('腾讯视频用户:', `${user.bid} back_end`);
       } else {
         logger.error('腾讯视频用户:', `${user.bid} back_error`);
@@ -154,7 +193,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -163,9 +202,9 @@ class dealWith {
     });
   }
   getList(task, total, callback) {
+    const option = {};
     let sign = 1,
       page,
-      option,
       list;
     if (total % 25 === 0) {
       page = total / 25;
@@ -173,56 +212,57 @@ class dealWith {
       page = Math.ceil(total / 25);
     }
     async.whilst(
-            () => sign <= Math.min(page, 400),
-            (cb) => {
-              logger.debug(`开始获取第${sign}页视频列表`);
-              option = {
-                url: `${this.settings.spiderAPI.tencent.videoList + task.id}&pagenum=${sign}`
-              };
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.error('occur error : ', err);
-                  return cb();
-                }
-                try {
-                  result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g, '');
-                  result = JSON.parse(result.substring(1, result.length - 1));
-                } catch (e) {
-                  logger.error('列表解析失败', result);
-                  sign++;
-                  return cb();
-                }
-                list = result.videolst;
-                if (list) {
-                  this.deal(task, list, () => {
-                    sign++;
-                    cb();
-                  });
-                } else {
-                  sign++;
-                  cb();
-                }
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign <= Math.min(page, 400),
+      (cb) => {
+        logger.debug(`开始获取第${sign}页视频列表`);
+        option.url = `${this.settings.spiderAPI.tencent.videoList + task.id}&pagenum=${sign}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error : ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g, '');
+            result = JSON.parse(result.substring(1, result.length - 1));
+          } catch (e) {
+            logger.error('列表解析失败', result);
+            sign += 1;
+            cb();
+            return;
+          }
+          list = result.videolst;
+          if (list) {
+            this.deal(task, list, () => {
+              sign += 1;
+              cb();
+            });
+          } else {
+            sign += 1;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, list, callback) {
-    let index = 0, length = list.length;
+    const length = list.length;
+    let index = 0;
     async.whilst(
-            () => index < length,
-            (cb) => {
-              this.getInfo(task, list[index], (err) => {
-                index++;
-                cb();
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        this.getInfo(task, list[index], () => {
+          index += 1;
+          cb();
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getInfo(task, data, callback) {
     async.parallel([
@@ -245,42 +285,43 @@ class dealWith {
         });
       },
       (cb) => {
-        this.getVidTag(data.vid, (err, tags) => {
+        this.getVidTag(data.vid, (err, _tags) => {
           if (err) {
             cb(err);
           } else {
-            cb(null, tags);
+            cb(null, _tags);
           }
         });
       }],
-            (err, result) => {
-              if (err) {
-                return callback(err);
-              }
-              const media = {
-                author: task.name,
-                platform: 4,
-                bid: task.id,
-                aid: data.vid,
-                title: data.title.substr(0, 100).replace(/"/g, ''),
-                desc: data.desc.substr(0, 100).replace(/"/g, ''),
-                play_num: result[0],
-                comment_num: result[1],
-                a_create_time: time(data.uploadtime),
-                    // 新加字段
-                v_img: data.pic,
-                long_t: long_t(data.duration),
-                tag: tags(result[2])
-              };
-              if (!media.comment_num) {
-                delete media.comment_num;
-              }
-              if (!media.tag) {
-                delete media.tag;
-              }
-              spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-              callback();
-            });
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        const media = {
+          author: task.name,
+          platform: 4,
+          bid: task.id,
+          aid: data.vid,
+          title: data.title.substr(0, 100).replace(/"/g, ''),
+          desc: data.desc.substr(0, 100).replace(/"/g, ''),
+          play_num: result[0],
+          comment_num: result[1],
+          a_create_time: time(data.uploadtime),
+          // 新加字段
+          v_img: data.pic,
+          long_t: longT(data.duration),
+          tag: tags(result[2])
+        };
+        if (!media.comment_num) {
+          delete media.comment_num;
+        }
+        if (!media.tag) {
+          delete media.tag;
+        }
+        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        callback();
+      });
   }
   getView(id, callback) {
     const option = {
@@ -289,16 +330,14 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
-      if (result.statusCode != 200) {
-        logger.error(`状态码错误,${result.statusCode}`);
-        return callback(true);
-      }
-      let backData = eval(result.body),
+      const backData = eval(result.body),
         back = backData.results;
       if (!back) {
-        return callback(true);
+        callback(true);
+        return;
       }
       if (back[0].fields) {
         callback(null, back[0].fields.view_all_count);
@@ -311,14 +350,11 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.tencent.commentId + id
     };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('occur error : ', err);
-        return callback(err);
-      }
-      if (result.statusCode != 200) {
-        logger.error('腾讯获取评论数code错误 : ', result.statusCode);
-        return callback(true);
+    request.get(logger, option, (error, result) => {
+      if (error) {
+        logger.error('occur error : ', error);
+        callback(error);
+        return;
       }
       let backData;
       try {
@@ -326,17 +362,20 @@ class dealWith {
       } catch (e) {
         logger.error('腾讯获取评论数jsonp解析失败');
         logger.error(result.body);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (!backData.result) {
         logger.error('腾讯获取评论数异常错误');
         logger.error(backData);
-        return callback(true);
+        callback(true);
+        return;
       }
       if (backData.result.code == 0) {
         this.getCommentNum(backData.comment_id, (err, num) => {
           if (err) {
-            return callback(err);
+            callback(err);
+            return;
           }
           callback(null, num);
         });
@@ -354,14 +393,16 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error(`获取视频${id}评论解析JSON错误`);
         logger.info(result);
-        return callback(null, null);
+        callback(null, null);
+        return;
       }
       if (result.errCode == 0) {
         callback(null, result.data.commentnum);
@@ -376,50 +417,22 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        return callback(null, null);
+        callback(null, null);
+        return;
       }
-      if (!result.v || result.v.length == 0) {
-        return callback(null, null);
+      if (!result.v || result.v.length === 0) {
+        callback(null, null);
+        return;
       }
       const tagStr = result.v[0].tags_video;
       callback(null, tagStr);
     });
-  }
-}
-function tags(raw) {
-  if (typeof raw === 'string') {
-    return raw.replace(/\s+/g, ',').replace(/"/g, '').replace(/\[/g, '').replace(/\]/g, '');
-  }
-  if (Object.prototype.toString.call(raw) === '[object Array]') {
-    return raw.join(',');
-  }
-  return '';
-}
-function long_t(time) {
-  let timeArr = time.split(':'),
-    long_t = '';
-  if (timeArr.length === 2) {
-    long_t = moment.duration(`00:${time}`).asSeconds();
-  } else if (timeArr.length === 3) {
-    long_t = moment.duration(time).asSeconds();
-  }
-  return long_t;
-}
-function time(string) {
-  if (string.indexOf('-') !== -1) {
-    return moment(string).unix();
-  }
-  if (string.indexOf('小时') !== -1) {
-    string = string.substring(0, string.indexOf('小时'));
-    return moment(moment().subtract(Number(string), 'h').format('YYYY-MM-DD')).unix();
-  }
-  if (string.indexOf('分钟') !== -1) {
-    return moment(moment().format('YYYY-MM-DD')).unix();
   }
 }
 module.exports = dealWith;
