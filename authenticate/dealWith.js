@@ -3,6 +3,7 @@ const http = require('http')
 const cheerio = require('cheerio')
 const request = require( '../lib/request' )
 const async = require( 'async' )
+const req = require('request')
 const jsonp = function (data) {
     return data
 }
@@ -2882,6 +2883,354 @@ class DealWith {
             }
         }
         return endPage;
+    }
+    youtube( verifyData, callback ) {
+        let htmlUrl = verifyData.remote,
+            userVal = verifyData.verifyCode.replace(/\s/g, ""),
+            urlObj  = URL.parse(htmlUrl, true),
+            //host    = urlObj.hostname,
+            //path    = urlObj.pathname,
+            aid     = urlObj.query.v,
+            bid     = '',
+            user    = {},
+            option  = {
+                url: `https://www.youtube.com/watch?v=${aid}&spf=navigate`,
+                proxy: 'http://127.0.0.1:56777',
+                method: 'GET',
+                headers: {
+                    //referer: `https://www.youtube.com/channel/${task.bid}`,
+                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                    'accept-language': 'zh-CN,zh;q=0.8',
+                    'cookie': 'PREF=f5=30&fms2=10000&fms1=10000&al=zh-CN&f1=50000000; VISITOR_INFO1_LIVE=G3t2ohxkCtA; YSC=24sBeukc1vk;'
+                }
+            },
+            session_token,
+            page_token,
+            foot;
+        req(option, (error, response, body) => {
+            if(error){
+                logger.debug('youtube的视频参数接口请求失败',error);
+                return callback(error,{code:103,p:39});
+            }
+            if(response.statusCode != 200){
+                logger.debug('视频参数状态码错误',response.statusCode);
+                return callback(true,{code:103,p:39});
+            }
+            try{
+                body = JSON.parse(body);
+            }catch (e){
+                logger.debug('解析失败',body);
+                return this.youtube( verifyData, callback );
+            }
+            body = body[3].foot.replace(/[\s\n\r]/g,'');
+            user.session_token = body.match(/\'XSRF_TOKEN\':"\w*=+",/).toString().replace(/\'XSRF_TOKEN\':"/,'').replace('",','');
+            user.page_token = body.match(/'COMMENTS_TOKEN':"[\w%]*/).toString().replace(/'COMMENTS_TOKEN':"/,'').replace('",','');
+            user.userVal = userVal;
+            user.aid = aid;
+            //logger.debug('第一步');
+            this.ytbTimeComment( user, (err, users) => {
+                if(err){
+                    return callback(err, {code:103,p:39});
+                }
+                callback(null,users);
+            })
+        })
+    }
+    ytbTimeComment( user, callback ){
+        let option = {
+            url: `https://www.youtube.com/watch_fragments_ajax?v=${user.aid}&tr=time&distiller=1&ctoken=${user.page_token}&frags=comments&spf=load`,
+            method: 'POST',
+            proxy: 'http://127.0.0.1:56777',
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                referer: `https://www.youtube.com/watch?v=${user.aid}`,
+                'cookie': 'PREF=f5=30&fms2=10000&fms1=10000&al=zh-CN&f1=50000000; VISITOR_INFO1_LIVE=G3t2ohxkCtA; YSC=24sBeukc1vk;',
+                'accept': '*/*'
+            },
+            formData: {
+                session_token: user.session_token
+            }
+        };
+        req(option, (error, response, body) => {
+            if(error){
+                logger.debug('youtube评论DOM接口请求失败',error);
+                return callback(error)
+            }
+            if(response.statusCode != 200){
+                logger.debug('评论状态码错误',response.statusCode);
+                return callback(true,{code:103,p:39})
+            }
+            try{
+                body = JSON.parse(body);
+            }catch (e){
+                logger.debug('解析失败',body);
+                return callback(e)
+            }
+            //logger.debug('第二步');
+            let $ = cheerio.load(body.body['watch-discussion']);
+            user.page_token = $('div.yt-uix-menu.comment-section-sort-menu>div.yt-uix-menu-content>ul>li').eq(1).find('button').attr('data-token').replace(/(253D)/g,'3D');
+            this.ytbCommentList(user, (err,users) => {
+                callback(null,users);
+            })
+        });
+    }
+    ytbCommentList( user, callback ){
+        let option = {},
+            cycle = true,
+            $ = null,
+            _$ = null;
+        async.whilst(
+            () => {
+                return cycle
+            },
+            (cb) => {
+                option = {
+                    url: `https://www.youtube.com/comment_service_ajax?action_get_comments=1`,
+                    method: 'POST',
+                    proxy: 'http://127.0.0.1:56777',
+                    headers: {
+                        'referer': `https://www.youtube.com/watch?v=${user.aid}`,
+                        'cookie': 'PREF=f5=30&fms2=10000&fms1=10000&al=zh-CN&f1=50000000; VISITOR_INFO1_LIVE=G3t2ohxkCtA; YSC=24sBeukc1vk;',
+                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                        'accept-language': 'zh-CN,zh;q=0.8'
+                    },
+                    formData: {
+                        page_token: user.page_token,
+                        session_token: user.session_token
+                    }
+                };
+                req( option, (error, response, body) => {
+                    if(error){
+                        logger.debug('youtube评论列表请求失败',err)
+                        return cb()
+                    }
+                    if(response.statusCode != 200){
+                        logger.debug(option);
+                        logger.debug('评论列表状态码错误',response.statusCode);
+                        return cb();
+                    }
+                    try {
+                        body = JSON.parse(body);
+                    }catch (e){
+                        logger.debug('评论列表数据解析失败',body);
+                        return cb();
+                    }
+                    //logger.debug('第三步');
+                    if(!body.content_html){
+                        cycle = false;
+                        return cb();
+                    }
+                    $ = cheerio.load(body.content_html);
+                    if(body.load_more_widget_html){
+                        _$ = cheerio.load(body.load_more_widget_html);
+                    }else {
+                        _$ = null;
+                    }
+                    if($('.comment-thread-renderer').length <= 0){
+                        cycle = false;
+                        return cb();
+                    }
+                    this.ytbdeal( user, $('.comment-thread-renderer'), (err,users) => {
+                        user.page_token = !_$ ? null : _$('button.yt-uix-button.comment-section-renderer-paginator').attr('data-uix-load-more-post-body').replace('page_token=','').replace(/253D/g,'3D');
+                        if(!user.page_token){
+                            cycle = false;
+                        }
+                        if(users){
+                            logger.debug('OK');
+                            return callback(null,users)
+                        }
+                        cb()
+                    })
+                })
+            },
+            (err, result) => {
+                logger.debug('未找到');
+                callback(null,{code:105,p:39})
+            }
+        )
+    }
+    ytbdeal( task, comments, callback ){
+        let length   = comments.length,
+            index    = 0,
+            user,
+            content,
+            comment;
+        //logger.debug('最后一步');
+        for(index; index<length; index++){
+            comment = comments.eq(index);
+            content = comment.find('div.comment-renderer>div.comment-renderer-content div.comment-renderer-text-content').text().replace(/[\s\n\r]/g,'');
+            if(task.userVal == content){
+                user = {
+                    id: comment.find('div.comment-renderer div.comment-renderer-header>a').attr('data-ytid'),
+                    name: comment.find('div.comment-renderer div.comment-renderer-header>a').text(),
+                    p: 39
+                };
+                //logger.debug('匹配成功',user);
+                return callback(null,user);
+            }
+            //logger.debug('匹配失败');
+        }
+        callback(null,null)
+    }
+    facebook( verifyData, callback ) {
+        let htmlUrl = verifyData.remote,
+            userVal = verifyData.verifyCode.replace(/\s/g, ""),
+            urlObj  = URL.parse(htmlUrl, true),
+            host    = urlObj.hostname,
+            path    = urlObj.pathname,
+            query   = urlObj.query,
+            bid     = '',
+            aid     = '',
+            cycle   = true,
+            offset  = 0,
+            option  = {
+                method: 'POST',
+                url: 'https://www.facebook.com/ajax/ufi/comment_fetch.php?dpr=1',
+                proxy: 'http://127.0.0.1:56777',
+                headers: {
+                    referer: 'https://www.facebook.com/yitiaotv/videos/vb.374308376088256/641513322701092/?type=3&theater',
+                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                    'cookie':'datr=uarsWNHwHCDMME4QegGkXoHN;locale=zh_CN;'
+                },
+                formData: {
+                    //ft_ent_identifier:641513322701092,
+                    offset: 0,
+                    length: 50,
+                    orderingmode: 'recent_activity',
+                    feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
+                    __user: '0',
+                    __a: '1',
+                    __dyn: '7AzHK4GgN1t2u6XolwCCwKAKGzEy4S-C11xG3Kq2i5U4e2O2K48hzlyUrxuE99XyEjKewExmt0gKum4UpyEl-9Dxm5Euz8bo5S9J7wHx61YCBxm9geFUpAypk48uwkpo5y16xCWK547ESubz8-',
+                    lsd: 'AVpZN3FE'
+                }
+            };
+        if(query.type){
+            aid = path.split('/')[4];
+        }
+        aid = path.split('/')[3];
+        option.formData.ft_ent_identifier = aid;
+        async.whilst(
+            () => {
+                return cycle
+            },
+            (cb) => {
+                option.formData.offset = offset;
+                req(option, (error, response, body) => {
+                    if(error){
+                        logger.debug('评论列表请求失败',error.message);
+                        return callback(error,{code:103,p:40})
+                    }
+                    if(response.statusCode != 200){
+                        logger.debug('评论状态码错误',response.statusCode);
+                        return callback(true,{code:103,p:40})
+                    }
+                    /*logger.debug(option)
+                    logger.debug(body)*/
+                    try{
+                        body = body.replace('for (;;);','').replace(/[\n\r]/g,'');
+                        body = JSON.parse(body);
+                    }catch (e){
+                        logger.debug('解析失败',body);
+                        return cb()
+                    }
+                    body = body.jsmods.require[0][3][1];
+                    if(body.comments.length <= 0){
+                        cycle = false;
+                        return cb()
+                    }
+                    this.facedeal(body, userVal, (err, result) => {
+                        if (err == 'OK'){
+                            return callback(null,result)
+                        }
+                        offset += 50;
+                        cb()
+                    })
+                })
+            },
+            (err, result) => {
+                logger.debug('结束')
+                callback(null,{code:105,p:40})
+            }
+        )
+    }
+    facedeal(comments, userVal, callback) {
+        let user    = {};
+        for(let i = 0; i < comments.comments.length; i++){
+            if(comments.comments[i].body.text.replace(/\s/,'') == userVal){
+                user.p = 40;
+                user.id = comments.comments[i].author;
+                user.name = comments.profiles[user.id].name;
+                return callback('OK',user)
+            }
+        }
+        callback()
+    }
+    renren( verifyData, callback ){
+        let htmlUrl  = verifyData.remote,
+            userVal  = verifyData.verifyCode.replace(/\s/g,""),
+            urlObj   = URL.parse(htmlUrl,true),
+            hash     = urlObj.hash,
+            cycle    = true,
+            page     = 1,
+            option   = {
+                url: 'http://web.rr.tv/v3plus/comment/list',
+                headers:{
+                    Referer: 'http://rr.tv/',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+                    clientType: 'web',
+                    clientVersion: '0.1.0'
+                },
+                data: {
+                    videoId: hash.split('/')[2]
+                }
+            };
+            async.whilst(
+                () => {
+                    return cycle
+                },
+                (cb) => {
+                    option.data.page = page;
+                    request.post(logger, option, (err, result) => {
+                        if(err){
+                            logger.debug('评论信息请求失败',err);
+                            return cb()
+                        }
+                        try{
+                            result = JSON.parse(result.body);
+                        }catch (e){
+                            logger.debug('解析失败',result.body);
+                            return cb()
+                        }
+                        if(result.data.results <= 0){
+                            cycle = false;
+                            return cb()
+                        }
+                        this.renrendeal(result.data.results, userVal, (err, result) => {
+                            if(result){
+                                return callback(null,result)
+                            }
+                            page++;
+                            cb()
+                        })
+                    })
+                },
+                (err, result) => {
+                    logger.debug('结束，信息没找到');
+                    callback(null,{code:105,p:41})
+                }
+            )
+    }
+    renrendeal( commens, userVal, callback ){
+        let data = {};
+        for(let i = 0; i < commens.length; i++){
+            if(userVal == commens[i].content.replace(/\s/g,'')){
+                data.id = commens[i].author.id;
+                data.name = commens[i].author.nickName;
+                data.p = 41;
+                return callback(null,data)
+            }
+        }
+        callback()
     }
 }
 module.exports = DealWith;

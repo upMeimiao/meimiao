@@ -39,7 +39,7 @@ class spiderCore {
     dispatch ( req, res ) {
         res.setHeader('Access-Control-Allow-Origin','*')
         const query = URL.parse(req.url,true).query
-        logger.debug('请求'+req)
+        //logger.debug('请求',req)
         if(!query.url && !query.code){
             res.writeHead(400,{'Content-Type': 'text/html;charset=utf-8'})
             res.end('请检查url参数与code参数')
@@ -186,12 +186,23 @@ class spiderCore {
             //     handle.fengxingHandle( ctx, verifyData )
             //     break
             case 'www.wasu.cn':
-                handle.huashuHandle( ctx, verifyData )
-                break
+                handle.huashuHandle( ctx, verifyData );
+                break;
+            case 'www.youtube.com':
+            case 'm.youtube.com':
+                handle.youtubeHandle( ctx, verifyData );
+                break;
+            case 'www.facebook.com':
+                handle.facebookHandle( ctx, verifyData );
+                break;
+            case 'rr.tv':
+            case 'mobile.rr.tv':
+                handle.renrenHandle( ctx, verifyData );
+                break;
             default:
-                res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-                res.writeHead(200)
-                res.end(JSON.stringify({errno:100,errmsg:'暂不支持该平台或该URL非合法校验地址'}))
+                res.setHeader('Content-Type',`text/plain;charset=utf-8`);
+                res.writeHead(200);
+                res.end(JSON.stringify({errno:100,errmsg:'暂不支持该平台或该URL非合法校验地址'}));
                 return
         }
     }
