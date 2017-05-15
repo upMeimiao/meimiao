@@ -15,6 +15,9 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
+    this.loginFacebook = new (require('./loginFacebook'))(this);
+    this.cookies = '';
+    this.index = 0;
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
@@ -69,19 +72,46 @@ class spiderCore {
   }
   start() {
     logger.trace('启动函数');
-    this.assembly();
+    this.getCookie(() => {
+      this.assembly();
+    });
+  }
+  getCookie(callback) {
+    if (this.index >= this.settings.spiderAPI.facebook.auth.length) {
+      this.index = 0;
+    }
+    this.loginFacebook.start(this.index, (err, result) => {
+      if (err) {
+        logger.debug('监测到错误', err);
+        return;
+      }
+      logger.debug('---', result);
+      this.cookies = result;
+      if (callback) {
+        callback();
+      }
+    });
   }
   test() {
     const work = {
       id: 1452851595021771,
       name: '二更视频',
-      p: 40
+      p: 40,
+      cookies: this.cookies
     };
     this.dealWith.todo(work, (err, total) => {
+      if (err) {
+        if (err == '500') {
+          this.index += 1;
+          this.start();
+          return;
+        }
+      }
       logger.debug(total);
       logger.debug('end');
     });
   }
+
   deal() {
     const queue = kue.createQueue({
       redis: {
@@ -100,6 +130,7 @@ class spiderCore {
       logger.trace('Get Facebook task!');
       const work = job.data,
         key = `${work.p}:${work.id}`;
+      work.cookies = this.cookies;
       logger.info(work);
       const d = domain.create();
       d.on('error', (err) => {
@@ -108,6 +139,11 @@ class spiderCore {
       d.run(() => {
         this.dealWith.todo(work, (error, total) => {
           if (error) {
+            if (error == '500') {
+              this.index += 1;
+              this.start();
+              return;
+            }
             done(error);
             return;
           }

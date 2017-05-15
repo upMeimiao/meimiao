@@ -50,7 +50,7 @@ class dealWith {
   getUserInfo(task, callback) {
     const option = {
       url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-      // proxy: 'http://127.0.0.1:56777',
+      proxy: 'http://127.0.0.1:56777',
       referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
       ua: 1
     };
@@ -61,8 +61,17 @@ class dealWith {
       }
       result = result.body.replace(/[\n\r]/g, '');
       const $ = cheerio.load(result);
+      if (!$('script')[5].children[0]) {
+        logger.debug('Re-request');
+        this.getUserInfo(task, callback);
+        return;
+      }
       let script = $('script')[5].children[0].data,
         fans;
+      script = script.match(/new \(require\("ServerJS"\)\)\(\).setServerFeatures\("iw"\).handle\(/);
+      if (!script[1]) {
+        script = $('script')[6].children[0].data;
+      }
       script = script.replace('new (require("ServerJS"))().setServerFeatures("iw").handle(', '').replace(');', '');
       try {
         script = JSON.parse(script);
@@ -139,8 +148,8 @@ class dealWith {
   }
   getListInfo(task, callback) {
     const option = {
-      ua: 2,
-      // proxy: 'http://127.0.0.1:56777',
+      ua: 1,
+      proxy: 'http://127.0.0.1:56777',
       referer: 'https://www.facebook.com'
     };
     let cursor = null,
@@ -175,12 +184,20 @@ class dealWith {
             cursor = result.cursor;
             lastVid = result.last_fbid;
           }
-          this.deal(task, $('td'), () => {
+          this.deal(task, $('td'), (error) => {
+            if (error) {
+              cb(error);
+              return;
+            }
             cb();
           });
         });
       },
-      () => {
+      (err) => {
+        if (err) {
+          callback(err);
+          return;
+        }
         callback();
       }
     );
@@ -190,12 +207,20 @@ class dealWith {
     async.whilst(
       () => index < list.length,
       (cb) => {
-        this.getMedia(task, list.eq(index), () => {
+        this.getMedia(task, list.eq(index), (err) => {
+          if (err) {
+            cb(err);
+            return;
+          }
           index += 1;
           cb();
         });
       },
-      () => {
+      (err) => {
+        if (err) {
+          callback(err);
+          return;
+        }
         callback();
       }
     );
@@ -208,11 +233,19 @@ class dealWith {
       [
         (cb) => {
           this.getVidInfo(task, aid, (err, result) => {
+            if (err) {
+              cb(err);
+              return;
+            }
             cb(null, result);
           });
         }
       ],
       (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
         let media = {
           author: task.name,
           platform: task.p,
@@ -239,28 +272,39 @@ class dealWith {
   getVidInfo(task, vid, callback) {
     const option = {
       url: `${this.settings.spiderAPI.facebook.vidInfo}"v":"${vid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`,
-      ua: 2,
-      // proxy: 'http://127.0.0.1:56777',
-      referer: `https://www.facebook.com/pg/${task.id}/videos/?ref=page_internal`
+      ua: 1,
+      proxy: 'http://127.0.0.1:56777',
+      referer: `https://www.facebook.com/${task.id}/?fref=ts`,
+      Cookie: task.cookies
     };
     let dataJson = null,
       time, title, desc, playNum, commentNum, ding, sharecount, $, _$, vImg;
+    option.url = option.url.toString().replace(/'/g, '"');
+    // logger.debug(option);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('facebook单个视频信息接口请求失败', err);
-        return this.getVidInfo(task, vid, callback);
+        if (err.status == 500) {
+          callback('500');
+          return;
+        }
+        this.getVidInfo(task, vid, callback);
+        return;
       }
       try {
         result = result.body.replace(/for \(;;\);/, '').replace(/[\n\r]/g, '');
         result = JSON.parse(result);
       } catch (e) {
         logger.error('facebook单个视频信息解析失败', result);
-        return this.getVidInfo(task, vid, callback);
+        this.getVidInfo(task, vid, callback);
+        return;
       }
-      for (let i = 0; i < result.jsmods.markup.length; i++) {
-        if (result.jsmods.markup[i][2] == 42) {
+      for (let i = 0; i < result.jsmods.markup.length; i += 1) {
+        if (result.jsmods.markup[i][2] == 42 && result.jsmods.markup[i][1].__html) {
           $ = cheerio.load(result.jsmods.markup[i][1].__html);
         } else if (result.jsmods.markup[i][2] == 41 && result.jsmods.markup[i][1].__html) {
+          $ = cheerio.load(result.jsmods.markup[i][1].__html);
+        } else if (result.jsmods.markup[i][2] == 44 && result.jsmods.markup[i][1].__html) {
           $ = cheerio.load(result.jsmods.markup[i][1].__html);
         }
         if (result.jsmods.markup[i][2] == 16) {
@@ -292,7 +336,7 @@ class dealWith {
         ding: ding || null,
         sharecount: sharecount || null
       };
-      return callback(null, dataJson);
+      callback(null, dataJson);
     });
   }
 }
