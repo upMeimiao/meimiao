@@ -52,6 +52,21 @@ class commentHandle {
         return;
       }
       if (result === 1) {
+        this.scheduler.emit('task_check_snapshots', raw);
+      }
+    });
+  }
+  checkSnapshots(raw) {
+    const key = `c:${raw.p}:${raw.aid}`;
+    this.scheduler.taskDB.hmget(key, 'oldSnapshots', 'newSnapshots', (err, result) => {
+      if (err) {
+        this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
+        return;
+      }
+      if (result[0] === -1 || result[1] === -1) {
+        return;
+      }
+      if (result[0] !== result[1]) {
         this.scheduler.emit('task_check_kue', raw);
       }
     });
@@ -59,16 +74,19 @@ class commentHandle {
   setInit(raw) {
     const key = `c:${raw.p}:${raw.aid}`,
       time = new Date().getTime();
-    this.scheduler.taskDB.hmset(key, 'bid', raw.bid, 'aid', raw.aid, 'init', time, 'create', time, 'comment_number', 0, 'last_comment_id', 0, 'last_comment_time', 0, (err) => {
-      if (err) {
-        this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
-        return;
+    this.scheduler.taskDB.hmset(key, 'bid', raw.bid, 'aid', raw.aid, 'init', time, 'create', time,
+      'comment_number', -1, 'last_comment_id', 0, 'last_comment_time', 0,
+      'oldSnapshots', -1, 'newSnapshots', -1, (err) => {
+        if (err) {
+          this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
+          return;
+        }
+        raw.comment_id = 0;
+        raw.comment_time = 0;
+        raw.comment_num = 0;
+        this.scheduler.emit('task_create', raw);
       }
-      raw.comment_id = 0;
-      raw.comment_time = 0;
-      raw.comment_num = 0;
-      this.scheduler.emit('task_create', raw);
-    });
+    );
   }
   setCreate(raw) {
     const key = `c:${raw.p}:${raw.aid}`,

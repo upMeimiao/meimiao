@@ -47,11 +47,10 @@ class commentScheduler {
             rule.second = [1, 21, 41];
             break;
           case 'iZ28ilm78mlZ':
-            rule.second = [1, 21, 41];
+            rule.second = [11, 31, 51];
             break;
           default:
-            rule.second = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28,
-              31, 34, 37, 40, 43, 46, 49, 52, 55, 58];
+            rule.second = [1, 11, 21, 31, 31, 51];
             break;
         }
         // this.getTask();
@@ -71,6 +70,9 @@ class commentScheduler {
     });
     this.on('task_init_set', (raw) => {
       this.handle.setInit(raw);
+    });
+    this.on('task_check_snapshots', (raw) => {
+      this.handle.checkSnapshots(raw);
     });
     this.on('task_check_kue', (raw) => {
       this.checkKue(raw);
@@ -97,7 +99,7 @@ class commentScheduler {
     //     }
     //   }
     // );
-    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=500&platform=1-34-35-36-38-17-18-19-23-24-26-27-28-29-30-31-32-33-7-10-12-15-22', (err, res, body) => {
+    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400&platform=1-2-3-4-5-6-7-8-9-10', (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
         return;
