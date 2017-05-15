@@ -73,6 +73,10 @@ class dealWith {
           fans_num: fans
         };
       // logger.debug(user);
+      if (user.fans_num === '') {
+        callback();
+        return;
+      }
       this.sendUser(user, () => {
         callback();
       });
@@ -97,6 +101,10 @@ class dealWith {
           bid: task.id,
           fans_num: fansDom.substring(2)
         };
+      if (user.fans_num === '') {
+        callback();
+        return;
+      }
       this.sendUser(user, () => {
         callback();
       });
