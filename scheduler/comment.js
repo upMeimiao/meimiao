@@ -99,7 +99,7 @@ class commentScheduler {
     //     }
     //   }
     // );
-    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400&platform=1-2-3-4-5-6-7-8-9-10', (err, res, body) => {
+    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400', (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
         return;
