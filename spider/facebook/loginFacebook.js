@@ -2,7 +2,6 @@
  * Created by dell on 2017/5/15.
  */
 const child_process = require('child_process');
-const path = require('path');
 
 let logger;
 class loginFacebook {
@@ -15,6 +14,10 @@ class loginFacebook {
     logger = core.settings.logger;
   }
   start(index, callback) {
+    if (index >= this.auth.length) {
+      callback('NoUser');
+      return;
+    }
     this.email = this.auth[index].email;
     this.pass = this.auth[index].pass;
     const spawn = child_process.spawn('casperjs',
@@ -28,9 +31,10 @@ class loginFacebook {
     spawn.stdout.on('data', (result) => {
       const len = result.length;
       if (len < 30 && result == 'error') {
-        if (this.timeout >= 1) {
+        if (this.timeout >= 2) {
           this.timeout = 0;
-          callback('timeout', null);
+          index += 1;
+          this.start(index, callback);
           return;
         }
         this.timeout += 1;
@@ -38,11 +42,10 @@ class loginFacebook {
         return;
       }
       if (len > 30) {
-        result = result.replace(/[\n\r]/g, '').replace('OK', '');
+        result = result.substring(result.indexOf('OK') + 2, result.length).replace(/[\r\n]/g, '');
         callback(null, result);
         return;
       }
-      // logger.debug(len);
       logger.debug(result);
     });
     spawn.stdout.on('close', () => {

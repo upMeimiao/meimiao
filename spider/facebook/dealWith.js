@@ -93,7 +93,7 @@ class dealWith {
       };
       logger.debug(res);
       // this.sendUser(res);
-      this.sendStagingUser(res);
+      // this.sendStagingUser(res);
       callback();
     });
   }
@@ -277,10 +277,11 @@ class dealWith {
       referer: `https://www.facebook.com/${task.id}/?fref=ts`,
       Cookie: task.cookies
     };
+    option.url = option.url.replace(/'/g, '"').replace(/[\\]/g, '')
+    // logger.debug(option);
     let dataJson = null,
       time, title, desc, playNum, commentNum, ding, sharecount, $, _$, vImg;
     option.url = option.url.toString().replace(/'/g, '"');
-    // logger.debug(option);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('facebook单个视频信息接口请求失败', err);
