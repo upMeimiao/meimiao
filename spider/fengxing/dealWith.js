@@ -83,6 +83,10 @@ class dealWith {
           callback(e.message);
           return;
         }
+        if (result.retcode == 404) {
+          callback();
+          return;
+        }
         task.total = result.total;
         this.getVidList(task, callback);
       });

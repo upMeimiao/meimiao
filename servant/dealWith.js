@@ -2048,11 +2048,16 @@ class DealWith {
       };
     if (host == 'pm.funshion.com' || host == 'm.fun.tv') {
       if (urlObj.query.mid == undefined) {
-        return callback(null, { id: '', name: '', p: 34 });
+        callback(null, { id: '', name: '', p: 34 });
+        return;
       }
       bid = urlObj.query.mid;
     } else if (path.match(/g-\d*/) == null) {
-      bid = path.match(/c-\d*/).toString().replace(/c-/, '');
+      if (!path.match(/c-(\d*)/)) {
+        callback('error', { code: 103, p: 34 });
+        return;
+      }
+      bid = path.match(/c-(\d*)/)[1];
       option.url = `http://www.fun.tv/channel/lists/${bid}/`;
       this.getfengxiang('视频号', option, callback);
     } else {
