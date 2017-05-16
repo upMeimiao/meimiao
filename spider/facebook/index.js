@@ -15,10 +15,14 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
+    this.loginFacebook = new (require('./loginFacebook'))(this);
+    this.changeState = new (require('./changeState.js'))(this);
+    this.cookies = '';
+    this.index = 0;
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
-  assembly() {
+  assembly(index) {
     async.parallel([
       (callback) => {
         myRedis.createClient(this.redis.host,
@@ -31,8 +35,22 @@ class spiderCore {
               return;
             }
             this.taskDB = cli;
-            logger.debug('任务信息数据库连接建立...成功');
-            callback();
+            const email = this.settings.spiderAPI.facebook.auth;
+            if (this.index >= email.length) {
+              index = 0;
+            }
+            this.changeState.searchDB(this.taskDB, email[index].email, (error, res) => {
+              if (error) {
+                callback(error);
+                return;
+              }
+              if (res === 1) {
+                this.assembly(this.index += 1);
+                return;
+              }
+              logger.debug('任务信息数据库连接建立...成功');
+              callback(null);
+            });
           }
         );
       },
@@ -60,28 +78,62 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-        this.deal();
-      } else {
-        this.test();
-      }
+      // process.env.NODE_ENV = 'production';
+      this.changeState.start();
+      this.getCookie(() => {
+        if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+          this.deal();
+        } else {
+          this.test();
+        }
+      });
     });
   }
   start() {
     logger.trace('启动函数');
-    this.assembly();
+    this.assembly(this.index);
+  }
+  getCookie(callback) {
+    if (this.index >= this.settings.spiderAPI.facebook.auth.length) {
+      this.index = 0;
+    }
+    this.loginFacebook.start(this.index, (err, result) => {
+      if (err) {
+        if (err === 'NoUser') {
+          logger.debug('暂时没有可用的用户账号');
+          return;
+        }
+        logger.debug('监测到错误', err);
+        return;
+      }
+      this.cookies = result;
+      if (callback) {
+        callback();
+      }
+    });
   }
   test() {
     const work = {
       id: 1452851595021771,
       name: '二更视频',
-      p: 40
+      p: 40,
+      cookies: this.cookies
     };
     this.dealWith.todo(work, (err, total) => {
+      if (err) {
+        if (err == '500') {
+          const email = this.settings.spiderAPI.facebook.auth[this.index].email;
+          this.changeState.sendError(this.taskDB, email, () => {
+            process.exit();
+          });
+        }
+        return;
+      }
       logger.debug(total);
       logger.debug('end');
     });
   }
+
   deal() {
     const queue = kue.createQueue({
       redis: {
@@ -100,6 +152,7 @@ class spiderCore {
       logger.trace('Get Facebook task!');
       const work = job.data,
         key = `${work.p}:${work.id}`;
+      work.cookies = this.cookies;
       logger.info(work);
       const d = domain.create();
       d.on('error', (err) => {
@@ -108,6 +161,13 @@ class spiderCore {
       d.run(() => {
         this.dealWith.todo(work, (error, total) => {
           if (error) {
+            if (error == '500') {
+              const email = this.settings.spiderAPI.facebook.auth[this.index].email;
+              this.changeState.sendError(this.taskDB, email, () => {
+                process.exit();
+              });
+              return;
+            }
             done(error);
             return;
           }
