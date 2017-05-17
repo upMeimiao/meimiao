@@ -357,6 +357,8 @@ class dealWith {
     // logger.debug('medis info: ',media)
     // this.sendCache( media )
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+    spiderUtils.commentSnapshots(this.core.taskDB,
+      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
     callback();
   }
   getPlayNum(vid, callback) {

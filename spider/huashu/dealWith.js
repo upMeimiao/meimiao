@@ -180,6 +180,8 @@ class dealWith {
           delete media.play_num;
         }
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        spiderUtils.commentSnapshots(this.core.taskDB,
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
       }
   );

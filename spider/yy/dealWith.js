@@ -325,6 +325,8 @@ class dealWith {
       class: type
     };
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+    spiderUtils.commentSnapshots(this.core.taskDB,
+      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
     callback();
   }
   getInfo(task, type, data, callback) {
@@ -367,6 +369,8 @@ class dealWith {
       delete media.long_t;
     }
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+    spiderUtils.commentSnapshots(this.core.taskDB,
+      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
     callback();
   }
 

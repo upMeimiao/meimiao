@@ -249,6 +249,8 @@ class dealWith {
             data.tag = result.tag;
           }
           spiderUtils.saveCache(this.core.cache_db, 'cache', data);
+          spiderUtils.commentSnapshots(this.core.taskDB,
+            { p: media.platform, aid: media.aid, comment_num: media.comment_num });
           index += 1;
           cb();
         });

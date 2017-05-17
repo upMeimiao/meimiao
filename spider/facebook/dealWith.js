@@ -89,7 +89,7 @@ class dealWith {
         platform: task.p,
         fans_num: fans
       };
-      // this.sendUser(res);
+      this.sendUser(res);
       this.sendStagingUser(res);
       callback();
     });
@@ -244,6 +244,8 @@ class dealWith {
         };
         media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        // spiderUtils.commentSnapshots(this.core.taskDB,
+        //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
       }
     );

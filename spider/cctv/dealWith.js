@@ -249,6 +249,8 @@ class dealWith {
         a_create_time: moment(time).format('X')
       };
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }

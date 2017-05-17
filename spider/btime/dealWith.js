@@ -231,6 +231,8 @@ class dealWith {
       media.v_img = data.image_url;
       media.long_t = spiderUtils.longTime(data.duration);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }
