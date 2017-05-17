@@ -87,10 +87,10 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: 8059501,
-      name: 'WWE中文字幕',
+      id: 9038333,
+      name: '十月呵护',
       p: 31,
-      encodeId: 5
+      encodeId: 75395
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);

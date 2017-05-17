@@ -70,6 +70,16 @@ class dealWith {
         callback(e.message);
         return;
       }
+      if (result.err == -1 && !result.data) {
+        const errChannel = {
+          channel: 'PPTV',
+          platform: '31',
+          userName: task.name,
+          userId: task.id
+        };
+        spiderUtils.banned(this.core.taskDB, errChannel);
+        return;
+      }
       const length = result.data.list.length;
       task.total = result.data.total;
       this.deal(task, result.data, length, () => {
