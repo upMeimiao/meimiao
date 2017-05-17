@@ -84,13 +84,7 @@ class dealWith {
           return;
         }
         if (result.retcode == 404) {
-          const errChannel = {
-            channel: '风行视频',
-            platform: '39',
-            userName: task.name,
-            userId: task.id
-          };
-          spiderUtils.banned(this.core.taskDB, errChannel);
+          spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
           return;
         }
         task.total = result.total;
