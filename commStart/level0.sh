@@ -60,39 +60,3 @@ pm2 start ~/commStart/tudou.json
 echo "任务土豆启动完成"
 
 echo "第一优先级任务启动完成"
-
-echo "启动第四级别任务"
-
-echo "启动微视"
-pm2 start ~/commStart/weishi.json
-echo "任务微视启动完成"
-
-echo "启动YY"
-pm2 start ~/commStart/yy.json
-echo "任务YY启动完成"
-
-echo "启动华数TV"
-pm2 start ~/commStart/huashu.json
-echo "任务华数TV启动完成"
-
-echo "启动风行网"
-pm2 start ~/commStart/fengxing.json
-echo "任务风行网启动完成"
-
-echo "启动暴风影音"
-pm2 start ~/commStart/baofeng.json
-echo "任务暴风影音启动完成"
-
-echo "启动新蓝网"
-pm2 start ~/commStart/xinlan.json
-echo "任务新蓝网启动完成"
-
-echo "启动PPTV"
-pm2 start ~/commStart/pptv.json
-echo "任务启动完成"
-
-echo "启动人人视频"
-pm2 start ~/commStart/renren.json
-echo "任务人人视频启动完成"
-
-echo "第四优先级任务启动完成"
