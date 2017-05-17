@@ -71,13 +71,7 @@ class dealWith {
         return;
       }
       if (result.err == -1 && !result.data) {
-        const errChannel = {
-          channel: 'PPTV',
-          platform: '31',
-          userName: task.name,
-          userId: task.id
-        };
-        spiderUtils.banned(this.core.taskDB, errChannel);
+        spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
         return;
       }
       const length = result.data.list.length;
