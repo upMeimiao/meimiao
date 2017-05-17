@@ -75,7 +75,6 @@ class dealWith {
       try {
         script = JSON.parse(script);
       } catch (e) {
-        logger.error('粉丝数据解析失败', script);
         callback(e);
         return;
       }
@@ -90,9 +89,8 @@ class dealWith {
         platform: task.p,
         fans_num: fans
       };
-      logger.debug(res);
       // this.sendUser(res);
-      // this.sendStagingUser(res);
+      this.sendStagingUser(res);
       callback();
     });
   }
@@ -161,16 +159,15 @@ class dealWith {
         option.url = `${this.settings.spiderAPI.facebook.list}{"last_fbid":${lastVid},"page":${task.id},"playlist":null,"cursor":"${cursor}"}&__user=0&__a=1`;
         request.get(logger, option, (err, result) => {
           if (err) {
-            this.getListInfo(task, callback);
+            cb();
             return;
           }
           try {
             result = result.body.replace(/for \(;;\);/, '').replace(/[\n\r]/g, '');
             result = JSON.parse(result);
           } catch (e) {
-            logger.error('facebook视频数据解析失败');
             logger.error(result);
-            this.getListInfo(task, callback);
+            cb();
             return;
           }
           $ = cheerio.load(result.payload);
@@ -183,20 +180,12 @@ class dealWith {
             cursor = result.cursor;
             lastVid = result.last_fbid;
           }
-          this.deal(task, $('td'), (error) => {
-            if (error) {
-              cb(error);
-              return;
-            }
+          this.deal(task, $('td'), () => {
             cb();
           });
         });
       },
-      (err) => {
-        if (err) {
-          callback(err);
-          return;
-        }
+      () => {
         callback();
       }
     );
@@ -206,20 +195,12 @@ class dealWith {
     async.whilst(
       () => index < list.length,
       (cb) => {
-        this.getMedia(task, list.eq(index), (err) => {
-          if (err) {
-            cb(err);
-            return;
-          }
+        this.getMedia(task, list.eq(index), () => {
           index += 1;
           cb();
         });
       },
-      (err) => {
-        if (err) {
-          callback(err);
-          return;
-        }
+      () => {
         callback();
       }
     );
@@ -262,7 +243,6 @@ class dealWith {
           a_create_time: result[0].time
         };
         media = spiderUtils.deleteProperty(media);
-        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         callback();
       }
@@ -277,7 +257,6 @@ class dealWith {
       Cookie: task.cookies
     };
     option.url = option.url.replace(/'/g, '"').replace(/[\\]/g, '');
-    // logger.debug(option);
     let dataJson = null,
       time, title, desc, playNum, commentNum, ding, sharecount, $, _$, vImg;
     option.url = option.url.toString().replace(/'/g, '"');
@@ -285,7 +264,9 @@ class dealWith {
       if (err) {
         logger.error('facebook单个视频信息接口请求失败', err);
         if (err.status == 500) {
-          callback('500');
+          spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
+            process.exit();
+          });
           return;
         }
         this.getVidInfo(task, vid, callback);

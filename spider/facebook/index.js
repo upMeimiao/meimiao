@@ -8,7 +8,6 @@ const myRedis = require('../../lib/myredis.js');
 const async = require('async');
 const domain = require('domain');
 const loginFacebook = require('./loginFacebook');
-const changeState = require('./changeState');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger, settings;
@@ -18,9 +17,7 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
-    // this.changeState = new (require('./changeState.js'))(this);
     this.cookies = '';
-    // this.index = 0;
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
@@ -69,9 +66,7 @@ class spiderCore {
       const email = this.settings.spiderAPI.facebook.auth,
         keys = [];
       for (const value of email) {
-        // logger.debug(value.email);
-        // this.searchDB(value.email);
-        keys.push(value.email);
+        keys.push(['SISMEMBER', 'user:Facebook', value.email]);
       }
       this.searchDB(keys);
     });
@@ -81,46 +76,36 @@ class spiderCore {
     this.assembly(this.index);
   }
   searchDB(keys) {
-    let index = 0, auth;
-    const length = keys.length;
-    async.whilst(
-      () => index < length,
-      (cb) => {
-        this.taskDB.EXISTS(`user:Facebook:${keys[index]}`, keys[index], (err, result) => {
-          if (err) {
-            logger.debug('查询出错: ', err);
-            return;
-          }
-          if (result === 1) {
-            logger.debug('当前facebook账户被封禁: ', keys[index]);
-            index += 1;
-            cb();
-            return;
-          }
-          if (result === 0) {
-            process.env.NODE_ENV = 'production';
-            changeState.start();
-            auth = this.settings.spiderAPI.facebook.auth[index];
-            this.getCookie(auth, () => {
-              if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-                this.deal(auth);
-              } else {
-                this.test(auth);
-              }
-            });
-            return;
-          }
-          index += 1;
-          cb();
-        });
-      },
-      () => {
-        logger.debug('没有可用账号');
-        spiderUtils.sendError(this.taskDB, '没有可用账号', () => {
+    this.taskDB.multi(
+      keys
+    ).exec((err, result) => {
+      if (err) {
+        logger.debug('error', err);
+        return;
+      }
+      let auth;
+      for (const [key, val] of result.entries()) {
+        if (val === 0) {
+          auth = this.settings.spiderAPI.facebook.auth[key];
+          break;
+        }
+      }
+      if (!auth) {
+        spiderUtils.sendError(this.taskDB, 'Facebook当前没有可用账号', () => {
           process.exit();
         });
+        return;
       }
-    );
+      this.auth = auth;
+      this.getCookie(auth, () => {
+        process.env.NODE_ENV = 'production';
+        if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+          this.deal();
+        } else {
+          this.test();
+        }
+      });
+    });
   }
   getCookie(auth, callback) {
     const parameter = {
@@ -140,7 +125,7 @@ class spiderCore {
       }
     });
   }
-  test(auth) {
+  test() {
     const work = {
       id: 1452851595021771,
       name: '二更视频',
@@ -149,12 +134,6 @@ class spiderCore {
     };
     this.dealWith.todo(work, (err, total) => {
       if (err) {
-        if (err == '500') {
-          const email = auth.email;
-          spiderUtils.sendError(this.taskDB, email, () => {
-            process.exit();
-          });
-        }
         return;
       }
       logger.debug(total);
@@ -162,7 +141,7 @@ class spiderCore {
     });
   }
 
-  deal(auth) {
+  deal() {
     const queue = kue.createQueue({
       redis: {
         port: this.redis.port,
@@ -194,13 +173,6 @@ class spiderCore {
       d.run(() => {
         this.dealWith.todo(work, (error, total) => {
           if (error) {
-            if (error == '500') {
-              const email = auth.email;
-              spiderUtils.sendError(this.taskDB, email, () => {
-                process.exit();
-              });
-              return;
-            }
             done(error);
             return;
           }
