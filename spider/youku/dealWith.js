@@ -18,41 +18,45 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (callback) => {
+        user: (cb) => {
           this.getUser(task, (err) => {
             if (err) {
-              return setTimeout(() => {
-                this.getUser(task, () => callback(null, '用户信息已返回'));
+              setTimeout(() => {
+                this.getUser(task, () => cb(null, '用户信息已返回'));
               }, 1000);
+              return;
             }
-            callback(null, '用户信息已返回');
+            cb(null, '用户信息已返回');
           });
         },
-        media: (callback) => {
+        media: (cb) => {
           this.getTotal(task, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '视频信息已返回');
+            cb(null, '视频信息已返回');
           });
         },
-                // program: (callback) => {
-                //     this.core.getProgram.start(task, (err)=>{
-                //         if(err){
-                //             return callback(err)
-                //         }
-                //         callback(null,"专辑信息已返回")
-                //     })
-                // }
+        // program: (cb) => {
+        //   this.core.getProgram.start(task, (err) => {
+        //     if (err) {
+        //       cb(err);
+        //       return;
+        //     }
+        //     cb(null, '专辑信息已返回');
+        //   });
+        // }
       },
-            (err, result) => {
-              if (err) {
-                return callback(err);
-              }
-              logger.debug(`${task.id}_result:`, result);
-              callback(null, task.total);
-            }
-        );
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        logger.debug(`${task.id}_result:`, result);
+        callback(null, task.total);
+      }
+    );
   }
   getUser(task, callback) {
     const options = {
@@ -62,26 +66,30 @@ class dealWith {
     request(options, (err, res, body) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback(err.message);
+        callback(err.message);
+        return;
       }
       if (res.statusCode !== 200) {
-        return callback(res.statusCode);
+        callback(res.statusCode);
+        return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
-        return callback(e.message);
+        callback(e.message);
+        return;
       }
       if (body.code !== 1) {
-        return callback(body.desc);
+        callback(body.desc);
+        return;
       }
-      let userInfo = body.data.channelOwnerInfo,
+      const userInfo = body.data.channelOwnerInfo,
         user = {
           platform: 1,
           bid: task.id,
           fans_num: userInfo.followerNum
         };
-      this.sendUser(user, (err, result) => {
+      this.sendUser(user, () => {
         callback();
       });
       this.sendStagingUser(user);
@@ -97,16 +105,18 @@ class dealWith {
       if (err) {
         logger.error('occur error : ', err);
         logger.info(`返回优酷用户 ${user.bid} 连接服务器失败`);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
         logger.error(`优酷用户 ${user.bid} json数据解析失败`);
         logger.info(body);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (body.errno == 0) {
+      if (Number(body.errno) === 0) {
         logger.debug('优酷用户:', `${user.bid} back_end`);
       } else {
         logger.error('优酷用户:', `${user.bid} back_error`);
@@ -134,7 +144,7 @@ class dealWith {
         logger.info('send error:', body);
         return;
       }
-      if (body.errno == 0) {
+      if (Number(body.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -143,46 +153,50 @@ class dealWith {
     });
   }
   getTotal(task, callback) {
-    let page,
-      options = {
-        method: 'GET',
-        url: this.settings.spiderAPI.youku.list,
-        qs: { caller: '1', pg: '1', pl: '20', uid: task.encodeId },
-        headers: {
-          'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
-        },
-        timeout: 5000
-      };
+    let page;
+    const options = {
+      method: 'GET',
+      url: this.settings.spiderAPI.youku.list,
+      qs: { caller: '1', pg: '1', pl: '20', uid: task.encodeId },
+      headers: {
+        'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
+      },
+      timeout: 5000
+    };
     request(options, (error, response, body) => {
       if (error) {
         logger.error('occur error : ', error);
-        return callback(error);
+        callback(error);
+        return;
       }
       if (response.statusCode !== 200) {
         logger.error(`total error code: ${response.statusCode}`);
-        return callback(response.statusCode);
+        callback(response.statusCode);
+        return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info('total error:', body);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (body.code !== 1) {
         logger.error(body);
         if (body.code === -503) {
           spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
-          return callback();
+          callback();
+          return;
         }
-        return callback(body.desc);
+        if (task.id === '831934191' && body.code === -102) {
+          callback();
+          return;
+        }
+        callback(body.desc);
+        return;
       }
       const data = body.data;
-            // if(!data){
-            //     logger.error('未知错误')
-            //     logger.error(body)
-            //     return callback('code-012')
-            // }
       const total = data.total;
       task.total = total;
       if (total % 50 !== 0) {
@@ -196,55 +210,60 @@ class dealWith {
     });
   }
   getVideos(task, page, callback) {
-    let sign = 1, options;
+    let sign = 1;
+    const options = {
+      method: 'GET',
+      url: this.settings.spiderAPI.youku.list,
+      headers: {
+        'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
+      },
+      timeout: 5000
+    };
     async.whilst(
-            () => sign <= Math.min(page, 25),
-            (cb) => {
-              options = {
-                method: 'GET',
-                url: this.settings.spiderAPI.youku.list,
-                qs: { caller: '1', pg: sign, pl: '50', uid: task.encodeId },
-                headers: {
-                  'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
-                },
-                timeout: 5000
-              };
-              request(options, (error, response, body) => {
-                if (error) {
-                  logger.error('occur error : ', error);
-                  return cb();
-                }
-                if (response.statusCode !== 200) {
-                  logger.error(`list error code: ${response.statusCode}`);
-                  return cb();
-                }
-                try {
-                  body = JSON.parse(body);
-                } catch (e) {
-                  logger.error('json数据解析失败');
-                  logger.info('list error:', body);
-                  return cb();
-                }
-                const data = body.data;
-                if (!data) {
-                  sign++;
-                  return cb();
-                }
-                const videos = data.videos;
-                if (videos.length === 0) {
-                  sign++;
-                  return cb();
-                }
-                this.info(task, videos, () => {
-                  sign++;
-                  cb();
-                });
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign <= Math.min(page, 25),
+      (cb) => {
+        options.qs = { caller: '1', pg: sign, pl: '50', uid: task.encodeId };
+        request(options, (error, response, body) => {
+          if (error) {
+            logger.error('occur error : ', error);
+            cb();
+            return;
+          }
+          if (response.statusCode !== 200) {
+            logger.error(`list error code: ${response.statusCode}`);
+            cb();
+            return;
+          }
+          try {
+            body = JSON.parse(body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info('list error:', body);
+            cb();
+            return;
+          }
+          const data = body.data;
+          if (!data) {
+            sign += 1;
+            cb();
+            return;
+          }
+          const videos = data.videos;
+          if (videos.length === 0) {
+            sign += 1;
+            cb();
+            return;
+          }
+          this.info(task, videos, () => {
+            sign += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   info(task, list, callback) {
     const idList = [];
@@ -264,24 +283,29 @@ class dealWith {
     request(options, (error, response, body) => {
       if (error) {
         logger.error('info occur error: ', error);
-        return callback(error);
+        callback(error);
+        return;
       }
       if (response.statusCode !== 200) {
         logger.error(`info error code: ${response.statusCode}`);
-        return callback(response.statusCode);
+        callback(response.statusCode);
+        return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
         logger.error('info json数据解析失败');
         logger.info('info error:', body);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (body.total == 0) {
-        return callback();
+        callback();
+        return;
       }
       if (!body.videos) {
-        return callback();
+        callback();
+        return;
       }
       this.deal(task, body.videos, list, () => {
         callback();
@@ -289,39 +313,40 @@ class dealWith {
     });
   }
   deal(task, videos, list, callback) {
+    const length = videos.length;
     let index = 0,
-      length = videos.length;
+      video, result, media;
     async.whilst(
-            () => index < length,
-            (cb) => {
-              const video = list[index];
-              const result = videos[index];
-              const media = {
-                author: task.name,
-                platform: 1,
-                bid: task.id,
-                aid: video.videoid,
-                title: video.title.substr(0, 100).replace(/"/g, ''),
-                desc: result.description.substr(0, 100).replace(/"/g, ''),
-                class: result.category,
-                tag: result.tags,
-                v_img: result.bigThumbnail,
-                long_t: Math.round(result.duration),
-                play_num: video.total_vv,
-                save_num: result.favorite_count,
-                comment_num: result.comment_count,
-                support: result.up_count,
-                step: result.down_count,
-                a_create_time: video.publishtime
-              };
-              spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-              index++;
-              cb();
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        video = list[index];
+        result = videos[index];
+        media = {
+          author: task.name,
+          platform: 1,
+          bid: task.id,
+          aid: video.videoid,
+          title: video.title.substr(0, 100).replace(/"/g, ''),
+          desc: result.description.substr(0, 100).replace(/"/g, ''),
+          class: result.category,
+          tag: result.tags,
+          v_img: result.bigThumbnail,
+          long_t: Math.round(result.duration),
+          play_num: video.total_vv,
+          save_num: result.favorite_count,
+          comment_num: result.comment_count,
+          support: result.up_count,
+          step: result.down_count,
+          a_create_time: video.publishtime
+        };
+        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        index += 1;
+        cb();
+      },
+      () => {
+        callback();
+      }
+    );
   }
 }
 module.exports = dealWith;
