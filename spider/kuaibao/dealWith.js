@@ -182,7 +182,7 @@ class dealWith {
       url: this.settings.spiderAPI.kuaibao.video,
       referer: 'http://r.cnews.qq.com/inews/iphone/',
       data: {
-        chlid: 5458470,
+        chlid: task.id,
         is_video: 1
       }
     };
@@ -203,15 +203,20 @@ class dealWith {
       for (const ids of result.ids) {
         idStr += `,${ids.id}`;
       }
-      delete option.data.chlid;
-      option.url = this.settings.spiderAPI.kuaibao.list;
-      option.data.ids = idStr.replace(',', '');
-      this.getVideoList(task, option, () => {
+      this.getVideoList(task, idStr.replace(',', ''), () => {
         callback();
       });
     });
   }
-  getVideoList(task, option, callback) {
+  getVideoList(task, idStr, callback) {
+    const option = {
+      url: this.settings.spiderAPI.kuaibao.list,
+      referer: 'http://r.cnews.qq.com/inews/iphone/',
+      data: {
+        ids: idStr,
+        is_video: 1
+      }
+    };
     request.post(logger, option, (err, result) => {
       if (err) {
         callback(err);
@@ -232,7 +237,6 @@ class dealWith {
   deal(task, list, callback) {
     let index = 0;
     const length = list.length;
-    logger.info(length);
     async.whilst(
       () => index < length,
       (cb) => {
