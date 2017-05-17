@@ -59,17 +59,16 @@ class dealWith {
         callback(err);
         return;
       }
-      result = result.body.replace(/[\n\r]/g, '');
+      result = result.body;
       const $ = cheerio.load(result);
-      if (!$('script')[5].children[0]) {
-        logger.debug('Re-request');
-        this.getUserInfo(task, callback);
-        return;
+      let script, fans;
+      if ($('script')[5].children[0]) {
+        script = $('script')[5].children[0].data;
+      } else {
+        script = $('script')[7].children[0].data;
       }
-      let script = $('script')[5].children[0].data,
-        fans;
-      script = script.match(/new \(require\("ServerJS"\)\)\(\).setServerFeatures\("iw"\).handle\(/);
-      if (!script[1]) {
+      const scriptReg = script.includes('new (require("ServerJS"))().setServerFeatures');
+      if (!scriptReg) {
         script = $('script')[6].children[0].data;
       }
       script = script.replace('new (require("ServerJS"))().setServerFeatures("iw").handle(', '').replace(');', '');
@@ -277,7 +276,7 @@ class dealWith {
       referer: `https://www.facebook.com/${task.id}/?fref=ts`,
       Cookie: task.cookies
     };
-    option.url = option.url.replace(/'/g, '"').replace(/[\\]/g, '')
+    option.url = option.url.replace(/'/g, '"').replace(/[\\]/g, '');
     // logger.debug(option);
     let dataJson = null,
       time, title, desc, playNum, commentNum, ding, sharecount, $, _$, vImg;

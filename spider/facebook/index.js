@@ -7,6 +7,9 @@ const request = require('request');
 const myRedis = require('../../lib/myredis.js');
 const async = require('async');
 const domain = require('domain');
+const loginFacebook = require('./loginFacebook');
+const changeState = require('./changeState');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger, settings;
 class spiderCore {
@@ -15,14 +18,13 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
-    this.loginFacebook = new (require('./loginFacebook'))(this);
-    this.changeState = new (require('./changeState.js'))(this);
+    // this.changeState = new (require('./changeState.js'))(this);
     this.cookies = '';
-    this.index = 0;
+    // this.index = 0;
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
-  assembly(index) {
+  assembly() {
     async.parallel([
       (callback) => {
         myRedis.createClient(this.redis.host,
@@ -35,22 +37,8 @@ class spiderCore {
               return;
             }
             this.taskDB = cli;
-            const email = this.settings.spiderAPI.facebook.auth;
-            if (this.index >= email.length) {
-              index = 0;
-            }
-            this.changeState.searchDB(this.taskDB, email[index].email, (error, res) => {
-              if (error) {
-                callback(error);
-                return;
-              }
-              if (res === 1) {
-                this.assembly(this.index += 1);
-                return;
-              }
-              logger.debug('任务信息数据库连接建立...成功');
-              callback(null);
-            });
+            logger.debug('任务信息数据库连接建立...成功');
+            callback(null);
           }
         );
       },
@@ -78,32 +66,72 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      // process.env.NODE_ENV = 'production';
-      this.changeState.start();
-      this.getCookie(() => {
-        if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-          this.deal();
-        } else {
-          this.test();
-        }
-      });
+      const email = this.settings.spiderAPI.facebook.auth,
+        keys = [];
+      for (const value of email) {
+        // logger.debug(value.email);
+        // this.searchDB(value.email);
+        keys.push(value.email);
+      }
+      this.searchDB(keys);
     });
   }
   start() {
     logger.trace('启动函数');
     this.assembly(this.index);
   }
-  getCookie(callback) {
-    if (this.index >= this.settings.spiderAPI.facebook.auth.length) {
-      this.index = 0;
-    }
-    this.loginFacebook.start(this.index, (err, result) => {
+  searchDB(keys) {
+    let index = 0, auth;
+    const length = keys.length;
+    async.whilst(
+      () => index < length,
+      (cb) => {
+        this.taskDB.EXISTS(`user:Facebook:${keys[index]}`, keys[index], (err, result) => {
+          if (err) {
+            logger.debug('查询出错: ', err);
+            return;
+          }
+          if (result === 1) {
+            logger.debug('当前facebook账户被封禁: ', keys[index]);
+            index += 1;
+            cb();
+            return;
+          }
+          if (result === 0) {
+            process.env.NODE_ENV = 'production';
+            changeState.start();
+            auth = this.settings.spiderAPI.facebook.auth[index];
+            this.getCookie(auth, () => {
+              if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+                this.deal(auth);
+              } else {
+                this.test(auth);
+              }
+            });
+            return;
+          }
+          index += 1;
+          cb();
+        });
+      },
+      () => {
+        logger.debug('没有可用账号');
+        spiderUtils.sendError(this.taskDB, '没有可用账号', () => {
+          process.exit();
+        });
+      }
+    );
+  }
+  getCookie(auth, callback) {
+    const parameter = {
+      loginAddr: this.settings.spiderAPI.facebook.loginAddr,
+      timeout: 0,
+      auth
+    };
+    loginFacebook.start(parameter, (err, result) => {
       if (err) {
-        if (err === 'NoUser') {
-          logger.debug('暂时没有可用的用户账号');
-          return;
-        }
-        logger.debug('监测到错误', err);
+        logger.debug('当前用户不可用', err);
+        callback();
         return;
       }
       this.cookies = result;
@@ -112,7 +140,7 @@ class spiderCore {
       }
     });
   }
-  test() {
+  test(auth) {
     const work = {
       id: 1452851595021771,
       name: '二更视频',
@@ -122,8 +150,8 @@ class spiderCore {
     this.dealWith.todo(work, (err, total) => {
       if (err) {
         if (err == '500') {
-          const email = this.settings.spiderAPI.facebook.auth[this.index].email;
-          this.changeState.sendError(this.taskDB, email, () => {
+          const email = auth.email;
+          spiderUtils.sendError(this.taskDB, email, () => {
             process.exit();
           });
         }
@@ -134,7 +162,7 @@ class spiderCore {
     });
   }
 
-  deal() {
+  deal(auth) {
     const queue = kue.createQueue({
       redis: {
         port: this.redis.port,
@@ -148,6 +176,11 @@ class spiderCore {
     });
     // queue.watchStuckJobs( 1000 );
     logger.trace('Queue get ready');
+    kue.Job.rangeByType('Facebook', 'active', 0, 100, 'asc', (err, jobs) => {
+      jobs.forEach((job) => {
+        job.inactive();
+      });
+    });
     queue.process('Facebook', this.settings.concurrency, (job, done) => {
       logger.trace('Get Facebook task!');
       const work = job.data,
@@ -162,8 +195,8 @@ class spiderCore {
         this.dealWith.todo(work, (error, total) => {
           if (error) {
             if (error == '500') {
-              const email = this.settings.spiderAPI.facebook.auth[this.index].email;
-              this.changeState.sendError(this.taskDB, email, () => {
+              const email = auth.email;
+              spiderUtils.sendError(this.taskDB, email, () => {
                 process.exit();
               });
               return;

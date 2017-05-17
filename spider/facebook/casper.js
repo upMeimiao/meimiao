@@ -41,10 +41,12 @@ casper.then(function () {
       cookies += val.name + '=' + val.value + ';';
     });
     system.stdout.writeLine(cookies);
+    casper.exit();
   }, function () {
     var content = phantom.content;
     console.log('登录失败', content);
     system.stdout.writeLine('error');
+    casper.exit();
   }, 25000);
 });
 casper.run();
