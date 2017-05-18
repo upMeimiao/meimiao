@@ -255,6 +255,9 @@ class spiderCore {
       case 'www.click-v.com':
         this.handle.dianshiHandle(ctx, remote);
         break;
+      case 'bolo.163.com':
+        this.handle.boloHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');
