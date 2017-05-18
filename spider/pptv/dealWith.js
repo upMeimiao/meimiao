@@ -19,6 +19,7 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
+    task.timeout = 0;
     this.getVidList(task, (err) => {
       if (err) {
         callback(err);
@@ -71,8 +72,13 @@ class dealWith {
         return;
       }
       if (result.err == -1 && !result.data) {
-        spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
-        callback();
+        if (task.timeout > 1) {
+          spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
+          callback();
+          return;
+        }
+        task.timeout += 1;
+        this.getVidList(task, callback);
         return;
       }
       const length = result.data.list.length;

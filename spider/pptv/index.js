@@ -87,10 +87,10 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: 9038333,
+      id: 8059422,
       name: '十月呵护',
       p: 31,
-      encodeId: 75395
+      encodeId: 211352
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
