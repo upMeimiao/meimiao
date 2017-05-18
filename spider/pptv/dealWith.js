@@ -72,7 +72,7 @@ class dealWith {
         return;
       }
       if (result.err == -1 && !result.data) {
-        if (task.timeout > 1) {
+        if (task.timeout > 2) {
           spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
           callback();
           return;
