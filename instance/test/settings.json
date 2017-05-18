@@ -138,7 +138,7 @@
       "api": "http://api.miaopai.com/m/shot_channel.json?version=6.3.7&os=ios&page="
     },
     "neihan": {
-      "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?user_id=",
+      "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?device_platform=iphone&user_id=",
       "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id="
     },
     "pptv": {
@@ -233,7 +233,16 @@
     },
     "facebook":{
       "list": "https://www.facebook.com/ajax/pagelet/generic.php/PagesVideoHubVideoContainerPagelet?dpr=1&data=",
-      "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',"
+      "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',",
+      "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
+      "auth": [
+        {"email": "1425423221@qq.com","pass": "hui11111"},
+        {"email": "2781800124@qq.com","pass": "hui11111"}
+      ]
+    },
+    "bolo":{
+      "list": "http://bolo.163.com/bolo/api/channel/videoList.htm?pageSize=100&rendering=true",
+      "videoInfo": "http://bolo.163.com/bolo/api/video/videoInfo.htm?videoId="
     }
   },
   "servantAPI": {

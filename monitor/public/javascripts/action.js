@@ -102,6 +102,34 @@ const vm = new Vue({
   filters: {
   },
   methods: {
+    getSummaries(param) {
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '合计';
+          return;
+        }
+        if (index !== 3) {
+          sums[index] = '';
+          return;
+        }
+        const values = data.map(item => Number(item[column.property]));
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr);
+            if (!isNaN(value)) {
+              return prev + curr;
+            } else {
+              return prev;
+            }
+          }, 0);
+        } else {
+          sums[index] = 'N/A';
+        }
+      });
+      return sums;
+    },
     changePlatform(lab) {
       this.refresh(lab);
     },
@@ -235,7 +263,7 @@ const vm = new Vue({
     socket.on('cache', (data) => {
       this.$notify.info({
         title: '暂存队列消息',
-        message: `目前缓存队列中有${data.num}条数据`,
+        message: `目前视频队列中有${data.videoNum}条数据，评论队列中有${data.commentNum}条数据`,
         duration: 360000
       });
     });

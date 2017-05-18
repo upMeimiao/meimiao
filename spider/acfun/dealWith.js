@@ -7,6 +7,15 @@ const channels = require('./channels');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
+const _tags = (raw) => {
+  if (typeof raw === 'string') {
+    return raw;
+  }
+  if (Object.prototype.toString.call(raw) === '[object Array]') {
+    return raw.join(',');
+  }
+  return '';
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -53,14 +62,16 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('acfun粉丝json数据解析失败');
         logger.error(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       const data = result.data,
         user = {
@@ -82,16 +93,18 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info('send error:', result);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('A站用户:', `${user.bid} back_end`);
       } else {
         logger.error('A站用户:', `${user.bid} back_error`);
@@ -117,7 +130,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('A站用户:', `${user.bid} back_end`);
       } else {
         logger.error('A站用户:', `${user.bid} back_error`);
@@ -134,20 +147,23 @@ class dealWith {
     };
     request.get(logger, option, (error, result) => {
       if (error) {
-        return callback(error);
+        callback(error);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info('json1 error :', result.body);
-        return callback(e);
+        callback(e);
+        return;
       }
       task.total = result.totalcount;
       const page = result.totalpage;
       this.getList(task, page, (err) => {
         if (err) {
-          return callback(err);
+          callback(err);
+          return;
         }
         callback(null, '视频信息已返回');
       });
@@ -167,14 +183,16 @@ class dealWith {
         };
         request.get(logger, option, (err, result) => {
           if (err) {
-            return cb();
+            cb();
+            return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.error('json数据解析失败');
             logger.info('json error: ', result.body);
-            return callback(e);
+            cb();
+            return;
           }
           const list = result.contents;
           if (list) {
@@ -210,7 +228,8 @@ class dealWith {
   }
   getInfo(task, data, callback) {
     if (!data.vid) {
-      return callback();
+      callback();
+      return;
     }
     const time = data.releaseDate,
       a_create_time = time.toString().substring(0, 10),
@@ -227,20 +246,13 @@ class dealWith {
         a_create_time,
         long_t: data.time,
         v_img: data.titleImg,
-        tag: this._tags(data.tags),
+        tag: _tags(data.tags),
         class: channels.get(Number(data.channelId))
       };
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+    spiderUtils.commentSnapshots(this.core.taskDB,
+      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
     callback();
-  }
-  _tags(raw) {
-    if (typeof raw === 'string') {
-      return raw;
-    }
-    if (Object.prototype.toString.call(raw) === '[object Array]') {
-      return raw.join(',');
-    }
-    return '';
   }
 }
 module.exports = dealWith;

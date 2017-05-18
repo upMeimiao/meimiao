@@ -36,6 +36,7 @@ class dealWith {
       url: `${this.settings.iqiyi.list}${task.aid}&tvid=${task.aid}&page=1`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('爱奇艺评论总量请求失败', err);
@@ -51,7 +52,7 @@ class dealWith {
         return;
       }
       task.cNum = result.data.count;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || result.data.comments.length <= 0) {
         callback(null, 'add_0');
         return;
       }
@@ -90,9 +91,14 @@ class dealWith {
             cb();
             return;
           }
+          if (!result.data.comments) {
+            page += 1;
+            cb();
+            return;
+          }
           this.deal(task, result.data.comments, () => {
             if (task.isEnd) {
-              callback();
+              callback(null, 'add_0');
               return;
             }
             page += 1;

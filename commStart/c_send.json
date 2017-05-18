@@ -1,7 +1,7 @@
 {
   "name"        : "c_send",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","master","-a","server","-t","comment"],
+  "args"        : ["-i","comment","-a","server","-t","comment"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

@@ -23,35 +23,35 @@ class spiderCore {
     async.parallel([
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.taskDB,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        callback(err);
-                        return;
-                      }
-                      this.taskDB = cli;
-                      logger.debug('任务信息数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.taskDB,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.taskDB = cli;
+            logger.debug('任务信息数据库连接建立...成功');
+            callback();
+          }
+        );
       },
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.cache_db,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        callback(err);
-                        return;
-                      }
-                      this.cache_db = cli;
-                      logger.debug('缓存队列数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.cache_db,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.cache_db = cli;
+            logger.debug('缓存队列数据库连接建立...成功');
+            callback();
+          }
+        );
       }
     ], (err) => {
       if (err) {
@@ -87,10 +87,10 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: 8059501,
-      name: 'WWE中文字幕',
+      id: 8059422,
+      name: '十月呵护',
       p: 31,
-      encodeId: 5
+      encodeId: 211352
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);

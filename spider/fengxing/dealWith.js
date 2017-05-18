@@ -83,6 +83,11 @@ class dealWith {
           callback(e.message);
           return;
         }
+        if (result.retcode == 404) {
+          spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
+          callback();
+          return;
+        }
         task.total = result.total;
         this.getVidList(task, callback);
       });
@@ -322,6 +327,8 @@ class dealWith {
               a_create_time: result[0].time
             };
             spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+            spiderUtils.commentSnapshots(this.core.taskDB,
+              { p: media.platform, aid: media.aid, comment_num: media.comment_num });
             callback();
           }
         );

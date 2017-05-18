@@ -90,6 +90,7 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.kuaibao.user + task.id
     };
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         callback();
@@ -198,30 +199,37 @@ class dealWith {
         return;
       }
       task.total = result.newslist.length;
-      const idArr = [], videoArr = [];
-      for (const ids of result.ids.entries()) {
-        for (const videos of result.newslist.entries()) {
-          if (ids[1].id === videos[1].id) {
-            idArr.push({
-              id: videos[1].id,
-              vid: videos[1].video_channel.video.vid,
-              type: videos[1].articletype,
-              commentId: videos[1].commentid,
-              title: videos[1].title,
-              time: videos[1].timestamp,
-            });
-          }
-        }
+      let idStr = '';
+      for (const ids of result.ids) {
+        idStr += `,${ids.id}`;
       }
-      for (const ids of idArr.entries()) {
-        for (const videoHits of result.videoHits.entries()) {
-          if (ids[1].vid === videoHits[1].vid) {
-            videoArr.push(Object.assign(ids[1], { playcount: videoHits[1].playcount }));
-          }
-        }
+      this.getVideoList(task, idStr.replace(',', ''), () => {
+        callback();
+      });
+    });
+  }
+  getVideoList(task, idStr, callback) {
+    const option = {
+      url: this.settings.spiderAPI.kuaibao.list,
+      referer: 'http://r.cnews.qq.com/inews/iphone/',
+      data: {
+        ids: idStr,
+        is_video: 1
       }
-      // logger.debug(videoArr);
-      this.deal(task, videoArr, () => {
+    };
+    request.post(logger, option, (err, result) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('json数据解析失败', result);
+        callback(e);
+        return;
+      }
+      this.deal(task, result.newslist, () => {
         callback();
       });
     });
@@ -349,6 +357,8 @@ class dealWith {
       };
       media = spiderUtils.deleteProperty(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }

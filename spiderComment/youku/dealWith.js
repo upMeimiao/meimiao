@@ -1,12 +1,16 @@
 /**
 * Created by junhao on 2017/2/08.
 */
-const moment = require('moment');
 const async = require('async');
+const crypto = require('crypto');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
+const sign = (e) => {
+  const md5 = crypto.createHash('md5');
+  return md5.update(`100-DDwODVkv&6c4aa6af6560efff5df3c16c704b49f1&${e}`).digest('hex');
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -33,9 +37,10 @@ class dealWith {
     });
   }
   totalPage(task, callback) {
-    const option = {
-      url: `${this.settings.youku.list}${task.aid}&page=1&count=100`
-    };
+    const time = parseInt(new Date().getTime() / 1000),
+      option = {
+        url: `${this.settings.youku.list}${task.aid}&currentPage=1&sign=${sign(time)}&time=${time}`
+      };
     let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -51,19 +56,23 @@ class dealWith {
         callback(err);
         return;
       }
-      task.cNum = result.total;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if (result.code && result.code == -4) {
+        this.totalPage(task, callback);
+        return;
+      }
+      task.cNum = result.data.totalSize;
+      if ((task.cNum - task.commentNum) <= 0 || !result.data.comment || result.data.comment.length <= 0) {
         callback(null, 'add_0');
         return;
       }
       if (task.commentNum <= 0) {
-        total = (task.cNum % 100) === 0 ? task.cNum / 100 : Math.ceil(task.cNum / 100);
+        total = (task.cNum % 30) === 0 ? task.cNum / 30 : Math.ceil(task.cNum / 30);
       } else {
         total = (task.cNum - task.commentNum);
-        total = (total % 100) === 0 ? total / 100 : Math.ceil(total / 100);
+        total = (total % 30) === 0 ? total / 30 : Math.ceil(total / 30);
       }
-      task.lastTime = moment(new Date(result.comments[0].published)).format('X');
-      task.lastId = result.comments[0].id;
+      task.lastTime = parseInt(result.data.comment[0].createTime / 1000);
+      task.lastId = result.data.comment[0].id;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
         callback();
@@ -72,11 +81,12 @@ class dealWith {
   }
   commentList(task, total, callback) {
     let page = 1;
-    const option = {};
+    const option = {},
+      time = parseInt(new Date().getTime() / 1000);
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.youku.list}${task.aid}&page=${page}&count=100`;
+        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(time)}&time=${time}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('优酷评论列表请求失败', err);
@@ -91,10 +101,13 @@ class dealWith {
             cb();
             return;
           }
-          this.deal(task, result.comments, () => {
+          if (result.code && result.code == -4) {
+            cb();
+            return;
+          }
+          this.deal(task, result.data.comment, () => {
             if (task.isEnd) {
-              callback();
-              return;
+              total = -1;
             }
             page += 1;
             cb();
@@ -107,17 +120,18 @@ class dealWith {
     );
   }
   deal(task, comments, callback) {
-    const length = comments.length;
-    let index = 0,
+    let length = comments.length,
+      index = 0,
       time,
       comment;
     async.whilst(
       () => index < length,
       (cb) => {
-        time = new Date(comments[index].published);
+        time = parseInt(comments[index].createTime / 1000);
         if (task.commentId === comments[index].id || task.commentTime >= time) {
           task.isEnd = true;
-          callback();
+          length = 0;
+          cb();
           return;
         }
         comment = {
@@ -126,13 +140,14 @@ class dealWith {
           aid: task.aid,
           cid: comments[index].id,
           content: spiderUtils.stringHandling(comments[index].content),
-          ctime: moment(time).format('X'),
-          support: '',
-          step: '',
-          reply: '',
+          ctime: time,
+          support: comments[index].upCount,
+          step: comments[index].downCount,
+          reply: comments[index].replyCount,
           c_user: {
-            uid: comments[index].user ? comments[index].user.id : '',
-            uname: comments[index].user ? comments[index].user.name : ''
+            uid: comments[index].user ? comments[index].user.userId : comments[index].userId,
+            uname: comments[index].user ? comments[index].user.userName : '',
+            avatar: comments[index].user ? comments[index].user.avatarLarge : ''
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);

@@ -84,6 +84,37 @@ http://momentjs.cn/
 * class  分类
 * long_t  时长
 
+## 专辑视频需要信息
+
+* platform  平台id
+* bid  帐号id
+* program_list 专辑栏目列表数组（里边存储的是整个列表里的专辑信息）
+* program_id   专辑id
+* program_name  专辑名称
+* link  专辑链接
+* play_link  专辑播放链接
+* thumbnail  专辑截图
+* video_count  专辑视频数量
+* view_count  专辑总播放量
+* published  专辑创建时间
+* video_list  单个专辑里所有的视频ID存储数组
+
+## 评论需要信息
+
+* platform  平台id
+* bid  帐号id
+* aid   视频(文章)id
+* cid  评论id
+* content  评论内容
+* ctime  评论发布时间
+* support  评论信息顶量
+* step  评论踩数
+* reply  评论回复数
+* c_user  用来存放评论者的信息对象
+* uid  评论者id
+* uname  评论者名称
+* uavatar  评论者头像
+
 ## 平台ID
 
 1. 优酷视频
@@ -129,6 +160,7 @@ http://momentjs.cn/
 41. 人人视频
 42. 点视
 43. 小米想看（spider未支持，巧发支持）
+44. 网易菠萝
 
 ## 流程图
 ![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)

@@ -259,7 +259,7 @@ class dealWith {
       if (back.data.tags && back.data.tags.length !== 0) {
         tagStr = back.data.tags.join(',');
       }
-      const media = {
+      let media = {
         author: back.data.owner.name,
         platform: 8,
         bid: task.id,
@@ -276,10 +276,10 @@ class dealWith {
         class: back.data.tname,
         tag: tagStr
       };
-      if (!media.save_num) {
-        delete media.save_num;
-      }
+      media = spiderUtils.deleteProperty(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }

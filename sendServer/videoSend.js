@@ -44,7 +44,7 @@ class videoSend {
   }
   getData() {
     const key = [], list = [];
-    for (let i = 0; i < 500; i += 1) {
+    for (let i = 0; i < 800; i += 1) {
       key[i] = ['lpop', 'cache'];
     }
     this.redis.pipeline(

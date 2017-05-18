@@ -19,6 +19,7 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
+    task.timeout = 0;
     this.getVidList(task, (err) => {
       if (err) {
         callback(err);
@@ -68,6 +69,16 @@ class dealWith {
       } catch (e) {
         logger.error('json数据解析失败', result);
         callback(e.message);
+        return;
+      }
+      if (result.err == -1 && !result.data) {
+        if (task.timeout > 2) {
+          spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
+          callback();
+          return;
+        }
+        task.timeout += 1;
+        this.getVidList(task, callback);
         return;
       }
       const length = result.data.list.length;
@@ -133,6 +144,8 @@ class dealWith {
         play_num: spiderUtils.numberHandling(video.pv)
       };
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }
@@ -151,7 +164,7 @@ class dealWith {
           return;
         }
         setTimeout(() => {
-          times += 1
+          times += 1;
           this.getVideoInfo(task, url, times, callback);
         }, 100);
         return;

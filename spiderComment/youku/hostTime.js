@@ -2,10 +2,14 @@
  * Created by dell on 2017/3/9.
  */
 const async = require('async');
-const moment = require('moment');
+const crypto = require('crypto');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
+const sign = (e) => {
+  const md5 = crypto.createHash('md5');
+  return md5.update(`100-DDwODVkv&6c4aa6af6560efff5df3c16c704b49f1&${e}`).digest('hex');
+};
 let logger;
 class hostTime {
   constructor(spiderCore) {
@@ -16,76 +20,79 @@ class hostTime {
   todo(task, callback) {
     task.hostTotal = 0;
     task.timeTotal = 0;
-    this.getCommentId(task, (err) => {
-      if (err) {
-        callback(err);
-      } else {
+    async.parallel(
+      {
+        hot: (cb) => {
+          this.getHot(task, () => {
+            cb(null, '热门评论完成');
+          });
+        },
+        time: (cb) => {
+          this.getTime(task, () => {
+            cb(null, '最新评论完成');
+          });
+        }
+      },
+      (err, result) => {
+        logger.debug('result: ', result);
         callback();
       }
-    });
-  }
-  getCommentId(task, callback) {
-    const option = {
-      url: `${this.settings.youku.commentId}${task.aid}&time=${new Date().getTime()}`
-    };
-    request.get(logger, option, (error, result) => {
-      if (error) {
-        logger.debug('优酷的评论id请求失败');
-        callback(error);
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.debug('优酷评论Id数据解析失败');
-        callback(e);
-        return;
-      }
-      task.commentId = result.data.id;
-      async.parallel(
-        {
-          // hot: (cb) => {
-          //   this.getHot(task, () => {
-          //     cb(null, '热门评论完成');
-          //   });
-          // },
-          time: (cb) => {
-            this.getTime(task, () => {
-              cb(null, '最新评论完成');
-            });
-          }
-        },
-          (err, result) => {
-            logger.debug('result: ', result);
-            callback();
-          }
-      );
-    });
+    );
   }
   getHot(task, callback) {
-    const total = this.settings.commentTotal % 20 === 0 ?
-        this.settings.commentTotal / 20 : Math.ceil(this.settings.commentTotal / 20);
-    let option;
-    const page = 1;
+    const option = {},
+      time = parseInt(new Date().getTime() / 1000);
+    let total = this.settings.commentTotal % 30 === 0 ?
+        this.settings.commentTotal / 30 : Math.ceil(this.settings.commentTotal / 30),
+      page = 1;
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = '';
+        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(time)}&time=${time}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('热门评论请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('热门评论解析失败', result.body);
+            cb();
+            return;
+          }
+          if (result.code && result.code == -4) {
+            cb();
+            return;
+          }
+          if (!result.data.hot || result.data.hot.length <= 0) {
+            total = -1;
+            cb();
+            return;
+          }
+          this.deal(task, result.data.hot, () => {
+            page += 1;
+            cb();
+          });
+        });
       },
-      (err, result) => {
-
+      () => {
+        callback();
       }
     );
   }
   getTime(task, callback) {
-    let page = 1;
-    const total = this.settings.commentTotal % 100 === 0 ?
-        this.settings.commentTotal / 100 : Math.ceil(this.settings.commentTotal / 100),
-      option = {};
+    let page = 1,
+     total = this.settings.commentTotal % 100 === 0 ?
+        this.settings.commentTotal / 100 : Math.ceil(this.settings.commentTotal / 100);
+    const option = {},
+      time = parseInt(new Date().getTime() / 1000);
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.youku.list}${task.aid}&page=${page}&count=100`;
+        option.url = `${this.settings.youku.list}${task.aid}&currentPage=${page}&sign=${sign(time)}&time=${time}`;
+        logger.debug(option.url)
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('优酷评论列表请求失败', err);
@@ -95,17 +102,20 @@ class hostTime {
           try {
             result = JSON.parse(result.body.replace(/[\n\r]/g, ''));
           } catch (e) {
-            logger.debug('优酷评论数据解析失败');
-            logger.info(result);
+            logger.debug('优酷评论数据解析失败', result.body);
             cb();
             return;
           }
-          if (result.comments.length <= 0) {
-            page += total;
+          if (result.code && result.code == -4) {
             cb();
             return;
           }
-          this.deal(task, result.comments, () => {
+          if (!result.data.comment || result.data.comment.length <= 0) {
+            total = -1;
+            cb();
+            return;
+          }
+          this.deal(task, result.data.comment, () => {
             page += 1;
             cb();
           });
@@ -129,13 +139,14 @@ class hostTime {
           aid: task.aid,
           cid: comments[index].id,
           content: spiderUtils.stringHandling(comments[index].content),
-          ctime: moment(new Date(comments[index].published)).format('X'),
-          support: '',
-          step: '',
-          reply: '',
+          ctime: parseInt(comments[index].createTime / 1000),
+          support: comments[index].upCount,
+          step: comments[index].downCount,
+          reply: comments[index].replyCount,
           c_user: {
-            uid: comments[index].user ? comments[index].user.id : '',
-            uname: comments[index].user ? comments[index].user.name : ''
+            uid: comments[index].user ? comments[index].user.userId : comments[index].userId,
+            uname: comments[index].user ? comments[index].user.userName : '',
+            avatar: comments[index].user ? comments[index].user.avatarLarge : ''
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_update_cache', comment);

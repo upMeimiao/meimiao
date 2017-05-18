@@ -394,19 +394,19 @@ class DealWith {
         logger.error('occur error : ', err);
         return callback(err, { code: 102, p: 4 });
       }
-      if (result.statusCode != 200) {
+      if (result.statusCode !== 200) {
         logger.error('腾讯状态码错误1', result.statusCode);
         return callback(true, { code: 102, p: 4 });
       }
       const back = eval(result.body);
-      if (back.result && (back.result.code == -200 || back.result.code == -12)) {
+      if (!back.ugc || !back.vppinfo || !back.vppinfo.isvpp || back.result && (back.result.code == -200 || back.result.code == -12)) {
         option.url = data;
         request.get(option, (err, result) => {
           if (err) {
             logger.error('occur error : ', err);
             return callback(err, { code: 102, p: 4 });
           }
-          if (result.statusCode != 200) {
+          if (result.statusCode !== 200) {
             logger.error('腾讯状态码错误2', result.statusCode);
             return callback(true, { code: 102, p: 4 });
           }
@@ -426,7 +426,7 @@ class DealWith {
               logger.error('occur error : ', err);
               return callback(err, { code: 102, p: 4 });
             }
-            if (result.statusCode != 200) {
+            if (result.statusCode !== 200) {
               logger.error('腾讯状态码错误3', result.statusCode);
               return callback(true, { code: 102, p: 4 });
             }
@@ -435,7 +435,7 @@ class DealWith {
               nameDom2 = $('#userInfoNick'),
               name,
               avatar;
-            if (nameDom.length == 0) {
+            if (nameDom.length === 0) {
               name = nameDom2.text();
               id = idDom.attr('r-subscribe');
             } else {
@@ -449,7 +449,6 @@ class DealWith {
             res = {
               id,
               name,
-              type: 2,
               avatar,
               p: 4
             };
@@ -457,17 +456,16 @@ class DealWith {
           });
         });
       } else {
-        if(!back.vppinfo){
-          callback(true, { code: 104, p: 4 })
-          return;
-        }
+        // if(!back.vppinfo){
+        //   callback(true, { code: 104, p: 4 })
+        //   return;
+        // }
         const nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault;
         if (nameIs && nameIs !== '' ) {
           res = {
             id: back.vppinfo.euin,
             name: nameIs,
             avatar: back.vppinfo.avatar ? (back.vppinfo.avatar.replace('/60', '/0')) : '',
-            type: 1,
             p: 4
           };
           return callback(null, res);
@@ -478,17 +476,13 @@ class DealWith {
             logger.error('occur error : ', err);
             return callback(err, { code: 102, p: 4 });
           }
-          if (result.statusCode != 200) {
+          if (result.statusCode !== 200) {
             logger.error('腾讯状态码错误2', result.statusCode);
             return callback(true, { code: 102, p: 4 });
           }
           let $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-                        // if(num.length){
-                        //     return callback(true,{code:102,p:4})
-                        // }
           let user = $('.user_info'),
-                            // name = user.attr('title'),
             href = user.attr('href'),
             id = href.substring(href.lastIndexOf('/') + 1);
           option.url = href;
@@ -497,9 +491,8 @@ class DealWith {
               logger.error('occur error : ', err);
               return callback(err, { code: 102, p: 4 });
             }
-            if (result.statusCode != 200) {
+            if (result.statusCode !== 200) {
               logger.error('腾讯状态码错误3', result.statusCode);
-
               return callback(true, { code: 102, p: 4 });
             }
             const $ = cheerio.load(result.body),
@@ -515,7 +508,6 @@ class DealWith {
               id,
               name,
               avatar: $('#userAvatar').attr('src') ? $('#userAvatar').attr('src') : '',
-              type: 2,
               p: 4
             };
             return callback(null, res);
@@ -2056,11 +2048,16 @@ class DealWith {
       };
     if (host == 'pm.funshion.com' || host == 'm.fun.tv') {
       if (urlObj.query.mid == undefined) {
-        return callback(null, { id: '', name: '', p: 34 });
+        callback(null, { id: '', name: '', p: 34 });
+        return;
       }
       bid = urlObj.query.mid;
     } else if (path.match(/g-\d*/) == null) {
-      bid = path.match(/c-\d*/).toString().replace(/c-/, '');
+      if (!path.match(/c-(\d*)/)) {
+        callback('error', { code: 103, p: 34 });
+        return;
+      }
+      bid = path.match(/c-(\d*)/)[1];
       option.url = `http://www.fun.tv/channel/lists/${bid}/`;
       this.getfengxiang('视频号', option, callback);
     } else {
@@ -2653,6 +2650,43 @@ class DealWith {
         name: body.data.brand.brandName,
         avatar: body.data.brand.brandIconUrl,
         p: 42
+      };
+      callback(null, res);
+    });
+  }
+  bolo(data, callback) {
+    const urlObj = URL.parse(data, true),
+      vid = urlObj.query.videoId,
+      options = {
+        method: 'GET',
+        url: `http://bolo.163.com/bolo/api/video/videoInfo.htm?videoId=${vid}`,
+        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        referer: 'http://bolo.163.com'
+      };
+    let res = null;
+    request.get(options, (err, result) => {
+      if (err) {
+        logger.debug('视频数据接口请求失败', err.message);
+        callback(error, { code: 102, p: 44 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.debug('视频接口状态码错误', result.statusCode);
+        callback(result.statusCode, { code: 102, p: 42 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.debug('视频数据解析失败', result.body);
+        callback(e, { code: 102, p: 44 });
+        return;
+      }
+      res = {
+        id: result.videoInfo.userId,
+        name: result.channelInfo.nick,
+        avatar: result.channelInfo.avatar,
+        p: 44
       };
       callback(null, res);
     });

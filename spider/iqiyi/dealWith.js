@@ -49,28 +49,34 @@ class dealWith {
   }
   getUser(task, callback) {
     const option = {
-      url: `http://m.iqiyi.com/u/${task.id}`,
-      referer: `http://m.iqiyi.com/u/${task.id}`,
-      ua: 2
+      url: `http://www.iqiyi.com/u/${task.id}`,
+      referer: `http://www.iqiyi.com/u/${task.id}`,
+      ua: 1
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       const $ = cheerio.load(result.body),
-        fansDom = $('span.c-num-fans');
+        fansDom = $('em.count a');
       if (fansDom.length === 0) {
-        return this.get_user(task, () => {
+        this.get_user(task, () => {
           callback();
         });
+        return;
       }
-      const fans = fansDom.attr('data-num'),
+      const fans = fansDom.attr('data-countnum'),
         user = {
           platform: 2,
           bid: task.id,
           fans_num: fans
         };
       // logger.debug(user);
+      if (user.fans_num === '') {
+        callback();
+        return;
+      }
       this.sendUser(user, () => {
         callback();
       });
@@ -85,7 +91,8 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       const $ = cheerio.load(result.body),
         fansDom = $('h3.tle').text(),
@@ -94,7 +101,10 @@ class dealWith {
           bid: task.id,
           fans_num: fansDom.substring(2)
         };
-      // logger.debug(user)
+      if (user.fans_num === '') {
+        callback();
+        return;
+      }
       this.sendUser(user, () => {
         callback();
       });
@@ -108,14 +118,16 @@ class dealWith {
     };
     request.post(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error(`爱奇艺用户 ${user.bid} json数据解析失败`);
         logger.error(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (result.errno == 0) {
         logger.debug('爱奇艺用户:', `${user.bid} back_end`);
@@ -160,17 +172,20 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(JSON.stringify(err));
+        callback(JSON.stringify(err));
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.error(result);
-        return callback(e.message);
+        callback(e.message);
+        return;
       }
       if (result.code !== 'A00000') {
-        return callback(JSON.stringify(result));
+        callback(JSON.stringify(result));
+        return;
       }
       if (result.total !== 0) {
         task.total = result.total * 42;
@@ -204,7 +219,8 @@ class dealWith {
             logger.error(err);
             if (flag > 2) {
               index += 1;
-              return cb();
+              cb();
+              return;
             }
             return setTimeout(() => {
               flag += 1;
@@ -215,19 +231,23 @@ class dealWith {
             result = JSON.parse(result.body);
           } catch (e) {
             index += 1;
-            return cb();
+            cb();
+            return;
           }
           if (result.code !== 'A00000') {
             index += 1;
-            return cb();
+            cb();
+            return;
           }
           if (index === 1 && result.data.feeds.length === 0) {
             sign = false;
-            return cb();
+            cb();
+            return;
           }
           if (index !== 1 && result.data.feeds.length === 0) {
             index += 1;
-            return cb();
+            cb();
+            return;
           }
           if (index === 1) {
             task.total = result.data.feeds[0].userInfo.publicVideoCount;
@@ -262,12 +282,7 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        this.info(task, video[index], (err) => {
-          if (err) {
-            // setTimeout(cb,600)
-            index += 1;
-            return cb();
-          }
+        this.info(task, video[index], () => {
           index += 1;
           cb();
           // setTimeout(cb,600)
@@ -290,14 +305,16 @@ class dealWith {
         option.url = `${this.api.list[0] + task.id}&page=${index}`;
         request.get(logger, option, (err, result) => {
           if (err) {
-            return cb();
+            cb();
+            return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.error('json数据解析失败');
             logger.error(result);
-            return cb();
+            cb();
+            return;
           }
           data = result.data;
           $ = cheerio.load(data, {
@@ -305,7 +322,8 @@ class dealWith {
           });
           if ($('.wrap-customAuto-ht li').length === 0) {
             index += 1;
-            return cb();
+            cb();
+            return;
           }
           const lis = $('li[tvid]'), ids = [],
             ats = $('a[data-title]'), titles = [],
@@ -396,7 +414,8 @@ class dealWith {
       ],
       (err, result) => {
         if (err) {
-          return callback(err);
+          callback(err);
+          return;
         }
         const media = {
           author: result[0].name,
@@ -421,6 +440,8 @@ class dealWith {
         }
         // logger.debug(media)
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        spiderUtils.commentSnapshots(this.core.taskDB,
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
       }
     );
@@ -431,9 +452,10 @@ class dealWith {
       referer: link,
       ua: 1
     };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        return callback(err);
+    request.get(logger, option, (error, result) => {
+      if (error) {
+        callback(error);
+        return;
       }
       // logger.debug(backData)
       let playData;
@@ -442,10 +464,12 @@ class dealWith {
       } catch (e) {
         logger.error('eval错误:', e);
         logger.error(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (playData.code !== 'A00000') {
-        return callback(true);
+        callback(true);
+        return;
       }
       // console.log(playData)
       const name = playData.data.user.name,
@@ -480,13 +504,15 @@ class dealWith {
         seconds
       };
       if (comment < 0) {
-        this.getComment(playData.data.qitanId, playData.data.albumId, playData.data.tvId, link, (err, result) => {
-          if (err) {
-            return callback(null, data);
-          }
-          data.comment = result;
-          callback(null, data);
-        });
+        this.getComment(playData.data.qitanId,
+          playData.data.albumId, playData.data.tvId, link, (err, result) => {
+            if (err) {
+              callback(null, data);
+              return;
+            }
+            data.comment = result;
+            callback(null, data);
+          });
       } else {
         callback(null, data);
       }
@@ -500,17 +526,20 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.error('eval错误:', e);
         logger.error(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (result.code !== 'A00000') {
-        return callback(true);
+        callback(true);
+        return;
       }
       callback(null, result);
     });
@@ -523,14 +552,16 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.error('eval错误:', e);
         logger.error(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       callback(null, result[0][id]);
     });
@@ -543,14 +574,16 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json err:', e);
         logger.error(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       callback(null, result.data.$comment$get_video_comments.data.count);
     });

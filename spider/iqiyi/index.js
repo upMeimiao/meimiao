@@ -60,8 +60,11 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-      this.deal();
-      // this.test();
+      if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+        this.deal();
+      } else {
+        this.test();
+      }
     });
   }
   start() {
@@ -70,8 +73,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '1049273642',
-      name: '8AA1A',
+      id: '1189512325',
+      name: '迷迭香Rosemary_',
       p: 2
     };
     this.dealWith.todo(work, (err, total) => {

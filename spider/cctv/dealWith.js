@@ -53,14 +53,16 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback();
+        callback();
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('CCTV json数据解析失败');
         logger.error(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       const user = {
         platform: task.p,
@@ -80,16 +82,18 @@ class dealWith {
     };
     request.post(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error(`CCTV ${user.bid} json数据解析失败`);
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('CCTV:', `${user.bid} back_end`);
       } else {
         logger.error('CCTV:', `${user.bid} back_error`);
@@ -115,7 +119,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -143,7 +147,7 @@ class dealWith {
           .replace('共', '')
           .replace('页', '');
       task.total = total;
-      if (total == 0) {
+      if (total === 0) {
         setTimeout(() => {
           this.getVidTotal(task, callback);
         }, 100);
@@ -245,6 +249,8 @@ class dealWith {
         a_create_time: moment(time).format('X')
       };
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }

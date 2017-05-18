@@ -1,377 +1,378 @@
 /**
  * Created by yunsong on 16/8/5.
  */
-const async = require( 'async' )
-const request = require( '../../lib/request' )
-const spiderUtils = require('../../lib/spiderUtils')
-const cheerio = require( 'cheerio' )
-const moment = require( 'moment' )
+const async = require('async');
+const cheerio = require('cheerio');
+const moment = require('moment');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
-let logger
+let logger;
 class dealWith {
-    constructor (spiderCore){
-        this.core = spiderCore
-        this.settings = spiderCore.settings
-        logger = this.settings.logger
-        logger.trace('DealWith instantiation ...')
+  constructor(spiderCore) {
+    this.core = spiderCore;
+    this.settings = spiderCore.settings;
+    logger = this.settings.logger;
+    logger.trace('DealWith instantiation ...');
+  }
+  todo(task, callback) {
+    task.total = 0;
+    this.getTotal(task, (err) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+      callback(null, task.total);
+    });
+  }
+  getTotal(task, callback) {
+    logger.debug('开始获取视频总数');
+    const option = {
+      url: this.settings.spiderAPI.yy.userInfo + task.id
+    };
+    request.get(logger, option, (error, result) => {
+      if (error) {
+        logger.error('occur error : ', error);
+        callback(error);
+        return;
+      }
+      const $ = cheerio.load(result.body),
+        fansText = $('.fans-link').text(),
+        liveNum = $('.live-col .title-num').text().replace(/（/g, '').replace(/）/g, ''),
+        sqNum = $('.shenqu-col .title-num').text().replace(/（/g, '').replace(/）/g, ''),
+        dpNum = $('.duanpai-col .title-num').text().replace(/（/g, '').replace(/）/g, '');
+      const user = {
+        platform: 20,
+        bid: task.id,
+        fans_num: fansText.replace(/,/g, '')
+      };
+      task.total = Number(liveNum) + Number(sqNum) + Number(dpNum);
+      async.parallel({
+        user: (cb) => {
+          this.sendUser(user, () => {
+            cb(null, '用户信息已返回');
+          });
+          this.sendStagingUser(user);
+        },
+        live: (cb) => {
+          this.getLive(task, liveNum, (err) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, '直播回放信息已返回');
+          });
+        },
+        shenqu: (cb) => {
+          this.getSlist(task, sqNum, (err) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, '神曲视频信息已返回');
+          });
+        },
+        duanpai: (cb) => {
+          this.getDlist(task, dpNum, (err) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, '短拍视频信息已返回');
+          });
+        }
+      }, (err, raw) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        logger.debug('result : ', raw);
+        callback();
+      });
+    });
+  }
+  sendUser(user, callback) {
+    const option = {
+      url: this.settings.sendFans,
+      data: user
+    };
+    request.post(logger, option, (err, result) => {
+      if (err) {
+        logger.error('occur error : ', err);
+        logger.info(`返回YY用户 ${user.bid} 连接服务器失败`);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error(`YY用户 ${user.bid} json数据解析失败`);
+        logger.info(result);
+        callback(e);
+        return;
+      }
+      if (Number(result.errno) === 0) {
+        logger.debug('yy用户:', `${user.bid} back_end`);
+      } else {
+        logger.error('yy用户:', `${user.bid} back_error`);
+        logger.info(result);
+        logger.info('user info: ', user);
+      }
+      callback();
+    });
+  }
+  sendStagingUser(user) {
+    const option = {
+      url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
+      data: user
+    };
+    request.post(logger, option, (err, result) => {
+      if (err) {
+        logger.error('occur error : ', err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('json数据解析失败');
+        logger.info('send error:', result);
+        return;
+      }
+      if (Number(result.errno) === 0) {
+        logger.debug('用户:', `${user.bid} back_end`);
+      } else {
+        logger.error('用户:', `${user.bid} back_error`);
+        logger.info(result);
+      }
+    });
+  }
+  getLive(task, total, callback) {
+    const option = {};
+    let sign = 1,
+      page, list;
+    if (total % 20 === 0) {
+      page = total / 20;
+    } else {
+      page = Math.ceil(total / 20);
     }
-    todo (task,callback) {
-        task.total = 0
-        this.getTotal (task,(err) => {
-            if(err){
-                return callback(err)
-            }
-            callback(null,task.total)
-        })
+    async.whilst(
+      () => sign <= page,
+      (cb) => {
+        logger.debug(`开始获取第${sign}页直播回放列表`);
+        option.url = `${this.settings.spiderAPI.yy.liveList + task.id}&pageNum=${sign}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error: ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          list = result.data.list;
+          if (list) {
+            this.deal(task, list, '直播回放', () => {
+              sign += 1;
+              cb();
+            });
+          } else {
+            sign += 1;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
+  }
+  getSlist(task, total, callback) {
+    const option = {};
+    let sign = 1,
+      page,
+      list;
+    if (total % 20 === 0) {
+      page = total / 20;
+    } else {
+      page = Math.ceil(total / 20);
     }
-    getTotal (task,callback){
-        logger.debug('开始获取视频总数')
-        let option = {
-            url: this.settings.spiderAPI.yy.userInfo + task.id
-        }
-        request.get(logger, option, (err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return callback(err)
-            }
-            if(result.statusCode != 200){
-                logger.error('yy状态码错误',result.statusCode)
-                logger.info(result)
-                return callback(true)
-            }
-            let $ = cheerio.load(result.body),
-                fans_text = $('.fans-link').text(),
-                live_num = $('.live-col .title-num').text().replace(/（/g,'').replace(/）/g,''),
-                sq_num = $('.shenqu-col .title-num').text().replace(/（/g,'').replace(/）/g,''),
-                dp_num = $('.duanpai-col .title-num').text().replace(/（/g,'').replace(/）/g,'')
-            let user = {
-                platform: 20,
-                bid: task.id,
-                fans_num: fans_text.replace(/,/g,'')
-            }
-            task.total = Number(live_num) + Number(sq_num) + Number(dp_num)
-            async.parallel({
-                user: (callback) => {
-                    this.sendUser ( user,(err,result) => {
-                        callback(null,'用户信息已返回')
-                    })
-                    this.sendStagingUser(user)
-                },
-                live: (callback) => {
-                    this.getLive( task, live_num, (err) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,'直播回放信息已返回')
-                    })
-                },
-                shenqu: (callback) => {
-                    this.getSlist( task, sq_num, (err) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,'神曲视频信息已返回')
-                    })
-                },
-                duanpai: (callback) => {
-                    this.getDlist( task, dp_num, (err) => {
-                        if(err){
-                            return callback(err)
-                        }
-                        callback(null,'短拍视频信息已返回')
-                    })
-                }
-            },(err,result) => {
-                if(err){
-                    return callback(err)
-                }
-                logger.debug('result : ',result)
-                callback()
-            })
-        })
+    async.whilst(
+      () => sign <= page,
+      (cb) => {
+        logger.debug(`开始获取第${sign}页神曲视频列表`);
+        option.url = `${this.settings.spiderAPI.yy.shenquList + task.id}&p=${sign}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error: ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          list = result.data;
+          if (list) {
+            this.deal(task, list, '神曲', () => {
+              sign += 1;
+              cb();
+            });
+          } else {
+            sign += 1;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
+  }
+  getDlist(task, total, callback) {
+    const option = {};
+    let sign = 1,
+      page,
+      list;
+    if (total % 20 === 0) {
+      page = total / 20;
+    } else {
+      page = Math.ceil(total / 20);
     }
-    sendUser ( user,callback ){
-        let option = {
-            url: this.settings.sendFans,
-            data: user
+    async.whilst(
+      () => sign <= page,
+      (cb) => {
+        logger.debug(`开始获取第${sign}页短拍视频列表`);
+        option.url = `${this.settings.spiderAPI.yy.duanpaiList + task.id}&p=${sign}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error: ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            cb();
+            return;
+          }
+          list = result.data;
+          if (list) {
+            this.deal(task, list, '短片', () => {
+              sign += 1;
+              cb();
+            });
+          } else {
+            sign += 1;
+            cb();
+          }
+        });
+      },
+      () => {
+        callback();
+      }
+    );
+  }
+  deal(task, list, type, callback) {
+    let index = 0, video;
+    async.whilst(
+      () => index < list.length,
+      (cb) => {
+        video = list[index];
+        if (video.pid) {
+          this.getInfoL(task, type, video, () => {
+            index += 1;
+            cb();
+          });
+        } else {
+          this.getInfo(task, type, video, () => {
+            index += 1;
+            cb();
+          });
         }
-        request.post(logger, option, (err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                logger.info(`返回YY用户 ${user.bid} 连接服务器失败`)
-                return callback(err)
-            }
-            try{
-                result = JSON.parse(result.body)
-            }catch (e){
-                logger.error(`YY用户 ${user.bid} json数据解析失败`)
-                logger.info(result)
-                return callback(e)
-            }
-            if(result.errno == 0){
-                logger.debug("yy用户:",user.bid + ' back_end')
-            }else{
-                logger.error("yy用户:",user.bid + ' back_error')
-                logger.info(result)
-                logger.info(`user info: `,user)
-            }
-            callback()
-        })
+      },
+      () => {
+        callback();
+      }
+    );
+  }
+  getInfoL(task, type, data, callback) {
+    let title = data.title;
+    if (title === '') {
+      title = 'btwk_caihongip';
     }
-    sendStagingUser (user){
-        let option = {
-            url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
-            data: user
-        }
-        request.post(logger, option, (err,result) => {
-            if(err){
-                logger.error( 'occur error : ', err )
-                return
-            }
-            try{
-                result = JSON.parse(result.body)
-            }catch (e){
-                logger.error('json数据解析失败')
-                logger.info('send error:',result)
-                return
-            }
-            if(result.errno == 0){
-                logger.debug("用户:",user.bid + ' back_end')
-            }else{
-                logger.error("用户:",user.bid + ' back_error')
-                logger.info(result)
-            }
-        })
+    const media = {
+      author: task.name,
+      platform: 20,
+      bid: task.id,
+      aid: data.pid,
+      title,
+      play_num: Number(data.viewer) + Number(data.recordViewer),
+      a_create_time: data.beginTime,
+      long_t: moment.duration(data.duration).asSeconds(),
+      v_url: data.playUrl,
+      v_img: data.imageUrl,
+      class: type
+    };
+    spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+    spiderUtils.commentSnapshots(this.core.taskDB,
+      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+    callback();
+  }
+  getInfo(task, type, data, callback) {
+    let title, play = data.watchCount;
+    if (type === '神曲') {
+      title = data.songname;
     }
-    getLive ( task, total, callback ) {
-        let sign = 1,
-            option = {},
-            page,list
-        if(total % 20 == 0){
-            page = total / 20
-        }else{
-            page = Math.ceil(total / 20)
-        }
-        async.whilst(
-            () => {
-                return sign <= page
-            },
-            (cb) => {
-                logger.debug('开始获取第' + sign + '页直播回放列表')
-                option.url = this.settings.spiderAPI.yy.liveList + task.id + "&pageNum=" + sign
-                request.get(logger, option, (err,result) => {
-                    if(err){
-                        logger.error('occur error: ',err)
-                        return cb()
-                    }
-                    try{
-                        result = JSON.parse(result.body)
-                    } catch(e){
-                        logger.error('json数据解析失败')
-                        logger.info(result)
-                        return cb()
-                    }
-                    list = result.data.list
-                    if(list){
-                        this.deal( task, list, '直播回放', () => {
-                            sign++
-                            cb()
-                        })
-                    }else{
-                        sign++
-                        cb()
-                    }
-                })
-            },
-            (err,result) => {
-                callback()
-            }
-        )
+    if (type === '短片') {
+      title = data.resdesc;
     }
-    getSlist ( task, total, callback) {
-        let sign = 1,
-            option,
-            page,
-            list
-        if(total % 20 == 0){
-            page = total / 20
-        }else{
-            page = Math.ceil(total / 20)
-        }
-        async.whilst(
-            () => {
-                return sign <= page
-            },
-            (cb) => {
-                logger.debug('开始获取第' + sign + '页神曲视频列表')
-                option = {
-                    url: this.settings.spiderAPI.yy.shenquList + task.id + "&p=" + sign
-                }
-                request.get(logger, option, (err,result) => {
-                    if(err){
-                        logger.error('occur error: ',err)
-                        return cb()
-                    }
-                    try{
-                        result = JSON.parse(result.body)
-                    } catch(e){
-                        logger.error('json数据解析失败')
-                        logger.info(result)
-                        return cb()
-                    }
-                    list = result.data
-                    if(list){
-                        this.deal( task, list, '神曲', () => {
-                            sign++
-                            cb()
-                        })
-                    }else{
-                        sign++
-                        cb()
-                    }
-                })
-            },
-            (err,result) => {
-                callback()
-            }
-        )
+    if (title === '') {
+      title = 'btwk_caihongip';
     }
-    getDlist( task, total, callback) {
-        let sign = 1,
-            option,
-            page,
-            list
-        if(total % 20 == 0){
-            page = total / 20
-        }else{
-            page = Math.ceil(total / 20)
-        }
-        async.whilst(
-            () => {
-                return sign <= page
-            },
-            (cb) => {
-                logger.debug('开始获取第' + sign + '页短拍视频列表')
-                option = {
-                    url: this.settings.spiderAPI.yy.duanpaiList + task.id + "&p=" + sign
-                }
-                request.get(logger, option, (err,result) => {
-                    if(err){
-                        logger.error('occur error: ',err)
-                        return cb()
-                    }
-                    try{
-                        result = JSON.parse(result.body)
-                    } catch(e){
-                        logger.error('json数据解析失败')
-                        logger.info(result)
-                        return cb()
-                    }
-                    list = result.data
-                    if(list){
-                        this.deal( task, list, '短片', () => {
-                            sign++
-                            cb()
-                        })
-                    }else{
-                        sign++
-                        cb()
-                    }
-                })
-            },
-            (err,result) => {
-                callback()
-            }
-        )
+    if (play.indexOf('万') !== -1) {
+      play = play.replace('万', '') * 10000;
+    } else if (play.indexOf('亿') !== -1) {
+      play = play.replace('亿', '') * 100000000;
     }
-    deal ( task, list, type, callback) {
-        let index = 0,video
-        async.whilst(
-            () => {
-                return index < list.length
-            },
-            (cb) => {
-                video = list[index]
-                if(video.pid){
-                    this.getInfoL( task, type, video,(err) => {
-                        index++
-                        cb()
-                    })
-                }else{
-                    this.getInfo( task, type, video,(err) => {
-                        index++
-                        cb()
-                    })
-                }
-            },
-            (err,result) => {
-                callback()
-            }
-        )
+    const time = data.addtime,
+      a_create_time = moment(time).format('X'),
+      media = {
+        author: data.ownername,
+        platform: 20,
+        bid: task.id,
+        aid: data.resid,
+        title: title.substr(0, 100).replace(/"/g, ''),
+        desc: data.resdesc.substr(0, 100).replace(/"/g, ''),
+        play_num: play,
+        save_num: data.favorCount,
+        forward_num: data.shareCount,
+        comment_num: data.commentCount,
+        support: data.likeCount,
+        a_create_time,
+        long_t: data.duration ? moment.duration(data.duration).asSeconds() : null,
+        v_img: data.snapshoturl,
+        class: type,
+        v_url: data.playUrl
+      };
+    if (!media.long_t) {
+      delete media.long_t;
     }
-    getInfoL ( task, type, data, callback ) {
-        let title = data.title
-        if(title == ''){
-            title = "btwk_caihongip"
-        }
-        let media = {
-            author: task.name,
-            platform: 20,
-            bid: task.id,
-            aid: data.pid,
-            title: title,
-            play_num: Number(data.viewer) + Number(data.recordViewer),
-            a_create_time: data.beginTime,
-            long_t: moment.duration(data.duration).asSeconds(),
-            v_url: data.playUrl,
-            v_img: data.imageUrl,
-            class: type
-        }
-        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
-        callback()
-    }
-    getInfo ( task, type, data, callback ) {
-        let title,play = data.watchCount
-        if(type == '神曲'){
-            title = data.songname
-        }
-        if( type == '短片'){
-            title = data.resdesc
-        }
-        if(title == ''){
-            title = "btwk_caihongip"
-        }
-        if(play.indexOf('万') != -1 ){
-            play = play.replace('万','') * 10000
-        }else if(play.indexOf('亿') != -1){
-            play = play.replace('亿','') * 100000000
-        }
-        let time = data.addtime,
-            a_create_time = moment(time).format('X'),
-            media = {
-                author: data.ownername,
-                platform: 20,
-                bid: task.id,
-                aid: data.resid,
-                title: title.substr(0,100).replace(/"/g,''),
-                desc: data.resdesc.substr(0,100).replace(/"/g,''),
-                play_num: play,
-                save_num: data.favorCount,
-                forward_num: data.shareCount,
-                comment_num: data.commentCount,
-                support: data.likeCount,
-                a_create_time: a_create_time,
-                long_t: data.duration ? moment.duration(data.duration).asSeconds() : null,
-                v_img: data.snapshoturl,
-                class: type,
-                v_url: data.playUrl
-            }
-        if(!media.long_t){
-            delete media.long_t
-        }
-        spiderUtils.saveCache( this.core.cache_db, 'cache', media )
-        callback()
-    }
-    
+    spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+    spiderUtils.commentSnapshots(this.core.taskDB,
+      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+    callback();
+  }
+
 }
-module.exports = dealWith
+module.exports = dealWith;

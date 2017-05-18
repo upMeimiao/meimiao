@@ -5,9 +5,6 @@ const async = require('async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
-const jsonp = function (data) {
-  return data;
-};
 let logger;
 class hostTime {
   constructor(spiderCore) {

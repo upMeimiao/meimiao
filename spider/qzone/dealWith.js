@@ -272,7 +272,7 @@ class dealWith {
         platform: task.p,
         bid: task.id,
         aid: video.key,
-        title: result[0].singlefeed['4'].summary.substring(0, 100).replace(/"/g, ''),
+        title: spiderUtils.stringHandling(result[0].singlefeed['4'].summary, 100),
         support: result[0].singlefeed['11'].num,
         long_t: result[0].singlefeed['7'].videotime / 1000,
         v_img: result[0].v_img,
@@ -284,6 +284,8 @@ class dealWith {
         play_num: result[0].singlefeed['7'].videoplaycnt
       };
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }
@@ -311,7 +313,7 @@ class dealWith {
       if (!result || !result.singlefeed) {
         return callback(null, '抛掉当前的');
       }
-      if(result.singlefeed['1'] && result.singlefeed['1'].user && result.singlefeed['1'].user.uin !== task.id){
+      if (result.singlefeed['1'] && result.singlefeed['1'].user && result.singlefeed['1'].user.uin != task.id) {
         // logger.debug('当前视频被删掉或者是数据错误');
         callback(null, '抛掉当前的');
         return;
@@ -323,7 +325,6 @@ class dealWith {
       } else {
         result.v_img = result.singlefeed['7'].coverurl['0'].url;
       }
-      logger.debug(result);
       callback(null, result);
     });
   }

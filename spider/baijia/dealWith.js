@@ -78,7 +78,7 @@ class dealWith {
         logger.info(back);
         return;
       }
-      if (back.errno == 0) {
+      if (Number(back.errno) === 0) {
         logger.debug('百家号视频用户:', `${user.bid} back_end`);
       } else {
         logger.error('百家号视频用户:', `${user.bid} back_error`);
@@ -104,7 +104,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -125,24 +125,28 @@ class dealWith {
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频列表请求错误 : ', err);
-            return cb();
+            cb();
+            return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.error('json数据总量解析失败');
             logger.info(result);
-            return cb();
+            cb();
+            return;
           }
           if (!result.items) {
             cycle = false;
-            return cb();
+            cb();
+            return;
           }
           this.deal(task, result.items, () => {
             skip += 50;
             if (skip > 10000) {
               cycle = false;
-              return cb();
+              cb();
+              return;
             }
             cb();
           });
@@ -171,7 +175,8 @@ class dealWith {
   }
   getAllInfo(task, video, callback) {
     if (video.type !== 'video') {
-      return callback();
+      callback();
+      return;
     }
     async.parallel([
       (cb) => {
@@ -208,10 +213,13 @@ class dealWith {
           play_num: result[0].playNum
         };
       if (!media.play_num && media.play_num !== 0) {
-        return callback();
+        callback();
+        return;
       }
       task.total += 1;
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }
@@ -225,23 +233,26 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('单个视频请求失败 ', err);
-        return callback(null, { long_t: '', a_create_time: '', playNum: '' });
+        callback(null, { long_t: '', a_create_time: '', playNum: '' });
+        return;
       }
       const $ = cheerio.load(result.body);
 
       if ($('div.item p').eq(0).text() === '视频已失效，请观看其他视频') {
-        return callback(null, { long_t: '', playNum: null });
+        callback(null, { long_t: '', playNum: null });
+        return;
       }
       let dataJson = result.body.replace(/[\s\n\r]/g, '');
-      const startIndex = dataJson.indexOf('videoData={"id') == -1 ? dataJson.indexOf('={tplData:{') : dataJson.indexOf('videoData={"id'),
-        endIndex = dataJson.indexOf(';window.listInitData') == -1 ? dataJson.indexOf(',userInfo:') : dataJson.indexOf(';window.listInitData');
+      const startIndex = dataJson.indexOf('videoData={"id') === -1 ? dataJson.indexOf('={tplData:{') : dataJson.indexOf('videoData={"id'),
+        endIndex = dataJson.indexOf(';window.listInitData') === -1 ? dataJson.indexOf(',userInfo:') : dataJson.indexOf(';window.listInitData');
       dataJson = dataJson.substring(startIndex + 10, endIndex);
       try {
         dataJson = JSON.parse(dataJson);
       } catch (e) {
         logger.debug('百家号用户数据解析失败');
         logger.info(dataJson);
-        return callback(null, { long_t: '', a_create_time: '', playNum: '' });
+        callback(null, { long_t: '', a_create_time: '', playNum: '' });
+        return;
       }
       const time = dataJson.video ? dataJson.video.time_length : `json${dataJson.article.content}`;
       const res = {

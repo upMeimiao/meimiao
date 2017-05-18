@@ -5,6 +5,7 @@ const os = require('os');
 const events = require('events');
 const myRedis = require('../lib/myredis.js');
 const schedule = require('node-schedule');
+const _getTask = require('./getTask');
 
 class commentScheduler {
   constructor(scheduler) {
@@ -43,20 +44,19 @@ class commentScheduler {
         const osName = os.hostname();
         switch (osName) {
           case 'servant_3':
-            rule.second = [1, 7, 13, 19, 25, 31, 37, 43, 49, 55];
+            rule.second = [1, 21, 41];
             break;
           case 'iZ28ilm78mlZ':
-            rule.second = [4, 10, 16, 22, 28, 34, 40, 46, 52, 58];
+            rule.second = [11, 31, 51];
             break;
           default:
-            rule.second = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28,
-              31, 34, 37, 40, 43, 46, 49, 52, 55, 58];
+            rule.second = [1, 11, 21, 31, 31, 51];
             break;
         }
-        this.getTask();
-        // schedule.scheduleJob(rule, () => {
-        //   this.getTask();
-        // });
+        // this.getTask();
+        schedule.scheduleJob(rule, () => {
+          this.getTask();
+        });
       }
     );
   }
@@ -70,6 +70,9 @@ class commentScheduler {
     });
     this.on('task_init_set', (raw) => {
       this.handle.setInit(raw);
+    });
+    this.on('task_check_snapshots', (raw) => {
+      this.handle.checkSnapshots(raw);
     });
     this.on('task_check_kue', (raw) => {
       this.checkKue(raw);
@@ -89,7 +92,14 @@ class commentScheduler {
     this.assembly();
   }
   getTask() {
-    request.get(this.settings.url, (err, res, body) => {
+    // _getTask.getTask('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=120&platform=',
+    //   (err, result) => {
+    //     if (!err) {
+    //       this.emit('task_loaded', result);
+    //     }
+    //   }
+    // );
+    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400', (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
         return;
@@ -147,7 +157,7 @@ class commentScheduler {
         commentScheduler.emit('redis_error', { db: 'taskDB', action: 2 });
         return;
       }
-      const url = `http://${this.settings.kue.ip}:3000/api/job/${result}`;
+      const url = `http://${this.settings.kue.ip}:3003/c/api/job/${result}`;
       // const url = `http://127.0.0.1:3000/api/job/${result}`;
       request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
         if (err) {
