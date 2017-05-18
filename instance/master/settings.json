@@ -238,6 +238,10 @@
       "auth": [
         {"email": "1425423221@qq.com","pass": "hui11111"}
       ]
+    },
+    "bolo":{
+      "list": "http://bolo.163.com/bolo/api/channel/videoList.htm?pageSize=100&rendering=true",
+      "videoInfo": "http://bolo.163.com/bolo/api/video/videoInfo.htm?videoId="
     }
   },
   "servantAPI": {

@@ -409,6 +409,13 @@ const dianshi = () => {
   const spider = new (require(`${spiderDir}dianshi`))(settings);
   spider.start();
 };
+const bolo = () => {
+  const logger = logging.getLogger('网易菠萝', options.i, logLevel);
+  settings.logger = logger;
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}bolo`))(settings);
+  spider.start();
+};
 const test = () => {
   const logger = logging.getLogger('测试', options.i, logLevel);
   settings.logger = logger;
@@ -569,6 +576,9 @@ switch (options.a) {
     break;
   case 'dianshi':
     dianshi();
+    break;
+  case 'bolo':
+    bolo();
     break;
   case 'test':
     test();

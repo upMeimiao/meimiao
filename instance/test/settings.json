@@ -237,9 +237,12 @@
       "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
       "auth": [
         {"email": "1425423221@qq.com","pass": "hui11111"},
-        {"email": "2781800124@qq.com","pass": "hui11111"},
-        {"email": "18703101608","pass": "hui11111.hui"}
+        {"email": "2781800124@qq.com","pass": "hui11111"}
       ]
+    },
+    "bolo":{
+      "list": "http://bolo.163.com/bolo/api/channel/videoList.htm?pageSize=100&rendering=true",
+      "videoInfo": "http://bolo.163.com/bolo/api/video/videoInfo.htm?videoId="
     }
   },
   "servantAPI": {
