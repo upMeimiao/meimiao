@@ -25,9 +25,19 @@ exports.sendAlarm = (subject, content) => {
   });
 };
 exports.sendEmail = (req, res) => {
+  let mailGroup;
+  if (!res.body.mailGroup || res.body.mailGroup === 1) {
+    mailGroup = ['changjunhao@meimiao.net', 'luoqibu@meimiao.net', 'limojin@meimiao.net']; // list of receivers
+  }
+  if (res.body.mailGroup === 2) {
+    mailGroup = ['changjunhao@meimiao.net', 'zhupenghui@meimiao.net']; // list of receivers
+  }
+  if (res.body.mailGroup === 3) {
+    mailGroup = ['changjunhao@meimiao.net']; // list of receivers
+  }
   const mailOptions = {
     from: '"常君豪" <changjunhao@meimiao.net>', // sender address
-    to: ['changjunhao@meimiao.net', 'luoqibu@meimiao.net', 'limojin@meimiao.net'], // list of receivers
+    to: mailGroup,
     subject: req.body.subject, // Subject line
     text: req.body.content, // plaintext body
     html: req.body.content // html body

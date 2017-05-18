@@ -52,6 +52,7 @@ const monitorBanned = () => {
       method: 'POST',
       url: 'http://localhost:3001/api/alarm',
       form: {
+        mailGroup: 1,
         subject: 'IP账号疑似被封禁(或找不到)',
         content
       }
