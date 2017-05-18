@@ -1,0 +1,24 @@
+{
+  "extends": "airbnb-base",
+  "installedESLint": true,
+  "env": {
+    "node": true
+  },
+  "plugins": [
+    "import"
+  ],
+  "rules": {
+    "no-param-reassign": "off",
+    "eol-last": 0,
+    "no-underscore-dangle": "off",
+    "comma-dangle": "off",
+    "global-require": "off",
+    "import/no-dynamic-require": "off",
+    "one-var": "off",
+    "one-var-declaration-per-line": "off",
+    "class-methods-use-this": 1,
+    "linebreak-style": "off",
+    "no-eval": "warn",
+    "no-restricted-syntax": ["error", "WithStatement", "BinaryExpression[operator='in']"]
+  }
+}

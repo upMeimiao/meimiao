@@ -1,0 +1,16 @@
+sendServer/index_v1.js
+spider/qzone/dealWith-v1.js
+spider/iqiyi/dealWith_v1.js
+spider/iqiyi/dealWith_v2.js
+spider/iqiyi/dealWith_v3.js
+spider/toutiao/dealWith_v1.js
+spider/facebook/casper.js
+spider/facebook/loginFacebook.js
+oneTimeTask/avatar/*.js
+authenticate/**/*.js
+lib/req.js
+monitorSpider/**/*.js
+monitor/controllers/mSpiderServer.js
+monitor/public/**/*.js
+servant/dealWith.js
+#spider/*/*.js
