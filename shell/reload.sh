@@ -77,18 +77,18 @@ then
         pm2 reload 认证中心
         echo "-------------- 重启$scheduler_1 认证服务--------------"
         echo
-#        for loop in ${scheduler_2}
-#        do
-#            echo
-#            echo "--------------$loop--------------"
-#            echo "--------------登录服务器$loop --------------"
-#            echo "--------------重启${loop}认证服务--------------"
-#            echo
-#            ssh root@${loop} 'pm2 reload 认证中心'
-#            echo
-#            echo "--------------调度服务重启完成，退出服务器$loop --------------"
-#            echo
-#        done
+        for loop in ${scheduler_2}
+        do
+            echo
+            echo "--------------$loop--------------"
+            echo "--------------登录服务器$loop --------------"
+            echo "--------------重启${loop}认证服务--------------"
+            echo
+            ssh root@${loop} 'pm2 reload 认证中心'
+            echo
+            echo "--------------调度服务重启完成，退出服务器$loop --------------"
+            echo
+        done
         ;;
     esac
 elif [ $1 == 'se' ]

@@ -98,7 +98,7 @@ class hostTime {
     async.whilst(
       () => index < Math.min(task.total, this.settings.commentTotal),
       (cb) => {
-        time = parseInt(comments[index].createTime / 1000);
+        time = parseInt(comments[index].createTime / 1000, 10);
         comment = {
           cid: comments[index].id,
           content: spiderUtils.stringHandling(comments[index].content),

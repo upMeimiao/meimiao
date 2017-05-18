@@ -3,9 +3,9 @@
  * Created by zhupenghui on 2017/5/18.
  */
 const kue = require('kue');
-const myRedis = require('../../lib/myredis.js');
 const async = require('async');
 const domain = require('domain');
+const myRedis = require('../../lib/myredis.js');
 
 let logger, settings;
 class spiderCore {
@@ -112,8 +112,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_liVideo', this.settings.concurrency, (job, done) => {
-      logger.trace('Get liVideo task!');
+    queue.process('comment_bolo', this.settings.concurrency, (job, done) => {
+      logger.trace('Get bolo task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
@@ -134,8 +134,8 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_liVideo', this.settings.concurrency, (job, done) => {
-      logger.trace('Get liVideo task!');
+    queue.process('comment_update_bolo', this.settings.concurrency, (job, done) => {
+      logger.trace('Get bolo task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
