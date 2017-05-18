@@ -1,6 +1,6 @@
 /**
  * Spider Core
- * Created by junhao on 17/3/17.
+ * Created by zhupenghui on 17/5/17.
  */
 const kue = require('kue');
 const request = require('request');
