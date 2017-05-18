@@ -72,6 +72,7 @@ class dealWith {
       }
       if (result.err == -1 && !result.data) {
         spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
+        callback();
         return;
       }
       const length = result.data.list.length;
