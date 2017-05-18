@@ -85,6 +85,7 @@ class dealWith {
         }
         if (result.retcode == 404) {
           spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
+          callback();
           return;
         }
         task.total = result.total;
