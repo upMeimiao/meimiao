@@ -136,7 +136,7 @@ class dealWith {
             return;
           }
           try {
-            result = JSON.parse(result.body)
+            result = JSON.parse(result.body);
           } catch (e) {
             logger.debug('列表数据解析失败', result.body);
             cb();
@@ -193,7 +193,7 @@ class dealWith {
           desc: video.intro,
           long_t: video.duration,
           play_num: video.playCount,
-          a_create_time: parseInt(video.uploadTime / 1000),
+          a_create_time: parseInt(video.uploadTime / 1000, 10),
           v_img: video.cover,
           tag: result[0].tags,
           comment_num: result[0].commentCount,
