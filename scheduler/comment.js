@@ -105,6 +105,7 @@ class commentScheduler {
         return;
       }
       if (res.statusCode !== 200) {
+        this.logger.error('get comment task : ', res.statusCode);
         return;
       }
       try {
@@ -165,6 +166,7 @@ class commentScheduler {
           return;
         }
         if (res.statusCode !== 200) {
+          this.logger.error('comment kue : ', res.statusCode);
           return;
         }
         try {
