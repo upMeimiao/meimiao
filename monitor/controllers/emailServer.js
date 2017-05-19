@@ -4,8 +4,8 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  pool: true,
-  maxConnections: 20,
+  // pool: true,
+  // maxConnections: 20,
   service: 'QQex', // no need to set host or port etc.
   auth: {
     user: 'changjunhao@meimiao.net',
@@ -48,6 +48,7 @@ exports.sendEmail = (req, res) => {
 // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
+      console.log(error);
       res.status(500).json({ error });
       return;
     }
