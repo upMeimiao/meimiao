@@ -198,7 +198,7 @@ class dealWith {
         callback(e);
         return;
       }
-      task.total = result.newslist.length;
+      task.total = result.ids.length;
       let idStr = '';
       for (const ids of result.ids) {
         idStr += `,${ids.id}`;
