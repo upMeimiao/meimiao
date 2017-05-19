@@ -50,8 +50,9 @@ const monitorBanned = () => {
     redis.pipeline(key).exec();
     request({
       method: 'POST',
-      url: 'http://localhost:3001/api/alarm',
+      url: 'http://10.251.55.50:3001/api/alarm',
       form: {
+        mailGroup: 1,
         subject: 'IP账号疑似被封禁(或找不到)',
         content
       }

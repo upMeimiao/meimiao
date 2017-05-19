@@ -89,6 +89,18 @@ class dealWith {
           bid: task.id,
           fans_num: userInfo.followerNum
         };
+      if (user.fans_num == 0) {
+        logger.error('粉丝数据异常', body.data);
+        request({
+          method: 'POST',
+          url: 'http://10.251.55.50:3001/api/alarm',
+          form: {
+            mailGroup: 3,
+            subject: '粉丝数据异常',
+            content: JSON.stringify(body.data)
+          }
+        });
+      }
       this.sendUser(user, () => {
         callback();
       });

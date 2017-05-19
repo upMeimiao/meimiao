@@ -4,6 +4,8 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
+  // pool: true,
+  // maxConnections: 20,
   service: 'QQex', // no need to set host or port etc.
   auth: {
     user: 'changjunhao@meimiao.net',
@@ -25,9 +27,19 @@ exports.sendAlarm = (subject, content) => {
   });
 };
 exports.sendEmail = (req, res) => {
+  let mailGroup = ['changjunhao@meimiao.net'];
+  if (!req.body.mailGroup || req.body.mailGroup === 1) {
+    mailGroup = ['changjunhao@meimiao.net', 'luoqibu@meimiao.net', 'limojin@meimiao.net']; // list of receivers
+  }
+  if (req.body.mailGroup === 2) {
+    mailGroup = ['changjunhao@meimiao.net', 'zhupenghui@meimiao.net']; // list of receivers
+  }
+  if (req.body.mailGroup === 3) {
+    mailGroup = ['changjunhao@meimiao.net']; // list of receivers
+  }
   const mailOptions = {
     from: '"常君豪" <changjunhao@meimiao.net>', // sender address
-    to: ['changjunhao@meimiao.net', 'luoqibu@meimiao.net', 'limojin@meimiao.net'], // list of receivers
+    to: mailGroup,
     subject: req.body.subject, // Subject line
     text: req.body.content, // plaintext body
     html: req.body.content // html body
@@ -36,6 +48,7 @@ exports.sendEmail = (req, res) => {
 // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
+      console.log(error);
       res.status(500).json({ error });
       return;
     }

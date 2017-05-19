@@ -1,4 +1,4 @@
-const async = require('async');
+const async = require('neo-async');
 const platformMap = require('./platform');
 
 class commentHandle {
@@ -37,6 +37,11 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
+    // setTimeout(() => {
+    //   this.scheduler.emit('task_create', baseInfo);
+    //   callback();
+    // }, 10);
+    // this.scheduler.emit('task_create', baseInfo);
     this.scheduler.emit('task_init', baseInfo);
     callback();
   }
