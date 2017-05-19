@@ -39,7 +39,7 @@ class commentHandle {
       };
     setTimeout(() => {
       this.scheduler.emit('task_create', baseInfo);
-    }, 10);
+    }, 100);
     // this.scheduler.emit('task_create', baseInfo);
     // this.scheduler.emit('task_init', baseInfo);
     callback();
