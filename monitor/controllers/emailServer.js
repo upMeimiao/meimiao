@@ -27,7 +27,7 @@ exports.sendAlarm = (subject, content) => {
   });
 };
 exports.sendEmail = (req, res) => {
-  let mailGroup;
+  let mailGroup = ['changjunhao@meimiao.net'];
   if (!req.body.mailGroup || req.body.mailGroup === 1) {
     mailGroup = ['changjunhao@meimiao.net', 'luoqibu@meimiao.net', 'limojin@meimiao.net']; // list of receivers
   }
