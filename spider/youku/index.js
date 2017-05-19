@@ -75,9 +75,9 @@ class spiderCore {
   test() {
     const work = {
       p: 1,
-      name: '飞碟说',
-      id: '132997651',
-      encodeId: 'UNTMxOTkwNjA0'
+      name: '柚子木字幕组',
+      id: '370501042',
+      encodeId: 'UMTQ4MjAwNDE2OA=='
     };
     this.dealWith.todo(work, (err, total, uid) => {
       logger.debug(total);

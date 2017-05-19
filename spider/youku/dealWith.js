@@ -89,18 +89,18 @@ class dealWith {
           bid: task.id,
           fans_num: userInfo.followerNum
         };
-      if (user.fans_num == 0) {
-        logger.error('粉丝数据异常', body.data);
-        request({
-          method: 'POST',
-          url: 'http://10.251.55.50:3001/api/alarm',
-          form: {
-            mailGroup: 3,
-            subject: '粉丝数据异常',
-            content: JSON.stringify(body.data)
-          }
-        });
-      }
+      // if (user.fans_num == 0) {
+      //   logger.error('粉丝数据异常', body.data);
+      //   request({
+      //     method: 'POST',
+      //     url: 'http://10.251.55.50:3001/api/alarm',
+      //     form: {
+      //       mailGroup: 3,
+      //       subject: '粉丝数据异常',
+      //       content: JSON.stringify(body.data)
+      //     }
+      //   });
+      // }
       this.sendUser(user, () => {
         callback();
       });
@@ -227,13 +227,14 @@ class dealWith {
       method: 'GET',
       url: this.settings.spiderAPI.youku.list,
       headers: {
-        'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
+        'user-agent': 'Youku;6.6.1;iOS;10.3.2;iPhone8,2'
       },
       timeout: 5000
     };
     async.whilst(
-      () => sign <= Math.min(page, 25),
+      () => sign <= Math.min(page, 200),
       (cb) => {
+        logger.debug(`第${sign}页`);
         options.qs = { caller: '1', pg: sign, pl: '50', uid: task.encodeId };
         request(options, (error, response, body) => {
           if (error) {
