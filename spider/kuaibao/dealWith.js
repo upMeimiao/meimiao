@@ -264,6 +264,7 @@ class dealWith {
           }
         }
       }
+      result = null;
       this.deal(task, videoArr, () => {
         callback();
       });
