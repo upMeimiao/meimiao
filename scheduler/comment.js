@@ -20,7 +20,7 @@ class commentScheduler {
         port: this.redis.port,
         host: this.redis.host,
         auth: this.redis.auth,
-        db: this.redis.jobDB
+        db: 15
       }
     });
     this.logger.trace('评论任务调度器初始化完成');
@@ -99,7 +99,7 @@ class commentScheduler {
     //     }
     //   }
     // );
-    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400', (err, res, body) => {
+    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400', (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
         return;
@@ -131,9 +131,9 @@ class commentScheduler {
       bid: raw.bid,
       aid: raw.aid,
       taskType: raw.taskType,
-      commentId: raw.comment_id,
-      commentTime: raw.comment_time,
-      commentNum: raw.comment_num
+      // commentId: raw.comment_id,
+      // commentTime: raw.comment_time,
+      // commentNum: raw.comment_num
     }).priority('critical').attempts(5).backoff({ delay: 20 * 1000, type: 'fixed' })
       .removeOnComplete(true);
     job.save((err) => {

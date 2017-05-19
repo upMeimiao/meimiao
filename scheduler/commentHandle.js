@@ -37,7 +37,8 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
-    this.scheduler.emit('task_init', baseInfo);
+    this.scheduler.emit('task_create', baseInfo);
+    // this.scheduler.emit('task_init', baseInfo);
     callback();
   }
   checkInit(raw) {
