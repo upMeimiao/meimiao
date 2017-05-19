@@ -229,18 +229,26 @@ class dealWith {
         callback(e);
         return;
       }
-      this.deal(task, result.newslist, () => {
+      this.deal(task, result, () => {
         callback();
       });
     });
   }
   deal(task, list, callback) {
     let index = 0;
-    const length = list.length;
+    const length = list.newslist.length,
+      newMap = new Map();
     async.whilst(
       () => index < length,
       (cb) => {
-        this.getDetail(task, list[index], () => {
+        // logger.debug(list.videoHits)
+        for (const ids of list.videoHits) {
+          // logger.debug(list.newslist[index].video_channel.video.vid, '---', ids.vid)
+          if (list.newslist[index].video_channel.video.vid == ids.vid) {
+            newMap.set(ids.vid, ids.playcount);
+          }
+        }
+        this.getDetail(task, list.newslist[index], newMap, () => {
           index += 1;
           cb();
         });
@@ -295,7 +303,7 @@ class dealWith {
   //     });
   //   });
   // }
-  getDetail(task, info, callback) {
+  getDetail(task, info, newMap, callback) {
     async.parallel({
       comment: (cb) => {
         this.getCommentNum(info, (err, num) => {
@@ -344,7 +352,7 @@ class dealWith {
         bid: task.id,
         aid: info.id,
         title: info.title.substr(0, 100).replace(/"/g, ''),
-        play_num: results.newField ? results.newField.playNum : null,
+        play_num: newMap.get(info.video_channel.video.vid),
         comment_num: Number(results.comment),
         support: results.expr.up,
         step: results.expr.down,
