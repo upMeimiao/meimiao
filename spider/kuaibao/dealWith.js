@@ -90,7 +90,6 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.kuaibao.user + task.id
     };
-    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         callback();
