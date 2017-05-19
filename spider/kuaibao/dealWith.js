@@ -9,6 +9,21 @@ let logger;
 const jsonp = function (data) {
   return data;
 };
+const _time = (time) => {
+  if (!time) {
+    return '';
+  }
+  time = time.split(':');
+  if (time.length === 2) {
+    time = (time[0] * 60 * 60) + (time[1] * 60);
+    return time;
+  }
+  if (time.length === 3) {
+    time = (time[0] * 60 * 60) + (time[0] * 60) + Number(time[1]);
+    return time;
+  }
+  return time;
+};
 const devArr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 const getDevId = () => {
   let devId = '';
@@ -209,13 +224,14 @@ class dealWith {
   }
   getVideoList(task, idStr, callback) {
     const option = {
-      url: this.settings.spiderAPI.kuaibao.list,
-      referer: 'http://r.cnews.qq.com/inews/iphone/',
-      data: {
-        ids: idStr,
-        is_video: 1
-      }
-    };
+        url: this.settings.spiderAPI.kuaibao.list,
+        referer: 'http://r.cnews.qq.com/inews/iphone/',
+        data: {
+          ids: idStr,
+          is_video: 1
+        }
+      },
+      videoArr = [];
     request.post(logger, option, (err, result) => {
       if (err) {
         callback(err);
@@ -228,22 +244,38 @@ class dealWith {
         callback(e);
         return;
       }
-      this.deal(task, result, () => {
+      for (const video of result.newslist) {
+        videoArr.push({
+          id: video.id,
+          title: video.title,
+          desc: video.video_channel.video.desc,
+          vid: video.video_channel.video.vid,
+          img: video.thumbnails_qqnews_photo[0],
+          longt: video.video_channel.video.duration,
+          createTime: video.timestamp,
+          commentid: video.commentid,
+          type: video.articletype
+        });
+      }
+      for (const ids of videoArr) {
+        for (const vid of result.videoHits) {
+          if (ids.vid == vid.vid) {
+            ids.playNum = vid.playcount;
+          }
+        }
+      }
+      this.deal(task, videoArr, () => {
         callback();
       });
     });
   }
   deal(task, list, callback) {
     let index = 0;
-    const length = list.newslist.length,
-      newMap = new Map();
+    const length = list.length;
     async.whilst(
       () => index < length,
       (cb) => {
-        for (const ids of list.videoHits) {
-          newMap.set(ids.vid, ids.playcount);
-        }
-        this.getDetail(task, list.newslist[index], newMap, () => {
+        this.getDetail(task, list[index], () => {
           index += 1;
           cb();
         });
@@ -298,7 +330,7 @@ class dealWith {
   //     });
   //   });
   // }
-  getDetail(task, info, newMap, callback) {
+  getDetail(task, info, callback) {
     async.parallel({
       comment: (cb) => {
         this.getCommentNum(info, (err, num) => {
@@ -347,14 +379,14 @@ class dealWith {
         bid: task.id,
         aid: info.id,
         title: info.title.substr(0, 100).replace(/"/g, ''),
-        play_num: newMap.get(info.video_channel.video.vid),
+        play_num: info.playNum,
         comment_num: Number(results.comment),
         support: results.expr.up,
         step: results.expr.down,
         save_num: results.expr.like,
-        a_create_time: info.timestamp,
-        long_t: results.newField ? results.newField.long_t : null,
-        v_img: results.newField ? results.newField.v_img : null,
+        a_create_time: info.createTime,
+        long_t: _time(info.longt),
+        v_img: info.img,
         tag: results.newField ? results.newField.tag : null,
         class: results.newField ? results.newField.class : null
       };
@@ -463,13 +495,13 @@ class dealWith {
   }
   getField(info, callback) {
     const option = {
-      url: `http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid=${info.video_channel.video.vid}&plat=5&pver=0&otype=json&callback=jsonp`,
+      url: `http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid=${info.vid}&plat=5&pver=0&otype=json&callback=jsonp`,
       referer: 'http://r.cnews.qq.com/inews/iphone/'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        callback(err);
+        callback(null, { v_img: '', tag: '', class: '' });
         return;
       }
       try {
@@ -477,7 +509,7 @@ class dealWith {
       } catch (e) {
         logger.error('jsonp数据解析失败');
         logger.error(result);
-        callback(e);
+        callback(null, { v_img: '', tag: '', class: '' });
         return;
       }
       if (!result.video) {
@@ -485,11 +517,9 @@ class dealWith {
         return;
       }
       const backData = {
-        long_t: result.video.tot || '',
         v_img: result.video.pic,
         tag: _tag(result.video.tags),
-        class: _class(result.video.ctypename),
-        playNum: result.video.viewnum
+        class: _class(result.video.ctypename)
       };
       callback(null, backData);
     });
