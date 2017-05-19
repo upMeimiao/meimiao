@@ -198,7 +198,7 @@ class dealWith {
         callback(e);
         return;
       }
-      task.total = result.ids.length;
+      task.total = result.newslist.length;
       let idStr = '';
       for (const ids of result.ids) {
         idStr += `,${ids.id}`;
@@ -344,12 +344,12 @@ class dealWith {
         bid: task.id,
         aid: info.id,
         title: info.title.substr(0, 100).replace(/"/g, ''),
-        play_num: info.playcount,
+        play_num: results.newField ? results.newField.playNum : null,
         comment_num: Number(results.comment),
         support: results.expr.up,
         step: results.expr.down,
         save_num: results.expr.like,
-        a_create_time: info.time,
+        a_create_time: info.timestamp,
         long_t: results.newField ? results.newField.long_t : null,
         v_img: results.newField ? results.newField.v_img : null,
         tag: results.newField ? results.newField.tag : null,
@@ -368,7 +368,7 @@ class dealWith {
       referer: 'http://r.cnews.qq.com/inews/iphone/',
       data: {
         chlid: 'media_article',
-        comment_id: info.commentId,
+        comment_id: info.commentid,
         c_type: 'comment',
         article_id: info.id,
         page: 1
@@ -388,7 +388,6 @@ class dealWith {
         callback(e);
         return;
       }
-      // logger.debug(result);
       if (result.comments && result.comments.count) {
         callback(null, result.comments.count);
       } else {
@@ -461,7 +460,7 @@ class dealWith {
   }
   getField(info, callback) {
     const option = {
-      url: `http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid=${info.vid}&plat=5&pver=0&otype=json&callback=jsonp`,
+      url: `http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid=${info.video_channel.video.vid}&plat=5&pver=0&otype=json&callback=jsonp`,
       referer: 'http://r.cnews.qq.com/inews/iphone/'
     };
     request.get(logger, option, (err, result) => {
@@ -483,10 +482,11 @@ class dealWith {
         return;
       }
       const backData = {
-        long_t: result.video.tot,
+        long_t: result.video.tot || '',
         v_img: result.video.pic,
         tag: _tag(result.video.tags),
-        class: _class(result.video.ctypename)
+        class: _class(result.video.ctypename),
+        playNum: result.video.viewnum
       };
       callback(null, backData);
     });
