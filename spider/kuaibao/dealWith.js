@@ -501,7 +501,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        callback(null, { v_img: '', tag: '', class: '' });
+        callback(null, { tag: '', class: '' });
         return;
       }
       try {
@@ -509,7 +509,7 @@ class dealWith {
       } catch (e) {
         logger.error('jsonp数据解析失败');
         logger.error(result);
-        callback(null, { v_img: '', tag: '', class: '' });
+        callback(null, { tag: '', class: '' });
         return;
       }
       if (!result.video) {
@@ -517,7 +517,6 @@ class dealWith {
         return;
       }
       const backData = {
-        v_img: result.video.pic,
         tag: _tag(result.video.tags),
         class: _class(result.video.ctypename)
       };
