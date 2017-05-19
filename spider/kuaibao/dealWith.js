@@ -240,12 +240,8 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        // logger.debug(list.videoHits)
         for (const ids of list.videoHits) {
-          // logger.debug(list.newslist[index].video_channel.video.vid, '---', ids.vid)
-          if (list.newslist[index].video_channel.video.vid == ids.vid) {
-            newMap.set(ids.vid, ids.playcount);
-          }
+          newMap.set(ids.vid, ids.playcount);
         }
         this.getDetail(task, list.newslist[index], newMap, () => {
           index += 1;
