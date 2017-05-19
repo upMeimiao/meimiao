@@ -60,16 +60,11 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
-<<<<<<< HEAD
-      // this.deal();
-      this.test()
-=======
       if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
         this.deal();
       } else {
         this.test();
       }
->>>>>>> 9028dd611d0e5f984a903c51089b5b2248f2ef10
     });
   }
   start() {
