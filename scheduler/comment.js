@@ -20,7 +20,7 @@ class commentScheduler {
         port: this.redis.port,
         host: this.redis.host,
         auth: this.redis.auth,
-        db: 15
+        db: this.redis.jobDB
       }
     });
     this.logger.trace('评论任务调度器初始化完成');
@@ -28,7 +28,7 @@ class commentScheduler {
   assembly() {
     myRedis.createClient(this.redis.host,
       this.redis.port,
-      '14',
+      this.redis.taskDB,
       this.redis.auth,
       (err, cli) => {
         if (err) {
@@ -99,7 +99,7 @@ class commentScheduler {
     //     }
     //   }
     // );
-    request.get('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400', (err, res, body) => {
+    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=8400', (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
         return;
