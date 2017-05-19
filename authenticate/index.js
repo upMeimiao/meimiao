@@ -1,4 +1,4 @@
- /**
+/**
  *  update by pnghui on 2017/4/28
  * */
 const HTTP = require('http');
@@ -42,7 +42,7 @@ class spiderCore {
   dispatch(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     const query = URL.parse(req.url, true).query;
-        // logger.debug('请求',req)
+    // logger.debug('请求',req)
     if (!query.url && !query.code) {
       res.writeHead(400, { 'Content-Type': 'text/html;charset=utf-8' });
       res.end('请检查url参数与code参数');
@@ -187,11 +187,11 @@ class spiderCore {
       case 'm.v1.cn':
         handle.v1Handle(ctx, verifyData);
         break;
-            // case 'www.fun.tv':
-            // case 'pm.funshion.com':
-            // case 'm.fun.tv':
-            //     handle.fengxingHandle( ctx, verifyData )
-            //     break
+      // case 'www.fun.tv':
+      // case 'pm.funshion.com':
+      // case 'm.fun.tv':
+      //     handle.fengxingHandle( ctx, verifyData )
+      //     break
       case 'www.wasu.cn':
         handle.huashuHandle(ctx, verifyData);
         break;

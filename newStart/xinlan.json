@@ -1,7 +1,7 @@
 {
   "name"        : "新蓝网",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","xinlan","-a","xinlan"],
+  "args"        : ["-i","master","-a","xinlan"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,

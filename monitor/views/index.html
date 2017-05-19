@@ -11,15 +11,17 @@
     <template>
         <el-row style="width: 1260px;margin: 20px auto;">
             <el-radio-group v-model="radio" @change="changePlatform">
-                <el-radio-button v-for="(item, index) in platform" :label="item.id" :disabled="item.id > 37">{{item.name}}</el-radio-button>
+                <el-radio-button v-for="(item, index) in platform" :label="item.id" :disabled="item.id > 42">{{item.name}}</el-radio-button>
             </el-radio-group>
         </el-row>
         <el-row style="width: 1260px;margin: 20px auto;">
-            <el-col :span="7">
-                <el-input placeholder="请输入内容" v-model="input" @keyup.enter.native="search" style="width: 300px;">
+            <el-col :span="9">
+                <el-input placeholder="请输入内容" :disabled="disabled" v-model="input" @keyup.enter.native="search" style="width: 450px;">
                     <el-select v-model="select" slot="prepend" placeholder="请选择">
                         <el-option label="ID" value="1"></el-option>
                         <el-option label="用户名" value="2"></el-option>
+                        <el-option label="ID（全平台）" value="3"></el-option>
+                        <el-option label="用户名（全平台）" value="4"></el-option>
                     </el-select>
                     <el-button slot="append" icon="search" @click="search"></el-button>
                 </el-input>
@@ -29,7 +31,7 @@
             </el-col>
         </el-row>
         <el-row style="width: 1260px;margin: 0 auto;">
-            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="width: 100%;"  :row-class-name="tableRowClassName" max-height="750">
+            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border :summary-method="getSummaries" show-summary style="width: 100%;"  :row-class-name="tableRowClassName" max-height="750">
                 <el-table-column align="center" prop="p"  :formatter="show_pname" label="平台">
                 </el-table-column>
                 <el-table-column align="center" prop="bid" width="280"  label="ID">
@@ -59,7 +61,7 @@
     </template>
 </div>
 <script src="/javascripts/lib/vue.min.js"></script>
-<script src="/javascripts/lib/vue-resource.min.js"></script>
+<!--<script src="/javascripts/lib/vue-resource.min.js"></script>-->
 <script src="/javascripts/lib/moment.min.js"></script>
 <script src="/javascripts/lib/element.js"></script>
 <script src="/socket.io/socket.io.js"></script>

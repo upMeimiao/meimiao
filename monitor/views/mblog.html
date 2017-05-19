@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>热门微博</title>
+    <link rel="stylesheet" href="/stylesheets/element.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<div id="app">
+    <template>
+        <el-row style="width: 1260px;margin: 0 auto;">
+            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="width: 100%;" @row-click="goto" max-height="750">
+                <el-table-column align="center" prop="context" label="微博内容" width="500">
+                </el-table-column>
+                <el-table-column align="center" prop="reposts" sortable label="转发">
+                </el-table-column>
+                <el-table-column align="center" prop="comments" sortable label="评论">
+                </el-table-column>
+                <el-table-column align="center" prop="attitudes" sortable label="赞">
+                </el-table-column>
+                <el-table-column label="发布者">
+                    <el-table-column align="center" prop="user.name" sortable label="昵称">
+                    </el-table-column>
+                    <el-table-column align="center" prop="user.fans" sortable label="粉丝数">
+                    </el-table-column>
+                </el-table-column>
+                <el-table-column align="center" label="操作">
+                    <template scope="scope">
+                        <el-button
+                                size="small"
+                                @click="gotoList(scope.row)">查看原微博
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-row>
+    </template>
+</div>
+<script src="/javascripts/lib/vue.min.js"></script>
+<script src="/javascripts/lib/vue-resource.min.js"></script>
+<script src="/javascripts/lib/moment.min.js"></script>
+<script src="/javascripts/lib/element.js"></script>
+<script src="/javascripts/hotMblog.js"></script>
+</body>
+</html>

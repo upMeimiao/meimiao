@@ -2,6 +2,8 @@
 
 ------
 
+> README只提供有限的信息，更详细的资料请查阅[WIKI](http://git.meimiao.net/qiaosuan_spider/code/wikis)
+
 ## 监控系统
 
 [Kue监控](http://spider-kue.meimiaoip.com/kue) 
@@ -15,7 +17,6 @@
 
 > * master：主分支，用于线上环境部署
 > * staging：用于测试环境部署的分支
-> * taskSheet：添加任务分片的逻辑进行重构的分支
 > * 任务调度模块 —— scheduler文件夹
 > * 数据发送模块 —— sendServer文件夹
 > * 获取用户信息模块 —— servant文件夹
@@ -83,6 +84,37 @@ http://momentjs.cn/
 * class  分类
 * long_t  时长
 
+## 专辑视频需要信息
+
+* platform  平台id
+* bid  帐号id
+* program_list 专辑栏目列表数组（里边存储的是整个列表里的专辑信息）
+* program_id   专辑id
+* program_name  专辑名称
+* link  专辑链接
+* play_link  专辑播放链接
+* thumbnail  专辑截图
+* video_count  专辑视频数量
+* view_count  专辑总播放量
+* published  专辑创建时间
+* video_list  单个专辑里所有的视频ID存储数组
+
+## 评论需要信息
+
+* platform  平台id
+* bid  帐号id
+* aid   视频(文章)id
+* cid  评论id
+* content  评论内容
+* ctime  评论发布时间
+* support  评论信息顶量
+* step  评论踩数
+* reply  评论回复数
+* c_user  用来存放评论者的信息对象
+* uid  评论者id
+* uname  评论者名称
+* uavatar  评论者头像
+
 ## 平台ID
 
 1. 优酷视频
@@ -122,45 +154,13 @@ http://momentjs.cn/
 35. 华数TV
 36. 暴风影音
 37. 百度视频
+38. 梨视频
+39. YouTube
+40. Facebook
+41. 人人视频
+42. 点视
+43. 小米想看（spider未支持，巧发支持）
+44. 网易菠萝
 
-## 从服务器拿到的任务信息
-```
-{
-errno: 0,
-errmsg: "获取成功",
-data: [
-        {
-            id: "406",
-            bid: "2320443191",
-            platform: "2",
-            type: "0",
-            encodeId: "",
-            bname: "papi酱"
-        },
-        {
-            id: "409",
-            bid: "283217183",
-            platform: "9",
-            type: "0",
-            encodeId: "",
-            bname: "papi酱"
-        },
-        {
-            id: "5",
-            bid: "m110950",
-            platform: "11",
-            type: "0",
-            encodeId: "",
-            bname: "一色神技能"
-        },
-        {
-            id: "92",
-            bid: "m81955",
-            platform: "11",
-            type: "0",
-            encodeId: "",
-            bname: "陈翔六点半"
-        }
-    ]
-}
-```
+## 流程图
+![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)

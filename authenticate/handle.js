@@ -105,7 +105,7 @@ class Handle {
     });
   }
   miaopaiHandle(ctx, verifyData) {
-        // includes需要用数组方法
+    // includes需要用数组方法
     const DataUrl = [verifyData.remote];
     if (!((DataUrl[0].includes('.htm') && DataUrl[0].includes('/show/')) || DataUrl[0].includes('/show/channel/'))) {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
@@ -266,13 +266,13 @@ class Handle {
       ctx.res.end(JSON.stringify(this.preResult(err, result)));
     });
   }
-    // pptvHandle ( ctx, verifyData ) {
-    //     dealWith.pptv( verifyData, ( err, result ) => {
-    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-    //         ctx.res.writeHead(200)
-    //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
-    //     })
-    // }
+  // pptvHandle ( ctx, verifyData ) {
+  //     dealWith.pptv( verifyData, ( err, result ) => {
+  //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+  //         ctx.res.writeHead(200)
+  //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
+  //     })
+  // }
   xinlanHandle(ctx, verifyData) {
     dealWith.xinlan(verifyData, (err, result) => {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
@@ -294,13 +294,13 @@ class Handle {
       ctx.res.end(JSON.stringify(this.preResult(err, result)));
     });
   }
-    // fengxingHandle ( ctx, verifyData ) {
-    //     dealWith.fengxing( verifyData, ( err, result ) => {
-    //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
-    //         ctx.res.writeHead(200)
-    //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
-    //     })
-    // }
+  // fengxingHandle ( ctx, verifyData ) {
+  //     dealWith.fengxing( verifyData, ( err, result ) => {
+  //         ctx.res.setHeader('Content-Type',`text/plain;charset=utf-8`)
+  //         ctx.res.writeHead(200)
+  //         ctx.res.end(JSON.stringify(this.preResult(err,result)))
+  //     })
+  // }
   huashuHandle(ctx, verifyData) {
     dealWith.huashu(verifyData, (err, result) => {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');

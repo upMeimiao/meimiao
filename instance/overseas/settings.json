@@ -1,0 +1,38 @@
+{
+  "redis": {
+    "port": 6379,
+    "host": "r-t4n464c318a826d4.redis.singapore.rds.aliyuncs.com",
+    "auth": "C19prsPjHs52CHoA0vm",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3,
+    "proxy": 4,
+    "monitor": 5
+  },
+  "kue": {
+    "ip": "127.0.0.1",
+    "port": 3000
+  },
+  "listen": {
+    "ip":"127.0.0.1",
+    "port": 3001
+  },
+  "concurrency": 100,
+  "send_interval": 30000,
+  "interval": 10000,
+  "sendUrl": "http://www.meimiaoip.com/index.php/Spider/video/postVideosMore/",
+  "sendFans": "http://www.meimiaoip.com/index.php/Spider/Fans/postFans",
+  "update": "http://www.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+  "origin_update": "http://spider-monitor.meimiaoip.com/api/changeStatus",
+  "spiderAPI": {
+    "youtube": {
+      "channel": "https://m.youtube.com/channel/",
+      "info": "https://m.youtube.com/watch"
+    },
+    "facebook":{
+      "list": "https://www.facebook.com/ajax/pagelet/generic.php/PagesVideoHubVideoContainerPagelet?dpr=1&data=",
+      "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',"
+    }
+  }
+}
