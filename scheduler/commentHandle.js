@@ -39,10 +39,10 @@ class commentHandle {
       };
     setTimeout(() => {
       this.scheduler.emit('task_create', baseInfo);
-    }, 500);
+      callback();
+    }, 10);
     // this.scheduler.emit('task_create', baseInfo);
     // this.scheduler.emit('task_init', baseInfo);
-    callback();
   }
   checkInit(raw) {
     const key = `c:${raw.p}:${raw.aid}`;
