@@ -28,7 +28,7 @@ class commentScheduler {
   assembly() {
     myRedis.createClient(this.redis.host,
       this.redis.port,
-      this.redis.taskDB,
+      '14',
       this.redis.auth,
       (err, cli) => {
         if (err) {
@@ -131,9 +131,9 @@ class commentScheduler {
       bid: raw.bid,
       aid: raw.aid,
       taskType: raw.taskType,
-      // commentId: raw.comment_id,
-      // commentTime: raw.comment_time,
-      // commentNum: raw.comment_num
+      commentId: raw.comment_id,
+      commentTime: raw.comment_time,
+      commentNum: raw.comment_num
     }).priority('critical').attempts(5).backoff({ delay: 20 * 1000, type: 'fixed' })
       .removeOnComplete(true);
     job.save((err) => {
