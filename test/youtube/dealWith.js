@@ -44,6 +44,7 @@ class dealWith {
       },
       headers: {
         'accept-language': 'zh-CN,zh;q=0.8',
+        referer: `${this.api.channel}${task.id}`,
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       }
     };
@@ -174,6 +175,7 @@ class dealWith {
       },
       headers: {
         'accept-language': 'zh-CN,zh;q=0.8',
+        referer: `${this.api.channel}${task.id}`,
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       }
     };
@@ -266,7 +268,8 @@ class dealWith {
         v: video.encrypted_id
       },
       headers: {
-        'accept-language': 'zh-CN,zh;q=0.8',
+        'accept-language': 'rzh-CN,zh;q=0.8',
+        referer: `https://m.youtube.com/watch?v=${video.encrypted_id}`,
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       }
     };
