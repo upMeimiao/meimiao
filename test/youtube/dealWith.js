@@ -249,7 +249,7 @@ class dealWith {
           setTimeout(() => {
             index += 1;
             cb();
-          }, 50);
+          }, 100);
         });
       },
       () => {
