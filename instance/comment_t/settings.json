@@ -56,8 +56,7 @@
   },
   "yidian":"http://www.yidianzixun.com/api/q/?path=contents/comments&version=999999&count=30&docid=",
   "tudou":{
-    "commentId":"http://dataapi.youku.com/getData?num=200001&icode=",
-    "list":"http://www.tudou.com/comments/itemnewcomment.srv?rows=20&cmtid=0&tm=21&ids=&charset=utf-8&app=anchor&iid="
+    "commentId":"http://p.comments.youku.com/ycp/comment/pc/commentList?app=700-cJpvjG4g&objectId="
   },
   "baomihua":"http://m.interface.baomihua.com/Interfaces/getlist.ashx?type=rlist&pagesize=20&vs=36&objid=",
   "ku6":"http://comment.ku6.com/api/list.jhtm?vtype=111&type=2&size=20&id=",

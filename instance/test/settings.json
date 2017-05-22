@@ -170,12 +170,9 @@
     },
     "tudou": {
       "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",
-      "fans": "http://www.tudou.com/uis/userStatInfo.action?app=homev2&uidCode=",
-      "list": "http://user.api.3g.tudou.com/v4/user/ugc_list?page_size=30&pid=c0637223f8b69b02&sort_desc_by=pub&user_ids=",
-      "newList": "http://v.tudou.com/item/list.do?pageSize=40&sort=1",
-      "media": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid=",
-      "mediaTime": "http://www.tudou.com/tvp/getItemInfo.action?app=1&ic=",
-      "expr":"http://api.3g.tudou.com/v4_5/video/item_sum?pid=c0637223f8b69b02&item_code="
+      "fans": "http://video.tudou.com/subscribe/check?uid=",
+      "newList": "https://mapi-channel.youku.com/feed.stream/show/get_yt_channel.json?app_ver=6.2.1&brand=apple&btype=iPhone8%2C2&caller=1&devicetype=phone&module=videolist&os=ios&os_ver=10.3.1&pl=20&scale=3&version=6.2.1",
+      "comment": "http://p.comments.youku.com/ycp/comment/pc/commentList?app=700-cJpvjG4g&objectId="
     },
     "tv56": {
       "userInfo": "http://push.my.tv.sohu.com/user/a/fa/count.do",

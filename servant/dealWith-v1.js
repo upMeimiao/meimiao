@@ -2636,41 +2636,5 @@ class DealWith {
       callback(null, res);
     });
   }
-  bolo(data, callback) {
-    const urlObj = URL.parse(data, true),
-      vid = urlObj.query.videoId,
-      options = {
-        url: `http://bolo.163.com/bolo/api/video/videoInfo.htm?videoId=${vid}`,
-        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-        referer: 'http://bolo.163.com'
-      };
-    let res = null;
-    request.get(options, (err, result) => {
-      if (err) {
-        logger.debug('视频数据接口请求失败', err.message);
-        callback(error, { code: 102, p: 44 });
-        return;
-      }
-      if (result.statusCode !== 200) {
-        logger.debug('视频接口状态码错误', result.statusCode);
-        callback(result.statusCode, { code: 102, p: 42 });
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.debug('视频数据解析失败', result.body);
-        callback(e, { code: 102, p: 44 });
-        return;
-      }
-      res = {
-        id: result.videoInfo.userId,
-        name: result.channelInfo.nick,
-        avatar: result.channelInfo.avatar,
-        p: 44
-      };
-      callback(null, res);
-    });
-  }
 }
 module.exports = DealWith;

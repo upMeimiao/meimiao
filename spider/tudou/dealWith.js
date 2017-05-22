@@ -1,8 +1,15 @@
 const async = require('async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
-const cheerio = require('cheerio');
-const moment = require('moment');
+const crypto = require('crypto');
+
+const sign = (t, e) => {
+  const md5 = crypto.createHash('md5');
+  if (t === 'v') {
+    return md5.update(`100-DDwODVkv&6c4aa6af6560efff5df3c16c704b49f1&${e}`).digest('hex');
+  }
+  return md5.update(`700-cJpvjG4g&bad4543751cacf3322ab683576474e31&${e}`).digest('hex');
+};
 
 let logger;
 class dealWith {
@@ -16,102 +23,89 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (callback) => {
+        user: (cb) => {
           this.getUser(task, (err) => {
-            callback(null, '用户信息已返回');
+            if (err) {
+              callback(err);
+              return;
+            }
+            cb(null, '用户信息已返回');
           });
         },
-        media: (callback) => {
+        media: (cb) => {
           this.getTotal(task, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '视频信息已返回');
+            cb(null, '视频信息已返回');
           });
         }
       },
-            (err, result) => {
-              if (err) {
-                return callback(err);
-              }
-              logger.debug(`${task.id}_result:`, result);
-              callback(null, task.total);
-            }
-        );
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        logger.debug(`${task.id}_result:`, result);
+        callback(null, task.total);
+      }
+    );
   }
   getUser(task, callback) {
     const option = {
-      url: `http://www.tudou.com/home/_${task.id}/`,
-      ua: 2
+      url: `${this.settings.spiderAPI.tudou.fans}${task.encodeId}&_=${new Date().getTime()}`,
+      ua: 1
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback();
-      }
-      let $ = cheerio.load(result.body),
-        script = $('script')[0].children[0].data;
-      script = script.slice(script.indexOf('var CONFIG') + 13);
-      script = script.replace(/;/g, '');
-      let user_conf;
-      try {
-        user_conf = eval(`(${script})`);
-      } catch (e) {
-        logger.error('土豆解析userconf失败');
-        logger.error(script);
-        return callback(e);
-      }
-      const uidCode = user_conf.uidCode;
-      this.getFans(task, uidCode, (err) => {
-        callback();
-      });
-    });
-  }
-  getFans(task, uidCode, callback) {
-    const option = {
-      url: this.settings.spiderAPI.tudou.fans + uidCode
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        return callback();
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('土豆粉丝 json数据解析失败');
-        logger.error(result);
-        return callback(e);
+        logger.error('粉丝数解析失败', result.body);
+        callback(e);
+        return;
       }
       const user = {
         platform: task.p,
         bid: task.id,
-        fans_num: result.data.subedNum
+        fans_num: result.html.sumCount
       };
-      this.sendUser(user, () => {
-        callback();
-      });
+      // this.sendUser(user, () => {
+      //   callback();
+      // });
       this.sendStagingUser(user);
+      callback();
     });
   }
   getTotal(task, callback) {
+    const time = new Date().getTime().toString().substring(0, 10);
     logger.debug('开始获取视频总数');
     const option = {
-      url: this.settings.spiderAPI.tudou.userInfo + task.id
+      url: `${this.settings.spiderAPI.tudou.newList}&pg=1&uid=${task.encodeId}&_s_=${sign('v', time)}&_t_=${time}&e=md5`,
+      ua: 1
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        logger.debug('视频总数请求失败');
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info('json error :', result.body);
-        return callback(e);
+        logger.debug('视频总量解析失败', result.body);
+        callback(e);
+        return;
       }
-      task.total = result.video_count;
-      this.getList(task, result.video_count, (err) => {
-        if (err) {
-          return callback(err);
+      task.total = result.data.videolist.total;
+      this.getList(task, (error) => {
+        if (error) {
+          callback(err);
+          return;
         }
         callback();
       });
@@ -124,14 +118,16 @@ class dealWith {
     };
     request.post(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error(`土豆用户 ${user.bid} json数据解析失败`);
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
       if (result.errno == 0) {
         logger.debug('土豆用户:', `${user.bid} back_end`);
@@ -167,143 +163,114 @@ class dealWith {
       }
     });
   }
-  getList(task, total, callback) {
-    let sign = 1,
-      page,
-      option,
-      list;
-    if (total % 40 == 0) {
-      page = total / 40;
-    } else {
-      page = Math.ceil(total / 40);
-    }
+  getList(task, callback) {
+    const total = task.total % 20 === 0 ? task.total / 20 : Math.ceil(task.total / 20),
+      option = {
+        ua: 1
+      },
+      time = new Date().getTime().toString().substring(0, 10);
+    let page = 1;
     async.whilst(
-            () => sign <= page,
-            (cb) => {
-              logger.debug(`开始获取第${sign}页视频列表`);
-              option = {
-                url: `${this.settings.spiderAPI.tudou.newList}&uid=${task.id}&page=${sign}`
-              };
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.error('土豆列表json解析失败');
-                  logger.error(result.body);
-                  sign++;
-                  return cb();
-                }
-                if (!result.data) {
-                  sign++;
-                  return cb();
-                }
-                list = result.data.data;
-                if (list) {
-                  this.deal(task, list, () => {
-                    sign++;
-                    cb();
-                  });
-                } else {
-                  sign++;
-                  cb();
-                }
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => page <= total,
+      (cb) => {
+        logger.debug(`开始获取第${page}页视频列表`);
+        option.url = `${this.settings.spiderAPI.tudou.newList}&pg=${page}&uid=${task.encodeId}&_s_=${sign('v', time)}&_t_=${time}&e=md5`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.debug('视频列表解析失败', result.body);
+            cb();
+            return;
+          }
+          this.deal(task, result.data.videolist.videos, () => {
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, list, callback) {
     let index = 0;
     async.whilst(
-            () => index < list.length,
-            (cb) => {
-              this.getInfo(task, list[index], (err) => {
-                index++;
-                cb();
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < list.length,
+      (cb) => {
+        this.getInfo(task, list[index], () => {
+          index += 1;
+          cb();
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getInfo(task, data, callback) {
-    async.parallel([
-      (cb) => {
-        this.getExpr(data.code, (err, result) => {
-          if (err) {
-            return cb(err);
-          }
-          cb(null, result);
-        });
-      }
-    ], (err, result) => {
-      if (err) {
-        return callback(err);
-      }
-      const media = {
-        author: task.name,
-        platform: 12,
-        bid: task.id,
-        aid: data.code,
-        title: data.title ? data.title.replace(/"/g, '') : 'btwk_caihongip',
-        desc: data.comments ? data.comments.replace(/"/g, '') : '',
-        play_num: data.playNum,
-        save_num: result[0].favorNum,
-        comment_num: result[0].commentNum,
-        support: result[0].digNum,
-        step: result[0].buryNum,
-        v_img: data.picurl,
-        long_t: this.long_t(data.formatTotalTime),
-        a_create_time: data.pubDate.toString().substring(0, 10)
-      };
-
-      spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-      spiderUtils.commentSnapshots(this.core.taskDB,
+    async.parallel(
+      [
+        (cb) => {
+          this.getComment(data.pk_video, (err, result) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, result);
+          });
+        }
+      ],
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        const media = {
+          author: task.name,
+          platform: 12,
+          bid: task.id,
+          aid: `${data.videoid}_${data.pk_video}`,
+          title: data.title ? spiderUtils.stringHandling(data.title, 50) : 'btwk_caihongip',
+          desc: data.desc ? spiderUtils.stringHandling(data.desc, 100) : '',
+          play_num: data.total_vv,
+          comment_num: result[0],
+          class: data.category,
+          v_img: data.thumburl,
+          long_t: Math.round(data.seconds),
+          a_create_time: data.publishtime
+        };
+        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-      callback();
-    });
+        callback();
+      });
   }
-  getExpr(code, callback) {
-    const option = {
-      url: this.settings.spiderAPI.tudou.expr + code
-    };
+  getComment(vid, callback) {
+    const time = new Date().getTime().toString().substring(0, 10),
+      option = {
+        url: `${this.settings.spiderAPI.tudou.comment}${vid}&objectType=1&listType=0&currentPage=1&pageSize=30&sign=${sign('c', time)}&time=${time}`,
+        ua: 1
+      };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(null, '');
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('expr json数据解析失败');
-        logger.info('backData:', result);
-        return callback(e);
+        logger.error('comment json数据解析失败', result.body);
+        callback(null, '');
+        return;
       }
-      if (result.error != 0) {
-        logger.error(`expr error:${result.error},${result.msg}`);
-        return callback(true);
-      }
-      if (!result.data) {
-        logger.error('expr error:', result);
-        return callback(true);
-      }
-      callback(null, result.data);
+      callback(null, result.data.totalSize || '');
     });
-  }
-  long_t(time) {
-    let timeArr = time.split(':'),
-      long_t = '';
-    if (timeArr.length == 2) {
-      long_t = moment.duration(`00:${time}`).asSeconds();
-    } else if (timeArr.length == 3) {
-      long_t = moment.duration(time).asSeconds();
-    }
-    return long_t;
   }
 }
 module.exports = dealWith;

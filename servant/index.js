@@ -118,6 +118,7 @@ class spiderCore {
         this.handle.yidianHandle(ctx, remote);
         break;
       case 'www.tudou.com':
+      case 'video.tudou.com':
         this.handle.tudouHandle(ctx, remote);
         break;
       case 'www.baomihua.com':

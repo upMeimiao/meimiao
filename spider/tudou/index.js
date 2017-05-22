@@ -73,8 +73,9 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '790514606',
-      name: '魔卡恋爱学',
+      id: '26993378',
+      name: '陈翔六点半',
+      encodeId: 'UMTA3OTczNTEy',
       p: 12
     };
     this.dealWith.todo(work, (err, total) => {
