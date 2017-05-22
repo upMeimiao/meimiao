@@ -176,6 +176,7 @@ class spiderCore {
       case 'www.ifeng.com':
       case 'v.ifeng.com':
       case 'vcis.ifeng.com':
+      case 'share.iclient.ifeng.com':
         this.handle.ifengHandle(ctx, remote);
         break;
       case 'www.163.com':

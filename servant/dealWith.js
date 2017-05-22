@@ -1472,12 +1472,11 @@ class DealWith {
   ifeng(remote, callback) {
     let urlObj = URL.parse(remote, true),
       host = urlObj.host,
-      pathname = urlObj.pathname,
       option = {},
       v_id;
-    if (host == 'vcis.ifeng.com') {
+    if (host == 'vcis.ifeng.com' || host == 'share.iclient.ifeng.com') {
       v_id = urlObj.query.guid;
-      option.url = api.ifeng.url + v_id;
+      option.url = `${api.ifeng.url}${v_id}&adapterNo=7.1.0&protocol=1.0.0`;
       this.ifengUser(option, (err, result) => {
         if (err) {
           return callback(err, result);
@@ -1493,7 +1492,7 @@ class DealWith {
         }
         result = result.body.replace(/[\s\n\r]/g, '');
         const guid = result.match(/\"vid\":\"[\d\w-]*/).toString().replace('"vid":"', '');
-        option.url = api.ifeng.url + guid;
+        option.url = `${api.ifeng.url}${guid}&adapterNo=7.1.0&protocol=1.0.0`;
         this.ifengUser(option, (err, result) => {
           if (err) {
             return callback(err, result);
@@ -1526,6 +1525,7 @@ class DealWith {
         avatar: result.weMedia.headPic,
         p: 24
       };
+      logger.debug(res);
       callback(null, res);
     });
   }
