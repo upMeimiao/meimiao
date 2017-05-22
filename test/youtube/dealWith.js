@@ -22,6 +22,7 @@ class dealWith {
     logger.trace('DealWith instantiation ...');
   }
   todo(task, callback) {
+    logger.debug('start spider')
     task.total = 0;
     this.channel(task, (err) => {
       if (err) {
@@ -48,6 +49,7 @@ class dealWith {
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       }
     };
+    logger.debug(options)
     request(options, (error, response, body) => {
       if (error) {
         logger.error('occur error : ', error.message);
@@ -182,6 +184,7 @@ class dealWith {
     async.whilst(
       () => sign || index > 333,
       (cb) => {
+        logger.debug(options)
         request(options, (error, response, body) => {
           if (error) {
             logger.error(error);
@@ -273,6 +276,7 @@ class dealWith {
         'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       }
     };
+    logger.debug(options)
     request(options, (error, response, body) => {
       if (error) {
         logger.error('info error : ', error.message);
