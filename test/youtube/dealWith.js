@@ -46,7 +46,17 @@ class dealWith {
       headers: {
         'accept-language': 'zh-CN,zh;q=0.8',
         referer: `${this.api.channel}${task.id}`,
-        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.38 (KHTML, like Gecko) Version/10.0 Mobile/14A300 Safari/602.1'
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.38 (KHTML, like Gecko) Version/10.0 Mobile/14A300 Safari/602.1',
+        'x-client-data': 'CI22yQEIorbJAQjBtskBCIOaygEI+5zKAQipncoBCIuiygE=',
+        'x-spf-referer': `https://m.youtube.com/channel/${task.id}`,
+        'x-youtube-client-version': '1.20170518',
+        'x-youtube-variants-checksum': '3023dfba2565def6426cc7d28fd6f71f',
+        'x-youtube-page-label': 'youtube_20170518_0_RC3',
+        'x-youtube-page-cl': '156517915',
+        'x-chrome-uma-enabled': '1',
+        accept: '*/*',
+        dnt: '1',
+        'cache-control': 'no-cache'
       }
     };
     logger.debug(options)
@@ -178,7 +188,17 @@ class dealWith {
       headers: {
         'accept-language': 'zh-CN,zh;q=0.8',
         referer: `${this.api.channel}${task.id}`,
-        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.38 (KHTML, like Gecko) Version/10.0 Mobile/14A300 Safari/602.1'
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.38 (KHTML, like Gecko) Version/10.0 Mobile/14A300 Safari/602.1',
+        'x-client-data': 'CI22yQEIorbJAQjBtskBCIOaygEI+5zKAQipncoBCIuiygE=',
+        'x-spf-referer': `https://m.youtube.com/channel/${task.id}`,
+        'x-youtube-client-version': '1.20170518',
+        'x-youtube-variants-checksum': '3023dfba2565def6426cc7d28fd6f71f',
+        'x-youtube-page-label': 'youtube_20170518_0_RC3',
+        'x-youtube-page-cl': '156517915',
+        'x-chrome-uma-enabled': '1',
+        accept: '*/*',
+        dnt: '1',
+        'cache-control': 'no-cache'
       }
     };
     async.whilst(
