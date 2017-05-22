@@ -265,7 +265,7 @@ class dealWith {
         debug_prerolls: 'false',
         itct: video.endpoint.click_tracking_params,
         layout: 'mobile',
-        sts: '17245',
+        sts: '17302',
         tsp: '1',
         utcoffset: '480',
         v: video.encrypted_id
