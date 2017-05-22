@@ -246,8 +246,10 @@ class dealWith {
           //         cb()
           //     }, 500)
           // }
-          index += 1;
-          cb();
+          setTimeout(() => {
+            index += 1;
+            cb();
+          }, 50);
         });
       },
       () => {
