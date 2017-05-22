@@ -6,7 +6,12 @@ const cheerio = require('cheerio');
 const request = require('../lib/request');
 const async = require('async');
 const req = require('request');
+const crypto = require('crypto');
 
+const sign = (e) => {
+  const md5 = crypto.createHash('md5');
+  return md5.update(`700-cJpvjG4g&bad4543751cacf3322ab683576474e31&${e}`).digest('hex');
+};
 const jsonp = data => data;
 const _Callback = data => data;
 let logger; // api;
@@ -990,7 +995,7 @@ class DealWith {
       }
       this.tdComment(userVal, vid, (error, data) => {
         if (error) {
-          error === 'error' ? callback(error, { code: 105, p: 12 }) : callback(error, { code: 103, p: 12 });
+          error === 'error' ? callback(null, { code: 105, p: 12 }) : callback(error, { code: 103, p: 12 });
           return;
         }
         callback(null, data);
@@ -998,39 +1003,41 @@ class DealWith {
     });
   }
   tdComment(userVal, vid, callback){
-    const user = {}, dataUrl = {};
+    const user = {}, option = {};
     let cycle = true,
       page = 1,
-      contents;
+      contents,
+      time;
     async.whilst(
       () => cycle,
       (cb) => {
-        dataUrl.url = `https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=${vid}&page=${page}&count=100`;
-        request.get(logger, dataUrl, (err, data) => {
+        time = parseInt(new Date().getTime() / 1000, 10);
+        option.url = `http://p.comments.youku.com/ycp/comment/pc/commentList?app=700-cJpvjG4g&objectId=${vid}&objectType=1&listType=0&currentPage=${page}&pageSize=30&sign=${sign(time)}&time=${time}`;
+        request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('occur error : ', err);
-            cb(err);
+            cb();
             return;
           }
           try {
-            data = JSON.parse(data.body);
+            result = JSON.parse(result.body);
           } catch (e) {
-            logger.error('土豆json数据解析失败');
-            logger.info(data);
-            cb(e);
+            logger.error('土豆json数据解析失败', result.body);
+            cb();
             return;
           }
-          contents = data.comments;
+          contents = result.data.comment;
           if(contents.length === 0){
             cycle = false;
             cb('error');
             return;
           }
-          for (let i = 0; i < contents.length; i++) {
+          for (let i = 0; i < contents.length; i += 1) {
             if (userVal == contents[i].content.replace(/\s/g, '')) {
               user.p = 12;
-              user.id = contents[i].user.id;
-              user.name = contents[i].user.name;
+              user.id = contents[i].user.userId;
+              user.name = contents[i].user.userName;
+              user.encode_id = contents[i].user.userCode;
               cycle = false;
               cb(null, user);
               return;
