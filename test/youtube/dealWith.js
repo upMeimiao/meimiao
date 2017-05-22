@@ -5,11 +5,11 @@ const moment = require('moment');
 const async = require('neo-async');
 const request = require('request');
 const spiderUtils = require('../../lib/spiderUtils');
-const python = require('python.js');
+// const python = require('python.js');
 
-const sys = python.import('sys');
-sys.path.append(__dirname);
-const py = python.import('py_json');
+// const sys = python.import('sys');
+// sys.path.append(__dirname);
+// const py = python.import('py_json');
 
 let logger;
 
@@ -59,6 +59,7 @@ class dealWith {
       try {
         body = JSON.parse(body.replace(')]}\'', ''));
       } catch (e) {
+        logger.error('channel json error', body);
         return callback(e.message);
       }
       const fansInfo = {
@@ -188,11 +189,11 @@ class dealWith {
             logger.error(response.statusCode);
             return cb();
           }
-          const _data = py.test(body.replace(')]}\'', ''));
-          logger.debug(_data);
+          // const _data = py.test(body.replace(')]}\'', ''));
+          // logger.debug(_data);
           try {
             body = JSON.parse(body.replace(')]}\'', '').replace(/\\U000[a-zA-Z0-9]{5}/g, ''));
-          } catch (e) {e
+          } catch (e) {
             logger.error(e);
             // logger.error(body);
             return cb();
