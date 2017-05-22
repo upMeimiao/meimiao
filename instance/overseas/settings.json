@@ -27,8 +27,8 @@
   "origin_update": "http://spider-monitor.meimiaoip.com/api/changeStatus",
   "spiderAPI": {
     "youtube": {
-      "channel": "http://sin10s06-in-f78.1e100.net/channel/",
-      "info": "http://sin10s06-in-f78.1e100.net/watch"
+      "channel": "https://m.youtube.com/channel/",
+      "info": "https://m.youtube.com/watch"
     },
     "facebook":{
       "list": "https://www.facebook.com/ajax/pagelet/generic.php/PagesVideoHubVideoContainerPagelet?dpr=1&data=",
