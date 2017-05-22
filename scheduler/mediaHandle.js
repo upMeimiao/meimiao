@@ -37,6 +37,7 @@ class mediaHandle {
     // }
     if (Number(_.platform) === 12) {
       callback();
+      return;
     }
     const platform = platformMap.get(Number(_.platform)),
       baseInfo = {
