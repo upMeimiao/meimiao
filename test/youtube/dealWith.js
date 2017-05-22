@@ -36,6 +36,7 @@ class dealWith {
     const options = {
       method: 'GET',
       url: `${this.api.channel}${task.id}`,
+      timeout: 3000,
       // proxy: 'http://127.0.0.1:56428',
       qs: {
         ajax: '1',
@@ -175,6 +176,7 @@ class dealWith {
     const options = {
       method: 'GET',
       url: `${this.api.channel}${task.id}`,
+      timeout: 3000,
       // proxy: 'http://127.0.0.1:56428',
       qs: {
         action_continuation: '1',
@@ -281,6 +283,7 @@ class dealWith {
     const options = {
       method: 'GET',
       url: this.api.info,
+      timeout: 5000,
       // proxy: 'http://127.0.0.1:56428',
       qs: {
         ajax: '1',
