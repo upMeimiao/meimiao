@@ -217,7 +217,7 @@ class dealWith {
     async.parallel(
       [
         (cb) => {
-          this.getComment(data.pk_video, (err, result) => {
+          this.getComment(data.videoid, (err, result) => {
             if (err) {
               cb(err);
               return;
@@ -235,7 +235,7 @@ class dealWith {
           author: task.name,
           platform: 12,
           bid: task.id,
-          aid: `${data.videoid}_${data.pk_video}`,
+          aid: data.videoid,
           title: data.title ? spiderUtils.stringHandling(data.title, 50) : 'btwk_caihongip',
           desc: data.desc ? spiderUtils.stringHandling(data.desc, 100) : '',
           play_num: data.total_vv,

@@ -37,7 +37,7 @@ class dealWith {
     const option = {},
       time = new Date().getTime().toString().substring(0, 10);
     let total = 0;
-    option.url = `${this.settings.tudou.commentId}${task.aid.split('_')[1]}&objectType=1&listType=0&currentPage=1&pageSize=30&sign=${sign(time)}&time=${time}`;
+    option.url = `${this.settings.tudou.commentId}${task.aid}&objectType=1&listType=0&currentPage=1&pageSize=30&sign=${sign(time)}&time=${time}`;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('土豆评论总量请求失败', err);
@@ -80,7 +80,7 @@ class dealWith {
       () => page <= Math.min(total, 400),
       (cb) => {
         time = new Date().getTime().toString().substring(0, 10);
-        option.url = `${this.settings.tudou.commentId}${task.aid.split('_')[1]}&objectType=1&listType=0&currentPage=${page}&pageSize=30&sign=${sign(time)}&time=${time}`;
+        option.url = `${this.settings.tudou.commentId}${task.aid}&objectType=1&listType=0&currentPage=${page}&pageSize=30&sign=${sign(time)}&time=${time}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('土豆评论列表请求失败', err);
