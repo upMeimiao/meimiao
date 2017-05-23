@@ -97,14 +97,14 @@ class spiderCore {
         return;
       }
       this.auth = auth;
-      // this.getCookie(auth, () => {
+      this.getCookie(auth, () => {
         // process.env.NODE_ENV = 'production';
         if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
           this.deal();
         } else {
           this.test();
         }
-      // });
+      });
     });
   }
   getCookie(auth, callback) {

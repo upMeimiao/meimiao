@@ -26,7 +26,7 @@ class dealWith {
             }
             cb(null, '用户信息已返回');
           });
-        }/*,
+        },
         media: (cb) => {
           this.getListInfo(task, (err) => {
             if (err) {
@@ -35,7 +35,7 @@ class dealWith {
             }
             cb(null, '视频信息已返回');
           });
-        }*/
+        }
       },
       (err, result) => {
         logger.debug('result', result);
