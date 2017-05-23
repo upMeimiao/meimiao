@@ -5,7 +5,7 @@ const child_process = require('child_process');
 
 const loginModule = (parameter, callback) => {
   const spawn = child_process.spawn('casperjs',
-    [`${__dirname}\\casper.js`, parameter.auth.email, parameter.auth.pass, parameter.loginAddr],
+    [`${__dirname}/casper.js`, parameter.auth.email, parameter.auth.pass, parameter.loginAddr],
     { stdio: ['pipe', 'pipe', 'pipe'] });
   spawn.stdin.setEncoding('utf8');
   spawn.stdout.setEncoding('utf8');

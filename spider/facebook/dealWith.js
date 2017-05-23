@@ -50,7 +50,7 @@ class dealWith {
   getUserInfo(task, callback) {
     const option = {
       url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
       ua: 1
     };
@@ -89,7 +89,7 @@ class dealWith {
         platform: task.p,
         fans_num: fans
       };
-      this.sendUser(res);
+      // this.sendUser(res);
       this.sendStagingUser(res);
       callback();
     });
@@ -146,7 +146,7 @@ class dealWith {
   getListInfo(task, callback) {
     const option = {
       ua: 1,
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       referer: 'https://www.facebook.com'
     };
     let cursor = null,
@@ -254,7 +254,7 @@ class dealWith {
     const option = {
       url: `${this.settings.spiderAPI.facebook.vidInfo}"v":"${vid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`,
       ua: 1,
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       referer: `https://www.facebook.com/${task.id}/?fref=ts`,
       Cookie: task.cookies
     };

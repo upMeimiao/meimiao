@@ -20,7 +20,7 @@ const auth = {
     Connection: 'keep-alive',
     'Upgrade-Insecure-Request': '1',
     'Cache-control': 'max-age=0',
-    proxy: 'http://127.0.0.1:56777'
+    // proxy: 'http://127.0.0.1:56777'
   };
 
 casper.start();
