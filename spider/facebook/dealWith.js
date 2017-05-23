@@ -283,12 +283,11 @@ class dealWith {
         return;
       }
       for (let i = 0; i < result.jsmods.markup.length; i += 1) {
-        if (result.jsmods.markup[i][2] == 42 && result.jsmods.markup[i][1].__html) {
+        if (result.jsmods.markup[i][1].__html) {
           $ = cheerio.load(result.jsmods.markup[i][1].__html);
-        } else if (result.jsmods.markup[i][2] == 41 && result.jsmods.markup[i][1].__html) {
-          $ = cheerio.load(result.jsmods.markup[i][1].__html);
-        } else if (result.jsmods.markup[i][2] == 44 && result.jsmods.markup[i][1].__html) {
-          $ = cheerio.load(result.jsmods.markup[i][1].__html);
+          if ($('div.snowliftPayloadRoot').length <= 1 && $('div.snowliftPayloadRoot ._hli').text()) {
+            $ = cheerio.load(result.jsmods.markup[i][1].__html);
+          }
         }
         if (result.jsmods.markup[i][2] == 16) {
           _$ = cheerio.load(result.jsmods.markup[1][1].__html);

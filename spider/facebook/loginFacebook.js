@@ -14,7 +14,7 @@ const loginModule = (parameter, callback) => {
   });
   spawn.stdout.on('data', (result) => {
     const len = result.length;
-    if (len < 30 && result == 'error') {
+    if (result == 'error') {
       if (parameter.timeout >= 2) {
         callback('timeout');
         return;
