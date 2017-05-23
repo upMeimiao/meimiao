@@ -26,7 +26,7 @@ class dealWith {
             }
             cb(null, '用户信息已返回');
           });
-        },
+        }/*,
         media: (cb) => {
           this.getListInfo(task, (err) => {
             if (err) {
@@ -35,7 +35,7 @@ class dealWith {
             }
             cb(null, '视频信息已返回');
           });
-        }
+        }*/
       },
       (err, result) => {
         logger.debug('result', result);
@@ -49,46 +49,67 @@ class dealWith {
   }
   getUserInfo(task, callback) {
     const option = {
-      url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-      // proxy: 'http://127.0.0.1:56777',
-      referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-      ua: 1
-    };
+        url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
+        proxy: 'http://127.0.0.1:56777',
+        referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
+        ua: 1
+      },
+      strArr = [
+        ',["PagesLikesTab","renderLikesData",',
+        ''
+      ];
     request.get(logger, option, (err, result) => {
       if (err) {
         callback(err);
         return;
       }
-      result = result.body;
-      const $ = cheerio.load(result);
-      let script, fans;
-      if ($('script')[5].children[0]) {
-        script = $('script')[5].children[0].data;
-      } else {
-        script = $('script')[7].children[0].data;
-      }
-      const scriptReg = script.includes('new (require("ServerJS"))().setServerFeatures');
-      if (!scriptReg) {
-        script = $('script')[6].children[0].data;
-      }
-      script = script.replace('new (require("ServerJS"))().setServerFeatures("iw").handle(', '').replace(');', '');
-      try {
-        script = JSON.parse(script);
-      } catch (e) {
-        callback(e);
+      result = result.body.replace(/[\s\n\r]/g, '');
+      const renderFollowsData = result.indexOf('renderFollowsData');
+      if (renderFollowsData === -1) {
+        logger.debug('没有粉丝数');
+        callback();
         return;
       }
-      for (let i = 0; i < script.require.length; i += 1) {
-        if (script.require[i][1] === 'renderFollowsData') {
-          fans = script.require[i][3][3];
-          break;
-        }
+      result = result.substr(renderFollowsData);
+      const fans = result.match(/,(\d*)],\[\]\],\["PagesLikesTab",/);
+      if (!fans) {
+        logger.debug('没有找到');
+        callback();
+        return;
       }
+      // const $ = cheerio.load(result);
+      // let script, fans;
+      // if ($('script')[5].children[0]) {
+      //   script = $('script')[5].children[0].data;
+      // } else {
+      //   script = $('script')[7].children[0].data;
+      // }
+      // const scriptReg = script.includes('new (require("ServerJS"))().setServerFeatures');
+      // if (!scriptReg) {
+      //   script = $('script')[6].children[0].data;
+      // }
+      // script = script.replace('new (require("ServerJS"))().setServerFeatures("iw").handle(', '').replace(');', '');
+      // logger.debug(script);
+      // try {
+      //   script = JSON.parse(script);
+      // } catch (e) {
+      //   callback(e);
+      //   return;
+      // }
+      // for (let i = 0; i < script.require.length; i += 1) {
+      //   if (script.require[i][1] === 'renderFollowsData') {
+      //     fans = script.require[i][3][3];
+      //     break;
+      //   }
+      // }
+      // const fans = result.match(/,(\d*)\],\[\]\],\["PagesLikesTab","renderLikesData",/);
+      // logger.info(fans);
       const res = {
         bid: task.id,
         platform: task.p,
-        fans_num: fans
+        fans_num: fans[1]
       };
+      // logger.info(res);
       // this.sendUser(res);
       this.sendStagingUser(res);
       callback();
