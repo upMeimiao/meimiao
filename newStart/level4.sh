@@ -87,4 +87,8 @@ echo "启动点视"
 pm2 start ~/newStart/dianshi.json
 echo "任务点视启动完成"
 
+echo "启动网易菠萝"
+pm2 start ~/newStart/bolo.json
+echo "任务网易菠萝启动完成"
+
 echo "第四优先级任务启动完成"
