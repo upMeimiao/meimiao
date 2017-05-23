@@ -46,15 +46,21 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('粉丝数请求失败');
-        return callback(e);
+        callback(e);
+        return;
       }
-      let fans = result.data.subscriptions ? result.data.subscriptions : '',
+      if (!result.data) {
+        callback();
+        return;
+      }
+      const fans = result.data.subscriptions ? result.data.subscriptions : '',
         user = {
           platform: 14,
           bid: task.id,
