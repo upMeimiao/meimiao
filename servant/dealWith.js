@@ -412,15 +412,24 @@ class DealWith {
           }
           let $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-          // if(num.length){
-          //  return callback(true,{code:102,p:4})
-          // }
           let user = $('.user_info'),
-            // name = user.attr('title'),
             href = user.attr('href'),
             idDom = $('.btn_book'),
-            id = href.substring(href.lastIndexOf('/') + 1);
+            id = href.substring(href.lastIndexOf('/') + 1),
+            name = $('div.video_user._video_user a.user_info span').text(),
+            avatar = $('div.video_user._video_user a.user_info img').attr('src');
+          if (name && avatar) {
+            res = {
+              id,
+              name,
+              avatar,
+              p: 4
+            };
+            callback(null, res);
+            return;
+          }
           option.url = href;
+          // logger.debug(option.url);
           request.get(option, (err, result) => {
             if (err) {
               logger.error('occur error : ', err);
@@ -432,19 +441,15 @@ class DealWith {
             }
             let $ = cheerio.load(result.body),
               nameDom = $('h2.user_info_name'),
-              nameDom2 = $('#userInfoNick'),
-              name,
-              avatar;
+              nameDom2 = $('#userInfoNick');
+            name = nameDom.text();
+            avatar = $('#userAvatar').attr('src');
             if (nameDom.length === 0) {
               name = nameDom2.text();
               id = idDom.attr('r-subscribe');
-            } else {
-              name = nameDom.text();
             }
             if (!$('#userAvatar').attr('src')) {
               avatar = '';
-            } else {
-              avatar = $('#userAvatar').attr('src');
             }
             res = {
               id,
@@ -452,7 +457,8 @@ class DealWith {
               avatar,
               p: 4
             };
-            return callback(null, res);
+            callback(null, res);
+            return;
           });
         });
       } else {
