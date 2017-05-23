@@ -50,7 +50,7 @@ class dealWith {
   getUserInfo(task, callback) {
     const option = {
         url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-        proxy: 'http://127.0.0.1:56777',
+        // proxy: 'http://127.0.0.1:56777',
         referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
         ua: 1
       },
