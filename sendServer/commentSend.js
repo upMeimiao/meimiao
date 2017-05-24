@@ -83,7 +83,6 @@ class commentSend {
     request.post(this.onlineOption, (err, res, result) => {
       if (err) {
         this.logger.error('online occur error : ', err.message);
-        this.logger.error(JSON.stringify({ data: newList }));
         time += 1;
         if (time > 3) {
           list = null;
@@ -99,6 +98,7 @@ class commentSend {
       if (res.statusCode !== 200) {
         this.logger.error(`online errorCode: ${res.statusCode}`);
         this.logger.error(result);
+        this.logger.error(JSON.stringify({ data: newList }));
         time += 1;
         if (time > 3) {
           list = null;
