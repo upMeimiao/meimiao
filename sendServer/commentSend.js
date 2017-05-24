@@ -141,6 +141,7 @@ class commentSend {
       list = null;
       return;
     }
+    this.logger.debug(JSON.stringify({ data: list }))
     this.stagingOption.body = JSON.stringify({ data: list });
     request.post(this.stagingOption, (err, res, result) => {
       if (err) {
