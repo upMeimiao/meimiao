@@ -19,13 +19,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.totalPage(task, (err, result) => {
+    this.totalPage(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -51,8 +47,10 @@ class dealWith {
         return;
       }
       task.cNum = result.cmt_sum;
-      if ((task.cNum - task.commentNum) <= 0) {
-        callback(null, 'add_0');
+      if ((task.cNum - task.commentNum) <= 0 || !result.comments.length) {
+        task.lastTime = task.commentTime;
+        task.lastId = task.commentId;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {
@@ -62,7 +60,7 @@ class dealWith {
         total = (total % 10) === 0 ? total / 10 : Math.ceil(total / 10);
       }
       task.topic_id = result.topic_id;
-      task.lastTime = result.comments[0].create_time / 1000;
+      task.lastTime = parseInt(result.comments[0].create_time / 1000, 10);
       task.lastId = result.comments[0].comment_id;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
