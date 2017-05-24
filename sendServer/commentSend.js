@@ -83,6 +83,7 @@ class commentSend {
     request.post(this.onlineOption, (err, res, result) => {
       if (err) {
         this.logger.error('online occur error : ', err.message);
+        this.logger.error(JSON.stringify({ data: newList }));
         time += 1;
         if (time > 3) {
           list = null;
@@ -141,7 +142,6 @@ class commentSend {
       list = null;
       return;
     }
-    this.logger.debug(JSON.stringify({ data: list }))
     this.stagingOption.body = JSON.stringify({ data: list });
     request.post(this.stagingOption, (err, res, result) => {
       if (err) {
