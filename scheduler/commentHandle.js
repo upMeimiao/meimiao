@@ -33,6 +33,11 @@ class commentHandle {
       callback();
       return;
     }
+    if (_.bid === '' || _.aid === '') {
+      this.logger.error('task info error:', _);
+      callback();
+      return;
+    }
     const platform = platformMap.get(Number(_.platform)),
       baseInfo = {
         p: _.platform,
