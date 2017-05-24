@@ -2659,7 +2659,7 @@ class DealWith {
       }
       if (result.statusCode !== 200) {
         logger.debug('视频接口状态码错误', result.statusCode);
-        callback(result.statusCode, { code: 102, p: 42 });
+        callback(result.statusCode, { code: 102, p: 44 });
         return;
       }
       try {
@@ -2674,6 +2674,39 @@ class DealWith {
         name: result.channelInfo.nick,
         avatar: result.channelInfo.avatar,
         p: 44
+      };
+      callback(null, res);
+    });
+  }
+  huoshan(data, callback) {
+    const urlObj = URL.parse(data, true),
+      options = {
+        url: data,
+        ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+      };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 45 });
+        return;
+      }
+      result = result.body.replace(/[\s\n\r]/g, '');
+      const startIndex = result.indexOf('vardata='),
+        endIndex = result.indexOf(";require('pagelet/reflow_video/detail/detail')");
+      result = result.substring(startIndex + 8, endIndex);
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.error('火山小视频信息解析失败', result);
+        callback(e, { code: 102, p: 45});
+        return;
+      }
+      res = {
+        id: result.author.id,
+        name: result.author.nickname,
+        avatar: result.author.avatar_thumb.url_list[2],
+        p: 45
       };
       callback(null, res);
     });

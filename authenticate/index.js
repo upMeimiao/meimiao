@@ -206,6 +206,9 @@ class spiderCore {
       case 'mobile.rr.tv':
         handle.renrenHandle(ctx, verifyData);
         break;
+      case 'www.huoshan.com':
+        handle.huoshanHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);

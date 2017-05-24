@@ -246,6 +246,11 @@
     "bolo":{
       "list": "http://bolo.163.com/bolo/api/channel/videoList.htm?pageSize=100&rendering=true",
       "videoInfo": "http://bolo.163.com/bolo/api/video/videoInfo.htm?videoId="
+    },
+    "huoshan":{
+      "user": "https://www.huoshan.com/share/user/",
+      "list": "https://www.huoshan.com/share/load_videos/?",
+      "video": "https://www.huoshan.com/share/video/"
     }
   },
   "servantAPI": {
