@@ -23,13 +23,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.commentId(task, (err, result) => {
+    this.commentId(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback();
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -39,7 +35,6 @@ class dealWith {
     const option = {
       url: this.settings.tencent.commentId + task.aid
     };
-    // logger.debug(option.url);
     request.get(logger, option, (error, result) => {
       if (error) {
         logger.debug('腾讯评论id请求失败', error);
@@ -55,15 +50,17 @@ class dealWith {
         return;
       }
       if (result.comment_id == 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
-      this.totalPage(task, result.comment_id, (err, raw) => {
+      this.totalPage(task, result.comment_id, (err) => {
         if (err) {
           callback(err);
-        } else {
-          callback(null, raw);
+          return;
         }
+        callback();
       });
     });
   }
@@ -92,7 +89,9 @@ class dealWith {
       }
       task.cNum = result.data.total;
       if ((task.cNum - task.commentNum) <= 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {
@@ -102,7 +101,9 @@ class dealWith {
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
       if (result.data.commentid.length === 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       task.lastId = result.data.commentid[0].id;

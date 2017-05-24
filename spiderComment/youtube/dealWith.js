@@ -20,13 +20,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.videoInfo(task, (err, result) => {
+    this.videoInfo(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -45,8 +41,7 @@ class dealWith {
       }
     };
     let session_token,
-      page_token,
-      foot;
+      page_token;
     req(option, (error, response, body) => {
       if (error) {
         logger.debug('youtube的视频参数接口请求失败', error);

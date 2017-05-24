@@ -74,7 +74,7 @@ class spiderCore {
   test() {
     const work = {
       bid: '1493559120',
-      aid: '9176011204059103515',
+      aid: '9215897365030692164',
       p: 20,
       taskType: 0,
       commentId: 0,
@@ -128,9 +128,7 @@ class spiderCore {
             return;
           }
           done(null);
-          if (total) {
-            this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
-          }
+          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
         });
       });
     });

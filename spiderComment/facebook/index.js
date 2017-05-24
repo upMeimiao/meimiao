@@ -18,39 +18,42 @@ class spiderCore {
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
+
   assembly() {
     async.parallel([
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.taskDB,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        return callback(err);
-                      }
-                      this.taskDB = cli;
-                      logger.debug('任务信息数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.taskDB,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.taskDB = cli;
+            logger.debug('任务信息数据库连接建立...成功');
+            callback();
+          }
+        );
       },
       (callback) => {
         myRedis.createClient(this.redis.host,
-                    this.redis.port,
-                    this.redis.cache_db,
-                    this.redis.auth,
-                    (err, cli) => {
-                      if (err) {
-                        return callback(err);
-                      }
-                      this.cache_db = cli;
-                      logger.debug('缓存队列数据库连接建立...成功');
-                      callback();
-                    }
-                );
+          this.redis.port,
+          this.redis.cache_db,
+          this.redis.auth,
+          (err, cli) => {
+            if (err) {
+              callback(err);
+              return;
+            }
+            this.cache_db = cli;
+            logger.debug('缓存队列数据库连接建立...成功');
+            callback();
+          }
+        );
       }
-    ], (err, results) => {
+    ], (err) => {
       if (err) {
         logger.error('连接redis数据库出错。错误信息：', err);
         logger.error('出现错误，程序终止。');
@@ -59,13 +62,15 @@ class spiderCore {
       }
       logger.debug('创建数据库连接完毕');
       this.deal();
-            // this.test()
+      // this.test()
     });
   }
+
   start() {
     logger.trace('启动函数');
     this.assembly();
   }
+
   test() {
     const work = {
       bid: 374308376088256,
@@ -92,6 +97,7 @@ class spiderCore {
       });
     }
   }
+
   deal() {
     const queue = kue.createQueue({
       prefix: 'c',
@@ -109,7 +115,7 @@ class spiderCore {
     logger.trace('Queue get ready');
     queue.process('comment_facebook', this.settings.concurrency, (job, done) => {
       logger.trace('Get facebook task!');
-      let work = job.data,
+      const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
       const d = domain.create();
@@ -127,15 +133,13 @@ class spiderCore {
           logger.debug(addCount);
           logger.debug('end');
           done(null);
-          if (total) {
-            this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
-          }
+          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
         });
       });
     });
     queue.process('comment_update_facebook', this.settings.concurrency, (job, done) => {
       logger.trace('Get facebook task!');
-      let work = job.data,
+      const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
       const d = domain.create();
@@ -145,7 +149,8 @@ class spiderCore {
       d.run(() => {
         this.dealWith.todo(work, (err, hostTotal, timeTotal) => {
           if (err) {
-            return done(err);
+            done(err);
+            return;
           }
           logger.debug(hostTotal);
           logger.debug(timeTotal);

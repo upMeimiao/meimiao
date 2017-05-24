@@ -19,13 +19,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.totalPage(task, (err, result) => {
+    this.totalPage(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback();
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime);
@@ -36,7 +32,6 @@ class dealWith {
       url: `${this.settings.le.list}${task.aid}&page=1`
     };
     let total = 0;
-    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('乐视评论总量请求失败', err);
@@ -53,7 +48,9 @@ class dealWith {
       }
       task.cNum = result.total;
       if ((task.cNum - task.commentNum) <= 0 || result.data.length <= 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {

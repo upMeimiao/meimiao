@@ -43,6 +43,8 @@ class dealWith {
         return;
       }
       if (!result.data || result.data.length <= 0) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
         callback();
         return;
       }

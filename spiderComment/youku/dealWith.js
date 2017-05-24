@@ -24,20 +24,16 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.totalPage(task, (err, result) => {
+    this.totalPage(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback();
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
   totalPage(task, callback) {
-    const time = parseInt(new Date().getTime() / 1000),
+    const time = parseInt(new Date().getTime() / 1000, 10),
       option = {
         url: `${this.settings.youku.list}${task.aid}&currentPage=1&sign=${sign(time)}&time=${time}`
       };
@@ -62,7 +58,9 @@ class dealWith {
       }
       task.cNum = result.data.totalSize;
       if ((task.cNum - task.commentNum) <= 0 || !result.data.comment || result.data.comment.length <= 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {
@@ -71,7 +69,7 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 30) === 0 ? total / 30 : Math.ceil(total / 30);
       }
-      task.lastTime = parseInt(result.data.comment[0].createTime / 1000);
+      task.lastTime = parseInt(result.data.comment[0].createTime / 1000, 10);
       task.lastId = result.data.comment[0].id;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
@@ -82,7 +80,7 @@ class dealWith {
   commentList(task, total, callback) {
     let page = 1;
     const option = {},
-      time = parseInt(new Date().getTime() / 1000);
+      time = parseInt(new Date().getTime() / 1000, 10);
     async.whilst(
       () => page <= total,
       (cb) => {
@@ -127,7 +125,7 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        time = parseInt(comments[index].createTime / 1000);
+        time = parseInt(comments[index].createTime / 1000, 10);
         if (task.commentId === comments[index].id || task.commentTime >= time) {
           task.isEnd = true;
           length = 0;

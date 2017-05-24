@@ -114,8 +114,10 @@ class dealWith {
         return;
       }
       task.cNum = body.total;
-      if ((task.cNum - task.commentNum) <= 0) {
-        callback(null, 'add_0');
+      if ((task.cNum - task.commentNum) <= 0 || !body.comments.length) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {

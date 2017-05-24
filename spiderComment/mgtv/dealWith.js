@@ -19,13 +19,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.commentList(task, (err, result) => {
+    this.commentList(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -64,7 +60,9 @@ class dealWith {
           }
           this.deal(task, result.data, () => {
             if (task.isEnd) {
-              callback(null, 'add_0');
+              task.lastId = task.commentId;
+              task.lastTime = task.commentTime;
+              callback();
               return;
             }
             page += 1;

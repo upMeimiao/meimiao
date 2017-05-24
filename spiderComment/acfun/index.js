@@ -89,7 +89,7 @@ class spiderCore {
       });
     } else {
       this.dealWith.todo(work, (err, total, lastId, lastTime, addCount) => {
-        logger.debug(total);
+        logger.debug(isNaN(total));
         logger.debug(lastId);
         logger.debug(lastTime);
         logger.debug(addCount);
