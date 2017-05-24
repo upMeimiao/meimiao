@@ -29,7 +29,7 @@ class commentHandle {
       callback();
       return;
     }
-    if (Number(_.platform) === 12 || Number(_.platform) === 37 || Number(_.platform) === 39) {
+    if (Number(_.platform) === 12 ||Number(_.platform) === 16 || Number(_.platform) === 37 || Number(_.platform) === 39) {
       callback();
       return;
     }
