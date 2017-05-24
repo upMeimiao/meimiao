@@ -416,6 +416,13 @@ const bolo = () => {
   const spider = new (require(`${spiderDir}bolo`))(settings);
   spider.start();
 };
+const huoshan = () => {
+  const logger = logging.getLogger('火山小视频', options.i, logLevel);
+  settings.logger = logger;
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}huoshan`))(settings);
+  spider.start();
+};
 const test = () => {
   const logger = logging.getLogger('测试', options.i, logLevel);
   settings.logger = logger;
@@ -579,6 +586,9 @@ switch (options.a) {
     break;
   case 'bolo':
     bolo();
+    break;
+  case 'huoshan':
+    huoshan();
     break;
   case 'test':
     test();
