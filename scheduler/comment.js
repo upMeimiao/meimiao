@@ -44,7 +44,8 @@ class commentScheduler {
         const osName = os.hostname();
         switch (osName) {
           case 'servant_3':
-            rule.second = [1, 21, 41];
+            // rule.second = [1, 21, 41];
+            rule.second = [20, 50];
             break;
           case 'iZ28ilm78mlZ':
             rule.second = [11, 31, 51];
