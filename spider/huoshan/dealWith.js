@@ -1,4 +1,3 @@
-/* eslint-disable camelcase,prefer-const */
 /**
  * Created by zhupenghui on 17/5/23.
  */
