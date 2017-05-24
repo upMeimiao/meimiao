@@ -72,6 +72,7 @@ class commentHandle {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
         return;
       }
+      this.logger.info(result);
       if (result[0] === -1 || result[1] === -1) {
         return;
       }
