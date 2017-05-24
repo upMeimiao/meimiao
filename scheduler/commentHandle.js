@@ -72,11 +72,10 @@ class commentHandle {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
         return;
       }
-      this.logger.info(result);
-      if (result[0] === -1 || result[1] === -1) {
+      if (Number(result[0]) === -1 || Number(result[1]) === -1) {
         return;
       }
-      if (result[0] !== result[1]) {
+      if (Number(result[0]) !== Number(result[1])) {
         this.scheduler.emit('task_check_kue', raw);
       }
     });
