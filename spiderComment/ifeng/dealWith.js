@@ -51,12 +51,12 @@ class dealWith {
       }
       const startIndex = result.indexOf('var data='),
         endIndex = result.indexOf(';bsCallback.getSinglePage');
-      if ((startIndex || endIndex) === -1) {
+      if (startIndex === -1 || endIndex === -1) {
         logger.debug('没有评论', startIndex, '---', endIndex);
         callback();
         return;
       }
-      let data = result.substring(startIndex, endIndex);
+      let data = result.substring(startIndex + 9, endIndex);
       try {
         data = JSON.parse(data);
       } catch (e) {
