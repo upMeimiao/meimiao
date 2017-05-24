@@ -122,15 +122,13 @@ class spiderCore {
         done(err);
       });
       d.run(() => {
-        this.dealWith.todo(work, (err, total, lastId, lastTime, addCount) => {
+        this.dealWith.todo(work, (err, total, lastId, lastTime) => {
           if (err) {
             done(err);
             return;
           }
           done(null);
-          if (!addCount == 0) {
-            this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
-          }
+          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
         });
       });
     });

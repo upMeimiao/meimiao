@@ -25,13 +25,9 @@ class dealWith {
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
       return;
     }
-    this.totalPage(task, (err, result) => {
+    this.totalPage(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -48,7 +44,6 @@ class dealWith {
       task.type = 3;
     }
     option.url = `${this.settings.yy}${task.aid}&index=0&type=${task.type}`;
-    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('yy评论总量请求失败', err);
@@ -64,8 +59,10 @@ class dealWith {
         return;
       }
       task.cNum = result.data.total;
-      if ((task.cNum - task.commentNum) <= 0) {
-        callback(null, 'add_0');
+      if ((task.cNum - task.commentNum) <= 0 || !result.data.list.length) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {

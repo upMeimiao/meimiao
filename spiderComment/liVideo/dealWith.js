@@ -57,13 +57,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.getIds(task, (err, result) => {
+    this.getIds(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -76,7 +72,6 @@ class dealWith {
       own_ua: 'LiVideoIOS/2.2.1 (iPhone; iOS 10.3.1; Scale/3.00)',
       Cookie: `PEAR_UUID=${_cookie([8, 4, 4, 4, 12])}`
     };
-    // logger.debug(option);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论列表Id获取失败', err);

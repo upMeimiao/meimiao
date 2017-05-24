@@ -73,10 +73,10 @@ class spiderCore {
   }
   test() {
     const work = {
-      bid: '301943',
-      aid: '876003',
+      bid: '116921',
+      aid: '3127285',
       p: 34,
-      taskType: 1,
+      taskType: 0,
       commentId: 0,
       commentTime: 0,
       commentNum: 0
@@ -124,12 +124,11 @@ class spiderCore {
       d.run(() => {
         this.dealWith.todo(work, (err, total, lastId, lastTime) => {
           if (err) {
-            return done(err);
+            done(err);
+            return;
           }
           done(null);
-          if (total) {
-            this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
-          }
+          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
         });
       });
     });

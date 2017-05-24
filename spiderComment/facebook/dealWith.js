@@ -56,6 +56,8 @@ class dealWith {
       }
       if (task.cNum <= task.commentNum) {
         task.cNum = task.commentNum;
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
         task.addCount = 0;
         callback();
         return;

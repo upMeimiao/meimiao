@@ -76,7 +76,7 @@ class spiderCore {
       bid: '1546765602474802',
       aid: '1549967005233884',
       p: 28,
-      taskType: 1,
+      taskType: 0,
       commentId: 0,
       commentTime: 0,
       commentNum: 0
@@ -128,9 +128,7 @@ class spiderCore {
             return;
           }
           done(null);
-          if (total) {
-            this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
-          }
+          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'comment_number', total, 'last_comment_id', lastId, 'last_comment_time', lastTime);
         });
       });
     });

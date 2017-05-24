@@ -65,13 +65,9 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     const num = 0;
-    this.total(task, num, (err, result) => {
+    this.total(task, num, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -143,7 +139,9 @@ class dealWith {
         }
         task.cNum = result.total_number;
         if ((task.cNum - task.commentNum) <= 0) {
-          callback(null, 'add_0');
+          task.lastId = task.commentId;
+          task.lastTime = task.commentTime;
+          callback();
           return;
         }
         if (task.commentNum <= 0) {
@@ -154,7 +152,6 @@ class dealWith {
         }
         task.lastId = result.data[0].id;
         task.lastTime = createTime(result.data[0].created_at);
-        logger.debug(task.lastTime);
         task.addCount = task.cNum - task.commentNum;
         this.commentList(task, total, proxy, () => {
           if (err) {

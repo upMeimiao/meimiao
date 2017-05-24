@@ -66,7 +66,6 @@ class dealWith {
       task.lastTime = parseInt(result.data.comment[0].createTime / 1000, 10);
       task.lastId = result.data.comment[0].id;
       task.addCount = task.cNum - task.commentNum;
-      logger.info('---', total);
       this.commentList(task, total, () => {
         callback();
       });

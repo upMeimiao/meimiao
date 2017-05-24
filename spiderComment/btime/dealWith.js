@@ -25,13 +25,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.totalPage(task, (err, result) => {
+    this.totalPage(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -75,17 +71,23 @@ class dealWith {
           }
           callback(null, data);
         });
-      } else {
-        let time = new Date(result.data.comments[0].pdate);
-        time = moment(time).format('X');
-        task.lastTime = time;
-        task.lastId = result.data.comments[0].id;
-        task.addCount = task.cNum - task.commentNum;
-        task.url = null;
-        this.commentList(task, total, () => {
-          callback(null, '');
-        });
+        return;
       }
+      if (!result.data.comments.length) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
+        return;
+      }
+      let time = new Date(result.data.comments[0].pdate);
+      time = moment(time).format('X');
+      task.lastTime = time;
+      task.lastId = result.data.comments[0].id;
+      task.addCount = task.cNum - task.commentNum;
+      task.url = null;
+      this.commentList(task, total, () => {
+        callback(null, '');
+      });
     });
   }
   videoDom(task, callback) {
@@ -101,12 +103,12 @@ class dealWith {
       const $ = cheerio.load(result.body),
         url = $('span.dianzan').attr('data-key').match(/2F\w*\.shtml/).toString()
           .replace('2F', '');
-      this.getTotal(task, url, (error, data) => {
+      this.getTotal(task, url, (error) => {
         if (error) {
           callback(error);
           return;
         }
-        callback(null, data);
+        callback();
       });
     });
   }
@@ -132,7 +134,9 @@ class dealWith {
       }
       task.cNum = result.data.total;
       if ((task.cNum - task.commentNum) === 0 || result.data.comments.length <= 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {
@@ -147,7 +151,7 @@ class dealWith {
       task.lastId = result.data.comments[0].id;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
-        callback(null, '');
+        callback();
       });
     });
   }

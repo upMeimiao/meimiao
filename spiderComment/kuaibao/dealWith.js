@@ -19,13 +19,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.commentId(task, (err, result) => {
+    this.commentId(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -44,17 +40,19 @@ class dealWith {
       }
       result = result.body.replace(/[\s\n\r]/g, '');
       if (!result.match(/commentId="(\d*)/) || !result.match(/commentId="(\d*)/)[1]) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
         callback();
         return;
       }
       commentId = result.match(/commentId="(\d*)/)[1];
       task.commentId = commentId;
-      this.totalPage(task, (err, raw) => {
+      this.totalPage(task, (err) => {
         if (err) {
           callback(err);
-        } else {
-          callback(null, raw);
+          return;
         }
+        callback();
       });
     });
   }
@@ -63,7 +61,6 @@ class dealWith {
       url: `http://coral.qq.com/article/${task.commentId}/comment?commentid=&reqnum=20`
     };
     let total = 0;
-    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('天天快报评论总量请求失败', err);
@@ -84,7 +81,9 @@ class dealWith {
       }
       task.cNum = result.data.total;
       if ((task.cNum - task.commentNum) <= 0 || result.data.commentid.length === 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {
@@ -97,7 +96,7 @@ class dealWith {
       task.lastId = result.data.commentid[0].id;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
-        callback(null, '');
+        callback();
       });
     });
   }

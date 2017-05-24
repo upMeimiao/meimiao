@@ -19,13 +19,9 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.totalPage(task, (err, result) => {
+    this.totalPage(task, (err) => {
       if (err) {
         callback(err);
-        return;
-      }
-      if (result === 'add_0') {
-        callback(null);
         return;
       }
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
@@ -36,7 +32,6 @@ class dealWith {
       url: `http://m.uczzd.cn/iflow/api/v2/cmt/article/${task.aid}/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue=-1`
     };
     let total = 0;
-    logger.debug(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('uc评论总量请求失败', err);
@@ -53,7 +48,9 @@ class dealWith {
       }
       task.cNum = result.data.comment_cnt;
       if ((task.cNum - task.commentNum) <= 0) {
-        callback(null, 'add_0');
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {
@@ -63,6 +60,8 @@ class dealWith {
         total = (total % 10) === 0 ? total / 10 : Math.ceil(total / 10);
       }
       if (!result.data.comments || result.data.comments == '') {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
         callback();
         return;
       }
