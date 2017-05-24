@@ -36,7 +36,6 @@ class dealWith {
       url: `http://v.ifeng.com/docvlist/${task.aid}-1.js`,
       ua: 1
     };
-    let cid;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论ID请求失败', err);
@@ -78,7 +77,6 @@ class dealWith {
       url: `${this.settings.ifeng}${cid}&p=1`
     };
     let total = 0;
-    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('凤凰评论总量请求失败', err);
@@ -94,8 +92,10 @@ class dealWith {
         return;
       }
       task.cNum = result.count;
-      if ((task.cNum - task.commentNum) <= 0) {
-        callback(null, 'add_0');
+      if ((task.cNum - task.commentNum) <= 0 || !result.comments.newest.length) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       if (task.commentNum <= 0) {
@@ -104,7 +104,6 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 10) === 0 ? total / 10 : Math.ceil(total / 10);
       }
-
       task.lastTime = result.comments.newest[0].create_time;
       task.lastId = result.comments.newest[0].comment_id;
       task.addCount = task.cNum - task.commentNum;
