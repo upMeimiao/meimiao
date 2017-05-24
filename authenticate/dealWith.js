@@ -2997,5 +2997,60 @@ class DealWith {
     }
     callback();
   }
+  huoshan(verifyData, callback) {
+    let htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      vid = htmlUrl.match(/video\/(\d*)/)[1],
+      option = {
+        ua: 2
+      },
+      user = {};
+    let cycle = true,
+      offset = 0;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `https://api.huoshan.com/hotsoon/item/${vid}/comments/?os_version=10.3.1&app_name=live_stream&device_type=iPhone8,2&version_code=2.1.0&count=20&offset=${offset}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('评论信息请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('解析失败', result.body);
+            cb();
+            return;
+          }
+          if (result.data.comments.length <= 0) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          for (const value of result.data.comments) {
+            if (userVal == value.text.replace(/\s/g, '')) {
+              user.id = value.user.id;
+              user.name = value.user.nickname;
+              user.p = 45;
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          offset += 20;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err, { code: 105, p: 45 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
 }
 module.exports = DealWith;
