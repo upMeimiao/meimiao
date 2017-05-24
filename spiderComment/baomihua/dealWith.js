@@ -37,7 +37,6 @@ class dealWith {
       url: `${this.settings.baomihua + task.aid}&page=1`
     };
     let total = 0;
-    // logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('爆米花评论总量请求失败', err);
@@ -47,8 +46,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body.replace(/[\\]/g, '').replace(/[\s\r\n\b]/g, ''));
       } catch (e) {
-        logger.debug('爆米花评论数据解析失败');
-        logger.info(result.body);
+        logger.debug('爆米花评论数据解析失败', result.body);
         callback(e);
         return;
       }
@@ -92,8 +90,7 @@ class dealWith {
           try {
             result = JSON.parse(result.body.replace(/[\\]/g, '').replace(/[\s\r\n\b]/g, ''));
           } catch (e) {
-            logger.debug('爆米花评论数据解析失败');
-            logger.info(result);
+            logger.debug('爆米花评论数据解析失败', result.body);
             cb();
             return;
           }
