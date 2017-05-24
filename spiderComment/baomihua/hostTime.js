@@ -35,10 +35,9 @@ class hostTime {
             return;
           }
           try {
-            result = JSON.parse(result.body.replace(/[\\]/g, '').replace(/[\s\r\n]/g, ''));
+            result = JSON.parse(result.body.replace(/[\\]/g, '').replace(/[\s\r\n\b]/g, ''));
           } catch (e) {
-            logger.debug('爆米花评论数据解析失败');
-            logger.info(result);
+            logger.debug('爆米花评论数据解析失败', result.body);
             cb();
             return;
           }
