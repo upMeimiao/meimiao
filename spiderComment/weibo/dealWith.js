@@ -137,22 +137,20 @@ class dealWith {
           this.total(task, num += 1, callback);
           return;
         }
-        task.cNum = result.total_number;
-        if ((task.cNum - task.commentNum) <= 0) {
+        task.cNum = Number(result.total_number);
+        if (task.cNum >= this.settings.weibo.commentTotal) {
+          task.cNum = this.settings.weibo.commentTotal || result.total_number;
+        }
+        total = (task.cNum % 20) === 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
+        task.lastId = result.data[0].id;
+        task.lastTime = createTime(result.data[0].created_at);
+        task.addCount = task.cNum - task.commentNum;
+        if (task.commentId == task.lastId || task.commentTime >= task.lastTime) {
           task.lastId = task.commentId;
           task.lastTime = task.commentTime;
           callback();
           return;
         }
-        if (task.commentNum <= 0) {
-          total = (task.cNum % 20) === 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
-        } else {
-          total = (task.cNum - task.commentNum);
-          total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
-        }
-        task.lastId = result.data[0].id;
-        task.lastTime = createTime(result.data[0].created_at);
-        task.addCount = task.cNum - task.commentNum;
         this.commentList(task, total, proxy, () => {
           if (err) {
             callback(err);
@@ -171,10 +169,9 @@ class dealWith {
       (cb) => {
         option.url = `${this.settings.weibo.comment + task.aid}&page=${page}`;
         option.proxy = proxy;
-        logger.debug(option.url);
         request.get(logger, option, (error, result) => {
           if (error) {
-            logger.debug('微博评论列表请求失败', error);
+            logger.error('微博评论列表请求失败', error);
             this.core.proxy.back(proxy, false);
             this.getProxy((err, _proxy) => {
               proxy = _proxy;
@@ -185,8 +182,7 @@ class dealWith {
           try {
             result = JSON.parse(result.body);
           } catch (e) {
-            logger.debug('微博评论数据解析失败');
-            logger.info(result);
+            logger.error('微博评论数据解析失败', result.body);
             this.core.proxy.back(proxy, false);
             this.getProxy((err, _proxy) => {
               proxy = _proxy;
@@ -245,6 +241,7 @@ class dealWith {
             uavatar: comments[index].user.profile_image_url
           }
         };
+        task.ceshi += 1;
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
