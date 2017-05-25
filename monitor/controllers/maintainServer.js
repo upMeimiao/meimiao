@@ -5,7 +5,7 @@ const Redis = require('ioredis');
 const request = require('request');
 const platformMap = require('./platform');
 
-const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/1', {
+const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e43f2043319e64.redis.rds.aliyuncs.com:6379/1', {
   reconnectOnError(err) {
     return err.message.slice(0, 'READONLY'.length) === 'READONLY';
   }
@@ -14,7 +14,7 @@ const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.r
 kue.createQueue({
   redis: {
     port: '6379',
-    host: 'r-m5e970ad613f13a4.redis.rds.aliyuncs.com',
+    host: 'r-m5e43f2043319e64.redis.rds.aliyuncs.com',
     auth: 'C19prsPjHs52CHoA0vm',
     db: 2
   }
