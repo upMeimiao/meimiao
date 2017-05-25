@@ -41,6 +41,7 @@ const platformMap = new Map([
   [40, 'Facebook'],
   [41, 'renren'],
   [42, 'dianshi'],
-  [44, 'bolo']
+  [44, 'bolo'],
+  [45, 'huoshan']
 ]);
 module.exports = platformMap;

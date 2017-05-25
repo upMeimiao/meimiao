@@ -253,6 +253,12 @@ then
             '点视')
                 ssh root@${loop} 'pm2 reload 点视'
                 ;;
+            '网易菠萝')
+                ssh root@${loop} 'pm2 reload 网易菠萝'
+                ;;
+            '火山小视频')
+                ssh root@${loop} 'pm2 reload 火山小视频'
+                ;;
             esac
             echo
             echo "--------------$2 视频服务重启完成，退出服务器 $loop --------------"
@@ -387,6 +393,12 @@ then
                 ;;
             '点视')
                 ssh root@${loop} 'pm2 reload 点视'
+                ;;
+            '网易菠萝')
+                ssh root@${loop} 'pm2 reload 网易菠萝'
+                ;;
+            '火山小视频')
+                ssh root@${loop} 'pm2 reload 火山小视频'
                 ;;
             esac
             echo
