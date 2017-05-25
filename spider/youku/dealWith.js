@@ -6,7 +6,7 @@ const request = require('request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
-
+const blacklist = ['UNDQ3MzYyMTI5Ng==', 'UNDUyMDQ2OTU5Mg==', 'UNDUzODExMDgzNg==', 'UNTUxMTg0Nzc2', 'UMzQzNzMzODE5Mg==', 'UNDUxMTEzNjkxMg==', 'UNDQ3OTUwMjgwMA==', 'UNDA2NDk5NTY2MA==', 'UMzE0MTkzODk1Ng==', 'UNDM1ODkyNDc2MA==', 'UNDQ3NjI5MDg2OA==', 'UMjc0NDAwMzAwNA==', 'UMTIwODgxMTI5Mg==', 'UNDQ3MzU1ODUwNA==', 'UMzI5NjQwOTUwNA==', 'UNDQ1OTQyMjM1Mg=='];
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -83,8 +83,8 @@ class dealWith {
         callback(body.desc);
         return;
       }
-      if (!body.data.channelOwnerInfo.followerNum || body.data.channelOwnerInfo.followerNum == 0) {
-        // callback(body);
+      if (!blacklist.includes(task.encodeId) && (!body.data.channelOwnerInfo.followerNum || body.data.channelOwnerInfo.followerNum == 0)) {
+        callback(body);
         request({
           method: 'POST',
           url: 'http://10.251.55.50:3001/api/alarm',
