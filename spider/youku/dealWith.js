@@ -83,6 +83,19 @@ class dealWith {
         callback(body.desc);
         return;
       }
+      if (!body.data.channelOwnerInfo.followerNum || body.data.channelOwnerInfo.followerNum == 0) {
+        callback(body);
+        request({
+          method: 'POST',
+          url: 'http://10.251.55.50:3001/api/alarm',
+          form: {
+            mailGroup: 3,
+            subject: '粉丝数据异常',
+            content: JSON.stringify(body.data)
+          }
+        });
+        return;
+      }
       const userInfo = body.data.channelOwnerInfo,
         user = {
           platform: 1,

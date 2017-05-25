@@ -28,13 +28,13 @@ exports.sendAlarm = (subject, content) => {
 };
 exports.sendEmail = (req, res) => {
   let mailGroup = ['changjunhao@meimiao.net'];
-  if (!req.body.mailGroup || req.body.mailGroup === 1) {
+  if (!req.body.mailGroup || req.body.mailGroup == 1) {
     mailGroup = ['changjunhao@meimiao.net', 'luoqibu@meimiao.net', 'limojin@meimiao.net']; // list of receivers
   }
-  if (req.body.mailGroup === 2) {
+  if (req.body.mailGroup == 2) {
     mailGroup = ['changjunhao@meimiao.net', 'zhupenghui@meimiao.net']; // list of receivers
   }
-  if (req.body.mailGroup === 3) {
+  if (req.body.mailGroup == 3) {
     mailGroup = ['changjunhao@meimiao.net']; // list of receivers
   }
   const mailOptions = {
