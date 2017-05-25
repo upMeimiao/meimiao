@@ -84,7 +84,7 @@ class dealWith {
         return;
       }
       if (!body.data.channelOwnerInfo.followerNum || body.data.channelOwnerInfo.followerNum == 0) {
-        callback(body);
+        // callback(body);
         request({
           method: 'POST',
           url: 'http://10.251.55.50:3001/api/alarm',
