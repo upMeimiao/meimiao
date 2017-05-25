@@ -95,7 +95,7 @@ class spiderCore {
     queue.on('error', (err) => {
       logger.error('Oops... ', err);
     });
-    queue.watchStuckJobs(1000);
+    // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
     queue.process('ku6', this.settings.concurrency, (job, done) => {
       logger.trace('Get ku6 task!');

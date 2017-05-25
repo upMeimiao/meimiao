@@ -95,8 +95,8 @@ class spiderCore {
     queue.on('error', (err) => {
       logger.error('Oops... ', err);
     });
-    queue.watchStuckJobs(1000);
-    // logger.trace('Queue get ready');
+    // queue.watchStuckJobs(1000);
+    logger.trace('Queue get ready');
     queue.process('fengxing', this.settings.concurrency, (job, done) => {
       logger.trace('Get fengxing task!');
       const work = job.data,

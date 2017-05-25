@@ -95,7 +95,7 @@ class spiderCore {
         logger.debug(addCount);
         logger.debug('end');
       });
-    }
+}
   }
   deal() {
     const queue = kue.createQueue({
