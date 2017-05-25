@@ -2211,24 +2211,14 @@ class DealWith {
         return callback(true, { code: 102, p: 37 });
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      startIndex = result.indexOf('{pgcName');
-      endIndex = result.indexOf(');}();!function(){varadmis');
-      dataJson = result.substring(startIndex, endIndex);
-      try {
-        dataJson = dataJson.replace('{', '{"').replace(/\'/g, '"').replace(',', ',"').replace(/:/g, '":');
-        dataJson = JSON.parse(dataJson);
-      } catch (e) {
-        logger.debug('百度视频bid解析失败');
-        logger.info(dataJson);
-        return callback(err, { code: 102, p: 37 });
-      }
-      const res = {
-        id: dataJson.pgcTid,
-        name: dataJson.pgcName,
-        p: 37
-      };
-      this.baiduAvatar(res.name, (err, avatar) => {
-        res.avatar = avatar;
+      startIndex = result.indexOf("{pgcName:'");
+      endIndex = result.indexOf("',pgcTid:'");
+      name = result.substring(startIndex + 10, endIndex);
+      this.baiduAvatar(name, (error, res) => {
+        if (error) {
+          callback(error, {code: 102, p: 37});
+          return;
+        }
         callback(null, res);
       });
     });
@@ -2240,21 +2230,33 @@ class DealWith {
     request.get(option, (err, result) => {
       if (err) {
         logger.debug('百度视频的头像请求失败');
-        return this.baiduAvatar(bname, callback);
+        this.baiduAvatar(bname, callback);
+        return;
       }
       if (result.statusCode != 200) {
         logger.debug('百度视频的状态码错误', result.statusCode);
-        return this.baiduAvatar(bname, callback);
+        this.baiduAvatar(bname, callback);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.debug('百度视频数据解析失败');
         logger.info(result);
-        return this.baiduAvatar(bname, callback);
+        this.baiduAvatar(bname, callback);
+        return;
       }
-      const avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : '';
-      callback(null, avatar);
+      if (!result.data[0].tag_info) {
+        callback('error');
+        return;
+      }
+      const res = {
+        id: result.data[0].tag_info.id,
+        name: result.data[0].tag_info.title,
+        avatar: result.data[0].tag_info.imgurl,
+        p: 37
+      };
+      callback(null, res);
     });
   }
   baijia(data, callback) {
