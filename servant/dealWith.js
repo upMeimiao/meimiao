@@ -2189,11 +2189,9 @@ class DealWith {
     let urlObj = URL.parse(data, true),
       host = urlObj.hostname,
       path = urlObj.pathname,
-      bid = null,
       name = '',
       startIndex = null,
       endIndex = null,
-      dataJson = null,
       option = {
         url: data
       };
@@ -2203,32 +2201,26 @@ class DealWith {
     }
     request.get(option, (err, result) => {
       if (err) {
-        logger.debug('百度视频请求失败', err);
-        return callback(err, { code: 102, p: 37 });
+        callback(err, { code: 102, p: 37 });
+        return;
       }
       if (result.statusCode != 200) {
-        logger.debug('百度视频的状态码错误', result.statusCode);
-        return callback(true, { code: 102, p: 37 });
+        callback(result.statusCode, { code: 102, p: 37 });
+        return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      startIndex = result.indexOf('{pgcName');
-      endIndex = result.indexOf(');}();!function(){varadmis');
-      dataJson = result.substring(startIndex, endIndex);
-      try {
-        dataJson = dataJson.replace('{', '{"').replace(/\'/g, '"').replace(',', ',"').replace(/:/g, '":');
-        dataJson = JSON.parse(dataJson);
-      } catch (e) {
-        logger.debug('百度视频bid解析失败');
-        logger.info(dataJson);
-        return callback(err, { code: 102, p: 37 });
+      startIndex = result.indexOf("{pgcName:'");
+      endIndex = result.indexOf("',pgcTid:'");
+      if (startIndex === -1 || endIndex === -1) {
+        callback('no-name');
+        return;
       }
-      const res = {
-        id: dataJson.pgcTid,
-        name: dataJson.pgcName,
-        p: 37
-      };
-      this.baiduAvatar(res.name, (err, avatar) => {
-        res.avatar = avatar;
+      name = result.substring(startIndex + 10, endIndex);
+      this.baiduAvatar(name, (error, res) => {
+        if (error) {
+          callback(error, {code: 102, p: 37});
+          return;
+        }
         callback(null, res);
       });
     });
@@ -2239,22 +2231,30 @@ class DealWith {
     };
     request.get(option, (err, result) => {
       if (err) {
-        logger.debug('百度视频的头像请求失败');
-        return this.baiduAvatar(bname, callback);
+        callback(err);
+        return;
       }
       if (result.statusCode != 200) {
-        logger.debug('百度视频的状态码错误', result.statusCode);
-        return this.baiduAvatar(bname, callback);
+        callback(result.statusCode);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('百度视频数据解析失败');
-        logger.info(result);
-        return this.baiduAvatar(bname, callback);
+        callback('baidu-user-json-error');
+        return;
       }
-      const avatar = result.data[0].tag_info ? result.data[0].tag_info.bigimgurl : '';
-      callback(null, avatar);
+      if (!result.data[0].tag_info) {
+        callback('error');
+        return;
+      }
+      const res = {
+        id: result.data[0].tag_info.id,
+        name: result.data[0].tag_info.title,
+        avatar: result.data[0].tag_info.imgurl,
+        p: 37
+      };
+      callback(null, res);
     });
   }
   baijia(data, callback) {
