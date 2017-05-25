@@ -75,6 +75,10 @@ class commentHandle {
       if (Number(raw.p) !== 23 && (Number(result[0]) === -1 || Number(result[1]) === -1)) {
         return;
       }
+      if (Number(raw.p) === 23 && (Number(result[0]) === -1 || Number(result[1]) === -1)) {
+        this.scheduler.emit('task_check_kue', raw);
+        return;
+      }
       if (Number(result[0]) !== Number(result[1])) {
         this.scheduler.emit('task_check_kue', raw);
       }
