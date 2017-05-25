@@ -96,6 +96,7 @@
       "time":"http://comments.baofeng.com/pull?type=movie&from=2&sort=new&pagesize=10&xid="
   },
   "weibo":{
+    "commentTotal": 1000,
     "comment":"http://m.weibo.cn/article/rcMod?type=comment&id=",
     "hot":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=1&page=",
     "time":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=0&page="
