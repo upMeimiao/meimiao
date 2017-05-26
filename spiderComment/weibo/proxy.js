@@ -14,10 +14,10 @@ class proxy {
       return;
     }
     logger.trace('Send a Require command');
-    request(`http://${settings.proxy.host}:${settings.proxy.port}`, (err, res, body) => {
+    request('http://spider-bidfetcher-intra.meimiaoip.com/proxy/', (err, res, body) => {
       if (err) {
         logger.debug('err:', err);
-        setTimeout(() => this.need(times + 1, callback), 3000);
+        setTimeout(() => this.need(times + 1, callback), 5000);
         return;
       }
       let proxy;
@@ -34,13 +34,13 @@ class proxy {
         return;
       }
       setTimeout(() => {
-        logger.debug('setTImeout');
+        logger.debug('setTimeout');
         return this.need(times + 1, callback);
       }, 5000);
     });
   }
   back(proxy, status, callback) {
-    request.post(`http://${settings.proxy.host}:${settings.proxy.port}/?proxy=${proxy}&status=${status}`, (err, res, body) => {
+    request.post(`http://spider-bidfetcher-intra.meimiaoip.com/proxy/?proxy=${proxy}&status=${status}`, (err, res, body) => {
       if (err) {
         if (callback) {
           callback(res);
