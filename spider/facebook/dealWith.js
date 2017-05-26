@@ -49,15 +49,11 @@ class dealWith {
   }
   getUserInfo(task, callback) {
     const option = {
-        url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-        // proxy: 'http://127.0.0.1:56777',
-        referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-        ua: 1
-      },
-      strArr = [
-        ',["PagesLikesTab","renderLikesData",',
-        ''
-      ];
+      url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
+      // proxy: 'http://127.0.0.1:56777',
+      referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
+      ua: 1
+    };
     request.get(logger, option, (err, result) => {
       if (err) {
         callback(err);
@@ -77,33 +73,6 @@ class dealWith {
         callback();
         return;
       }
-      // const $ = cheerio.load(result);
-      // let script, fans;
-      // if ($('script')[5].children[0]) {
-      //   script = $('script')[5].children[0].data;
-      // } else {
-      //   script = $('script')[7].children[0].data;
-      // }
-      // const scriptReg = script.includes('new (require("ServerJS"))().setServerFeatures');
-      // if (!scriptReg) {
-      //   script = $('script')[6].children[0].data;
-      // }
-      // script = script.replace('new (require("ServerJS"))().setServerFeatures("iw").handle(', '').replace(');', '');
-      // logger.debug(script);
-      // try {
-      //   script = JSON.parse(script);
-      // } catch (e) {
-      //   callback(e);
-      //   return;
-      // }
-      // for (let i = 0; i < script.require.length; i += 1) {
-      //   if (script.require[i][1] === 'renderFollowsData') {
-      //     fans = script.require[i][3][3];
-      //     break;
-      //   }
-      // }
-      // const fans = result.match(/,(\d*)\],\[\]\],\["PagesLikesTab","renderLikesData",/);
-      // logger.info(fans);
       const res = {
         bid: task.id,
         platform: task.p,
@@ -256,15 +225,14 @@ class dealWith {
           desc: result[0].desc,
           v_img: video.find('div._46-h img').attr('src'),
           support: result[0].ding,
-          v_url: result[0].playUrl,
           comment_num: result[0].commentNum,
           play_num: result[0].playNum,
           forward_num: result[0].sharecount,
           long_t: spiderUtils.longTime(time),
           a_create_time: result[0].time
         };
+        // logger.debug(media);
         media = spiderUtils.deleteProperty(media);
-        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         // spiderUtils.commentSnapshots(this.core.taskDB,
         //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -278,9 +246,10 @@ class dealWith {
       ua: 1,
       // proxy: 'http://127.0.0.1:56777',
       referer: `https://www.facebook.com/${task.id}/?fref=ts`,
-      Cookie: task.cookies
+      Cookie: task.cookies,
     };
     option.url = option.url.replace(/'/g, '"').replace(/[\\]/g, '');
+    // logger.debug(option);
     let dataJson = null,
       time, title, desc, playNum, commentNum, ding, sharecount, $, _$, vImg;
     option.url = option.url.toString().replace(/'/g, '"');
@@ -305,14 +274,18 @@ class dealWith {
         return;
       }
       for (let i = 0; i < result.jsmods.markup.length; i += 1) {
+        if (result.jsmods.markup[i][2] == 16) {
+          _$ = cheerio.load(result.jsmods.markup[i][1].__html);
+          break;
+        }
+      }
+      for (let i = 0; i < result.jsmods.markup.length; i += 1) {
         if (result.jsmods.markup[i][1].__html) {
           $ = cheerio.load(result.jsmods.markup[i][1].__html);
           if ($('div.snowliftPayloadRoot').length <= 1 && $('div.snowliftPayloadRoot ._hli').text()) {
             $ = cheerio.load(result.jsmods.markup[i][1].__html);
+            break;
           }
-        }
-        if (result.jsmods.markup[i][2] == 16) {
-          _$ = cheerio.load(result.jsmods.markup[1][1].__html);
         }
       }
       time = $('a._39g5>abbr').attr('data-utime');
