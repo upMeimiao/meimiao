@@ -53,7 +53,7 @@ class dealWith {
         return;
       }
       task.cNum = result.data.page.count;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || !result.data.replies.length) {
         task.lastId = task.commentId;
         task.lastTime = task.commentTime;
         callback();
