@@ -35,9 +35,9 @@
       "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',",
       "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
       "auth": [
-        {"email": "15910630070 ","pass": "15910630070 "},
         {"email": "15001229805 ","pass": "15001229805 "},
         {"email": "15718813922 ","pass": "15718813922 "},
+        {"email": "15910630070 ","pass": "15910630070 "},
         {"email": "15718811500 ","pass": "15718811500 "},
         {"email": "15910869550 ","pass": "15910869550 "}
       ]
