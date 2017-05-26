@@ -75,7 +75,7 @@ class dealWith {
       }
       task.cNum = result.cmt_sum;
       task.topicId = result.topic_id;
-      if ((task.cNum - task.commentNum) <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || !result.comments.length) {
         task.lastId = task.commentId;
         task.lastTime = task.commentTime;
         callback();

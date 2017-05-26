@@ -71,11 +71,6 @@ class hostTime {
       task.topicId = result.topic_id;
       async.parallel(
         {
-          /* hot: (cb) => {
-              this.deal(task, result.hots, (err) => {
-                  cb(null,'热门评论数据完成')
-              })
-          },*/
           time: (cb) => {
             this.getTime(task, () => {
               cb(null, '最新的评论数据完成');
