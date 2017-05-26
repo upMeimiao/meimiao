@@ -74,9 +74,9 @@ class dealWith {
         bid: task.id,
         fans_num: result.html.sumCount
       };
-      // this.sendUser(user, () => {
-      //   callback();
-      // });
+      this.sendUser(user, () => {
+        callback();
+      });
       this.sendStagingUser(user);
       callback();
     });
@@ -129,7 +129,7 @@ class dealWith {
         callback(e);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('土豆用户:', `${user.bid} back_end`);
       } else {
         logger.error('土豆用户:', `${user.bid} back_error`);
@@ -155,7 +155,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -171,7 +171,7 @@ class dealWith {
       time = new Date().getTime().toString().substring(0, 10);
     let page = 1;
     async.whilst(
-      () => page <= total,
+      () => page <= Math.min(total, 500),
       (cb) => {
         logger.debug(`开始获取第${page}页视频列表`);
         option.url = `${this.settings.spiderAPI.tudou.newList}&pg=${page}&uid=${task.encodeId}&_s_=${sign('v', time)}&_t_=${time}&e=md5`;
@@ -247,7 +247,7 @@ class dealWith {
         };
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
-        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
       });
   }
