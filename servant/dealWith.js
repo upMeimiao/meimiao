@@ -2441,22 +2441,26 @@ class DealWith {
       query = urlObj.query,
       aid = null,
       option = {
-        ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
+        // ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
+        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
         referer: `https://www.facebook.com/pg/${pathname.split('/')[1]}/videos/?ref=page_internal`,
-                // proxy: 'http://127.0.0.1:56777'
+        proxy: 'http://127.0.0.1:56777'
       },
       res, bid, name, avatar, $;
     if (query.type) {
+      bid = pathname.split('/')[1];
       aid = pathname.split('/')[4];
     } else if (/\d+/.test(pathname.split('/')[3])) {
+      bid = pathname.split('/')[1];
       aid = pathname.split('/')[3];
     } else if (pathname.split('/')[3] === 'videos') {
       option.url = data;
       option.referer = 'https://www.facebook.com';
-      return request.get(option, (err, result) => {
+      request.get(option, (err, result) => {
         if (err) {
           logger.debug('facebook视频列表页请求失败', err);
-          return callback(err, { code: 102, p: 40 });
+          callback(err, { code: 102, p: 40 });
+          return;
         }
         let $ = cheerio.load(result.body),
           script = $('script')[5].children[0].data,
@@ -2466,7 +2470,8 @@ class DealWith {
           script = JSON.parse(script);
         } catch (e) {
           logger.debug('视频列表页解析失败', script);
-          return callback(err, { code: 102, p: 40 });
+          callback(err, { code: 102, p: 40 });
+          return;
         }
         for (let i = 0; i < script.markup.length; i++) {
           if (script.markup[i] && script.markup[i][2] == 1) {
@@ -2486,15 +2491,17 @@ class DealWith {
             }
           }
         }
-        return callback(null, res);
+        callback(null, res);
       });
+      return;
     } else if (pathname.split('/').length <= 3) {
       option.url = data;
       option.referer = 'https://www.facebook.com';
-      return request.get(option, (err, result) => {
+      request.get(option, (err, result) => {
         if (err) {
           logger.debug('facebook视频列表页请求失败', err);
-          return callback(err, { code: 102, p: 40 });
+          callback(err, { code: 102, p: 40 });
+          return;
         }
         let $ = cheerio.load(result.body),
           script = $('script')[5].children[0].data,
@@ -2511,7 +2518,8 @@ class DealWith {
             script = JSON.parse(script);
           } catch (e) {
             logger.debug('-1视频列表页解析失败', result.body);
-            return callback(err, { code: 102, p: 40 });
+            callback(err, { code: 102, p: 40 });
+            return;
           }
           $ = cheerio.load(script.content.__html);
           bid = JSON.parse($('div.notTransparent.coverPhotoSection').attr('data-store')).log_data.page_id;
@@ -2525,33 +2533,27 @@ class DealWith {
             avatar,
             p: 40
           };
-                    // logger.debug(startIndex,'---',endIndex)
-          return callback(null, res);
+          callback(null, res);
         }
       });
+      return;
     }
-    option.url = `https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={"type":"3","source":"12","v":"${aid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`;
+    option.url = `https://www.facebook.com/${bid}/videos/${aid}/`;
     request.get(option, (err, result) => {
       if (err) {
         logger.debug('facebook请求失败', err);
-        return callback(err, { code: 102, p: 40 });
+        callback(err, { code: 102, p: 40 });
+        return;
       }
       if (result.statusCode !== 200) {
         logger.debug('facebook状态码错误', result.statusCode);
-        return callback(true, { code: 102, p: 40 });
+        callback(true, { code: 102, p: 40 });
+        return;
       }
-      try {
-        result = result.body.replace(/for \(;;\);/, '').replace(/[\n\r]/g, '');
-        result = JSON.parse(result);
-      } catch (e) {
-        logger.debug('facebook解析失败', result);
-        return callback(e, { code: 102, p: 40 });
-      }
-      result = result.jsmods.markup;
-      $ = cheerio.load(result[6][1].__html);
-      bid = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a').eq(1).attr('href').match(/vb\.\d*/).toString().replace('vb.', '');
-      name = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a>span').text();
-      avatar = $('.fbPhotoMediaTitle .fbPhotoMediaTitleFullScreen a>img').attr('src');
+      result = result.body.replace(/[\n\s\r]/g, '');
+      bid = result.match(/actorid:"(\d*)/)[1];
+      name = result.substring(result.indexOf('actorname:"') + 11, result.indexOf('",allowphotoattachments'));
+      avatar = result.substring(result.indexOf('style="background-image:url(') + 28, result.indexOf(');"id="')).replace(/amp;/g, '');
       res = {
         id: bid,
         name,
