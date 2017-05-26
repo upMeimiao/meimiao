@@ -64,7 +64,8 @@ class dealWith {
         total = (total % 5) === 0 ? total / 5 : Math.ceil(total / 5);
       }
       if (task.cNum == 0) {
-        this.videoDom(task, (error, data) => {
+        const url = encodeURIComponent(`http://item.btime.com/${task.aid}`);
+        this.getTotal(task, url, (error, data) => {
           if (error) {
             callback(error);
             return;
@@ -87,28 +88,6 @@ class dealWith {
       task.url = null;
       this.commentList(task, total, () => {
         callback(null, '');
-      });
-    });
-  }
-  videoDom(task, callback) {
-    const option = {
-      url: `http://item.btime.com/${task.aid}`
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.debug('视频DOM请求失败');
-        callback(err);
-        return;
-      }
-      const $ = cheerio.load(result.body),
-        url = $('span.dianzan').attr('data-key').match(/2F\w*\.shtml/).toString()
-          .replace('2F', '');
-      this.getTotal(task, url, (error) => {
-        if (error) {
-          callback(error);
-          return;
-        }
-        callback();
       });
     });
   }
