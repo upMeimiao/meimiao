@@ -206,7 +206,7 @@ class dealWith {
           bid: task.id,
           platform: task.p,
           aid: video.id,
-          title: spiderUtils.stringHandling(result[0].title, 100),
+          title: spiderUtils.stringHandling(result[0].title, 80)  || 'btwk_caihongip',
           long_t: Math.random(video.video.duration),
           play_num: result[0].play_num,
           a_create_time: result[0].create_time,
