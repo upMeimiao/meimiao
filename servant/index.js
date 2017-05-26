@@ -249,6 +249,7 @@ class spiderCore {
         break;
       case 'www.facebook.com':
         _youtubeReq(ctx, remote, 40);
+        // this.handle.facebookHandle(ctx, remote);
         break;
       case 'rr.tv':
       case 'mobile.rr.tv':
