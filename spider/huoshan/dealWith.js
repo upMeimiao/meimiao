@@ -216,6 +216,7 @@ class dealWith {
           forward_num: result[0].forward_num
         };
         task.total += 1;
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         // spiderUtils.commentSnapshots(this.core.taskDB,
         //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });

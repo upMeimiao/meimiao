@@ -198,6 +198,7 @@ class dealWith {
           support: result[0].favorCount
         };
         task.total += 1;
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         callback();
       }
