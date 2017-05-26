@@ -16,7 +16,6 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
-    logger.info(task);
     async.parallel(
       {
         user: (cb) => {
@@ -40,7 +39,7 @@ class dealWith {
           return;
         }
         logger.debug('result: ', result);
-        callback();
+        callback(null, task.total);
       }
     );
   }
@@ -121,14 +120,12 @@ class dealWith {
     });
   }
   getVideoList(task, callback) {
-    logger.debug(task);
     const option = {};
     let cycle = true, page = 1;
     async.whilst(
       () => cycle,
       (cb) => {
         option.url = `${this.settings.spiderAPI.bolo.list}&userId=${task.id}&pageNum=${page}`;
-        logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('视频列表请求失败', err);
@@ -200,6 +197,7 @@ class dealWith {
           class: result[0].zoneName,
           support: result[0].favorCount
         };
+        task.total += 1;
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         callback();
       }

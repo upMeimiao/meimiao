@@ -2672,7 +2672,7 @@ class DealWith {
         return;
       }
       res = {
-        id: result.videoInfo.userId,
+        id: result.videoInfo.userIdStr,
         name: result.channelInfo.nick,
         avatar: result.channelInfo.avatar,
         p: 44
