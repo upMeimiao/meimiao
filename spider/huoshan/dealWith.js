@@ -206,8 +206,8 @@ class dealWith {
           bid: task.id,
           platform: task.p,
           aid: video.id,
-          title: spiderUtils.stringHandling(result[0].title, 80)  || 'btwk_caihongip',
-          long_t: Math.random(video.video.duration),
+          title: spiderUtils.stringHandling(result[0].title, 80) || 'btwk_caihongip',
+          long_t: Math.round(video.video.duration),
           play_num: result[0].play_num,
           a_create_time: result[0].create_time,
           v_img: video.video.cover.url_list[0],
@@ -216,7 +216,7 @@ class dealWith {
           forward_num: result[0].forward_num
         };
         task.total += 1;
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         // spiderUtils.commentSnapshots(this.core.taskDB,
         //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });
