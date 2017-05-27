@@ -78,7 +78,6 @@ class dealWith {
         callback();
       });
       this.sendStagingUser(user);
-      callback();
     });
   }
   getTotal(task, callback) {
