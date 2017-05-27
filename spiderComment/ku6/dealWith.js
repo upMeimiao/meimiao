@@ -34,6 +34,7 @@ class dealWith {
       url: `${this.settings.ku6 + task.aid}&pn=1`
     };
     let total = 0;
+    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('ku6评论总量请求失败', err);
@@ -53,7 +54,7 @@ class dealWith {
         return;
       }
       task.cNum = result.data.count;
-      if ((task.cNum - task.commentNum) <= 0 || result.data.list.length <= 0) {
+      if ((task.cNum - task.commentNum) <= 0 || !result.data.list) {
         task.lastId = task.commentId;
         task.lastTime = task.commentTime;
         callback();
