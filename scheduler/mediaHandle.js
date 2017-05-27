@@ -35,10 +35,10 @@ class mediaHandle {
     //   encodeId: _.encodeId ? _.encodeId : '',
     //   type: _.type ? _.type : ''
     // }
-    if (Number(_.platform) === 12) {
-      callback();
-      return;
-    }
+    // if (Number(_.platform) === 12) {
+    //   callback();
+    //   return;
+    // }
     const platform = platformMap.get(Number(_.platform)),
       baseInfo = {
         id: _.bid,
