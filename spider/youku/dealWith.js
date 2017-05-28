@@ -6,7 +6,7 @@ const request = require('request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
-const blacklist = ['UNDQ3MzYyMTI5Ng==', 'UNDUyMDQ2OTU5Mg==', 'UNDUzODExMDgzNg==', 'UNTUxMTg0Nzc2', 'UMzQzNzMzODE5Mg==', 'UNDUxMTEzNjkxMg==', 'UNDQ3OTUwMjgwMA==', 'UNDA2NDk5NTY2MA==', 'UMzE0MTkzODk1Ng==', 'UNDM1ODkyNDc2MA==', 'UNDQ3NjI5MDg2OA==', 'UMjc0NDAwMzAwNA==', 'UMTIwODgxMTI5Mg==', 'UNDQ3MzU1ODUwNA==', 'UMzI5NjQwOTUwNA==', 'UNDQ1OTQyMjM1Mg=='];
+const blacklist = ['UMzIyNjE5OTkyMA==', 'UNDQ3MzYyMTI5Ng==', 'UNDUyMDQ2OTU5Mg==', 'UNDUzODExMDgzNg==', 'UNTUxMTg0Nzc2', 'UMzQzNzMzODE5Mg==', 'UNDUxMTEzNjkxMg==', 'UNDQ3OTUwMjgwMA==', 'UNDA2NDk5NTY2MA==', 'UMzE0MTkzODk1Ng==', 'UNDM1ODkyNDc2MA==', 'UNDQ3NjI5MDg2OA==', 'UMjc0NDAwMzAwNA==', 'UMTIwODgxMTI5Mg==', 'UNDQ3MzU1ODUwNA==', 'UMzI5NjQwOTUwNA==', 'UNDQ1OTQyMjM1Mg=='];
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -214,7 +214,7 @@ class dealWith {
           callback();
           return;
         }
-        if (task.id === '831934191' && body.code === -102) {
+        if ((task.id === '831934191' || task.id === '828264070') && body.code === -102) {
           callback();
           return;
         }

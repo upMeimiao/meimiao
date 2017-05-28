@@ -21,6 +21,10 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
+    if (!task.encodeId) {
+      callback(null, task.total);
+      return;
+    }
     async.parallel(
       {
         user: (cb) => {
