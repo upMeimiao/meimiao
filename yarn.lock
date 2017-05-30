@@ -1272,9 +1272,9 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
-ioredis@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-3.0.0.tgz#ecbfd5e1e89df94f55723bb4d81761b183609a0d"
+ioredis@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-3.1.0.tgz#ecedda4587b028bf95c2a6f86edee0665f4089b1"
   dependencies:
     bluebird "^3.3.4"
     cluster-key-slot "^1.0.6"
@@ -1752,9 +1752,9 @@ negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
 
-neo-async@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.1.0.tgz#54e01a060b84b8731c62778b8aa9341892662c89"
+neo-async@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.2.0.tgz#eb7cb7dbb85b821ce5168d0c65f9029e5c9b4648"
 
 nib@~1.1.2:
   version "1.1.2"
