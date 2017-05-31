@@ -51,6 +51,16 @@ class dealWith {
         callback(e);
         return;
       }
+      if (!result || !result.data) {
+        if (this.num >= 2) {
+          task.lastId = task.commentId;
+          task.lastTime = task.commentTime;
+          callback(null);
+          return;
+        }
+        this.totalPage(task, callback);
+        return;
+      }
       task.cNum = result.data.totalSize;
       if ((task.cNum - task.commentNum) <= 0 || result.data.length <= 0) {
         task.lastId = task.commentId;
