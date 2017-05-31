@@ -58,6 +58,7 @@ class dealWith {
           callback(null);
           return;
         }
+        this.num += 1;
         this.totalPage(task, callback);
         return;
       }
