@@ -4,10 +4,65 @@
 const URL = require('url');
 const moment = require('moment');
 const async = require('async');
+const crypto = require('crypto');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
-const md5 = require('js-md5');
 
+const getHoney = () => {
+  const hash = crypto.createHash('md5');
+  const t = Math.floor((new Date()).getTime() / 1e3),
+    e = t.toString(16).toUpperCase(),
+    n = hash.update(t.toString()).digest('hex').toUpperCase();
+  if (e.length !== 8) {
+    return {
+      as: '479BB4B7254C150',
+      cp: '7E0AC8874BB0985'
+    };
+  }
+  let o, l, i, a, r, s;
+  for (o = n.slice(0, 5), i = n.slice(-5), a = '', r = 0; r < 5; r += 1) a += o[r] + e[r];
+  for (l = '', s = 0; s < 5; s += 1) l += e[s + 3] + i[s];
+  return {
+    as: `A1${a}${e.slice(-3)}`,
+    cp: `${e.slice(0, 3) + l}E1`
+  };
+};
+const _tag = (raw) => {
+  if (!raw) {
+    return '';
+  }
+  const _tagArr = [];
+  if (raw.length !== 0) {
+    for (const elem of raw.entries()) {
+      _tagArr.push(elem[1]);
+    }
+    return _tagArr.join(',');
+  }
+  return '';
+};
+const _longT = (time) => {
+  if (!time) {
+    return null;
+  }
+  const timeArr = time.split(':');
+  let longT = '';
+  if (timeArr.length === 2) {
+    longT = moment.duration(`00:${time}`).asSeconds();
+  } else if (timeArr.length === 3) {
+    longT = moment.duration(time).asSeconds();
+  }
+  return longT;
+};
+const _vImg = (video) => {
+  // if (video.cover_image_infos && video.cover_image_infos.length !== 0
+  //   && video.cover_image_infos[0].width && video.cover_image_infos[0].height) {
+  //   return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`;
+  // }
+  if (video.middle_image) {
+    return video.middle_image;
+  }
+  return null;
+};
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -145,41 +200,6 @@ class dealWith {
         logger.error('用户:', `${user.bid} back_error`);
         logger.info(res);
       }
-    });
-  }
-  getUserId(task) {
-    request.get(logger, { url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${task.id}` }, (err, result) => {
-      if (err) {
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info('send error:', res);
-        return;
-      }
-      if (result.message != 'success') {
-        return;
-      }
-      const userId = result.data.user_id;
-      this.sendUid(task, userId);
-    });
-  }
-  sendUid(task, uid) {
-    const option = {
-      url: 'http://www.meimiaoip.com/index.php/Spider/Incould/update',
-      data: {
-        platform: 6,
-        bid: task.id,
-        encodeId: uid,
-      }
-    };
-    request.post(logger, option, (err, body) => {
-      if (err) {
-        return;
-      }
-      logger.debug(body.body);
     });
   }
   getList(task, callback) {
@@ -327,15 +347,16 @@ class dealWith {
     );
   }
   getInfo(task, video, callback) {
-    let media = {}, vid;
+    let media = {}, vid, query;
     if (video.str_item_id) {
       vid = video.str_item_id;
     } else if (video.app_url) {
-      const query = URL.parse(video.app_url, true).query;
+      query = URL.parse(video.app_url, true).query;
       vid = query.item_id;
     } else {
       logger.debug(video);
-      return callback(video);
+      callback(video);
+      return;
     }
     media.author = video.detail_source || video.source || task.name;
     media.platform = 6;
@@ -350,100 +371,15 @@ class dealWith {
     media.save_num = video.repin_count || null;
     media.forward_num = video.share_count || null;
     media.a_create_time = video.publish_time;
-    media.v_img = this._v_img(video);
-    media.long_t = this.long_t(video.video_duration_str);
-    media.tag = this._tag(video.label);
+    media.v_img = _vImg(video);
+    media.long_t = _longT(video.video_duration_str);
+    media.tag = _tag(video.label);
     media = spiderUtils.deleteProperty(media);
     // logger.debug('medis info: ',media)
-    // this.sendCache( media )
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
     spiderUtils.commentSnapshots(this.core.taskDB,
       { p: media.platform, aid: media.aid, comment_num: media.comment_num });
     callback();
   }
-  getPlayNum(vid, callback) {
-    const option = {
-      url: `http://m.toutiao.com/i${vid}/info/`,
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        return callback(err);
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('返回JSON格式不正确');
-        logger.error('info:', result);
-        return callback(e);
-      }
-      const backData = result.data;
-      if (!backData) {
-        return callback(true);
-      }
-      callback(null, backData.video_play_count);
-    });
-  }
-  _tag(raw) {
-    if (!raw) {
-      return '';
-    }
-    const _tagArr = [];
-    if (raw.length != 0) {
-      for (const i in raw) {
-        _tagArr.push(raw[i]);
-      }
-      return _tagArr.join(',');
-    }
-    return '';
-  }
-  long_t(time) {
-    if (!time) {
-      return null;
-    }
-    let timeArr = time.split(':'),
-      long_t = '';
-    if (timeArr.length == 2) {
-      long_t = moment.duration(`00:${time}`).asSeconds();
-    } else if (timeArr.length == 3) {
-      long_t = moment.duration(time).asSeconds();
-    }
-    return long_t;
-  }
-  _v_img(video) {
-    // if(video.cover_image_infos && video.cover_image_infos.length != 0 && video.cover_image_infos[0].width && video.cover_image_infos[0].height){
-    //     return `http://p2.pstatp.com/list/${video.cover_image_infos[0].width}x${video.cover_image_infos[0].height}/${video.cover_image_infos[0].web_uri}`
-    // }
-    if (video.middle_image) {
-      return video.middle_image;
-    }
-    return null;
-  }
-  sendCache(media) {
-    this.core.cache_db.rpush('cache', JSON.stringify(media), (err, result) => {
-      if (err) {
-        logger.error('加入缓存队列出现错误：', err);
-        return;
-      }
-      logger.debug(`今日头条 ${media.aid} 加入缓存队列`);
-    });
-  }
-}
-function getHoney() {
-  const t = Math.floor((new Date()).getTime() / 1e3),
-    e = t.toString(16).toUpperCase(),
-    n = md5(t.toString()).toString().toUpperCase();
-  if (e.length !== 8) {
-    return {
-      as: '479BB4B7254C150',
-      cp: '7E0AC8874BB0985'
-    };
-  }
-  let o, l, i, a, r, s;
-  for (o = n.slice(0, 5), i = n.slice(-5), a = '', r = 0; r < 5; r++) a += o[r] + e[r];
-  for (l = '', s = 0; s < 5; s++) l += e[s + 3] + i[s];
-  return {
-    as: `A1${a}${e.slice(-3)}`,
-    cp: `${e.slice(0, 3) + l}E1`
-  };
 }
 module.exports = dealWith;
