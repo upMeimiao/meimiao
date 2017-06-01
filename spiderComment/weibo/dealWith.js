@@ -120,7 +120,7 @@ class dealWith {
       option.proxy = proxy;
       request.get(logger, option, (error, result) => {
         if (error) {
-          logger.debug('微博的评论总数请求失败');
+          logger.debug('微博的评论总数请求失败', error.status);
           this.core.proxy.back(proxy, false);
           this.total(task, num, callback);
           return;
