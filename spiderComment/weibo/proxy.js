@@ -14,7 +14,7 @@ class proxy {
       return;
     }
     logger.trace('Send a Require command');
-    request('http://127.0.0.1:3002/', (err, res, body) => {
+    request('http://spider-bidfetcher-intra.meimiaoip.com/proxy/', (err, res, body) => {
       if (err) {
         logger.debug('err:', err);
         setTimeout(() => this.need(times + 1, callback), 5000);
