@@ -46,7 +46,8 @@ class mediaHandle {
         name: _.bname,
         platform,
         encodeId: _.encodeId ? _.encodeId : '',
-        type: _.type ? _.type : ''
+        type: _.type ? _.type : '',
+        mapBid: _.map_bid
         // uid: ''
       };
     this.scheduler.emit('task_init', baseInfo);

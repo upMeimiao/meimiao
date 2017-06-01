@@ -179,7 +179,8 @@ class mediaScheduler {
       p: raw.p,
       name: raw.name,
       encodeId: raw.encodeId,
-      type: raw.type
+      type: raw.type,
+      mapBid: raw.mapBid
       // user_id: raw.uid
     }).priority('critical').backoff({ delay: 150 * 1000, type: 'fixed' }).removeOnComplete(true);
     if (p !== 6 && !(p === 2 && raw.id === '1060140460') && !(p === 2 && raw.id === '1045961206')) {
