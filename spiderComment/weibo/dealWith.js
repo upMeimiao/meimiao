@@ -194,7 +194,6 @@ class dealWith {
           result = result[1] ? result[1].card_group : result[0].card_group;
           if (!result) {
             page += 1;
-            logger.debug('--1');
             cb();
             return;
           }
@@ -202,7 +201,6 @@ class dealWith {
             if (task.isEnd) {
               total = -1;
               cb();
-              logger.debug('--3');
               return;
             }
             page += 1;
