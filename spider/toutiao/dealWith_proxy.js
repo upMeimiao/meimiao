@@ -75,28 +75,31 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (callback) => {
+        user: (cb) => {
           this.getUser(task, (err) => {
             if (err) {
-              return setTimeout(() => {
-                this.getUser(task, () => callback(null, '用户信息已返回'));
+              setTimeout(() => {
+                this.getUser(task, () => cb(null, '用户信息已返回'));
               }, 1000);
+              return;
             }
-            callback(null, '用户信息已返回');
+            cb(null, '用户信息已返回');
           });
         },
-        media: (callback) => {
+        media: (cb) => {
           this.getList(task, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '视频信息已返回');
+            cb(null, '视频信息已返回');
           });
         }
       },
       (err, result) => {
         if (err) {
-          return callback(err);
+          callback(err);
+          return;
         }
         logger.debug(`${task.id}_result:`, result);
         callback(null, task.total);
@@ -104,9 +107,9 @@ class dealWith {
     );
   }
   getUser(task, callback) {
-    if (!task.encodeId || task.encodeId == '0') {
-      this.getUserId(task);
-      return callback();
+    if (!task.encodeId || task.encodeId === '0') {
+      callback();
+      return;
     }
     const option = {
       url: this.settings.spiderAPI.toutiao.user + task.encodeId,
@@ -115,21 +118,25 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (result.message != 'success' || !result.data) {
-        return callback('fail');
+      if (result.message !== 'success' || !result.data) {
+        callback('fail');
+        return;
       }
       let fans = result.data.total_cnt;
       if (Number(fans) === 0 && result.data.users.length !== 0) {
-        return callback('fail');
+        callback('fail');
+        return;
       }
-      if (typeof fans === 'string' && fans.indexOf('万') != -1) {
+      if (typeof fans === 'string' && fans.indexOf('万') !== -1) {
         fans = fans.replace('万', '') * 10000;
       }
       if (Number(fans) === 0) {
@@ -140,13 +147,7 @@ class dealWith {
         bid: task.id,
         fans_num: fans
       };
-      // if(task.id == '6204859881' || task.id == '4093808656' || task.id == '4161577335' || task.id == '50505877252'){
-      //     this.core.fans_db.sadd(task.id, JSON.stringify({
-      //         num: fans,
-      //         time: new Date().getTime()
-      //     }))
-      // }
-      this.sendUser(user, (err) => {
+      this.sendUser(user, () => {
         callback();
       });
       this.sendStagingUser(user);
@@ -159,16 +160,18 @@ class dealWith {
     };
     request.post(logger, options, (err, res) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         res = JSON.parse(res.body);
       } catch (e) {
         logger.error(`头条用户 ${user.bid} json数据解析失败`);
         logger.info(res);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (res.errno == 0) {
+      if (Number(res.errno) === 0) {
         logger.debug('头条用户:', `${user.bid} back_end`);
       } else {
         logger.error('头条用户:', `${user.bid} back_error`);
@@ -194,7 +197,7 @@ class dealWith {
         logger.info('send error:', res);
         return;
       }
-      if (res.errno == 0) {
+      if (Number(res.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -205,33 +208,35 @@ class dealWith {
   getList(task, callback) {
     let index = 0, times = 0, proxyStatus = false, proxy = '',
       sign = true,
-      option = {
-        ua: 3,
-        own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
-      },
-      hot_time = null;
+      hotTime = null;
+    const option = {
+      ua: 3,
+      own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
+    };
     async.whilst(
       () => sign,
       (cb) => {
         if (index > 200) {
           sign = false;
           task.total = 50 * index;
-          return cb();
+          cb();
+          return;
         }
         const { as, cp } = getHoney();
-        if (hot_time) {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.id}&cp=${cp}&as=${as}&max_behot_time=${hot_time}`;
+        if (hotTime) {
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.id}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
         } else {
           option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.id}&cp=${cp}&as=${as}&max_behot_time=`;
         }
         if (proxyStatus && proxy) {
           option.proxy = proxy;
-          request.get(logger, option, (err, result) => {
-            if (err) {
-              times++;
+          request.get(logger, option, (error, result) => {
+            if (error) {
+              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
-              return cb();
+              cb();
+              return;
             }
             times = 0;
             try {
@@ -239,52 +244,59 @@ class dealWith {
             } catch (e) {
               // logger.error('json数据解析失败')
               // logger.error(result.body)
-              times++;
+              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
-              return cb();
+              cb();
+              return;
             }
             if (result.has_more === false) {
-              if ((task.id == '1564257331844098' || task.id == '6357263281' || task.id == '5800750710' || task.id == '6542432526' || task.id == '6104275014' || task.id == '6976935001' || task.id == '6037403091' || task.id == '5800835780' || task.id == '51174033215') && index === 0) {
+              if ((task.id === '1564257331844098' || task.id === '6357263281' || task.id === '6276458172' || task.id === '6542432526' || task.id === '6104275014' || task.id === '6976935001' || task.id === '6037403091' || task.id === '51174033215') && index === 0) {
                 sign = false;
-                return cb();
+                cb();
+                return;
               }
-              times++;
+              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, true);// 原来是false
-              return cb();
+              cb();
+              return;
             }
             times = 0;
-            if (!result.data || result.data.length == 0) {
+            if (!result.data || result.data.length === 0) {
               task.total = 50 * index;
               sign = false;
-              return cb();
+              cb();
+              return;
             }
-            hot_time = result.next.max_behot_time;
-            this.deal(task, result.data, (err) => {
-              index++;
+            hotTime = result.next.max_behot_time;
+            this.deal(task, result.data, () => {
+              index += 1;
               cb();
             });
           });
         } else {
-          this.core.proxy.need(times, (err, _proxy) => {
-            if (err) {
-              if (err == 'timeout') {
-                return callback('Get proxy timesout!!');
+          this.core.proxy.need(times, (error, _proxy) => {
+            if (error) {
+              if (error === 'timeout!') {
+                callback('Get proxy timesout!!');
+                return;
               }
-              logger.error('Get proxy occur error:', err);
-              times++;
+              logger.error('Get proxy occur error:', error);
+              times += 1;
               proxyStatus = false;
-              return cb();
+              cb();
+              return;
             }
             times = 0;
             option.proxy = _proxy;
             request.get(logger, option, (err, result) => {
               if (err) {
-                times++;
+                times += 1;
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, false);
-                return cb();
+                cb();
+                return;
               }
               times = 0;
               try {
@@ -292,56 +304,60 @@ class dealWith {
               } catch (e) {
                 // logger.error('json数据解析失败')
                 // logger.error(result.body)
-                times++;
+                times += 1;
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, false);
-                return cb();
+                cb();
+                return;
               }
               if (result.has_more === false) {
-                if ((task.id == '1564257331844098' || task.id == '6357263281' || task.id == '5800750710' || task.id == '6542432526' || task.id == '6104275014' || task.id == '6976935001' || task.id == '6037403091' || task.id == '5800835780' || task.id == '51174033215' || task.id == '52378452732') && index === 0) {
+                if ((task.id === '1564257331844098' || task.id === '6357263281' || task.id === '6276458172' || task.id === '6542432526' || task.id === '6104275014' || task.id === '6976935001' || task.id === '6037403091' || task.id === '51174033215') && index === 0) {
                   sign = false;
-                  return cb();
+                  cb();
+                  return;
                 }
-                times++;
+                times += 1;
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, true);// 原来是false
-                return cb();
+                cb();
+                return;
               }
               times = 0;
               proxyStatus = true;
               proxy = _proxy;
-              if (!result.data || result.data.length == 0) {
+              if (!result.data || result.data.length === 0) {
                 task.total = 50 * index;
                 sign = false;
-                return cb();
+                cb();
+                return;
               }
-              hot_time = result.next.max_behot_time;
-              this.deal(task, result.data, (err) => {
-                index++;
+              hotTime = result.next.max_behot_time;
+              this.deal(task, result.data, () => {
+                index += 1;
                 cb();
               });
             });
           });
         }
       },
-      (err, result) => {
+      () => {
         this.core.proxy.back(proxy, true);
         callback();
       }
     );
   }
   deal(task, list, callback) {
-    let index = 0,
-      length = list.length;
+    let index = 0;
+    const length = list.length;
     async.whilst(
       () => index < length,
       (cb) => {
-        this.getInfo(task, list[index], (err) => {
-          index++;
+        this.getInfo(task, list[index], () => {
+          index += 1;
           cb();
         });
       },
-      (err, result) => {
+      () => {
         callback();
       }
     );
@@ -375,7 +391,7 @@ class dealWith {
     media.long_t = _longT(video.video_duration_str);
     media.tag = _tag(video.label);
     media = spiderUtils.deleteProperty(media);
-    // logger.debug('medis info: ',media)
+    logger.debug('medis info: ',media)
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
     spiderUtils.commentSnapshots(this.core.taskDB,
       { p: media.platform, aid: media.aid, comment_num: media.comment_num });

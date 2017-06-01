@@ -4,9 +4,9 @@
  */
 const kue = require('kue');
 const request = require('request');
-const myRedis = require('../../lib/myredis.js');
 const async = require('async');
 const domain = require('domain');
+const myRedis = require('../../lib/myredis.js');
 
 let logger, settings;
 class spiderCore {
@@ -73,7 +73,7 @@ class spiderCore {
     this.assembly();
   }
   test() {
-    const work = { id: '5567057918', user_id: '5567057918', p: '6', name: '看鉴', type: '0' };
+    const work = { id: '6204859881', encodeId: '6173734997', p: '6', name: '一色神技能', type: '0' };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
       logger.debug('end');
