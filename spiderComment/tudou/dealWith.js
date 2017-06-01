@@ -25,6 +25,7 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
+    task.num = 0;
     this.totalPage(task, (err) => {
       if (err) {
         callback(err);
@@ -52,13 +53,13 @@ class dealWith {
         return;
       }
       if (!result || !result.data) {
-        if (this.num >= 2) {
+        if (task.num >= 2) {
           task.lastId = task.commentId;
           task.lastTime = task.commentTime;
           callback(null);
           return;
         }
-        this.num += 1;
+        task.num += 1;
         this.totalPage(task, callback);
         return;
       }
