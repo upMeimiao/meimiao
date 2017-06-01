@@ -134,7 +134,7 @@ class dealWith {
           this.total(task, num, callback);
           return;
         }
-        if (result[0].mod_type === 'mod/empty' && result[0].msg === null) {
+        if (result[1].mod_type === 'mod/empty' && result[1].msg === null) {
           this.total(task, num += 1, callback);
           return;
         }
