@@ -100,7 +100,8 @@ class dealWith {
   }
   total(task, num, callback) {
     const option = {
-      url: `${this.settings.weibo.comment + task.aid}&page=1`
+      url: `${this.settings.weibo.time}1&id=${task.aid}`,
+      ua: 2
     };
     let total = 0;
     if (num > 2) {
@@ -133,17 +134,17 @@ class dealWith {
           this.total(task, num, callback);
           return;
         }
-        if (result.ok && result.ok == 2) {
+        if (result[0].mod_type === 'mod/empty' && result[0].msg === null) {
           this.total(task, num += 1, callback);
           return;
         }
-        task.cNum = Number(result.total_number);
+        task.cNum = Number(result[1].maxPage) * 10;
         if (task.cNum >= this.settings.weibo.commentTotal) {
-          task.cNum = this.settings.weibo.commentTotal || result.total_number;
+          task.cNum = this.settings.weibo.commentTotal;
         }
-        total = (task.cNum % 20) === 0 ? task.cNum / 20 : Math.ceil(task.cNum / 20);
-        task.lastId = result.data[0].id;
-        task.lastTime = createTime(result.data[0].created_at);
+        total = (task.cNum % 10) === 0 ? task.cNum / 10 : Math.ceil(task.cNum / 10);
+        task.lastId = result[1].card_group[0].id;
+        task.lastTime = createTime(result[1].card_group[0].created_at);
         task.addCount = task.cNum - task.commentNum;
         if (task.commentId == task.lastId || task.commentTime >= task.lastTime) {
           task.lastId = task.commentId;
@@ -167,7 +168,7 @@ class dealWith {
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.weibo.comment + task.aid}&page=${page}`;
+        option.url = `${this.settings.weibo.time + page}&id=${task.aid}`;
         option.proxy = proxy;
         request.get(logger, option, (error, result) => {
           if (error) {
@@ -190,15 +191,18 @@ class dealWith {
             });
             return;
           }
-          if (!result.data) {
+          result = result[1] ? result[1].card_group : result[0].card_group;
+          if (!result) {
             page += 1;
+            logger.debug('--1');
             cb();
             return;
           }
-          this.deal(task, result.data, () => {
+          this.deal(task, result, () => {
             if (task.isEnd) {
               total = -1;
               cb();
+              logger.debug('--3');
               return;
             }
             page += 1;
@@ -241,7 +245,7 @@ class dealWith {
             uavatar: comments[index].user.profile_image_url
           }
         };
-        task.ceshi += 1;
+        // logger.info(comment);
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
