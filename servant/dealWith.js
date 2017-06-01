@@ -523,108 +523,126 @@ class DealWith {
     });
   }
   toutiao(data, callback) {
-    let pathname = URL.parse(data, true).pathname,
-      v_id, option = {};
-    if (pathname.startsWith('/i') || pathname.startsWith('/api/pc')) {
-      if (pathname.startsWith('/api/pc')) {
-        v_id = pathname.replace(/\//g, '').substring(9);
-      } else if (pathname.startsWith('/item/')) {
-        v_id = pathname.replace(/\//g, '').substring(4);
-      } else {
-        v_id = pathname.replace(/\//g, '').substring(1);
+    const pathname = URL.parse(data, true).pathname,
+      option = {
+        url: data,
+        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+      };
+    let groupId;
+    request.get(option, (err, result) => {
+      if (err) {
+        logger.error('播放详情页DOM请求失败', err);
+        callback(err, { code: 102, p:6 });
+        return;
       }
-      option.url = `${api.toutiao.url + v_id}/info/`;
-      request.get(option, (err, result) => {
+      result = result.body.replace(/[\s\n\r]/g, '');
+      if (!result.match(/group_id:'(\d*)',repin:/)) {
+        callback('groupId-error', { code:102, p: 6 });
+        return;
+      }
+      groupId = result.match(/group_id:'(\d*)',repin:/)[1];
+      this.getToutiaoMediaId(groupId, (err, result) => {
         if (err) {
-          logger.error('occur error : ', err);
-          return callback(err, { code: 102, p: 6 });
+          callback('groupId-error', { code:102, p: 6 });
+          return;
         }
-        if (result.statusCode != 200) {
-          logger.error('头条状态码错误', result.statusCode);
-          return callback(true, { code: 102, p: 6 });
+        callback(null, result);
+      })
+    })
+  }
+  getToutiaoMediaId(groupId, callback) {
+    const option = {
+      url: `${api.toutiao.media + groupId}`,
+      ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    };
+    request.get(option, (err, result) => {
+      if (err) {
+        callback('media-error');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        callback('media-JSON-error');
+        return;
+      }
+      if (!result.data.h5_extra || !result.data.h5_extra.media) {
+        callback('get-media-error');
+        return;
+      }
+      const itemid = result.data.recommend_sponsor.target_url.match(/item_id=(\d*)/)[1],
+        res = {
+        id: result.data.h5_extra.media.id,
+        name: result.data.h5_extra.media.name,
+        avatar: result.data.h5_extra.media.avatar_url,
+        p: 6
+      };
+      this.getToutiaoBid(result.data.h5_extra.media.id, itemid, (error, user) => {
+        if (error) {
+          callback(error);
+          return;
         }
-        try {
-          result = JSON.parse(result.body);
-        } catch (e) {
-          logger.error('头条json数据解析失败');
-          return callback(e, { code: 102, p: 6 });
+        res.encode_id = user.bid;
+        if (!res.name) {
+          res.name = user.name;
+          res.avatar = user.avatar;
         }
-        request.get({ url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}` }, (err, resInfo) => {
-          if (err) {
-            logger.error('occur error : ', err);
-            return callback(err, { code: 102, p: 6 });
+        callback(null, res);
+      })
+    })
+  }
+  getToutiaoBid(mediaId, itemid, callback) {
+    const option = {
+      url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${mediaId}`,
+      ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    };
+    request.get(option, (err, result) => {
+      if (err) {
+        callback('bid-error');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        callback('bid-JSON-error');
+        return;
+      }
+      if (result.message != 'success') {
+        this.getToutiaoBID(itemid, (error, res) => {
+          if (error) {
+            callback(error);
+            return;
           }
-          if (resInfo.statusCode != 200) {
-            logger.error('头条状态码错误', resInfo.statusCode);
-            logger.info(resInfo);
-            return callback(true, { code: 102, p: 6 });
-          }
-          try {
-            resInfo = JSON.parse(resInfo.body);
-          } catch (e) {
-            logger.error('头条json数据解析失败');
-            logger.info(resInfo);
-            return callback(e, { code: 102, p: 6 });
-          }
-          const res = {
-            id: result.data.media_user.id,
-            name: result.data.media_user.screen_name,
-            avatar: result.data.media_user.avatar_url,
-            p: 6,
-            encode_id: resInfo.data.user_id
-          };
           callback(null, res);
         });
-      });
-    } else if (pathname.startsWith('/a') || pathname.startsWith('/group/')) {
-      r.head(data, { headers: { 'User-Agent': ':Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1' } }, (err, res, body) => {
-        v_id = (res.request.path).replace(/\//g, '').substring(1);
-        option.url = `${api.toutiao.url + v_id}/info/`;
-        request.get(option, (err, result) => {
-          if (err) {
-            logger.error('occur error : ', err);
-            return callback(err, { code: 102, p: 6 });
-          }
-          if (result.statusCode != 200) {
-            logger.error('头条状态码错误', result.statusCode);
-            return callback(true, { code: 102, p: 6 });
-          }
-          try {
-            result = JSON.parse(result.body);
-          } catch (e) {
-            logger.error('头条json数据解析失败');
-
-            return callback(e, { code: 102, p: 6 });
-          }
-          request.get({ url: `http://lf.snssdk.com/2/user/profile/v3/?media_id=${result.data.media_user.id}` }, (err, resInfo) => {
-            if (err) {
-              logger.error('occur error : ', err);
-              return callback(err, { code: 102, p: 6 });
-            }
-            if (resInfo.statusCode != 200) {
-              logger.error('头条状态码错误', resInfo.statusCode);
-              logger.info(resInfo);
-              return callback(true, { code: 102, p: 6 });
-            }
-            try {
-              resInfo = JSON.parse(resInfo.body);
-            } catch (e) {
-              logger.error('头条json数据解析失败');
-              logger.info(resInfo);
-              return callback(e, { code: 102, p: 6 });
-            }
-            const res = {
-              id: result.data.media_user.id,
-              name: result.data.media_user.screen_name,
-              avatar: result.data.media_user.avatar_url,
-              p: 6,
-              encode_id: resInfo.data.user_id
-            };
-            callback(null, res);
-          });
-        });
-      });
-    }
+        return;
+      }
+      callback(null, { bid: result.data.user_id });
+    })
+  }
+  getToutiaoBID(itemId, callback) {
+    const option = {
+      url: `${api.toutiao.url + itemId}/info/`,
+      ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    };
+    request.get(option, (err, result) => {
+      if (err) {
+        callback('bid2-error');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        callback('bid2-JSON-error');
+        return;
+      }
+      const res = {
+        name : result.data.media_user.screen_name,
+        avatar: result.data.media_user.avatar_url,
+        bid: result.data.media_user.id
+      };
+      callback(null, res);
+    })
   }
   yidian(data, callback) {
     const option = {

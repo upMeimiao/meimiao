@@ -277,7 +277,8 @@
       "url": "http://sns.video.qq.com/tvideo/fcgi-bin/video?otype=json&callback=jsonp&low_login=1&vid="
     },
     "toutiao": {
-      "url": "http://m.toutiao.com/i"
+      "url": "http://m.toutiao.com/i",
+      "media": "https://lf.snssdk.com/2/article/information/v21/?version_code=6.1.5&device_id=32511333734&iid=10861523602&aggr_type=2&article_page=1&flags=64&from=click_pgc&group_id="
     },
     "yidian": {
       "url": "http://yidianzixun.com/home?page=article&id="
