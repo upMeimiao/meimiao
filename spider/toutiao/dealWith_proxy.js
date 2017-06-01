@@ -224,9 +224,9 @@ class dealWith {
         }
         const { as, cp } = getHoney();
         if (hotTime) {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.id}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.mapBid}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
         } else {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.id}&cp=${cp}&as=${as}&max_behot_time=`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.mapBid}&cp=${cp}&as=${as}&max_behot_time=`;
         }
         if (proxyStatus && proxy) {
           option.proxy = proxy;
@@ -391,7 +391,7 @@ class dealWith {
     media.long_t = _longT(video.video_duration_str);
     media.tag = _tag(video.label);
     media = spiderUtils.deleteProperty(media);
-    logger.debug('medis info: ',media)
+    // logger.debug('medis info: ',media)
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
     spiderUtils.commentSnapshots(this.core.taskDB,
       { p: media.platform, aid: media.aid, comment_num: media.comment_num });
