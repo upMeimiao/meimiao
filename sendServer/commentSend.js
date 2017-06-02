@@ -1,10 +1,10 @@
 const request = require('request');
-const util = require('util');
+// const util = require('util');
 const events = require('events');
 
-class commentSend {
+class commentSend extends events  {
   constructor(sendServer) {
-    events.EventEmitter.call(this);
+    super();
     this.settings = sendServer.settings;
     this.logger = sendServer.logger;
     this.onlineOption = {
@@ -200,5 +200,5 @@ class commentSend {
     });
   }
 }
-util.inherits(commentSend, events.EventEmitter);
+// util.inherits(commentSend, events.EventEmitter);
 module.exports = commentSend;

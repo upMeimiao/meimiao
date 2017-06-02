@@ -1,15 +1,15 @@
 const kue = require('kue');
 const request = require('request');
 const HTTP = require('http');
-const util = require('util');
 const os = require('os');
 const events = require('events');
+// const util = require('util');
 const myRedis = require('../lib/myredis.js');
 const schedule = require('node-schedule');
 
-class mediaScheduler {
+class mediaScheduler extends events {
   constructor(scheduler) {
-    events.EventEmitter.call(this);
+    super();
     this.settings = scheduler.settings;
     this.redis = scheduler.redis;
     this.logger = scheduler.logger;
@@ -253,5 +253,5 @@ class mediaScheduler {
     });
   }
 }
-util.inherits(mediaScheduler, events.EventEmitter);
+// util.inherits(mediaScheduler, events.EventEmitter);
 module.exports = mediaScheduler;

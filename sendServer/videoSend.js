@@ -1,10 +1,10 @@
 const request = require('request');
-const util = require('util');
+// const util = require('util');
 const events = require('events');
 
-class videoSend {
+class videoSend extends events {
   constructor(sendServer) {
-    events.EventEmitter.call(this);
+    super();
     this.settings = sendServer.settings;
     this.logger = sendServer.logger;
     this.onlineOption = {
@@ -205,5 +205,5 @@ class videoSend {
     });
   }
 }
-util.inherits(videoSend, events.EventEmitter);
+// util.inherits(videoSend, events.EventEmitter);
 module.exports = videoSend;

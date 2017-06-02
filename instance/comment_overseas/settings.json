@@ -1,10 +1,11 @@
 {
   "log_level":"TRACE",
-  "concurrency": 5,
+  "concurrency": 15,
   "commentTotal":100,
+  "send_interval": 1000,
   "redis": {
     "port": 6379,
-    "host": "r-m5e43f2043319e64.redis.rds.aliyuncs.com",
+    "host": "r-t4n464c318a826d4.redis.singapore.rds.aliyuncs.com",
     "auth": "C19prsPjHs52CHoA0vm",
     "userDB": 0,
     "taskDB": 1,
@@ -13,14 +14,20 @@
     "proxy": 4,
     "monitor": 5
   },
+  "kue": {
+    "ip": "10.251.55.50",
+    "port": 3003
+  },
   "proxy": {
     "host": "10.169.16.235",
-    "port": 3001,
+    "port": 3002,
     "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=600&area=%E4%B8%AD%E5%9B%BD&protocol=1&method=1&an_tr=1&an_an=1&an_ha=1&sp1=1&sp2=1&quality=1&f_pr=1&format=json&sep=1",
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
   },
+  "url": "http://100.98.39.12/index.php/Spider/videoCommO/getUpdateV",
+  "sendUrl": "http://100.98.39.12/index.php/Spider/comment/postComments",
   "youku":{
-    "list":"https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=",
+    "list":"http://p.comments.youku.com/ycp/comment/pc/commentList?app=100-DDwODVkv&objectType=1&listType=0&pageSize=30&objectId=",
     "commentId":"http://play-ali.youku.com/play/get.json?ct=10&vid="
   },
   "iqiyi":{
@@ -85,17 +92,13 @@
     "list":"http://changyan.sohu.com/api/2/topic/comments?client_id=cyrHNCs04&page_size=10&topic_id="
   },
   "baofeng":{
-      "hot":"http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&pagesize=10&xid=",
-      "time":"http://comments.baofeng.com/pull?type=movie&from=2&sort=new&pagesize=10&xid="
+    "hot":"http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&pagesize=10&xid=",
+    "time":"http://comments.baofeng.com/pull?type=movie&from=2&sort=new&pagesize=10&xid="
   },
   "weibo":{
+    "commentTotal": 1000,
     "comment":"http://m.weibo.cn/article/rcMod?type=comment&id=",
     "hot":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=1&page=",
     "time":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=0&page="
-  },
-  "sendToServer":[
-    "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
-    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/video1/addVideoInfo",
-    "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate"
-  ]
+  }
 }
