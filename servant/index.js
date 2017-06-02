@@ -98,6 +98,7 @@ class spiderCore {
       case 'toutiao.com':
       case 'm.toutiao.com':
       case 'www.365yg.com':
+      case 'm.365yg.com':
         this.handle.toutiaoHandle(ctx, remote);
         break;
       case 'www.miaopai.com':
