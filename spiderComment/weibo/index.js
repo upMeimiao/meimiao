@@ -61,6 +61,7 @@ class spiderCore {
         return;
       }
       logger.debug('创建数据库连接完毕');
+      process.env.NODE_ENV = 'production';
       if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
         this.deal();
       } else {
@@ -74,8 +75,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      bid: '5135808743',
-      aid: '4106313875540066',
+      bid: '5641213278',
+      aid: '4045348605685001',
       p: 23,
       taskType: 0,
       commentId: 0,

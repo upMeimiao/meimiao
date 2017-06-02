@@ -65,111 +65,145 @@ class dealWith {
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
     const num = 0;
-    setTimeout(() => {
-      this.total(task, num, (err) => {
+    this.total(task, num, (err) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+      callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
+    });
+  }
+  getProxy(callback) {
+    let proxyStatus = false,
+      proxy,
+      times = 0;
+    if (proxyStatus && proxy) {
+      callback(null, proxy);
+    } else {
+      this.core.proxy.need(times, (err, _proxy) => {
         if (err) {
-          callback(err);
+          if (err === 'timeout') {
+            callback(null, 'timeout');
+            return;
+          }
+          logger.error('Get proxy occur error:', err);
+          times += 1;
+          proxyStatus = false;
+          this.core.proxy.back(_proxy, false);
+          callback(null, false);
           return;
         }
-        callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
+        times = 0;
+        callback(null, _proxy);
       });
-    }, 1500);
+    }
   }
   total(task, num, callback) {
     const option = {
       url: `${this.settings.weibo.comment + task.aid}&page=1`,
       ua: 2
     };
-    let total = 0, proxy;
+    let total = 0;
     if (num > 2) {
       callback();
       return;
     }
-    request.get(logger, option, (error, result) => {
-      if (error) {
-        logger.debug('微博的评论总数请求失败', error);
-        setTimeout(() => {
-          this.total(task, num, callback);
-        }, 1500);
+    this.getProxy((err, proxy) => {
+      if (proxy === 'timeout') {
+        this.total(task, callback);
         return;
       }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('微博数据解析失败', result.body);
-        setTimeout(() => {
-          this.total(task, num, callback);
-        }, 1500);
+      if (!proxy) {
+        this.total(task, callback);
         return;
       }
-      if (result.ok != 0) {
-        setTimeout(() => {
+      option.proxy = proxy;
+      request.get(logger, option, (error, result) => {
+        if (error) {
+          logger.debug('微博的评论总数请求失败', error);
+          this.core.proxy.back(proxy, false);
+          this.total(task, num, callback);
+          return;
+        }
+        try {
+          result = JSON.parse(result.body);
+        } catch (e) {
+          logger.error('微博数据解析失败', result.body);
+          this.core.proxy.back(proxy, false);
+          this.total(task, num, callback);
+          return;
+        }
+        if (result.ok != 0) {
           this.total(task, num += 1, callback);
-        }, 1500);
-        return;
-      }
-      task.cNum = Number(result.total_number);
-      if (task.cNum >= this.settings.weibo.commentTotal) {
-        task.cNum = this.settings.weibo.commentTotal;
-      }
-      total = (task.cNum % 10) === 0 ? task.cNum / 10 : Math.ceil(task.cNum / 10);
-      task.lastId = result.data[0].id;
-      task.lastTime = createTime(result.data[0].created_at);
-      task.addCount = task.cNum - task.commentNum;
-      if (task.commentId == task.lastId || task.commentTime >= task.lastTime) {
-        task.lastId = task.commentId;
-        task.lastTime = task.commentTime;
-        callback();
-        return;
-      }
-      this.commentList(task, total, proxy, () => {
-        callback();
+          return;
+        }
+        // if (result[1].mod_type === 'mod/empty' && result[1].msg === null) {
+        //   this.total(task, num += 1, callback);
+        //   return;
+        // }
+        task.cNum = Number(result.total_number);
+        if (task.cNum >= this.settings.weibo.commentTotal) {
+          task.cNum = this.settings.weibo.commentTotal;
+        }
+        total = (task.cNum % 10) === 0 ? task.cNum / 10 : Math.ceil(task.cNum / 10);
+        task.lastId = result.data[0].id;
+        task.lastTime = createTime(result.data[0].created_at);
+        task.addCount = task.cNum - task.commentNum;
+        if (task.commentId == task.lastId || task.commentTime >= task.lastTime) {
+          task.lastId = task.commentId;
+          task.lastTime = task.commentTime;
+          callback();
+          return;
+        }
+        this.commentList(task, total, proxy, () => {
+          callback();
+        });
       });
     });
   }
-  commentList(task, total, callback) {
+  commentList(task, total, proxy, callback) {
     let page = 1;
     const option = {};
     async.whilst(
       () => page <= total,
       (cb) => {
         option.url = `${this.settings.weibo.comment + task.aid}&page=${page}`;
+        option.proxy = proxy;
         request.get(logger, option, (error, result) => {
           if (error) {
             logger.error('微博评论列表请求失败', error);
-            setTimeout(() => {
+            this.core.proxy.back(proxy, false);
+            this.getProxy((err, _proxy) => {
+              proxy = _proxy;
               cb();
-            }, 1000);
+            });
             return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.error('微博评论数据解析失败', result.body);
-            setTimeout(() => {
+            this.core.proxy.back(proxy, false);
+            this.getProxy((err, _proxy) => {
+              proxy = _proxy;
               cb();
-            }, 1500);
+            });
             return;
           }
+          // result = result[1] ? result[1].card_group : result[0].card_group;
           if (!result.data || result.ok != 0) {
             page += 1;
-            setTimeout(() => {
-              cb();
-            }, 1500);
+            cb();
             return;
           }
           this.deal(task, result.data, () => {
             if (task.isEnd) {
               total = -1;
-              setTimeout(() => {
-                cb();
-              }, 1500);
+              cb();
               return;
             }
             page += 1;
-            setTimeout(() => {
-              cb();
-            }, 1500);
+            cb();
           });
         });
       },
@@ -208,6 +242,7 @@ class dealWith {
             uavatar: comments[index].user.profile_image_url
           }
         };
+        // logger.info(comment);
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
