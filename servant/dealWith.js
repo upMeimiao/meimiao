@@ -617,7 +617,12 @@ class DealWith {
         });
         return;
       }
-      callback(null, { bid: result.data.user_id });
+      const res = {
+        name: result.data.screen_name || result.data.name,
+        avatar: result.data.avatar_url || result.data.big_avatar_url,
+        bid: result.data.user_id
+      };
+      callback(null, res);
     })
   }
   getToutiaoBID(itemId, callback) {
