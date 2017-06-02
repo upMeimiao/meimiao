@@ -94,12 +94,12 @@ class spiderCore {
       case 'meipai.com':
         this.handle.meipaiHandle(ctx, remote);
         break;
-      // case 'www.toutiao.com':
-      // case 'toutiao.com':
-      // case 'm.toutiao.com':
-      // case 'www.365yg.com':
-      //   this.handle.toutiaoHandle(ctx, remote);
-      //   break;
+      case 'www.toutiao.com':
+      case 'toutiao.com':
+      case 'm.toutiao.com':
+      case 'www.365yg.com':
+        this.handle.toutiaoHandle(ctx, remote);
+        break;
       case 'www.miaopai.com':
       case 'm.miaopai.com':
         this.handle.miaopaiHandle(ctx, remote);
