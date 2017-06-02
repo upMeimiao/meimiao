@@ -73,10 +73,10 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '26993378',
-      name: '陈翔六点半',
-      encodeId: 'UMTA3OTczNTEy',
-      p: 12
+      id: '513668991',
+      p: '12',
+      name: 'Big_大笑工坊',
+      encodeId: 'UMzQ2ODExODY4'
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);

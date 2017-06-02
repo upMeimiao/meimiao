@@ -104,7 +104,7 @@ class dealWith {
         callback(e);
         return;
       }
-      task.total = result.data.videolist.total;
+      task.total = result.data.videolist.total || 0;
       this.getList(task, (error) => {
         if (error) {
           callback(err);
