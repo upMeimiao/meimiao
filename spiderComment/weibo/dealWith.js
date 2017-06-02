@@ -73,7 +73,7 @@ class dealWith {
         }
         callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
       });
-    }, 2000);
+    }, 2400);
   }
   total(task, num, callback) {
     const option = {
@@ -90,7 +90,7 @@ class dealWith {
         logger.debug('微博的评论总数请求失败', error);
         setTimeout(() => {
           this.total(task, num, callback);
-        }, 2000);
+        }, 2400);
         return;
       }
       try {
@@ -99,13 +99,13 @@ class dealWith {
         logger.error('微博数据解析失败', result.body);
         setTimeout(() => {
           this.total(task, num, callback);
-        }, 2000);
+        }, 2400);
         return;
       }
       if (result.ok != 0) {
         setTimeout(() => {
           this.total(task, num += 1, callback);
-        }, 2000);
+        }, 2400);
         return;
       }
       task.cNum = Number(result.total_number);
@@ -139,7 +139,7 @@ class dealWith {
             logger.error('微博评论列表请求失败', error);
             setTimeout(() => {
               cb();
-            }, 1800);
+            }, 2400);
             return;
           }
           try {
@@ -148,14 +148,14 @@ class dealWith {
             logger.error('微博评论数据解析失败', result.body);
             setTimeout(() => {
               cb();
-            }, 1800);
+            }, 2400);
             return;
           }
           if (!result.data || result.ok != 0) {
             page += 1;
             setTimeout(() => {
               cb();
-            }, 1800);
+            }, 2400);
             return;
           }
           this.deal(task, result.data, () => {
@@ -163,13 +163,13 @@ class dealWith {
               total = -1;
               setTimeout(() => {
                 cb();
-              }, 1800);
+              }, 2400);
               return;
             }
             page += 1;
             setTimeout(() => {
               cb();
-            }, 1800);
+            }, 2400);
           });
         });
       },
