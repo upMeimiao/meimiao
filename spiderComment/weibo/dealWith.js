@@ -80,7 +80,7 @@ class dealWith {
       url: `${this.settings.weibo.comment + task.aid}&page=1`,
       ua: 2
     };
-    let total = 0, proxy;
+    let total = 0;
     if (num > 2) {
       callback();
       return;
@@ -122,7 +122,7 @@ class dealWith {
         callback();
         return;
       }
-      this.commentList(task, total, proxy, () => {
+      this.commentList(task, total, () => {
         callback();
       });
     });
