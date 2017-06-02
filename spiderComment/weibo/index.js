@@ -113,7 +113,7 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_weibo', 9, (job, done) => {
+    queue.process('comment_weibo', 7, (job, done) => {
       logger.trace('Get weibo task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
