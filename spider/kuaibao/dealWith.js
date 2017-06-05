@@ -15,11 +15,11 @@ const _time = (time) => {
   }
   time = time.split(':');
   if (time.length === 2) {
-    time = (time[0] * 60 * 60) + (time[1] * 60);
+    time = Number(time[0] * 60) + Number(time[1]);
     return time;
   }
   if (time.length === 3) {
-    time = (time[0] * 60 * 60) + (time[0] * 60) + Number(time[1]);
+    time = Number(time[0] * 60 * 60) + Number(time[0] * 60) + Number(time[1]);
     return time;
   }
   return time;
