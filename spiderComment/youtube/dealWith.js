@@ -71,7 +71,7 @@ class dealWith {
     const option = {
       url: `https://www.youtube.com/watch_fragments_ajax?v=${task.aid}&tr=time&distiller=1&ctoken=${page_token}&frags=comments&spf=load`,
       method: 'POST',
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       headers: {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
         referer: `https://www.youtube.com/watch?v=${task.aid}`,
