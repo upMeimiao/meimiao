@@ -2,6 +2,7 @@ const kue = require('kue');
 const request = require('request');
 // const util = require('util');
 const os = require('os');
+const HTTP = require('http');
 const events = require('events');
 const schedule = require('node-schedule');
 const myRedis = require('../lib/myredis.js');
@@ -42,22 +43,26 @@ class commentScheduler extends events {
         this.logger.debug('任务信息数据库连接建立...成功');
         const rule = new schedule.RecurrenceRule();
         const osName = os.hostname();
-        switch (osName) {
-          case 'servant_3':
-            rule.second = [1, 21, 41];
-            // rule.second = [20, 50];
-            break;
-          case 'iZ28ilm78mlZ':
-            rule.second = [11, 31, 51];
-            break;
-          default:
-            rule.second = [1, 11, 21, 31, 31, 51];
-            break;
+        if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
+          this.createServer();
+        } else {
+          switch (osName) {
+            case 'servant_3':
+              rule.second = [1, 21, 41];
+              // rule.second = [20, 50];
+              break;
+            case 'iZ28ilm78mlZ':
+              rule.second = [11, 31, 51];
+              break;
+            default:
+              rule.second = [1, 11, 21, 31, 31, 51];
+              break;
+          }
+          schedule.scheduleJob(rule, () => {
+            this.getTask();
+          });
+          // this.getTask();
         }
-        // this.getTask();
-        schedule.scheduleJob(rule, () => {
-          this.getTask();
-        });
       }
     );
   }
@@ -91,6 +96,37 @@ class commentScheduler extends events {
       this.logger.error(raw);
     });
     this.assembly();
+  }
+  createServer() {
+    const server = HTTP.createServer((req, res) => {
+      switch (req.method) {
+        case 'POST':
+          this.routerHandle(req, res);
+          break;
+        default:
+          res.setHeader('Content-Type', 'text/html;charset=utf-8');
+          res.writeHead(400);
+          res.end();
+          break;
+      }
+    });
+    server.listen(2889, () => {
+      this.logger.debug('Server running at 2888 port');
+    });
+  }
+  routerHandle(req, res) {
+    let postData = '',
+      body;
+    req.addListener('data', (data) => {
+      postData += data;
+    });
+    req.addListener('end', () => {
+      body = JSON.parse(postData);
+      this.emit('task_check_kue', body.data);
+    });
+    res.setHeader('Content-Type', 'application/json;charset=utf-8');
+    res.writeHead(200);
+    res.end(JSON.stringify({ status: 'ok' }));
   }
   getTask() {
     // _getTask.getTask('http://staging-dev.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=120&platform=',
@@ -153,6 +189,11 @@ class commentScheduler extends events {
   }
   checkKue(raw) {
     // return this.emit('task_set_create', raw);
+    const p = Number(raw.p);
+    if (((p === 39 || p === 40) && !raw.origin) || ((p === 39 || p === 40) && raw.first)) {
+      this.emit('task_set_create', raw);
+      return;
+    }
     const key = `c:${raw.p}:${raw.aid}`;
     this.taskDB.hget(key, 'kue_id', (error, result) => {
       if (error) {
