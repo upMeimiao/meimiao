@@ -89,6 +89,9 @@ class commentScheduler extends events {
     this.on('task_create', (raw) => {
       this.createQueue(raw);
     });
+    this.on('origin_youtube', (raw) => {
+      this.originOverseas(raw);
+    });
     this.on('redis_error', (raw) => {
             /**
              * todo send email
@@ -154,6 +157,21 @@ class commentScheduler extends events {
       }
       this.logger.debug(body);
       this.emit('task_loaded', body);
+    });
+  }
+  originOverseas(raw) {
+    const options = {
+      method: 'POST',
+      url: 'http://spider-overseas.meimiaoip.com:51905/origin/sc/comment/',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        data: raw
+      })
+    };
+    request(options, (err, res, body) => {
+      console.log(body);
     });
   }
   createQueue(raw) {
