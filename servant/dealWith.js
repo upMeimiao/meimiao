@@ -766,7 +766,8 @@ class DealWith {
       const res = {
         encode_id: encode_id[1],
         name,
-        avatar
+        avatar,
+        p: 12
       };
       this.getTudouBid(encode_id[1], (error, bid) => {
         if (error) {
