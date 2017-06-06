@@ -303,7 +303,13 @@ class dealWith {
         return;
       }
       result = eval(result.body);
-      callback(null, result.appinfo[0].playCount);
+      let playCount = result.appinfo[0].playCount
+      if (playCount.includes('(万)')) {
+        playCount = Math.round(playCount.replace('(万)', '') * 10000);
+      } else {
+        playCount = Number(playCount);
+      }
+      callback(null, playCount);
     });
   }
 }
