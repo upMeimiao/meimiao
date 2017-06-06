@@ -528,7 +528,10 @@ class DealWith {
         url: data,
         ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
       };
-    let groupId;
+    let groupId,
+      itemid = data.indexOf('item') !== -1 ? data.match(/\/item\/(\d*)\//)[1] : null,
+      bid,
+      res = null;
     request.get(option, (err, result) => {
       if (err) {
         logger.error('播放详情页DOM请求失败', err);
@@ -541,7 +544,14 @@ class DealWith {
         return;
       }
       groupId = result.match(/group_id:'(\d*)',repin:/)[1];
-      this.getToutiaoMediaId(groupId, (err, result) => {
+      if (itemid) {
+        bid = result.match(/media=\{id:'(\d*)/) ? result.match(/media=\{id:'(\d*)/)[1] : null;
+        res = {
+          bid,
+          itemid
+        };
+      }
+      this.getToutiaoMediaId(groupId, res, (err, result) => {
         if (err) {
           callback('groupId-error', { code:102, p: 6 });
           return;
@@ -550,7 +560,7 @@ class DealWith {
       })
     })
   }
-  getToutiaoMediaId(groupId, callback) {
+  getToutiaoMediaId(groupId, item, callback) {
     const option = {
       url: `${api.toutiao.media + groupId}`,
       ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
@@ -570,20 +580,30 @@ class DealWith {
         callback('get-media-error');
         return;
       }
-      const itemid = result.data.recommend_sponsor.target_url.match(/item_id=(\d*)/)[1],
+      let itemid = result.data.recommend_sponsor.target_url.match(/item_id=(\d*)/)[1],
         res = {
         id: result.data.h5_extra.media.id,
         name: result.data.h5_extra.media.name,
         avatar: result.data.h5_extra.media.avatar_url,
         p: 6
       };
-      this.getToutiaoBid(result.data.h5_extra.media.id, itemid, (error, user) => {
+      if (item && item.itemid != itemid) {
+        itemid = item.itemid;
+        res.id = item.bid
+      }
+      this.getToutiaoBid(res.id, itemid, (error, user) => {
         if (error) {
           callback(error);
           return;
         }
         res.encode_id = user.bid;
         if (!res.name) {
+          res.name = user.name;
+          res.avatar = user.avatar;
+        }
+        if (item && item != itemid && user.id) {
+          logger.debug(111);
+          res.id = user.id;
           res.name = user.name;
           res.avatar = user.avatar;
         }
@@ -620,7 +640,8 @@ class DealWith {
       const res = {
         name: result.data.screen_name || result.data.name,
         avatar: result.data.avatar_url || result.data.big_avatar_url,
-        bid: result.data.user_id
+        bid: result.data.user_id,
+        id: result.data.ugc_publish_media_id
       };
       callback(null, res);
     })
