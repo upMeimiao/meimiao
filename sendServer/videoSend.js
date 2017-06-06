@@ -59,7 +59,7 @@ class videoSend extends events {
         }
       }
       this.emit('send_data', list, 0);
-      this.emit('send_data_staging', list, 0);
+      // this.emit('send_data_staging', list, 0);
     });
   }
   sendOnline(list, time) {
@@ -125,7 +125,7 @@ class videoSend extends events {
       if (Number(result.errno) === 0) {
         // this.logger.debug('online back end')
         this.logger.debug(`${newList.length}个视频 online back end`);
-        this.logger.debug('online back end',result.data)
+        // this.logger.debug('online back end',result.data)
       } else {
         // this.logger.error('online back error')
         this.logger.error(result);
@@ -183,7 +183,7 @@ class videoSend extends events {
       } catch (e) {
         this.logger.error('staging 返回数据 json数据解析失败');
         this.logger.error(result);
-        // this.logger.error(JSON.stringify(list));
+        this.logger.error(JSON.stringify(list));
         list = null;
         time = null;
         return;
