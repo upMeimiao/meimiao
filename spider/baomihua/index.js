@@ -73,7 +73,7 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '29003',
+      id: '24842',
       name: 'CH明明解说',
       p: 13
     };

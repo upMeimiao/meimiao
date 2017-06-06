@@ -59,7 +59,7 @@ class videoSend extends events {
         }
       }
       this.emit('send_data', list, 0);
-      this.emit('send_data_staging', list, 0);
+      // this.emit('send_data_staging', list, 0);
     });
   }
   sendOnline(list, time) {
