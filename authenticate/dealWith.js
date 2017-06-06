@@ -970,43 +970,20 @@ class DealWith {
      * */
   }
   tudou(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      options = {
-        url: htmlUrl
-      };
-    request.get(logger, options, (err, htmlData) => {
-      if (err) {
-        logger.error('occur error : ', err);
-        callback(err, { code: 103, p: 12 });
-        return;
-      }
-      let comments = htmlData.body,
-        vid = comments.match(/vid: (\d*), isShow/)[1];
-      if (!vid) {
-        logger.debug('土豆请求的源码结构发生改变');
-        callback(e, { code: 103, p: 12 });
-        return;
-      }
-      this.tdComment(userVal, vid, (error, data) => {
-        if (error) {
-          error === 'error' ? callback(error, { code: 105, p: 12 }) : callback(error, { code: 103, p: 12 });
-          return;
-        }
-        callback(null, data);
-      });
-    });
-  }
-  tdComment(userVal, vid, callback){
-    const user = {}, dataUrl = {};
+      path = URL.parse(htmlUrl, true).pathname,
+      options = {},
+      vid = path.split('/')[2],
+      user = {};
     let cycle = true,
       page = 1,
       contents;
     async.whilst(
       () => cycle,
       (cb) => {
-        dataUrl.url = `https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=${vid}&page=${page}&count=100`;
-        request.get(logger, dataUrl, (err, data) => {
+        options.url = `https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=${vid}&page=${page}&count=100`;
+        request.get(logger, options, (err, data) => {
           if (err) {
             logger.error('occur error : ', err);
             cb(err);
@@ -1040,12 +1017,12 @@ class DealWith {
           cb()
         });
       },
-      (err, result) => {
-        if (err) {
-          callback(err);
+      (error, result) => {
+        if (error) {
+          error === 'error' ? callback(error, { code: 105, p: 12 }) : callback(error, { code: 103, p: 12 });
           return;
         }
-        callback(null, result)
+        callback(null, result);
       }
     );
   }

@@ -1,6 +1,6 @@
 const Redis = require('ioredis');
 
-const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/3', {
+const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@192.168.1.31:6379/3', {
   reconnectOnError(err) {
     return err.message.slice(0, 'READONLY'.length) === 'READONLY';
   }
