@@ -1,12 +1,17 @@
 /**
- *  update by pnghui on 2017/4/28
+ *  update by penghui on 2017/4/28
  * */
 const URL = require('url');
 const cheerio = require('cheerio');
 const request = require('../lib/request');
 const async = require('async');
 const req = require('request');
+const crypto = require('crypto');
 
+const sign = (e) => {
+  const md5 = crypto.createHash('md5');
+  return md5.update(`700-cJpvjG4g&bad4543751cacf3322ab683576474e31&${e}`).digest('hex');
+};
 const jsonp = data => data;
 const _Callback = data => data;
 let logger; // api;
@@ -970,67 +975,46 @@ class DealWith {
      * */
   }
   tudou(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      options = {
-        url: htmlUrl
-      };
-    request.get(logger, options, (err, htmlData) => {
-      if (err) {
-        logger.error('occur error : ', err);
-        callback(err, { code: 103, p: 12 });
-        return;
-      }
-      let comments = htmlData.body,
-        vid = comments.match(/vid: (\d*), isShow/)[1];
-      if (!vid) {
-        logger.debug('土豆请求的源码结构发生改变');
-        callback(e, { code: 103, p: 12 });
-        return;
-      }
-      this.tdComment(userVal, vid, (error, data) => {
-        if (error) {
-          error === 'error' ? callback(error, { code: 105, p: 12 }) : callback(error, { code: 103, p: 12 });
-          return;
-        }
-        callback(null, data);
-      });
-    });
-  }
-  tdComment(userVal, vid, callback){
-    const user = {}, dataUrl = {};
+      path = URL.parse(htmlUrl, true).pathname,
+      vid = path.split('/')[2],
+      option = {},
+      user = {};
     let cycle = true,
       page = 1,
-      contents;
+      contents,
+      time;
     async.whilst(
       () => cycle,
       (cb) => {
-        dataUrl.url = `https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=${vid}&page=${page}&count=100`;
-        request.get(logger, dataUrl, (err, data) => {
+        time = parseInt(new Date().getTime() / 1000, 10);
+        option.url = `http://p.comments.youku.com/ycp/comment/pc/commentList?app=700-cJpvjG4g&objectId=${vid}&objectType=1&listType=0&currentPage=${page}&pageSize=30&sign=${sign(time)}&time=${time}`;
+        request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('occur error : ', err);
-            cb(err);
+            cb();
             return;
           }
           try {
-            data = JSON.parse(data.body);
+            result = JSON.parse(result.body);
           } catch (e) {
-            logger.error('土豆json数据解析失败');
-            logger.info(data);
-            cb(e);
+            logger.error('土豆json数据解析失败', result.body);
+            cb();
             return;
           }
-          contents = data.comments;
+          contents = result.data.comment;
           if(contents.length === 0){
             cycle = false;
             cb('error');
             return;
           }
-          for (let i = 0; i < contents.length; i++) {
+          for (let i = 0; i < contents.length; i += 1) {
             if (userVal == contents[i].content.replace(/\s/g, '')) {
               user.p = 12;
-              user.id = contents[i].user.id;
-              user.name = contents[i].user.name;
+              user.id = contents[i].user.userId;
+              user.name = contents[i].user.userName;
+              user.encode_id = contents[i].user.userCode;
               cycle = false;
               cb(null, user);
               return;
@@ -1040,12 +1024,12 @@ class DealWith {
           cb()
         });
       },
-      (err, result) => {
-        if (err) {
-          callback(err);
+      (error, result) => {
+        if (error) {
+          error === 'error' ? callback(error, { code: 105, p: 12 }) : callback(error, { code: 103, p: 12 });
           return;
         }
-        callback(null, result)
+        callback(null, result);
       }
     );
   }
@@ -2300,359 +2284,190 @@ class DealWith {
       }
     );
   }
-
   cctv(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      host = URL.parse(htmlUrl, true).hostname,
       path = URL.parse(htmlUrl, true).pathname,
       index = path.indexOf('.html'),
       vid = path.substring(3, index),
       option = {
-        url: htmlUrl
+        url: htmlUrl,
+        ua: 1
       },
-      page = 1,
-      contLength = '',
+      user = {};
+    let page = 1,
       contents = '',
-      endPage = null,
-      total = 2,
-      sign = 1;
+      cycle = true;
     async.whilst(
-      () => sign < total,
+      () => cycle,
       (cb) => {
-        option.url = `http://bbs.cntv.cn/api/?module=post&method=getchannelposts&varname=jsonp&channel=xiyou&itemid=video_${vid}&page=${page}&perpage=10&_=${new Date().getTime()}`;
+        option.url = `http://bbs.cntv.cn/api/?module=post&method=getchannelposts&channel=xiyou&itemid=video_${vid}&page=${page}&perpage=10&_=${new Date().getTime()}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('occur error: ', err);
-            return callback(err, { code: 102, p: 30 });
+            cb();
+            return;
           }
-
           try {
-            result = result.body.replace('var jsonp = ', '').replace(';', '');
-            result = JSON.parse(result);
+            result = JSON.parse(result.body);
           } catch (e) {
-            logger.debug('CCTV数据解析失败');
-            return callback(e, { code: 102, p: 30 });
+            logger.debug('CCTV数据解析失败', result.body);
+            cb(e);
+            return;
           }
           contents = result.content;
-          contLength = contents.length;
-          total = result.total;
-          if (total % 10 == 0) {
-            total /= 10;
-          } else {
-            total = Math.ceil(total / 10);
+          if (!contents || !contents.length) {
+            cb('error');
+            return;
           }
-
-          endPage = this.cctvdeal(contLength, userVal, contents, endPage, callback);
-          if (endPage) {
-            sign = total;
-            return cb();
+          for (const value of contents) {
+            if (userVal == value.content.replace(/\s/g, '')) {
+              user.p = 30;
+              user.id = value.uid;
+              user.name = value.uname;
+              cycle = false;
+              cb(null, user);
+              return;
+            }
           }
-          if (page == total) {
-            sign = total;
-            return cb();
-          }
-          page++;
           cb();
         });
       },
       (err, result) => {
-        if (!endPage) {
-          callback(err, { code: 105, p: 30 });
+        if (err) {
+          err === 'error' ? callback(err, { code: 105, p: 30 }) : callback(err, { code: 103, p: 30 });
+          return;
         }
+        callback(null, result);
       }
     );
   }
-  cctvdeal(contLength, userVal, contents, endPage, callback) {
-    const dataJson = {};
-    for (let i = 0; i < contLength; i++) {
-      if (userVal == contents[i].content.replace(/\s/g, '')) {
-        dataJson.p = 30;
-        dataJson.id = contents[i].pid;
-        dataJson.name = contents[i].uname;
-        console.log(`评论内容：${contents[i].content}`);
-        console.log(`评论用户Id：${contents[i].pid}`);
-        console.log(`评论用户昵称：${contents[i].uname}`);
-        endPage = true;
-        callback(null, dataJson);
-        break;
-      } else {
-        endPage = false;
-      }
-    }
-    return endPage;
-  }
   xinlan(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      host = URL.parse(htmlUrl, true).hostname,
-      vid = '',
       option = {
-        url: htmlUrl
+        url: htmlUrl,
+        ua: 1
       },
-      sign = 2,
-      page = 1,
-      contLength = '',
+      user = {};
+    let page = 1,
       contents = '',
-      endPage = null;
-
-    vid = htmlUrl.match(/vplay\/\d*/).toString().replace(/vplay\//, '');
+      cycle = true,
+      vid = htmlUrl.match(/vplay\/(\d*)/)[1];
     async.whilst(
-      () => page <= sign,
+      () => cycle,
       (cb) => {
-        option.url = `http://proxy.app.cztv.com/getCommentList.do?videoId=${vid}&page=${page}&pageSize=20`;
+        option.url = `http://api.my.cztv.com/api/list?xid=${vid}&pid=211&type=video&page=${page}&rows=10&_=${new Date().getTime()}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('occur error: ', err);
-            return callback(err, { code: 102, p: 32 });
+            cb();
+            return;
           }
-
           try {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.debug('新蓝网数据解析失败');
-            return callback(e, { code: 102, p: 32 });
+            cb(e);
+            return;
           }
-          contents = result.content.list;
-          contLength = contents.length;
-          sign = result.content.comment_count;
-          if (sign % 20 == 0) {
-            sign /= 20;
-          } else {
-            sign = Math.ceil(sign / 20);
+          contents = result.data;
+          if (!contents || !contents.length) {
+            cb('error');
+            return;
           }
-
-          endPage = this.xinlandeal(contLength, userVal, contents, endPage, callback);
-          page++;
-          if (page >= sign) {
-            if (!endPage) {
-              logger.debug('您输入的值没找到');
-              callback(null, { code: 105, p: 32 });
-              return cb();
+          for (const value of contents) {
+            if (userVal == value.content.replace(/\s/g, '')) {
+              user.p = 32;
+              user.id = value.user.uid;
+              user.name = value.user.username;
+              cycle = false;
+              cb(null, user);
+              return;
             }
           }
+          page += 1;
           cb();
         });
+      },
+      (err, result) => {
+        if (err) {
+          err === 'error' ? callback(err, { code: 105, p: 30 }) : callback(err, { code: 103, p: 30 });
+          return;
+        }
+        callback(null, result);
       }
     );
-  }
-  xinlandeal(contLength, userVal, contents, endPage, callback) {
-    const dataJson = {};
-    for (let i = 0; i < contLength; i++) {
-      if (userVal == contents[i].commentContent.replace(/\s/g, '')) {
-        dataJson.p = 32;
-        dataJson.id = contents[i].user.userId;
-        dataJson.name = contents[i].user.nickName;
-        console.log(`评论内容：${contents[i].commentContent}`);
-        console.log(`评论用户Id：${contents[i].user.userId}`);
-        console.log(`评论用户昵称：${contents[i].user.nickName}`);
-        endPage = true;
-        callback(null, dataJson);
-        break;
-      } else {
-        endPage = false;
-      }
-    }
-    return endPage;
   }
   v1(verifyData, callback) {
     let htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      host = URL.parse(htmlUrl, true).hostname,
       path = URL.parse(htmlUrl, true).pathname,
-      vid = path.match(/\d*\./).toString().replace('.', ''),
-      option = {},
-      page = 0,
-      contLength = '',
+      vid = path.match(/(\d*)\./)[1],
+      option = {
+        url: 'http://www.v1.cn/comment/getList4Ajax',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        data: {
+          vid: vid
+        }
+      },
+      lastid = 0,
       contents = '',
-      endPage = null,
-      total = 2;
+      cycle = true,
+      user;
     async.whilst(
-      () => page <= total,
+      () => cycle,
       (cb) => {
-        option.url = `http://dynamic.app.m.v1.cn/www/dynamic.php?mod=mob&ctl=videoComment&act=get&vid=${vid}&p=${page}&pcode=010210000&version=4.5.4`;
-        request.get(logger, option, (err, result) => {
+        option.data.last_id = lastid;
+        request.post(logger, option, (err, result) => {
           if (err) {
             logger.error('occur error: ', err);
-            return callback(err, { code: 102, p: 33 });
+            cb();
+            return;
           }
-
           try {
-            result = result.body.replace('var jsonp = ', '').replace(';', '');
-            result = JSON.parse(result);
+            result = JSON.parse(result.body);
           } catch (e) {
-            logger.debug('CCTV数据解析失败');
-            return callback(e, { code: 102, p: 33 });
+            logger.debug('第一视频数据解析失败');
+            cb(e);
+            return;
           }
-          total = result.body.total;
-          if (total % 20 == 0) {
-            total /= 20;
-          } else {
-            total = Math.ceil(total / 20);
+          if (result.msg != 1 || !result.list) {
+            cb('error');
+            return;
           }
-          contents = result.body.Comments_list;
-          contLength = contents.length;
-          endPage = this.v1deal(contLength, userVal, contents, endPage, callback);
-          page++;
-          if (endPage) {
-            page = total + 1;
+          contents = result.list;
+          for (const value of contents) {
+            if (userVal == value.content.replace(/\s/g, '')) {
+              user = {
+                id: value.userid,
+                name: value.nickname,
+                p: 33
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+            lastid = value.comment_id;
           }
           cb();
         });
       },
       (err, result) => {
-        if (!endPage) {
-          return callback(err, { code: 105, p: 33 });
+        if (err) {
+          err === 'error' ? callback(err, { code: 105, p: 30 }) : callback(err, { code: 103, p: 30 });
+          return;
         }
+        callback(null, result);
       }
     );
   }
-  v1deal(contLength, userVal, contents, endPage, callback) {
-    const dataJson = {};
-    for (let i = 0; i < contLength; i++) {
-      if (userVal == contents[i].comments.replace(/\s/g, '')) {
-        dataJson.p = 33;
-        dataJson.id = contents[i].userId;
-        dataJson.name = contents[i].nickname;
-        console.log(`评论内容：${contents[i].comments}`);
-        console.log(`评论用户Id：${contents[i].userId}`);
-        console.log(`评论用户昵称：${contents[i].nickname}`);
-        endPage = true;
-        callback(null, dataJson);
-        break;
-      } else {
-        endPage = false;
-      }
-    }
-    return endPage;
-  }
   huashu(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
-      userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      urlObj = URL.parse(htmlUrl, true),
-      host = urlObj.hostname,
-      path = urlObj.pathname,
-      bid = path.match(/id\/\d*/).toString().replace(/id\//, ''),
-      name = '',
-      option = {
-        url: `http://www.wasu.cn/Play/show/id/${bid}`
-      };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('视频详情: ', err);
-        return callback(err, { code: 102, p: 35 });
-      }
-      const $ = cheerio.load(result.body);
-      option.url = $('div.play_information_t').eq(0).find(' div.r div.one a').attr('href');
-      request.get(logger, option, (err, result) => {
-        if (err) {
-          logger.error('专辑信息: ', err);
-          return callback(err, { code: 102, p: 35 });
-        }
-
-        let $ = cheerio.load(result.body),
-          script = $('script')[8].children[0].data,
-          bid = script.match(/aggvod\/id\/\d*/).toString().replace('aggvod/id/', '');
-        this.getHuashuList(userVal, bid, callback);
-      });
-    });
-  }
-  getHuashuList(userVal, bid, callback) {
-    const option = {
-      url: `http://clientapi.wasu.cn/AggPhone/vodinfo/id/${bid}`
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.debug('视频列表请求失败', err);
-        return callback(err, { code: 103, p: 35 });
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.debug('视频列表解析失败', e);
-        return callback(e, { code: 103, p: 35 });
-      }
-      const vidInfo = result[1].aggData[0].aggRel;
-      this.huashuComment(userVal, vidInfo.video_sid, callback);
-    });
-  }
-  huashuComment(userVal, vid, callback) {
-    let option = {
-        url: `http://changyan.sohu.com/api/3/topic/liteload?client_id=cyrHNCs04&topic_category_id=37&page_size=10&hot_size=5&topic_source_id=${vid}&_=${new Date().getTime()}`
-      },
-      page = 1,
-      totalPage = 0,
-      contents = null,
-      length = null,
-      endPage = null;
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.debug('评论数请求失败', err);
-        return callback(err, { code: 103, p: 35 });
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.debug('评论数解析失败');
-        return callback(e, { code: 103, p: 35 });
-      }
-      const topic_id = result.topic_id;
-      if (result.cmt_sum % 10 == 0) {
-        totalPage = result.cmt_sum / 10;
-      } else {
-        totalPage = Math.ceil(result.cmt_sum / 10);
-      }
-      async.whilst(
-        () => page <= totalPage,
-        (cb) => {
-          option.url = `http://changyan.sohu.com/api/2/topic/comments?client_id=cyrHNCs04&page_size=10&topic_id=${topic_id}&page_no=${page}&_=${new Date().getTime()}`;
-          request.get(logger, option, (err, result) => {
-            if (err) {
-              logger.debug('评论获取失败', err);
-              return callback(err, { code: 103, p: 35 });
-            }
-            try {
-              result = JSON.parse(result.body);
-            } catch (e) {
-              logger.info(result);
-              logger.debug('评论解析失败');
-              return callback(e, { code: 103, p: 35 });
-            }
-            contents = result.comments;
-            length = contents.length;
-            endPage = this.huashudeal(length, userVal, contents, endPage, callback);
-            if (endPage) {
-              page = totalPage++;
-              return callback(null, endPage);
-            }
-            page++;
-            cb();
-          });
-        },
-        (err, result) => {
-          if (!endPage) {
-            logger.debug('输入的值没找到');
-            return callback(null, { code: 105, p: 35 });
-          }
-        }
-      );
-    });
-  }
-  huashudeal(contLength, userVal, contents, endPage, callback) {
-    const dataJson = {};
-    for (let i = 0; i < contLength; i++) {
-      if (userVal == contents[i].content.replace(/\s/g, '')) {
-        dataJson.p = 35;
-        dataJson.id = contents[i].metadataAsJson.clientPort == undefined ? '' : contents[i].metadataAsJson.clientPort;
-        dataJson.name = contents[i].passport.nickname;
-        console.log(`评论内容：${contents[i].content}`);
-        console.log(`评论用户Id：${contents[i].metadataAsJson.clientPort}`);
-        console.log(`评论用户昵称：${contents[i].passport.nickname}`);
-        return dataJson;
-      }
-      endPage = false;
-    }
-    return endPage;
+    /**
+    *  用户ID 不可用
+    * */
   }
 
   youtube(verifyData, callback) {
@@ -2996,61 +2811,6 @@ class DealWith {
       }
     }
     callback();
-  }
-  huoshan(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
-      userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      vid = htmlUrl.match(/video\/(\d*)/)[1],
-      option = {
-        ua: 2
-      },
-      user = {};
-    let cycle = true,
-      offset = 0;
-    async.whilst(
-      () => cycle,
-      (cb) => {
-        option.url = `https://api.huoshan.com/hotsoon/item/${vid}/comments/?os_version=10.3.1&app_name=live_stream&device_type=iPhone8,2&version_code=2.1.0&count=20&offset=${offset}`;
-        request.get(logger, option, (err, result) => {
-          if (err) {
-            logger.error('评论信息请求失败', err);
-            cb();
-            return;
-          }
-          try {
-            result = JSON.parse(result.body);
-          } catch (e) {
-            logger.error('解析失败', result.body);
-            cb();
-            return;
-          }
-          if (result.data.comments.length <= 0) {
-            cycle = false;
-            cb('error');
-            return;
-          }
-          for (const value of result.data.comments) {
-            if (userVal == value.text.replace(/\s/g, '')) {
-              user.id = value.user.id;
-              user.name = value.user.nickname;
-              user.p = 45;
-              cycle = false;
-              cb(null, user);
-              return;
-            }
-          }
-          offset += 20;
-          cb();
-        });
-      },
-      (err, result) => {
-        if (err) {
-          callback(err, { code: 105, p: 45 });
-          return;
-        }
-        callback(null, result);
-      }
-    );
   }
 }
 module.exports = DealWith;
