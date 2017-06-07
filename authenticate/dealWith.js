@@ -71,12 +71,10 @@ class DealWith {
           }
           page += 1;
           cb();
-          return;
         });
       },
       () => {
-        callback(true, { code:105, p:1 });
-        return;
+        callback(true, { code: 105, p: 1 });
       }
     );
   }
