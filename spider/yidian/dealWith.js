@@ -211,6 +211,10 @@ class dealWith {
           callback();
           return;
         }
+        if (task.id === 'm421305' && Number(result.code) === 0) {
+          callback();
+          return;
+        }
         callback(`code:${result.code},reason:${result.reason}`);
         return;
       }
