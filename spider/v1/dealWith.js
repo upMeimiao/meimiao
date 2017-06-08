@@ -137,7 +137,8 @@ class dealWith {
   }
   getVidTotal(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.v1.videoList + task.id}&p=1`
+      url: `${this.settings.spiderAPI.v1.videoList + task.id}&p=1`,
+      ua: 1
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -287,7 +288,7 @@ class dealWith {
   }
   getVideoInfo(vid, num, callback) {
     const option = {
-      url: `http://www.v1.cn/video/v_${vid}.jhtml`
+      url: `http://www.v1.cn/video/${vid}.jhtml`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -322,7 +323,8 @@ class dealWith {
   }
   getVidInfo(vid, num, callback) {
     const option = {
-      url: `http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/${vid}/pcode/010210000/version/4.5.4.mindex.html`
+      url: `http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/${vid}/pcode/010210000/version/4.5.4.mindex.html`,
+      ua: 1
     };
     request.get(logger, option, (err, result) => {
       if (err) {
