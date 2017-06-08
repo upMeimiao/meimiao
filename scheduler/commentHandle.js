@@ -53,6 +53,7 @@ class commentHandle {
       return;
     }
     this.scheduler.emit('task_init', baseInfo);
+    callback();
   }
   checkInit(raw) {
     const key = `c:${raw.p}:${raw.aid}`;
