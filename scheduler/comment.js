@@ -114,7 +114,7 @@ class commentScheduler extends events {
       }
     });
     server.listen(2889, () => {
-      this.logger.debug('Server running at 2888 port');
+      this.logger.debug('Server running at 2889 port');
     });
   }
   routerHandle(req, res) {
