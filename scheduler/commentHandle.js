@@ -34,10 +34,6 @@ class commentHandle {
       callback();
       return;
     }
-    if (Number(_.platform) === 39) {
-      this.scheduler.emit('origin_youtube', _);
-      return;
-    }
     if (_.bid === '' || _.aid === '') {
       this.logger.error('task info error:', _);
       callback();
@@ -51,8 +47,12 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
+    if (Number(_.platform) === 39) {
+      this.scheduler.emit('origin_youtube', baseInfo);
+      callback();
+      return;
+    }
     this.scheduler.emit('task_init', baseInfo);
-    callback();
   }
   checkInit(raw) {
     const key = `c:${raw.p}:${raw.aid}`;
