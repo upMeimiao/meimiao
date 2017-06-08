@@ -112,7 +112,7 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_youtube', this.settings.concurrency, (job, done) => {
+    queue.process('comment_YouTube', this.settings.concurrency, (job, done) => {
       logger.trace('Get youtube task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
@@ -132,7 +132,7 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_youtube', this.settings.concurrency, (job, done) => {
+    queue.process('comment_update_YouTube', this.settings.concurrency, (job, done) => {
       logger.trace('Get youtube task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
