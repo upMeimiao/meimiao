@@ -92,13 +92,11 @@ class redis {
     data.status = data.status ? data.status : false;
     db.zscore('bproxy', data.proxy, (err, proxy) => {
       if (proxy) {
-        logger.debug('back:', data)
-        if (data.status) {
+        if (data.status === 'true') {
           db.zrem('bproxy', data.proxy);
           db.sadd('proxy', data.proxy);
           return callback();
         }
-        logger.error('back:', data)
         db.get(data.proxy, (error, result) => {
           if (!result || Number(result) < 2) { // 2
             db.incr(data.proxy);
