@@ -29,8 +29,13 @@ class commentHandle {
       callback();
       return;
     }
-    if (Number(_.platform) === 16 || Number(_.platform) === 37 || Number(_.platform) === 39) {
+    if (Number(_.platform) === 16 || Number(_.platform) === 37
+      || Number(_.platform) === 40) {
       callback();
+      return;
+    }
+    if (Number(_.platform) === 39) {
+      this.scheduler.emit('origin_youtube', _);
       return;
     }
     if (_.bid === '' || _.aid === '') {
