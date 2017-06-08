@@ -1,7 +1,7 @@
 {
-  "name"        : "YouTube评论",
+  "name"        : "评论Kue监控",
   "script"      : "/root/qiaosuan/run.js",
-  "args"        : ["-i","comment_overseas","-a","youtube","-t","comment"],
+  "args"        : ["-i","comment_overseas","-a","kue","-t","comment"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,
