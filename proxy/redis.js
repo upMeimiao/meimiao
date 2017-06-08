@@ -39,7 +39,7 @@ class redis {
             cb();
             return;
           }
-          db.sadd('proxy', proxy, (error) => {
+          db.sadd('proxy', proxy[i], (error) => {
             if (error) {
               i += 1;
               return cb();
@@ -92,26 +92,29 @@ class redis {
     data.status = data.status ? data.status : false;
     db.zscore('bproxy', data.proxy, (err, proxy) => {
       if (proxy) {
-        // logger.debug('back:', data)
-        if (data.status) {
+        if (data.status === 'true') {
           db.zrem('bproxy', data.proxy);
           db.sadd('proxy', data.proxy);
-          return callback();
+          callback();
+        } else {
+          // logger.error('back:', data)
+          db.get(data.proxy, (error, result) => {
+            if (!result || Number(result) < 2) { // 2
+              db.incr(data.proxy);
+              db.zrem('bproxy', data.proxy);
+              db.sadd('proxy', data.proxy);
+              db.expire(data.proxy, 900);// 1800
+              callback();
+            } else {
+              db.zrem('bproxy', data.proxy);
+              db.del(data.proxy);
+              callback();
+            }
+          });
         }
-        db.get(data.proxy, (error, result) => {
-          if (!result || Number(result) < 2) { // 2
-            db.incr(data.proxy);
-            db.zrem('bproxy', data.proxy);
-            db.sadd('proxy', data.proxy);
-            db.expire(data.proxy, 900);// 1800
-            return callback();
-          }
-          db.zrem('bproxy', data.proxy);
-          db.del(data.proxy);
-          return callback();
-        });
+      } else {
+        callback();
       }
-      return callback();
     });
   }
 }
