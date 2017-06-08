@@ -39,7 +39,7 @@ class redis {
             cb();
             return;
           }
-          db.sadd('proxy', proxy, (error) => {
+          db.sadd('proxy', proxy[i], (error) => {
             if (error) {
               i += 1;
               return cb();
@@ -92,12 +92,13 @@ class redis {
     data.status = data.status ? data.status : false;
     db.zscore('bproxy', data.proxy, (err, proxy) => {
       if (proxy) {
-        // logger.debug('back:', data)
+        logger.debug('back:', data)
         if (data.status) {
           db.zrem('bproxy', data.proxy);
           db.sadd('proxy', data.proxy);
           return callback();
         }
+        logger.error('back:', data)
         db.get(data.proxy, (error, result) => {
           if (!result || Number(result) < 2) { // 2
             db.incr(data.proxy);
