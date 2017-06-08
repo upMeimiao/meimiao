@@ -1,5 +1,5 @@
 {
-  "name"        : "YouTube",
+  "name"        : "YouTube评论",
   "script"      : "/root/qiaosuan/run.js",
   "args"        : ["-i","comment_overseas","-a","youtube","-t","comment"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
