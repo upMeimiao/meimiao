@@ -92,7 +92,7 @@ class redis {
     data.status = data.status ? data.status : false;
     db.zscore('bproxy', data.proxy, (err, proxy) => {
       if (proxy) {
-        if (data.status === 'true') {
+        if (data.status) {
           db.zrem('bproxy', data.proxy);
           db.sadd('proxy', data.proxy);
           return callback();
