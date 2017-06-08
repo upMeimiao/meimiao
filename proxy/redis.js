@@ -97,6 +97,7 @@ class redis {
           db.sadd('proxy', data.proxy);
           callback();
         } else {
+          logger.error('back:', data)
           db.get(data.proxy, (error, result) => {
             if (!result || Number(result) < 2) { // 2
               db.incr(data.proxy);
