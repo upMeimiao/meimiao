@@ -25,5 +25,5 @@
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
   },
   "url": "http://www.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV",
-  "sendUrl": "http://www.meimiaoip.com/index.php/Spider/comment/postComments",
+  "sendUrl": "http://www.meimiaoip.com/index.php/Spider/comment/postComments"
 }
