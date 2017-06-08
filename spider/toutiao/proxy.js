@@ -9,7 +9,7 @@ class proxyClient {
     logger.trace('Proxy module instantiation');
   }
   need(times, callback) {
-    if (times > 4) {
+    if (times > 5) {
       callback('timeout!');
       return;
     }
@@ -35,7 +35,7 @@ class proxyClient {
       }
       setTimeout(() => {
         this.need(times + 1, callback);
-      }, 3000);
+      }, 5000);
     });
   }
   back(proxy, status, callback) {

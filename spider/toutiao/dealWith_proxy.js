@@ -232,19 +232,16 @@ class dealWith {
           option.proxy = proxy;
           request.get(logger, option, (error, result) => {
             if (error) {
-              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
               cb();
               return;
             }
-            times = 0;
             try {
               result = JSON.parse(result.body);
             } catch (e) {
               // logger.error('json数据解析失败')
               // logger.error(result.body)
-              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
               cb();
@@ -256,13 +253,11 @@ class dealWith {
                 cb();
                 return;
               }
-              times += 1;
               proxyStatus = false;
               this.core.proxy.back(proxy, true);// 原来是false
               cb();
               return;
             }
-            times = 0;
             if (!result.data || result.data.length === 0) {
               task.total = 50 * index;
               sign = false;
@@ -283,28 +278,23 @@ class dealWith {
                 return;
               }
               logger.error('Get proxy occur error:', error);
-              times += 1;
               proxyStatus = false;
               cb();
               return;
             }
-            times = 0;
             option.proxy = _proxy;
             request.get(logger, option, (err, result) => {
               if (err) {
-                times += 1;
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, false);
                 cb();
                 return;
               }
-              times = 0;
               try {
                 result = JSON.parse(result.body);
               } catch (e) {
                 // logger.error('json数据解析失败')
                 // logger.error(result.body)
-                times += 1;
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, false);
                 cb();
@@ -316,13 +306,11 @@ class dealWith {
                   cb();
                   return;
                 }
-                times += 1;
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, true);// 原来是false
                 cb();
                 return;
               }
-              times = 0;
               proxyStatus = true;
               proxy = _proxy;
               if (!result.data || result.data.length === 0) {
