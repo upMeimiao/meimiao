@@ -125,7 +125,7 @@ class commentScheduler extends events {
     });
     req.addListener('end', () => {
       body = JSON.parse(postData);
-      this.emit('task_init', body.data);
+      this.emit('task_loaded', body);
     });
     res.setHeader('Content-Type', 'application/json;charset=utf-8');
     res.writeHead(200);
@@ -156,6 +156,11 @@ class commentScheduler extends events {
         return;
       }
       this.logger.debug(body);
+      if (!body.data || !Array.isArray(body.data) || body.data.length === 0) return;
+      if (Number(body.data[0].platform === 39)) {
+        this.scheduler.emit('origin_youtube', body.data);
+        return;
+      }
       this.emit('task_loaded', body);
     });
   }

@@ -25,10 +25,6 @@ class commentHandle {
     );
   }
   classify(_, callback) {
-    if (_ == 1) {
-      callback();
-      return;
-    }
     if (Number(_.platform) === 16 || Number(_.platform) === 37
       || Number(_.platform) === 40) {
       callback();
@@ -47,11 +43,11 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
-    if (Number(_.platform) === 39) {
-      this.scheduler.emit('origin_youtube', baseInfo);
-      callback();
-      return;
-    }
+    // if (Number(_.platform) === 39) {
+    //   this.scheduler.emit('origin_youtube', baseInfo);
+    //   callback();
+    //   return;
+    // }
     this.scheduler.emit('task_init', baseInfo);
     callback();
   }
