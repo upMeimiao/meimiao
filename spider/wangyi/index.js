@@ -72,8 +72,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: 'T1431656944632',
-      name: '关爱八卦成长协会',
+      id: 'T1383201577822',
+      name: '飞碟说',
       p: 25
     };
     this.dealWith.todo(work, (err, total) => {
@@ -107,32 +107,35 @@ class spiderCore {
       d.run(() => {
         this.dealWith.todo(work, (err, total) => {
           if (err) {
-            return done(err);
+            done(err);
+            return;
           }
           done(null);
           this.taskDB.hmset(key, 'update', (new Date().getTime()), 'video_number', total);
-          request.post(settings.update, { form: { platform: work.p, bid: work.id } }, (err, res, body) => {
-            if (err) {
-              logger.error('occur error : ', err);
-              return;
-            }
-            if (res.statusCode != 200) {
-              logger.error(`状态码${res.statusCode}`);
-              logger.info(res);
-              return;
-            }
-            try {
-              body = JSON.parse(body);
-            } catch (e) {
-              logger.info('不符合JSON格式');
-              return;
-            }
-            if (body.errno == 0) {
-              logger.info(body.errmsg);
-            } else {
-              logger.info(body);
-            }
-          });
+          request.post(settings.update,
+            { form: { platform: work.p, bid: work.id } },
+            (error, res, body) => {
+              if (error) {
+                logger.error('occur error : ', error);
+                return;
+              }
+              if (res.statusCode !== 200) {
+                logger.error(`状态码${res.statusCode}`);
+                logger.info(res);
+                return;
+              }
+              try {
+                body = JSON.parse(body);
+              } catch (e) {
+                logger.info('不符合JSON格式');
+                return;
+              }
+              if (body.errno === 0) {
+                logger.info(body.errmsg);
+              } else {
+                logger.info(body);
+              }
+            });
         });
       });
     });
