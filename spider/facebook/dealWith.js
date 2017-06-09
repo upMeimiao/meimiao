@@ -79,7 +79,7 @@ class dealWith {
         fans_num: fans[1]
       };
       // logger.info(res);
-      // this.sendUser(res);
+      this.sendUser(res);
       this.sendStagingUser(res);
       callback();
     });
