@@ -17,18 +17,6 @@ function longT(time) {
   }
   return longt;
 }
-function Tag(tag) {
-  if (!tag) {
-    return '';
-  }
-  const startIndex = tag.indexOf('#'),
-    endIndex = tag.lastIndexOf('#');
-  if (startIndex === -1) {
-    return '';
-  }
-  tag = tag.substring(startIndex, endIndex + 1);
-  return tag;
-}
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -36,6 +24,38 @@ class dealWith {
     this.settings = spiderCore.settings;
     logger = this.settings.logger;
     logger.trace('DealWith instantiation ...');
+  }
+  getH(callback) {
+    const options = { method: 'POST',
+      url: 'http://viva.api.xiaoying.co/api/rest/d/dg',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'XiaoYing/5.3.5 (iPhone; iOS 10.3.1; Scale/3.00)'
+      },
+      form: {
+        a: 'dg',
+        b: '1.0',
+        c: '20007700',
+        e: 'DIqmr4fb',
+        i: '{"a":"[I]260d0f794e6df08042add854eab6508727a81004","b":"zh_CN"}',
+        j: '8d5a78584410eae6ede6e4cd36d471a1',
+        k: 'xysdkios20130711'
+      }
+    };
+    newRequest(options, (error, response, body) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        callback(e);
+        return;
+      }
+      const h = body.a;
+      callback(null, h.a);
+    });
   }
   todo(task, callback) {
     task.total = 0;
@@ -155,31 +175,50 @@ class dealWith {
     });
   }
   getList(task, total, callback) {
-    const page = total % 30 === 0 ? total / 30 : Math.ceil(total / 30);
-    let sign = 1;
+    let sign = 1,
+      page;
+    if (total % 20 === 0) {
+      page = total / 20;
+    } else {
+      page = Math.ceil(total / 20);
+    }
     const options = {
-      ua: 2
+      method: 'POST',
+      url: this.settings.spiderAPI.xiaoying.List,
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'user-agent': 'XiaoYing/5.7.4 (iPhone; iOS 10.3.1; Scale/3.00)'
+      },
+      form: {
+        a: 'vq',
+        b: '1.0',
+        c: 20006700,
+        e: 'DIqmr4fb',
+        h: this.core.h,
+        j: '97203a5d5a0b3894b3b8b74bee12411a',
+        k: 'xysdkios20130711'
+      }
     };
     async.whilst(
       () => sign <= page,
       (cb) => {
         logger.debug(`开始获取第${sign}页视频列表`);
-        options.url = `${this.settings.spiderAPI.xiaoying.list + task.id}&pageindex=${sign}&_=${new Date().getTime()}`;
-        request.get(logger, options, (err, result) => {
+        options.form.i = `{"a":"${task.id}","b":20,"c":${sign}}`;
+        newRequest(options, (err, response, body) => {
           if (err) {
             logger.error('occur error : ', err);
             callback(err);
             return;
           }
           try {
-            result = JSON.parse(result.body);
+            body = JSON.parse(body);
           } catch (e) {
             logger.error('json数据解析失败');
-            logger.info(result);
+            logger.info(body);
             callback(e);
             return;
           }
-          const list = result.videolist;
+          const list = body.f;
           if (list) {
             this.deal(task, list, () => {
               sign += 1;
@@ -212,29 +251,52 @@ class dealWith {
     );
   }
   getInfo(task, data, callback) {
-    const time = data.publishtime,
-      a_create_time = moment(time, ['YYYYMMDDHHmmss'], true).unix(),
-      media = {
-        author: task.name,
-        platform: 17,
-        bid: task.id,
-        aid: data.puid,
-        title: data.title ? spiderUtils.stringHandling(data.title, 80) : 'btwk_caihongip',
-        desc: spiderUtils.stringHandling(data.desc, 100),
-        tag: Tag(data.desc),
-        v_img: data.coverurl,
-        long_t: longT(data.duration),
-        play_num: data.playcount,
-        forward_num: data.forwardcount,
-        comment_num: data.commentCount,
-        support: data.likecount,
-        a_create_time
-      };
-    spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-    logger.info(media);
-    spiderUtils.commentSnapshots(this.core.taskDB,
-      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-    callback();
+    const option = {
+      ua: 1,
+      referer: `http://xiaoying.tv/v/${data.l}/1/`,
+      url: this.settings.spiderAPI.xiaoying.videoInfo + data.l
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error(`occur error : ${err}`);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('json数据解析失败');
+        logger.info('json error: ', result.body);
+        callback(e);
+        return;
+      }
+      if (!result.videoinfo) {
+        callback('异常错误');
+        return;
+      }
+      const time = result.videoinfo.publishtime,
+        a_create_time = moment(time, ['YYYYMMDDHHmmss'], true).unix(),
+        media = {
+          author: result.videoinfo.username,
+          platform: 17,
+          bid: task.id,
+          aid: result.videoinfo.puid,
+          title: result.videoinfo.title ? spiderUtils.stringHandling(result.videoinfo.title, 80) : 'btwk_caihongip',
+          desc: spiderUtils.stringHandling(result.videoinfo.desc, 100),
+          tag: result.videoinfo.tags,
+          v_img: result.videoinfo.coverurl,
+          long_t: longT(result.videoinfo.duration),
+          play_num: result.videoinfo.playcount,
+          forward_num: result.videoinfo.forwardcount,
+          comment_num: result.videoinfo.commentCount,
+          support: result.videoinfo.likecount,
+          a_create_time
+        };
+      spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+      callback();
+    });
   }
 }
 module.exports = dealWith;

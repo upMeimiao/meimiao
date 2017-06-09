@@ -70,12 +70,7 @@ class spiderCore {
   }
   start() {
     logger.trace('启动函数');
-    this.getH(() => {
-      this.assembly();
-      setInterval(() => {
-        this.getH();
-      }, 86400000);
-    });
+    this.assembly();
   }
   getH(callback) {
     this.dealWith.getH((err, result) => {
@@ -90,8 +85,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: 'Ce9qI',
-      name: '说方言得王子涛',
+      id: 'dsIm1',
+      name: '唐晓玉💄',
       p: 17
     };
     this.dealWith.todo(work, (err, total) => {

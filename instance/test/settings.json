@@ -194,7 +194,8 @@
     "xiaoying": {
       "userInfo": "http://viva.api.xiaoying.co/webapi2/rest/user/detail?appkey=10000000&auid=",
       "videoInfo": "https://viva.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&ver=1&puid=",
-      "List": "http://viva.api.xiaoying.co/api/rest/v/vq"
+      "List": "http://viva.api.xiaoying.co/api/rest/v/vq",
+      "list": "http://w.api.xiaoying.co/webapi2/rest/video/projectlist?appkey=10000000&format=MP4&pagesize=30&auid="
     },
     "xinlan": {
       "listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
