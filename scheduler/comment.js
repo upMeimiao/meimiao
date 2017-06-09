@@ -218,52 +218,56 @@ class commentScheduler extends events {
         commentScheduler.emit('redis_error', { db: 'taskDB', action: 2 });
         return;
       }
-      // kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
-      //   // Your application should check if job is a stuck one
-      //   if (err) {
-      //     this.logger.error('Job get error : ', err);
-      //     return;
-      //   }
-      //   const time = new Date().getTime();
-      //   if ((job.state() === 'active' || job.state() === 'delayed') && time - job.created_at > 3600000) {
-      //     this.emit('task_set_create', raw);
-      //     return;
-      //   }
-      //   if (job.state() === 'failed') {
-      //     this.emit('task_set_create', raw);
-      //   }
-      // });
-      // const url = `http://${this.settings.kue.ip}:3003/c/api/job/${result}`;
-      const url = `http://127.0.0.1:3000/api/job/${result}`;
-      request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
+      kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
+        // Your application should check if job is a stuck one
         if (err) {
-          this.logger.error('occur error : ', err);
-          return;
-        }
-        if (res.statusCode !== 200) {
-          this.logger.error('comment kue : ', res.statusCode);
-          return;
-        }
-        try {
-          body = JSON.parse(body);
-        } catch (e) {
-          this.logger.error('json数据解析失败');
-          this.logger.error(body);
-          return;
-        }
-        if (body.error) {
-          this.emit('task_set_create', raw);
+          if (err.message.includes('doesnt exist')) {
+            this.emit('task_set_create', raw);
+          } else {
+            this.logger.error('Job get error : ', err);
+          }
           return;
         }
         const time = new Date().getTime();
-        if ((body.state === 'active' || body.state === 'delayed') && time - body.created_at > 3600000) {
+        if ((job.state() === 'active' || job.state() === 'delayed') && time - job.created_at > 3600000) {
           this.emit('task_set_create', raw);
           return;
         }
-        if (body.state === 'failed') {
+        if (job.state() === 'failed') {
           this.emit('task_set_create', raw);
         }
       });
+      // const url = `http://${this.settings.kue.ip}:3003/c/api/job/${result}`;
+      // const url = `http://127.0.0.1:3000/api/job/${result}`;
+      // request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
+      //   if (err) {
+      //     this.logger.error('occur error : ', err);
+      //     return;
+      //   }
+      //   if (res.statusCode !== 200) {
+      //     this.logger.error('comment kue : ', res.statusCode);
+      //     return;
+      //   }
+      //   try {
+      //     body = JSON.parse(body);
+      //   } catch (e) {
+      //     this.logger.error('json数据解析失败');
+      //     this.logger.error(body);
+      //     return;
+      //   }
+      //   if (body.error) {
+      //     this.emit('task_set_create', raw);
+      //     return;
+      //   }
+      //   const time = new Date().getTime();
+      //   if ((body.state === 'active' || body.state === 'delayed') && time - body.created_at > 3600000) {
+      //     this.emit('task_set_create', raw);
+      //     return;
+      //   }
+      //   if (body.state === 'failed') {
+      //     this.emit('task_set_create', raw);
+      //   }
+      // });
     });
   }
 }
