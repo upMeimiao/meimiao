@@ -222,16 +222,17 @@ class dealWith {
           aid: data.videoID,
           title: data.title.substr(0, 100).replace(/"/g, ''),
           desc: data.digest.substr(0, 100).replace(/"/g, ''),
-          comment_num: data.replyCount,
+          comment_num: data.replyCount || null,
           a_create_time: moment(data.ptime).format('X'),
           v_img: data.imgsrc,
           long_t: longt || (data.videoinfo ? data.videoinfo.length : null),
           class: data.TAGS,
-          support: result[0].supportcount,
-          step: result[0].opposecount,
+          support: result[0].supportcount || null,
+          step: result[0].opposecount || null,
           play_num: result[0].hits,
-          v_url: result[1].vurl
+          v_url: result[1].vurl || null
         };
+        media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         // logger.debug(media);
         spiderUtils.commentSnapshots(this.core.taskDB,
