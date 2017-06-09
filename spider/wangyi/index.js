@@ -72,7 +72,7 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: 'T1383201577822',
+      id: 'T1470553599106',
       name: '飞碟说',
       p: 25
     };
