@@ -45,6 +45,7 @@ class dealWith {
     req(option, (error, response, body) => {
       if (error) {
         logger.debug('youtube的视频参数接口请求失败', error);
+        this.videoInfo(task, callback);
         return;
       }
       if (response.statusCode !== 200) {
@@ -62,7 +63,11 @@ class dealWith {
       body = body[3].foot.replace(/[\s\n\r]/g, '');
       session_token = body.match(/'XSRF_TOKEN':"\w*=+",/).toString().replace(/'XSRF_TOKEN':"/, '').replace('",', '');
       page_token = body.match(/'COMMENTS_TOKEN':"[\w%]*/).toString().replace(/'COMMENTS_TOKEN':"/, '').replace('",', '');
-      this.getNewTime(task, session_token, page_token, () => {
+      this.getNewTime(task, session_token, page_token, (err) => {
+        if (err) {
+          callback(err);
+          return;
+        }
         callback();
       });
     });
@@ -104,7 +109,13 @@ class dealWith {
       // if (task.commentNum === 0) {
       //   task.commentcNum = task.cNum;
       // }
-      page_token = $('div.yt-uix-menu.comment-section-sort-menu>div.yt-uix-menu-content>ul>li').eq(1).find('button').attr('data-token').replace(/(253D)/g, '3D');
+      page_token = $('div.yt-uix-menu.comment-section-sort-menu>div.yt-uix-menu-content>ul>li').eq(1).find('button').attr('data-token'); // .replace(/(253D)/g, '3D');
+      if (!page_token) {
+        logger.debug('没有评论');
+        callback();
+        return;
+      }
+      page_token = page_token.replace(/(253D)/g, '3D');
       this.commentList(task, session_token, page_token, () => {
         callback();
       });
