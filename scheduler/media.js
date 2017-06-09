@@ -217,41 +217,60 @@ class mediaScheduler extends events {
       return;
     }
     const key = `${raw.p}:${raw.id}`;
-    this.taskDB.hget(key, 'kue_id', (err, result) => {
-      if (err) {
+    this.taskDB.hget(key, 'kue_id', (error, result) => {
+      if (error) {
         this.emit('redis_error', { db: 'taskDB', action: 2 });
         return;
       }
-      const url = `http://${this.settings.kue.ip}:3000/api/job/${result}`;
-      // const url = `http://127.0.0.1:3000/api/job/${result}`
-      request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (error, res, body) => {
-        if (error) {
-          this.logger.error('occur error : ', error);
-          return;
-        }
-        if (res.statusCode !== 200) {
-          return;
-        }
-        try {
-          body = JSON.parse(body);
-        } catch (e) {
-          this.logger.error('json数据解析失败');
-          this.logger.error(body);
-          return;
-        }
-        if (body.error) {
-          this.emit('task_set_create', raw);
+      kue.Job.get(result, raw.platform, (err, job) => {
+        // Your application should check if job is a stuck one
+        if (err) {
+          if (err.message.includes('doesnt exist')) {
+            this.emit('task_set_create', raw);
+          } else {
+            this.logger.error('Job get error : ', err);
+          }
           return;
         }
         const time = new Date().getTime();
-        if ((body.state === 'active' || body.state === 'delayed') && time - body.updated_at > 3600000) {
+        if ((job.state() === 'active' || job.state() === 'delayed') && time - job.updated_at > 3600000) {
           this.emit('task_set_create', raw);
           return;
         }
-        if (body.state === 'failed') {
+        if (job.state() === 'failed') {
           this.emit('task_set_create', raw);
         }
       });
+      // const url = `http://${this.settings.kue.ip}:3000/api/job/${result}`;
+      // const url = `http://127.0.0.1:3000/api/job/${result}`
+      // request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (error, res, body) => {
+      //   if (error) {
+      //     this.logger.error('occur error : ', error);
+      //     return;
+      //   }
+      //   if (res.statusCode !== 200) {
+      //     return;
+      //   }
+      //   try {
+      //     body = JSON.parse(body);
+      //   } catch (e) {
+      //     this.logger.error('json数据解析失败');
+      //     this.logger.error(body);
+      //     return;
+      //   }
+      //   if (body.error) {
+      //     this.emit('task_set_create', raw);
+      //     return;
+      //   }
+      //   const time = new Date().getTime();
+      //   if ((body.state === 'active' || body.state === 'delayed') && time - body.updated_at > 3600000) {
+      //     this.emit('task_set_create', raw);
+      //     return;
+      //   }
+      //   if (body.state === 'failed') {
+      //     this.emit('task_set_create', raw);
+      //   }
+      // });
     });
   }
 }
