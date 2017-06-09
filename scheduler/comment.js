@@ -157,7 +157,7 @@ class commentScheduler extends events {
       }
       this.logger.debug(body);
       if (!body.data || !Array.isArray(body.data) || body.data.length === 0) return;
-      if (Number(body.data[0].platform === 39)) {
+      if (Number(body.data[0].platform) === 39) {
         this.scheduler.emit('origin_youtube', body.data);
         return;
       }
