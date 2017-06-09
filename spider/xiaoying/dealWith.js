@@ -231,7 +231,7 @@ class dealWith {
         a_create_time
       };
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-    logger.info(media);
+    // logger.info(media);
     spiderUtils.commentSnapshots(this.core.taskDB,
       { p: media.platform, aid: media.aid, comment_num: media.comment_num });
     callback();
