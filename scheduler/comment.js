@@ -124,8 +124,10 @@ class commentScheduler extends events {
       postData += data;
     });
     req.addListener('end', () => {
-      body = JSON.parse(postData);
-      this.emit('task_loaded', body);
+      if (postData && postData !== '') {
+        body = JSON.parse(postData);
+        this.emit('task_check_kue', body);
+      }
     });
     res.setHeader('Content-Type', 'application/json;charset=utf-8');
     res.writeHead(200);
@@ -226,7 +228,7 @@ class commentScheduler extends events {
       kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
         // Your application should check if job is a stuck one
         if (err) {
-          if (err.message.includes('doesnt exist')) {
+          if (err.message.includes('doesnt exist') || err.message === 'invalid id param') {
             this.emit('task_set_create', raw);
           } else {
             this.logger.error('Job get error : ', err);
