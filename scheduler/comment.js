@@ -236,7 +236,7 @@ class commentScheduler extends events {
           return;
         }
         const time = new Date().getTime();
-        if ((job.state() === 'active' || job.state() === 'delayed') && time - job.created_at > 3600000) {
+        if ((job.state() === 'active' || job.state() === 'delayed') && time - job.created_at >= 3600000) {
           this.emit('task_set_create', raw);
           return;
         }
