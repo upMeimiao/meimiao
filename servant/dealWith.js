@@ -2448,7 +2448,8 @@ class DealWith {
     let urlObj = URL.parse(remote, true),
       pathname = urlObj.pathname;
     if (pathname !== '/watch') {
-      return callback(err, { code: 101, p: 39 });
+      callback('error', { code: 101, p: 39 });
+      return;
     }
     let vid = urlObj.query.v,
       options = {
