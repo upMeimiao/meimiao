@@ -3,9 +3,8 @@
  * Created by yunsong on 16/9/7.
  */
 const kue = require('kue');
-const request = require('../../lib/request.js');
-const myRedis = require('../../lib/myredis.js');
-const async = require('async');
+const request = require('request');
+const Redis = require('ioredis');
 const domain = require('domain');
 
 let logger, settings;
@@ -19,53 +18,13 @@ class spiderCore {
     logger.trace('spiderCore instantiation ...');
   }
   assembly() {
-    async.parallel([
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.taskDB,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.taskDB = cli;
-            logger.debug('任务信息数据库连接建立...成功');
-            callback();
-          }
-        );
-      },
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.cache_db,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.cache_db = cli;
-            logger.debug('缓存队列数据库连接建立...成功');
-            callback();
-          }
-        );
-      }
-    ], (err) => {
-      if (err) {
-        logger.error('连接redis数据库出错。错误信息：', err);
-        logger.error('出现错误，程序终止。');
-        process.exit();
-        return;
-      }
-      logger.debug('创建数据库连接完毕');
-      if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-        this.deal();
-      } else {
-        this.test();
-      }
-    });
+    this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`);
+    this.cache_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.cache_db}`);
+    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+      this.deal();
+    } else {
+      this.test();
+    }
   }
   start() {
     logger.trace('启动函数');
@@ -106,29 +65,35 @@ class spiderCore {
         done(err);
       });
       d.run(() => {
-        this.dealWith.todo(work, (err, total) => {
-          if (err) {
-            done(err);
+        this.dealWith.todo(work, (error, total) => {
+          if (error) {
+            done(error);
             return;
           }
           done(null);
           this.taskDB.hmset(key, 'update', (new Date().getTime()), 'video_number', total);
-          request.post(logger,
-            { url: settings.update, data: { platform: work.p, bid: work.id } },
-            (error, result) => {
-              if (error) {
+          request.post(settings.update,
+            { form: { platform: work.p, bid: work.id } },
+            (err, res, body) => {
+              if (err) {
+                logger.error('occur error : ', err);
+                return;
+              }
+              if (res.statusCode !== 200) {
+                logger.error(`状态码${res.statusCode}`);
+                logger.info(res);
                 return;
               }
               try {
-                result = JSON.parse(result.body);
+                body = JSON.parse(body);
               } catch (e) {
-                logger.error('不符合JSON格式');
+                logger.info('不符合JSON格式');
                 return;
               }
-              if (Number(result.errno) === 0) {
-                logger.info(result.errmsg);
+              if (Number(body.errno) === 0) {
+                logger.info(body.errmsg);
               } else {
-                logger.info(result);
+                logger.info(body);
               }
             });
         });
