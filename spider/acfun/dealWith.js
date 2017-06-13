@@ -1,7 +1,7 @@
 /**
  * Created by yunsong on 16/9/7.
  */
-const async = require('async');
+const async = require('neo-async');
 const request = require('../../lib/request.js');
 const channels = require('./channels');
 const spiderUtils = require('../../lib/spiderUtils');
