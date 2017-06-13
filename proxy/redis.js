@@ -1,4 +1,4 @@
-const Redis = require('redis');
+const Redis = require('ioredis');
 const async = require('neo-async');
 
 let logger, settings;
