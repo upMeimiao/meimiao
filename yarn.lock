@@ -1732,9 +1732,9 @@ negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
 
-neo-async@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.2.0.tgz#eb7cb7dbb85b821ce5168d0c65f9029e5c9b4648"
+neo-async@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.2.2.tgz#202694aa9f66c85e8c3893c630ecb15453da5471"
 
 nib@~1.1.2:
   version "1.1.2"
@@ -2402,9 +2402,9 @@ socket.io-parser@~3.1.1:
     has-binary2 "~1.0.2"
     isarray "2.0.1"
 
-socket.io@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/socket.io/-/socket.io-2.0.2.tgz#133bf3a1b67d02f2ac65103c11f78e6f2c4f3b3a"
+socket.io@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/socket.io/-/socket.io-2.0.3.tgz#4359f06a24933ae6bd087798af78c680eae345e3"
   dependencies:
     debug "~2.6.6"
     engine.io "~3.1.0"
