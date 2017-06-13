@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const async = require('async');
+const async = require('neo-async');
 const crypto = require('crypto');
 const platformMap = require('./platform');
 const emailServer = require('./emailServer');
