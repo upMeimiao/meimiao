@@ -3,8 +3,7 @@
  */
 const Redis = require('../lib/myredis');
 const request = require('request');
-const async = require('async');
-const cheerio = require('cheerio');
+const async = require('neo-async');
 
 let redis;
 const myRedis = Redis.createClient('127.0.0.1', 6379, 15, '', (err, cli) => {

@@ -1,5 +1,5 @@
-const Redis = require('redis');
-const async = require('async');
+const Redis = require('ioredis');
+const async = require('neo-async');
 
 let logger, settings;
 
@@ -14,7 +14,8 @@ class redis {
     logger.debug('redis模块 实例化...');
   }
   ready(callback) {
-    this.client = Redis.createClient(this.port, this.host, { detect_buffers: true });
+    this.client = new Redis(this.port, this.host)
+    // this.client = Redis.createClient(this.port, this.host, { detect_buffers: true });
     this.client.auth(this.password);
     this.client.select(this.db, (err) => {
       if (err) {

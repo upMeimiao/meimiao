@@ -1,11 +1,10 @@
 const kue = require('kue');
 const request = require('request');
-// const util = require('util');
 const os = require('os');
 const HTTP = require('http');
 const events = require('events');
+const Redis = require('ioredis');
 const schedule = require('node-schedule');
-const myRedis = require('../lib/myredis.js');
 // const _getTask = require('./getTask');
 
 class commentScheduler extends events {
@@ -27,44 +26,33 @@ class commentScheduler extends events {
     this.logger.trace('评论任务调度器初始化完成');
   }
   assembly() {
-    myRedis.createClient(this.redis.host,
-      this.redis.port,
-      this.redis.taskDB,
-      this.redis.auth,
-      (err, cli) => {
-        if (err) {
-          this.this.logger.error('连接redis数据库出错。错误信息：', err);
-          this.this.logger.error('出现错误，程序终止。');
-          this.emit('redis_error', { db: 'taskDB', action: 0 });
-          process.exit();
-          return;
-        }
-        this.taskDB = cli;
-        this.logger.debug('任务信息数据库连接建立...成功');
-        const rule = new schedule.RecurrenceRule();
-        const osName = os.hostname();
-        if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
-          this.createServer();
-        } else {
-          switch (osName) {
-            case 'servant_3':
-              rule.second = [1, 21, 41];
-              // rule.second = [20, 50];
-              break;
-            case 'iZ28ilm78mlZ':
-              rule.second = [11, 31, 51];
-              break;
-            default:
-              rule.second = [1, 11, 21, 31, 31, 51];
-              break;
-          }
-          schedule.scheduleJob(rule, () => {
-            this.getTask();
-          });
-          // this.getTask();
-        }
+    this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`, {
+      reconnectOnError(err) {
+        return err.message.slice(0, 'READONLY'.length) === 'READONLY';
       }
-    );
+    });
+    const rule = new schedule.RecurrenceRule();
+    const osName = os.hostname();
+    if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
+      this.createServer();
+    } else {
+      switch (osName) {
+        case 'servant_3':
+          rule.second = [1, 21, 41];
+          // rule.second = [20, 50];
+          break;
+        case 'iZ28ilm78mlZ':
+          rule.second = [11, 31, 51];
+          break;
+        default:
+          rule.second = [1, 11, 21, 31, 31, 51];
+          break;
+      }
+      schedule.scheduleJob(rule, () => {
+        this.getTask();
+      });
+      // this.getTask();
+    }
   }
   start() {
     this.logger.trace('启动函数');
@@ -141,7 +129,7 @@ class commentScheduler extends events {
     //     }
     //   }
     // );
-    request.get('http://qiaosuan-intra.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV?limit=2000', (err, res, body) => {
+    request.get(this.settings.url, (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
         return;
@@ -201,8 +189,7 @@ class commentScheduler extends events {
       .removeOnComplete(true);
     job.save((err) => {
       if (err) {
-        this.logger.error('Create queue occur error');
-        this.logger.error('error: ', err);
+        this.logger.error('Create queue occur error：', err);
         this.emit('redis_error', { db: 'jobDB', action: 6 });
         return;
       }
@@ -213,12 +200,6 @@ class commentScheduler extends events {
     });
   }
   checkKue(raw) {
-    // return this.emit('task_set_create', raw);
-    // const p = Number(raw.p);
-    // if (((p === 39 || p === 40) && !raw.origin) || ((p === 39 || p === 40) && raw.first)) {
-    //   this.emit('task_set_create', raw);
-    //   return;
-    // }
     const key = `c:${raw.p}:${raw.aid}`;
     this.taskDB.hget(key, 'kue_id', (error, result) => {
       if (error) {
@@ -226,7 +207,6 @@ class commentScheduler extends events {
         return;
       }
       kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
-        // Your application should check if job is a stuck one
         if (err) {
           if (err.message.includes('doesnt exist') || err.message === 'invalid id param') {
             this.emit('task_set_create', raw);
@@ -244,39 +224,7 @@ class commentScheduler extends events {
           this.emit('task_set_create', raw);
         }
       });
-      // const url = `http://${this.settings.kue.ip}:3003/c/api/job/${result}`;
-      // const url = `http://127.0.0.1:3000/api/job/${result}`;
-      // request.get(url, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
-      //   if (err) {
-      //     this.logger.error('occur error : ', err);
-      //     return;
-      //   }
-      //   if (res.statusCode !== 200) {
-      //     this.logger.error('comment kue : ', res.statusCode);
-      //     return;
-      //   }
-      //   try {
-      //     body = JSON.parse(body);
-      //   } catch (e) {
-      //     this.logger.error('json数据解析失败');
-      //     this.logger.error(body);
-      //     return;
-      //   }
-      //   if (body.error) {
-      //     this.emit('task_set_create', raw);
-      //     return;
-      //   }
-      //   const time = new Date().getTime();
-      //   if ((body.state === 'active' || body.state === 'delayed') && time - body.created_at > 3600000) {
-      //     this.emit('task_set_create', raw);
-      //     return;
-      //   }
-      //   if (body.state === 'failed') {
-      //     this.emit('task_set_create', raw);
-      //   }
-      // });
     });
   }
 }
-// util.inherits(commentScheduler, events.EventEmitter);
 module.exports = commentScheduler;

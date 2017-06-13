@@ -1,12 +1,12 @@
 const request = require('request');
-const async = require('async');
+const async = require('neo-async');
 
 if (!process.argv[2] || !process.argv[3]) {
   throw new Error('缺少参数');
 }
 const p = process.argv[2];
 const status = process.argv[3];
-const a = function (callback) {
+const a = (callback) => {
   request.get(`http://spider-kue.meimiaoip.com/api/jobs/${p}/${status}/0..100/asc?`, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
     if (err) {
       console.log(err);
@@ -24,8 +24,8 @@ const a = function (callback) {
     callback(null, result);
   });
 };
-const b = function (list, callback) {
-  const c = function (item, cb) {
+const b = (list, callback) => {
+  const c = (item, cb) => {
     request.delete(`http://spider-kue.meimiaoip.com/api/job/${item.id}`, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
       if (err) {
         return cb(err);
