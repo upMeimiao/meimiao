@@ -14,9 +14,9 @@ class redis {
     logger.debug('redis模块 实例化...');
   }
   ready(callback) {
-    // this.client = new Redis(this.port, this.host)
-    this.client = Redis.createClient(this.port, this.host, { detect_buffers: true });
-    this.client.auth(this.password);
+    this.client = new Redis(this.port, this.host, { password: this.password });
+    // this.client = Redis.createClient(this.port, this.host, { detect_buffers: true });
+    // this.client.auth(this.password);
     this.client.select(this.db, (err) => {
       if (err) {
         logger.error('选择数据库出现错误');
