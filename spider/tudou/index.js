@@ -32,13 +32,11 @@ class spiderCore {
   }
   test() {
     const work = {
-      "id": "355880651",
-      "p": "12",
-      "name": "科技曼曼谈",
-      "encodeId": "UMTQyMzUyMjYwNA",
-      "type": "0",
-      "mapBid": "355880651",
-      "total": 809
+      id: '355880651',
+      p: '12',
+      name: '科技曼曼谈',
+      encodeId: 'UMTQyMzUyMjYwNA',
+      mapBid: '355880651'
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
