@@ -272,6 +272,10 @@ class dealWith {
         callback(null, '');
         return;
       }
+      if (result.code !== 0) {
+        callback(null, '');
+        return;
+      }
       callback(null, result.data.totalSize || '');
     });
   }
