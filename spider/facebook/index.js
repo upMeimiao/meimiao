@@ -35,7 +35,7 @@ class spiderCore {
     this.assembly(this.index);
   }
   searchDB(keys) {
-    this.taskDB.multi(
+    this.taskDB.pipeline(
       keys
     ).exec((err, result) => {
       if (err) {
