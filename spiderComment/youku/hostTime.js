@@ -1,7 +1,7 @@
 /**
  * Created by dell on 2017/3/9.
  */
-const async = require('async');
+const async = require('neo-async');
 const crypto = require('crypto');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');

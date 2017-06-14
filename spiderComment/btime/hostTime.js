@@ -3,7 +3,7 @@
  */
 const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
-const async = require('async');
+const async = require('neo-async');
 const moment = require('moment');
 const cheerio = require('cheerio');
 

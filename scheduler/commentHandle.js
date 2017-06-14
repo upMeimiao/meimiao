@@ -43,11 +43,6 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
-    // if (Number(_.platform) === 39) {
-    //   this.scheduler.emit('origin_youtube', baseInfo);
-    //   callback();
-    //   return;
-    // }
     this.scheduler.emit('task_init', baseInfo);
     callback();
   }

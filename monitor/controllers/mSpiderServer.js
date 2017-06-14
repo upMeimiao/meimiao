@@ -4,7 +4,7 @@ const Redis = require('ioredis');
 const moment = require('moment');
 const logging = require('log4js');
 const logger = logging.getLogger('接口监控');
-const async = require('async');
+const async = require('neo-async');
 const events = require('events');
 const storageClient = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/6', {
   reconnectOnError(err) {

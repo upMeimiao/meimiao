@@ -1,5 +1,5 @@
 const request = require('request');
-const async = require('async');
+const async = require('neo-async');
 const trimHtml = require('trim-html');
 
 let score = 0;
@@ -14,7 +14,7 @@ const options = {
     'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
   }
 };
-function send(data, callback) {
+const send = (data, callback) => {
   score += 1;
   const option = {
     method: 'POST',
@@ -38,7 +38,7 @@ function send(data, callback) {
     callback();
   });
 }
-function dealWith(info, callback) {
+const dealWith = (info, callback) => {
   let index = 0, mblog, mblogInfo;
   const length = info.length;
   async.whilst(
@@ -67,7 +67,7 @@ function dealWith(info, callback) {
     }
   );
 }
-function start() {
+const start = () => {
   let sign = 1;
   async.whilst(
     () => sign <= 5,

@@ -1,5 +1,4 @@
 const request = require('request');
-// const util = require('util');
 const events = require('events');
 
 class videoSend extends events {
@@ -205,5 +204,4 @@ class videoSend extends events {
     });
   }
 }
-// util.inherits(videoSend, events.EventEmitter);
 module.exports = videoSend;

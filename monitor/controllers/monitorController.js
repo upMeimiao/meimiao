@@ -1,5 +1,5 @@
 const Redis = require('ioredis');
-const async = require('async');
+const async = require('neo-async');
 const request = require('request');
 const crypto = require('crypto');
 const moment = require('moment');

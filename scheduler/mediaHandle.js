@@ -1,4 +1,4 @@
-const async = require('async');
+const async = require('neo-async');
 const platformMap = require('./platform');
 
 class mediaHandle {
@@ -48,7 +48,6 @@ class mediaHandle {
         encodeId: _.encodeId ? _.encodeId : '',
         type: _.type ? _.type : '',
         mapBid: _.map_bid
-        // uid: ''
       };
     this.scheduler.emit('task_init', baseInfo);
     callback();

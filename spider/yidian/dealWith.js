@@ -1,10 +1,10 @@
 /**
  * Created by yunsong on 16/7/29.
  */
-const async = require('async');
+const async = require('neo-async');
+const moment = require('moment');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
-const moment = require('moment');
 
 let logger;
 const _aid = (video) => {

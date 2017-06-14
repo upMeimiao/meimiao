@@ -4,7 +4,7 @@
 const URL = require('url');
 const cheerio = require('cheerio');
 const request = require('../lib/request');
-const async = require('async');
+const async = require('neo-async');
 const req = require('request');
 const crypto = require('crypto');
 

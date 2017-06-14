@@ -3,7 +3,7 @@
  */
 const Redis = require('../lib/myredis');
 const request = require('request');
-const async = require('async');
+const async = require('neo-async');
 const cheerio = require('cheerio');
 
 let redis;

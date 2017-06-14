@@ -2,7 +2,7 @@
 * Created by junhao on 2017/2/09.
 */
 const request = require('../../lib/request');
-const async = require('async');
+const async = require('neo-async');
 const spiderUtils = require('../../lib/spiderUtils');
 
 const jsonp = function (data) {

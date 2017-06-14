@@ -36,7 +36,7 @@
     "redis": "^2.7.1",
     "request": "^2.81.0",
     "restc": "0.0.7",
-    "socket.io": "^2.0.2",
+    "socket.io": "^2.0.3",
     "trim-html": "^0.1.9"
   },
   "author": "Front end group of Mei Miao",

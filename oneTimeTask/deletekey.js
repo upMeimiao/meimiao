@@ -1,5 +1,5 @@
 const Redis = require('ioredis');
-const async = require('async');
+const async = require('neo-async');
 
 const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/1', {
   reconnectOnError(err) {

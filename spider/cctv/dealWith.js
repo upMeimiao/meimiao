@@ -3,7 +3,7 @@
  */
 const URL = require('url');
 const moment = require('moment');
-const async = require('async');
+const async = require('neo-async');
 const cheerio = require('cheerio');
 const EventProxy = require('eventproxy');
 const request = require('../../lib/request');

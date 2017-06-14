@@ -3,7 +3,7 @@
  */
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
-const async = require('async');
+const async = require('neo-async');
 const crypto = require('crypto');
 
 const sign = (e) => {
