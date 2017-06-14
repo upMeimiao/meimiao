@@ -47,7 +47,7 @@ class dealWith {
       try {
         dataJson = JSON.parse(dataJson);
       } catch (e) {
-        logger.debug('百家号用户数据解析失败');
+        logger.error('百家号用户数据解析失败');
         return;
       }
       const user = {
@@ -68,22 +68,22 @@ class dealWith {
     request.post(logger, option, (err, back) => {
       if (err) {
         logger.error('occur error : ', err);
-        logger.info(`返回百家号视频用户 ${user.bid} 连接服务器失败`);
+        logger.error(`返回百家号视频用户 ${user.bid} 连接服务器失败`);
         return;
       }
       try {
         back = JSON.parse(back.body);
       } catch (e) {
         logger.error(`百家号视频用户 ${user.bid} json数据解析失败`);
-        logger.info(back);
+        logger.error(back);
         return;
       }
       if (Number(back.errno) === 0) {
         logger.debug('百家号视频用户:', `${user.bid} back_end`);
       } else {
         logger.error('百家号视频用户:', `${user.bid} back_error`);
-        logger.info(back);
-        logger.info('user info: ', user);
+        logger.error(back);
+        logger.error('user info: ', user);
       }
     });
   }
