@@ -8,7 +8,8 @@
     "jobDB": 2,
     "cache_db": 3,
     "proxy": 4,
-    "monitor": 5
+    "monitor": 5,
+    "MSDB": 7
   },
   "proxy": {
     "host": "127.0.0.1",
@@ -214,7 +215,8 @@
       "list": "http://mapi.channel.youku.com/feed.stream/show/get_channel_owner_videos.json",
       "newInfo": "https://openapi.youku.com/v2/videos/show.json",
       "info": "http://api.mobile.youku.com/layout/ios5_0/play/detail",
-      "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp="
+      "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp=",
+      "userInfo": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid="
     },
     "yy": {
       "userInfo": "http://www.yy.com/u/",
