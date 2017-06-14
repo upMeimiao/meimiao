@@ -59,21 +59,21 @@ class dealWith {
         length = Number(task.cNum) - Number(task.commentNum);
       }
       task.lastId = result.data[0].id;
-      task.lastTime = parseInt(result.data[0].createTime / 1000);
+      task.lastTime = parseInt(result.data[0].createTime / 1000, 10);
       task.addCount = length;
-      this.deal(task, result.data, length, () => {
+      this.deal(task, result.data, () => {
         callback();
       });
     });
   }
-  deal(task, comments, length, callback) {
+  deal(task, comments, callback) {
     let index = 0,
       time,
       comment;
     async.whilst(
-      () => index < length,
+      () => index < comments.length,
       (cb) => {
-        time = parseInt(comments[index].createTime / 1000);
+        time = parseInt(comments[index].createTime / 1000, 10);
         if (task.commentId == comments[index].id || task.commentTime >= time) {
           callback();
           return;
