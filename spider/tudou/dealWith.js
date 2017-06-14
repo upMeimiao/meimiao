@@ -270,7 +270,7 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('comment json数据解析失败', result.body);
-        callback(null, '');
+        callback(null, null);
         return;
       }
       if (result.code !== 0) {
