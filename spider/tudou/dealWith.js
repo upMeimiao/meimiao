@@ -234,7 +234,7 @@ class dealWith {
           callback(err);
           return;
         }
-        const media = {
+        let media = {
           author: task.name,
           platform: 12,
           bid: task.id,
@@ -248,6 +248,7 @@ class dealWith {
           long_t: Math.round(data.seconds),
           a_create_time: data.publishtime
         };
+        media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -262,7 +263,7 @@ class dealWith {
       };
     request.get(logger, option, (err, result) => {
       if (err) {
-        callback(null, '');
+        callback(null, null);
         return;
       }
       try {
@@ -273,10 +274,10 @@ class dealWith {
         return;
       }
       if (result.code !== 0) {
-        callback(null, '');
+        callback(null, null);
         return;
       }
-      callback(null, result.data.totalSize || '');
+      callback(null, result.data.totalSize || null);
     });
   }
 }
