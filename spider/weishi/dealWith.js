@@ -1,4 +1,4 @@
-const async = require('async');
+const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 

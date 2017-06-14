@@ -1,4 +1,4 @@
-const async = require('async');
+const async = require('neo-async');
 const HTTP = require('http');
 const URL = require('url');
 

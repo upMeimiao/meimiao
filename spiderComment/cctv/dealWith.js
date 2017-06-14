@@ -1,7 +1,7 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const async = require('async');
+const async = require('neo-async');
 const moment = require('moment');
 const crypto = require('crypto');
 const request = require('../../lib/request');

@@ -1,7 +1,7 @@
 // 将错误信息存储到数据库，达到一定频率，发报警邮件
     // ---->定时监控redis内容，查看错误是否有重复
 const Redis = require('ioredis')
-const async = require('async')
+const async = require('neo-async')
 const mSpiderClint = new Redis(`redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/6`,{
     reconnectOnError: function (err) {
         if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {

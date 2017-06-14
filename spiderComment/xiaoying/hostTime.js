@@ -2,7 +2,7 @@
  * Created by dell on 2017/3/9.
  */
 const Utils = require('../../lib/spiderUtils');
-const async = require('async');
+const async = require('neo-async');
 const moment = require('moment');
 const req = require('request');
 

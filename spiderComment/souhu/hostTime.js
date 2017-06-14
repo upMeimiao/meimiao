@@ -3,7 +3,7 @@
  */
 const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
-const async = require('async');
+const async = require('neo-async');
 
 const _Callback = function (data) {
   return data;

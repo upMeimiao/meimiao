@@ -1,7 +1,7 @@
 /**
  * Created by ifable on 16/6/22.
  */
-const async = require('async');
+const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 

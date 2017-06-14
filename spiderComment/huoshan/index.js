@@ -3,7 +3,7 @@
  * Created by zhupenghui on 2017/5/24.
  */
 const kue = require('kue');
-const async = require('async');
+const async = require('neo-async');
 const domain = require('domain');
 const myRedis = require('../../lib/myredis.js');
 

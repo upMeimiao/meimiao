@@ -1,7 +1,7 @@
 const kue = require('kue');
 const request = require('request');
 const myRedis = require('../../lib/myredis.js');
-const async = require('async');
+const async = require('neo-async');
 const domain = require('domain');
 
 let logger, settings;

@@ -1,7 +1,7 @@
 /**
  * Created by ifable on 16/9/8.
  */
-const async = require('async');
+const async = require('neo-async');
 const fetchUrl = require('fetch').fetchUrl;
 const spiderUtils = require('../../lib/spiderUtils');
 

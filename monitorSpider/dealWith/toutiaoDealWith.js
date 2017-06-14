@@ -3,7 +3,7 @@
  */
 const URL = require('url')
 const moment = require('moment')
-const async = require('async')
+const async = require('neo-async')
 const request = require( '../../lib/request' )
 const spiderUtils = require('../../lib/spiderUtils')
 const md5 = require('js-md5')
