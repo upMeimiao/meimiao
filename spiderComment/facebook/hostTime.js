@@ -16,74 +16,39 @@ class hostTime {
   todo(task, callback) {
     task.hostTotal = 0;
     task.timeTotal = 0;
-    this.videoInfo(task, () => {
-      callback();
-    });
-  }
-  videoInfo(task, callback) {
-    const option = {
-      url: `https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',"v":"${task.aid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`,
-      ua: 2,
-      proxy: 'http://127.0.0.1:56777',
-      referer: `https://www.facebook.com/pg/${task.id}/videos/?ref=page_internal`
-    };
-    let dataJson = null,
-      hostname;
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.debug('facebook单个视频信息接口请求失败', err);
-        this.getVidInfo(task, callback);
-        return;
-      }
-      try {
-        result = result.body.replace(/for \(;;\);/, '').replace(/[\n\r]/g, '');
-        result = JSON.parse(result);
-      } catch (e) {
-        logger.debug('facebook单个视频信息解析失败', result);
-        this.getVidInfo(task, callback);
-        return;
-      }
-      dataJson = result.jsmods.require;
-      for (let i = 0; i < dataJson.length; i += 1) {
-        if (dataJson[i][0] == 'UFIController' && dataJson[i][3][1].ftentidentifier == task.aid) {
-          task.cNum = dataJson[i][3][2].feedbacktarget.commentcount;
-          hostname = dataJson[i][3][1].permalink.split('/')[1];
-        }
-      }
-      async.series(
-        {
-          time: (cb) => {
-            this.commentInfo(task, hostname, () => {
-              cb(null, '最新评论请求完成');
-            });
-          },
-          hot: (cb) => {
-            this.getHot(task, hostname, () => {
-              cb(null, '热门评论请求完成');
-            });
-          }
+    async.parallel(
+      {
+        hot: (cb) => {
+          this.getHot(task, () => {
+            cb(null, '热门评论');
+          });
         },
-        (error, data) => {
-          logger.debug('result:', data);
-          callback();
+        time: (cb) => {
+          this.commentInfo(task, () => {
+            cb(null, '最新评论');
+          });
         }
-      );
-    });
+      },
+      (err, result) => {
+        logger.debug('result: ', result);
+        callback();
+      }
+    );
   }
-  getHot(task, hostname, callback) {
+  getHot(task, callback) {
     let offset = 0,
       cycle = true;
     const option = {
       method: 'POST',
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       url: 'https://www.facebook.com/ajax/ufi/comment_fetch.php',
       qs: { dpr: '1' },
       headers:
       {
         'cache-control': 'no-cache',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-        referer: `https//www.facebook.com/${hostname}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
-        cookie: 'datr=uarsWNHwHCDMME4QegGkXoHN;locale=zh_CN;'
+        referer: `https//www.facebook.com/${task.bid}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
+        cookie: 'locale=zh_CN; datr=uarsWNHwHCDMME4QegGkXoHN;'
       },
       formData:
       {
@@ -94,8 +59,8 @@ class hostTime {
         feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
         __user: '0',
         __a: '1',
-        __dyn: '7AzHK4GgN1t2u6XolwCCwKAKGzEy4S-C11xG3Kq2i5U4e2O2K48hzlyUrxuE99XyEjKewExmt0gKum4UpyEl-9Dxm5Euz8bo5S9J7wHx61YCBxm9geFUpAypk48uwkpo5y16xCWK547ESubz8-',
-        lsd: 'AVpZN3FE'
+        __dyn: '5V8WXxaAcomgDxKS5o9FEbFbGEW8xdLFwgoqwWhEnz8nyUdUb8a-exebmbxK5WxucDKaxeUW2y5pQ12VVojxCaCx3ypUkgmxWcwJwkEG9J7wHx61cxy5FEG48B0Wwwh8gUW1MBg9V8aE8o98pKHxC6ElBy8pxO12y9E9oKfxy5uaw',
+        lsd: 'AVoSHAgn'
       }
     };
     async.whilst(
@@ -141,21 +106,21 @@ class hostTime {
       () => {
         callback();
       }
-  );
+    );
   }
-  commentInfo(task, hostname, callback) {
+  commentInfo(task, callback) {
     let offset = 0,
       cycle = true;
     const option = {
       method: 'POST',
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       url: 'https://www.facebook.com/ajax/ufi/comment_fetch.php',
       qs: { dpr: '1' },
       headers:
       {
         'cache-control': 'no-cache',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-        referer: `https//www.facebook.com/${hostname}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
+        referer: `https//www.facebook.com/${task.bid}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
         cookie: 'datr=uarsWNHwHCDMME4QegGkXoHN;locale=zh_CN;'
       },
       formData:
@@ -167,8 +132,8 @@ class hostTime {
         feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
         __user: '0',
         __a: '1',
-        __dyn: '7AzHK4GgN1t2u6XolwCCwKAKGzEy4S-C11xG3Kq2i5U4e2O2K48hzlyUrxuE99XyEjKewExmt0gKum4UpyEl-9Dxm5Euz8bo5S9J7wHx61YCBxm9geFUpAypk48uwkpo5y16xCWK547ESubz8-',
-        lsd: 'AVpZN3FE'
+        __dyn: '5V8WXxaAcomgDxKS5o9FEbFbGEW8xdLFwgoqwWhEnz8nyUdUb8a-exebmbxK5WxucDKaxeUW2y5pQ12VVojxCaCx3ypUkgmxWcwJwkEG9J7wHx61cxy5FEG48B0Wwwh8gUW1MBg9V8aE8o98pKHxC6ElBy8pxO12y9E9oKfxy5uaw',
+        lsd: 'AVoSHAgn'
       }
     };
     async.whilst(
@@ -181,7 +146,7 @@ class hostTime {
             cb();
             return;
           }
-          if (response.statusCode != 200) {
+          if (response.statusCode !== 200) {
             logger.debug('评论状态码错误', response.statusCode);
             cb();
             return;
