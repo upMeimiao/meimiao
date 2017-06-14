@@ -20,8 +20,9 @@ const transporter = nodemailer.createTransport({
     pass: 'Zhupenghui123'
   }
 });
-
-exports.sendEmail = (titel, content) => {
+// 发送频率设置
+let num = 0;
+const sendEmail = (titel, content, type) => {
   const mailOptions = {
     from: '"朱鹏辉" <zhupenghui@meimiao.net>',
     to: [ '1425423221@qq.com'], // list of receivers
@@ -34,4 +35,20 @@ exports.sendEmail = (titel, content) => {
       console.log('error in sending Email', error);
     }
   });
+  if (type === 'red' && num < 10) {
+    setTimeout(() => {
+      send(titel, content);
+    }, 4000)
+  }
+  if (type === 'blue' && num < 10) {
+    setTimeout(() => {
+      send(titel, content);
+    }, 8000)
+  }
+  if (type === 'yellow' && num < 10) {
+    setTimeout(() => {
+      send(titel, content);
+    }, 12000)
+  }
 };
+module.exports = sendEmail;

@@ -15,32 +15,32 @@ const sendEmail = require('./sendEmail');
  * */
 exports.interEmail = (events, message) => {
   logger.debug('邮件发送模块成功进入');
-  let emailContent = '<table><tr><th>平台</th><th>用户ID</th><th>用户名称</th><th>接口类型</th><th>接口</th><th>错误信息</th></tr>';
+  let emailContent = '<table><tr><th>平台</th><th>用户ID</th><th>用户名称</th><th>接口类型</th><th>接口</th><th>错误信息</th><th>出错时间</th></tr>';
   switch (message.typeErr) {
     case 'error':
-      emailContent += `<tr style="background: red;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td></tr></table>`;
-      sendEmail.sendEmail(`${message.platform}平台 接口请求出错`, emailContent);
+      emailContent += `<tr style="background: red;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
+      sendEmail.sendEmail(`${message.platform}平台 接口请求出错`, emailContent, 'red');
       break;
     case 'status':
       if (message.typeErr < 500 && message.typeErr >= 400) {
-        emailContent += `<tr style="background: blue;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td></tr></table>`;
-        sendEmail.sendEmail(`${message.platform}平台 接口请求400状态`, emailContent);
+        emailContent += `<tr style="background: blue;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
+        sendEmail.sendEmail(`${message.platform}平台 接口请求400状态`, emailContent, 'blue');
       } else {
-        emailContent += `<tr style="background: yellow;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.url}</td><td>${message.message}</td></tr></table>`;
-        sendEmail.sendEmail(`${message.platform}平台 接口请求${message.typeErr}状态`, emailContent);
+        emailContent += `<tr style="background: yellow;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
+        sendEmail.sendEmail(`${message.platform}平台 接口请求${message.typeErr}状态`, emailContent, 'yellow');
       }
       break;
     case 'json':
-      emailContent += `<tr style="background: yellow;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td></tr></table>`;
-      sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据解析失败`, emailContent);
+      emailContent += `<tr style="background: blue;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
+      sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据解析失败`, emailContent, 'blue');
       break;
     case 'bid':
-      emailContent += `<tr style="background: red;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td></tr></table>`;
-      sendEmail.sendEmail(`${message.platform}平台 ${message.bname} 用户可能不存在`, emailContent);
+      emailContent += `<tr style="background: red;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
+      sendEmail.sendEmail(`${message.platform}平台 ${message.bname} 用户可能不存在(或者接口有变化)`, emailContent, 'red');
       break;
     case 'data':
-      emailContent += `<tr style="background: yellow;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td></tr></table>`;
-      sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回异常`, emailContent);
+      emailContent += `<tr style="background: yellow;"><td>${message.platfrom}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}</td><td>${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
+      sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回格式异常`, emailContent, 'yellow');
       break;
     default:
       events.emit('error', { error: '无法判断是什么类型的错误', platfrom: message.platfrom, bid: message.bid });

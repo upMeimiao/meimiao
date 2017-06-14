@@ -6,7 +6,7 @@
 const kue = require( 'kue' );
 const request = require('request');
 const Redis = require( 'ioredis' );
-const async = require( 'async' );
+const async = require( 'neo-async' );
 const domain = require('domain');
 const events = require('events');
 const platfrom = require('./controllers/platform');
@@ -25,7 +25,7 @@ class spiderCore extends events{
   }
   assembly() {
     // 连接存储正确数据的缓存库
-    this.MSDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:6379/${this.redis.MSDB}`,{
+    this.MSDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:6379/${this.redis.MSDB}`, {
       reconnectOnError(err) {
         return err.message.slice(0, 'READONLY'.length) === 'READONLY';
       }

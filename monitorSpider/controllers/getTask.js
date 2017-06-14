@@ -11,13 +11,14 @@ class setTask {
   }
   youku(platform, callback) {
     let work = {
-      "name": "youku", "platform": 1, "id": 854459409, "bname": "一色神技能", "encodeId": "UMzQxNzgzNzYzNg=="
+      "p": 1, "id": 854459409, "name": "一色神技能", "encodeId": "UMzQxNzgzNzYzNg=="
     };
     platform.start(work, (err, result) => {
       if (err) {
         this.settings.emit(err);
         return;
       }
+      logger.debug('优酷完成一次检测');
       setTimeout(() => {
         this.youku(platform, null);
       }, 12000);
