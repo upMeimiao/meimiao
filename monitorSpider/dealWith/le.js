@@ -16,7 +16,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     api = this.settings.spiderAPI;
-    logger.trace('iqiyi monitor begin...');
+    logger.trace('le monitor begin...');
   }
   start(task, callback) {
     async.parallel(
@@ -151,11 +151,17 @@ class dealWith {
     });
   }
   getDesc(task) {
-    const option = {
+    const options = {
       url: this.settings.spiderAPI.le.desc + task.aid,
-      referer: `http://m.le.com/vplay_${task.aid}.html`
+      referer: `http://m.le.com/vplay_${task.aid}.html`,
+      ua: 2,
+      headers: {
+        'Accept-Language': 'zh-CN,zh;q=0.8',
+        'Accept': '*/*',
+        'Connection': 'keep-alive'
+      }
     };
-    request.get(logger, option, (err, result) => {
+    request.get(logger, options, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getDesc', url: options.url};
@@ -169,8 +175,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: 'le-getDesc-json', interface: 'getDesc', url: options.url};
-        infoCheck.interface(this.core, task, typeErr);
+        logger.error('暂时先不管他');
         return;
       }
       result = result.data.introduction;
