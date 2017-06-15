@@ -7,7 +7,7 @@ const Redis = require('ioredis');
 const async = require('neo-async');
 const logging = require('log4js');
 const editEmail = require('./editEmail');
-const platfrom = require('./platform');
+const platform = require('./platform');
 
 // const myredis = new Redis(`redis://:C19prsPjHs52CHoA0vm@192.168.1.31:6379/6`, {
 //   reconnectOnError(err) {
@@ -22,8 +22,8 @@ let logger = logging.getLogger('信息处理');
  *  当接口异常之后进行报警操作
 * */
 const interSetErr = (events, result, typeErr) => {
-  const key = `error:${result.platfrom}:${task.id}:${typeErr.type}`,
-    time =  parseInt(new Date().getTime(), 10);
+  const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
+    time =  parseInt(new Date().getTime() / 1000, 10);
   if (typeErr.err != result.message) {
     result.num = 0;
     result.message = typeErr.err;
@@ -50,15 +50,15 @@ exports.interface = (events, task, typeErr) => {
   // 获取对应的平台
   // 配置错误类型的数据库key名
   // 当前接口请求次数
-  const p = platfrom.get(Number(task.p)),
+  const p = platform.get(Number(task.p)),
     key = `error:${p}:${task.id}:${typeErr.type}`,
     num = 0,
-    time = parseInt(new Date().getTime(), 10);
+    time = parseInt(new Date().getTime() / 1000, 10);
   if (typeErr.err.includes('TIMEDOUT')) {
     // 超时的错误暂时先不管
     return;
   }
-  events.MSDB.get(key, 'typeErr', (err, result) => {
+  events.MSDB.get(key, (err, result) => {
     if (err) {
       events.emit('error', {error: '接口数据库查询失败'});
       return;
@@ -71,7 +71,7 @@ exports.interface = (events, task, typeErr) => {
     }
     if (!result) {
       const errorInfo = {
-        platfrom: p,
+        platform: p,
         bid: task.id,
         bname: task.name,
         typeErr: typeErr.type,

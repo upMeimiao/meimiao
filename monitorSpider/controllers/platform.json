@@ -1,0 +1,10 @@
+{
+  "youku": [
+    {"p": 1, "id": "854459409", "name": "一色神技能", "encodeId": "UMzQxNzgzNzYzNg==", "aid": "XMjgyMzY0NDA4MA=="},
+    {"p": 1, "id": "370501042", "name": "柚子木字幕组", "encodeId": "UMTQ4MjAwNDE2OA==", "aid": "XMjgyMzc3MTUwOA=="}
+  ],
+  "iqiyi": [
+    {"p": 2, "id": "1006283018", "name": "百湖动漫", "encodeId": "", "aid": ""},
+    {"p": 2, "id": "1189512325", "name": "迷迭香Rosemary_", "encodeId": "", "aid": ""}
+  ]
+}

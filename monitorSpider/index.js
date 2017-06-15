@@ -1,7 +1,6 @@
 /**
  * Spider Core
- * Created by liuze on 17/2/7.
- * updated by zhupenghui on 17/6/12.
+ * created by zhupenghui on 17/6/12.
  */
 const kue = require( 'kue' );
 const request = require('request');
@@ -19,7 +18,7 @@ class spiderCore extends events{
     settings = _settings;
     this.settings = settings;
     this.redis = settings.redis;
-    this.getTask = new (require('./controllers/getTask'))(this);
+    this.getTask = new (require('./controllers/beginTask'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...')
   }
@@ -35,7 +34,7 @@ class spiderCore extends events{
   start() {
     this.assembly();
     this.on('error', (massage) => {
-      this.error_event(message);
+      this.error_event(massage);
     })
   }
   getH(callback) {
@@ -53,7 +52,8 @@ class spiderCore extends events{
     let platfromArr = [],
       i = 0;
     for (const [key, value] of platfrom.entries()) {
-      platfromArr[i] = new (require('./dealWith/' + value))(this);
+      // platfromArr[i] = new (require('./dealWith/' + value))(this);
+      platfromArr.push({ name: value, platform: new (require('./dealWith/' + value))(this) });
       i += 1;
     }
     this.beginTask(platfromArr);
@@ -62,7 +62,7 @@ class spiderCore extends events{
   beginTask(plat) {
     // 并行执行任务
     const queue = async.queue((task, callback) => {
-      this.getTask.youku(task, (err) => {
+      this.getTask.start(task.name, task.platform, (err) => {
         if (err) {
           this.emit('error', err);
           return;

@@ -1,32 +1,12 @@
 /**
- * spider task.
- * created by zhupenghui on 17/6/12.
+ * 用来设置每个平台的固定任务
+ * Created by zhupenghui on 2017/6/14.
  */
-let logger;
-class setTask {
-  constructor(monitorSpider) {
-    this.settings = monitorSpider;
-    logger = monitorSpider.settings.logger;
-    logger.debug('Start the crawler platform task ...');
-  }
-  youku(platform, callback) {
-    let work = {
-      "p": 1, "id": 854459409, "name": "一色神技能", "encodeId": "UMzQxNzgzNzYzNg=="
-    };
-    platform.start(work, (err, result) => {
-      if (err) {
-        this.settings.emit(err);
-        return;
-      }
-      logger.debug('优酷完成一次检测');
-      setTimeout(() => {
-        this.youku(platform, null);
-      }, 12000);
-    });
-    if (callback) {
-      callback();
-    }
-  }
+// const task = new Map([
+//   ['youku', {"p": 1, "id": "854459409", "name": "一色神技能", "encodeId": "UMzQxNzgzNzYzNg=="}]
+// ]);
+//
+// module.exports = task;
+exports.task = () => {
 
-}
-module.exports = setTask;
+};

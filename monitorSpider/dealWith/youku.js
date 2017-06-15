@@ -1,7 +1,6 @@
 /**
- * Created by junhao on 16/6/22.
+ * Created by zhupenghui on 17/6/15.
  */
-const moment = require('moment');
 const async = require( 'neo-async' );
 const request = require( 'request' );
 const infoCheck = require('../controllers/infoCheck');
@@ -24,10 +23,15 @@ class dealWith {
             cb();
           })
         },
-        media: (cb) => {
+        list: (cb) => {
           this.getTotal(task, () => {
             cb(null, '视频信息已返回');
           });
+        },
+        video: (cb) => {
+          this.info(task, () => {
+            cb();
+          })
         }
       },
       () => {
@@ -74,9 +78,6 @@ class dealWith {
         callback();
         return;
       }
-      // let fansNum = body.data.channelOwnerInfo ?
-      //     body.data.channelOwnerInfo.followerNum :
-      //     '';
       callback();
     })
   }
@@ -135,18 +136,14 @@ class dealWith {
         callback();
         return;
       }
-      const videos = data.videos;
-      this.info(task, videos, () => {
-       callback();
-      });
+      // const videos = data.videos;
+      // this.info(task, videos, () => {
+      callback();
+      // });
     });
   }
-  info(task, list, callback) {
-    const idList = [];
-    for (const index in list) {
-      idList.push(list[index].videoid);
-    }
-    const ids = idList.join(','),
+  info(task, callback) {
+    const ids = task.aid,
       options = {
         method: 'GET',
         url: 'https://openapi.youku.com/v2/videos/show_batch.json',
