@@ -1934,7 +1934,8 @@ class DealWith {
           try {
             dataJson = JSON.parse(dataJson);
           } catch (e) {
-            logger.debug(dataJson);
+            logger.error('视频dom解析失败', dataJson);
+            callback(e, { code: 102, p: 31 });
             return;
           }
           if (!dataJson.p_title.replace(/[\s\n\r]/g, '')) {
@@ -1948,7 +1949,8 @@ class DealWith {
             encode_id: dataJson.cat_id,
             avatar: dataName.v.imgurl
           };
-          return callback(null, res);
+          callback(null, res);
+          return;
         });
       } else {
         const res = {
