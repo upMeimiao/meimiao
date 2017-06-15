@@ -211,7 +211,7 @@ class dealWith {
           callback();
           return;
         }
-        if (task.id === 'm421305' && Number(result.code) === 0) {
+        if ((task.id === 'm421305' || task.id === 'm365412') && Number(result.code) === 0) {
           callback();
           return;
         }
