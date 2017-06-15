@@ -1875,15 +1875,17 @@ class DealWith {
     request.get(option, (err, result) => {
       if (err) {
         logger.error('occur error: ', err);
-        return callback(err, { code: 102, p: 31 });
+        callback(err, { code: 102, p: 31 });
+        return;
       }
       if (result.statusCode != 200) {
         logger.error('PPTV状态码错误', result.statusCode);
-        return callback(true, { code: 102, p: 31 });
+        callback(true, { code: 102, p: 31 });
+        return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
       const vid = result.match(/varwebcfg={"id":\d+/).toString().replace('varwebcfg={"id":', '');
-      return this.pptvInfo(vid, data, (err, result) => {
+      this.pptvInfo(vid, data, (err, result) => {
         callback(null, result);
       });
     });
@@ -1895,17 +1897,20 @@ class DealWith {
     request.get(option, (err, result) => {
       if (err) {
         logger.error('occur error: ', err);
-        return callback(err, { code: 102, p: 31 });
+        callback(err, { code: 102, p: 31 });
+        return;
       }
       if (result.statusCode != 200) {
         logger.error('PPTV状态码错误', result.statusCode);
-        return callback(true, { code: 102, p: 31 });
+        callback(true, { code: 102, p: 31 });
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.debug('PPTV数据解析失败');
-        return callback(e, { code: 102, p: 31 });
+        callback(e, { code: 102, p: 31 });
+        return;
       }
       const dataName = result;
       if (!result.v.traceName) {
@@ -1913,15 +1918,19 @@ class DealWith {
         request.get(option, (err, result) => {
           if (err) {
             logger.error('occur error: ', err);
-            return callback(err, { code: 102, p: 31 });
+            callback(err, { code: 102, p: 31 });
+            return;
           }
           if (result.statusCode != 200) {
             logger.error('PPTV状态码错误', result.statusCode);
-            return callback(true, { code: 102, p: 31 });
+            callback(true, { code: 102, p: 31 });
+            return;
           }
           let $ = cheerio.load(result.body),
             script = $('script')[2].children[0].data.replace(/[\s\n\r]/g, ''),
-            dataJson = script.replace(/varwebcfg=/, '').replace(/;/, '');
+            startIndex = script.indexOf('varwebcfg='),
+            endIndex = script.indexOf(';'),
+            dataJson = script.substring(startIndex + 10, endIndex);
           try {
             dataJson = JSON.parse(dataJson);
           } catch (e) {
@@ -1929,7 +1938,8 @@ class DealWith {
             return;
           }
           if (!dataJson.p_title.replace(/[\s\n\r]/g, '')) {
-            return this.pptvInfo(vid, url, callback);
+            this.pptvInfo(vid, url, callback);
+            return;
           }
           const res = {
             name: dataJson.p_title,
