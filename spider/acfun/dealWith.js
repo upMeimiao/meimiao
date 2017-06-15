@@ -227,7 +227,7 @@ class dealWith {
     );
   }
   getInfo(task, data, callback) {
-    if (!data.vid) {
+    if (!data.vid || !data.success) {
       callback();
       return;
     }
