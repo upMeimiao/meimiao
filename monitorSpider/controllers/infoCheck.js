@@ -60,7 +60,7 @@ exports.interface = (events, task, typeErr) => {
   }
   events.MSDB.get(key, (err, result) => {
     if (err) {
-      events.emit('error', {error: '接口数据库查询失败'});
+      events.emit('error', {error: '接口数据库查询失败', platform: p});
       return;
     }
     try {

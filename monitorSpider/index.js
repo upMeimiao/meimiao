@@ -49,12 +49,9 @@ class spiderCore extends events{
     })
   }
   initPlatForm() {
-    let platfromArr = [],
-      i = 0;
+    let platfromArr = [];
     for (const [key, value] of platfrom.entries()) {
-      // platfromArr[i] = new (require('./dealWith/' + value))(this);
       platfromArr.push({ name: value, platform: new (require('./dealWith/' + value))(this) });
-      i += 1;
     }
     this.beginTask(platfromArr);
     platfromArr = null;

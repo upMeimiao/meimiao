@@ -22,14 +22,14 @@ class setTask {
     };
     q.push(getTask[pname], (err) => {
       if (err) {
-        this.settings.emit('error', err);
+        this.settings.emit('error', {error: '任务启动失败', platform: pname});
       }
     });
   }
   beginTask(work, platform) {
     platform.start(work, (err) => {
       if (err) {
-        this.settings.emit(err);
+        this.settings.emit('error', {error: err, platform: `平台号：${work.p}`});
         return;
       }
       setTimeout(() => {

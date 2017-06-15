@@ -4,6 +4,7 @@
  */
 const dealWith = new Map([
   [1, "youku"],
-  [2, "iqiyi"]
+  [2, "iqiyi"],
+  [3, "le"]
 ]);
 module.exports = dealWith;
