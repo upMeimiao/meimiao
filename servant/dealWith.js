@@ -1908,7 +1908,7 @@ class DealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        logger.debug('PPTV数据解析失败');
+        logger.error('PPTV数据解析失败');
         callback(e, { code: 102, p: 31 });
         return;
       }
