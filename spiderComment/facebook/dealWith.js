@@ -1,10 +1,9 @@
 /**
 * Created by junhao on 2017/2/10.
 */
-const request = require('../../lib/request');
 const async = require('neo-async');
-const Utils = require('../../lib/spiderUtils');
 const req = require('request');
+const Utils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -29,7 +28,7 @@ class dealWith {
       cycle = true;
     const option = {
       method: 'POST',
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       url: 'https://www.facebook.com/ajax/ufi/comment_fetch.php',
       qs: { dpr: '1' },
       headers:

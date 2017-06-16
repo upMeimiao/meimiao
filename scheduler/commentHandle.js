@@ -8,9 +8,10 @@ class commentHandle {
     this.logger.debug('评论任务处理模块 实例化...');
   }
   rawLoop(raw) {
-    const data = raw.data, // raw.d,
-      len = data ? data.length : 0;
+    let data = raw.data; // raw.d,
+    const len = data ? data.length : 0;
     let i = 0;
+    raw = null;
     async.whilst(
       () => i < len,
       (cb) => {
@@ -20,13 +21,14 @@ class commentHandle {
         });
       },
       () => {
+        data = null;
         // this.logger.debug("开始等待下次执行时间");
       }
     );
   }
   classify(_, callback) {
     if (Number(_.platform) === 16 || Number(_.platform) === 37
-      || Number(_.platform) === 40) {
+      || Number(_.platform) === 42) {
       callback();
       return;
     }
