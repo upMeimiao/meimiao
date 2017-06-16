@@ -3,6 +3,7 @@
  */
 const moment = require('moment');
 const async = require('neo-async');
+const req = require('request');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
@@ -95,6 +96,17 @@ class dealWith {
             fans_num: fans || ''
           };
         // logger.info(user);
+        if (Number(user.fans_num) === 428472) {
+          req({
+            method: 'POST',
+            url: 'http://10.251.55.50:3001/api/alarm',
+            form: {
+              mailGroup: 3,
+              subject: '粉丝数据异常',
+              content: JSON.stringify(result)
+            }
+          });
+        }
         if (user.fans_num !== '') {
           this.sendUser(user);
           this.sendStagingUser(user);
