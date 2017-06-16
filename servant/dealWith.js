@@ -2771,5 +2771,41 @@ class DealWith {
       callback(null, res);
     });
   }
+  gumi(data, callback) {
+    const host = URL.parse(data, true).hostname,
+      options = {
+        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+      };
+    let res = null;
+    options.url = data;
+    if (host == 'm.migudm.cn') {
+      options.url = data.replace(host, 'www.migudm.cn');
+    }
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 46 });
+        return;
+      }
+      result = result.body;
+      const $ = cheerio.load(result),
+        userDom = $('div.ugcVideoHdRight.fr.clearfix'),
+        id = userDom.find('img').attr('src'),
+        name = userDom.find('.name').text(),
+        avatar = userDom.find('a').attr('href').match(/userId=(\d*)/)[1];
+      if (!id || !name || !avatar) {
+        logger.debug('---');
+        callback('error', { code: 102, p: 46 });
+        return;
+      }
+      res = {
+        id: id,
+        name: name,
+        avatar: avatar,
+        p: 46
+      };
+      callback(null, res);
+    });
+  }
 }
 module.exports = DealWith;
