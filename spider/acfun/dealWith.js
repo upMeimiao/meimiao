@@ -29,7 +29,9 @@ class dealWith {
       user: (cb) => {
         this.getUser(task, (err) => {
           if (err) {
-            cb(err);
+            setTimeout(() => {
+              this.getUser(task, () => cb(null, '用户信息已返回'));
+            }, 1000);
           } else {
             cb(null, '用户信息已返回');
           }
@@ -74,7 +76,7 @@ class dealWith {
         return;
       }
       if (!result.data) {
-        callback();
+        callback('粉丝数据异常');
         return;
       }
       const data = result.data,
