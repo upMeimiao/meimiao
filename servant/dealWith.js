@@ -2790,9 +2790,9 @@ class DealWith {
       result = result.body;
       const $ = cheerio.load(result),
         userDom = $('div.ugcVideoHdRight.fr.clearfix'),
-        id = userDom.find('img').attr('src'),
+        id = userDom.find('a').attr('href').match(/userId=(\d*)/)[1],
         name = userDom.find('.name').text(),
-        avatar = userDom.find('a').attr('href').match(/userId=(\d*)/)[1];
+        avatar = userDom.find('img').attr('src');
       if (!id || !name || !avatar) {
         logger.debug('---');
         callback('error', { code: 102, p: 46 });

@@ -1,6 +1,6 @@
 /**
  * Spider Core
- * Created by junhao on 16/6/20.
+ * Created by zhupenghui on 17/6/16.
  */
 const kue = require('kue');
 const request = require('request');
@@ -32,9 +32,9 @@ class spiderCore {
   }
   test() {
     const work = {
-      p: 39,
-      name: '飞碟说',
-      id: 116029
+      p: 46,
+      name: '办公室小野',
+      id: 68929960
     };
     this.dealWith.todo(work, (err, total, uid) => {
       logger.debug(total);
