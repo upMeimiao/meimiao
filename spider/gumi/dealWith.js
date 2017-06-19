@@ -27,7 +27,7 @@ class dealWith {
   }
   getUser(task, callback) {
     const option = {
-      url: `http://www.migudm.cn/userPage/index.html?pageSize=20&opusType=8&userId=${task.id}&pageNo=1`,
+      url: `${this.settings.spiderAPI.gumi.list + task.id}&pageNo=1`,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
         'X-Requested-With': 'XMLHttpRequest'
@@ -77,9 +77,9 @@ class dealWith {
         return;
       }
       if (Number(result.errno) === 0) {
-        logger.debug('A站用户:', `${user.bid} back_end`);
+        logger.debug('咕咪动漫用户:', `${user.bid} back_end`);
       } else {
-        logger.error('A站用户:', `${user.bid} back_error`);
+        logger.error('咕咪动漫用户:', `${user.bid} back_error`);
         logger.info(result);
       }
     });
@@ -102,9 +102,9 @@ class dealWith {
         return;
       }
       if (Number(result.errno) === 0) {
-        logger.debug('A站用户:', `${user.bid} back_end`);
+        logger.debug('咕咪动漫用户:', `${user.bid} back_end`);
       } else {
-        logger.error('A站用户:', `${user.bid} back_error`);
+        logger.error('咕咪动漫用户:', `${user.bid} back_error`);
         logger.info(result);
       }
     });
@@ -120,7 +120,7 @@ class dealWith {
     async.whilst(
       () => page <= Number(task.total),
       (cb) => {
-        option.url = `http://www.migudm.cn/userPage/index.html?pageSize=20&opusType=8&userId=${task.id}&pageNo=${page}`;
+        option.url = `${this.settings.spiderAPI.gumi.list + task.id}&pageNo=${page}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频列表请求失败', err);
@@ -214,7 +214,7 @@ class dealWith {
   }
   getComment(vid, callback) {
     const options = {
-      url: `http://m.migudm.cn/opus/topic/list.html?opusType=29&hwOpusId=${vid}`,
+      url: this.settings.spiderAPI.gumi.comment + vid,
       headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
         Referer: `http://m.migudm.cn/ugc/${vid}.html`,
