@@ -73,6 +73,10 @@ class dealWith {
         callback(e);
         return;
       }
+      if (!result.data) {
+        callback();
+        return;
+      }
       const data = result.data,
         user = {
           platform: task.p,
