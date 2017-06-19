@@ -1,5 +1,5 @@
 /**
- *  update by pnghui on 2017/4/28
+ *  update by penghui on 2017/4/28
  * */
 const DealWith = require('./dealWith');
 
@@ -331,6 +331,13 @@ class Handle {
   }
   huoshanHandle(ctx, verifyData) {
     dealWith.huoshan(verifyData, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  gumiHandle(ctx, verifyData) {
+    dealWith.gumi(verifyData, (err, result) => {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
       ctx.res.writeHead(200);
       ctx.res.end(JSON.stringify(this.preResult(err, result)));
