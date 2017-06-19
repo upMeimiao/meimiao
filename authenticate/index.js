@@ -1,5 +1,5 @@
 /**
- *  update by pnghui on 2017/4/28
+ *  update by penghui on 2017/4/28
  * */
 const HTTP = require('http');
 const URL = require('url');
@@ -209,11 +209,14 @@ class spiderCore {
       case 'www.huoshan.com':
         handle.huoshanHandle(ctx, verifyData);
         break;
+      case 'www.migudm.cn':
+      case 'm.migudm.cn':
+        handle.gumiHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);
         res.end(JSON.stringify({ errno: 100, errmsg: '暂不支持该平台或该URL非合法校验地址' }));
-
     }
   }
 }

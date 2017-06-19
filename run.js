@@ -423,11 +423,18 @@ const huoshan = () => {
   const spider = new (require(`${spiderDir}huoshan`))(settings);
   spider.start();
 };
+const gumi = () => {
+  const logger = logging.getLogger('咕咪动漫', options.i, logLevel);
+  settings.logger = logger;
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}gumi`))(settings);
+  spider.start();
+};
 const test = () => {
   const logger = logging.getLogger('测试', options.i, logLevel);
   settings.logger = logger;
   settings.instance = options.i;
-  const spider = new (require('./test/youtube'))(settings);
+  const spider = new (require('./test/testUtils'))(settings);
   spider.start();
 };
 switch (options.a) {
@@ -589,6 +596,9 @@ switch (options.a) {
     break;
   case 'huoshan':
     huoshan();
+    break;
+  case 'gumi':
+    gumi();
     break;
   case 'test':
     test();

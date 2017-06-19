@@ -249,6 +249,10 @@
       "user": "https://www.huoshan.com/share/user/",
       "list": "https://www.huoshan.com/share/load_videos/?",
       "video": "https://www.huoshan.com/share/video/"
+    },
+    "gumi": {
+      "list": "http://www.migudm.cn/userPage/index.html?pageSize=20&opusType=8&userId=",
+      "comment": "http://m.migudm.cn/opus/topic/list.html?opusType=29&hwOpusId="
     }
   },
   "servantAPI": {

@@ -29,9 +29,9 @@ class DealWith {
       option = {},
       pathname = URL.parse(verifyData.remote, true).pathname,
       vid = pathname.substring(pathname.lastIndexOf('/') + 4);
-    let page = 1, sign = true, backDate;
+    let page = 1, cycle = true, backDate;
     async.whilst(
-      () => sign,
+      () => cycle,
       (cb) => {
         option.url = `https://openapi.youku.com/v2/comments/by_video.json?client_id=c9e697e443715900&video_id=${vid}&page=${page}&count=100`;
         request.get(logger, option, (err, result) => {
@@ -53,7 +53,7 @@ class DealWith {
           }
           const comments = result.comments;
           if (comments.length === 0) {
-            sign = false;
+            cycle = false;
             cb();
             return;
           }
@@ -63,7 +63,9 @@ class DealWith {
                 p: 1,
                 name: comments[i].user.name,
                 id: comments[i].user.id,
-                encode_id: comments[i].link ? comments[i].link.substring(comments[i].link.lastIndexOf('/') + 1) : comments[i].user.link.match(/u\/([\w=]*)/)[1]
+                encode_id: comments[i].link ?
+                  comments[i].link.substring(comments[i].link.lastIndexOf('/') + 1) :
+                  comments[i].user.link.match(/u\/([\w=]*)/)[1]
               };
               callback(null, backDate);
               return;
@@ -105,52 +107,52 @@ class DealWith {
       htmlData.albumId = albumId;
       htmlData.tvId = tvId;
       this.iqComment(htmlData, (error, message) => {
-        if(error){
+        if (error) {
           logger.debug('评论列表返回的错误');
           callback(error, message);
           return;
         }
-        callback(null,message);
+        callback(null, message);
       });
     });
   }
-  iqComment(htmlData, callback){
+  iqComment(htmlData, callback) {
     /*
      * 请求评论信息的url参数
      * */
     const option = {
-      requests: [
-        {
-          uri: '/comment/get_video_comments',
-          params: {
-            page_size: 10,
-            page: 0,
-            categoryid: 25,
-            qitan_comment_type: 1,
-            need_total: 1,
-            need_subject: true,
-            sort: 'add_time'
+        requests: [
+          {
+            uri: '/comment/get_video_comments',
+            params: {
+              page_size: 10,
+              page: 0,
+              categoryid: 25,
+              qitan_comment_type: 1,
+              need_total: 1,
+              need_subject: true,
+              sort: 'add_time'
+            }
+          },
+          {
+            uri: '/comment/review/get_review_list',
+            params: {
+              sort: 'hot',
+              need_total: 1,
+              escape: 'true'
+            }
           }
-        },
-        {
-          uri: '/comment/review/get_review_list',
-          params: {
-            sort: 'hot',
-            need_total: 1,
-            escape: 'true'
-          }
+        ],
+        publicParams: {
+          tvid: htmlData.tvId,
+          qitanid: 0,
+          aid: 0,
+          usecache: 'true',
+          antiCsrf: '461c95a7574f3704d09eee0279cfb01f'
         }
-      ],
-      publicParams: {
-        tvid: htmlData.tvId,
-        qitanid: 0,
-        aid: 0,
-        usecache: 'true',
-        antiCsrf: '461c95a7574f3704d09eee0279cfb01f'
-      }
-    };
-    let sign = 1,
-      cycle = true,
+      },
+    cycle = true;
+    let page = 1,
       comments,
       dataJson,
       dataUrl,
@@ -161,7 +163,7 @@ class DealWith {
         // 设置当前页
         // 转换成json字符串格式传递
         // 请求api的路径
-        option.requests[0].params.page = sign;
+        option.requests[0].params.page = page;
         dataJson = JSON.stringify(option);
         dataUrl = {
           url: `http://api.t.iqiyi.com/qx_api/framework/all_in_one?albumid=${htmlData.albumid}&cb=fnsucc&data=${dataJson}&is_video_page=true`
@@ -169,7 +171,7 @@ class DealWith {
         request.get(logger, dataUrl, (error, result) => {
           if (error) {
             logger.error('occur error : ', error);
-            cb(err);
+            cb(error);
             return;
           }
           try {
@@ -181,7 +183,7 @@ class DealWith {
             return;
           }
           comments = result.data.$comment$get_video_comments.data.comments;
-          if(comments.length === 0){
+          if (comments.length === 0) {
             cb('error');
             return;
           }
@@ -195,18 +197,18 @@ class DealWith {
             comments
           };
           this.iqdeal(parameter, (err, user) => {
-            if(user){
-              //callback(null, user);
+            if (user) {
+              // callback(null, user);
               cb(null, user);
               return;
             }
-            sign += 1;
+            page += 1;
             cb();
           });
         });
       },
       (err, result) => {
-        if(err){
+        if (err) {
           err === 'error' ? callback(err, { code: 105, p: 3 }) : callback(err, { code: 103, p: 3 });
           return;
         }
@@ -269,19 +271,19 @@ class DealWith {
       });
     });
   }
-  leComment(htmlData, callback){
+  leComment(htmlData, callback) {
     /*
      *  乐视评论列表
      * */
     const option = {};
-    let sign = 1,
+    let page = 1,
       comments,
       cycle = true,
       parameter;
     async.whilst(
       () => cycle,
       (cb) => {
-        option.url = `http://api.my.le.com/vcm/api/list?cid=${htmlData.cid}&type=video&rows=20&page=${sign}&sort=&source=1&listType=1&xid=${htmlData.vid}&pid=${htmlData.pid}&ctype=cmt%2Cimg%2Cvote`;
+        option.url = `http://api.my.le.com/vcm/api/list?cid=${htmlData.cid}&type=video&rows=20&page=${page}&sort=&source=1&listType=1&xid=${htmlData.vid}&pid=${htmlData.pid}&ctype=cmt%2Cimg%2Cvote`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('occur error : ', err);
@@ -297,7 +299,7 @@ class DealWith {
             return;
           }
           comments = result.data;
-          if(comments.length === 0){
+          if (comments.length === 0) {
             cb('error');
             return;
           }
@@ -312,13 +314,13 @@ class DealWith {
               cb(null, user);
               return;
             }
-            sign += 1;
-            cb()
+            page += 1;
+            cb();
           });
         });
       },
       (err, result) => {
-        if(err){
+        if (err) {
           err === 'error' ? callback(err, { code: 105, p: 3 }) : callback(err, { code: 103, p: 3 });
           return;
         }
@@ -337,7 +339,7 @@ class DealWith {
         return;
       }
     }
-    callback(null, null)
+    callback(null, null);
   }
   tencent(verifyData, callback) {
     const userVal = verifyData.verifyCode,
@@ -352,7 +354,7 @@ class DealWith {
         callback(err, { code: 103, p: 4 });
         return;
       }
-      let $ = cheerio.load(data.body),
+      const $ = cheerio.load(data.body),
         script = $('script')[3].children[0].data,
         vid = script.match(/vid: \"([\w\d]*)/)[1];
       parameter.vid = vid;
@@ -366,7 +368,7 @@ class DealWith {
       });
     });
   }
-  txCommentId(parameter, callback){
+  txCommentId(parameter, callback) {
     const option = {
       url: `https://ncgi.video.qq.com/fcgi-bin/video_comment_id?otype=json&op=3&vid=${parameter.vid}`
     };
@@ -380,7 +382,7 @@ class DealWith {
         result = JSON.parse(result.body.replace(/QZOutputJson=/, '').replace(/;/, ''));
       } catch (e) {
         logger.error('腾讯json数据解析失败');
-        logger.info('json error: ', data);
+        logger.info('json error: ', result.body);
         callback(e, { code: 103, p: 4 });
         return;
       }
@@ -395,7 +397,7 @@ class DealWith {
       });
     });
   }
-  txCommentList(parameter, callback){
+  txCommentList(parameter, callback) {
     const option = {},
       user = {};
     let cycle = true,
@@ -425,7 +427,7 @@ class DealWith {
             cb('error');
             return;
           }
-          for (let i = 0; i < comments.length; i++) {
+          for (let i = 0; i < comments.length; i += 1) {
             if (parameter.userVal === comments[i].content) {
               user.p = 4;
               user.id = comments[i].userinfo.userid;
@@ -441,23 +443,23 @@ class DealWith {
       },
       (err, result) => {
         if (err) {
-          err === 'error' ? callback(err, { code: 105, p: 4}) : callback(err, { code: 103, p: 4});
-          return ;
+          err === 'error' ? callback(err, { code: 105, p: 4 }) : callback(err, { code: 103, p: 4 });
+          return;
         }
         callback(null, result);
       }
     );
   }
   meipai(verifyData, callback) {
-    let urlId = verifyData.remote.match(/media\/\d*/).toString().replace(/media\//, ''),
-      userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      sign = 1,
-      cycle = true;
+    const urlId = verifyData.remote.match(/media\/\d*/).toString().replace(/media\//, ''),
+      userVal = verifyData.verifyCode.replace(/\s/g, '');
+    let cycle = true,
+      page = 1;
     async.whilst(
       () => cycle,
       (cb) => {
         const options = {
-          url: `http://www.meipai.com/medias/comments_timeline?page=${sign}&count=10&id=${urlId}`
+          url: `http://www.meipai.com/medias/comments_timeline?page=${page}&count=10&id=${urlId}`
         };
         request.get(logger, options, (err, result) => {
           if (err) {
@@ -473,7 +475,7 @@ class DealWith {
             cb(e);
             return;
           }
-          if(result.length === 0){
+          if (result.length === 0) {
             cb('error');
             return;
           }
@@ -483,14 +485,14 @@ class DealWith {
               cb(null, user);
               return;
             }
-            sign++;
+            page += 1;
             cb();
           });
         });
       },
       (err, result) => {
         if (err) {
-          err === 'error' ? callback(err, { code: 105, p: 5}) : callback(err, { code: 103, p: 5});
+          err === 'error' ? callback(err, { code: 105, p: 5 }) : callback(err, { code: 103, p: 5 });
           return;
         }
         callback(null, result);
@@ -499,7 +501,7 @@ class DealWith {
   }
   mpdeal(userVal, contents, callback) {
     const user = {};
-    for (let i = 0; i < contents.length; i++) {
+    for (let i = 0; i < contents.length; i += 1) {
       if (userVal === contents[i].content.replace(/\s/g, '')) {
         user.p = 5;
         user.id = contents[i].user.id;
@@ -515,14 +517,14 @@ class DealWith {
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       host = URL.parse(htmlUrl, true).host,
       options = {};
-    let sign = 1,
-      cycle = true,
+    let cycle = true,
       comments,
       groupid = '',
       offset = 0;
     if (host === 'www.365yg.com' || host === 'm.365yg.com') {
-      groupid = htmlUrl.match(/group\/(\d*)/) ? htmlUrl.match(/group\/(\d*)/)[1] : (htmlUrl.match(/item\/(\d*)/) ? htmlUrl.match(/item\/(\d*)/)[1] : htmlUrl.match(/\/i(\d*)/)[1]);
-    }else {
+      groupid = htmlUrl.match(/group\/(\d*)/) ? htmlUrl.match(/group\/(\d*)/)[1] : '';
+      groupid = groupid || (htmlUrl.match(/item\/(\d*)/) ? htmlUrl.match(/item\/(\d*)/)[1] : htmlUrl.match(/\/i(\d*)/)[1]);
+    } else {
       groupid = htmlUrl.match(/\/a\d*/).toString().replace(/\/a/, '');
     }
     async.whilst(
@@ -544,7 +546,7 @@ class DealWith {
             return;
           }
           comments = result.data;
-          if(comments.length === 0){
+          if (comments.length === 0) {
             cb('error');
             return;
           }
@@ -555,7 +557,7 @@ class DealWith {
               return;
             }
             offset += 50;
-            cb()
+            cb();
           });
         });
       },
@@ -570,7 +572,7 @@ class DealWith {
   }
   ttdeal(userVal, comments, callback) {
     const user = {};
-    for (let i = 0; i < comments.length; i++) {
+    for (let i = 0; i < comments.length; i += 1) {
       if (userVal == comments[i].comment.text.replace(/\s/g, '')) {
         user.p = 6;
         user.id = comments[i].comment.user_id;
@@ -579,16 +581,16 @@ class DealWith {
         return;
       }
     }
-    callback(null, null)
+    callback(null, null);
   }
   miaopai(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       scid = htmlUrl.match(/show\/([\w | ~ | \d | -]*)/)[1],
       option = {
         url: htmlUrl
-      },
-      $, oli, liLength, cycle = true, page = 0;
+      };
+    let $, oli, liLength, cycle = true, page = 0;
     async.whilst(
       () => cycle,
       (cb) => {
@@ -628,14 +630,14 @@ class DealWith {
           callback(err, { code: 103, p: 7 });
           return;
         }
-        if (result) { logger.debug(11111111); callback(null,result); return; }
-        logger.debug(2222222);
+        if (result) { callback(null, result); return; }
         callback(true, { code: 105, p: 7 });
       }
     );
   }
-  miaopaiComment( parameter, callback ){
-    let content, suidUrl, _nick, user = {}, $, uid, index = 0;
+  miaopaiComment(parameter, callback) {
+    const user = {};
+    let content, suidUrl, _nick, $, uid, index = 0;
     async.whilst(
       () => index < parameter.liLength,
       (cb) => {
@@ -646,7 +648,7 @@ class DealWith {
         suidUrl = {
           url: `http://www.miaopai.com${suidUrl}/relation/follow.htm`
         };
-        content = content.replace(/回复/, '').replace(/\s/g,'');
+        content = content.replace(/回复/, '').replace(/\s/g, '');
         if (parameter.userVal == content) {
           request.get(logger, suidUrl, (err, suidData) => {
             if (err) {
@@ -658,7 +660,7 @@ class DealWith {
             uid = $('button.guanzhu.gz').attr('suid');
             if (!uid) {
               logger.debug('秒拍请求的源码结构发生改变');
-              cb(e);
+              cb('e');
               return;
             }
             user.id = uid;
@@ -673,11 +675,11 @@ class DealWith {
         cb();
       },
       (err, result) => {
-        if(err){
+        if (err) {
           callback(err);
           return;
         }
-        if(result){
+        if (result) {
           callback(null, result);
           return;
         }
@@ -686,7 +688,7 @@ class DealWith {
     );
   }
   bili(verifyData, callback) {
-    const verifyCode = verifyData.verifyCode.replace(/\s/g,''),
+    const verifyCode = verifyData.verifyCode.replace(/\s/g, ''),
       htmlUrl = verifyData.remote, dataJson = {};
     let pn = 1, cycle = true, oid, newUrl, datas, acount, replies;
     async.whilst(
@@ -719,8 +721,8 @@ class DealWith {
             cb();
             return;
           }
-          for (let i = 0; i < replies.length; i++) {
-            if (verifyCode == replies[i].content.message.replace(/\s/g,'')) {
+          for (let i = 0; i < replies.length; i += 1) {
+            if (verifyCode == replies[i].content.message.replace(/\s/g, '')) {
               dataJson.p = 8;
               dataJson.id = replies[i].member.mid;
               dataJson.name = replies[i].member.uname;
@@ -738,10 +740,11 @@ class DealWith {
           callback(err, { code: 103, p: 8 });
           return;
         }
-        if (result)
+        if (result) {
           callback(null, result);
-        else
+        } else {
           callback(true, { code: 105, p: 8 });
+        }
       }
     );
   }
@@ -749,7 +752,7 @@ class DealWith {
     /*
      *  通过获取到的视频ID获取topic_id
      * */
-    let verifyCode = verifyData.verifyCode.replace(/\s/g, ''),
+    const verifyCode = verifyData.verifyCode.replace(/\s/g, ''),
       htmlUrl = verifyData.remote,
       options = {
         url: htmlUrl
@@ -760,8 +763,8 @@ class DealWith {
         callback(err, { code: 103, p: 9 });
         return;
       }
-      data = data.body.replace(/[\s\n\r]/g,'');
-      let vid = data.match(/varvid=\'([\d]*)/)[1] || data.match(/vid:\'([\d]*)/)[1],
+      data = data.body.replace(/[\s\n\r]/g, '');
+      const vid = data.match(/varvid=\'([\d]*)/)[1] || data.match(/vid:\'([\d]*)/)[1],
         loadUrl = {
           url: `http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&tvsubject_need=true&topic_url=${htmlUrl}&topic_source_id=bk${vid}&page_size=10&elite_size=0&elite_no=1&hot_size=0&_=${new Date().getTime()}`
         };
@@ -770,14 +773,15 @@ class DealWith {
           callback(error, { code: 105, p: 9 });
           return;
         }
-        if (user)
+        if (user) {
           callback(null, user);
-        else
+        } else {
           callback(true, { code: 105, p: 9 });
-      })
+        }
+      });
     });
   }
-  souhuTopicId(loadUrl, verifyCode, callback){
+  souhuTopicId(loadUrl, verifyCode, callback) {
     /*
      *  获取topic_id
      * */
@@ -805,15 +809,15 @@ class DealWith {
           callback(error);
           return;
         }
-        if (user)
+        if (user) {
           callback(null, user);
-        else
-          callback(null,null);
-
-      })
+        } else {
+          callback(null, null);
+        }
+      });
     });
   }
-  souhuComent(parameter, callback){
+  souhuComent(parameter, callback) {
     /*
      *  获取用户输入的值，与获取回来的评论内容匹配
      * */
@@ -843,8 +847,8 @@ class DealWith {
             cb();
             return;
           }
-          for (let i = 0; i < comments.length; i++) {
-            if (parameter.verifyCode == comments[i].content.replace(/\s/g,'')) {
+          for (let i = 0; i < comments.length; i += 1) {
+            if (parameter.verifyCode == comments[i].content.replace(/\s/g, '')) {
               user.p = 9;
               user.id = comments[i].passport.user_id;
               user.name = comments[i].passport.nickname;
@@ -853,7 +857,7 @@ class DealWith {
               return;
             }
           }
-          page++;
+          page += 1;
           cb();
         });
       },
@@ -862,10 +866,11 @@ class DealWith {
           callback(err);
           return;
         }
-        if (result)
+        if (result) {
           callback(null, result);
-        else
-          callback(null,null);
+        } else {
+          callback(null, null);
+        }
       }
     );
   }
@@ -873,41 +878,41 @@ class DealWith {
     /*
      *  获取评论ID commentId
      * */
-    let htmlUrl = verifyData.remote,
-      commentid = htmlUrl.match(/commentid=([\d]*)/),
-      userVal = verifyData.verifyCode.replace(/\s/g, '');
-    const options = {
-      url: htmlUrl
-    };
-    if (!commentid){
+    const htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      options = {
+        url: htmlUrl
+      };
+    let commentid = htmlUrl.match(/commentid=([\d]*)/);
+    if (!commentid) {
       request.get(logger, options, (err, result) => {
         if (err) {
           logger.debug('评论ID请求失败');
           callback(err, { code: 103, p: 10 });
           return;
         }
-        result = result.body.replace(/[\s\n\r]/g,'');
+        result = result.body.replace(/[\s\n\r]/g, '');
         commentid = result.match(/varcommentId=\"(\d*)/)[1];
-        this.kbComment( userVal, commentid, (error, user) => {
+        this.kbComment(userVal, commentid, (error, user) => {
           if (error) {
             error === 'error' ? callback(error, { code: 105, p: 10 }) : callback(error, { code: 103, p: 10 });
             return;
           }
           callback(null, user);
-        })
+        });
       });
       return;
     }
     commentid = commentid[1];
-    this.kbComment( userVal, commentid, (err, user) => {
+    this.kbComment(userVal, commentid, (err, user) => {
       if (err) {
         err === 'error' ? callback(err, { code: 105, p: 10 }) : callback(err, { code: 103, p: 10 });
         return;
       }
       callback(null, user);
-    })
+    });
   }
-  kbComment( userVal, commentid, callback ){
+  kbComment(userVal, commentid, callback) {
     const options = {};
     let cycle = true, commenLast = '', contents;
     async.whilst(
@@ -946,17 +951,17 @@ class DealWith {
         });
       },
       (err, result) => {
-        if(err){
+        if (err) {
           callback(err);
           return;
         }
-        callback(null,result);
+        callback(null, result);
       }
     );
   }
   kbdeal(userVal, contents, callback) {
     const user = {};
-    for (let i = 0; i < contents.length; i++) {
+    for (let i = 0; i < contents.length; i += 1) {
       if (userVal == contents[i].content.replace(/\s/g, '')) {
         user.p = 10;
         user.id = contents[i].userinfo.userid;
@@ -966,11 +971,6 @@ class DealWith {
       }
     }
     callback();
-  }
-  yidian(verifyData, callback) {
-    /*
-     *  没有用户ID
-     * */
   }
   tudou(verifyData, callback) {
     const htmlUrl = verifyData.remote,
@@ -1002,7 +1002,7 @@ class DealWith {
             return;
           }
           contents = result.data.comment;
-          if(contents.length === 0){
+          if (contents.length === 0) {
             cycle = false;
             cb('error');
             return;
@@ -1019,7 +1019,7 @@ class DealWith {
             }
           }
           page += 1;
-          cb()
+          cb();
         });
       },
       (error, result) => {
@@ -1032,7 +1032,7 @@ class DealWith {
     );
   }
   baomihua(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       options = {
         url: htmlUrl
@@ -1043,12 +1043,12 @@ class DealWith {
         callback(err, { code: 103, p: 13 });
         return;
       }
-      let $ = cheerio.load(htmlData.body),
+      const $ = cheerio.load(htmlData.body),
         script = $('script')[0].children[0].data,
         flvid = script.match(/var flvid = (\d*)/)[1];
       if (!flvid) {
         logger.debug('爆米花请求的源码结构发生改变');
-        callback(e, { code: 103, p: 13 });
+        callback('e', { code: 103, p: 13 });
         return;
       }
       this.bmComment(userVal, flvid, (error, user) => {
@@ -1060,7 +1060,7 @@ class DealWith {
       });
     });
   }
-  bmComment(userVal, flvid, callback){
+  bmComment(userVal, flvid, callback) {
     let cycle = true,
       page = 1,
       contents,
@@ -1077,7 +1077,7 @@ class DealWith {
             return;
           }
           try {
-            data = JSON.parse(data.body.replace(/[\n\\]/g,''));
+            data = JSON.parse(data.body.replace(/[\n\\]/g, ''));
           } catch (e) {
             logger.error('爆米花json数据解析失败');
             logger.info(data);
@@ -1086,8 +1086,8 @@ class DealWith {
           }
           contents = data.result.item;
           if (!beginCid) {
-            beginCid = contents[0].reviewID
-          };
+            beginCid = contents[0].reviewID;
+          }
           if (beginCid == contents[0].reviewID) {
             logger.debug('当前评论翻页失效');
             callback('NO', { code: 103, p: 13 });
@@ -1097,7 +1097,7 @@ class DealWith {
             cb('error');
             return;
           }
-          for (let i = 0; i < contents.length; i++) {
+          for (let i = 0; i < contents.length; i += 1) {
             if (userVal == contents[i].content.replace(/\s/g, '')) {
               user.p = 13;
               user.id = contents[i].user.userID;
@@ -1152,18 +1152,18 @@ class DealWith {
             cb('error');
             return;
           }
-          for (let key in contents){
+          for (const key in contents) {
             if (userVal == contents[key].commentContent.replace(/\s/g, '')) {
               user.p = 14;
               user.id = contents[key].commentAuthorId;
-              user.name = contents[key].commentAuthor || contents[i].partner.p_username;
+              user.name = contents[key].commentAuthor || contents[key].partner.p_username;
               cycle = false;
               cb(null, user);
               return;
             }
           }
           page += 1;
-          cb()
+          cb();
         });
       },
       (err, result) => {
@@ -1198,10 +1198,10 @@ class DealWith {
       });
     });
   }
-  btComment(verifyCode, itemkey, callback){
+  btComment(verifyCode, itemkey, callback) {
     const dataUrl = {},
       user = {};
-    let cycle =true,
+    let cycle = true,
       page = 1,
       comments;
     async.whilst(
@@ -1238,7 +1238,7 @@ class DealWith {
               return;
             }
           }
-          page++;
+          page += 1;
           cb();
         });
       },
@@ -1285,7 +1285,7 @@ class DealWith {
             cb('error');
             return;
           }
-          for (let i = 0; i < contents.length; i++) {
+          for (let i = 0; i < contents.length; i += 1) {
             if (userVal == contents[i].text.replace(/\s/g, '')) {
               user.p = 16;
               user.id = contents[i].uid;
@@ -1348,12 +1348,12 @@ class DealWith {
         verifyCode,
         vid
       };
-      this.xyComment(parameter, (error, user) => {
-        if (error) {
-          error === 'error' ? callback(error, { code: 105, p: 17 }) : callback(error, { code: 105, p: 17 });
+      this.xyComment(parameter, (err, user) => {
+        if (err) {
+          err === 'error' ? callback(err, { code: 105, p: 17 }) : callback(err, { code: 105, p: 17 });
           return;
         }
-        callback(null, user)
+        callback(null, user);
       });
     });
   }
@@ -1363,20 +1363,20 @@ class DealWith {
         method: 'POST',
         url: 'http://viva.api.xiaoying.co/api/rest/p/pa',
         form:
-          {
-            a: 'pa',
-            b: '1.0',
-            c: '20008400',
-            e: 'DIqmr4fb',
-            h: parameter.h,
-            j: 'ae788dbe17e25d0cff743af7c3225567',
-            k: 'xysdkios20130711'
-          },
+        {
+          a: 'pa',
+          b: '1.0',
+          c: '20008400',
+          e: 'DIqmr4fb',
+          h: parameter.h,
+          j: 'ae788dbe17e25d0cff743af7c3225567',
+          k: 'xysdkios20130711'
+        },
         headers:
-          {
-            'content-type': 'application/x-www-form-urlencoded',
-            'user-agent': 'XiaoYing/5.5.6 (iPhone; iOS 10.2.1; Scale/3.00)'
-          }
+        {
+          'content-type': 'application/x-www-form-urlencoded',
+          'user-agent': 'XiaoYing/5.5.6 (iPhone; iOS 10.2.1; Scale/3.00)'
+        }
       };
     let page = 1,
       cycle = true,
@@ -1404,7 +1404,7 @@ class DealWith {
             cb('error');
             return;
           }
-          for (let i = 0; i < comments.length; i++) {
+          for (let i = 0; i < comments.length; i += 1) {
             if (parameter.verifyCode == comments[i].content.replace(/\s/g, '')) {
               user.p = '17';
               user.name = comments[i].user.nickName;
@@ -1518,7 +1518,7 @@ class DealWith {
             cb('error');
             return;
           }
-          for (let i = 0; i < contents.length; i++) {
+          for (let i = 0; i < contents.length; i += 1) {
             if (userVal == contents[i].text.replace(/\s/g, '')) {
               user.p = 19;
               user.id = contents[i].user_id;
@@ -1583,7 +1583,7 @@ class DealWith {
             cb('error');
             return;
           }
-          for (let i = 0; i < comments.length; i++) {
+          for (let i = 0; i < comments.length; i += 1) {
             if (verifyCode == comments[i].content.replace(/\s/g, '')) {
               user.p = '20';
               user.name = comments[i].nickname;
@@ -1608,14 +1608,14 @@ class DealWith {
   }
 
   tv56(verifyData, callback) {
-    let htmlUrl = URL.parse(verifyData.remote, true),
+    const htmlUrl = URL.parse(verifyData.remote, true),
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       host = htmlUrl.hostname,
       path = htmlUrl.pathname,
       option = {
         url: verifyData.remote
-      },
-      vid = null;
+      };
+    let vid = null;
     if (host == 'www.56.com' || host == 'm.56.com') {
       request.get(logger, option, (err, result) => {
         if (err) {
@@ -1623,7 +1623,6 @@ class DealWith {
           callback(err, { code: 103, p: 21 });
           return;
         }
-        const $ = cheerio.load(result.body);
         result = result.body.replace(/[\s\n\r]/g, '');
         vid = result.match(/sohuVideoInfo=\{vid:\'\d*/).toString().replace(/sohuVideoInfo=\{vid:\'/, '');
         this.getTV56(userVal, vid, (error, user) => {
@@ -1663,12 +1662,12 @@ class DealWith {
   }
   getTV56comment(userVal, num, vid, callback) {
     const option = {}, user = {};
-    let sign = 1, contents,
-      page = num % 30 === 0 ? num / 30 : Math.ceil(num / 30);
+    let page = 1, contents,
+      total = num % 30 === 0 ? num / 30 : Math.ceil(num / 30);;
     async.whilst(
-      () => sign <= page,
+      () => page <= total,
       (cb) => {
-        option.url = `http://changyan.sohu.com/api/2/topic/comments?client_id=cyqyBluaj&page_size=30&topic_id=${vid}&page_no=${sign}&_=${new Date().getTime()}`;
+        option.url = `http://changyan.sohu.com/api/2/topic/comments?client_id=cyqyBluaj&page_size=30&topic_id=${vid}&page_no=${page}&_=${new Date().getTime()}`;
         request.get(logger, option, (err, data) => {
           if (err) {
             logger.error('occur error : ', err);
@@ -1689,22 +1688,22 @@ class DealWith {
               user.p = 21;
               user.id = contents[i].passport.user_id;
               user.name = contents[i].passport.nickname;
-              page = 0;
+              total = 0;
               callback(null, user);
               return;
             }
           }
-          sign += 1;
+          page += 1;
           cb();
-        })
+        });
       },
       (err, result) => {
         if (err) {
           callback(err);
         } else if (result) {
-          callback(null, result)
+          callback(null, result);
         } else {
-          callback('error')
+          callback('error');
         }
       }
     );
@@ -1713,7 +1712,8 @@ class DealWith {
     const verifyCode = verifyData.verifyCode.replace(/\s/, ''),
       htmlUrl = verifyData.remote,
       contentId = htmlUrl.match(/\/ac[\d]*/).toString().replace('/ac', ''),
-      user = {};
+      user = {},
+      options = {};
     let commentContentArr, cycle = true, page = 0;
     async.whilst(
       () => cycle,
@@ -1836,7 +1836,7 @@ class DealWith {
       option = {
         ua: 1
       };
-    let vid, cid;
+    let vid;
     if (htmlUrl.match(/video_(\d*)/)) {
       vid = htmlUrl.match(/video_(\d*)/)[1];
     } else {
@@ -1845,20 +1845,17 @@ class DealWith {
     option.url = `http://v.ifeng.com/docvlist/${vid}-1.js`;
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('评论ID请求失败', err);
         callback(err, { code: 103, p: 24 });
         return;
       }
       result = result.body;
       if (!result || result.length <= 0 || result.match(/404.shtml/)) {
-        logger.debug('该视频已被删除', result.match(/404.shtml/)[0]);
         callback('err', { code: 103, p: 24 });
         return;
       }
       const startIndex = result.indexOf('var data='),
         endIndex = result.indexOf(';bsCallback.getSinglePage');
       if ((startIndex || endIndex) === -1) {
-        logger.debug('没有评论', startIndex, '---', endIndex);
         callback('err', { code: 103, p: 24 });
         return;
       }
@@ -1870,17 +1867,17 @@ class DealWith {
         callback(e, { code: 103, p: 24 });
         return;
       }
-      this.ifengComment( data.dataList[0].guid, userVal, (error, user) => {
+      this.ifengComment(data.dataList[0].guid, userVal, (error, user) => {
         if (error) {
-          callback(error, {code: 105, p: 24});
+          callback(error, { code: 105, p: 24 });
           return;
         }
-        callback(null, user)
+        callback(null, user);
       });
     });
   }
 
-  ifengComment( cid, userVal, callback ) {
+  ifengComment(cid, userVal, callback) {
     const options = {}, user = {};
     let cycle = true,
       page = 1,
@@ -1937,7 +1934,7 @@ class DealWith {
       option = {};
     let cycle = true, offset = 0,
       vid = htmlUrl.match(/(\w*)\.html/)[1];
-    vid = vid.substring(0,1) == 'V' ? vid.replace('V', '') : vid;
+    vid = vid.substring(0, 1) === 'V' ? vid.replace('V', '') : vid;
     async.whilst(
       () => cycle,
       (cb) => {
@@ -1955,7 +1952,7 @@ class DealWith {
             cb(e);
             return;
           }
-          let comments = result.comments;
+          const comments = result.comments;
           if (!result.commentIds || result.commentIds <= 0) {
             cb('error');
             return;
@@ -1979,7 +1976,7 @@ class DealWith {
           err === 'error' ? callback(err, { code: 105, p: 25 }) : callback(err, { code: 103, p: 25 });
           return;
         }
-        callback(err, result)
+        callback(err, result);
       }
     );
   }
@@ -2036,8 +2033,8 @@ class DealWith {
           callback(err, { code: 102, p: 26 });
           return;
         }
-        let $ = cheerio.load(result.body),
-          script;
+        const $ = cheerio.load(result.body);
+        let script;
         if (host == 'tc.uc.cn') {
           script = $('script')[0].children[0].data;
         } else {
@@ -2058,7 +2055,7 @@ class DealWith {
       });
     }
   }
-  getUClist( parameter, callback ) {
+  getUClist(parameter, callback) {
     const user = {}, options = {};
     let cycle = true,
       hotScore = '',
@@ -2171,7 +2168,7 @@ class DealWith {
   }
 
   qzone(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       host = URL.parse(htmlUrl, true).hostname,
       option = {},
@@ -2197,9 +2194,9 @@ class DealWith {
           this.qzone(verifyData, callback);
           return;
         }
-        let $ = cheerio.load(result.body),
-          script = $('script')[13].children[0].data,
-          data = script.match(/"uin":"\d*","_wv":"\d*","_ws":"\d*","adtag":"\w*","is_video":"\w*","shuoshuo_id":"\w*","data/).toString().replace(/"uin/, '{"uin').replace(/,"data/, '}');
+        const $ = cheerio.load(result.body),
+          script = $('script')[13].children[0].data;
+        let data = script.match(/"uin":"\d*","_wv":"\d*","_ws":"\d*","adtag":"\w*","is_video":"\w*","shuoshuo_id":"\w*","data/).toString().replace(/"uin/, '{"uin').replace(/,"data/, '}');
         try {
           data = JSON.parse(data);
         } catch (e) {
@@ -2239,7 +2236,6 @@ class DealWith {
       () => cycle,
       (cb) => {
         option.url = `https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?num=20&uin=${parameter.uin}&tid=${parameter.tid}&pos=${pos}`;
-        logger.debug(option.url)
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('occur error: ', err);
@@ -2328,6 +2324,7 @@ class DealWith {
               return;
             }
           }
+          page += 1;
           cb();
         });
       },
@@ -2347,11 +2344,11 @@ class DealWith {
         url: htmlUrl,
         ua: 1
       },
-      user = {};
+      user = {},
+      vid = htmlUrl.match(/vplay\/(\d*)/)[1];
     let page = 1,
       contents = '',
-      cycle = true,
-      vid = htmlUrl.match(/vplay\/(\d*)/)[1];
+      cycle = true;
     async.whilst(
       () => cycle,
       (cb) => {
@@ -2398,7 +2395,7 @@ class DealWith {
     );
   }
   v1(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       path = URL.parse(htmlUrl, true).pathname,
       vid = path.match(/(\d*)\./)[1],
@@ -2410,8 +2407,8 @@ class DealWith {
         data: {
           vid: vid
         }
-      },
-      lastid = 0,
+      };
+    let lastid = 0,
       contents = '',
       cycle = true,
       user;
@@ -2462,20 +2459,14 @@ class DealWith {
       }
     );
   }
-  huashu(verifyData, callback) {
-    /**
-    *  用户ID 不可用
-    * */
-  }
 
   youtube(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       urlObj = URL.parse(htmlUrl, true),
       // host    = urlObj.hostname,
       // path    = urlObj.pathname,
       aid = urlObj.query.v,
-      bid = '',
       user = {},
       option = {
         url: `https://www.youtube.com/watch?v=${aid}&spf=navigate`,
@@ -2487,24 +2478,19 @@ class DealWith {
           'accept-language': 'zh-CN,zh;q=0.8',
           cookie: 'PREF=f5=30&fms2=10000&fms1=10000&al=zh-CN&f1=50000000; VISITOR_INFO1_LIVE=G3t2ohxkCtA; YSC=24sBeukc1vk;'
         }
-      },
-      session_token,
-      page_token,
-      foot;
+      };
     req(option, (error, response, body) => {
       if (error) {
         logger.debug('youtube的视频参数接口请求失败', error);
-        return callback(error, { code: 103, p: 39 });
-      }
-      if (response.statusCode != 200) {
-        logger.debug('视频参数状态码错误', response.statusCode);
-        return callback(true, { code: 103, p: 39 });
+        callback(error, { code: 103, p: 39 });
+        return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
         logger.debug('解析失败', body);
-        return this.youtube(verifyData, callback);
+        this.youtube(verifyData, callback);
+        return;
       }
       body = body[3].foot.replace(/[\s\n\r]/g, '');
       user.session_token = body.match(/\'XSRF_TOKEN\':"\w*=+",/).toString().replace(/\'XSRF_TOKEN\':"/, '').replace('",', '');
@@ -2514,7 +2500,8 @@ class DealWith {
       // logger.debug('第一步');
       this.ytbTimeComment(user, (err, users) => {
         if (err) {
-          return callback(err, { code: 103, p: 39 });
+          callback(err, { code: 103, p: 39 });
+          return;
         }
         callback(null, users);
       });
@@ -2538,17 +2525,20 @@ class DealWith {
     req(option, (error, response, body) => {
       if (error) {
         logger.debug('youtube评论DOM接口请求失败', error);
-        return callback(error);
+        callback(error);
+        return;
       }
-      if (response.statusCode != 200) {
+      if (response.statusCode !== 200) {
         logger.debug('评论状态码错误', response.statusCode);
-        return callback(true, { code: 103, p: 39 });
+        callback(true, { code: 103, p: 39 });
+        return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
         logger.debug('解析失败', body);
-        return callback(e);
+        callback(e);
+        return;
       }
       // logger.debug('第二步');
       const $ = cheerio.load(body.body['watch-discussion']);
@@ -2583,24 +2573,28 @@ class DealWith {
         };
         req(option, (error, response, body) => {
           if (error) {
-            logger.debug('youtube评论列表请求失败', err);
-            return cb();
+            logger.debug('youtube评论列表请求失败', error);
+            cb();
+            return;
           }
           if (response.statusCode != 200) {
             logger.debug(option);
             logger.debug('评论列表状态码错误', response.statusCode);
-            return cb();
+            cb();
+            return;
           }
           try {
             body = JSON.parse(body);
           } catch (e) {
             logger.debug('评论列表数据解析失败', body);
-            return cb();
+            cb();
+            return;
           }
           // logger.debug('第三步');
           if (!body.content_html) {
             cycle = false;
-            return cb();
+            cb();
+            return;
           }
           $ = cheerio.load(body.content_html);
           if (body.load_more_widget_html) {
@@ -2610,7 +2604,8 @@ class DealWith {
           }
           if ($('.comment-thread-renderer').length <= 0) {
             cycle = false;
-            return cb();
+            cb();
+            return;
           }
           this.ytbdeal(user, $('.comment-thread-renderer'), (err, users) => {
             user.page_token = !_$ ? null : _$('button.yt-uix-button.comment-section-renderer-paginator').attr('data-uix-load-more-post-body').replace('page_token=', '').replace(/253D/g, '3D');
@@ -2619,13 +2614,14 @@ class DealWith {
             }
             if (users) {
               logger.debug('OK');
-              return callback(null, users);
+              callback(null, users);
+              return;
             }
             cb();
           });
         });
       },
-      (err, result) => {
+      () => {
         logger.debug('未找到');
         callback(null, { code: 105, p: 39 });
       }
@@ -2638,7 +2634,7 @@ class DealWith {
       content,
       comment;
     // logger.debug('最后一步');
-    for (index; index < length; index++) {
+    for (index; index < length; index += 1) {
       comment = comments.eq(index);
       content = comment.find('div.comment-renderer>div.comment-renderer-content div.comment-renderer-text-content').text().replace(/[\s\n\r]/g, '');
       if (task.userVal == content) {
@@ -2648,23 +2644,19 @@ class DealWith {
           p: 39
         };
         // logger.debug('匹配成功',user);
-        return callback(null, user);
+        callback(null, user);
+        return;
       }
       // logger.debug('匹配失败');
     }
     callback(null, null);
   }
   facebook(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       urlObj = URL.parse(htmlUrl, true),
-      host = urlObj.hostname,
       path = urlObj.pathname,
       query = urlObj.query,
-      bid = '',
-      aid = '',
-      cycle = true,
-      offset = 0,
       option = {
         method: 'POST',
         url: 'https://www.facebook.com/ajax/ufi/comment_fetch.php?dpr=1',
@@ -2686,6 +2678,9 @@ class DealWith {
           lsd: 'AVpZN3FE'
         }
       };
+    let cycle = true,
+      offset = 0,
+      aid = '';
     if (query.type) {
       aid = path.split('/')[4];
     }
@@ -2698,36 +2693,39 @@ class DealWith {
         req(option, (error, response, body) => {
           if (error) {
             logger.debug('评论列表请求失败', error.message);
-            return callback(error, { code: 103, p: 40 });
+            callback(error, { code: 103, p: 40 });
+            return;
           }
-          if (response.statusCode != 200) {
+          if (response.statusCode !== 200) {
             logger.debug('评论状态码错误', response.statusCode);
-            return callback(true, { code: 103, p: 40 });
+            callback(true, { code: 103, p: 40 });
+            return;
           }
-          /* logger.debug(option)
-           logger.debug(body)*/
           try {
             body = body.replace('for (;;);', '').replace(/[\n\r]/g, '');
             body = JSON.parse(body);
           } catch (e) {
             logger.debug('解析失败', body);
-            return cb();
+            cb();
+            return;
           }
           body = body.jsmods.require[0][3][1];
           if (body.comments.length <= 0) {
             cycle = false;
-            return cb();
+            cb();
+            return;
           }
           this.facedeal(body, userVal, (err, result) => {
-            if (err == 'OK') {
-              return callback(null, result);
+            if (err === 'OK') {
+              callback(null, result);
+              return;
             }
             offset += 50;
             cb();
           });
         });
       },
-      (err, result) => {
+      () => {
         logger.debug('结束');
         callback(null, { code: 105, p: 40 });
       }
@@ -2740,18 +2738,17 @@ class DealWith {
         user.p = 40;
         user.id = comments.comments[i].author;
         user.name = comments.profiles[user.id].name;
-        return callback('OK', user);
+        callback('OK', user);
+        return;
       }
     }
     callback();
   }
   renren(verifyData, callback) {
-    let htmlUrl = verifyData.remote,
+    const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       urlObj = URL.parse(htmlUrl, true),
       hash = urlObj.hash,
-      cycle = true,
-      page = 1,
       option = {
         url: 'http://web.rr.tv/v3plus/comment/list',
         headers: {
@@ -2764,6 +2761,8 @@ class DealWith {
           videoId: hash.split('/')[2]
         }
       };
+    let cycle = true,
+      page = 1;
     async.whilst(
       () => cycle,
       (cb) => {
@@ -2771,28 +2770,32 @@ class DealWith {
         request.post(logger, option, (err, result) => {
           if (err) {
             logger.debug('评论信息请求失败', err);
-            return cb();
+            cb();
+            return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.debug('解析失败', result.body);
-            return cb();
+            cb();
+            return;
           }
           if (result.data.results <= 0) {
             cycle = false;
-            return cb();
+            cb();
+            return;
           }
-          this.renrendeal(result.data.results, userVal, (err, result) => {
-            if (result) {
-              return callback(null, result);
+          this.renrendeal(result.data.results, userVal, (error, res) => {
+            if (res) {
+              callback(null, res);
+              return;
             }
-            page++;
+            page += 1;
             cb();
           });
         });
       },
-      (err, result) => {
+      () => {
         logger.debug('结束，信息没找到');
         callback(null, { code: 105, p: 41 });
       }
@@ -2800,15 +2803,76 @@ class DealWith {
   }
   renrendeal(commens, userVal, callback) {
     const data = {};
-    for (let i = 0; i < commens.length; i++) {
+    for (let i = 0; i < commens.length; i += 1) {
       if (userVal == commens[i].content.replace(/\s/g, '')) {
         data.id = commens[i].author.id;
         data.name = commens[i].author.nickName;
         data.p = 41;
-        return callback(null, data);
+        callback(null, data);
+        return;
       }
     }
     callback();
+  }
+  gumi(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      urlObj = URL.parse(htmlUrl, true),
+      vid = htmlUrl.match(/(\d*)\.html/)[1],
+      option = {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      };
+    let cycle = true,
+      index = 1,
+      user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `http://www.migudm.cn/ugc/${vid}/commentList_p${index}.html`;
+        request.post(logger, option, (err, result) => {
+          if (err) {
+            logger.error('咕咪动漫评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('咕咪动漫评论列表解析失败', e);
+            cb();
+            return;
+          }
+          if (result.data.comments.length === 0) {
+            cb('error');
+            return;
+          }
+          for (const [key, value] of result.data.comments.entries()) {
+            if (userVal == value.content.replace(/\s/g, '')) {
+              user = {
+                id: value.userId,
+                name: value.nickName,
+                p: 46
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          index += 1;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err, { code: 105, p: 46 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
   }
 }
 module.exports = DealWith;
