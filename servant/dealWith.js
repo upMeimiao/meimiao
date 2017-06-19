@@ -531,10 +531,9 @@ class DealWith {
     let groupId,
       itemid = data.indexOf('item') !== -1 ? data.match(/\/item\/(\d*)\//)[1] : null,
       bid,
-      res = null;
+      res = {};
     request.get(option, (err, result) => {
       if (err) {
-        logger.error('播放详情页DOM请求失败', err);
         callback(err, { code: 102, p:6 });
         return;
       }
@@ -562,7 +561,7 @@ class DealWith {
   }
   getToutiaoMediaId(groupId, item, callback) {
     const option = {
-      url: `${api.toutiao.media + groupId}`,
+      url: `${api.toutiao.media + groupId}&item_id=${item.itemid || ''}`,
       ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
     };
     request.get(option, (err, result) => {
@@ -580,13 +579,17 @@ class DealWith {
         callback('get-media-error');
         return;
       }
-      let itemid = result.data.recommend_sponsor.target_url.match(/item_id=(\d*)/)[1],
+      let itemid = result.data.recommend_sponsor ? result.data.recommend_sponsor.target_url.match(/item_id=(\d*)/)[1] : '',
         res = {
         id: result.data.h5_extra.media.id,
         name: result.data.h5_extra.media.name,
         avatar: result.data.h5_extra.media.avatar_url,
         p: 6
       };
+      if (!itemid) {
+        itemid = result.data.script ? result.data.script.match(/item_id=(\d*)/)[1] : '';
+        itemid = itemid || result.data.share_url.match(/item\/(\d*)/)[1];
+      }
       if (item && item.itemid != itemid) {
         itemid = item.itemid;
         res.id = item.bid
@@ -602,7 +605,6 @@ class DealWith {
           res.avatar = user.avatar;
         }
         if (item && item != itemid && user.id) {
-          logger.debug(111);
           res.id = user.id;
           res.name = user.name;
           res.avatar = user.avatar;
@@ -653,12 +655,14 @@ class DealWith {
     };
     request.get(option, (err, result) => {
       if (err) {
+        logger.debug('---', error);
         callback('bid2-error');
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
+        logger.debug('1111', error);
         callback('bid2-JSON-error');
         return;
       }
