@@ -66,7 +66,7 @@ class spiderCore extends events{
         }
         callback();
       });
-    },1);
+    }, 5);
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');

@@ -83,7 +83,6 @@ class dealWith {
     })
   }
   getTotal(task, callback) {
-    logger.debug('开始获取视频总数');
     const option = {
       url: `${this.settings.spiderAPI.tencent.videoList + task.id}&pagenum=1`
     };
@@ -109,14 +108,12 @@ class dealWith {
         return;
       }
       if (result.s !== 'o') {
-        logger.error(`异常错误${result.em}`);
         typeErr = {type: 'data', err: JSON.stringify(`异常错误${result.em}`), interface: 'total', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       if (!result.vtotal && result.vtotal !== 0) {
-        logger.error('异常错误');
         typeErr = {type: 'data', err: JSON.stringify('异常错误 result.vtotal !== 0'), interface: 'total', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
