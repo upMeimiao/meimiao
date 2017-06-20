@@ -75,8 +75,6 @@ class dealWith {
       if (!body.data) {
         typeErr = {type: 'data', err: 'data-null', interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
-        return;
       }
       callback();
     })
@@ -133,13 +131,8 @@ class dealWith {
       if (!data) {
         typeErr = {type: 'data', err: 'data-null', interface: 'total', url: JSON.stringify(options)};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
-        return;
       }
-      // const videos = data.videos;
-      // this.info(task, videos, () => {
       callback();
-      // });
     });
   }
   info(task, callback) {

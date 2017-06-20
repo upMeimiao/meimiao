@@ -68,8 +68,6 @@ class dealWith {
       if (!fans) {
         typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
-        return;
       }
       callback();
     })
@@ -97,8 +95,6 @@ class dealWith {
       if (!fans) {
         typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
-        return;
       }
       callback()
     })
