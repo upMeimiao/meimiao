@@ -17,7 +17,7 @@ class setTask {
       callback();
     }, 2);
     q.drain = () => {
-      logger.debug('单个平台任务并发完成');
+      // logger.debug('单个平台任务并发完成');
       callback();
     };
     q.push(getTask[pname], (err) => {
