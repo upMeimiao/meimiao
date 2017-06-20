@@ -62,6 +62,10 @@ exports.interface = (events, task, typeErr) => {
     // 超时的错误暂时先不管
     return;
   }
+  if (typeErr.err.includes('Unexpected end of JSON input')) {
+    // 意外的json错误
+    return;
+  }
   events.MSDB.get(key, (err, result) => {
     if (err) {
       events.emit('error', {error: '接口数据库查询失败', platform: p});

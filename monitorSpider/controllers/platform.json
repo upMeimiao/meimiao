@@ -38,5 +38,9 @@
   "kuaibao": [
     {"p": 10, "id": "5148958", "name": "鼓乐人生", "encodeId": "", "aid": ""},
     {"p": 10, "id": "15375", "name": "南七道", "encodeId": "", "aid": ""}
+  ],
+  "yidian": [
+    {"p": 11, "id": "m145748", "name": "天天逗事", "encodeId": "", "aid": ""},
+    {"p": 11, "id": "m101257", "name": "羞羞的影评", "encodeId": "", "aid": ""}
   ]
 }
