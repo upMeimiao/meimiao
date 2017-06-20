@@ -10,6 +10,7 @@ const dealWith = new Map([
   [5, 'meipai'],
   [6, 'toutiao'],
   [7, 'miaopai'],
-  [8, 'bili']
+  [8, 'bili'],
+  [9, 'souhu']
 ]);
 module.exports = dealWith;

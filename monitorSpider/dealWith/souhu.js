@@ -1,11 +1,12 @@
 /**
- * Created by zhupenghui on 17/6/19.
+ * Created by zhupenghui on 17/6/20.
  */
 const async = require( 'neo-async' );
 const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
+const jsonp = (data) => data;
 let logger, api, typeErr;
 class dealWith {
   constructor(core) {
@@ -13,7 +14,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     api = this.settings.spiderAPI;
-    logger.trace('miaopai monitor begin...');
+    logger.trace('souhu monitor begin...');
   }
   start(task, callback) {
     task.total = 0;
@@ -30,7 +31,15 @@ class dealWith {
           });
         },
         media: (cb) => {
-          this.getInfo(task, task.aid);
+          this.getInfo(task);
+          cb();
+        },
+        getDigg: (cb) => {
+          this.getDigg(task);
+          cb();
+        },
+        comment: (cb) => {
+          this.getCommentNum(task);
           cb();
         }
       },
@@ -41,7 +50,7 @@ class dealWith {
   }
   getUser(task, callback) {
     const options = {
-      url: `${this.settings.spiderAPI.miaopai.api}1&per=20&suid=${task.id}`
+      url: `${this.settings.spiderAPI.souhu.newUser + task.id}.json?api_key=${this.settings.spiderAPI.souhu.key}&_=${(new Date()).getTime()}`
     };
     request.get(logger, options, (err, result) => {
       if (err) {
@@ -66,7 +75,7 @@ class dealWith {
   }
   list(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.miaopai.api}&per=20&suid=${task.id}`
+      url: `${this.settings.spiderAPI.souhu.newList + task.id}&page=1&_=${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -88,16 +97,16 @@ class dealWith {
         callback();
         return;
       }
-      if (!result.result || result.result.length === 0) {
-        typeErr = {type: 'data', err: 'miaopai-list-data-null', interface: 'list', url: option.url};
+      if (!result.data || result.data.videos.length === 0) {
+        typeErr = {type: 'data', err: 'bili-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       callback();
     });
   }
-  getInfo(task, id) {
+  getInfo(task) {
     const option = {
-      url: `http://api.miaopai.com/m/v2_channel.json?fillType=259&scid=${id}&vend=miaopai`
+      url: `${this.settings.spiderAPI.souhu.videoInfo + task.aid}.json?site=2&api_key=695fe827ffeb7d74260a813025970bd5&aid=0`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -119,6 +128,52 @@ class dealWith {
       }
       if (Number(result.status) !== 200) {
         typeErr = {type: 'status', err: JSON.stringify(result.status), interface: 'getInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+      }
+    });
+  }
+  getDigg(task) {
+    const option = {
+      url: `${this.settings.spiderAPI.souhu.digg + task.aid}&_=${(new Date()).getTime()}`
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getDigg', url: option.url};
+          infoCheck.interface(this.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getDigg', url: option.url};
+          infoCheck.interface(this.core, task, typeErr);
+        }
+        return;
+      }
+      try {
+        result = eval(result.body);
+      } catch (e) {
+        typeErr = {type: 'error', err: JSON.stringify(e.message), interface: 'getInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+      }
+    });
+  }
+  getCommentNum(task) {
+    const option = {
+      url: this.settings.spiderAPI.souhu.comment + task.aid
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getCommentNum', url: option.url};
+          infoCheck.interface(this.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getCommentNum', url: option.url};
+          infoCheck.interface(this.core, task, typeErr);
+        }
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'error', err: JSON.stringify(e.message), interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

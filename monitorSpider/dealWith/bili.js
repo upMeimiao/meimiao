@@ -122,7 +122,7 @@ class dealWith {
         return;
       }
       if (Number(result.code) !== 0) {
-        typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getInfo', url: option.url};
+        typeErr = {type: 'data', err: 'bili-video-data-error', interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
