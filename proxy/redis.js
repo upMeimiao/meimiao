@@ -104,7 +104,7 @@ class redis {
               db.incr(data.proxy);
               db.zrem('bproxy', data.proxy);
               db.sadd('proxy', data.proxy);
-              db.expire(data.proxy, 900);// 1800
+              db.expire(data.proxy, 1800);// 1800
               callback();
             } else {
               db.zrem('bproxy', data.proxy);
