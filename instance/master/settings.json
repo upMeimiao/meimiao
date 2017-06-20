@@ -13,7 +13,8 @@
   "proxy": {
     "host": "10.169.16.235",
     "port": 3002,
-    "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1000&protocol=1&method=1&an_an=1&an_ha=1&sp1=1&sp2=1&f_pr=1&quality=1&format=json&sep=1",
+    "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1&format=json",
+    "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1000&protocol=1&method=1&an_an=1&an_ha=1&sp1=1&sp2=1&f_pr=1&quality=1&format=json&sep=1",
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
   },
   "kue": {
