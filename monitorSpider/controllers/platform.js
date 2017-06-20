@@ -8,6 +8,7 @@ const dealWith = new Map([
   [3, "le"],
   [4, 'tencent'],
   [5, 'meipai'],
-  [6, 'toutiao']
+  [6, 'toutiao'],
+  [7, 'miaopai']
 ]);
 module.exports = dealWith;

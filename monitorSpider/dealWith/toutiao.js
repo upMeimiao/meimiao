@@ -131,33 +131,9 @@ class dealWith {
           typeErr = {type: 'data', err: 'toutiao-list-data-null', interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        this.deal(task, result.data);
+        // this.deal(task, result.data);
         callback();
       });
-    });
-  }
-  deal(task, list) {
-    const id = list.shift().id,
-      option = {
-      url: this.settings.spiderAPI.meipai.media + id
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'media', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
-        } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'media', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
-        }
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'media', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-      }
     });
   }
 }

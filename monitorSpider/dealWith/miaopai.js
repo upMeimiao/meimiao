@@ -2,6 +2,7 @@
  * Created by zhupenghui on 17/6/19.
  */
 const async = require( 'neo-async' );
+const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
@@ -10,10 +11,9 @@ class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    this.classification = ['热门', '直播', '搞笑', '明星名人', '明星', '女神', '舞蹈', '音乐', '美食', '美妆', '男神', '宝宝', '宠物', '吃秀', '手工', '游戏'];
     logger = this.settings.logger;
     api = this.settings.spiderAPI;
-    logger.trace('meipai monitor begin...');
+    logger.trace('miaopai monitor begin...');
   }
   start(task, callback) {
     task.total = 0;
@@ -28,6 +28,10 @@ class dealWith {
           this.list(task, () => {
             cb();
           });
+        },
+        media: (cb) => {
+          this.getInfo(task, task.aid);
+          cb();
         }
       },
       () => {
@@ -37,7 +41,7 @@ class dealWith {
   }
   getUser(task, callback) {
     const options = {
-      url: this.settings.spiderAPI.meipai.userInfo + task.id
+      url: `${this.settings.spiderAPI.miaopai.api}1&per=20&suid=${task.id}`
     };
     request.get(logger, options, (err, result) => {
       if (err) {
@@ -56,20 +60,13 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
-        return;
-      }
-      const fans = result.followers_count;
-      if (!fans) {
-        typeErr = {type: 'data', err: 'meipai-user-fansData-error', interface: 'user', url: options.url};
-        infoCheck.interface(this.core, task, typeErr);
       }
       callback();
     })
   }
   list(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.meipai.mediaList + task.id}&max_id=`
+      url: `${this.settings.spiderAPI.miaopai.api}&per=20&suid=${task.id}`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -91,28 +88,24 @@ class dealWith {
         callback();
         return;
       }
-      if (!result || result.length == 0) {
-        typeErr = {type: 'data', err: 'meipai-list-data-null', interface: 'list', url: option.url};
+      if (!result.result || result.result.length == 0) {
+        typeErr = {type: 'data', err: 'miaopai-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
-        return;
       }
-      this.deal(task, result);
       callback();
     });
   }
-  deal(task, list) {
-    const id = list.shift().id,
-      option = {
-      url: this.settings.spiderAPI.meipai.media + id
+  getInfo(task, id) {
+    const option = {
+      url: `http://api.miaopai.com/m/v2_channel.json?fillType=259&scid=${id}&vend=miaopai`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'media', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getInfo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'media', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getInfo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -120,7 +113,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'media', url: option.url};
+        typeErr = {type: 'error', err: JSON.stringify(e.message), interface: 'getInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (Number(result.status) !== 200) {
+        typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
