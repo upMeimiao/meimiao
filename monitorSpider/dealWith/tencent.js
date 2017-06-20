@@ -69,7 +69,7 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;

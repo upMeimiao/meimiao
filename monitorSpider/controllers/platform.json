@@ -14,5 +14,9 @@
   "tencent": [
     {"p": 4, "id": "5ecf4e71e28e0edeced49e3d6d74a98f", "name": "陈翔六点半", "encodeId": "", "aid": "j0516n03cx0"},
     {"p": 4, "id": "c039148704fc57cf2532f783f354df07", "name": "VICE中国", "encodeId": "", "aid": "k0516f8z0ib"}
+  ],
+  "meipai": [
+    {"p": 5, "id": "1066877255", "name": "魔卡恋爱学", "encodeId": "", "aid": "j0516n03cx0"},
+    {"p": 5, "id": "1000001181", "name": "暴走漫画", "encodeId": "", "aid": "k0516f8z0ib"}
   ]
 }
