@@ -271,21 +271,21 @@ class dealWith {
     });
   }
   deal(task, list, callback) {
-    let index = 0;
-    const length = list.length;
-    async.whilst(
-      () => index < length,
-      (cb) => {
-        this.getDetail(task, list[index], () => {
-          index += 1;
-          cb();
-        });
-      },
-      () => {
-        callback();
-      }
-    );
-  }
+  let index = 0;
+  const length = list.length;
+  async.whilst(
+    () => index < length,
+    (cb) => {
+      this.getDetail(task, list[index], () => {
+        index += 1;
+        cb();
+      });
+    },
+    () => {
+      callback();
+    }
+  );
+}
   // getInfo(task, video, callback) {
   //   const option = {
   //     referer: 'http://r.cnews.qq.com/inews/iphone/',

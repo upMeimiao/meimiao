@@ -24,6 +24,10 @@ let logger = logging.getLogger('信息处理');
 const interSetErr = (events, result, typeErr) => {
   const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
     time =  parseInt(new Date().getTime() / 1000, 10);
+  if ((Number(time) - Number(result.startTime)) >= 3600) {
+    events.MSDB.del(key);
+    return;
+  }
   if (typeErr.err != result.message) {
     result.num = 0;
     result.message = typeErr.err;
