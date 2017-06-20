@@ -19,7 +19,8 @@ class mediaScheduler extends events {
         host: this.redis.host,
         auth: this.redis.auth,
         db: this.redis.jobDB
-      }
+      },
+      jobEvents: false
     });
     this.logger.trace('视频任务调度器初始化完成');
   }
