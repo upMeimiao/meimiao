@@ -71,7 +71,7 @@ class videoSend extends events {
       // if (elem.platform < 41 || Number(elem.platform) === 44) {
       //   newList.push(elem);
       // }
-      if (Number(elem.platform) !== 41) {
+      if (Number(elem.platform) !== 41 && Number(elem.platform) !== 46) {
         newList.push(elem);
       }
     }

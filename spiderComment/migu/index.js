@@ -71,8 +71,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_bolo', this.settings.concurrency, (job, done) => {
-      logger.trace('Get bolo task!');
+    queue.process('comment_migu', this.settings.concurrency, (job, done) => {
+      logger.trace('Get migu task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
@@ -91,8 +91,8 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_bolo', this.settings.concurrency, (job, done) => {
-      logger.trace('Get bolo task!');
+    queue.process('comment_update_migu', this.settings.concurrency, (job, done) => {
+      logger.trace('Get migu task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);

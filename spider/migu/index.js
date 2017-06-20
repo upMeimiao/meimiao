@@ -56,8 +56,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('gumi', this.settings.concurrency, (job, done) => {
-      logger.trace('Get gumi task!');
+    queue.process('migu', this.settings.concurrency, (job, done) => {
+      logger.trace('Get migu task!');
       const work = job.data,
         key = `${work.p}:${work.id}`;
       logger.info(work);

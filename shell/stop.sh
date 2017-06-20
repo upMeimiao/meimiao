@@ -168,6 +168,9 @@ then
             '火山小视频')
                 ssh root@${loop} 'pm2 stop 火山小视频'
                 ;;
+            '咪咕动漫')
+                ssh root@${loop} 'pm2 reload 咪咕动漫'
+                ;;
             esac
             echo
             echo "--------------$2 视频服务停止完成，退出服务器 $loop --------------"
@@ -308,6 +311,9 @@ then
                 ;;
             '火山小视频')
                 ssh root@${loop} 'pm2 stop 火山小视频'
+                ;;
+            '咪咕动漫')
+                ssh root@${loop} 'pm2 reload 咪咕动漫'
                 ;;
             esac
             echo

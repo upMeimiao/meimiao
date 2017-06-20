@@ -381,8 +381,8 @@ class Handle {
       ctx.res.end(JSON.stringify(this.preResult(err, result)));
     });
   }
-  gumiHandle(ctx, remote) {
-    dealWith.gumi(remote, (err, result) => {
+  miguHandle(ctx, remote) {
+    dealWith.migu(remote, (err, result) => {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
       ctx.res.writeHead(200);
       ctx.res.end(JSON.stringify(this.preResult(err, result)));

@@ -77,9 +77,9 @@ class dealWith {
         return;
       }
       if (Number(result.errno) === 0) {
-        logger.debug('咕咪动漫用户:', `${user.bid} back_end`);
+        logger.debug('咪咕动漫用户:', `${user.bid} back_end`);
       } else {
-        logger.error('咕咪动漫用户:', `${user.bid} back_error`);
+        logger.error('咪咕动漫用户:', `${user.bid} back_error`);
         logger.info(result);
       }
     });
@@ -102,9 +102,9 @@ class dealWith {
         return;
       }
       if (Number(result.errno) === 0) {
-        logger.debug('咕咪动漫用户:', `${user.bid} back_end`);
+        logger.debug('咪咕动漫用户:', `${user.bid} back_end`);
       } else {
-        logger.error('咕咪动漫用户:', `${user.bid} back_error`);
+        logger.error('咪咕动漫用户:', `${user.bid} back_error`);
         logger.info(result);
       }
     });
