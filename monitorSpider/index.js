@@ -18,6 +18,7 @@ class spiderCore extends events{
     settings = _settings;
     this.settings = settings;
     this.redis = settings.redis;
+    this.proxy = new (require('./proxy'))(this);
     this.getTask = new (require('./controllers/beginTask'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...')

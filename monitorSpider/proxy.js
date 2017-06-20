@@ -1,7 +1,7 @@
 const request = require('request');
 
 let logger,settings;
-class proxy {
+class Proxy {
   constructor(_core) {
     this.core = _core;
     settings = _core.settings;
@@ -9,33 +9,60 @@ class proxy {
     logger.trace('Proxy module instantiation')
   }
 
+  getProxy(times, callback) {
+    let proxyStatus = false,
+      proxy = '';
+    if (proxyStatus && proxy) {
+      callback(null, proxy);
+    } else {
+      this.core.proxy.need(times, (err, _proxy) => {
+        if (err) {
+          if (err === 'timeout!') {
+            callback(null, 'timeout');
+            return;
+          }
+          logger.error('Get proxy occur error:', err.message);
+          proxyStatus = false;
+          this.core.proxy.back(_proxy, false);
+          callback(err);
+          return;
+        }
+        callback(null, _proxy);
+      });
+    }
+  }
+
   need(times, callback) {
-    if (times > 4) {
-      return callback('timeout!')
+    if (times > 5) {
+      callback('timeout!');
+      return;
     }
     //logger.trace('Send a Require command')
     request(`http://${settings.proxy.host}:${settings.proxy.port}`, (err, res, body) => {
       if (err) {
         logger.debug('err:', err);
-        return setTimeout(() => {
-          return this.need(times + 1, callback)
-        }, 3000)
+        setTimeout(() => {
+          this.need(times + 1, callback)
+        }, 3000);
+        return;
       }
       let proxy;
       try {
         proxy = JSON.parse(body)
       } catch (e) {
         logger.error('Decode response occur error!');
-        return callback(e.message)
+        callback(e.message);
+        return;
       }
       if (proxy.proxy) {
         //logger.debug(proxy.proxy)
-        return callback(null, proxy.proxy)
+        callback(null, proxy.proxy);
+        return;
       }
       setTimeout(() => {
         // logger.debug('setTImeout')
-        return this.need(times + 1, callback)
-      }, 3000)
+        this.need(times + 1, callback)
+      }, 3000);
     })
   }
 
@@ -43,13 +70,15 @@ class proxy {
     request.post(`http://${settings.proxy.host}:${settings.proxy.port}/?proxy=${proxy}&status=${status}`, (err, res, body) => {
       if (err) {
         if (callback) {
-          return callback(res)
+          callback(res);
+          return;
         }
       }
       if (callback) {
-        return callback(res)
+        callback(res);
+        return;
       }
     })
   }
 }
-module.exports = proxy;
+module.exports = Proxy;
