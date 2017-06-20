@@ -127,7 +127,7 @@ class dealWith {
           callback();
           return;
         }
-        if (!result || result.length == 0) {
+        if (!result || result.length === 0) {
           typeErr = {type: 'data', err: 'toutiao-list-data-null', interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }

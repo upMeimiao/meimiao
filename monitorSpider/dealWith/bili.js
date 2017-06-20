@@ -13,7 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     api = this.settings.spiderAPI;
-    logger.trace('miaopai monitor begin...');
+    logger.trace('bili monitor begin...');
   }
   start(task, callback) {
     task.total = 0;
@@ -30,7 +30,7 @@ class dealWith {
           });
         },
         media: (cb) => {
-          this.getInfo(task, task.aid);
+          this.getInfo(task);
           cb();
         }
       },
@@ -41,9 +41,13 @@ class dealWith {
   }
   getUser(task, callback) {
     const options = {
-      url: `${this.settings.spiderAPI.miaopai.api}1&per=20&suid=${task.id}`
+      url: this.settings.spiderAPI.bili.userInfo,
+      referer: `http://space.bilibili.com/${task.id}/`,
+      data: {
+        mid: task.id
+      }
     };
-    request.get(logger, options, (err, result) => {
+    request.post(logger, options, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
@@ -66,7 +70,7 @@ class dealWith {
   }
   list(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.miaopai.api}&per=20&suid=${task.id}`
+      url: `${this.settings.spiderAPI.bili.mediaList + task.id}&pagesize=30&page=1`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -88,16 +92,16 @@ class dealWith {
         callback();
         return;
       }
-      if (!result.result || result.result.length === 0) {
-        typeErr = {type: 'data', err: 'miaopai-list-data-null', interface: 'list', url: option.url};
+      if (!result.data || result.data.vlist.length === 0) {
+        typeErr = {type: 'data', err: 'bili-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       callback();
     });
   }
-  getInfo(task, id) {
+  getInfo(task) {
     const option = {
-      url: `http://api.miaopai.com/m/v2_channel.json?fillType=259&scid=${id}&vend=miaopai`
+      url: this.settings.spiderAPI.bili.media + task.aid
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -117,7 +121,7 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (Number(result.status) !== 200) {
+      if (Number(result.code) !== 0) {
         typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }

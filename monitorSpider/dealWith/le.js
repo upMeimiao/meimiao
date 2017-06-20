@@ -175,7 +175,6 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('暂时先不管他');
         return;
       }
       result = result.data.introduction;
