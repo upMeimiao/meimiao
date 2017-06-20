@@ -5,14 +5,13 @@ const async = require( 'neo-async' );
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
-let logger, api, typeErr;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     this.classification = ['热门', '直播', '搞笑', '明星名人', '明星', '女神', '舞蹈', '音乐', '美食', '美妆', '男神', '宝宝', '宠物', '吃秀', '手工', '游戏'];
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('meipai monitor begin...');
   }
   start(task, callback) {

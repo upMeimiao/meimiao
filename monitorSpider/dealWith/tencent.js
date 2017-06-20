@@ -2,20 +2,18 @@
  * Created by zhupenghui on 17/6/15.
  */
 const async = require( 'neo-async' );
-const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => {
   return data
 };
-let logger, api, typeErr;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('tencent monitor begin...');
   }
   start(task, callback) {

@@ -2,17 +2,15 @@
  * Created by zhupenghui on 17/6/19.
  */
 const async = require( 'neo-async' );
-const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
-let logger, api, typeErr;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('bili monitor begin...');
   }
   start(task, callback) {

@@ -9,13 +9,12 @@ const infoCheck = require('../controllers/infoCheck');
 const jsonp = (data) => {
   return data
 };
-let logger, api, typeErr;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('iqiyi monitor begin...');
   }
   start(task, callback) {
@@ -102,7 +101,7 @@ class dealWith {
   getTotal(task, callback) {
     const options = {
       ua: 1,
-      url: api.iqiyi.list[0] + task.id + "&page=1",
+      url: this.settings.spiderAPI.iqiyi.list[0] + task.id + "&page=1",
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
     };
     request.get(logger, options, (err, result) => {
@@ -210,7 +209,7 @@ class dealWith {
   getList(task, callback) {
     const options = {
       ua: 1,
-      url: `${api.iqiyi.list[0] + task.id}&page=1`,
+      url: `${this.settings.spiderAPI.iqiyi.list[0] + task.id}&page=1`,
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
     };
     request.get(logger, options, (err, result) => {
@@ -295,7 +294,7 @@ class dealWith {
   }
   getInfo(task, id, link) {
     let options = {
-      url: api.iqiyi.info + id + "?callback=jsonp&status=1",
+      url: this.settings.spiderAPI.iqiyi.info + id + "?callback=jsonp&status=1",
       referer: link,
       ua: 1
     };
@@ -334,7 +333,7 @@ class dealWith {
   }
   getExpr(task, id, link) {
     const options = {
-      url: api.iqiyi.expr + id,
+      url: this.settings.spiderAPI.iqiyi.expr + id,
       referer: link,
       ua: 1
     };
@@ -365,7 +364,7 @@ class dealWith {
   }
   getPlay(task, id, link) {
     const options = {
-      url: api.iqiyi.play + id + '/?callback=jsonp',
+      url: this.settings.spiderAPI.iqiyi.play + id + '/?callback=jsonp',
       referer: link,
       ua: 1
     };

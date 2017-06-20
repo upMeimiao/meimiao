@@ -5,13 +5,12 @@ const async = require( 'neo-async' );
 const request = require( 'request' );
 const infoCheck = require('../controllers/infoCheck');
 
-let logger,api;
+let logger;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('youku monitor begin...');
   }
   start(task, callback) {

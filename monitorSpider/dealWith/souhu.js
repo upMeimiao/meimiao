@@ -7,13 +7,12 @@ const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => data;
-let logger, api, typeErr;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('souhu monitor begin...');
   }
   start(task, callback) {

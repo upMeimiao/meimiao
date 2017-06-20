@@ -9,13 +9,12 @@ const infoCheck = require('../controllers/infoCheck');
 const jsonp = (data) => {
   return data
 };
-let logger, api, typeErr;
+let logger,  typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('le monitor begin...');
   }
   start(task, callback) {

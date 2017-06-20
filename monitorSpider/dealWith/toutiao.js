@@ -2,7 +2,6 @@
  * Created by zhupenghui on 17/6/19.
  */
 const async = require( 'neo-async' );
-const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 const crypto = require('crypto');
@@ -26,13 +25,12 @@ const getHoney = () => {
     cp: `${e.slice(0, 3) + l}E1`
   };
 };
-let logger, api, typeErr;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     logger = this.settings.logger;
-    api = this.settings.spiderAPI;
     logger.trace('toutiao monitor begin...');
   }
   start(task, callback) {
