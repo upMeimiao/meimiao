@@ -52,7 +52,7 @@ class dealWith {
         return;
       }
       if (res.statusCode !== 200) {
-        typeErr = {type: 'status', err: res.statusCode, interface: 'user', url: options.url};
+        typeErr = {type: 'status', err: JSON.stringify(res.statusCode), interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -97,7 +97,7 @@ class dealWith {
         return;
       }
       if (response.statusCode !== 200) {
-        typeErr = {type: 'status', err: response.statusCode, interface: 'total', url: JSON.stringify(options)};
+        typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'total', url: JSON.stringify(options)};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -154,7 +154,7 @@ class dealWith {
         return;
       }
       if (response.statusCode !== 200) {
-        typeErr = {type: 'status', err: response.statusCode, interface: 'videoInfo', url: JSON.stringify(options)};
+        typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'videoInfo', url: JSON.stringify(options)};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;

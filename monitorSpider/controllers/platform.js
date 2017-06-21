@@ -19,6 +19,7 @@ const dealWith = new Map([
   [14, 'ku6'],
   [15, 'btime'],
   [16, 'weishi'],
-  [17, 'xiaoying']
+  [17, 'xiaoying'],
+  [18, 'budejie']
 ]);
 module.exports = dealWith;

@@ -33,11 +33,13 @@ const interSetErr = (events, result, typeErr) => {
     result.message = typeErr.err;
     result.lastTime = time;
     events.MSDB.set(key, JSON.stringify(result));
+    result = null;
     return;
   }
   if (Number(result.num) >= 5) {
     editEmail.interEmail(events, result);
     events.MSDB.del(key);
+    result = null;
     return;
   }
   result.num = Number(result.num) + 1;
@@ -58,6 +60,7 @@ exports.interface = (events, task, typeErr) => {
     key = `error:${p}:${task.id}:${typeErr.type}`,
     num = 0,
     time = parseInt(new Date().getTime() / 1000, 10);
+  typeErr.err = JSON.stringify(typeErr.err);
   if (typeErr.err.includes('TIMEDOUT')) {
     // 超时的错误暂时先不管
     return;
@@ -94,6 +97,7 @@ exports.interface = (events, task, typeErr) => {
       return;
     }
     interSetErr(events, result, typeErr);
+    result = null;
   });
 };
 
