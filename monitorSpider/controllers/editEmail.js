@@ -46,6 +46,8 @@ exports.interEmail = (events, message) => {
       break;
     default:
       events.emit('error', { error: '无法判断是什么类型的错误', platform: message.platform, bid: message.bid });
-      return;
+      break;
   }
+  events = null;
+  message = null;
 };

@@ -3,17 +3,11 @@
  *  对接口返回的信息、粉丝数、播放量、视频数等进行反复排查，
  *  Create by zhupenghui on 2017/6/13.
 * */
-const Redis = require('ioredis');
 const async = require('neo-async');
 const logging = require('log4js');
 const editEmail = require('./editEmail');
 const platform = require('./platform');
 
-// const myredis = new Redis(`redis://:C19prsPjHs52CHoA0vm@192.168.1.31:6379/6`, {
-//   reconnectOnError(err) {
-//     return err.message.slice(0, 'READONLY'.length) === 'READONLY';
-//   }
-// });
 let logger = logging.getLogger('信息处理');
 
 /**
@@ -33,18 +27,25 @@ const interSetErr = (events, result, typeErr) => {
     result.message = typeErr.err;
     result.lastTime = time;
     events.MSDB.set(key, JSON.stringify(result));
+    events = null;
     result = null;
+    typeErr = null;
     return;
   }
   if (Number(result.num) >= 5) {
     editEmail.interEmail(events, result);
     events.MSDB.del(key);
+    events = null;
     result = null;
+    typeErr = null;
     return;
   }
   result.num = Number(result.num) + 1;
   result.lastTime = time;
   events.MSDB.set(key, JSON.stringify(result));
+  events = null;
+  result = null;
+  typeErr = null;
 };
 /**
  *  接口信息处理方法
@@ -97,6 +98,8 @@ exports.interface = (events, task, typeErr) => {
       return;
     }
     interSetErr(events, result, typeErr);
+    events = null;
+    typeErr = null;
     result = null;
   });
 };

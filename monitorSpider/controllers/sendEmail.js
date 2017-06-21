@@ -35,5 +35,7 @@ exports.sendEmail = (title, content, type) => {
     if (error) {
       console.log('error in sending Email', error);
     }
+    title = null;
+    content = null;
   });
 };
