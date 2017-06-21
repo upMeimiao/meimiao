@@ -27,6 +27,7 @@ const dealWith = new Map([
   [22, 'acfun'],
   [23, 'weibo'],
   [24, 'ifeng'],
-  [25, 'wangyi']
+  [25, 'wangyi'],
+  [26, 'uctt']
 ]);
 module.exports = dealWith;

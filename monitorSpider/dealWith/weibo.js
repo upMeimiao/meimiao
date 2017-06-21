@@ -65,6 +65,12 @@ class dealWith {
       if (!result.userInfo || !result.userInfo.followers_count) {
         typeErr = {type: 'data', err: 'weibo-fans-data-error', interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
+        callback();
+        return;
+      }
+      if (!result.tabsInfo) {
+        callback();
+        return;
       }
       if (result.tabsInfo.tabs[2].title !== '视频') {
         task.NoVideo = true;

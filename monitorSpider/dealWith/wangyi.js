@@ -85,7 +85,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(err.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
