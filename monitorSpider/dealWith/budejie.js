@@ -78,6 +78,7 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
       }
       const data = result.list;
       if(!data) {
