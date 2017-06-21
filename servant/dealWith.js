@@ -418,6 +418,8 @@ class DealWith {
             id = href.substring(href.lastIndexOf('/') + 1),
             name = $('div.video_user._video_user a.user_info span').text(),
             avatar = $('div.video_user._video_user a.user_info img').attr('src');
+          name = name || $('div.video_user a.user_info').attr('title');
+          avatar = avatar || $('div.video_user img.user_avatar').attr('src');
           if (name && avatar) {
             res = {
               id,
