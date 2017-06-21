@@ -35,11 +35,11 @@ class redis {
       () => i < length,
       (cb) => {
         db.zscore('bproxy', proxy[i], (err, result) => {
-          if (result) {
-            i += 1;
-            cb();
-            return;
-          }
+          // if (result) {
+          //   i += 1;
+          //   cb();
+          //   return;
+          // }
           db.sadd('proxy', proxy[i], (error) => {
             if (error) {
               i += 1;
