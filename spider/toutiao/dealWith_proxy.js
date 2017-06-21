@@ -208,7 +208,8 @@ class dealWith {
   getList(task, callback) {
     let index = 0, times = 0, proxyStatus = false, proxy = '',
       sign = true,
-      hotTime = null;
+      hotTime = null,
+      bid = task.mapBid;
     const option = {
       ua: 3,
       own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
@@ -224,10 +225,11 @@ class dealWith {
         }
         const { as, cp } = getHoney();
         if (hotTime) {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.mapBid}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
         } else {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.mapBid}&cp=${cp}&as=${as}&max_behot_time=`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&cp=${cp}&as=${as}&max_behot_time=`;
         }
+        logger.debug(option.url);
         if (proxyStatus && proxy) {
           option.proxy = proxy;
           request.get(logger, option, (error, result) => {
@@ -255,6 +257,11 @@ class dealWith {
               }
               proxyStatus = false;
               this.core.proxy.back(proxy, true);// 原来是false
+              cb();
+              return;
+            }
+            if (Number(result.has_more) === 0 && bid !== task.encodeId) {
+              bid = task.encodeId;
               cb();
               return;
             }
@@ -313,6 +320,11 @@ class dealWith {
               }
               proxyStatus = true;
               proxy = _proxy;
+              if (Number(result.has_more) === 0 && bid !== task.encodeId) {
+                bid = task.encodeId;
+                cb();
+                return;
+              }
               if (!result.data || result.data.length === 0) {
                 task.total = 50 * index;
                 sign = false;

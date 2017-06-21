@@ -32,7 +32,7 @@ class spiderCore {
     this.assembly();
   }
   test() {
-    const work = { id: '61176256872', mapBid: '1568608102815745', encodeId: '61176256872', p: '6', name: '不思异辞典', type: '0' };
+    const work = { id: '1553027344062466', mapBid: '1553027344062466', encodeId: '50375880991', p: '6', name: '菊椒男孩', type: '0' };
     // const work = { id: '6204859881', encodeId: '6173734997', p: '6', name: '一色神技能', type: '0' };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
