@@ -94,5 +94,9 @@
   "ifeng": [
     {"p": 24, "id": "345119", "name": "橙果医生", "encodeId": "", "aid": ""},
     {"p": 24, "id": "292364", "name": "六一儿童网", "encodeId": "", "aid": ""}
+  ],
+  "wangyi": [
+    {"p": 25, "id": "T1470553599106", "name": "飞碟说", "encodeId": "", "aid": "VWMHHC0LC"},
+    {"p": 25, "id": "T1413775248973", "name": "有车以后", "encodeId": "", "aid": "VXLAJ1UNT"}
   ]
 }
