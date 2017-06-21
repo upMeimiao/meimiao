@@ -6,6 +6,7 @@ const request = require( '../../lib/request' );
 const fetchUrl = require('fetch').fetchUrl;
 const infoCheck = require('../controllers/infoCheck');
 
+const jsonp = (data) => data;
 let logger, typeErr;
 class dealWith {
   constructor(core) {
@@ -91,7 +92,7 @@ class dealWith {
         return;
       }
       try {
-        result = JSON.parse(result.body);
+        result = eval(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
@@ -111,29 +112,29 @@ class dealWith {
     };
     fetchUrl(`${this.settings.spiderAPI.tv56.video}${task.aid}&_=${new Date().getTime()}`, options, (err, meta, body) => {
       if (err) {
-        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: option.url};
+        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (meta.status !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(meta.status), interface: 'video', url: option.url};
+        typeErr = {type: 'status', err: JSON.stringify(meta.status), interface: 'video', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'video', url: option.url};
+        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'video', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (body.status !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(body.status), interface: 'video', url: option.url};
+        typeErr = {type: 'status', err: JSON.stringify(body.status), interface: 'video', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!body.data.video_desc) {
-        typeErr = {type: 'data', err: 'tv56-video-data-error', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: 'tv56-video-data-error', interface: 'video', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

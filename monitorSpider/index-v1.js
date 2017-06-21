@@ -54,7 +54,7 @@ class spiderCore {
         this.baofengDeal = new (require('./dealWith/baofengDealWith'))(this)
         this.baiduvideoDeal = new (require('./dealWith/baiduvideoDealWith'))(this)
         this.liVideoDeal = new (require('./dealWith/liVideoDealWith'))(this)
-        this.proxy = new (require('./proxy'))(this)
+        this.proxy = new (require('./controllers/proxy'))(this)
         logger = settings.logger
         logger.trace('spiderCore instantiation ...')
     }

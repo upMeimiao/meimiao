@@ -18,7 +18,7 @@ class spiderCore extends events{
     settings = _settings;
     this.settings = settings;
     this.redis = settings.redis;
-    this.proxy = new (require('./proxy'))(this);
+    this.proxy = new (require('./controllers/proxy'))(this);
     this.getTask = new (require('./controllers/beginTask'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...')
@@ -84,7 +84,7 @@ class spiderCore extends events{
     /**
      *  用来处理错误信息，并发送邮件通知哪个监控平台挂掉了
      * */
-    logger.debug('error:', message);
+    logger.debug('return-error:', message);
     return;
   }
 }
