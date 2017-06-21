@@ -24,6 +24,7 @@ const dealWith = new Map([
   [19, 'neihan'],
   [20, 'yy'],
   [21, 'tv56'],
-  [22, 'acfun']
+  [22, 'acfun'],
+  [23, 'weibo']
 ]);
 module.exports = dealWith;
