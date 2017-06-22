@@ -120,32 +120,6 @@ class dealWith {
       }
     });
   }
-  // getVidTotal(task, callback) {
-  //   const option = {
-  //     url: `${this.settings.spiderAPI.v1.videoList + task.id}&p=1`,
-  //     ua: 1
-  //   };
-  //   request.get(logger, option, (err, result) => {
-  //     if (err) {
-  //       logger.error('接口请求错误 : ', err);
-  //       callback(err);
-  //       return;
-  //     }
-  //     try {
-  //       result = JSON.parse(result.body);
-  //     } catch (e) {
-  //       logger.error('json数据解析失败');
-  //       logger.info(result);
-  //       callback(e);
-  //       return;
-  //     }
-  //     const page = result.body.page_num;
-  //     this.getVidList(task, page, () => {
-  //       callback();
-  //     });
-  //   });
-  // }
-
   getVidList(task, callback) {
     const option = {
         url: this.settings.spiderAPI.v1.newList,
