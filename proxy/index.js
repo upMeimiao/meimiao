@@ -57,7 +57,7 @@ class proxyPool {
       case 'servant_3':
         host = settings.proxy.weiboHost
         break;
-      case 'iZ28ilm78mlZ':
+      case 'iZm5e5rntb358m27cwxt15Z':
         host = settings.proxy.toutiaoHost;
         break;
       default:

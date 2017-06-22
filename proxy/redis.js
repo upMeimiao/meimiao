@@ -20,7 +20,7 @@ class redis {
       case 'servant_3':
         keyPrefix = 'weibo_';
         break;
-      case 'iZ28ilm78mlZ':
+      case 'iZm5e5rntb358m27cwxt15Z':
         keyPrefix = 'toutiao_';
         break;
       default:
