@@ -80,7 +80,7 @@ class dealWith {
         return;
       }
       if (!result.items || result.items.length === 0) {
-        typeErr = {type: 'data', err: 'mgtv-list-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: 'baijia-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;

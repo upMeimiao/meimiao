@@ -45,7 +45,7 @@ class dealWith {
         callback();
         return;
       }
-      if (result.infoList.length === 0) {
+      if (!result.infoList || result.infoList.length === 0) {
         typeErr = {type: 'data', err: 'ifeng-list-异常错误', interface: 'user-total', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
