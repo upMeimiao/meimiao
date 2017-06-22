@@ -33,6 +33,7 @@ const dealWith = new Map([
   [28, 'baijia'],
   [29, 'qzone'],
   [30, 'cctv'],
-  [31, 'pptv']
+  [31, 'pptv'],
+  [32, 'xinlan']
 ]);
 module.exports = dealWith;
