@@ -38,18 +38,18 @@ class dealWith {
     );
   }
   getUser(task, callback) {
-    const options = {
+    const option = {
       url: `http://www.iqiyi.com/u/${task.id}`,
       referer: `http://www.iqiyi.com/u/${task.id}`,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         callback();
@@ -65,25 +65,25 @@ class dealWith {
         return;
       }
       if (!fans) {
-        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: options.url};
+        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       callback();
     })
   }
   get_user(task, callback) {
-    const options = {
+    const option = {
       url: `http://m.iqiyi.com/u/${task.id}/fans`,
       referer: `http://m.iqiyi.com/u/${task.id}`,
       ua: 2
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: err.statusCode, interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: err.statusCode, interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         callback();
@@ -92,25 +92,25 @@ class dealWith {
       let $ = cheerio.load(result.body),
         fans = $('h3.tle').text().substring(2);
       if (!fans) {
-        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: options.url};
+        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       callback()
     })
   }
   getTotal(task, callback) {
-    const options = {
+    const option = {
       ua: 1,
       url: this.settings.spiderAPI.iqiyi.list[0] + task.id + "&page=1",
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'total', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'total', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'total', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'total', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         callback();
@@ -119,7 +119,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'total', url: options.url};
+        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -144,10 +144,10 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoList', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoList', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         callback();
@@ -158,7 +158,7 @@ class dealWith {
         }),
         titleDom = $('p.mod-piclist_info_title a');
       if (titleDom.length === 0) {
-        typeErr = {type: 'data', err: 'videoList-dom-error', interface: 'videoList', url: options.url};
+        typeErr = {type: 'data', err: 'videoList-dom-error', interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -180,10 +180,10 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getIds', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getIds', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getIds', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getIds', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         callback();
@@ -194,7 +194,7 @@ class dealWith {
         }),
         id = $('#flashbox').attr('data-player-tvid');
       if (!id) {
-        typeErr = {type: 'error', err: 'iqiyi-tvid-error', interface: 'videoList', url: options.url};
+        typeErr = {type: 'error', err: 'iqiyi-tvid-error', interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -207,18 +207,18 @@ class dealWith {
     })
   }
   getList(task, callback) {
-    const options = {
+    const option = {
       ua: 1,
       url: `${this.settings.spiderAPI.iqiyi.list[0] + task.id}&page=1`,
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getList', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         callback();
@@ -227,7 +227,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body)
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-getList-json-error', interface: 'getList', url: options.url};
+        typeErr = {type: 'json', err: 'iqiyi-getList-json-error', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -236,7 +236,7 @@ class dealWith {
           ignoreWhitespace: true
         });
       if ($('.wrap-customAuto-ht li').length === 0) {
-        typeErr = {type: 'bid', err: 'iqiyi-getList-(dom-error/bid-error)', interface: 'getList', url: options.url};
+        typeErr = {type: 'bid', err: 'iqiyi-getList-(dom-error/bid-error)', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -244,7 +244,7 @@ class dealWith {
         ats = $('a[data-title]'), titles = [],
         href = $('.site-piclist_info a[title]'), links = [];
       if (!lis || !ats || !href) {
-        typeErr = {type: 'data', err: 'iqiyi-getList-listData-error', interface: 'getList', url: options.url};
+        typeErr = {type: 'data', err: 'iqiyi-getList-listData-error', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -293,18 +293,18 @@ class dealWith {
     );
   }
   getInfo(task, id, link) {
-    let options = {
+    let option = {
       url: this.settings.spiderAPI.iqiyi.info + id + "?callback=jsonp&status=1",
       referer: link,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoInfo', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoInfo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoInfo', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoInfo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -312,17 +312,17 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-videoInfo-json', interface: 'videoInfo', url: options.url};
+        typeErr = {type: 'json', err: 'iqiyi-videoInfo-json', interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (result.code != 'A00000') {
-        typeErr = {type: 'data', err: 'iqiyi-videoInfo-aid-error', interface: 'videoInfo', url: options.url};
+        typeErr = {type: 'data', err: 'iqiyi-videoInfo-aid-error', interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: 'iqiyi-videoInfo-data-error', interface: 'videoInfo', url: options.url};
+        typeErr = {type: 'data', err: 'iqiyi-videoInfo-data-error', interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -332,18 +332,18 @@ class dealWith {
     })
   }
   getExpr(task, id, link) {
-    const options = {
+    const option = {
       url: this.settings.spiderAPI.iqiyi.expr + id,
       referer: link,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -351,30 +351,30 @@ class dealWith {
       try {
         result = eval(result.body)
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-Expr-json-error', interface: 'getExpr', url: options.url};
+        typeErr = {type: 'json', err: 'iqiyi-Expr-json-error', interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (result.code != 'A00000') {
-        typeErr = {type: 'data', err: 'iqiyi-Expr-data-error', interface: 'getExpr', url: options.url};
+        typeErr = {type: 'data', err: 'iqiyi-Expr-data-error', interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
     });
   }
   getPlay(task, id, link) {
-    const options = {
+    const option = {
       url: this.settings.spiderAPI.iqiyi.play + id + '/?callback=jsonp',
       referer: link,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getPlay', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getPlay', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getPlay', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getPlay', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -382,25 +382,25 @@ class dealWith {
       try {
         result = eval(result.body)
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-play-json-error', interface: 'getPlay', url: options.url};
+        typeErr = {type: 'json', err: 'iqiyi-play-json-error', interface: 'getPlay', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
     });
   }
   getComment(data, link) {
-    const options = {
+    const option = {
       url: `http://cmts.iqiyi.com/comment/tvid/${data.qitanId}_${data.tvId}_hot_2?is_video_page=true&albumid=${data.albumId}`,
       referer: link,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'comment', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'comment', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -408,12 +408,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body)
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-comment-json-error', interface: 'comment', url: options.url};
+        typeErr = {type: 'json', err: 'iqiyi-comment-json-error', interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: 'iqiyi-comment-data-error', interface: 'comment', url: options.url};
+        typeErr = {type: 'data', err: 'iqiyi-comment-data-error', interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

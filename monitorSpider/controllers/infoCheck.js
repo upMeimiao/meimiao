@@ -69,12 +69,21 @@ exports.interface = (events, task, typeErr) => {
     typeErr = null;
     return;
   }
-  if (typeErr.err.includes('Unexpected end of JSON input')) {
+  if (typeErr.err.includes('Unexpected') || typeErr.err.includes('unexpected') || typeErr.err.includes('Invalid hexadecimal escape sequence')) {
     // 意外的json错误
     events = null;
     task = null;
     typeErr = null;
     return;
+  }
+  if (Number(task.p) === 14) {
+    if (!isNaN(typeErr.err) && Number(typeErr.err) >= 500) {
+      // 酷六的500 错误略过
+      events = null;
+      task = null;
+      typeErr = null;
+      return;
+    }
   }
   events.MSDB.get(key, (err, result) => {
     if (err) {

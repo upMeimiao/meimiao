@@ -35,9 +35,6 @@ class dealWith {
         callback();
       }
     );
-    this.getList(task, () => {
-      callback();
-    });
   }
   getUser(task, callback) {
     const option = {

@@ -14,6 +14,7 @@ class setTask {
   start(pname, platform, callback) {
     const q = async.queue((work, callback) => {
       this.beginTask(work, platform);
+      work = null;
       callback();
     }, 2);
     q.drain = () => {
@@ -35,9 +36,6 @@ class setTask {
       if (err) {
         this.settings.emit('error', {error: err, platform: `平台号：${work.p}`});
       }
-      // setTimeout(() => {
-      //   this.beginTask(work, platform);
-      // }, 12000);
     });
     work = null;
     platform = null;

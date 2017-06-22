@@ -49,11 +49,8 @@ class spiderCore extends events{
   beginTask(plat) {
     // 并行执行任务
     const queue = async.queue((task, callback) => {
-      this.getTask.start(task.name, task.platform, (err) => {
-        if (err) {
-          this.emit('error', err);
-          return;
-        }
+      this.getTask.start(task.name, task.platform, () => {
+        task = null;
         callback();
       });
     }, 15);
@@ -63,7 +60,6 @@ class spiderCore extends events{
       setTimeout(() => {
         this.beginTask(plat);
       }, 12000);
-      // plat = null;
     };
     // 任务添加
     queue.push(plat, (err) => {
