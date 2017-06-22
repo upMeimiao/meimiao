@@ -188,7 +188,7 @@ class dealWith {
     async.parallel(
       [
         (cb) => {
-          this.getVidInfo(video.vid, num, (err, result) => {
+          this.getVidInfo(video.vid, (err, result) => {
             cb(err, result);
           });
         },
@@ -291,7 +291,7 @@ class dealWith {
     }
     return str;
   }
-  getVidInfo(vid, num, callback) {
+  getVidInfo(vid, callback) {
     const option = {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
