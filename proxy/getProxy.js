@@ -1,4 +1,5 @@
 const request = require('request');
+const os = require('os');
 
 let logger, settings;
 class getProxy {
@@ -17,7 +18,18 @@ class getProxy {
   }
   get(callback) {
     const proxy = [];
-    request(settings.proxy.newApi, (err, res, body) => {
+    let api;
+    switch (os.hostname()) {
+      case 'servant_3':
+        api = settings.proxy.newApi1
+        break;
+      case 'iZm5e5rntb358m27cwxt15Z':
+        api = settings.proxy.newApi;
+        break;
+      default:
+        api = settings.proxy.newApi;
+    }
+    request(api, (err, res, body) => {
       if (err) {
         logger.error('Get proxy occur error');
         return callback(err.message);
