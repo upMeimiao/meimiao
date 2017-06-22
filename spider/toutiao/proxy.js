@@ -6,6 +6,11 @@ class proxyClient {
     this.core = _core;
     settings = _core.settings;
     logger = settings.logger;
+    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+      this.host = settings.proxy.toutiaoHost;
+    } else {
+      this.host = settings.proxy.host;
+    }
     logger.trace('Proxy module instantiation');
   }
   need(times, callback) {
@@ -14,7 +19,7 @@ class proxyClient {
       return;
     }
     // logger.trace('Send a Require command');
-    request(`http://${settings.proxy.host}:${settings.proxy.port}`, (err, res, body) => {
+    request(`http://${this.host}:${settings.proxy.port}`, (err, res, body) => {
       if (err) {
         logger.debug('err:', err);
         setTimeout(() => this.need(times + 1, callback), 3000);
@@ -39,7 +44,7 @@ class proxyClient {
     });
   }
   back(proxy, status, callback) {
-    request.post(`http://${settings.proxy.host}:${settings.proxy.port}/?proxy=${proxy}&status=${status}`, (err, res) => {
+    request.post(`http://${this.host}:${settings.proxy.port}/?proxy=${proxy}&status=${status}`, (err, res) => {
       if (err) {
         if (callback) {
           callback(err);

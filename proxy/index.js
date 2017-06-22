@@ -1,6 +1,7 @@
 const async = require('neo-async');
 const HTTP = require('http');
 const URL = require('url');
+const os = require('os');
 
 let logger, settings;
 
@@ -50,8 +51,18 @@ class proxyPool {
     });
   }
   server() {
-    const host = settings.proxy.host,
-      port = settings.proxy.port;
+    const port = settings.proxy.port;
+    let host;
+    switch (os.hostname()) {
+      case 'servant_3':
+        host = settings.proxy.weiboHost
+        break;
+      case 'iZ28ilm78mlZ':
+        host = settings.proxy.toutiaoHost;
+        break;
+      default:
+        host = settings.proxy.host;
+    }
     const server = HTTP.createServer((req, res) => {
       switch (req.method) {
         case 'GET':
