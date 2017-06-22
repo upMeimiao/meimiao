@@ -19,8 +19,6 @@ class dealWith {
   start(task, callback) {
     task.timeout = 0;
     this.getppi(task, () => {
-      logger = null;
-      typeErr = null;
       callback();
     });
   }

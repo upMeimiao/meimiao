@@ -53,7 +53,7 @@ class spiderCore extends events{
         task = null;
         callback();
       });
-    }, 15);
+    }, 32);
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
@@ -64,7 +64,7 @@ class spiderCore extends events{
     // 任务添加
     queue.push(plat, (err) => {
       if (err) {
-        this.emit('error', err);
+        this.emit('error', { error: err, platform: plat.name });
         plat = null;
         return;
       }

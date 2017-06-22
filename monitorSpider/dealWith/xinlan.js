@@ -7,7 +7,6 @@ const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
-const jsonp = (data) => data;
 let logger, typeErr;
 class dealWith {
   constructor(core) {
@@ -21,8 +20,9 @@ class dealWith {
     async.parallel(
       {
         list: (cb) => {
-          this.getList(task);
-          cb();
+          this.getList(task, () => {
+            cb();
+          });
         },
         video: (cb) => {
           this.getVideoInfo(task);
@@ -42,17 +42,16 @@ class dealWith {
         }
       },
       () => {
-        logger = null;
-        typeErr = null;
         callback();
       }
     );
   }
-  getList(task) {
+  getList(task, callback) {
     const option = {
       url: `${this.settings.spiderAPI.xinlan.listVideo + task.id}&cid=${task.encodeId}&_=${new Date().getTime()}`,
       ua: 1
     };
+    // logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -62,6 +61,7 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        callback();
         return;
       }
       try {
@@ -69,12 +69,14 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        callback();
         return;
       }
-      if (!result.data || result.data.length) {
+      if (!result.data || !result.data.length) {
         typeErr = {type: 'data', err: 'xinlan-list-error', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      callback();
     });
   }
   getVideoInfo(task) {
@@ -151,7 +153,7 @@ class dealWith {
   }
   getSava(task) {
     const option = {
-      url: `http://proxy.app.cztv.com/getCollectStatus.do?videoIdList=${vid}`,
+      url: `http://proxy.app.cztv.com/getCollectStatus.do?videoIdList=${task.aid}`,
       authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
     };
     request.get(logger, option, (err, result) => {

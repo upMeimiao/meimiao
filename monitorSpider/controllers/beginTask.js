@@ -25,7 +25,7 @@ class setTask {
     };
     q.push(getTask[pname], (err) => {
       if (err) {
-        this.settings.emit('error', {error: '任务启动失败', platform: pname});
+        this.settings.emit('error', { error: '任务启动失败', platform: pname });
         pname = null;
         platform = null;
       }
@@ -34,7 +34,7 @@ class setTask {
   beginTask(work, platform) {
     platform.start(work, (err) => {
       if (err) {
-        this.settings.emit('error', {error: err, platform: `平台号：${work.p}`});
+        this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });
       }
     });
     work = null;

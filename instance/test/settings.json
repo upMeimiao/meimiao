@@ -182,7 +182,8 @@
       "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk"
     },
     "v1": {
-      "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid="
+      "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid=",
+      "newList": "http://app.v1.cn/user/otherHeVideo?pcode=010210000&version=6.0.1&devid=1098B90D-3A6F-41B2-9F03-ED7D66FA69C2&plat=1002"
     },
     "wangyi": {
       "userInfo": "http://c.m.163.com/nc/topicset/home/android/",
