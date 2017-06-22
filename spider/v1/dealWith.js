@@ -4,6 +4,7 @@
 const moment = require('moment');
 const async = require('neo-async');
 const cheerio = require('cheerio');
+const fetchUrl = require('fetch').fetchUrl;
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
@@ -20,47 +21,26 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
-    async.parallel(
-      {
-        user: (cb) => {
-          this.getFans(task, () => {
-            cb(null, '用户信息已返回');
-          });
-        },
-        video: (cb) => {
-          this.getVidTotal(task, (err) => {
-            if (err) {
-              cb(err);
-              return;
-            }
-            cb(null, '视频信息已返回');
-          });
-        }
-      },
-      (err, result) => {
-        if (err) {
-          callback(err);
-          return;
-        }
-        logger.debug(`${task.id}_result:`, result);
-        callback(null, task.total);
-      }
-    );
+    this.getFans(task, () => {
+      callback(null, task.total);
+    });
   }
   getFans(task, callback) {
-    let id;
-    if (task.id === task.encodeId) {
-      id = task.id;
-    } else {
-      id = task.encodeId;
-    }
     const option = {
-      url: `http://user.v1.cn/his/getAllCountByUserId/${id}.json`,
-      referer: `http://user.v1.cn/his/video/${id}.jhtml`
+      url: this.settings.spiderAPI.v1.newList,
+      headers: {
+        'User-Agent': 'V1_vodone/6.0.1 (iPhone; iOS 10.3.2; Scale/3.00)',
+        'Content-Type': 'multipart/form-data; boundary=Boundary+A967927714B045D1'
+      },
+      data: {
+        p: 0,
+        s: 20,
+        tid: task.id
+      }
     };
-    request.get(logger, option, (err, result) => {
+    request.post(logger, option, (err, result) => {
       if (err) {
-        callback();
+        callback(err);
         return;
       }
       try {
@@ -71,16 +51,21 @@ class dealWith {
         callback(e);
         return;
       }
+      if (!result.body || !result.body.data) {
+        callback('v1-list-error');
+        return;
+      }
       const user = {
         platform: task.p,
         bid: task.id,
-        fans_num: result.obj.fansCount
+        fans_num: result.body.data.fans_num
       };
-      task.total = result.obj.videoCount;
-      this.sendUser(user, () => {
+      task.total = result.body.data.video_num;
+      // this.sendUser(user);
+      this.sendStagingUser(user);
+      this.getVidList(task, () => {
         callback();
       });
-      this.sendStagingUser(user);
     });
   }
   sendUser(user, callback) {
@@ -135,42 +120,54 @@ class dealWith {
       }
     });
   }
-  getVidTotal(task, callback) {
-    const option = {
-      url: `${this.settings.spiderAPI.v1.videoList + task.id}&p=1`,
-      ua: 1
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('接口请求错误 : ', err);
-        callback(err);
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info(result);
-        callback(e);
-        return;
-      }
-      const page = result.body.page_num;
-      this.getVidList(task, page, () => {
-        callback();
-      });
-    });
-  }
+  // getVidTotal(task, callback) {
+  //   const option = {
+  //     url: `${this.settings.spiderAPI.v1.videoList + task.id}&p=1`,
+  //     ua: 1
+  //   };
+  //   request.get(logger, option, (err, result) => {
+  //     if (err) {
+  //       logger.error('接口请求错误 : ', err);
+  //       callback(err);
+  //       return;
+  //     }
+  //     try {
+  //       result = JSON.parse(result.body);
+  //     } catch (e) {
+  //       logger.error('json数据解析失败');
+  //       logger.info(result);
+  //       callback(e);
+  //       return;
+  //     }
+  //     const page = result.body.page_num;
+  //     this.getVidList(task, page, () => {
+  //       callback();
+  //     });
+  //   });
+  // }
 
-  getVidList(task, page, callback) {
-    const option = {};
-    let length = null,
-      content = null,
-      sign = 0;
+  getVidList(task, callback) {
+    const option = {
+        url: this.settings.spiderAPI.v1.newList,
+        headers: {
+          'User-Agent': 'V1_vodone/6.0.1 (iPhone; iOS 10.3.2; Scale/3.00)',
+          'Content-Type': 'multipart/form-data; boundary=Boundary+A967927714B045D1'
+        },
+        data: {
+          p: 0,
+          s: 20,
+          tid: task.id
+        }
+      },
+      page = Number(task.total) % 20 === 0 ?
+        Number(task.total) / 20 :
+        Math.ceil(Number(task.total) / 20);
+    let sign = 0;
     async.whilst(
       () => sign < page,
       (cb) => {
-        option.url = `${this.settings.spiderAPI.v1.videoList + task.id}&p=${sign}`;
-        request.get(logger, option, (err, result) => {
+        option.data.p = sign;
+        request.post(logger, option, (err, result) => {
           if (err) {
             logger.error('列表接口请求错误 : ', err);
             cb();
@@ -184,9 +181,7 @@ class dealWith {
             cb();
             return;
           }
-          length = result.body.data.length;
-          content = result.body.data;
-          this.deal(task, content, length, () => {
+          this.deal(task, result.body.data.video_list.data, () => {
             sign += 1;
             cb();
           });
@@ -198,10 +193,11 @@ class dealWith {
       }
     );
   }
-  deal(task, user, length, callback) {
+  deal(task, user, callback) {
     let index = 0;
+    logger.debug(user.length);
     async.whilst(
-      () => index < length,
+      () => index < user.length,
       (cb) => {
         this.getAllInfo(task, user[index], () => {
           index += 1;
@@ -323,28 +319,24 @@ class dealWith {
   }
   getVidInfo(vid, num, callback) {
     const option = {
-      url: `http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/${vid}/pcode/010210000/version/4.5.4.mindex.html`,
-      ua: 1
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+      }
     };
-    request.get(logger, option, (err, result) => {
+    fetchUrl(`http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/${vid}/pcode/010210000/version/4.5.4.mindex.html`, option, (err, meta, body) => {
       if (err) {
         logger.error('单个视频接口请求错误 : ', err);
-        if (num <= 1) {
-          this.getVidInfo(vid, num += 1, callback);
-          return;
-        }
         callback(null, 'next');
         return;
       }
       try {
-        result = JSON.parse(result.body);
+        body = JSON.parse(body);
       } catch (e) {
-        logger.error('单个视频json数据解析失败');
-        logger.info(result);
+        logger.error('单个视频json数据解析失败', body);
         callback(e);
         return;
       }
-      callback(null, result.body.obj.videoDetail);
+      callback(null, body.body.obj.videoDetail);
     });
   }
 }
