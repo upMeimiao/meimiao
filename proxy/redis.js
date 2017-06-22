@@ -100,13 +100,13 @@ class redis {
     });
   }
   back(data, callback) {
-    logger.debug('back:', data)
     const db = this.client;
     // data.status = data.status === 'true';
     if (data.proxy === 'timeout') {
       callback();
       return;
     }
+    logger.debug('back:', data)
     db.zscore('bproxy', data.proxy, (err, proxy) => {
       if (proxy) {
         if (data.status === 'true') {
