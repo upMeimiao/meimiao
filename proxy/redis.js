@@ -106,7 +106,7 @@ class redis {
       callback();
       return;
     }
-    logger.debug('back:', data)
+    // logger.debug('back:', data)
     db.zscore('bproxy', data.proxy, (err, proxy) => {
       if (proxy) {
         if (data.status === 'true') {
