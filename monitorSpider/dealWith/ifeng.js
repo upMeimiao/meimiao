@@ -83,11 +83,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      this._ding(video.memberItem.guid);
-      this._cai(video.memberItem.guid);
+      this._ding(task, video.memberItem.guid);
+      this._cai(task, video.memberItem.guid);
     });
   }
-  _ding(guid) {
+  _ding(task, guid) {
     const option = {
       url: `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${guid}ding&format=js&serverid=1&var=ding`,
       ua: 1
@@ -112,7 +112,7 @@ class dealWith {
       }
     });
   }
-  _cai(guid) {
+  _cai(task, guid) {
     const option = {
       url: `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${guid}cai&format=js&serverid=1&var=cai`,
       ua: 1
