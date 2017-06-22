@@ -64,21 +64,33 @@ exports.interface = (events, task, typeErr) => {
   typeErr.err = JSON.stringify(typeErr.err);
   if (typeErr.err.includes('TIMEDOUT')) {
     // 超时的错误暂时先不管
+    events = null;
+    task = null;
+    typeErr = null;
     return;
   }
   if (typeErr.err.includes('Unexpected end of JSON input')) {
     // 意外的json错误
+    events = null;
+    task = null;
+    typeErr = null;
     return;
   }
   events.MSDB.get(key, (err, result) => {
     if (err) {
       events.emit('error', {error: '接口数据库查询失败', platform: p});
+      events = null;
+      task = null;
+      typeErr = null;
       return;
     }
     try {
       result = JSON.parse(result)
     } catch (e) {
       events.emit('error', {error: '接口数据解析失败', data: result});
+      events = null;
+      task = null;
+      typeErr = null;
       return;
     }
     if (!result) {
@@ -95,6 +107,9 @@ exports.interface = (events, task, typeErr) => {
         num
       };
       events.MSDB.set(key, JSON.stringify(errorInfo));
+      events = null;
+      task = null;
+      typeErr = null;
       return;
     }
     interSetErr(events, result, typeErr);

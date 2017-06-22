@@ -6,7 +6,10 @@ const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
-const _Callback = (data) => data;
+// const _Callback = (data) => data;
+const _Callback = (data) => {
+  return data;
+};
 let logger, typeErr;
 class dealWith {
   constructor(core) {
@@ -60,6 +63,7 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        result = null;
         callback();
         return;
       }
@@ -69,6 +73,7 @@ class dealWith {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      result = null;
       callback();
     });
   }

@@ -146,8 +146,8 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.tencent.commentId + task.aid
     };
-    request.get(logger, option, (error, result) => {
-      if (error) {
+    request.get(logger, option, (err, result) => {
+      if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getComment', url: option.url};
           infoCheck.interface(this.core, task, typeErr);

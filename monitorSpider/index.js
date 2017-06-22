@@ -38,17 +38,6 @@ class spiderCore extends events{
       this.error_event(massage);
     })
   }
-  getH(callback) {
-    this.xiaoyingDeal.getH((err, result) => {
-      if (err) {
-        return
-      }
-      this.h = result;
-      if (callback) {
-        callback()
-      }
-    })
-  }
   initPlatForm() {
     let platfromArr = [];
     for (const [key, value] of platfrom.entries()) {
@@ -67,15 +56,20 @@ class spiderCore extends events{
         }
         callback();
       });
-    }, 20);
+    }, 15);
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
+      setTimeout(() => {
+        this.beginTask(plat);
+      }, 12000);
+      // plat = null;
     };
     // 任务添加
     queue.push(plat, (err) => {
       if (err) {
         this.emit('error', err);
+        plat = null;
         return;
       }
     });
@@ -85,6 +79,7 @@ class spiderCore extends events{
      *  用来处理错误信息，并发送邮件通知哪个监控平台挂掉了
      * */
     logger.debug('return-error:', message);
+    message = null;
     return;
   }
 }

@@ -31,6 +31,7 @@ const dealWith = new Map([
   [26, 'uctt'],
   [27, 'mgtv'],
   [28, 'baijia'],
-  [29, 'qzone']
+  [29, 'qzone'],
+  [30, 'cctv']
 ]);
 module.exports = dealWith;
