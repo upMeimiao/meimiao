@@ -27,9 +27,9 @@ class getProxy {
         api = settings.proxy.newApi;
         break;
       default:
-        api = settings.proxy.newApi;
+        api = settings.proxy.newApi1;
     }
-    request(api, (err, res, body) => {
+    request(api, {gzip: true}, (err, res, body) => {
       if (err) {
         logger.error('Get proxy occur error');
         return callback(err.message);
@@ -45,9 +45,14 @@ class getProxy {
       }
       let itemArr;
       body.data.proxy_list.forEach((item) => {
-        itemArr = item.split(',');
-        proxy.push(`${itemArr[1].toLowerCase()}://${itemArr[0]}`);
+        if (item.includes(',')) {
+          itemArr = item.split(',');
+          proxy.push(`${itemArr[1].toLowerCase()}://${itemArr[0]}`);
+        } else {
+          proxy.push(item)
+        }
       });
+      console.log(proxy)
       return callback(null, proxy);
     });
   }
