@@ -49,10 +49,9 @@ class getProxy {
           itemArr = item.split(',');
           proxy.push(`${itemArr[1].toLowerCase()}://${itemArr[0]}`);
         } else {
-          proxy.push(item)
+          proxy.push(item);
         }
       });
-      console.log(proxy)
       return callback(null, proxy);
     });
   }

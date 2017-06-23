@@ -38,7 +38,7 @@ class proxyInfo {
       }
       if (proxy.proxy) {
         logger.debug(proxy.proxy);
-        callback(null, `http://${proxy.proxy}`);
+        callback(null, proxy.proxy);
         return;
       }
       setTimeout(() => {
@@ -49,7 +49,7 @@ class proxyInfo {
   }
 
   back(proxy, status, callback) {
-    request.post(`http://${this.host}:${settings.proxy.port}/?proxy=${proxy.replace('http://', '')}&status=${status}`, (err, res) => {
+    request.post(`http://${this.host}:${settings.proxy.port}/?proxy=${proxy}&status=${status}`, (err, res) => {
       if (err) {
         if (callback) {
           callback(res);
