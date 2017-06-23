@@ -37,6 +37,7 @@ const dealWith = new Map([
   [32, 'xinlan'],
   [33, 'v1'],
   [34, 'fengxing'],
-  [35, 'huashu']
+  [35, 'huashu'],
+  [36, 'baofeng']
 ]);
 module.exports = dealWith;

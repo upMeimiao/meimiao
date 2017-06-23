@@ -78,6 +78,10 @@ class dealWith {
         callback();
         return;
       }
+      if (!result[1] || !result[1].aggData) {
+        typeErr = {type: 'data', err: 'huashu-video-data-error', interface: 'getVideo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+      }
       for (let i = 0; i < result[1].aggData.length; i += 1) {
         if (result[1].aggData[i].name === '华数') {
           result = result[1].aggData[i];

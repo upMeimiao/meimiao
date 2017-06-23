@@ -69,7 +69,7 @@ exports.interface = (events, task, typeErr) => {
     typeErr = null;
     return;
   }
-  if (typeErr.err.includes('Unexpected') || typeErr.err.includes('unexpected') || typeErr.err.includes('Invalid hexadecimal escape sequence')) {
+  if (typeErr.err.includes('Unexpected') || typeErr.err.includes('unexpected') || typeErr.err.includes('Invalid hexadecimal escape sequence') || typeErr.err.includes('read ECONNRESET')) {
     // 意外的json错误
     events = null;
     task = null;
