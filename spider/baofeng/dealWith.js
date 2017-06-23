@@ -170,7 +170,7 @@ class dealWith {
   }
   getDesc(bid, index, callback) {
     const option = {
-      url: `http://m.baofeng.com/play/73/play-786073-drama-${index}.html`
+      url: `http://m.baofeng.com/play/73/play-${bid}-drama-${index}.html`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
