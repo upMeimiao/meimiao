@@ -154,5 +154,9 @@
   "renren": [
     {"p": 41, "id": "12460403", "name": "喵招", "encodeId": "", "aid": ""},
     {"p": 41, "id": "12884608", "name": "轻旅星球", "encodeId": "", "aid": ""}
+  ],
+  "dianshi": [
+    {"p": 42, "id": "775", "name": "吃货羽沫旅行记", "encodeId": "", "aid": ""},
+    {"p": 42, "id": "411", "name": "一条", "encodeId": "", "aid": ""}
   ]
 }

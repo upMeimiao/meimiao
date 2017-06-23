@@ -107,7 +107,7 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.results.length === 0) {
-        typeErr = {type: 'data', err: 'liVideo-data-list-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: 'renren-data-list-error', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

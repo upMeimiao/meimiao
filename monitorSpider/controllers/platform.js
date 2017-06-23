@@ -41,6 +41,7 @@ const dealWith = new Map([
   [36, 'baofeng'],
   [37, 'baiduVideo'],
   [38, 'liVideo'],
-  [41, 'renren']
+  [41, 'renren'],
+  [42, 'dianshi']
 ]);
 module.exports = dealWith;
