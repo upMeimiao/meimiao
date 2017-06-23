@@ -34,8 +34,7 @@ class spiderCore {
     const work = {
       p: 33,
       name: '2762414443@qq.com',
-      id: 6046584,
-      encodeId: 6046601
+      id: 6046584
     };
     this.dealWith.todo(work, (err, total, uid) => {
       logger.debug(total);
