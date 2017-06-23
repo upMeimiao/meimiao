@@ -6,7 +6,6 @@ const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
-const jsonp = (data) => data;
 let logger, typeErr;
 class dealWith {
   constructor(core) {
@@ -58,11 +57,7 @@ class dealWith {
         });
         return;
       }
-      this.getVidList(task, aid, (err) => {
-        if (err) {
-          callback(err);
-          return;
-        }
+      this.getList(task, aid, () => {
         callback();
       });
     });
@@ -145,7 +140,7 @@ class dealWith {
   }
   getComment(task, sid) {
     const option = {
-      url: `http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&xid=${vid}&page=1&pagesize=6`
+      url: `http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&xid=${sid}&page=1&pagesize=6`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
