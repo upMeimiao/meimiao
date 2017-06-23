@@ -221,8 +221,8 @@ class dealWith {
           support: result[2] ? result[2].msg : null,
           forward_num: result[0].forward,
           v_img: video.pic,
-          play_num: video.playNum,
-          // v_url: result[0].wabSiteUrl,
+          play_num: result[0].playNum,
+          v_url: `http://www.v1.cn/video/${video.vid}.shtml`,
           a_create_time: moment(video.create_time).format('X')
         };
         if (!media.support) {
@@ -308,18 +308,20 @@ class dealWith {
       } catch (e) {
         logger.error('单个视频json数据解析失败', body);
         if (num > 1) {
+          num += 1;
           this.getVidInfo(vid, num, callback);
           return;
         }
-        callback(null, { comments: 0, videoCategory: '', forward: 0 });
+        callback(null, { comments: '', videoCategory: '', forward: '', playNum: '' });
         return;
       }
       if (!body.body || !body.body.obj || !body.body.obj.videoDetail) {
         if (num > 1) {
+          num += 1;
           this.getVidInfo(vid, num, callback);
           return;
         }
-        callback(null, { comments: 0, videoCategory: '', forward: 0 });
+        callback(null, { comments: '', videoCategory: '', forward: '', playNum: '' });
         return;
       }
       callback(null, body.body.obj.videoDetail);
