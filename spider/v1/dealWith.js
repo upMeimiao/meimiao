@@ -188,7 +188,7 @@ class dealWith {
     async.parallel(
       [
         (cb) => {
-          this.getVidInfo(video.vid, (err, result) => {
+          this.getVidInfo(video.vid, num, (err, result) => {
             cb(err, result);
           });
         },
@@ -222,7 +222,7 @@ class dealWith {
           forward_num: result[0].forward,
           v_img: video.pic,
           play_num: result[0].playNum,
-          v_url: result[0].wabSiteUrl,
+          v_url: `http://www.v1.cn/video/${video.vid}.shtml`,
           a_create_time: moment(video.create_time).format('X')
         };
         if (!media.support) {
@@ -291,7 +291,7 @@ class dealWith {
     }
     return str;
   }
-  getVidInfo(vid, callback) {
+  getVidInfo(vid, num, callback) {
     const option = {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
@@ -307,7 +307,21 @@ class dealWith {
         body = JSON.parse(body);
       } catch (e) {
         logger.error('单个视频json数据解析失败', body);
-        callback(e);
+        if (num > 1) {
+          num += 1;
+          this.getVidInfo(vid, num, callback);
+          return;
+        }
+        callback(null, { comments: '', videoCategory: '', forward: '', playNum: '' });
+        return;
+      }
+      if (!body.body || !body.body.obj || !body.body.obj.videoDetail) {
+        if (num > 1) {
+          num += 1;
+          this.getVidInfo(vid, num, callback);
+          return;
+        }
+        callback(null, { comments: '', videoCategory: '', forward: '', playNum: '' });
         return;
       }
       callback(null, body.body.obj.videoDetail);
