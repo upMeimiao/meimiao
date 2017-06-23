@@ -57,7 +57,7 @@ class dealWith {
         return;
       }
       if (!result.contList || result.contList.length === 0) {
-        typeErr = {type: 'json', err: '', interface: 'getVidList', url: option.url};
+        typeErr = {type: 'json', err: 'liVideo-list-data-error', interface: 'getVidList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
