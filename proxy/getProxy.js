@@ -29,7 +29,7 @@ class getProxy {
       default:
         api = settings.proxy.newApi1;
     }
-    request(api, {gzip: true}, (err, res, body) => {
+    request(api, { gzip: true }, (err, res, body) => {
       if (err) {
         logger.error('Get proxy occur error');
         return callback(err.message);
