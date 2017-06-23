@@ -349,9 +349,9 @@ class dealWith {
         return;
       }
       try {
-        result = eval(result.body)
+        result = eval(`(${result.body})`);
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-Expr-json-error', interface: 'getExpr', url: option.url};
+        typeErr = {type: 'json', err:`'iqiyi-Expr-json-error': ${e.message}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

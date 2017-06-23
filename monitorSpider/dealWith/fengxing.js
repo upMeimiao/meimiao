@@ -110,7 +110,7 @@ class dealWith {
           callback();
           return;
         }
-        if (result.retcode == 404) {
+        if (Number(result.retcode) === 404) {
           typeErr = {type: 'data', err: `fengxing-result.retcode-${result.retcode}`, interface: 'getVideo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
           callback();
