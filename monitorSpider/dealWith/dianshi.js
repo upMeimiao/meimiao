@@ -2,7 +2,6 @@
  * Created by zhupenghui on 17/6/23.
  */
 const async = require( 'neo-async' );
-const cheerio = require('cheerio');
 const request = require( 'request' );
 const infoCheck = require('../controllers/infoCheck');
 
