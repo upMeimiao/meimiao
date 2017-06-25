@@ -25,7 +25,7 @@ class proxyInfo {
         logger.debug('err:', err);
         setTimeout(() => {
           this.need(times + 1, callback);
-        }, 3000);
+        }, 5000);
         return;
       }
       let proxy;
@@ -44,7 +44,7 @@ class proxyInfo {
       setTimeout(() => {
         logger.debug('setTImeout');
         this.need(times + 1, callback);
-      }, 5000);
+      }, 8000);
     });
   }
 
