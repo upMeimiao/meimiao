@@ -412,14 +412,20 @@ class DealWith {
           }
           let $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-          let user = $('.user_info'),
-            href = user.attr('href'),
-            idDom = $('.btn_book'),
-            id = href.substring(href.lastIndexOf('/') + 1),
-            name = $('div.video_user._video_user a.user_info span').text(),
+          let id, href, name, avatar, idDom
+          if (num.length === 0) {
+            id = $('div[data-euin]').attr('data-euin')
+            href = `http://v.qq.com/vplus/${id}`
+          } else {
+            let user = $('.user_info')
+              href = user.attr('href')
+            idDom = $('.btn_book')
+            id = href.substring(href.lastIndexOf('/') + 1)
+            name = $('div.video_user._video_user a.user_info span').text()
             avatar = $('div.video_user._video_user a.user_info img').attr('src');
-          name = name || $('div.video_user a.user_info').attr('title');
-          avatar = avatar || $('div.video_user img.user_avatar').attr('src');
+            name = name || $('div.video_user a.user_info').attr('title');
+            avatar = avatar || $('div.video_user img.user_avatar').attr('src');
+          }
           if (name && avatar) {
             res = {
               id,
@@ -445,12 +451,15 @@ class DealWith {
               nameDom = $('h2.user_info_name'),
               nameDom2 = $('#userInfoNick');
             name = nameDom.text();
-            avatar = $('#userAvatar').attr('src');
+            let $avatar = $('#userAvatar');
+            avatar = $avatar.attr('src');
             if (nameDom.length === 0) {
               name = nameDom2.text();
-              id = idDom.attr('r-subscribe');
+              id = id || idDom.attr('r-subscribe');
             }
-            if (!$('#userAvatar').attr('src')) {
+            if ($avatar) {
+              avatar = $('.user_avatar a img').attr('src');
+            } else {
               avatar = '';
             }
             res = {
