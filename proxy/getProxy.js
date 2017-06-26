@@ -23,7 +23,7 @@ class getProxy {
       case 'servant_3':
         api = settings.proxy.newApi1
         break;
-      case 'iZm5e5rntb358m27cwxt15Z':
+      case 'iZ28ilm78mlZ':
         api = settings.proxy.newApi;
         break;
       default:
