@@ -402,7 +402,8 @@ class dealWith {
       ua: 3,
       own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
     };
-    let dataTime = '';
+    let dataTime = '',
+      length = 0;
     option.proxy = proxy;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -418,11 +419,13 @@ class dealWith {
         return;
       }
       try {
-        result = JSON.parse(result.body);
+        length = result.body.length;
+        result = trimHtml(result.body, { preserveTags: true, limit: length });
+        result = JSON.parse(result.html);
       } catch (e) {
-        logger.error('单个视频信息json数据解析失败', result.body);
+        logger.error('单个视频信息json数据解析失败', result);
         this.core.proxy.back(proxy, false);
-        this.getProxy((error, _proxy) => {
+        this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
             callback(null, '抛掉当前的');
             return;
