@@ -192,7 +192,7 @@ class dealWith {
         return;
       }
       try {
-        const length = result.body.length;
+        const length = result.body.length + 1;
         result = trimHtml(result.body, { preserveTags: true, limit: length });
         result = JSON.parse(result.html);
       } catch (e) {
@@ -268,7 +268,7 @@ class dealWith {
             return;
           }
           try {
-            length = result.body.length;
+            length = result.body.length + 1;
             result = trimHtml(result.body, { preserveTags: true, limit: length });
             result = JSON.parse(result.html);
           } catch (e) {
@@ -419,7 +419,7 @@ class dealWith {
         return;
       }
       try {
-        length = result.body.length;
+        length = result.body.length + 1;
         result = trimHtml(result.body, { preserveTags: true, limit: length });
         result = JSON.parse(result.html);
       } catch (e) {
