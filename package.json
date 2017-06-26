@@ -12,7 +12,7 @@
     "test": "node test/test.js"
   },
   "dependencies": {
-    "async": "^2.4.1",
+    "async": "^2.5.0",
     "basic-auth-connect": "^1.0.0",
     "body-parser": "^1.17.2",
     "cheerio": "^0.22.0",
@@ -45,7 +45,7 @@
     "url": "http://git.meimiao.net/qiaosuan_spider/code.git"
   },
   "devDependencies": {
-    "eslint": "^3.19.0",
+    "eslint": "^4.1.1",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.3.0"
   }
