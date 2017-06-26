@@ -20,9 +20,8 @@ class dealWith {
     async.parallel(
       {
         list: (cb) => {
-          this.getList(task, () => {
-            cb();
-          });
+          this.getList(task);
+          cb();
         },
         video: (cb) => {
           this.getVideoInfo(task);
@@ -46,12 +45,11 @@ class dealWith {
       }
     );
   }
-  getList(task, callback) {
+  getList(task) {
     const option = {
       url: `${this.settings.spiderAPI.xinlan.listVideo + task.id}&cid=${task.encodeId}&_=${new Date().getTime()}`,
       ua: 1
     };
-    // logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -61,29 +59,26 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.data || !result.data.length) {
         typeErr = {type: 'data', err: 'xinlan-list-error', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
   }
   getVideoInfo(task) {
     const option = {
-        url: this.settings.spiderAPI.xinlan.videoInfo + task.aid,
-        authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
-      };
+      url: this.settings.spiderAPI.xinlan.videoInfo + task.aid,
+      authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
+    };
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -98,7 +93,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'video', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
@@ -122,7 +117,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getComment', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
@@ -170,7 +165,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getSava', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getSava', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

@@ -19,9 +19,8 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          });
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
           this.getList(task);
@@ -33,7 +32,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const option = {
       url: 'http://web.rr.tv/v3plus/user/userInfo',
       headers: {
@@ -55,15 +54,13 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getUser', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getUser', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.data || !result.data.user || !result.data.user.fansCount) {
@@ -102,7 +99,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getList', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -141,7 +138,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

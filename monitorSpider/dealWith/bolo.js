@@ -19,14 +19,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          });
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
-          this.getList(task, () => {
-            cb();
-          });
+          this.getList(task);
+          cb();
         }
       },
       () => {
@@ -34,7 +32,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const option = {
       url: `http://bolo.163.com/new/person?id=${task.id}`
     };
@@ -47,7 +45,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getUser', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       const $ = cheerio.load(result.body),
@@ -56,10 +53,9 @@ class dealWith {
         typeErr = {type: 'data', err: 'bolo-data-fans-null', interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
   }
-  getList(task, callback) {
+  getList(task) {
     const option = {
       url: `${this.settings.spiderAPI.bolo.list}&userId=${task.id}&pageNum=1`
     };
@@ -72,25 +68,21 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getList', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result || !result.length) {
         typeErr = {type: 'data', err: 'bolo-data-list-error', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       this.getVideoInfo(task, result[0].videoId);
-      callback();
     });
   }
   getVideoInfo(task, vid) {
@@ -111,7 +103,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideoInfo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

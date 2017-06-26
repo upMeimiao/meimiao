@@ -57,6 +57,7 @@ class spiderCore extends events{
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
+      logger.debug(process.memoryUsage());
       setTimeout(() => {
         this.beginTask(plat);
       }, 12000);

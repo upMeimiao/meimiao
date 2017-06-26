@@ -18,9 +18,8 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
           this.list(task);
@@ -32,7 +31,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       ua: 1,
       url: this.settings.spiderAPI.neihan.userInfo + task.id
@@ -46,17 +45,15 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
   list(task) {
     const option = {
@@ -76,8 +73,9 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
       }
       let data = result.data.data;
       if(!data || data.length === 0) {

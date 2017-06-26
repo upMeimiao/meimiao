@@ -38,14 +38,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
-          this.list(task, 0, () => {
-            cb();
-          });
+          this.list(task, 0);
+          cb();
         }
       },
       () => {
@@ -53,7 +51,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       url: this.settings.spiderAPI.toutiao.user + task.encodeId,
       ua: 3,
@@ -68,21 +66,18 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
-  list(task, times, callback) {
+  list(task, times) {
     if (times >= 3) {
-      callback();
       return;
     }
     const { as, cp } = getHoney(),
@@ -93,11 +88,9 @@ class dealWith {
       };
     this.core.proxy.getProxy(0, (err, proxy) => {
       if (err) {
-        callback();
         return;
       }
       if (proxy === 'timeout') {
-        callback();
         return;
       }
       option.proxy = proxy;
@@ -112,7 +105,7 @@ class dealWith {
             typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
             infoCheck.interface(this.core, task, typeErr);
           }
-          this.list(task, times + 1, callback);
+          this.list(task, times + 1);
           this.core.proxy.back(proxy, false);
           return;
         }
@@ -120,17 +113,14 @@ class dealWith {
         try {
           result = JSON.parse(result.body);
         } catch (e) {
-          typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+          typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
-          callback();
           return;
         }
         if (!result || result.length === 0) {
           typeErr = {type: 'data', err: 'toutiao-list-data-null', interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        // this.deal(task, result.data);
-        callback();
       });
     });
   }

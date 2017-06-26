@@ -26,14 +26,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         total: (cb) => {
-          this.getTotal(task, () => {
-            cb();
-          });
+          this.getTotal(task);
+          cb();
         },
         comment: (cb) => {
           this.getComment(task);
@@ -45,7 +43,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       url: `${this.settings.spiderAPI.tudou.fans}${task.encodeId}&_=${new Date().getTime()}`,
       ua: 1
@@ -59,19 +57,17 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
-  getTotal(task, callback) {
+  getTotal(task) {
     const time = new Date().getTime().toString().substring(0, 10),
       option = {
       url: `${this.settings.spiderAPI.tudou.newList}&pg=1&uid=${task.encodeId}&_s_=${sign('v', time)}&_t_=${time}&e=md5`,
@@ -86,16 +82,14 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getTotal', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getTotal', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getTotal', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
   }
   getComment(task) {
@@ -118,7 +112,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getComment', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

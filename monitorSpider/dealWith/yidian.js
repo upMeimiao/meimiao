@@ -19,14 +19,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         total: (cb) => {
-          this.getVideos(task, () => {
-            cb();
-          });
+          this.getVideos(task);
+          cb();
         }
       },
       () => {
@@ -34,7 +32,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       url: this.settings.spiderAPI.yidian.userInfo + task.id,
       ua: 3,
@@ -49,19 +47,17 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
-  getVideos(task, callback) {
+  getVideos(task) {
     const option = {
       url: `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=0&cend=10`,
       referer: `http://www.yidianzixun.com/home?page=channel&id=${task.id}`,
@@ -76,38 +72,33 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVideos', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideos', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideos', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (result.status !== 'success') {
-        callback();
         return;
       }
       if (result.result.length === 0) {
-        callback();
         return;
       }
       if (result.result[0].ctype === 'interest_navigation') {
         if (!result.result[0].columns || result.result[0].columns.length < 2) {
-          callback();
           return;
         }
         task.interest_id = result.result[0].columns[1].interest_id;
-        this.getList(task, 'video', () => callback());
+        this.getList(task, 'video');
       } else {
-        this.getList(task, 'all', () => callback());
+        this.getList(task, 'all');
       }
     });
   }
-  getList(task, type, callback) {
+  getList(task, type) {
     const option = {
         ua: 1
       },
@@ -128,34 +119,29 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getList', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.result) {
         typeErr = {type: 'data', err: '一点资讯列表数据-null', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (result.result.length === 0) {
         typeErr = {type: 'data', err: '一点资讯列表数据-null', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (Number(result.code) !== 0) {
         typeErr = {type: 'data', err: '一点资讯列表数据-error', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
   }
 }

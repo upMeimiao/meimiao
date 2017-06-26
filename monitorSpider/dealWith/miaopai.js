@@ -18,14 +18,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
-          this.list(task, () => {
-            cb();
-          });
+          this.list(task);
+          cb();
         },
         media: (cb) => {
           this.getInfo(task, task.aid);
@@ -37,7 +35,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       url: `${this.settings.spiderAPI.miaopai.api}1&per=20&suid=${task.id}`
     };
@@ -50,19 +48,17 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
-  list(task, callback) {
+  list(task) {
     const option = {
       url: `${this.settings.spiderAPI.miaopai.api}&per=20&suid=${task.id}`
     };
@@ -75,22 +71,19 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.result || result.result.length === 0) {
         typeErr = {type: 'data', err: 'miaopai-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
   }
   getInfo(task, id) {
@@ -111,7 +104,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'error', err: JSON.stringify(e.message), interface: 'getInfo', url: option.url};
+        typeErr = {type: 'error', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

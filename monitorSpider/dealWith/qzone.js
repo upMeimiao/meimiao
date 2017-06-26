@@ -6,10 +6,7 @@ const cheerio = require('cheerio');
 const request = require( '../../lib/request' );
 const infoCheck = require('../controllers/infoCheck');
 
-// const _Callback = (data) => data;
-const _Callback = (data) => {
-  return data;
-};
+const _Callback = (data) => data;
 let logger, typeErr;
 class dealWith {
   constructor(core) {
@@ -23,14 +20,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          });
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
-          this.getList(task, () => {
-            cb();
-          });
+          this.getList(task);
+          cb();
         },
         videoInfo: (cb) => {
           this.getVidInfo(task);
@@ -45,11 +40,8 @@ class dealWith {
         callback();
       }
     );
-    this.getList(task, () => {
-      callback();
-    });
   }
-  getUser(task, callback) {
+  getUser(task) {
     const option = {
       url: `https://h5.qzone.qq.com/proxy/domain/r.qzone.qq.com/cgi-bin/tfriend/cgi_like_check_and_getfansnum.cgi?uin=${task.id}&mask=3&fupdate=1`,
       ua: 1
@@ -64,20 +56,17 @@ class dealWith {
           infoCheck.interface(this.core, task, typeErr);
         }
         result = null;
-        callback();
         return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      result = null;
-      callback();
     });
   }
-  getList(task, callback) {
+  getList(task) {
     const option = {
       referer: `https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_module?i_uin=${task.id}&mode=4&previewV8=1&style=31&version=8&needDelOpr=true&transparence=true&hideExtend=false&showcount=10&MORE_FEEDS_CGI=http%3A%2F%2Fic2.qzone.qq.com%2Fcgi-bin%2Ffeeds%2Ffeeds_html_act_all&refer=2&paramstring=os-win7|100`,
       url:  `${this.settings.spiderAPI.qzone.listVideo + task.id}&start=0`,
@@ -92,22 +81,19 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.data || !result.data.friend_data || result.data.friend_data.length === 0) {
         typeErr = {type: 'data', err: 'qzone-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
   }
   getVidInfo(task) {
@@ -128,7 +114,7 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -167,7 +153,7 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVidCom', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidCom', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

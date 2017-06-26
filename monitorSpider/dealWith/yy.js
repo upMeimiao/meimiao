@@ -19,9 +19,8 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         dlist: (cb) => {
           this.dlist(task);
@@ -41,7 +40,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       url: this.settings.spiderAPI.yy.userInfo + task.id
     };
@@ -54,7 +53,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       const $ = cheerio.load(result.body),
@@ -63,8 +61,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'yy-fans-data-error', interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
   dlist(task) {
     const option = {

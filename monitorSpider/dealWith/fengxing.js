@@ -78,9 +78,8 @@ class dealWith {
               cb();
             },
             media: (cb) => {
-              this.getVideoList(task, vidObj, () => {
-                cb();
-              });
+              this.getVideoList(task, vidObj);
+              cb();
             }
           },
           () => {
@@ -105,7 +104,7 @@ class dealWith {
         try {
           result = JSON.parse(result.body);
         } catch (e) {
-          typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideo', url: option.url};
+          typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'getVideo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
           callback();
           return;
@@ -121,7 +120,7 @@ class dealWith {
       });
     }
   }
-  getVideoList(task, vidObj, callback) {
+  getVideoList(task, vidObj) {
     let h = null,
       dataJson = null,
       startIndex = null,
@@ -141,7 +140,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVideoList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
@@ -150,16 +148,14 @@ class dealWith {
       if (startIndex === -1 || endIndex === -1) {
         typeErr = {type: 'data', err: 'fengxing-list-dom-error', interface: 'getVideoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       dataJson = result.substring(startIndex, endIndex);
       try {
         dataJson = JSON.parse(dataJson);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideoList', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${dataJson}`, interface: 'getVideoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       length = dataJson.dvideos[0].videos.length;
@@ -168,7 +164,6 @@ class dealWith {
       task.total += length;
       this.getVideoInfo(task, content[0].videoid);
       this.getComment(task, content[0].videoid);
-      callback();
     });
   }
   getVidList(task) {
@@ -190,7 +185,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVidList-非视频号', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'getVidList-非视频号', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -217,7 +212,7 @@ class dealWith {
         try {
           result = JSON.parse(result.body);
         } catch (e) {
-          typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideoInfo-视频号', url: option.url};
+          typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'getVideoInfo-视频号', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
           return;
         }
@@ -282,7 +277,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getCreatTime', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'getCreatTime', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

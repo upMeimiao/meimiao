@@ -40,7 +40,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user-total', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'user-total', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -79,7 +79,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(err.message), interface: 'video', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -107,7 +107,7 @@ class dealWith {
       try {
         result = JSON.parse(result);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'ding', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'ding', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
@@ -132,7 +132,7 @@ class dealWith {
       try {
         result = JSON.parse(result);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'cai', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'cai', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

@@ -50,25 +50,23 @@ class dealWith {
       try {
         listData = JSON.parse(listData);
       } catch (e) {
-        typeErr = {type: 'json', err: `baiduVideo-fan-${JSON.stringify(e.message)}`, interface: 'videoAlbum', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'videoAlbum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
-      const length = listData.length,
-        fan = $('div.num-sec').eq(0).find('p.num').text();
+      const fan = $('div.num-sec').eq(0).find('p.num').text();
       if (!fan) {
         typeErr = {type: 'data', err: `baiduVideo-fan-dom-error`, interface: 'videoAlbum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
-      this.getVidList(task, listData[0].album.id, () => {
-        callback();
-      });
+      this.getVidList(task, listData[0].album.id);
+      callback();
     });
   }
-  getVidList(task, listVid, callback) {
+  getVidList(task, listVid) {
     const option = {
       url: `${this.settings.spiderAPI.baidu.videoList + listVid}&page=1&_=${new Date().getTime()}`
     };
@@ -81,19 +79,16 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVidList', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'getVidList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       this.getVidInfo(task, result.data[0].play_link);
-      callback();
     });
   }
   getVidInfo(task, url) {

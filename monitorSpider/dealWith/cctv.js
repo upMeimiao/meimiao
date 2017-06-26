@@ -21,14 +21,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          });
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
-          this.getList(task, () => {
-            cb();
-          });
+          this.getList(task);
+          cb();
         }
       },
       () => {
@@ -36,7 +34,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const option = {
       url: `${this.settings.spiderAPI.cctv.fans + task.id}&_=${new Date().getTime()}`
     };
@@ -49,19 +47,17 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
   }
-  getList(task, callback) {
+  getList(task) {
     const option = {
       url: `http://my.xiyou.cntv.cn/${task.id}/video-1-1.html`,
       ua: 1
@@ -76,7 +72,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       $ = cheerio.load(result.body);
@@ -86,7 +81,6 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
       }
       this.getVidInfo(task, content.eq(0));
-      callback();
     });
   }
   getVidInfo(task, video) {
@@ -110,7 +104,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'video', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

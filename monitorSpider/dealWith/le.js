@@ -21,14 +21,20 @@ class dealWith {
     async.parallel(
       {
         list: (cb) => {
-          this.getTotal(task, () => {
-            cb();
-          });
+          this.getTotal(task);
+          cb();
         },
         info: (cb) => {
-          this.info(task, () => {
-            cb();
-          });
+          this.getInfo(task);
+          cb();
+        },
+        expr: (cb) => {
+          this.getExpr(task);
+          cb();
+        },
+        desc: (cb) => {
+          this.getDesc(task);
+          cb();
         }
       },
       () => {
@@ -36,7 +42,7 @@ class dealWith {
       }
     );
   }
-  getTotal(task, callback) {
+  getTotal(task) {
     const options = {
       url: `${this.settings.spiderAPI.le.newList + task.id}/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=1&_=${(new Date()).getTime()}`,
       referer: `http://chuang.le.com/u/${task.id}/videolist`,
@@ -51,44 +57,20 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videolist', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = eval(`(${result.body})`);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'videolist', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videolist', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.data) {
         typeErr = {type: 'data', err: '可能是接口变了，数据返回出问题', interface: 'videolist', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
     });
-  }
-  info(task, callback) {
-    async.parallel(
-      [
-        (cb) => {
-          this.getInfo(task);
-          cb();
-        },
-        (cb) => {
-          this.getExpr(task);
-          cb();
-        },
-        (cb) => {
-          this.getDesc(task);
-          cb();
-        }
-      ],
-      () => {
-        callback();
-      }
-    );
   }
   getInfo(task) {
     const options = {
@@ -110,7 +92,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: 'le-videoInfo-json', interface: 'videoInfo', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videoInfo', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -174,6 +156,8 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
+        typeErr = {type: 'data', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getDesc', url: options.url};
+        infoCheck.interface(this.core, task, typeErr);
         return;
       }
       result = result.data.introduction;

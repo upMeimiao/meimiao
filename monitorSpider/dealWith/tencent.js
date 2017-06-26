@@ -21,14 +21,10 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
         },
         list: (cb) => {
-          this.getTotal(task, () => {
-            cb();
-          });
+          this.getTotal(task);
         },
         view: (cb) => {
           this.getView(task);
@@ -48,7 +44,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const option = {
       url: `${this.settings.spiderAPI.tencent.user + task.id}&_=${new Date().getTime()}`
     };
@@ -61,15 +57,13 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       const fans = result.followcount.indexOf('万') === -1 ? result.followcount : Number(result.followcount.replace(/万/g, '')) * 10000;
@@ -77,10 +71,9 @@ class dealWith {
         typeErr = {type: 'data', err: 'tencent-user-fansData-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
-  getTotal(task, callback) {
+  getTotal(task) {
     const option = {
       url: `${this.settings.spiderAPI.tencent.videoList + task.id}&pagenum=1`
     };
@@ -93,28 +86,24 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'total', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.stringify(result.body.substring(6, result.body.length - 1)).replace(/[\s\n\r\\]/g, '');
         result = JSON.parse(result.substring(1, result.length - 1));
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'total', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (result.s !== 'o') {
         typeErr = {type: 'data', err: JSON.stringify(`异常错误${result.em}`), interface: 'total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.vtotal && result.vtotal !== 0) {
         typeErr = {type: 'data', err: JSON.stringify('异常错误 result.vtotal !== 0'), interface: 'total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
     });
@@ -161,7 +150,7 @@ class dealWith {
       try {
         backData = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getComment', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -195,7 +184,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getCommentNum', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
@@ -218,7 +207,7 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVidTag', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidTag', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

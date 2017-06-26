@@ -22,14 +22,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
-          this.getTotal(task, () => {
-            cb(null, '视频信息已返回');
-          });
+          this.getTotal(task);
+          cb();
         }
       },
       () => {
@@ -37,7 +35,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const option = {
       url: `http://www.iqiyi.com/u/${task.id}`,
       referer: `http://www.iqiyi.com/u/${task.id}`,
@@ -52,26 +50,22 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       const $ = cheerio.load(result.body),
         fansDom = $('em.count a'),
         fans = fansDom.attr('data-countnum');
       if (fansDom.length === 0) {
-        this.get_user(task, () => {
-          callback();
-        });
+        this.get_user(task);
         return;
       }
       if (!fans) {
         typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
-  get_user(task, callback) {
+  get_user(task) {
     const option = {
       url: `http://m.iqiyi.com/u/${task.id}/fans`,
       referer: `http://m.iqiyi.com/u/${task.id}`,
@@ -86,7 +80,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       let $ = cheerio.load(result.body),
@@ -95,10 +88,9 @@ class dealWith {
         typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback()
-    })
+    });
   }
-  getTotal(task, callback) {
+  getTotal(task) {
     const option = {
       ua: 1,
       url: this.settings.spiderAPI.iqiyi.list[0] + task.id + "&page=1",
@@ -113,29 +105,23 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'total', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'total', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (result.total !== 0) {
-        this.getList(task, () => {
-          callback()
-        })
+        this.getList(task);
       } else {
-        this.getListN(task, () => {
-          callback()
-        })
+        this.getListN(task);
       }
     });
   }
-  getListN(task, callback) {
+  getListN(task) {
     const option = {
       ua: 1,
       url: `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=1`,
@@ -150,7 +136,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       const $ = cheerio.load(result.body, {
@@ -160,19 +145,16 @@ class dealWith {
       if (titleDom.length === 0) {
         typeErr = {type: 'data', err: 'videoList-dom-error', interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       const video = {
         title: titleDom[0].children[0].data,
         link: titleDom[0].attribs['href']
       };
-      this.getIds(task, video, () => {
-        callback();
-      })
-    })
+      this.getIds(task, video);
+    });
   }
-  getIds(task, raw, callback) {
+  getIds(task, raw) {
     const option = {
       ua: 1,
       url: raw.link
@@ -186,7 +168,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getIds', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       const $ = cheerio.load(result.body, {
@@ -196,17 +177,13 @@ class dealWith {
       if (!id) {
         typeErr = {type: 'error', err: 'iqiyi-tvid-error', interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       raw.id = id;
-      this.info(task, raw, () => {
-        logger.debug('***');
-        callback();
-      });
-    })
+      this.info(task, raw);
+    });
   }
-  getList(task, callback) {
+  getList(task) {
     const option = {
       ua: 1,
       url: `${this.settings.spiderAPI.iqiyi.list[0] + task.id}&page=1`,
@@ -221,13 +198,12 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body)
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-getList-json-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -260,37 +236,10 @@ class dealWith {
         id = id.slice(0, end);
         links.push(id)
       }
-      const dataInfo = {
-        id: ids[0],
-        title: titles[0],
-        link: links[0]
-      };
-      this.info(task, dataInfo, () => {
-        callback();
-      })
-    })
-  }
-  info(task, info, callback) {
-    let id = info.id, title = info.title, link = info.link;
-    async.parallel(
-      [
-        (cb) => {
-          this.getInfo(task, id, link);
-          cb();
-        },
-        (cb) => {
-          this.getExpr(task, id, link);
-          cb();
-        },
-        (cb) => {
-          this.getPlay(task, id, link);
-          cb();
-        }
-      ],
-      () => {
-        callback();
-      }
-    );
+      this.getInfo(task, ids[0], links[0]);
+      this.getExpr(task, ids[0], links[0]);
+      this.getPlay(task, ids[0], links[0]);
+    });
   }
   getInfo(task, id, link) {
     let option = {
@@ -312,7 +261,7 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-videoInfo-json', interface: 'videoInfo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -382,7 +331,7 @@ class dealWith {
       try {
         result = eval(result.body)
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-play-json-error', interface: 'getPlay', url: option.url};
+        typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getPlay', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -408,7 +357,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body)
       } catch (e) {
-        typeErr = {type: 'json', err: 'iqiyi-comment-json-error', interface: 'comment', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

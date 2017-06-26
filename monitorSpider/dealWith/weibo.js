@@ -18,9 +18,8 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         video: (cb) => {
           this.getVideoInfo(task);
@@ -32,7 +31,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       url: this.settings.spiderAPI.weibo.userInfo + task.id
     };
@@ -45,31 +44,26 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (result.errno && result.errno === 20003) {
         typeErr = {type: 'data', err: `weibo-fans-${result.errno}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.userInfo || !result.userInfo.followers_count) {
         typeErr = {type: 'data', err: 'weibo-fans-data-error', interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.tabsInfo) {
-        callback();
         return;
       }
       if (result.tabsInfo.tabs[2].title !== '视频') {
@@ -79,7 +73,6 @@ class dealWith {
         task.NoVideo = false;
         this.list(task, result);
       }
-      callback();
     });
   }
   list(task, data) {
@@ -106,7 +99,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -134,7 +127,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(err.message), interface: 'video', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

@@ -50,7 +50,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -89,7 +89,7 @@ class dealWith {
         result = result.substring(startIndex + 13, endIndex);
         result = JSON.parse(result);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -101,7 +101,7 @@ class dealWith {
       this.getCommentNum(task, task.aid.split('_')[1], result.id);
     });
   }
-  getCommentNum(task, _id, id, callback) {
+  getCommentNum(task, _id, id) {
     const option = {};
     let num = null;
     option.url = `http://m.uczzd.cn/iflow/api/v2/cmt/article/${id}/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue=`;
@@ -119,7 +119,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getCommentNum', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -145,7 +145,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getDesc', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getDesc', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

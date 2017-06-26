@@ -52,9 +52,15 @@ class dealWith {
         return;
       }
       result = result.body.replace(/[\n\s\r]/g, '');
+      if (!result.match(/"stats":{"follower_count":(\d*)/)) {
+        typeErr = {type: 'data', err: 'huoshan-data-fans-正则匹配失败', interface: 'getUser', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        callback();
+        return;
+      }
       const fans = result.match(/"stats":{"follower_count":(\d*)/)[1];
       if (!fans) {
-        typeErr = {type: 'data', err: 'bolo-data-fans-null', interface: 'getUser', url: option.url};
+        typeErr = {type: 'data', err: 'huoshan-data-fans-null', interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       callback();

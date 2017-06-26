@@ -20,14 +20,12 @@ class dealWith {
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          })
+          this.getUser(task);
+          cb();
         },
         total: (cb) => {
-          this.getVideos(task, () => {
-            cb();
-          });
+          this.getVideos(task);
+          cb();
         }
       },
       () => {
@@ -35,7 +33,7 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
+  getUser(task) {
     const options = {
       url: this.settings.spiderAPI.kuaibao.user + task.id
     };
@@ -48,19 +46,17 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: options.url};
+        typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
-    })
+    });
   }
-  getVideos(task, callback) {
+  getVideos(task) {
     const option = {
       url: this.settings.spiderAPI.kuaibao.video,
       referer: 'http://r.cnews.qq.com/inews/iphone/',
@@ -78,27 +74,23 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVideos', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideos', url: option.url};
+        typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideos', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       let idStr = '';
       for (const ids of result.ids) {
         idStr += `,${ids.id}`;
       }
-      this.getVideoList(task, idStr.replace(',', ''), () => {
-        callback();
-      });
+      this.getVideoList(task, idStr.replace(',', ''));
     });
   }
-  getVideoList(task, idStr, callback) {
+  getVideoList(task, idStr) {
     const option = {
         url: this.settings.spiderAPI.kuaibao.list,
         referer: 'http://r.cnews.qq.com/inews/iphone/',
@@ -117,15 +109,13 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVideoList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideoList', url: option.url};
+        typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       const video = result.newslist[0];
@@ -141,27 +131,9 @@ class dealWith {
         type: video.articletype
       });
       result = null;
-      this.getDetail(task, videoArr[0], () => {
-        callback();
-      });
-    });
-  }
-  getDetail(task, info, callback) {
-    async.parallel({
-      comment: (cb) => {
-        this.getCommentNum(task, info);
-        cb();
-      },
-      expr: (cb) => {
-        this.getExpr(task, info);
-        cb();
-      },
-      newField: (cb) => {
-        this.getField(task, info);
-        cb();
-      }
-    }, () => {
-      callback();
+      this.getCommentNum(task, videoArr[0]);
+      this.getExpr(task, videoArr[0]);
+      this.getField(task, videoArr[0]);
     });
   }
   getCommentNum(task, info) {
@@ -190,7 +162,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getCommentNum', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
@@ -218,7 +190,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getExpr', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
@@ -242,7 +214,7 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getExpr', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });

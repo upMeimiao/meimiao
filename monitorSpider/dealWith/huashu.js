@@ -94,9 +94,7 @@ class dealWith {
       task.listid = vidInfo.video_sid;
       task.total = length;
       if (contents[0].vuid != null) {
-        this.getVideoList(task, () => {
-          callback();
-        });
+        this.getVideoList(task);
         return;
       }
       this.getVidInfo(task, contents[0].assetid);
@@ -105,7 +103,7 @@ class dealWith {
       callback();
     });
   }
-  getVideoList(task, callback) {
+  getVideoList(task) {
     const option = {
       url: this.settings.spiderAPI.huashu.videoList2 + task.listid
     };
@@ -118,7 +116,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVideoList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
@@ -126,7 +123,6 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       const contents = result.dramadatas;
@@ -134,7 +130,6 @@ class dealWith {
       this.getVidInfo(task, contents[0].episodeid);
       this.getComment(task, result.video_sid);
       this.getPlay(task,contents[0].episodeid);
-      callback();
     });
   }
   getVidInfo(task, vid) {

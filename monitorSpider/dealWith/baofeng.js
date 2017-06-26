@@ -26,7 +26,6 @@ class dealWith {
       option = {
         url: `http://www.baofeng.com/detail/${bid}/detail-${task.id}.html`
       };
-    task.bid = bid;
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -52,17 +51,15 @@ class dealWith {
           callback();
           return;
         }
-        this.getAid(task, () => {
-          callback();
-        });
+        this.getAid(task);
+        callback();
         return;
       }
-      this.getList(task, aid, () => {
-        callback();
-      });
+      this.getList(task, aid);
+      callback();
     });
   }
-  getAid(task, callback) {
+  getAid(task) {
     const option = {
       url: `http://www.baofeng.com/${this.aidUrl}`
     };
@@ -75,17 +72,14 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getAid', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       result = result.body;
       const aid = result.match(/"aid":"\d+/).toString().replace(/"aid":"/, '');
-      this.getVidList(task, aid, () => {
-        callback();
-      });
+      this.getVidList(task, aid);
     });
   }
-  getList(task, aid, callback) {
+  getList(task, aid) {
     const option = {
       url: `http://minfo.baofeng.net/asp_c/13/124/${aid}-n-100-r-50-s-1-p-1.json?_random=false`
     };
@@ -98,7 +92,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVideo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
@@ -106,7 +99,6 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       const videoList = result.video_list;

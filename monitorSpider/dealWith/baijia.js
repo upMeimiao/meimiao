@@ -48,7 +48,7 @@ class dealWith {
       try {
         dataJson = JSON.parse(dataJson);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'user', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(dataJson)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
@@ -74,7 +74,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -121,11 +121,16 @@ class dealWith {
       let dataJson = result.body.replace(/[\s\n\r]/g, '');
       const startIndex = dataJson.indexOf('videoData={"id') === -1 ? dataJson.indexOf('={tplData:{') : dataJson.indexOf('videoData={"id'),
         endIndex = dataJson.indexOf(';window.listInitData') === -1 ? dataJson.indexOf(',userInfo:') : dataJson.indexOf(';window.listInitData');
+      if (startIndex === -1 || endIndex === -1) {
+        typeErr = {type: 'json', err: `dom-可能结构变了{star: ${startIndex}, end: ${endIndex}`, interface: 'getVidInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
       dataJson = dataJson.substring(startIndex + 10, endIndex);
       try {
         dataJson = JSON.parse(dataJson);
       } catch (e) {
-        typeErr = {type: 'json', err: 'dom-可能结构变了', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${e.message}, data: ${dataJson}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
     });
