@@ -37,7 +37,6 @@ class proxyInfo {
   }
   need(times, callback) {
     if (times > 4) {
-      logger.debug('d');
       callback('timeout!');
       return;
     }
