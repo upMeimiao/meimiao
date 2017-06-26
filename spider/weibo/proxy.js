@@ -13,9 +13,31 @@ class proxyInfo {
     }
     logger.trace('Proxy module instantiation');
   }
+  getProxy(callback) {
+    const proxy = '';
+    let proxyStatus = false;
+    if (proxyStatus && proxy) {
+      callback(null, proxy);
+    } else {
+      this.need(0, (err, _proxy) => {
+        if (err) {
+          if (err === 'timeout!') {
+            callback(null, 'timeout');
+            return;
+          }
+          logger.error('Get proxy occur error:', err.message);
+          proxyStatus = false;
+          this.back(_proxy, false);
+          callback(null, false);
+          return;
+        }
+        callback(null, _proxy);
+      });
+    }
+  }
   need(times, callback) {
     if (times > 4) {
-      logger.debug('d')
+      logger.debug('d');
       callback('timeout!');
       return;
     }

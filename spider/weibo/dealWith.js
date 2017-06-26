@@ -5,6 +5,7 @@ const moment = require('moment');
 const async = require('neo-async');
 const req = require('request');
 const request = require('../../lib/request');
+const trimHtml = require('trim-html');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
@@ -27,39 +28,14 @@ class dealWith {
       callback(null, task.total);
     });
   }
-
-  getProxy(callback) {
-    const proxy = '';
-    let proxyStatus = false,
-      times = 0;
-    if (proxyStatus && proxy) {
-      callback(null, proxy);
-    } else {
-      this.core.proxy.need(times, (err, _proxy) => {
-        if (err) {
-          if (err === 'timeout!') {
-            callback(null, 'timeout');
-            return;
-          }
-          logger.error('Get proxy occur error:', err.message);
-          times += 1;
-          proxyStatus = false;
-          this.core.proxy.back(_proxy, false);
-          callback(null, false);
-          return;
-        }
-        times = 0;
-        callback(null, _proxy);
-      });
-    }
-  }
-
   getUserInfo(task, callback) {
     const option = {
-      url: this.settings.spiderAPI.weibo.userInfo + task.id
+      url: this.settings.spiderAPI.weibo.userInfo + task.id,
+      ua: 3,
+      own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
     };
-    this.getProxy((err, proxy) => {
-      if (proxy === 'timeout!') {
+    this.core.proxy.getProxy((err, proxy) => {
+      if (proxy === 'timeout') {
         callback();
         return;
       }
@@ -78,8 +54,7 @@ class dealWith {
         try {
           result = JSON.parse(result.body);
         } catch (e) {
-          logger.error('json解析错误');
-          logger.info(result);
+          logger.error('用户json解析错误', result.body);
           this.core.proxy.back(proxy, false);
           this.getUserInfo(task, callback);
           return;
@@ -130,6 +105,7 @@ class dealWith {
             callback();
           });
         }
+        this.core.proxy.back(proxy, true);
       });
     });
   }
@@ -188,7 +164,10 @@ class dealWith {
   }
 
   getVidTotal(task, data, proxy, callback) {
-    const option = {};
+    const option = {
+      ua: 3,
+      own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
+    };
     let containerid = '',
       total = 0;
     if (task.NoVideo) {
@@ -203,34 +182,8 @@ class dealWith {
       if (err) {
         logger.debug('视频总量请求错误', err.message);
         this.core.proxy.back(proxy, false);
-        this.getProxy((error, _proxy) => {
-          if (_proxy === 'timeout!') {
-            callback();
-            return;
-          }
-          this.getVidTotal(task, data, proxy, callback);
-        });
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info(result);
-        this.core.proxy.back(proxy, false);
-        this.getProxy((error, _proxy) => {
-          if (_proxy === 'timeout!') {
-            callback();
-            return;
-          }
-          this.getVidTotal(task, data, proxy, callback);
-        });
-        return;
-      }
-      if (!result.cardlistInfo) {
-        this.core.proxy.back(proxy, false);
-        this.getProxy((error, _proxy) => {
-          if (_proxy === 'timeout!') {
+        this.core.proxy.getProxy((error, _proxy) => {
+          if (_proxy === 'timeout') {
             callback();
             return;
           }
@@ -238,6 +191,34 @@ class dealWith {
         });
         return;
       }
+      try {
+        const length = result.body.length;
+        result = trimHtml(result.body, { preserveTags: true, limit: length });
+        result = JSON.parse(result.html);
+      } catch (e) {
+        logger.error('总数json数据解析失败', result);
+        this.core.proxy.back(proxy, false);
+        this.core.proxy.getProxy((error, _proxy) => {
+          if (_proxy === 'timeout') {
+            callback();
+            return;
+          }
+          this.getVidTotal(task, data, _proxy, callback);
+        });
+        return;
+      }
+      if (!result.cardlistInfo) {
+        this.core.proxy.back(proxy, false);
+        this.core.proxy.getProxy((error, _proxy) => {
+          if (_proxy === 'timeout') {
+            callback();
+            return;
+          }
+          this.getVidTotal(task, data, _proxy, callback);
+        });
+        return;
+      }
+      this.core.proxy.back(proxy, true);
       total = result.cardlistInfo.total;
       this.getVidList(task, data, total, proxy, () => {
         callback();
@@ -246,9 +227,15 @@ class dealWith {
   }
 
   getVidList(task, data, total, Proxy, callback) {
+    const option = {
+      ua: 3,
+      own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
+    };
     let page,
       num = 0,
-      _proxy = Proxy;
+      _proxy = Proxy,
+      containerid = '',
+      length = 0;
     if (total % 20 !== 0) {
       page = Math.ceil(total / 20);
     } else {
@@ -257,8 +244,6 @@ class dealWith {
     async.whilst(
       () => task.page <= Math.min(page, 500),
       (cb) => {
-        let containerid = '';
-        const option = {};
         if (task.NoVideo) {
           containerid = data.tabsInfo.tabs[1].containerid;
           option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}_-_WEIBO_SECOND_PROFILE_WEIBO_ORI&page=${task.page}`;
@@ -271,9 +256,10 @@ class dealWith {
           if (err) {
             logger.debug('视频列表数据请求错误', err.message);
             this.core.proxy.back(_proxy, false);
-            this.getProxy((error, proxy) => {
+            this.core.proxy.getProxy((error, proxy) => {
               if (proxy === 'timeout') {
-                callback();
+                page = -1;
+                cb();
                 return;
               }
               _proxy = proxy;
@@ -282,14 +268,16 @@ class dealWith {
             return;
           }
           try {
-            result = JSON.parse(result.body);
+            length = result.body.length;
+            result = trimHtml(result.body, { preserveTags: true, limit: length });
+            result = JSON.parse(result.html);
           } catch (e) {
-            logger.error('json数据解析失败');
-            logger.info(result);
+            logger.error('视频列表json数据解析失败', result);
             this.core.proxy.back(_proxy, false);
-            this.getProxy((error, proxy) => {
-              if (proxy === 'timeout!') {
-                callback();
+            this.core.proxy.getProxy((error, proxy) => {
+              if (proxy === 'timeout') {
+                page = -1;
+                cb();
                 return;
               }
               _proxy = proxy;
@@ -300,9 +288,10 @@ class dealWith {
           if (!result.cards) {
             logger.debug('当前列表页的结构有问题，重新请求');
             this.core.proxy.back(_proxy, false);
-            this.getProxy((error, proxy) => {
-              if (proxy === 'timeout!') {
-                callback();
+            this.core.proxy.getProxy((error, proxy) => {
+              if (proxy === 'timeout') {
+                page = -1;
+                cb();
                 return;
               }
               _proxy = proxy;
@@ -313,11 +302,12 @@ class dealWith {
           if (result.cards.length <= 0) {
             num += 1;
             if (num > 1) {
-              task.page += 200;
+              page = -1;
             }
             cb();
             return;
           }
+          this.core.proxy.back(_proxy, true);
           this.deal(task, result.cards, data, _proxy, () => {
             task.page += 1;
             cb();
@@ -351,19 +341,25 @@ class dealWith {
   getAllInfo(task, video, user, proxy, callback) {
     if (!video.mblog) {
       callback();
-    } else if (video.mblog.pic_infos) {
+      return;
+    }
+    if (video.mblog.pic_infos) {
       callback();
-    } else if (video.mblog.user && task.id != video.mblog.user.id) {
+      return;
+    }
+    if (video.mblog.user && task.id != video.mblog.user.id) {
       callback();
-    } else {
-      async.series([
+      return;
+    }
+    async.series(
+      [
         (cb) => {
           this.getVideoInfo(video.mblog.mblogid, proxy, (err, result) => {
-            this.core.proxy.back(proxy, true);
             cb(null, result);
           });
         }
-      ], (err, result) => {
+      ],
+      (err, result) => {
         if (result[0] === '抛掉当前的') {
           callback();
           return;
@@ -396,13 +392,15 @@ class dealWith {
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
-      });
-    }
+      }
+    );
   }
 
   getVideoInfo(id, proxy, callback) {
     const option = {
-      url: `http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${id}`
+      url: `http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${id}`,
+      ua: 3,
+      own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
     };
     let dataTime = '';
     option.proxy = proxy;
@@ -410,22 +408,22 @@ class dealWith {
       if (err) {
         logger.debug('单个视频信息请求错误', err);
         this.core.proxy.back(proxy, false);
-        this.getProxy((error, _proxy) => {
-          if (_proxy === 'timeout!') {
+        this.core.proxy.getProxy((error, _proxy) => {
+          if (_proxy === 'timeout') {
             callback(null, '抛掉当前的');
             return;
           }
-          this.getVideoInfo(id, proxy, callback);
+          this.getVideoInfo(id, _proxy, callback);
         });
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('json数据解析失败');
+        logger.error('单个视频信息json数据解析失败', result.body);
         this.core.proxy.back(proxy, false);
         this.getProxy((error, _proxy) => {
-          if (_proxy === 'timeout!') {
+          if (_proxy === 'timeout') {
             callback(null, '抛掉当前的');
             return;
           }
@@ -444,6 +442,7 @@ class dealWith {
       dataTime = new Date(result.created_at);
       dataTime = moment(dataTime).unix();
       result.created_at = isNaN(dataTime) ? '' : dataTime;
+      this.core.proxy.back(proxy, true);
       callback(null, result);
     });
   }
