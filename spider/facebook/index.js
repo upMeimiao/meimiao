@@ -86,8 +86,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '477313339136839',
-      name: '陈翔六点半',
+      id: '100003896634272',
+      name: 'REN T RTIANA',
       p: 40,
       cookies: this.cookies
     };
