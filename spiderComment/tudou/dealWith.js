@@ -63,6 +63,10 @@ class dealWith {
         this.totalPage(task, callback);
         return;
       }
+      if (!result.data.comment.length) {
+        callback(null);
+        return;
+      }
       task.cNum = result.data.totalSize;
       if ((task.cNum - task.commentNum) <= 0 || result.data.length <= 0) {
         task.lastId = task.commentId;
