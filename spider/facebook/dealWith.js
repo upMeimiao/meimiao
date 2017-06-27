@@ -160,7 +160,7 @@ class dealWith {
     let token = null,
       cycle = true,
       num = 1,
-      cursor = 'MDpub3Rfc3RydWN0dXJlZDo4ODg3NTM0NjEyNjQ1MzM=',
+      cursor = '',
       tokenList = null,
       videolist = null,
       $ = null;
