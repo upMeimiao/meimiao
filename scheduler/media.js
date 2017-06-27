@@ -19,7 +19,8 @@ class mediaScheduler extends events {
         host: this.redis.host,
         auth: this.redis.auth,
         db: this.redis.jobDB
-      }
+      },
+      jobEvents: false
     });
     this.logger.trace('视频任务调度器初始化完成');
   }
@@ -38,13 +39,13 @@ class mediaScheduler extends events {
     } else {
       switch (osName) {
         case 'servant_3':
-          rule.second = [0];
-          // rule.minute = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58];
+          // rule.second = [0];
+          rule.minute = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58];
           // rule.second = [0, 6, 12, 18, 24, 30, 36, 45, 51, 57];
           break;
         case 'iZ28ilm78mlZ':
-          rule.second = [30];
-          // rule.minute = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59];
+          // rule.second = [30];
+          rule.minute = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59];
           // rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
           break;
         default:

@@ -21,7 +21,8 @@ class commentScheduler extends events {
         host: this.redis.host,
         auth: this.redis.auth,
         db: this.redis.jobDB
-      }
+      },
+      jobEvents: false
     });
     this.logger.trace('评论任务调度器初始化完成');
   }
@@ -147,7 +148,7 @@ class commentScheduler extends events {
       }
       this.logger.debug(body);
       if (!body.data || !Array.isArray(body.data) || body.data.length === 0) return;
-      if (Number(body.data[0].platform) === 39) {
+      if (Number(body.data[0].platform) === 39 || Number(body.data[0].platform) === 40) {
         this.emit('origin_youtube', body.data);
         return;
       }

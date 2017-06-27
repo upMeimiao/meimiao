@@ -4,9 +4,8 @@
  */
 const kue = require('kue');
 const request = require('request');
-const myRedis = require('../../lib/myredis.js');
-const async = require('neo-async');
 const domain = require('domain');
+const Redis = require('ioredis');
 const loginFacebook = require('./loginFacebook');
 const spiderUtils = require('../../lib/spiderUtils');
 
@@ -22,61 +21,21 @@ class spiderCore {
     logger.trace('spiderCore instantiation ...');
   }
   assembly() {
-    async.parallel([
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.taskDB,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.taskDB = cli;
-            logger.debug('任务信息数据库连接建立...成功');
-            callback(null);
-          }
-        );
-      },
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.cache_db,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.cache_db = cli;
-            logger.debug('缓存队列数据库连接建立...成功');
-            callback();
-          }
-        );
-      }
-    ], (err) => {
-      if (err) {
-        logger.error('连接redis数据库出错。错误信息：', err);
-        logger.error('出现错误，程序终止。');
-        process.exit();
-        return;
-      }
-      logger.debug('创建数据库连接完毕');
-      const email = this.settings.spiderAPI.facebook.auth,
-        keys = [];
-      for (const value of email) {
-        keys.push(['SISMEMBER', 'user:Facebook', value.email]);
-      }
-      this.searchDB(keys);
-    });
+    this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`);
+    this.cache_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.cache_db}`);
+    const email = this.settings.spiderAPI.facebook.auth,
+      keys = [];
+    for (const value of email) {
+      keys.push(['sismember', 'user:Facebook', value.email]);
+    }
+    this.searchDB(keys);
   }
   start() {
     logger.trace('启动函数');
-    this.assembly(this.index);
+    this.assembly();
   }
   searchDB(keys) {
-    this.taskDB.multi(
+    this.taskDB.pipeline(
       keys
     ).exec((err, result) => {
       if (err) {
@@ -85,7 +44,7 @@ class spiderCore {
       }
       let auth;
       for (const [key, val] of result.entries()) {
-        if (val === 0) {
+        if (val[1] === 0) {
           auth = this.settings.spiderAPI.facebook.auth[key];
           break;
         }

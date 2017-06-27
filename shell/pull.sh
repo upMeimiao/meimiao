@@ -75,7 +75,7 @@ case $1 in
     done
     ;;
 'update')
-    for loop in ${spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6} ${spider_7} ${spider_8} ${spider_9} ${scheduler_2}
+    for loop in ${spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6} ${spider_7} ${spider_8} ${spider_9}
     do
         echo
         echo "--------------$loop--------------"
@@ -87,12 +87,12 @@ case $1 in
         echo "--------------pm2 update完成，退出服务器$loop --------------"
         echo
     done
-    echo "--------------中控服务器pm2 update--------------"
-    echo
-    echo "--------------$scheduler_1--------------"
-    pm2 update
-    echo "-------------- $scheduler_1 pm2 update完成--------------"
-    echo
+#    echo "--------------中控服务器pm2 update--------------"
+#    echo
+#    echo "--------------$scheduler_1--------------"
+#    pm2 update
+#    echo "-------------- $scheduler_1 pm2 update完成--------------"
+#    echo
     ;;
 'update_c')
     for loop in ${spider_comment_1} ${spider_comment_2} ${spider_comment_3} ${spider_comment_4} ${spider_comment_5} ${spider_comment_6} ${spider_comment_7} ${spider_comment_8} ${spider_comment_9} ${spider_comment_10}

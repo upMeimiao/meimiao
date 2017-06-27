@@ -1,5 +1,5 @@
 {
-  "name"        : "Facebook",
+  "name"        : "Facebook评论",
   "script"      : "/root/qiaosuan/run.js",
   "args"        : ["-i","comment_overseas","-a","facebook","-t","comment"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",

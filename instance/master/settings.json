@@ -12,8 +12,12 @@
   },
   "proxy": {
     "host": "10.169.16.235",
+    "weiboHost": "10.169.16.235",
+    "toutiaoHost": "10.251.55.50",
     "port": 3002,
-    "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=800&protocol=1&method=1&an_an=1&an_ha=1&sp1=1&sp2=1&f_pr=1&quality=1&format=json&sep=1",
+    "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&protocol=1&method=1&f_pr=1&format=json&sep=1",
+    "newApi2": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&format=json&f_pr=1",
+    "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1000&protocol=1&method=1&an_an=1&an_ha=1&sp1=1&sp2=1&f_pr=1&quality=1&format=json&sep=1",
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
   },
   "kue": {
@@ -27,7 +31,7 @@
   "concurrency": 7,
   "send_interval": 1000,
   "interval": 10000,
-  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV?limit=160",
+  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV?limit=167",
   "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideosMore/",
   "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
   "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
@@ -250,6 +254,10 @@
       "user": "https://www.huoshan.com/share/user/",
       "list": "https://www.huoshan.com/share/load_videos/?",
       "video": "https://www.huoshan.com/share/video/"
+    },
+    "gumi": {
+      "list": "http://www.migudm.cn/userPage/index.html?pageSize=20&opusType=8&userId=",
+      "comment": "http://m.migudm.cn/opus/topic/list.html?opusType=29&hwOpusId="
     }
   },
   "servantAPI": {

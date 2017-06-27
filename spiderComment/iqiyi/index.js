@@ -3,9 +3,8 @@
  * Created by junhao on 2017/2/08.
  */
 const kue = require('kue');
-const async = require('neo-async');
 const domain = require('domain');
-const myRedis = require('../../lib/myredis.js');
+const Redis = require('ioredis');
 
 let logger, settings;
 class spiderCore {
@@ -19,53 +18,13 @@ class spiderCore {
     logger.trace('spiderCore instantiation ...');
   }
   assembly() {
-    async.parallel([
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.taskDB,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.taskDB = cli;
-            logger.debug('任务信息数据库连接建立...成功');
-            callback();
-          }
-        );
-      },
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.cache_db,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.cache_db = cli;
-            logger.debug('缓存队列数据库连接建立...成功');
-            callback();
-          }
-        );
-      }
-    ], (err) => {
-      if (err) {
-        logger.error('连接redis数据库出错。错误信息：', err);
-        logger.error('出现错误，程序终止。');
-        process.exit();
-        return;
-      }
-      logger.debug('创建数据库连接完毕');
-      if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-        this.deal();
-      } else {
-        this.test();
-      }
-    });
+    this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`);
+    this.cache_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.cache_db}`);
+    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+      this.deal();
+    } else {
+      this.test();
+    }
   }
   start() {
     logger.trace('启动函数');

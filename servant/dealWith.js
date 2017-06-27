@@ -412,12 +412,20 @@ class DealWith {
           }
           let $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-          let user = $('.user_info'),
-            href = user.attr('href'),
-            idDom = $('.btn_book'),
-            id = href.substring(href.lastIndexOf('/') + 1),
-            name = $('div.video_user._video_user a.user_info span').text(),
+          let id, href, name, avatar, idDom
+          if (num.length === 0) {
+            id = $('div[data-euin]').attr('data-euin')
+            href = `http://v.qq.com/vplus/${id}`
+          } else {
+            let user = $('.user_info')
+              href = user.attr('href')
+            idDom = $('.btn_book')
+            id = href.substring(href.lastIndexOf('/') + 1)
+            name = $('div.video_user._video_user a.user_info span').text()
             avatar = $('div.video_user._video_user a.user_info img').attr('src');
+            name = name || $('div.video_user a.user_info').attr('title');
+            avatar = avatar || $('div.video_user img.user_avatar').attr('src');
+          }
           if (name && avatar) {
             res = {
               id,
@@ -443,12 +451,15 @@ class DealWith {
               nameDom = $('h2.user_info_name'),
               nameDom2 = $('#userInfoNick');
             name = nameDom.text();
-            avatar = $('#userAvatar').attr('src');
+            let $avatar = $('#userAvatar');
+            avatar = $avatar.attr('src');
             if (nameDom.length === 0) {
               name = nameDom2.text();
-              id = idDom.attr('r-subscribe');
+              id = id || idDom.attr('r-subscribe');
             }
-            if (!$('#userAvatar').attr('src')) {
+            if ($avatar) {
+              avatar = $('.user_avatar a img').attr('src');
+            } else {
               avatar = '';
             }
             res = {
@@ -531,10 +542,9 @@ class DealWith {
     let groupId,
       itemid = data.indexOf('item') !== -1 ? data.match(/\/item\/(\d*)\//)[1] : null,
       bid,
-      res = null;
+      res = {};
     request.get(option, (err, result) => {
       if (err) {
-        logger.error('播放详情页DOM请求失败', err);
         callback(err, { code: 102, p:6 });
         return;
       }
@@ -562,7 +572,7 @@ class DealWith {
   }
   getToutiaoMediaId(groupId, item, callback) {
     const option = {
-      url: `${api.toutiao.media + groupId}`,
+      url: `${api.toutiao.media + groupId}&item_id=${item.itemid || ''}`,
       ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
     };
     request.get(option, (err, result) => {
@@ -580,13 +590,17 @@ class DealWith {
         callback('get-media-error');
         return;
       }
-      let itemid = result.data.recommend_sponsor.target_url.match(/item_id=(\d*)/)[1],
+      let itemid = result.data.recommend_sponsor ? result.data.recommend_sponsor.target_url.match(/item_id=(\d*)/)[1] : '',
         res = {
         id: result.data.h5_extra.media.id,
         name: result.data.h5_extra.media.name,
         avatar: result.data.h5_extra.media.avatar_url,
         p: 6
       };
+      if (!itemid) {
+        itemid = result.data.script ? result.data.script.match(/item_id=(\d*)/)[1] : '';
+        itemid = itemid || result.data.share_url.match(/item\/(\d*)/)[1];
+      }
       if (item && item.itemid != itemid) {
         itemid = item.itemid;
         res.id = item.bid
@@ -602,7 +616,6 @@ class DealWith {
           res.avatar = user.avatar;
         }
         if (item && item != itemid && user.id) {
-          logger.debug(111);
           res.id = user.id;
           res.name = user.name;
           res.avatar = user.avatar;
@@ -653,12 +666,14 @@ class DealWith {
     };
     request.get(option, (err, result) => {
       if (err) {
+        logger.debug('---', error);
         callback('bid2-error');
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
+        logger.debug('1111', error);
         callback('bid2-JSON-error');
         return;
       }
@@ -1875,15 +1890,17 @@ class DealWith {
     request.get(option, (err, result) => {
       if (err) {
         logger.error('occur error: ', err);
-        return callback(err, { code: 102, p: 31 });
+        callback(err, { code: 102, p: 31 });
+        return;
       }
       if (result.statusCode != 200) {
         logger.error('PPTV状态码错误', result.statusCode);
-        return callback(true, { code: 102, p: 31 });
+        callback(true, { code: 102, p: 31 });
+        return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
       const vid = result.match(/varwebcfg={"id":\d+/).toString().replace('varwebcfg={"id":', '');
-      return this.pptvInfo(vid, data, (err, result) => {
+      this.pptvInfo(vid, data, (err, result) => {
         callback(null, result);
       });
     });
@@ -1895,17 +1912,20 @@ class DealWith {
     request.get(option, (err, result) => {
       if (err) {
         logger.error('occur error: ', err);
-        return callback(err, { code: 102, p: 31 });
+        callback(err, { code: 102, p: 31 });
+        return;
       }
       if (result.statusCode != 200) {
         logger.error('PPTV状态码错误', result.statusCode);
-        return callback(true, { code: 102, p: 31 });
+        callback(true, { code: 102, p: 31 });
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        logger.debug('PPTV数据解析失败');
-        return callback(e, { code: 102, p: 31 });
+        logger.error('PPTV数据解析失败');
+        callback(e, { code: 102, p: 31 });
+        return;
       }
       const dataName = result;
       if (!result.v.traceName) {
@@ -1913,23 +1933,29 @@ class DealWith {
         request.get(option, (err, result) => {
           if (err) {
             logger.error('occur error: ', err);
-            return callback(err, { code: 102, p: 31 });
+            callback(err, { code: 102, p: 31 });
+            return;
           }
           if (result.statusCode != 200) {
             logger.error('PPTV状态码错误', result.statusCode);
-            return callback(true, { code: 102, p: 31 });
+            callback(true, { code: 102, p: 31 });
+            return;
           }
           let $ = cheerio.load(result.body),
             script = $('script')[2].children[0].data.replace(/[\s\n\r]/g, ''),
-            dataJson = script.replace(/varwebcfg=/, '').replace(/;/, '');
+            startIndex = script.indexOf('varwebcfg='),
+            endIndex = script.indexOf(';'),
+            dataJson = script.substring(startIndex + 10, endIndex);
           try {
             dataJson = JSON.parse(dataJson);
           } catch (e) {
-            logger.debug(dataJson);
+            logger.error('视频dom解析失败', dataJson);
+            callback(e, { code: 102, p: 31 });
             return;
           }
           if (!dataJson.p_title.replace(/[\s\n\r]/g, '')) {
-            return this.pptvInfo(vid, url, callback);
+            this.pptvInfo(vid, url, callback);
+            return;
           }
           const res = {
             name: dataJson.p_title,
@@ -1938,7 +1964,8 @@ class DealWith {
             encode_id: dataJson.cat_id,
             avatar: dataName.v.imgurl
           };
-          return callback(null, res);
+          callback(null, res);
+          return;
         });
       } else {
         const res = {
@@ -2039,34 +2066,13 @@ class DealWith {
         logger.debug('v1数据转换失败');
         return callback(e, { code: 102, p: 33 });
       }
-      this.getenCodeid(data, (err, encodeid) => {
-        const res = {
-          p: 33,
-          id: result.body.obj.videoDetail.userInfo.userId,
-          name: result.body.obj.videoDetail.userInfo.userName,
-          avatar: result.body.obj.videoDetail.userInfo.userImg,
-          encode_id: encodeid
-        };
-        callback(null, res);
-      });
-    });
-  }
-  getenCodeid(url, callback) {
-    const option = {
-      url
-    };
-    request.get(option, (err, result) => {
-      if (err) {
-        logger.debug('v1 encodeid 请求失败');
-        return this.getenCodeid(url, callback);
-      }
-      if (result.statusCode != 200) {
-        logger.debug('v1 encodeid 状态码错误');
-        return this.getenCodeid(url, callback);
-      }
-      let $ = cheerio.load(result.body),
-        encodeid = $('a.btn_alSub').attr('id').replace('isfocusbtn_', '');
-      callback(null, encodeid);
+      const res = {
+        p: 33,
+        id: result.body.obj.videoDetail.userInfo.userId,
+        name: result.body.obj.videoDetail.userInfo.userName,
+        avatar: result.body.obj.videoDetail.userInfo.userImg
+      };
+      callback(null, res);
     });
   }
   fengxing(data, callback) {
@@ -2755,6 +2761,42 @@ class DealWith {
         name: result.author.nickname,
         avatar: result.author.avatar_thumb.url_list[2],
         p: 45
+      };
+      callback(null, res);
+    });
+  }
+  migu(data, callback) {
+    const host = URL.parse(data, true).hostname,
+      options = {
+        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+      };
+    let res = null;
+    options.url = data;
+    if (host == 'm.migudm.cn') {
+      options.url = data.replace(host, 'www.migudm.cn');
+    }
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 46 });
+        return;
+      }
+      result = result.body;
+      const $ = cheerio.load(result),
+        userDom = $('div.ugcVideoHdRight.fr.clearfix'),
+        id = userDom.find('a').attr('href').match(/userId=(\d*)/)[1],
+        name = userDom.find('.name').text(),
+        avatar = userDom.find('img').attr('src');
+      if (!id || !name || !avatar) {
+        logger.debug('---');
+        callback('error', { code: 102, p: 46 });
+        return;
+      }
+      res = {
+        id: id,
+        name: name,
+        avatar: avatar,
+        p: 46
       };
       callback(null, res);
     });

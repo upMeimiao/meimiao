@@ -18,80 +18,78 @@ class dealWith {
     task.total = 0;
     this.getListInfo(task, (err) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       callback(null, task.total);
     });
   }
   getListInfo(task, callback) {
-    let options = {
-        method: 'GET',
-        headers:
-        {
-          'cache-control': 'no-cache',
-          'x-platform-version': '10.2.1',
-          'x-client-hash': 'b90e74ec3b4e9511e9cf87e96438e461',
-          connection: 'keep-alive',
-          'x-client-version': '2.2.1',
-          'x-client-agent': 'APPLE_iPhone8,2_iOS10.2.1',
-          'user-agent': 'LiVideoIOS/2.2.1 (iPhone; iOS 10.2.1; Scale/3.00)',
-          'X-Platform-Type': '1',
-          'X-Client-ID': '2C2DECE9-B2CD-4B8B-A044-6D904ACFB5E7'
-        }
-      },
-      start = 0,
+    const options = {
+      method: 'GET',
+      headers: {
+        'cache-control': 'no-cache',
+        'x-platform-version': '10.2.1',
+        'x-client-hash': 'b90e74ec3b4e9511e9cf87e96438e461',
+        connection: 'keep-alive',
+        'x-client-version': '2.2.1',
+        'x-client-agent': 'APPLE_iPhone8,2_iOS10.2.1',
+        'user-agent': 'LiVideoIOS/2.2.1 (iPhone; iOS 10.2.1; Scale/3.00)',
+        'X-Platform-Type': '1',
+        'X-Client-ID': '2C2DECE9-B2CD-4B8B-A044-6D904ACFB5E7'
+      }
+    };
+    let start = 0,
       cycle = true;
     async.whilst(
-            () => cycle,
-            (cb) => {
-              options.url = `${this.settings.spiderAPI.liVideo.list}${task.id}&start=${start}`;
-                // logger.debug(options);
-              request(options, (error, response, body) => {
-                if (error) {
-                  logger.debug('LI视频总量请求失败', error);
-                  return this.getListInfo(task, callback);
-                }
-                if (response.statusCode != 200) {
-                  logger.debug('LI视频状态码错误', response.statusCode);
-                  return this.getListInfo(task, callback);
-                }
-                try {
-                  body = JSON.parse(body);
-                } catch (e) {
-                  logger.debug('梨视频数据解析失败');
-                  logger.debug(body);
-                  return this.getListInfo(task, callback);
-                }
-                task.total += body.contList.length;
-                if (body.contList.length <= 0) {
-                  cycle = false;
-                  return cb();
-                }
-                this.deal(task, body.contList, () => {
-                  start += 11;
-                  cb();
-                });
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => cycle,
+      (cb) => {
+        options.url = `${this.settings.spiderAPI.liVideo.list}${task.id}&start=${start}`;
+        request(options, (error, response, body) => {
+          if (error) {
+            logger.error('LI视频总量请求失败', error);
+            cb();
+            return;
+          }
+          try {
+            body = JSON.parse(body);
+          } catch (e) {
+            logger.error('梨视频数据解析失败');
+            logger.error(body);
+            cb();
+            return;
+          }
+          task.total += body.contList.length;
+          if (body.contList.length <= 0) {
+            cycle = false;
+            cb();
+            return;
+          }
+          this.deal(task, body.contList, () => {
+            start += 11;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, list, callback) {
     let index = 0;
     async.whilst(
-            () => index < list.length,
-            (cb) => {
-              this.getMedia(task, list[index], (err) => {
-                index++;
-                cb();
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => index < list.length,
+      (cb) => {
+        this.getMedia(task, list[index], () => {
+          index += 1;
+          cb();
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getMedia(task, video, callback) {
     async.series(
@@ -102,32 +100,32 @@ class dealWith {
           });
         }
       ],
-            (err, result) => {
-              const media = {
-                author: task.name,
-                platform: task.p,
-                bid: task.id,
-                aid: video.contId,
-                title: spiderUtils.stringHandling(video.name, 100),
-                tag: result[0].tags,
-                a_create_time: result[0].content.pubTime,
-                long_t: result[0].content.videos[0].duration,
-                v_img: video.pic,
-                support: video.praiseTimes,
-                desc: spiderUtils.stringHandling(result[0].content.summary, 100),
-                v_url: result[0].content.shareUrl,
-                comment_num: result[0].content.commentTimes
-              };
-                // logger.debug(media);
-              spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-              spiderUtils.commentSnapshots(this.core.taskDB,
-                { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-              callback();
-            }
-        );
+      (err, result) => {
+        const media = {
+          author: task.name,
+          platform: task.p,
+          bid: task.id,
+          aid: video.contId,
+          title: spiderUtils.stringHandling(video.name, 100),
+          tag: result[0].tags,
+          a_create_time: result[0].content.pubTime,
+          long_t: result[0].content.videos[0].duration,
+          v_img: video.pic,
+          support: video.praiseTimes,
+          desc: spiderUtils.stringHandling(result[0].content.summary, 100),
+          v_url: result[0].content.shareUrl,
+          comment_num: result[0].content.commentTimes
+        };
+        // logger.debug(media);
+        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        spiderUtils.commentSnapshots(this.core.taskDB,
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+        callback();
+      }
+  );
   }
   getVidInfo(vid, callback) {
-    let options = {
+    const options = {
         method: 'GET',
         url: `http://app.pearvideo.com/clt/jsp/v2/content.jsp?contId=${vid}`,
         headers:
@@ -147,21 +145,20 @@ class dealWith {
     request(options, (error, response, body) => {
       if (error) {
         logger.debug('视频的详细信息请求出错', error);
-        return this.getVidInfo(vid, callback);
-      }
-      if (response.statusCode != 200) {
-        logger.debug('视频的详情信息状态码出错', response.statusCode);
-        return this.getVidInfo(vid, callback);
+        this.getVidInfo(vid, callback);
+        return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
-        logger.debug('视频的详细信息解析失败');
-        logger.info(body);
-        return this.getVidInfo(vid, callback);
+        logger.error('视频的详细信息解析失败');
+        logger.error(body);
+        this.getVidInfo(vid, callback);
+        return;
       }
       if (!body.content) {
-        return logger.debug('暂停');
+        this.getVidInfo(vid, callback);
+        return;
       }
       for (let i = 0; i < body.content.tags.length; i++) {
         tags.push(body.content.tags[i].name);

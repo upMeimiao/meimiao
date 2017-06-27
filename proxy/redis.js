@@ -1,5 +1,6 @@
 const Redis = require('ioredis');
 const async = require('neo-async');
+const os = require('os');
 
 let logger, settings;
 
@@ -14,7 +15,18 @@ class redis {
     logger.debug('redis模块 实例化...');
   }
   ready(callback) {
-    this.client = new Redis(this.port, this.host, { password: this.password });
+    let keyPrefix;
+    switch (os.hostname()) {
+      case 'servant_3':
+        keyPrefix = 'weibo_';
+        break;
+      case 'iZ28ilm78mlZ':
+        keyPrefix = 'toutiao_';
+        break;
+      default:
+        keyPrefix = 'weibo_';
+    }
+    this.client = new Redis(this.port, this.host, { password: this.password, keyPrefix:  keyPrefix});
     // this.client = Redis.createClient(this.port, this.host, { detect_buffers: true });
     // this.client.auth(this.password);
     this.client.select(this.db, (err) => {
@@ -88,9 +100,13 @@ class redis {
     });
   }
   back(data, callback) {
-    // logger.debug('back:', data)
     const db = this.client;
-    data.status = data.status ? data.status : false;
+    // data.status = data.status === 'true';
+    if (data.proxy === 'timeout') {
+      callback();
+      return;
+    }
+    // logger.debug('back:', data)
     db.zscore('bproxy', data.proxy, (err, proxy) => {
       if (proxy) {
         if (data.status === 'true') {
@@ -104,7 +120,7 @@ class redis {
               db.incr(data.proxy);
               db.zrem('bproxy', data.proxy);
               db.sadd('proxy', data.proxy);
-              db.expire(data.proxy, 900);// 1800
+              db.expire(data.proxy, 1800);// 1800
               callback();
             } else {
               db.zrem('bproxy', data.proxy);

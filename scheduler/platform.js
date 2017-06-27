@@ -42,6 +42,7 @@ const platformMap = new Map([
   [41, 'renren'],
   [42, 'dianshi'],
   [44, 'bolo'],
-  [45, 'huoshan']
+  [45, 'huoshan'],
+  [46, 'migu']
 ]);
 module.exports = platformMap;

@@ -1,4 +1,5 @@
 const request = require('request');
+const os = require('os');
 
 let logger, settings;
 class getProxy {
@@ -17,7 +18,18 @@ class getProxy {
   }
   get(callback) {
     const proxy = [];
-    request(settings.proxy.newApi, (err, res, body) => {
+    let api;
+    switch (os.hostname()) {
+      case 'servant_3':
+        api = settings.proxy.newApi1
+        break;
+      case 'iZ28ilm78mlZ':
+        api = settings.proxy.newApi;
+        break;
+      default:
+        api = settings.proxy.newApi1;
+    }
+    request(api, { gzip: true }, (err, res, body) => {
       if (err) {
         logger.error('Get proxy occur error');
         return callback(err.message);
@@ -33,8 +45,12 @@ class getProxy {
       }
       let itemArr;
       body.data.proxy_list.forEach((item) => {
-        itemArr = item.split(',');
-        proxy.push(`${itemArr[1].toLowerCase()}://${itemArr[0]}`);
+        if (item.includes(',')) {
+          itemArr = item.split(',');
+          proxy.push(`${itemArr[1].toLowerCase()}://${itemArr[0]}`);
+        } else {
+          proxy.push(item);
+        }
       });
       return callback(null, proxy);
     });

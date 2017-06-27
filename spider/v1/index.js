@@ -4,8 +4,7 @@
  */
 const kue = require('kue');
 const request = require('request');
-const myRedis = require('../../lib/myredis.js');
-const async = require('neo-async');
+const Redis = require('ioredis');
 const domain = require('domain');
 
 let logger, settings;
@@ -19,53 +18,13 @@ class spiderCore {
     logger.trace('spiderCore instantiation ...');
   }
   assembly() {
-    async.parallel([
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.taskDB,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.taskDB = cli;
-            logger.debug('任务信息数据库连接建立...成功');
-            callback();
-          }
-        );
-      },
-      (callback) => {
-        myRedis.createClient(this.redis.host,
-          this.redis.port,
-          this.redis.cache_db,
-          this.redis.auth,
-          (err, cli) => {
-            if (err) {
-              callback(err);
-              return;
-            }
-            this.cache_db = cli;
-            logger.debug('缓存队列数据库连接建立...成功');
-            callback();
-          }
-        );
-      }
-    ], (err) => {
-      if (err) {
-        logger.error('连接redis数据库出错。错误信息：', err);
-        logger.error('出现错误，程序终止。');
-        process.exit();
-        return;
-      }
-      logger.debug('创建数据库连接完毕');
-      if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-        this.deal();
-      } else {
-        this.test();
-      }
-    });
+    this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`);
+    this.cache_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.cache_db}`);
+    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+      this.deal();
+    } else {
+      this.test();
+    }
   }
   start() {
     logger.trace('启动函数');
@@ -75,8 +34,7 @@ class spiderCore {
     const work = {
       p: 33,
       name: '2762414443@qq.com',
-      id: 6046584,
-      encodeId: 6046601
+      id: 6046584
     };
     this.dealWith.todo(work, (err, total, uid) => {
       logger.debug(total);

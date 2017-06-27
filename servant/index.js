@@ -265,6 +265,10 @@ class spiderCore {
       case 'www.huoshan.com':
         this.handle.huoshanHandle(ctx, remote);
         break;
+      case 'www.migudm.cn':
+      case 'm.migudm.cn':
+        this.handle.miguHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');

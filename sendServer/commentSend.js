@@ -68,7 +68,10 @@ class commentSend extends events {
     }
     let newList = [];
     for (const [index, elem] of list.entries()) {
-      if (elem.platform < 40 || Number(elem.platform) === 44) {
+      // if (elem.platform < 40 || Number(elem.platform) === 44) {
+      //   newList.push(elem);
+      // }
+      if (Number(elem.platform) !== 46) {
         newList.push(elem);
       }
     }

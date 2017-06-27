@@ -162,6 +162,7 @@ http://momentjs.cn/
 43. 小米想看（spider未支持，巧发支持）
 44. 网易菠萝
 45. 火山小视频
+46. 咪咕动漫
 
 ## 流程图
 ![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)
