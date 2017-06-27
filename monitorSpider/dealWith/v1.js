@@ -105,7 +105,7 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      option = null; result = null;
+      option = null; body = null;
     });
   }
   getVideoInfo(task) {
