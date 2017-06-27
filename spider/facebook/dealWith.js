@@ -223,6 +223,7 @@ class dealWith {
               }
             }
           }
+          task.total += videolist.length;
           this.deal(task, videolist, () => {
             cb();
           });
