@@ -14,6 +14,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('xinlan monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -46,7 +47,7 @@ class dealWith {
     );
   }
   getList(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.xinlan.listVideo + task.id}&cid=${task.encodeId}&_=${new Date().getTime()}`,
       ua: 1
     };
@@ -72,10 +73,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'xinlan-list-error', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVideoInfo(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.xinlan.videoInfo + task.aid,
       authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
     };
@@ -96,10 +98,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getComment(task) {
-    const option = {
+    let option = {
       url: `http://api.my.cztv.com/api/list?xid=${task.id}&pid=6&type=video&page=1&rows=10&_=${new Date().getTime()}`,
       authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
     };
@@ -120,10 +123,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getSupport(task) {
-    const option = {
+    let option = {
       url: `http://proxy.app.cztv.com/getSupportStatus.do?videoIdList=${task.aid}`,
       authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
     };
@@ -144,10 +148,11 @@ class dealWith {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getSupport', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getSava(task) {
-    const option = {
+    let option = {
       url: `http://proxy.app.cztv.com/getCollectStatus.do?videoIdList=${task.aid}`,
       authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
     };
@@ -168,6 +173,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getSava', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

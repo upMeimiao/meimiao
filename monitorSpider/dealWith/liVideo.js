@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('liVideo monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -21,7 +22,7 @@ class dealWith {
     });
   }
   getVidList(task, callback) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.liVideo.list}${task.id}&start=0`,
       headers:
         {
@@ -63,11 +64,12 @@ class dealWith {
         return;
       }
       this.getVidInfo(task, result.contList[0].contId);
+      option = null; result = null;
       callback();
     });
   }
   getVidInfo(task, vid) {
-    const option = {
+    let option = {
       url: `http://app.pearvideo.com/clt/jsp/v2/content.jsp?contId=${vid}`,
       headers:
         {
@@ -104,6 +106,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'liVideo-data-error', interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

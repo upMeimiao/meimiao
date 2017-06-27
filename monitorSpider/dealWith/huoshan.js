@@ -13,20 +13,19 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('huoshan monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
     async.parallel(
       {
         user: (cb) => {
-          this.getUser(task, () => {
-            cb();
-          });
+          this.getUser(task);
+          cb();
         },
         list: (cb) => {
-          this.getList(task, () => {
-            cb();
-          });
+          this.getList(task);
+          cb();
         }
       },
       () => {
@@ -34,8 +33,8 @@ class dealWith {
       }
     );
   }
-  getUser(task, callback) {
-    const option = {
+  getUser(task) {
+    let option = {
       url: `${this.settings.spiderAPI.huoshan.user}${task.id}`,
       ua: 2
     };
@@ -48,26 +47,24 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getUser', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       result = result.body.replace(/[\n\s\r]/g, '');
       if (!result.match(/"stats":{"follower_count":(\d*)/)) {
         typeErr = {type: 'data', err: 'huoshan-data-fans-正则匹配失败', interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
-      const fans = result.match(/"stats":{"follower_count":(\d*)/)[1];
+      let fans = result.match(/"stats":{"follower_count":(\d*)/)[1];
       if (!fans) {
         typeErr = {type: 'data', err: 'huoshan-data-fans-null', interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      callback();
+      option = null; result = null; fans = null;
     });
   }
-  getList(task, callback) {
-    const option = {
+  getList(task) {
+    let option = {
       url: `${this.settings.spiderAPI.huoshan.list}offset=0&count=21&user_id=${task.id}&max_time=0`,
       ua: 2
     };
@@ -80,7 +77,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        callback();
         return;
       }
       try {
@@ -88,21 +84,19 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       if (!result.data.items || !result.data.items.length) {
         typeErr = {type: 'data', err: 'huoshan-data-list-error', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        callback();
         return;
       }
       this.getVideoInfo(task, result.data.items[0].id);
-      callback();
+      option = null; result = null;
     });
   }
   getVideoInfo(task, vid) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.huoshan.video}${vid}`,
       ua: 2
     };
@@ -132,6 +126,7 @@ class dealWith {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

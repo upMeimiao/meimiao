@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('yidian monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -33,18 +34,18 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.yidian.userInfo + task.id,
       ua: 3,
       own_ua: 'yidian/4.3.4.4 (iPhone; iOS 10.1.1; Scale/3.00)'
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -52,13 +53,14 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVideos(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-channel&channel_id=${task.id}&cstart=0&cend=10`,
       referer: `http://www.yidianzixun.com/home?page=channel&id=${task.id}`,
       ua: 1
@@ -96,14 +98,13 @@ class dealWith {
       } else {
         this.getList(task, 'all');
       }
+      option = null; result = null;
     });
   }
   getList(task, type) {
-    const option = {
+    let option = {
         ua: 1
-      },
-      videoArr = [];
-    let cstart = 0, cend = 50;
+      }, cstart = 0, cend = 50;
     if (type === 'video') {
       option.url = `${this.settings.spiderAPI.yidian.list}&path=channel|news-list-for-vertical&interest_id=${task.interest_id}&channel_id=${task.id}&cstart=${cstart}&cend=${cend}`;
     } else {
@@ -128,20 +129,12 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result.result) {
+      if (!result.result || result.result.length === 0 || Number(result.code) !== 0) {
         typeErr = {type: 'data', err: '一点资讯列表数据-null', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (result.result.length === 0) {
-        typeErr = {type: 'data', err: '一点资讯列表数据-null', interface: 'getList', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-        return;
-      }
-      if (Number(result.code) !== 0) {
-        typeErr = {type: 'data', err: '一点资讯列表数据-error', interface: 'getList', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-      }
+      option = null; result = null; cstart = null; cend = null;
     });
   }
 }

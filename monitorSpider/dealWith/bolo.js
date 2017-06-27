@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('bolo monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -33,7 +34,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const option = {
+    let option = {
       url: `http://bolo.163.com/new/person?id=${task.id}`
     };
     request.get(logger, option, (err, result) => {
@@ -47,16 +48,17 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         fans_num = $('span.item.fans').text();
       if (!fans_num) {
         typeErr = {type: 'data', err: 'bolo-data-fans-null', interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; $ = null; fans_num = null;
     });
   }
   getList(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.bolo.list}&userId=${task.id}&pageNum=1`
     };
     request.get(logger, option, (err, result) => {
@@ -83,10 +85,11 @@ class dealWith {
         return;
       }
       this.getVideoInfo(task, result[0].videoId);
+      option = null; result = null;
     });
   }
   getVideoInfo(task, vid) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.bolo.videoInfo}${vid}`
     };
     request.get(logger, option, (err, result) => {
@@ -106,6 +109,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

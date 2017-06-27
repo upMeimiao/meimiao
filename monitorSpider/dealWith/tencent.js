@@ -15,6 +15,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('tencent monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -22,9 +23,11 @@ class dealWith {
       {
         user: (cb) => {
           this.getUser(task);
+          cb();
         },
         list: (cb) => {
           this.getTotal(task);
+          cb();
         },
         view: (cb) => {
           this.getView(task);
@@ -45,7 +48,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.tencent.user + task.id}&_=${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
@@ -71,10 +74,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'tencent-user-fansData-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getTotal(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.tencent.videoList + task.id}&pagenum=1`
     };
     request.get(logger, option, (err, result) => {
@@ -106,10 +110,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      option = null; result = null;
     });
   }
   getView(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.tencent.view + task.aid
     };
     request.get(logger, option, (err, result) => {
@@ -129,10 +134,11 @@ class dealWith {
         typeErr = {type: 'data', err: '数据为空', interface: 'getView', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getComment(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.tencent.commentId + task.aid
     };
     request.get(logger, option, (err, result) => {
@@ -162,10 +168,11 @@ class dealWith {
       if (backData.result.code == 0) {
         this.getCommentNum(task, backData.comment_id);
       }
+      option = null; result = null;
     });
   }
   getCommentNum(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.tencent.commentNum + task.aid}/commentnum?_=${new Date().getTime()}`,
       referer: 'https://v.qq.com/txyp/coralComment_yp_1.0.htm',
       ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36'
@@ -187,10 +194,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVidTag(task) {
-    const option = {
+    let option = {
       url: `http://c.v.qq.com/videoinfo?otype=json&callback=jsonp&low_login=1&vid=${task.aid}&fields=recommend%7Cedit%7Cdesc%7Cnick%7Cplaycount`
     };
     request.get(logger, option, (err, result) => {
@@ -215,6 +223,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'data-null', interface: 'getVidTag', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

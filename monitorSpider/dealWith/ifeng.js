@@ -12,6 +12,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('ifeng monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -20,18 +21,18 @@ class dealWith {
     });
   }
   getUser(task, callback) {
-    const options = {
+    let option = {
       url: `${this.settings.spiderAPI.ifeng.medialist + task.id}&pageNo=1&platformType=iPhone&protocol=1.0.1`,
       ua: 3,
       own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user-total', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user-total', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user-total', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user-total', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         callback();
@@ -40,27 +41,28 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'user-total', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'user-total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       if (!result.infoList || result.infoList.length === 0) {
-        typeErr = {type: 'data', err: 'ifeng-list-异常错误', interface: 'user-total', url: options.url};
+        typeErr = {type: 'data', err: 'ifeng-list-异常错误', interface: 'user-total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       if (!result.infoList[0] || !result.infoList[0].weMedia.followNo) {
-        typeErr = {type: 'data', err: 'ifeng-fans-data-error', interface: 'user', url: options.url};
+        typeErr = {type: 'data', err: 'ifeng-fans-data-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       this.getVideo(task, result.infoList[0].bodyList[0]);
+      option = null; result = null;
       callback();
     });
   }
   getVideo(task, video) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.ifeng.info + video.memberItem.guid,
       ua: 3,
       own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
@@ -85,10 +87,11 @@ class dealWith {
       }
       this._ding(task, video.memberItem.guid);
       this._cai(task, video.memberItem.guid);
+      option = null; result = null;
     });
   }
   _ding(task, guid) {
-    const option = {
+    let option = {
       url: `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${guid}ding&format=js&serverid=1&var=ding`,
       ua: 1
     };
@@ -110,10 +113,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'ding', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   _cai(task, guid) {
-    const option = {
+    let option = {
       url: `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${guid}cai&format=js&serverid=1&var=cai`,
       ua: 1
     };
@@ -135,6 +139,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'cai', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

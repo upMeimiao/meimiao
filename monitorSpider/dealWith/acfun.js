@@ -12,6 +12,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('acfun monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -32,38 +33,44 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.acfun.userInfo + task.id,
       referer: `http://m.acfun.tv/details?upid=${task.id}`,
       deviceType: 2,
       ua: 2
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null;
+        typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        option = null;
+        typeErr = null;
         return;
       }
       if (!result.data || !result.data.followed) {
-        typeErr = {type: 'data', err: 'acfun-fans-data-error', interface: 'user', url: options.url};
+        typeErr = {type: 'data', err: 'acfun-fans-data-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null;
+      typeErr = null;
     });
   }
   list(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.acfun.media}${task.id}&pageNo=1`,
       referer: `http://www.aixifan.com/u/${task.id}.aspx`,
       ua: 1
@@ -77,6 +84,8 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null;
+        typeErr = null;
         return;
       }
       try {
@@ -84,12 +93,16 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        option = null;
+        typeErr = null;
         return;
       }
       if(!result.contents ||  result.contents.length === 0) {
         typeErr = {type: 'data', err: 'acfun-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null;
+      typeErr = null;
     });
   }
 }

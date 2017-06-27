@@ -36,7 +36,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const option = {
+    let option = {
       url: `http://www.iqiyi.com/u/${task.id}`,
       referer: `http://www.iqiyi.com/u/${task.id}`,
       ua: 1
@@ -52,7 +52,7 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         fansDom = $('em.count a'),
         fans = fansDom.attr('data-countnum');
       if (fansDom.length === 0) {
@@ -63,10 +63,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; $ = null; fans = null; fansDom = null;
     });
   }
   get_user(task) {
-    const option = {
+    let option = {
       url: `http://m.iqiyi.com/u/${task.id}/fans`,
       referer: `http://m.iqiyi.com/u/${task.id}`,
       ua: 2
@@ -88,10 +89,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; $ = null; fans = null;
     });
   }
   getTotal(task) {
-    const option = {
+    let option = {
       ua: 1,
       url: this.settings.spiderAPI.iqiyi.list[0] + task.id + "&page=1",
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
@@ -119,10 +121,11 @@ class dealWith {
       } else {
         this.getListN(task);
       }
+      option = null; result = null;
     });
   }
   getListN(task) {
-    const option = {
+    let option = {
       ua: 1,
       url: `http://www.iqiyi.com/u/${task.id}/v?page=1&video_type=1&section=1`,
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
@@ -138,7 +141,7 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body, {
+      let $ = cheerio.load(result.body, {
           ignoreWhitespace: true
         }),
         titleDom = $('p.mod-piclist_info_title a');
@@ -147,11 +150,12 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      const video = {
+      let video = {
         title: titleDom[0].children[0].data,
         link: titleDom[0].attribs['href']
       };
       this.getIds(task, video);
+      option = null; result = null; video = null; $ = null;
     });
   }
   getIds(task, raw) {

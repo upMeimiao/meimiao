@@ -16,6 +16,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('le monitor begin...');
+    core = null;
   }
   start(task, callback) {
     async.parallel(
@@ -43,18 +44,18 @@ class dealWith {
     );
   }
   getTotal(task) {
-    const options = {
+    let option = {
       url: `${this.settings.spiderAPI.le.newList + task.id}/queryvideolist?callback=jsonp&orderType=0&pageSize=48&searchTitleString=&currentPage=1&_=${(new Date()).getTime()}`,
       referer: `http://chuang.le.com/u/${task.id}/videolist`,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videolist', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videolist', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videolist', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videolist', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -62,29 +63,30 @@ class dealWith {
       try {
         result = eval(`(${result.body})`);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videolist', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videolist', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: '可能是接口变了，数据返回出问题', interface: 'videolist', url: options.url};
+        typeErr = {type: 'data', err: '可能是接口变了，数据返回出问题', interface: 'videolist', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getInfo(task) {
-    const options = {
+    let option = {
       url: `${this.settings.spiderAPI.le.info + task.aid}&_=${(new Date()).getTime()}`,
       referer: `http://www.le.com/ptv/vplay/${task.aid}.html`,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoInfo', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoInfo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoInfo', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoInfo', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -92,47 +94,46 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videoInfo', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result || result.length === 0) {
-        typeErr = {type: 'data', err: 'le-videoInfo-aid-error', interface: 'videoInfo', url: options.url};
+        typeErr = {type: 'data', err: 'le-videoInfo-aid-error', interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-    })
+      option = null; result = null;
+    });
   }
   getExpr(task) {
-    const options = {
+    let option = {
       url: `http://www.le.com/ptv/vplay/${task.aid}.html`,
       ua: 1
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         timeDom = $('p.p_02 b.b_02'),
-        descDom = $('p.p_03'),
         timeDom2 = $('#video_time'),
-        descDom2 = $('li.li_04 p'),
-        timeDom3 = $('li.li_04 em'),
-        descDom3 = $('li_08 em p');
+        timeDom3 = $('li.li_04 em');
       if (timeDom.length === 0 && timeDom2.length === 0 && timeDom3.length === 0) {
-        typeErr = {type: 'data', err: 'le-getExpr-接口返回的数据有问题', interface: 'getExpr', url: options.url};
+        typeErr = {type: 'data', err: 'le-getExpr-接口返回的数据有问题', interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; $ = null; timeDom = null; timeDom2 = null; timeDom3 = null;
     });
   }
   getDesc(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.le.desc + task.aid,
       referer: `http://m.le.com/vplay_${task.aid}.html`,
       ua: 2,
@@ -142,13 +143,13 @@ class dealWith {
         'Connection': 'keep-alive'
       }
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getDesc', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getDesc', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getDesc', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getDesc', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -156,15 +157,16 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'data', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getDesc', url: options.url};
+        typeErr = {type: 'data', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getDesc', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       result = result.data.introduction;
       if (!result) {
-        typeErr = {type: 'data', err: 'le-getDesc-data', interface: 'getDesc', url: options.url};
+        typeErr = {type: 'data', err: 'le-getDesc-data', interface: 'getDesc', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

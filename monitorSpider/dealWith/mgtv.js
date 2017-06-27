@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('mgtv monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -53,7 +54,7 @@ class dealWith {
     );
   }
   getList(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.mgtv.listVideo + task.id}&month=&_=${(new Date()).getTime()}`
     };
     request.get(logger, option, (err, result) => {
@@ -78,10 +79,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'mgtv-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVidInfo(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.mgtv.videoInfo + task.aid
     };
     request.get(logger, option, (err, result) => {
@@ -102,10 +104,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      option = null; result = null;
     });
   }
   getPlayNum(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.mgtv.userInfo}vid=${task.aid}`
     };
     request.get(logger, option, (err, result) => {
@@ -125,10 +128,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getPlayNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getClass(task) {
-    const option = {
+    let option = {
       url: `http://mobile.api.hunantv.com/v7/video/info?device=iPhone&videoId=${task.aid}`
     };
     request.get(logger, option, (err, result) => {
@@ -148,10 +152,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getClass', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getDesc(task) {
-    const option = {
+    let option = {
       url: `http://www.mgtv.com/b/${task.id}/${task.aid}.html`
     };
     request.get(logger, option, (err, result) => {
@@ -165,16 +170,17 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         desc = $('span.details').text();
       if (!desc) {
         typeErr = {type: 'data', err: 'mgtv-desc-null', interface: 'getDesc', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; $ = null; desc = null;
     });
   }
   getLike(task) {
-    const option = {
+    let option = {
       url: `http://vc.mgtv.com/v2/dynamicinfo?vid=${task.aid}`
     };
     request.get(logger, option, (err, result) => {
@@ -194,10 +200,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getLike', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getComNum(task) {
-    const option = {
+    let option = {
       url: `http://comment.mgtv.com/video_comment/list/?subject_id=${task.aid}&page=1&_=${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
@@ -217,6 +224,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

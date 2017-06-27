@@ -12,6 +12,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('bili monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -36,20 +37,20 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.bili.userInfo,
       referer: `http://space.bilibili.com/${task.id}/`,
       data: {
         mid: task.id
       }
     };
-    request.post(logger, options, (err, result) => {
+    request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -57,13 +58,14 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   list(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.bili.mediaList + task.id}&pagesize=30&page=1`
     };
     request.get(logger, option, (err, result) => {
@@ -88,10 +90,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'bili-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getInfo(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.bili.media + task.aid
     };
     request.get(logger, option, (err, result) => {
@@ -116,6 +119,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'bili-video-data-error', interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

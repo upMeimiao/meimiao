@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('renren monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -33,7 +34,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const option = {
+    let option = {
       url: 'http://web.rr.tv/v3plus/user/userInfo',
       headers: {
         clienttype: 'web',
@@ -67,10 +68,11 @@ class dealWith {
         typeErr = {type: 'json', err: 'renren-fans-error', interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getList(task) {
-    const option = {
+    let option = {
       url: 'http://web.rr.tv/v3plus/uper/videoList',
       headers: {
         clienttype: 'web',
@@ -109,10 +111,11 @@ class dealWith {
         return;
       }
       this.getVidInfo(task, result.data.results[0].id);
+      option = null; result = null;
     });
   }
   getVidInfo(task, aid) {
-    const option = {
+    let option = {
       url: 'http://web.rr.tv/v3plus/video/detail',
       headers:
         { clienttype: 'web',
@@ -141,6 +144,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

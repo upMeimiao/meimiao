@@ -12,6 +12,7 @@ class dealWith {
     this.settings = core.settings;
     this.classification = ['热门', '直播', '搞笑', '明星名人', '明星', '女神', '舞蹈', '音乐', '美食', '美妆', '男神', '宝宝', '宠物', '吃秀', '手工', '游戏'];
     logger = this.settings.logger;
+    core = null;
     logger.trace('meipai monitor begin...');
   }
   start(task, callback) {
@@ -33,16 +34,16 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.meipai.userInfo + task.id
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -50,19 +51,20 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       const fans = result.followers_count;
       if (!fans) {
-        typeErr = {type: 'data', err: 'meipai-user-fansData-error', interface: 'user', url: options.url};
+        typeErr = {type: 'data', err: 'meipai-user-fansData-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   list(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.meipai.mediaList + task.id}&max_id=`
     };
     request.get(logger, option, (err, result) => {
@@ -89,10 +91,11 @@ class dealWith {
         return;
       }
       this.deal(task, result);
+      option = null; result = null;
     });
   }
   deal(task, list) {
-    const id = list.shift().id,
+    let id = list.shift().id,
       option = {
       url: this.settings.spiderAPI.meipai.media + id
     };
@@ -113,6 +116,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'media', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; id = null; list = null;
     });
   }
 }

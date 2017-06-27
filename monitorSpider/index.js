@@ -21,7 +21,8 @@ class spiderCore extends events{
     this.proxy = new (require('./controllers/proxy'))(this);
     this.getTask = new (require('./controllers/beginTask'))(this);
     logger = settings.logger;
-    logger.trace('spiderCore instantiation ...')
+    logger.trace('spiderCore instantiation ...');
+    _settings = null;
   }
   assembly() {
     // 连接存储正确数据的缓存库

@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('uctt monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -33,7 +34,7 @@ class dealWith {
     );
   }
   getList(task) {
-    const option = {
+    let option = {
       url: `http://napi.uc.cn/3/classes/article/categories/wemedia/lists/${task.id}?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_size=5&_max_pos=&uc_param_str=frdnsnpfvecpntnwprdsssnikt`
     };
     request.get(logger, option, (err, result) => {
@@ -58,10 +59,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'UC头条监控完成', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVidInfo(task) {
-    const option = {
+    let option = {
       url: `http://m.uczzd.cn/ucnews/video?app=ucnews-iflow&fr=iphone&aid=${task.aid.split('_')[0]}`
     };
     request.get(logger, option, (err, result) => {
@@ -99,11 +101,12 @@ class dealWith {
         return;
       }
       this.getCommentNum(task, task.aid.split('_')[1], result.id);
+      option = null; result = null;
     });
   }
   getCommentNum(task, _id, id) {
-    const option = {};
-    let num = null;
+    let option = {},
+      num = null;
     option.url = `http://m.uczzd.cn/iflow/api/v2/cmt/article/${id}/comments/byhot?count=10&fr=iphone&dn=11341561814-acaf3ab1&hotValue=`;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -125,10 +128,11 @@ class dealWith {
       }
       num = result.data.comment_cnt;
       this.getDesc(task, _id);
+      option = null; result = null;
     });
   }
   getDesc(task, _id) {
-    const option = {
+    let option = {
       url: `http://napi.uc.cn/3/classes/article/objects/${_id}?_app_id=cbd10b7b69994dca92e04fe00c05b8c2&_fetch=1&_fetch_incrs=1&_ch=article`
     };
     request.get(logger, option, (err, result) => {
@@ -148,6 +152,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getDesc', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

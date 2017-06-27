@@ -14,6 +14,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('baomihua monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -46,16 +47,16 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.baomihua.userInfo + task.id
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -63,13 +64,14 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-    })
+      typeErr = null; option = null; result = null;
+    });
   }
   getTotal(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.baomihua.mediaList + task.id,
       ua: 1
     };
@@ -90,10 +92,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getTotal', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; typeErr = null; result = null;
     });
   }
   getExpr(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.baomihua.expr_m + task.aid,
       ua: 3,
       own_ua: 'BMHVideo/3.3.3 (iPhone; iOS 10.1.1; Scale/3.00)'
@@ -115,10 +118,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; typeErr = null;
     });
   }
   getExprPC(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.baomihua.expr_pc + task.aid}&_=${(new Date()).getTime()}`
     };
     request.get(logger, option, (err, result) => {
@@ -138,6 +142,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; typeErr = null;
     });
   }
   getPlayNum(task) {

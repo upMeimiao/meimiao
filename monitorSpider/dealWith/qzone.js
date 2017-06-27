@@ -14,6 +14,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('qzone monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -42,7 +43,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const option = {
+    let option = {
       url: `https://h5.qzone.qq.com/proxy/domain/r.qzone.qq.com/cgi-bin/tfriend/cgi_like_check_and_getfansnum.cgi?uin=${task.id}&mask=3&fupdate=1`,
       ua: 1
     };
@@ -64,10 +65,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getList(task) {
-    const option = {
+    let option = {
       referer: `https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_module?i_uin=${task.id}&mode=4&previewV8=1&style=31&version=8&needDelOpr=true&transparence=true&hideExtend=false&showcount=10&MORE_FEEDS_CGI=http%3A%2F%2Fic2.qzone.qq.com%2Fcgi-bin%2Ffeeds%2Ffeeds_html_act_all&refer=2&paramstring=os-win7|100`,
       url:  `${this.settings.spiderAPI.qzone.listVideo + task.id}&start=0`,
       ua: 1
@@ -94,10 +96,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'qzone-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVidInfo(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.qzone.videoInfo + task.id}&appid=${task.appid}&tid=${task.aid}&ugckey=${task.id}_${task.appid}_${task.aid}_&qua=V1_PC_QZ_1.0.0_0_IDC_B`
     };
     request.get(logger, option, (err, result) => {
@@ -133,10 +136,11 @@ class dealWith {
         typeErr = {type: 'data', err: '当前视频被删掉或者是数据错误', interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVidCom(task) {
-    const option = {
+    let option = {
       url: `https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin=${task.id}&tid=${task.aid}&t1_source=1&ftype=0&sort=0&pos=0&num=20&code_version=1&format=jsonp&need_private_comment=1`
     };
     request.get(logger, option, (err, result) => {
@@ -156,6 +160,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidCom', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

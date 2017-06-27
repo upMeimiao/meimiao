@@ -12,6 +12,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('neihan monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -32,17 +33,17 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       ua: 1,
       url: this.settings.spiderAPI.neihan.userInfo + task.id
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -50,13 +51,14 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   list(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.neihan.medialist + task.id}&min_time=0`
     };
     request.get(logger, option, (err, result) => {
@@ -82,7 +84,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'budejie-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      data = null;
+      data = null; option = null; result = null;
     });
   }
 }

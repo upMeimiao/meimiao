@@ -20,6 +20,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('tudou monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -44,7 +45,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let options = {
       url: `${this.settings.spiderAPI.tudou.fans}${task.encodeId}&_=${new Date().getTime()}`,
       ua: 1
     };
@@ -65,10 +66,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getTotal(task) {
-    const time = new Date().getTime().toString().substring(0, 10),
+    let time = new Date().getTime().toString().substring(0, 10),
       option = {
       url: `${this.settings.spiderAPI.tudou.newList}&pg=1&uid=${task.encodeId}&_s_=${sign('v', time)}&_t_=${time}&e=md5`,
       ua: 1
@@ -90,10 +92,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getTotal', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; time = null;
     });
   }
   getComment(task) {
-    const time = new Date().getTime().toString().substring(0, 10),
+    let time = new Date().getTime().toString().substring(0, 10),
       option = {
         url: `${this.settings.spiderAPI.tudou.comment}${task.aid}&objectType=1&listType=0&currentPage=1&pageSize=30&sign=${sign('c', time)}&time=${time}`,
         ua: 1
@@ -115,6 +118,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; time = null;
     });
   }
 }

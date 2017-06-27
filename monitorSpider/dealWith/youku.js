@@ -36,90 +36,91 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       method: 'GET',
       url: `${this.settings.spiderAPI.youku.userInfo + task.encodeId}`
-    };
-    let typeErr = {};
-    request(options, (err, res, body) => {
+    }, typeErr = {};
+    request(option, (err, res, body) => {
       if (err) {
-        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (res.statusCode !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(res.statusCode), interface: 'user', url: options.url};
+        typeErr = {type: 'status', err: JSON.stringify(res.statusCode), interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       try {
         body = JSON.parse(body)
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (body.code !== 1) {
-        typeErr = {type: 'bid', err: 'bid-error', interface: 'user', url: options.url};
+        typeErr = {type: 'bid', err: 'bid-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!body.data) {
-        typeErr = {type: 'data', err: 'data-null', interface: 'user', url: options.url};
+        typeErr = {type: 'data', err: 'data-null', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; body = null; typeErr = null;
     });
   }
   getTotal(task) {
-    let typeErr = {};
-    const options = {
-      method: 'GET',
-      url: this.settings.spiderAPI.youku.list,
-      qs: { caller: '1', pg: '1', pl: '20', uid: task.encodeId },
-      headers: {
-        'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
-      },
-      timeout: 5000
-    };
-    request(options, (error, response, body) => {
+    let typeErr = {},
+      option = {
+        method: 'GET',
+        url: this.settings.spiderAPI.youku.list,
+        qs: { caller: '1', pg: '1', pl: '20', uid: task.encodeId },
+        headers: {
+          'user-agent': 'Youku;6.1.0;iOS;10.2;iPhone8,2'
+        },
+        timeout: 5000
+      };
+    request(option, (error, response, body) => {
       if (error) {
-        typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'total', url: JSON.stringify(options)};
+        typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'total', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (response.statusCode !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'total', url: JSON.stringify(options)};
+        typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'total', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'total', url: JSON.stringify(options)};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'total', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (body.code !== 1) {
         if (body.code === -503) {
-          typeErr = {type: 'bid', err: 'bid-error', interface: 'total', url: JSON.stringify(options)};
+          typeErr = {type: 'bid', err: 'bid-error', interface: 'total', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
           return;
         }
         if (body.code === -102) {
-          typeErr = {type: 'bid', err: 'bid-error', interface: 'total', url: JSON.stringify(options)};
+          typeErr = {type: 'bid', err: 'bid-error', interface: 'total', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
       }
-      const data = body.data;
+      let data = body.data;
       if (!data) {
-        typeErr = {type: 'data', err: 'data-null', interface: 'total', url: JSON.stringify(options)};
+        typeErr = {type: 'data', err: 'data-null', interface: 'total', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; data = null; typeErr = null;
     });
   }
   info(task) {
-    const ids = task.aid,
-      options = {
+    let ids = task.aid,
+      option = {
         method: 'GET',
         url: 'https://openapi.youku.com/v2/videos/show_batch.json',
         qs: {
@@ -129,28 +130,29 @@ class dealWith {
         timeout: 5000
       };
     let typeErr = {};
-    request(options, (error, response, body) => {
+    request(option, (error, response, body) => {
       if (error) {
-        typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'videoInfo', url: JSON.stringify(options)};
+        typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'videoInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (response.statusCode !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'videoInfo', url: JSON.stringify(options)};
+        typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'videoInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'videoInfo', url: JSON.stringify(options)};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'videoInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!body.videos) {
-        typeErr = {type: 'data', err: 'data-null(或者当前接口异常)', interface: 'videoInfo', url: JSON.stringify(options)};
+        typeErr = {type: 'data', err: 'data-null(或者当前接口异常)', interface: 'videoInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
+      ids = null; option = null; typeErr = null; body = null;
     });
   }
 }

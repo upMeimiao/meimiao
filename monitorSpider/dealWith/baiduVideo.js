@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('baiduVideo monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -21,7 +22,7 @@ class dealWith {
     });
   }
   videoAlbum(task, callback) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.baidu.videoAlbum + task.id
     };
     request.get(logger, option, (err, result) => {
@@ -36,7 +37,7 @@ class dealWith {
         callback();
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         script = $('script')[14].children[0].data.replace(/[\s\n\r]/g, ''),
         startIndex = script.indexOf('[{"album":'),
         endIndex = script.indexOf(',frp:\'\',');
@@ -63,11 +64,17 @@ class dealWith {
         return;
       }
       this.getVidList(task, listData[0].album.id);
+      listData = null;
+      option = null;
+      $ = null;
+      script = null;
+      startIndex = null;
+      endIndex = null;
       callback();
     });
   }
   getVidList(task, listVid) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.baidu.videoList + listVid}&page=1&_=${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
@@ -89,6 +96,8 @@ class dealWith {
         return;
       }
       this.getVidInfo(task, result.data[0].play_link);
+      result = null;
+      option = null;
     });
   }
   getVidInfo(task, url) {
@@ -111,12 +120,16 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         playNum = $('p.title-info .play').text().replace('次', '');
       if (!playNum) {
         typeErr = {type: 'data', err: 'baiduVideo-playNum-null', interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      typeErr = null;
+      $ = null;
+      playNum = null;
+      result = null;
     });
   }
 }

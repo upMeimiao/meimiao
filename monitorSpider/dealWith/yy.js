@@ -41,30 +41,31 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.yy.userInfo + task.id
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         fansText = $('.fans-link').text().replace('粉丝', '');
       if (!fansText) {
-        typeErr = {type: 'data', err: 'yy-fans-data-error', interface: 'user', url: options.url};
+        typeErr = {type: 'data', err: 'yy-fans-data-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; $ = null; fansText = null; result = null;
     });
   }
   dlist(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.yy.duanpaiList + task.id}&p=1`
     };
     request.get(logger, option, (err, result) => {
@@ -89,10 +90,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'yy-duanpai-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      result = null; option = null; typeErr = null;
     });
   }
   slist(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.yy.shenquList + task.id}&p=1`
     };
     request.get(logger, option, (err, result) => {
@@ -117,10 +119,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'yy-shenqu-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      result = null; typeErr = null; option = null;
     });
   }
   plist(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.yy.liveList + task.id}&pageNum=1`
     };
     request.get(logger, option, (err, result) => {
@@ -145,6 +148,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'yy-huifang-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; typeErr = null;
     });
   }
 }

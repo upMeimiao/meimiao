@@ -15,6 +15,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('cctv monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -35,7 +36,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.cctv.fans + task.id}&_=${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
@@ -55,14 +56,14 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getList(task) {
-    const option = {
+    let option = {
       url: `http://my.xiyou.cntv.cn/${task.id}/video-1-1.html`,
       ua: 1
-    };
-    let $, content;
+    }, $, content;
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -81,15 +82,16 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
       }
       this.getVidInfo(task, content.eq(0));
+      option = null; result = null; $ = null; content = null;
     });
   }
   getVidInfo(task, video) {
-    let vid = video.find('div.images>a').attr('href');
+    let vid = video.find('div.images>a').attr('href'),
+      option = {
+        url: this.settings.spiderAPI.cctv.videoInfo + vid
+      };
     vid = URL.parse(vid, true).pathname;
     vid = vid.replace('/v-', '').replace('.html', '');
-    const option = {
-      url: this.settings.spiderAPI.cctv.videoInfo + vid
-    };
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -107,6 +109,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; vid = null;
     });
   }
 }

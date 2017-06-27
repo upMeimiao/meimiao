@@ -15,6 +15,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('v1 monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -43,7 +44,7 @@ class dealWith {
     );
   }
   getUser(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.v1.newList,
       headers: {
         'User-Agent': 'V1_vodone/6.0.1 (iPhone; iOS 10.3.2; Scale/3.00)',
@@ -77,10 +78,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'v1-list-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVideo(task) {
-    const option = {
+    let option = {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
       }
@@ -103,10 +105,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      option = null; result = null;
     });
   }
   getVideoInfo(task) {
-    const option = {
+    let option = {
       url: `http://www.v1.cn/video/${task.aid}.jhtml`
     };
     request.get(logger, option, (err, result) => {
@@ -120,17 +123,18 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         tag = this.getTag($('li.summaryList_item ul.tagList li')),
         desc = $('p.summaryList_long').text();
       if (!tag && desc) {
         typeErr = {type: 'data', err: 'v1-data-DOM-error', interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; $ = null; tag = null; desc = null;
     });
   }
   getSupport(task) {
-    const option = {
+    let option = {
       url: `http://user.v1.cn/openapi/getVideoPraise.json?videoId=${task.aid}&callback=jsonp`
     };
     request.get(logger, option, (err, result) => {
@@ -150,6 +154,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getSupport', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getTag(desc) {

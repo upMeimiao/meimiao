@@ -32,6 +32,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('toutiao monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -52,18 +53,18 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.toutiao.user + task.encodeId,
       ua: 3,
       own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -71,16 +72,17 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   list(task, times) {
     if (times >= 3) {
       return;
     }
-    const { as, cp } = getHoney(),
+    let { as, cp } = getHoney(),
       option = {
         ua: 3,
         own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)',
@@ -121,6 +123,7 @@ class dealWith {
           typeErr = {type: 'data', err: 'toutiao-list-data-null', interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null; result = null; cp = null; as = null;
       });
     });
   }

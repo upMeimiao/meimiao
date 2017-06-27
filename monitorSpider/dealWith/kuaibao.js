@@ -14,6 +14,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('kuaibao monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -34,16 +35,16 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: this.settings.spiderAPI.kuaibao.user + task.id
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -51,13 +52,14 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getVideos(task) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.kuaibao.video,
       referer: 'http://r.cnews.qq.com/inews/iphone/',
       data: {
@@ -88,10 +90,11 @@ class dealWith {
         idStr += `,${ids.id}`;
       }
       this.getVideoList(task, idStr.replace(',', ''));
+      option = null; result = null; idStr = null;
     });
   }
   getVideoList(task, idStr) {
-    const option = {
+    let option = {
         url: this.settings.spiderAPI.kuaibao.list,
         referer: 'http://r.cnews.qq.com/inews/iphone/',
         data: {
@@ -130,14 +133,14 @@ class dealWith {
         commentid: video.commentid,
         type: video.articletype
       });
-      result = null;
       this.getCommentNum(task, videoArr[0]);
       this.getExpr(task, videoArr[0]);
       this.getField(task, videoArr[0]);
+      option = null; result = null; videoArr = null;
     });
   }
   getCommentNum(task, info) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.kuaibao.comment,
       referer: 'http://r.cnews.qq.com/inews/iphone/',
       data: {
@@ -165,10 +168,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getExpr(task, info) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.kuaibao.expr,
       referer: 'http://r.cnews.qq.com/inews/iphone/',
       data: {
@@ -193,10 +197,11 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getField(task, info) {
-    const option = {
+    let option = {
       url: `http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid=${info.vid}&plat=5&pver=0&otype=json&callback=jsonp`,
       referer: 'http://r.cnews.qq.com/inews/iphone/'
     };
@@ -217,6 +222,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

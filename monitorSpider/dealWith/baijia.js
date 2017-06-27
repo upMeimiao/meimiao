@@ -13,6 +13,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('baijia monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -21,7 +22,7 @@ class dealWith {
     });
   }
   getUser(task, vid) {
-    const option = {
+    let option = {
       url: `https://baijiahao.baidu.com/po/feed/video?wfr=spider&for=pc&context=%7B%22sourceFrom%22%3A%22bjh%22%2C%22nid%22%3A%22${vid}%22%7D`
     };
     request.get(logger, option, (err, result) => {
@@ -35,7 +36,7 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body);
+      let $ = cheerio.load(result.body);
       if ($('div.item p').eq(0).text() === '视频已失效，请观看其他视频') {
         typeErr = {type: 'data', err: '视频已失效，请观看其他视频', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
@@ -51,10 +52,15 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(dataJson)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      typeErr = null;
+      option = null;
+      $ = null;
+      result = null;
+      dataJson = null;
     });
   }
   getList(task, callback) {
-    const option = {
+    let option = {
       referer: `http://baijiahao.baidu.com/u?app_id=${task.id}&fr=bjhvideo`,
       url: `${this.settings.spiderAPI.baijia.videoList + task.id}&_limit=50&_skip=0`,
       ua: 1
@@ -91,11 +97,13 @@ class dealWith {
         this.getUser(task, result.items[0].feed_id);
         this.getVidInfo(task, result.items[0].feed_id, null);
       }
+      result = null;
+      option = null;
       callback();
     });
   }
   getVidInfo(task, vid, url) {
-    const option = {};
+    let option = {};
     if (vid !== null) {
       option.url = `https://baijiahao.baidu.com/po/feed/video?wfr=spider&for=pc&context=%7B%22sourceFrom%22%3A%22bjh%22%2C%22nid%22%3A%22${vid}%22%7D`;
     } else {
@@ -112,7 +120,7 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body);
+      let $ = cheerio.load(result.body);
       if ($('div.item p').eq(0).text() === '视频已失效，请观看其他视频') {
         typeErr = {type: 'data', err: '视频已失效，请观看其他视频', interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
@@ -133,6 +141,10 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${e.message}, data: ${dataJson}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      typeErr = null;
+      option = null;
+      dataJson = null;
+      $ = null;
     });
   }
 }

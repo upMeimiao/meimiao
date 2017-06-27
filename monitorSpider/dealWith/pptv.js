@@ -15,6 +15,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('pptv monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -23,7 +24,7 @@ class dealWith {
     });
   }
   getppi(task, callback) {
-    const option = {
+    let option = {
       url: 'http://tools.aplusapi.pptv.com/get_ppi?cb=jsonp'
     };
     request.get(logger, option, (err, result) => {
@@ -46,7 +47,7 @@ class dealWith {
         callback();
         return;
       }
-      if (!result.ppi) {
+      if (!result || !result.ppi) {
         typeErr = {type: 'data', err: 'pptv-ppi获取失败', interface: 'ppi', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
@@ -54,11 +55,12 @@ class dealWith {
       }
       task.ppi = result.ppi;
       this.getList(task);
+      option = null; result = null;
       callback();
     });
   }
   getList(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.pptv.listVideo}&pid=${task.id}&cat_id=${task.encodeId}`,
       ua: 1,
       Cookie: `ppi=${this.core.ppi}`
@@ -93,10 +95,11 @@ class dealWith {
       }
       this.getVideoInfo(task, result.data.list[0].url);
       this.getTotal(task, result.data.list[0].id);
+      option = null; result = null;
     });
   }
   getVideoInfo(task, url) {
-    const vid = url.match(/show\/\w*\.html/).toString().replace(/show\//, ''),
+    let vid = url.match(/show\/\w*\.html/).toString().replace(/show\//, ''),
       option = {
         url,
         referer: `http://v.pptv.com/page/${vid}`,
@@ -113,17 +116,18 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = cheerio.load(result.body),
         time = result.body.match(/"duration":\d+/) ? result.body.match(/"duration":\d+/).toString().replace('"duration":', '') : '',
         tag = $('div#video-info .bd .tabs a').eq(0).text();
       if (!time && !tag) {
         typeErr = {type: 'data', err: 'pptv-DOM-error', interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null; vid = null; $ = null; time = null; tag = null;
     });
   }
   getTotal(task, id) {
-    const option = {
+    let option = {
       url: `http://apicdn.sc.pptv.com/sc/v3/pplive/ref/vod_${id}/feed/list?appplt=web&action=1&pn=0&ps=20`
     };
     request.get(logger, option, (err, result) => {
@@ -143,6 +147,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }

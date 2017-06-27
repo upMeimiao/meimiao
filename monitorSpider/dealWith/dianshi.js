@@ -12,6 +12,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('dianshi monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.timeout = 0;
@@ -20,7 +21,7 @@ class dealWith {
     });
   }
   getList(task, callback) {
-    const option = {
+    let option = {
       method: 'POST',
       url: 'https://prod2.click-v.com/ds_platform/brand/getBrandDetailOutSide',
       headers: {
@@ -61,6 +62,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'dianshi-data-list-error', interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; body = null;
       callback();
     });
   }

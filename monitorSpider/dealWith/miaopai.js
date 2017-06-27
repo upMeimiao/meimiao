@@ -12,6 +12,7 @@ class dealWith {
     this.settings = core.settings;
     logger = this.settings.logger;
     logger.trace('miaopai monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -36,16 +37,16 @@ class dealWith {
     );
   }
   getUser(task) {
-    const options = {
+    let option = {
       url: `${this.settings.spiderAPI.miaopai.api}1&per=20&suid=${task.id}`
     };
-    request.get(logger, options, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: options.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: options.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -53,13 +54,14 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: options.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   list(task) {
-    const option = {
+    let option = {
       url: `${this.settings.spiderAPI.miaopai.api}&per=20&suid=${task.id}`
     };
     request.get(logger, option, (err, result) => {
@@ -84,10 +86,11 @@ class dealWith {
         typeErr = {type: 'data', err: 'miaopai-list-data-null', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
   getInfo(task, id) {
-    const option = {
+    let option = {
       url: `http://api.miaopai.com/m/v2_channel.json?fillType=259&scid=${id}&vend=miaopai`
     };
     request.get(logger, option, (err, result) => {
@@ -112,6 +115,7 @@ class dealWith {
         typeErr = {type: 'status', err: JSON.stringify(result.status), interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
+      option = null; result = null;
     });
   }
 }
