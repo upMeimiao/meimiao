@@ -62,6 +62,17 @@ exports.interface = (events, task, typeErr) => {
     num = 0,
     time = parseInt(new Date().getTime() / 1000, 10);
   typeErr.err = JSON.stringify(typeErr.err);
+  if (!typeErr.err) {
+    typeErr.typeErr = 'NoError';
+    typeErr.message = '错误发生了，但是没有错误信息';
+    typeErr.bid = task.id;
+    typeErr.platform = p;
+    typeErr.bname = task.name;
+    typeErr.lastTime = time;
+    editEmail.interEmail(events, typeErr);
+    typeErr = null;
+    return;
+  }
   if (typeErr.err.includes('TIMEDOUT')) {
     // 超时的错误暂时先不管
     events = null;

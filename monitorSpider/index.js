@@ -37,7 +37,7 @@ class spiderCore extends events{
     this.assembly();
     this.on('error', (massage) => {
       this.error_event(massage);
-    })
+    });
   }
   initPlatForm() {
     let platfromArr = [];
