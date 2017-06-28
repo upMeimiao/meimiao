@@ -260,7 +260,7 @@ class dealWith {
               cb();
               return;
             }
-            if (Number(result.has_more) === 0 && bid !== task.encodeId) {
+              if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
               bid = task.encodeId;
               cb();
               return;
@@ -320,7 +320,7 @@ class dealWith {
               }
               proxyStatus = true;
               proxy = _proxy;
-              if (Number(result.has_more) === 0 && bid !== task.encodeId) {
+                if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
                 bid = task.encodeId;
                 cb();
                 return;
