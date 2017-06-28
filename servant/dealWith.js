@@ -654,8 +654,11 @@ class DealWith {
         name: result.data.screen_name || result.data.name,
         avatar: result.data.avatar_url || result.data.big_avatar_url,
         bid: result.data.user_id,
-        id: result.data.ugc_publish_media_id
+        id: result.data.media_id
       };
+      if (Number(res.bid) === Number(res.id)) {
+        res.id = result.data.ugc_publish_media_id;
+      }
       callback(null, res);
     })
   }
