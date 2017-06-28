@@ -40,8 +40,13 @@ class dealWith {
         callback(e);
         return;
       }
+      logger.debug(result)
       if (result.infoList.length === 0) {
-        callback('异常错误');
+        if (task.id === '12') {
+          callback();
+        } else {
+          callback('异常错误');
+        }
         return;
       }
       task.total = result.infoList[0].weMedia.totalNum;
