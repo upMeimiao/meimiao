@@ -32,7 +32,7 @@ class spiderCore {
     this.assembly();
   }
   test() {
-    const work = { id: '1566370617811969', mapBid: '1566370617811969', encodeId: '55757463302', p: '6', name: '爱开箱', type: '0' };
+    const work = { id: '1569979380784129', mapBid: '1569979380784129', encodeId: '61301531833', p: '6', name: '蜗牛大圣原创搞笑剧', type: '0' };
     // const work = { id: '6204859881', encodeId: '6173734997', p: '6', name: '一色神技能', type: '0' };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
