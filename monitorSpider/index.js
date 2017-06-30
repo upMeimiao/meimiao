@@ -2,14 +2,13 @@
  * Spider Core
  * created by zhupenghui on 17/6/12.
  */
-const kue = require( 'kue' );
-const request = require('request');
+const request = require('../lib/request');
 const Redis = require( 'ioredis' );
 const async = require( 'neo-async' );
-const domain = require('domain');
 const events = require('events');
 const platfrom = require('./controllers/platform');
-const schedule = require('node-schedule');
+const infoCheck = require('./controllers/infoCheck');
+const cheerio = require('cheerio');
 
 let logger,settings;
 class spiderCore extends events{
@@ -18,6 +17,10 @@ class spiderCore extends events{
     settings = _settings;
     this.settings = settings;
     this.redis = settings.redis;
+    this.request = request;
+    this.infoCheck = infoCheck;
+    this.cheerio = cheerio;
+    this.async = async;
     this.proxy = new (require('./controllers/proxy'))(this);
     this.getTask = new (require('./controllers/beginTask'))(this);
     logger = settings.logger;
@@ -25,7 +28,7 @@ class spiderCore extends events{
     _settings = null;
   }
   assembly() {
-    // 连接存储正确数据的缓存库
+    // 连接存储数据的缓存库
     this.MSDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:6379/${this.redis.MSDB}`, {
       reconnectOnError(err) {
         return err.message.slice(0, 'READONLY'.length) === 'READONLY';

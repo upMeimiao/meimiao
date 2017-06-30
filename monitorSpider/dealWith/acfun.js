@@ -1,15 +1,14 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-
-let logger, typeErr;
+let logger, typeErr, request, infoCheck, async;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    request = this.core.request;
+    infoCheck = this.core.infoCheck;
+    async = this.core.async;
     logger = this.settings.logger;
     logger.trace('acfun monitor begin...');
     core = null;
