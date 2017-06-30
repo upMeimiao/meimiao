@@ -256,7 +256,7 @@ class dealWith {
                 return;
               }
               proxyStatus = false;
-              this.core.proxy.back(proxy, true);// 原来是false
+              this.core.proxy.back(proxy, false);// 原来是false
               cb();
               return;
             }
@@ -314,7 +314,7 @@ class dealWith {
                   return;
                 }
                 proxyStatus = false;
-                this.core.proxy.back(_proxy, true);// 原来是false
+                this.core.proxy.back(_proxy, false);// 原来是false
                 cb();
                 return;
               }
