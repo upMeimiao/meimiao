@@ -11,8 +11,8 @@ const platform = require('./platform');
 let logger = logging.getLogger('信息处理');
 
 /**
- * 查看一下发送报警的次数，如果同一错误在短时间内连续发送十次，
- * 应当停止发送需要间隔20分钟之后如果同意错误还在发生继续发送（否则删除错误发送记录）
+ * 查看一下发送报警的次数，如果同一错误在短时间内连续发送五次，
+ * 应当停止发送需要间隔20分钟之后如果同一错误还在发生继续发送（否则删除错误发送记录）
  * */
 const errorNum = (events, result, typeErr) => {
   const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
@@ -26,7 +26,7 @@ const errorNum = (events, result, typeErr) => {
     }
     if (!errorData) {
       editEmail.interEmail(events, result);
-      events.MSDB.set(keyNum, JSON.stringify({num: 1, time}));
+      events.MSDB.set(keyNum, JSON.stringify({num: 1, startTime: time, lastTime: time}));
       events = null; result = null; typeErr = null;
       return;
     }
@@ -37,20 +37,31 @@ const errorNum = (events, result, typeErr) => {
       events = null; result = null; typeErr = null;
       return;
     }
-    if (Number(errorData) <= 5) {
+    // 当错误进来之后会先进行时间的判断，如果当前的错误记录的起始时间到目前为止超过了20分钟，
+    // 并且最新的一次错误发生所记录的时间超过五分钟没有更新，那么就认为该平台在某个时间段出现故障，
+    // 错误记录清除重新记录
+    if ((Number(time) - Number(errorData.startTime) >= 1200) && (Number(time) - Number(errorData.lastTime) > 300)) {
+      events.MSDB.del(key);
+      events.MSDB.del(keyNum);
+      return;
+    }
+    if ((Number(time) - Number(errorData.startTime) >= 1200) && Number(errorData.num) > 10) {
+      result.num = 1;
+      events.MSDB.set(key, JSON.stringify(result));
+      events.MSDB.del(keyNum);
+      return;
+    }
+    if (Number(errorData.num) <= 5) {
       editEmail.interEmail(events, result);
       errorData.num += 1;
-      errorData.time = time;
+      errorData.lastTime = time;
       events.MSDB.set(keyNum, JSON.stringify(errorData));
       events = null; result = null; typeErr = null; errorData = null;
       return;
     }
     errorData.num += 1;
+    errorData.lastTime = time;
     events.MSDB.set(keyNum, JSON.stringify(errorData));
-    if (time - Number(errorData.time) >= 1200 ) {
-      events.MSDB.del(key);
-      events.MSDB.del(keyNum);
-    }
     events = null; result = null; typeErr = null; errorData = null;
   });
 };
@@ -63,7 +74,7 @@ const errorNum = (events, result, typeErr) => {
 const interSetErr = (events, result, typeErr) => {
   const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
     time =  parseInt(new Date().getTime() / 1000, 10);
-  if ((Number(time) - Number(result.startTime)) >= 300) {
+  if ((Number(time) - Number(result.startTime)) >= 300 && (Number(time) - Number(result.lastTime)) >= 120) {
     events.MSDB.del(key);
     return;
   }
