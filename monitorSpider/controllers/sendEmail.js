@@ -26,7 +26,7 @@ const transporter = nodemailer.createTransport({
 exports.sendEmail = (title, content, type) => {
   const mailOptions = {
     from: '"朱鹏辉" <zhupenghui@meimiao.net>',
-    to: [ '1425423221@qq.com'], // list of receivers
+    to: [ 'zhupenghui@meimiao.net', 'changjunhao@meimiao.net'], // list of receivers,
     subject: title, // Subject line
     text: content, // plaintext body
     html: content // html body

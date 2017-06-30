@@ -143,6 +143,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.data) {
+        typeErr = {type: 'data', err: 'renren-videoInfo-data-error', interface: 'getVidInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });

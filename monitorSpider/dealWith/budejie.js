@@ -53,6 +53,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err: 'budejie-user-数据异常', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });

@@ -45,8 +45,8 @@ exports.interEmail = (events, message) => {
       sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回格式异常`, emailContent, 'yellow');
       break;
     case 'NoError':
-      emailContent += `<tr style="background: rgba(255, 0, 90, 0.55);"><td>${message.platform}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.typeErr}:${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
-      sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回格式异常`, emailContent, 'yellow');
+      emailContent += `<tr style="background: rgba(255, 0, 90, 0.55);"><td>${message.platform}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.type}:${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
+      sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回格式异常`, emailContent, 'red');
       break;
     default:
       events.emit('error', { error: '无法判断是什么类型的错误', platform: message.platform, bid: message.bid });

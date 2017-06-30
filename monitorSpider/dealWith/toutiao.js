@@ -74,6 +74,17 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (result.message !== 'success' || !result.data) {
+        typeErr = {type: 'data', err: 'toutiao-user-data-error', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      let fans = result.data.total_cnt;
+      if (Number(fans) === 0 && result.data.users.length !== 0) {
+        typeErr = {type: 'data', err: 'toutiao-fans-data-error', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });

@@ -61,6 +61,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user-total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.topicSet) {
+        typeErr = {type: 'data', err: 'wangyi-user-data-error', interface: 'user-total', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -144,6 +149,11 @@ class dealWith {
         result = JSON.parse(result);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result}`, interface: 'getPlay', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.info) {
+        typeErr = {type: 'data', err: 'wangyi-play-data-error', interface: 'getPlay', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

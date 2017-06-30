@@ -33,10 +33,10 @@ class dealWith {
           this.getView(task);
           cb();
         },
-        comment: (cb) => {
-          this.getComment(task);
-          cb();
-        },
+        // comment: (cb) => {
+        //   this.getComment(task);
+        //   cb();
+        // },
         tag: (cb) => {
           this.getVidTag(task);
           cb();
@@ -192,6 +192,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.result) {
+        typeErr = {type: 'data', err: 'tencent-comment-data-error', interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

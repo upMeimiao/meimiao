@@ -108,6 +108,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.videoInfo) {
+        typeErr = {type: 'data', err: 'bolo-videoInfo-数据异常', interface: 'getVideoInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });

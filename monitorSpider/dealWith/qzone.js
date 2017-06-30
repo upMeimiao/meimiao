@@ -64,6 +64,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.data || !result.data.data) {
+        typeErr = {type: 'data', err: 'qzone-user-data-error', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -121,7 +126,7 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result.data) {
+      if (!result.data || !result.data.all_videolist_data) {
         typeErr = {type: 'data', err: 'qzone-data-null', interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
@@ -158,6 +163,11 @@ class dealWith {
         result = eval(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidCom', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: 'qzone-comment-data-error', interface: 'getVidCom', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

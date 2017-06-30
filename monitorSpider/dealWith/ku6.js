@@ -56,6 +56,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err:  'ku6-user-data-error', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -81,6 +86,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getTotal', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err:  'ku6-total-data-error', interface: 'getTotal', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -108,7 +118,7 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result.data || result.data.length === 0) {
+      if (!result.data || !result.data.length) {
         typeErr = {type: 'data', err: 'ku6-list-data-error', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }

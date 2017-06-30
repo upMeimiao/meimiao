@@ -65,6 +65,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.html) {
+        typeErr = {type: 'data', err: 'tudou-user-data-error', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -91,6 +96,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getTotal', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.data) {
+        typeErr = {type: 'data', err: 'tudou-total-data-error', interface: 'getTotal', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; time = null;
     });
@@ -116,6 +126,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (result.code !== 0) {
+        typeErr = {type: 'data', err: 'tudou-comment-data-error', interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; time = null;

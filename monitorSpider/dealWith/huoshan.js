@@ -125,6 +125,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.stats) {
+        typeErr = {type: 'data', err: 'huoshan-videoInfo-data-error', interface: 'getVideoInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });

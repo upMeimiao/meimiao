@@ -58,18 +58,13 @@ class dealWith {
       }
       const fan = $('div.num-sec').eq(0).find('p.num').text();
       if (!fan) {
-        typeErr = {type: 'data', err: `baiduVideo-fan-dom-error`, interface: 'videoAlbum', url: option.url};
+        typeErr = {type: 'data', err: `baiduVideo-粉丝数为空或者本次请求异常`, interface: 'videoAlbum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       this.getVidList(task, listData[0].album.id);
-      listData = null;
-      option = null;
-      $ = null;
-      script = null;
-      startIndex = null;
-      endIndex = null;
+      listData = null; option = null; $ = null; script = null; startIndex = null; endIndex = null;
       callback();
     });
   }
@@ -106,7 +101,7 @@ class dealWith {
       infoCheck.interface(this.core, task, typeErr);
       return;
     }
-    const option = {
+    let option = {
       url
     };
     request.get(logger, option, (err, result) => {
@@ -126,10 +121,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'baiduVideo-playNum-null', interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      typeErr = null;
-      $ = null;
-      playNum = null;
-      result = null;
+      option = null; typeErr = null; $ = null; playNum = null; result = null;
     });
   }
 }

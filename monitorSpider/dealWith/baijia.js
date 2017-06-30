@@ -45,6 +45,11 @@ class dealWith {
       result = result.body.replace(/[\s\n\r]/g, '');
       const startIndex = result.indexOf('videoData={"id'),
         endIndex = result.indexOf(';window.listInitData');
+      if (startIndex === -1 || endIndex === -1) {
+        typeErr = {type: 'json', err: 'baijia-fans-播放详情页DOM结构异常', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
       let dataJson = result.substring(startIndex + 10, endIndex);
       try {
         dataJson = JSON.parse(dataJson);
@@ -52,11 +57,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(dataJson)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      typeErr = null;
-      option = null;
-      $ = null;
-      result = null;
-      dataJson = null;
+      typeErr = null; option = null; $ = null; result = null; dataJson = null;
     });
   }
   getList(task, callback) {
@@ -86,7 +87,7 @@ class dealWith {
         return;
       }
       if (!result.items || result.items.length === 0) {
-        typeErr = {type: 'data', err: 'baijia-list-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: 'baijia-list-视频列表数据异常或者列表不存在', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -141,10 +142,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${e.message}, data: ${dataJson}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      typeErr = null;
-      option = null;
-      dataJson = null;
-      $ = null;
+      typeErr = null; option = null; dataJson = null; $ = null;
     });
   }
 }

@@ -49,6 +49,7 @@ class dealWith {
       if (!result[1] || !result[1].aggData) {
         typeErr = {type: 'data', err: 'huashu-video-data-error', interface: 'getVideo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
       }
       for (let i = 0; i < result[1].aggData.length; i += 1) {
         if (result[1].aggData[i].name === '华数') {
@@ -91,6 +92,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideoList', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.dramadatas.length) {
+        typeErr = {type: 'data', err: 'huashu-videolit-data-error', interface: 'getVideoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -156,6 +162,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: 'huashu-comment-data-error', interface: 'getComment', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -179,6 +190,11 @@ class dealWith {
         result = eval(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getPlay', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: 'huashu-play-data-error', interface: 'getPlay', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

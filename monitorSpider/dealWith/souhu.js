@@ -66,6 +66,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.data) {
+        typeErr = {type: 'data', err: 'souhu-user-data-error', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -148,6 +153,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'error', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: 'souhu-Info-data-error', interface: 'getInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -171,6 +181,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'error', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: 'souhu-comment-data', interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

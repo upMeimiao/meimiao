@@ -55,6 +55,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err: 'cctv-fans-数据异常', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -87,11 +92,10 @@ class dealWith {
   }
   getVidInfo(task, video) {
     let vid = video.find('div.images>a').attr('href'),
-      option = {
-        url: this.settings.spiderAPI.cctv.videoInfo + vid
-      };
+      option = {};
     vid = URL.parse(vid, true).pathname;
     vid = vid.replace('/v-', '').replace('.html', '');
+    option.url = this.settings.spiderAPI.cctv.videoInfo + vid;
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -107,6 +111,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'video', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err: 'cctv-videoInfo-数据异常', interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; vid = null;

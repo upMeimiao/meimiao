@@ -115,6 +115,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'media', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (result.lives) {
+        typeErr = {type: 'data', err: 'meipai-media-data-error', interface: 'media', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; id = null; list = null;
     });

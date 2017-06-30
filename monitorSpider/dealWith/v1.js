@@ -105,6 +105,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      if (!body.body || !body.body.obj || !body.body.obj.videoDetail) {
+        typeErr = {type: 'data', err: 'v1-video-data-error', interface: 'getVideo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
       option = null; body = null;
     });
   }
@@ -152,6 +157,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getSupport', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: 'v1-support-data-error', interface: 'getSupport', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

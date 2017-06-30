@@ -56,6 +56,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.header) {
+        typeErr = {type: 'data', err: 'miaopai-fans-data-error', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -112,7 +117,7 @@ class dealWith {
         return;
       }
       if (Number(result.status) !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(result.status), interface: 'getInfo', url: option.url};
+        typeErr = {type: 'status', err: `miaopai-videoInfo-data-status-${JSON.stringify(result.status)}`, interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

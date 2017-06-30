@@ -75,10 +75,10 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: err.statusCode, interface: 'user', url: option.url};
+          typeErr = {type: 'status', err: err.statusCode, interface: '_user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: '_user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -86,7 +86,7 @@ class dealWith {
       let $ = cheerio.load(result.body),
         fans = $('h3.tle').text().substring(2);
       if (!fans) {
-        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: '_user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; fans = null;
@@ -159,7 +159,7 @@ class dealWith {
     });
   }
   getIds(task, raw) {
-    const option = {
+    let option = {
       ua: 1,
       url: raw.link
     };
@@ -174,7 +174,7 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body, {
+      let $ = cheerio.load(result.body, {
           ignoreWhitespace: true
         }),
         id = $('#flashbox').attr('data-player-tvid');
@@ -185,10 +185,11 @@ class dealWith {
       }
       raw.id = id;
       this.info(task, raw);
+      option = null; result = null; $ = null; id = null; raw = null;
     });
   }
   getList(task) {
-    const option = {
+    let option = {
       ua: 1,
       url: `${this.settings.spiderAPI.iqiyi.list[0] + task.id}&page=1`,
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
@@ -211,7 +212,7 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      const data = result.data,
+      let data = result.data,
         $ = cheerio.load(data, {
           ignoreWhitespace: true
         });
@@ -220,7 +221,7 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      const lis = $('li[tvid]'), ids = [],
+      let lis = $('li[tvid]'), ids = [],
         ats = $('a[data-title]'), titles = [],
         href = $('.site-piclist_info a[title]'), links = [];
       if (!lis || !ats || !href) {
@@ -243,6 +244,8 @@ class dealWith {
       this.getInfo(task, ids[0], links[0]);
       this.getExpr(task, ids[0], links[0]);
       this.getPlay(task, ids[0], links[0]);
+      option = null; result = null; data = null; $ = null; links = null;
+      lis = null; ids = null; ats = null; titles = null; href = null;
     });
   }
   getInfo(task, id, link) {
@@ -280,12 +283,13 @@ class dealWith {
         return;
       }
       if (result.data.commentCount < 0) {
-        this.getComment(result.data, link)
+        this.getComment(task, result.data, link);
       }
-    })
+      option = null; result = null; id = null; link = null;
+    });
   }
   getExpr(task, id, link) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.iqiyi.expr + id,
       referer: link,
       ua: 1
@@ -313,10 +317,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      option = null; result = null; id = null; link = null;
     });
   }
   getPlay(task, id, link) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.iqiyi.play + id + '/?callback=jsonp',
       referer: link,
       ua: 1
@@ -339,10 +344,15 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      if (!result || !result.length) {
+        typeErr = {type: 'data', err:  'iqiyi-play-data-error', interface: 'getPlay', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+      }
+      option = null; result = null; id = null; link = null;
     });
   }
-  getComment(data, link) {
-    const option = {
+  getComment(task, data, link) {
+    let option = {
       url: `http://cmts.iqiyi.com/comment/tvid/${data.qitanId}_${data.tvId}_hot_2?is_video_page=true&albumid=${data.albumId}`,
       referer: link,
       ua: 1
@@ -370,6 +380,7 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      option = null; result = null; data = null; link = null;
     });
   }
 }

@@ -70,10 +70,10 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'video', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -81,9 +81,13 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'video', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
+      }
+      if (!result || !result.infoList || !result.infoList.length) {
+        typeErr = {type: 'data', err: 'ifeng-list-data-error', interface: 'list', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       this._ding(task, video.memberItem.guid);
       this._cai(task, video.memberItem.guid);
@@ -112,6 +116,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'ding', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.browse) {
+        typeErr = {type: 'data', err: 'ifeng-ding-data-error', interface: 'ding', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -137,6 +146,11 @@ class dealWith {
         result = JSON.parse(result);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'cai', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.browse) {
+        typeErr = {type: 'data', err: 'ifeng-cai-data-error', interface: 'cai', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

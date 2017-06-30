@@ -44,12 +44,14 @@ class spiderCore extends events{
     for (const [key, value] of platfrom.entries()) {
       platfromArr.push({ name: value, platform: new (require('./dealWith/' + value))(this) });
     }
+    // platfromArr.push({ name: 'migu', platform: new (require('./dealWith/migu'))(this) });
     this.beginTask(platfromArr);
     platfromArr = null;
   }
   beginTask(plat) {
     // 并行执行任务
-    const queue = async.queue((task, callback) => {
+    const time = new Date().getHours(),
+      queue = async.queue((task, callback) => {
       this.getTask.start(task.name, task.platform, () => {
         task = null;
         callback();
@@ -58,9 +60,15 @@ class spiderCore extends events{
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
-      setTimeout(() => {
-        this.beginTask(plat);
-      }, 12000);
+      if ((time >= 19 && time <= 23) || (time >= 0 && time <= 7)) {
+        setTimeout(() => {
+          this.beginTask(plat);
+        }, 20000);
+      } else {
+        setTimeout(() => {
+          this.beginTask(plat);
+        }, 12000);
+      }
     };
     // 任务添加
     queue.push(plat, (err) => {

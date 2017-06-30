@@ -97,6 +97,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.content || !result.content.list.length) {
+        typeErr = {type: 'data', err: 'xinlan-video-data-error', interface: 'video', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -145,7 +150,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: JSON.stringify(e.message), interface: 'getSupport', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getSupport', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.content) {
+        typeErr = {type: 'data', err: 'xinlan-support-data-error', interface: 'getSupport', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -171,6 +181,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getSava', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.content || ! result.content.list.length) {
+        typeErr = {type: 'data', err: 'xinlan-sava-data-list', interface: 'getSava', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

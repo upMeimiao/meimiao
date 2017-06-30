@@ -101,7 +101,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}}`, interface: 'getVideo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -130,7 +130,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'support', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}}`, interface: 'support', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: 'baofeng-support-数据异常', interface: 'support', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       typeErr = null; option = null; result = null;
@@ -155,6 +160,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'json', err: 'baofeng-comment-数据异常', interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; typeErr = null; result = null;

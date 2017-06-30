@@ -56,6 +56,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err: 'btime-fans-数据异常', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -79,6 +84,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.data.length) {
+        typeErr = {type: 'data', err: 'btime-list-数据异常', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -104,6 +114,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (Number(result.errno) !== 0) {
+        typeErr = {type: 'data', err: 'btime-videoInfo-数据异常', interface: 'getInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -127,6 +142,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (Number(result.errno) !== 0) {
+        typeErr = {type: 'data', err: 'btime-comment-数据异常', interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
