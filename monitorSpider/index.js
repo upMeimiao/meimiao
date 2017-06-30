@@ -44,10 +44,10 @@ class spiderCore extends events{
   }
   initPlatForm() {
     let platfromArr = [];
-    // for (const [key, value] of platfrom.entries()) {
-    //   platfromArr.push({ name: value, platform: new (require('./dealWith/' + value))(this) });
-    // }
-    platfromArr.push({ name: 'le', platform: new (require('./dealWith/le'))(this) });
+    for (const [key, value] of platfrom.entries()) {
+      platfromArr.push({ name: value, platform: new (require('./dealWith/' + value))(this) });
+    }
+    // platfromArr.push({ name: 'le', platform: new (require('./dealWith/le'))(this) });
     this.beginTask(platfromArr);
     platfromArr = null;
   }
