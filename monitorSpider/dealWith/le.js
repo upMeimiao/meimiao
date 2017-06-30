@@ -135,13 +135,7 @@ class dealWith {
   getDesc(task) {
     let option = {
       url: this.settings.spiderAPI.le.desc + task.aid,
-      referer: `http://m.le.com/vplay_${task.aid}.html`,
-      ua: 2,
-      headers: {
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'Accept': '*/*',
-        'Connection': 'keep-alive'
-      }
+      referer: `http://m.le.com/vplay_${task.aid}.html`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
