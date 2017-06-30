@@ -13,6 +13,18 @@ cd /root/qiaosuan/instance/monitorSpider/logs
 rm -rf *.log
 rm -rf *.log-*
 rm -rf *.log.*.gz
+cd /root/qiaosuan/instance/overseas/logs
+rm -rf *.log
+rm -rf *.log-*
+rm -rf *.log.*.gz
+cd /root/qiaosuan/instance/comment/logs
+rm -rf *.log
+rm -rf *.log-*
+rm -rf *.log.*.gz
+cd /root/qiaosuan/instance/comment_overseas/logs
+rm -rf *.log
+rm -rf *.log-*
+rm -rf *.log.*.gz
 
 #echo "开启清理爬虫日志文件"
 #cd /root/qiaosuan/instance/master/logs
