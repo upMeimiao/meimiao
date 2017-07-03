@@ -25,11 +25,15 @@ cd /root/qiaosuan/instance/comment_overseas/logs
 rm -rf *.log
 rm -rf *.log-*
 rm -rf *.log.*.gz
+rm /root/qiaosuan/instance/*/logs/*.log*
+#rm -rf *.log
+#rm -rf *.log-*
+#rm -rf *.log.*.gz
 
 echo "巧算日志文件清理完毕"
 
 echo "开启pm2日志文件"
 pm2 flush
-#cd /root/.pm2/logs
-#rm -rf ./*
+cd /root/.pm2/logs
+rm -rf ./*__*.log
 echo "pm2日志文件清理完毕"
