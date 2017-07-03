@@ -2842,5 +2842,48 @@ class DealWith {
       callback(null, res);
     });
   }
+  aipai(data, callback) {
+    const options = {
+        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+      };
+    let res = null,
+      vid = data.match(/(\w*)\.html/)[1];
+    options.url = `http://www.aipai.com/c37/${vid}.html`;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 48 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', error.message);
+        callback(error, { code: 102, p: 48 });
+        return;
+      }
+      result = result.body.replace(/[\s\n\r]/g, '');
+      const start = result.indexOf('{"bid":'),
+        last = result.indexOf('||{},//信息文本');
+      if (start === -1 || last === -1) {
+        logger.debug('截取失败');
+        callback('error', { code: 102, p: 48 });
+        return;
+      }
+      result = result.substring(start, last);
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.debug('解析失败', result);
+        callback(e, { code: 102, p: 48 });
+        return;
+      }
+      res = {
+        id: result.bid,
+        name: result.nickname,
+        avatar: result.big,
+        p: 48
+      };
+      callback(null, res);
+    });
+  }
 }
 module.exports = DealWith;
