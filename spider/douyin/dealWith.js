@@ -50,7 +50,7 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('用户信息请求失败', err);
+        logger.error('用户信息请求失败', err);
         callback(err);
         return;
       }
@@ -145,14 +145,14 @@ class dealWith {
         option.url = `${this.settings.spiderAPI.douyin.list + task.id}&max_cursor=${cursor}`;
         request.get(logger, option, (err, result) => {
           if (err) {
-            logger.debug('视频列表请求失败', err);
+            logger.error('视频列表请求失败', err);
             cb();
             return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
-            logger.debug('列表数据解析失败', result.body);
+            logger.error('列表数据解析失败', result.body);
             cb();
             return;
           }
