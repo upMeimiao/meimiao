@@ -169,7 +169,10 @@ then
                 ssh root@${loop} 'pm2 stop 火山小视频'
                 ;;
             '咪咕动漫')
-                ssh root@${loop} 'pm2 reload 咪咕动漫'
+                ssh root@${loop} 'pm2 stop 咪咕动漫'
+                ;;
+            '抖音')
+                ssh root@${loop} 'pm2 stop 抖音'
                 ;;
             esac
             echo
@@ -313,7 +316,10 @@ then
                 ssh root@${loop} 'pm2 stop 火山小视频'
                 ;;
             '咪咕动漫')
-                ssh root@${loop} 'pm2 reload 咪咕动漫'
+                ssh root@${loop} 'pm2 stop 咪咕动漫'
+                ;;
+            '抖音')
+                ssh root@${loop} 'pm2 stop 抖音'
                 ;;
             esac
             echo

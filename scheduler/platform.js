@@ -43,6 +43,7 @@ const platformMap = new Map([
   [42, 'dianshi'],
   [44, 'bolo'],
   [45, 'huoshan'],
-  [46, 'migu']
+  [46, 'migu'],
+  [47, 'douyin']
 ]);
 module.exports = platformMap;

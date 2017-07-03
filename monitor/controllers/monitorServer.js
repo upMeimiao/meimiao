@@ -26,7 +26,7 @@ const _inactiveTaskAlarm = () => {
   let i = 1, key;
   const inactiveArr = [];
   async.whilst(
-    () => i <= 46,
+    () => i <= 47,
     (cb) => {
       key = `inactive:${i}`;
       client.hget(key, 'num', (err, result) => {

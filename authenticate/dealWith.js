@@ -2902,7 +2902,7 @@ class DealWith {
               user = {
                 id: value.user.uid,
                 name: value.user.nickname,
-                p: 46
+                p: 47
               };
               cycle = false;
               cb(null, user);
