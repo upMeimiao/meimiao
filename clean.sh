@@ -25,7 +25,7 @@ cd /root/qiaosuan/instance/comment_overseas/logs
 rm -rf *.log
 rm -rf *.log-*
 rm -rf *.log.*.gz
-rm /root/qiaosuan/instance/*/logs/*.log*
+rm -rf /root/qiaosuan/instance/*/logs/*.log*
 #rm -rf *.log
 #rm -rf *.log-*
 #rm -rf *.log.*.gz
