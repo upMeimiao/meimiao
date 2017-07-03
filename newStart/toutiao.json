@@ -3,6 +3,8 @@
   "script"      : "/root/qiaosuan/run.js",
   "args"        : ["-i","master","-a","toutiao"],
   "log_date_format"  : "YYYY-MM-DD HH:mm Z",
+  "error_file": "NULL",
+  "out_file": "NULL",
   "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
   "watch"       : false,
   "node_args"   : "",

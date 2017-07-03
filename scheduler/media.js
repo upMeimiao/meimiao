@@ -20,7 +20,7 @@ class mediaScheduler extends events {
         auth: this.redis.auth,
         db: this.redis.jobDB
       },
-      jobEvents: false
+      // jobEvents: false
     });
     this.logger.trace('视频任务调度器初始化完成');
   }
@@ -218,7 +218,7 @@ class mediaScheduler extends events {
           return;
         }
         const time = new Date().getTime();
-        if ((job.state() === 'active' || job.state() === 'delayed') && time - job.created_at >= 3600000) {
+        if ((job.state() === 'active' || job.state() === 'delayed') && time - job.updated_at >= 3600000) {
           this.emit('task_set_create', raw);
           return;
         }
