@@ -44,7 +44,7 @@ class dealWith {
   }
   getUser(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.douyin + task.id}`,
+      url: `${this.settings.spiderAPI.douyin.user + task.id}`,
       ua: 3,
       own_ua: 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
