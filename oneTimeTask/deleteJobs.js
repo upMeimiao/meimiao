@@ -7,7 +7,7 @@ if (!process.argv[2] || !process.argv[3]) {
 const p = process.argv[2];
 const status = process.argv[3];
 const a = (callback) => {
-  request.get(`http://spider-kue.meimiaoip.com/api/jobs/${p}/${status}/0..100/asc?`, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
+  request.get(`http://spider-kue.meimiaoip.com/api/jobs/${p}/${status}/0..50/asc?`, { auth: { user: 'verona', pass: '2319446' } }, (err, res, body) => {
     if (err) {
       console.log(err);
       return callback(err);

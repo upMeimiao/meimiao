@@ -3,13 +3,16 @@
  */
 const async = require('neo-async');
 const cheerio = require('cheerio');
+const vm = require('vm')
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
-const jsonp = function (data) {
-  return data;
-};
+// const jsonp = data => data;
+const sandbox = {
+  jsonp: data => data
+}
+
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -460,7 +463,8 @@ class dealWith {
       // logger.debug(backData)
       let playData;
       try {
-        playData = eval(result.body);
+        playData = vm.runInNewContext(result.body, sandbox);
+        // playData = eval(result.body);
       } catch (e) {
         logger.error('eval错误:', e);
         logger.error(result);
@@ -529,8 +533,13 @@ class dealWith {
         callback(err);
         return;
       }
+      if (result.body.startsWith('statusCode')) {
+        callback('异常');
+        return;
+      }
       try {
-        result = eval(`${result.body}`);
+        result = vm.runInNewContext(result.body, sandbox);
+        // result = eval(`${result.body}`);
       } catch (e) {
         logger.error('eval错误:', e);
         logger.error(result);
@@ -555,8 +564,13 @@ class dealWith {
         callback(err);
         return;
       }
+      if (result.body.startsWith('statusCode')) {
+        callback('异常');
+        return;
+      }
       try {
-        result = eval(result.body);
+        result = vm.runInNewContext(result.body, sandbox);
+        // result = eval(result.body);
       } catch (e) {
         logger.error('eval错误:', e);
         logger.error(result);
