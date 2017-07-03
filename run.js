@@ -430,6 +430,13 @@ const migu = () => {
   const spider = new (require(`${spiderDir}migu`))(settings);
   spider.start();
 };
+const douyin = () => {
+  const logger = logging.getLogger('抖音短视频', options.i, logLevel);
+  settings.logger = logger;
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}douyin`))(settings);
+  spider.start();
+};
 const test = () => {
   const logger = logging.getLogger('测试', options.i, logLevel);
   settings.logger = logger;
@@ -599,6 +606,9 @@ switch (options.a) {
     break;
   case 'migu':
     migu();
+    break;
+  case 'douyin':
+    douyin();
     break;
   case 'test':
     test();

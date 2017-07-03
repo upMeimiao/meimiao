@@ -213,6 +213,10 @@ class spiderCore {
       case 'm.migudm.cn':
         handle.gumiHandle(ctx, verifyData);
         break;
+      case 'www.douyin.com':
+      case 'www.amemv.com':
+        handle.douyinHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);

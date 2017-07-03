@@ -2804,5 +2804,43 @@ class DealWith {
       callback(null, res);
     });
   }
+  douyin(data, callback) {
+    const host = URL.parse(data, true).hostname,
+      options = {
+        url: data,
+        ua: 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
+      };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 47 });
+        return;
+      }
+      result = result.body.replace(/[\s\n\r]/g, '');
+      const start = result.indexOf('[{"status":'),
+        last = result.indexOf(';require(');
+      if (start === -1 || last === -1) {
+        logger.debug('截取失败');
+        callback('error', { code: 102, p: 47 });
+        return;
+      }
+      result = result.substring(start, last);
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.debug('解析失败', result);
+        callback(e, { code: 102, p: 47 });
+        return;
+      }
+      res = {
+        id: result[0].author.uid,
+        name: result[0].author.nickname,
+        avatar: result[0].author.avatar_medium.url_list[0],
+        p: 47
+      };
+      callback(null, res);
+    });
+  }
 }
 module.exports = DealWith;

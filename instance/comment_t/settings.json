@@ -99,5 +99,6 @@
     "comment":"http://m.weibo.cn/article/rcMod?type=comment&id=",
     "hot":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=1&page=",
     "time":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=0&page="
-  }
+  },
+  "douyin": "https://aweme.snssdk.com/aweme/v1/comment/list/?count=20&aweme_id="
 }
