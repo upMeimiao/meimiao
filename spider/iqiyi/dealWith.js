@@ -530,7 +530,7 @@ class dealWith {
         return;
       }
       try {
-        result = eval(`(${result.body})`);
+        result = eval(`${result.body}`);
       } catch (e) {
         logger.error('eval错误:', e);
         logger.error(result);
