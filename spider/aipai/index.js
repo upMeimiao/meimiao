@@ -32,8 +32,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '9642987',
-      name: '大熊',
+      id: '47192487',
+      name: '胖老胡',
       p: 48
     };
     this.dealWith.todo(work, (err, total) => {
@@ -55,8 +55,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('douyin', this.settings.concurrency, (job, done) => {
-      logger.trace('Get douyin task!');
+    queue.process('aipai', this.settings.concurrency, (job, done) => {
+      logger.trace('Get aipai task!');
       const work = job.data,
         key = `${work.p}:${work.id}`;
       logger.info(work);

@@ -2902,7 +2902,7 @@ class DealWith {
               user = {
                 id: value.user.uid,
                 name: value.user.nickname,
-                p: 46
+                p: 47
               };
               cycle = false;
               cb(null, user);
@@ -2916,6 +2916,96 @@ class DealWith {
       (err, result) => {
         if (err) {
           callback(err, { code: 105, p: 47 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+  aipai(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      host = URL.parse(htmlUrl, true).hostname,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        headers: {
+          'user-agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
+        }
+      };
+    let vid = null;
+    if (host === 'www.aipai.com') {
+      option.url = htmlUrl.replace('http://www.aipai.com/c', 'http://m.aipai.com/m');
+    }
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频详情请求失败', err);
+        callback(err, { code: 103, p: 48 });
+        return;
+      }
+      result = result.body.replace(/[\s\r\n]/g, '');
+      vid = result.match(/asset_id="(\d*)/);
+      if (!vid) {
+        logger.error('DOM数据可能有问题');
+        callback('err', { code: 103, p: 48 });
+        return;
+      }
+      this.aipaiComment(userVal, vid[1], (error, user) => {
+        if (error) {
+          callback(error, { code: 105, p: 48 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  aipaiComment(userVal, vid, callback) {
+    const option = {
+      ua: 3,
+      own_ua: 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
+    };
+    let cycle = true,
+      page = 1,
+      user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-${page}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${vid}.html`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('抖音评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('抖音评论列表解析失败', e);
+            cb();
+            return;
+          }
+          if (!result.list || !result.list.length) {
+            cb('error');
+            return;
+          }
+          for (const value of result.list) {
+            if (userVal == value.comment.replace(/\s/g, '')) {
+              user = {
+                id: value.bid,
+                name: value.nick,
+                p: 48
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          page += 1;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err);
           return;
         }
         callback(null, result);

@@ -3,7 +3,9 @@
  */
 const async = require('neo-async');
 const request = require('../../lib/request');
+const req = require('request');
 const spiderUtils = require('../../lib/spiderUtils');
+const zlib = require('zlib');
 
 let logger;
 class dealWith {
@@ -73,7 +75,7 @@ class dealWith {
       // this.sendUser(user, () => {
       //   callback();
       // });
-      this.sendStagingUser(user);
+      // this.sendStagingUser(user);
       callback();
     });
   }
@@ -138,7 +140,7 @@ class dealWith {
       () => cycle,
       (cb) => {
         option.url = `${this.settings.spiderAPI.aipai.list + task.id}_self-0_page-${page}.html`;
-        logger.debug(option.url);
+        // logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频列表请求失败', err);
@@ -189,7 +191,7 @@ class dealWith {
     async.parallel(
       [
         (cb) => {
-          this._longt(video.url, (err, result) => {
+          this.videoInfo(video.id, (err, result) => {
             cb(null, result);
           });
         },
@@ -215,8 +217,7 @@ class dealWith {
           long_t: result[0],
           v_url: video.url
         };
-        task.total += 1;
-        logger.debug(media);
+        task.total = Number(task.total) + 1;
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -224,31 +225,51 @@ class dealWith {
       }
     );
   }
-  _longt(url, callback) {
+  videoInfo(vid, callback) {
     const option = {
-      url,
-      // ua: 2,
+      method: 'GET',
+      url: `${this.settings.spiderAPI.aipai.video + vid}_os-2.html`,
+      encoding: null,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
-        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Upgrade-Insecure-Requests': 1,
-        'Accept-Encoding': 'gzip, deflate'
+        'User-Agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
       }
     };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('时长请求失败', err);
+    const videoLongt = (result) => {
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.error('视频详情解析失败', result.body);
         callback(null, '');
         return;
       }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      const longt = result.match(/asset_totalTime="(\d*)/);
-      if (!longt) {
-        logger.debug(result);
+      if (Number(result.code) !== 0 || !result.data || !result.data.assetInfo) {
         callback(null, '');
         return;
       }
-      callback(null, longt[1]);
+      callback(null, result.data.assetInfo.totalTime);
+    };
+    req(option, (error, response, body) => {
+      if (error) {
+        logger.error('视频详情请求错误', error);
+        callback(null, '');
+        return;
+      }
+      if (response.statusCode !== 200) {
+        logger.error('视频详情请求状态码错误', response.statusCode);
+        callback(null, '');
+        return;
+      }
+      if (response.headers['content-encoding'] && response.headers['content-encoding'].includes('gzip')) {
+        const buffer = Buffer.from(body, 'base64');
+        zlib.unzip(buffer, (err, buf) => {
+          if (err) {
+            callback(null, '');
+          }
+          videoLongt(buf.toString());
+        });
+      } else {
+        videoLongt(body);
+      }
     });
   }
   comment(vid, callback) {
