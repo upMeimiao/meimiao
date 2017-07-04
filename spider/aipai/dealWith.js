@@ -1,11 +1,11 @@
 /**
  * Created by zhupenghui on 17/7/3.
  */
-const async = require('neo-async');
-const request = require('../../lib/request');
-const req = require('request');
-const spiderUtils = require('../../lib/spiderUtils');
 const zlib = require('zlib');
+const async = require('neo-async');
+const req = require('request');
+const request = require('../../lib/request');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 class dealWith {
@@ -75,7 +75,7 @@ class dealWith {
       // this.sendUser(user, () => {
       //   callback();
       // });
-      // this.sendStagingUser(user);
+      this.sendStagingUser(user);
       callback();
     });
   }
@@ -217,7 +217,6 @@ class dealWith {
           long_t: result[0],
           v_url: video.url
         };
-        task.total = Number(task.total) + 1;
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -234,20 +233,6 @@ class dealWith {
         'User-Agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
       }
     };
-    const videoLongt = (result) => {
-      try {
-        result = JSON.parse(result);
-      } catch (e) {
-        logger.error('视频详情解析失败', result.body);
-        callback(null, '');
-        return;
-      }
-      if (Number(result.code) !== 0 || !result.data || !result.data.assetInfo) {
-        callback(null, '');
-        return;
-      }
-      callback(null, result.data.assetInfo.totalTime);
-    };
     req(option, (error, response, body) => {
       if (error) {
         logger.error('视频详情请求错误', error);
@@ -259,17 +244,21 @@ class dealWith {
         callback(null, '');
         return;
       }
-      if (response.headers['content-encoding'] && response.headers['content-encoding'].includes('gzip')) {
-        const buffer = Buffer.from(body, 'base64');
-        zlib.unzip(buffer, (err, buf) => {
-          if (err) {
-            callback(null, '');
-          }
-          videoLongt(buf.toString());
-        });
-      } else {
-        videoLongt(body);
+      if (response.headers['content-encoding'] && response.headers['content-encoding'].toLowerCase.includes('gzip')) {
+        body = zlib.unzipSync(body);
       }
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        logger.error('视频详情解析失败', body.toString());
+        callback(null, '');
+        return;
+      }
+      if (Number(body.code) !== 0 || !body.data || !body.data.assetInfo) {
+        callback(null, '');
+        return;
+      }
+      callback(null, body.data.assetInfo.totalTime);
     });
   }
   comment(vid, callback) {

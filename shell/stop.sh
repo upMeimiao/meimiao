@@ -174,6 +174,9 @@ then
             '抖音')
                 ssh root@${loop} 'pm2 stop 抖音'
                 ;;
+            '爱拍')
+                ssh root@${loop} 'pm2 stop 爱拍'
+                ;;
             esac
             echo
             echo "--------------$2 视频服务停止完成，退出服务器 $loop --------------"
@@ -320,6 +323,9 @@ then
                 ;;
             '抖音')
                 ssh root@${loop} 'pm2 stop 抖音'
+                ;;
+            '爱拍')
+                ssh root@${loop} 'pm2 stop 爱拍'
                 ;;
             esac
             echo

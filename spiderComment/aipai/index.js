@@ -71,7 +71,7 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_douyin', this.settings.concurrency, (job, done) => {
+    queue.process('comment_aipai', this.settings.concurrency, (job, done) => {
       logger.trace('Get douyin task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
@@ -91,7 +91,7 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_douyin', this.settings.concurrency, (job, done) => {
+    queue.process('comment_update_aipai', this.settings.concurrency, (job, done) => {
       logger.trace('Get douyin task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
