@@ -437,6 +437,13 @@ const douyin = () => {
   const spider = new (require(`${spiderDir}douyin`))(settings);
   spider.start();
 };
+const aipai = () => {
+  const logger = logging.getLogger('爱拍原创', options.i, logLevel);
+  settings.logger = logger;
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}aipai`))(settings);
+  spider.start();
+};
 const test = () => {
   const logger = logging.getLogger('测试', options.i, logLevel);
   settings.logger = logger;
@@ -609,6 +616,9 @@ switch (options.a) {
     break;
   case 'douyin':
     douyin();
+    break;
+  case 'aipai':
+    aipai();
     break;
   case 'test':
     test();

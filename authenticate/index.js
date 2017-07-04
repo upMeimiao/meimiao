@@ -217,6 +217,10 @@ class spiderCore {
       case 'www.amemv.com':
         handle.douyinHandle(ctx, verifyData);
         break;
+      case 'www.aipai.com':
+      case 'm.aipai.com':
+        handle.aipaiHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);
