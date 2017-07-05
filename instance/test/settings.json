@@ -171,7 +171,9 @@
       "videoList": "http://c.v.qq.com/vchannelinfo?otype=json&qm=1&sorttype=0&orderflag=0&callback=jsonp&low_login=1&num=25&uin=",
       "commentId": "http://ncgi.video.qq.com/fcgi-bin/video_comment_id?op=1&otype=json&callback=jsonp&vid=",
       "commentNum": "http://coral.qq.com/article/",
-      "view": "http://data.video.qq.com/fcgi-bin/data?tid=376&appid=10001007&appkey=e075742beb866145&callback=jsonp&low_login=1&otype=json&idlist="
+      "view": "http://data.video.qq.com/fcgi-bin/data?tid=376&appid=10001007&appkey=e075742beb866145&callback=jsonp&low_login=1&otype=json&idlist=",
+      "programList":"http://c.v.qq.com/vchannelinfo?otype=json&qm=2&num=20&sorttype=0&orderflag=0&callback=jsonp&low_login=1&uin=",
+      "proVideoList":"http://c.v.qq.com/vchannelinfo?otype=json&qm=3&num=30&sorttype=0&orderflag=1&callback=jsonp&low_login=1&uin="
     },
     "tudou": {
       "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",

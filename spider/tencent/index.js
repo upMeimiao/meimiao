@@ -14,6 +14,7 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
+    // this.getProgram = new (require('./program'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
@@ -57,7 +58,7 @@ class spiderCore {
     logger.trace('Queue get ready');
     queue.process('tencent', this.settings.concurrency, (job, done) => {
       logger.trace('Get tencent task!');
-      let work = job.data,
+      const work = job.data,
         key = `${work.p}:${work.id}`;
       logger.info(work);
       const d = domain.create();
@@ -65,35 +66,36 @@ class spiderCore {
         done(err);
       });
       d.run(() => {
-        this.dealWith.todo(work, (err, total) => {
-          if (err) {
-            return done(err);
+        this.dealWith.todo(work, (error, total) => {
+          if (error) {
+            done(error);
+            return;
           }
-          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'video_number', total, (err, result) => {
-            done(null);
-          });
-          request.post(settings.update, { form: { platform: work.p, bid: work.id } }, (err, res, body) => {
-            if (err) {
-              logger.error('occur error : ', err);
-              return;
-            }
-            if (res.statusCode != 200) {
-              logger.error(`状态码${res.statusCode}`);
-              logger.info(res);
-              return;
-            }
-            try {
-              body = JSON.parse(body);
-            } catch (e) {
-              logger.info('不符合JSON格式');
-              return;
-            }
-            if (body.errno == 0) {
-              logger.info(body.errmsg);
-            } else {
-              logger.info(body);
-            }
-          });
+          done(null);
+          this.taskDB.hmset(key, 'update', (new Date().getTime()), 'video_number', total);
+          request.post(settings.update,
+            { form: { platform: work.p, bid: work.id } }, (err, res, body) => {
+              if (err) {
+                logger.error('occur error : ', err);
+                return;
+              }
+              if (res.statusCode !== 200) {
+                logger.error(`状态码${res.statusCode}`);
+                logger.info(res);
+                return;
+              }
+              try {
+                body = JSON.parse(body);
+              } catch (e) {
+                logger.info('不符合JSON格式');
+                return;
+              }
+              if (Number(body.errno) === 0) {
+                logger.info(body.errmsg);
+              } else {
+                logger.info(body);
+              }
+            });
         });
       });
     });
