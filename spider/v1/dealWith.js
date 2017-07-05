@@ -61,21 +61,20 @@ class dealWith {
         fans_num: result.body.data.fans_num
       };
       task.total = result.body.data.video_num;
-      // this.sendUser(user);
+      this.sendUser(user);
       this.sendStagingUser(user);
       this.getVidList(task, () => {
         callback();
       });
     });
   }
-  sendUser(user, callback) {
+  sendUser(user) {
     const option = {
       url: this.settings.sendFans,
       data: user
     };
     request.post(logger, option, (err, result) => {
       if (err) {
-        callback(err);
         return;
       }
       try {
@@ -83,7 +82,6 @@ class dealWith {
       } catch (e) {
         logger.error(`V1 ${user.bid} json数据解析失败`);
         logger.info(result);
-        callback(e);
         return;
       }
       if (Number(result.errno) === 0) {
@@ -93,7 +91,6 @@ class dealWith {
         logger.info(result);
         logger.info('user info: ', user);
       }
-      callback();
     });
   }
   sendStagingUser(user) {
@@ -169,7 +166,6 @@ class dealWith {
   }
   deal(task, user, callback) {
     let index = 0;
-    logger.debug(user.length);
     async.whilst(
       () => index < user.length,
       (cb) => {
@@ -184,16 +180,10 @@ class dealWith {
     );
   }
   getAllInfo(task, video, callback) {
-    const num = 0;
     async.parallel(
       [
         (cb) => {
-          this.getVidInfo(video.vid, num, (err, result) => {
-            cb(err, result);
-          });
-        },
-        (cb) => {
-          this.getVideoInfo(video.vid, num, (err, result) => {
+          this.getVidInfo(video.vid, (err, result) => {
             cb(err, result);
           });
         },
@@ -216,9 +206,7 @@ class dealWith {
           title: video.title.replace(/"/g, ''),
           comment_num: result[0].comments,
           class: result[0].videoCategory ? result[0].videoCategory.name : '',
-          tag: result[1].tag,
-          desc: result[1].desc.substring(0, 100).replace(/"/g, ''),
-          support: result[2] ? result[2].msg : null,
+          support: result[1] ? result[1].msg : null,
           forward_num: result[0].forward,
           v_img: video.pic,
           play_num: result[0].playNum,
@@ -291,10 +279,11 @@ class dealWith {
     }
     return str;
   }
-  getVidInfo(vid, num, callback) {
+  getVidInfo(vid, callback) {
     const option = {
+      method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+        'User-Agent': 'V1_vodone/6.0.1 (iPhone; iOS 10.3.2; Scale/3.00)'
       }
     };
     fetchUrl(`http://static.app.m.v1.cn/www/mod/mob/ctl/videoDetails/act/get/vid/${vid}/pcode/010210000/version/4.5.4.mindex.html`, option, (err, meta, body) => {
@@ -303,25 +292,19 @@ class dealWith {
         callback(null, 'next');
         return;
       }
+      if (!body.toString() || body.toString() === '') {
+        callback(null, 'next');
+        return;
+      }
       try {
-        body = JSON.parse(body);
+        body = JSON.parse(body.toString());
       } catch (e) {
         logger.error('单个视频json数据解析失败', body);
-        if (num > 1) {
-          num += 1;
-          this.getVidInfo(vid, num, callback);
-          return;
-        }
-        callback(null, { comments: '', videoCategory: '', forward: '', playNum: '' });
+        callback(null, 'next');
         return;
       }
       if (!body.body || !body.body.obj || !body.body.obj.videoDetail) {
-        if (num > 1) {
-          num += 1;
-          this.getVidInfo(vid, num, callback);
-          return;
-        }
-        callback(null, { comments: '', videoCategory: '', forward: '', playNum: '' });
+        callback(null, 'next');
         return;
       }
       callback(null, body.body.obj.videoDetail);

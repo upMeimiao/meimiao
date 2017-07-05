@@ -2,7 +2,7 @@
  * Created by dell on 2017/3/9.
  */
 const request = require('../../lib/request');
-const Utils = require('../../lib/spiderUtils');
+const spiderUtils = require('../../lib/spiderUtils');
 const async = require('neo-async');
 const moment = require('moment');
 
@@ -21,18 +21,24 @@ class hostTime {
     });
   }
   getTime(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 20 === 0 ?
-        Number(this.settings.commentTotal) / 20 :
-        Math.ceil(Number(this.settings.commentTotal) / 20),
-      option;
+    let length = 0, lastId = 0, cycle = true;
+    const option = {
+      url: this.settings.v1,
+      headers: {
+        'User-Agent': 'V1_vodone/6.1.2 (iPhone; iOS 10.3.2; Scale/3.00)',
+        'Content-Type': 'multipart/form-data; boundary=Boundary+44C47EA48862ADB4'
+      },
+      data: {
+        type: 1,
+        vid: task.aid
+      }
+    };
     async.whilst(
-      () => page <= total,
+      () => cycle,
       (cb) => {
-        option = {
-          url: `${this.settings.v1}${task.aid}&pageNo=${page}&_${new Date().getTime()}`
-        };
-        request.get(logger, option, (err, result) => {
+        option.data.last_id = lastId;
+        // logger.debug(option.url);
+        request.post(logger, option, (err, result) => {
           if (err) {
             logger.debug('v1评论列表请求失败', err);
             cb();
@@ -46,18 +52,18 @@ class hostTime {
             cb();
             return;
           }
-          if (!result.obj) {
-            total = -1;
+          if (!result.body || !result.body.data || !result.body.data.length) {
+            cycle = false;
             cb();
             return;
           }
-          if (result.obj.list.length <= 0) {
-            page += total;
-            cb();
-            return;
-          }
-          this.deal(task, result.obj.list, () => {
-            page += 1;
+          length = result.body.data.length;
+          task.timeTotal += length;
+          this.deal(task, result.body.data, () => {
+            if (task.timeTotal >= this.settings.commentTotal) {
+              cycle = false;
+            }
+            lastId = result.body.data[length - 1].comment_id;
             cb();
           });
         });
@@ -68,8 +74,8 @@ class hostTime {
     );
   }
   deal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       time,
       comment;
     async.whilst(
@@ -78,21 +84,19 @@ class hostTime {
         time = new Date(comments[index].createTime);
         time = moment(time).format('X');
         comment = {
-          cid: comments[index].commentId,
-          content: Utils.stringHandling(comments[index].comments),
+          cid: comments[index].comment_id,
+          content: spiderUtils.stringHandling(comments[index].content),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
           ctime: time,
           c_user: {
-            uid: comments[index].userInfo ?
-              comments[index].userInfo.userId : comments[index].userId,
-            uname: comments[index].userInfo ?
-              (comments[index].userInfo.userName || comments[index].userInfo.nickname) :
-              comments[index].auditor
+            uid: comments[index].userid || '',
+            uname: comments[index].nickname || '',
+            uavatar: comments[index].picture || ''
           }
         };
-        Utils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
         index += 1;
         cb();
       },
