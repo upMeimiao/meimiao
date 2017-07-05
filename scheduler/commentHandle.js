@@ -71,17 +71,18 @@ class commentHandle {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
         return;
       }
-      if (Number(result[0]) === -1 || Number(result[1]) === -1) {
-        this.scheduler.emit('task_check_kue', raw);
-        return;
-      }
-      // if (Number(raw.p) === 23 && (Number(result[0]) === -1 || Number(result[1]) === -1)) {
+      // if (Number(result[0]) === -1 || Number(result[1]) === -1) {
       //   this.scheduler.emit('task_check_kue', raw);
       //   return;
       // }
-      if (Number(result[0]) !== Number(result[1])) {
-        this.scheduler.emit('task_check_kue', raw);
-      }
+      // // if (Number(raw.p) === 23 && (Number(result[0]) === -1 || Number(result[1]) === -1)) {
+      // //   this.scheduler.emit('task_check_kue', raw);
+      // //   return;
+      // // }
+      // if (Number(result[0]) !== Number(result[1])) {
+      //   this.scheduler.emit('task_check_kue', raw);
+      // }
+      this.scheduler.emit('task_check_kue', raw);
     });
   }
   setInit(raw) {
@@ -109,7 +110,11 @@ class commentHandle {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
         return;
       }
-      this.getRedisInfo(raw);
+      // this.getRedisInfo(raw);
+      raw.comment_id = 0;
+      raw.comment_time = 0;
+      raw.comment_num = 0;
+      this.scheduler.emit('task_create', raw);
     });
   }
   getRedisInfo(raw) {
