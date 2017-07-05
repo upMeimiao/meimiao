@@ -61,21 +61,20 @@ class dealWith {
         fans_num: result.body.data.fans_num
       };
       task.total = result.body.data.video_num;
-      // this.sendUser(user);
+      this.sendUser(user);
       this.sendStagingUser(user);
       this.getVidList(task, () => {
         callback();
       });
     });
   }
-  sendUser(user, callback) {
+  sendUser(user) {
     const option = {
       url: this.settings.sendFans,
       data: user
     };
     request.post(logger, option, (err, result) => {
       if (err) {
-        callback(err);
         return;
       }
       try {
@@ -83,7 +82,6 @@ class dealWith {
       } catch (e) {
         logger.error(`V1 ${user.bid} json数据解析失败`);
         logger.info(result);
-        callback(e);
         return;
       }
       if (Number(result.errno) === 0) {
@@ -93,7 +91,6 @@ class dealWith {
         logger.info(result);
         logger.info('user info: ', user);
       }
-      callback();
     });
   }
   sendStagingUser(user) {
