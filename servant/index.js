@@ -277,6 +277,9 @@ class spiderCore {
       case 'm.aipai.com':
         this.handle.aipaiHandle(ctx, remote);
         break;
+      case 'v.xiaokaxiu.com':
+        this.handle.xiaokaxiuHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');
