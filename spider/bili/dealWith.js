@@ -17,18 +17,23 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (cb) => {
-          this.getUser(task, () => {
-            cb(null, '用户信息已返回');
-          });
-        },
-        media: (cb) => {
-          this.getTotal(task, (err) => {
-            if (err) {
-              cb(err);
-              return;
-            }
-            cb(null, '视频信息已返回');
+        // user: (cb) => {
+        //   this.getUser(task, () => {
+        //     cb(null, '用户信息已返回');
+        //   });
+        // },
+        // media: (cb) => {
+        //   this.getTotal(task, (err) => {
+        //     if (err) {
+        //       cb(err);
+        //       return;
+        //     }
+        //     cb(null, '视频信息已返回');
+        //   });
+        // },
+        program: (cb) => {
+          this.core.getProgram.start(task, (err, result) => {
+            cb(null, result);
           });
         }
       },
