@@ -180,11 +180,10 @@ class dealWith {
     );
   }
   getAllInfo(task, video, callback) {
-    const num = 0;
     async.parallel(
       [
         (cb) => {
-          this.getVidInfo(video.vid, num, (err, result) => {
+          this.getVidInfo(video.vid, (err, result) => {
             cb(err, result);
           });
         },
