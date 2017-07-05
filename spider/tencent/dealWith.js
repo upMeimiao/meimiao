@@ -66,7 +66,16 @@ class dealWith {
             }
             cb(null, '视频信息已返回');
           });
-        }
+        },
+        // program: (cb) => {
+        //   this.core.getProgram.start(task, (err) => {
+        //     if (err) {
+        //       cb(err);
+        //       return;
+        //     }
+        //     cb(null, '专辑栏目信息已返回');
+        //   });
+        // }
       },
       (err, result) => {
         if (err) {
