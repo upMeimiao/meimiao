@@ -82,7 +82,8 @@
     "bili": {
       "userInfo": "http://space.bilibili.com/ajax/member/GetInfo",
       "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
-      "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid="
+      "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
+      "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid="
     },
     "btime": {
       "userInfo": "http://record.btime.com/getUserChannel?uid=",
@@ -164,7 +165,9 @@
       "videoList":"http://api.tv.sohu.com/v4/user/video.json?page_size=20&with_fee_video=2&page=",
       "videoInfo": "http://s1.api.tv.itc.cn/v4/video/info/",
       "digg":"http://score.my.tv.sohu.com/digg/get.do?type=9001&callback=jsonp&vid=",
-      "comment":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=&page_size=1&topic_source_id=bk"
+      "comment":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=&page_size=1&topic_source_id=bk",
+      "programList":"http://my.tv.sohu.com/user/wm/ta/pl.do?sortType=2&size=40&uid=",
+      "programVideolist":"http://my.tv.sohu.com/user/wm/ta/plv.do?size=30&pid="
     },
     "tencent": {
       "user": "http://c.v.qq.com/followcount?low_login=1&otype=json&callback=jsonp&euin=",

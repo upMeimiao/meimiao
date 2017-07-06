@@ -30,7 +30,12 @@ class dealWith {
             }
             cb(null, '视频信息已返回');
           });
-        }
+        },
+        // program: (cb) => {
+        //   this.core.getProgram.start(task, (err, result) => {
+        //     cb(null, result);
+        //   });
+        // }
       },
       (err, result) => {
         if (err) {
