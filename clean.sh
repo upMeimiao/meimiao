@@ -33,4 +33,5 @@ echo "开启pm2日志文件"
 pm2 flush
 cd /root/.pm2/logs
 rm -rf ./*__*.log
+rm -rf ./*
 echo "pm2日志文件清理完毕"
