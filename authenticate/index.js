@@ -225,6 +225,10 @@ class spiderCore {
       case 'm.xiaokaxiu.com':
         handle.xiaokaxiuHandle(ctx, verifyData);
         break;
+      case 'yingdi.qq.com':
+      case 'shaka.qq.com':
+        handle.shankaHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);

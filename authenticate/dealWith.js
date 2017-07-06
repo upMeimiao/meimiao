@@ -3112,5 +3112,63 @@ class DealWith {
       }
     );
   }
+  shanka(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      },
+      vid = URL.parse(htmlUrl, true).query.feed_id;
+    let cycle = true, info = '', user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetFeedCommentList&data={"attach_info":"${info}","feed_id":"${vid}"}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('视频详情请求失败', err);
+            callback(err, { code: 103, p: 50 });
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('解析失败', result.body);
+            callback(err, { code: 103, p: 50 });
+            return;
+          }
+          if (!result.data || !result.data.comments.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          for (const value of result.data.comments) {
+            if (userVal == value.wording.replace(/\s/g, '')) {
+              user = {
+                id: value.poster.id,
+                name: value.poster.nick,
+                p: 50
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          info = result.data.attach_info;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err, { code: 105, p: 50 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
 }
 module.exports = DealWith;

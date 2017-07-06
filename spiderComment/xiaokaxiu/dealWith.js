@@ -20,7 +20,6 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    task.num = 0;
     this.getTotalList(task, () => {
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
@@ -141,7 +140,7 @@ class dealWith {
       () => index < comments.length,
       (cb) => {
         time = comments[index].createtime;
-        if (task.commentId == comments[index].cid || task.commentTime >= time) {
+        if (task.commentId == comments[index].id || task.commentTime >= time) {
           task.isEnd = true;
           callback();
           return;
@@ -163,7 +162,6 @@ class dealWith {
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
-        task.num += 1;
         index += 1;
         cb();
       },

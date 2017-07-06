@@ -281,6 +281,9 @@
     },
     "xiaokaxiu": {
       "list": "https://v.xiaokaxiu.com/video/web/get_member_videos?limit=10&memberid="
+    },
+    "shanka": {
+      "list": "http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetPersonalPage&data="
     }
   },
   "servantAPI": {

@@ -451,6 +451,13 @@ const xiaokaxiu = () => {
   const spider = new (require(`${spiderDir}xiaokaxiu`))(settings);
   spider.start();
 };
+const shanka = () => {
+  const logger = logging.getLogger('闪咖', options.i, logLevel);
+  settings.logger = logger;
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}shanka`))(settings);
+  spider.start();
+};
 const test = () => {
   const logger = logging.getLogger('测试', options.i, logLevel);
   settings.logger = logger;
@@ -629,6 +636,9 @@ switch (options.a) {
     break;
   case 'xiaokaxiu':
     xiaokaxiu();
+    break;
+  case 'shanka':
+    shanka();
     break;
   case 'test':
     test();
