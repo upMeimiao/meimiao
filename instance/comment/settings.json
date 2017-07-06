@@ -103,5 +103,6 @@
   },
   "douyin": "https://aweme.snssdk.com/aweme/v1/comment/list/?count=20&aweme_id=",
   "aipai": "http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-",
-  "xiaokaxiu": "https://api.xiaokaxiu.com/comment/api/get_comments"
+  "xiaokaxiu": "https://api.xiaokaxiu.com/comment/api/get_comments",
+  "shanka": "http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetFeedCommentList&data="
 }

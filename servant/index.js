@@ -281,6 +281,10 @@ class spiderCore {
       case 'm.xiaokaxiu.com':
         this.handle.xiaokaxiuHandle(ctx, remote);
         break;
+      case 'yingdi.qq.com':
+      case 'shaka.qq.com':
+        this.handle.shankaHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');

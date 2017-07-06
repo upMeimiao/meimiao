@@ -2927,5 +2927,46 @@ class DealWith {
       callback(null, res);
     });
   }
+  shanka(data, callback) {
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    };
+    let res = null,
+      vid = data.match(/feed_id=(\w*)/)[1];
+    options.url = `http://yingdi.qq.com/cgi/kingGetFeedDetail.php?feed_id=${vid}`;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 50 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', error.message);
+        callback(error, { code: 102, p: 50 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.debug('解析失败', result.body);
+        callback(e, { code: 102, p: 50 });
+        return;
+      }
+      if (!result) {
+        callback(e, { code: 102, p: 49 });
+        return;
+      }
+      res = {
+        id: result.posterId,
+        name: result.posterNick,
+        avatar: result.posterAvatar,
+        p: 50
+      };
+      callback(null, res);
+    });
+  }
 }
 module.exports = DealWith;

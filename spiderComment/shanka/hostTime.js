@@ -23,47 +23,43 @@ class hostTime {
   }
   getTime(task, callback) {
     const option = {
-      url: this.settings.xiaokaxiu,
-      encoding: 1,
       headers: {
-        'User-Agent': 'YXCaptureApp/1.7.6 (iPhone; iOS 10.3.2; Scale/3.00)',
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      data: {
-        _secdata: 'fCuZ0_Ms-qbyC4qqBOeeoMQy8R5R2hUJvIVd6fWGz0nLP1Pv2ohw19C6xI6dSjkapKvrMNoEDkqaSe3_Vhg2WvCrtCSjqLaW_Y5uP8vqFNR4iTaKSaSH5k7m8AVpQrckFxDVyYyLKrHmwFr06TXTQ_5TJi55BBf_1nc8avzmZTrE-3s9AkP5y8JmownDLlE6wSzczGa3s_qFV_H36O5cX29ij5AVtfFkqfszFzuF2p86w8G9eXondEFTldsc17YBISXniJR1k6v8f6PtiV2xrMpZV6DGzfuYVmPnp6ouEuZoWZ3Mz2Lqd2qHCRcAHjmKbBfraMvpEskjcc7aB_cPrVWqUScztHKtQ3EywufXxPu2dQ4thBArQ3-loiShxdhkkwRJb-ErTpLxC2UF_bDIbFlhShNZxL6_dL42tJr28pf2Ovutg0pELRhNmae-_kasBPqhbbgEaAmy2mcdiKrlrA..',
-        limit: 20,
-        page: 1,
-        videoid: task.aid
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest'
       }
     };
-    let pageTotal = this.settings.commentTotal % 20 === 0 ?
-        this.settings.commentTotal / 20 : Math.ceil(this.settings.commentTotal / 20),
-      page = 1, comment = [];
+    let cycle = true, info = '';
     async.whilst(
-      () => page <= pageTotal,
+      () => cycle,
       (cb) => {
-        option.data.page = page;
-        request.post(logger, option, (err, result) => {
+        option.url = `${this.settings.shanka}{"attach_info":"${info}","feed_id":"${task.aid}"}`;
+        request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('评论列表请求失败', err);
             cb();
             return;
           }
           try {
-            result = JSON.parse(zlib.unzipSync(result.body).toString());
+            result = JSON.parse(result.body);
           } catch (e) {
             logger.error('列表解析失败', result.body);
             cb();
             return;
           }
-          if (!result.data || !result.data.list || !result.data.list.length) {
-            pageTotal = -1;
+          if (!result.data || !result.data.comments || !result.data.comments.length) {
+            cycle = false;
             cb();
             return;
           }
-          comment = result.data.list.concat(result.data.hotlist);
-          this.deal(task, comment, () => {
-            page += 1;
+          if (!task.lastId) {
+            task.lastId = result.data.comments[0].id;
+            task.lastTime = result.data.comments[0].createtime;
+          }
+          this.deal(task, result.data.comments, () => {
+            if (task.isEnd) {
+              cycle = false;
+            }
+            info = result.data.attach_info;
             cb();
           });
         });
@@ -89,15 +85,15 @@ class hostTime {
           aid: task.aid,
           ctime: time,
           step: '',
-          support: comments[index].praises,
+          support: '',
           reply: '',
           c_user: {
-            uid: comments[index].memberid,
-            uname: comments[index].nickname,
-            uavatar: comments[index].avatar
+            uid: comments[index].poster.id,
+            uname: comments[index].poster.nick,
+            uavatar: comments[index].poster.avatar
           }
         };
-        spiderUtils.saveCache(this.core.cache_db, 'comment_update_cache', comment);
+        spiderUtils.saveCache(this.core.cache_db, 'comment_update_cache', wording);
         index += 1;
         cb();
       },

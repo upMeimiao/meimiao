@@ -72,7 +72,7 @@ class spiderCore {
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
     queue.process('comment_aipai', this.settings.concurrency, (job, done) => {
-      logger.trace('Get douyin task!');
+      logger.trace('Get aipai task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
@@ -92,7 +92,7 @@ class spiderCore {
       });
     });
     queue.process('comment_update_aipai', this.settings.concurrency, (job, done) => {
-      logger.trace('Get douyin task!');
+      logger.trace('Get aipai task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);

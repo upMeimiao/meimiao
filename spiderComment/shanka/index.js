@@ -32,10 +32,10 @@ class spiderCore {
   }
   test() {
     const work = {
-      bid: '655006',
-      aid: '71437313',
-      p: 49,
-      taskType: 0,
+      bid: '1469921220934174',
+      aid: 'pS6JvPTFnHH3m5Rs',
+      p: 50,
+      taskType: 1,
       commentId: 0,
       commentTime: 0,
       commentNum: 0
@@ -71,8 +71,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_xiaokaxiu', this.settings.concurrency, (job, done) => {
-      logger.trace('Get xiaokaxiu task!');
+    queue.process('comment_shanka', this.settings.concurrency, (job, done) => {
+      logger.trace('Get shanka task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
@@ -91,8 +91,8 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_xiaokaxiu', this.settings.concurrency, (job, done) => {
-      logger.trace('Get xiaokaxiu task!');
+    queue.process('comment_update_shanka', this.settings.concurrency, (job, done) => {
+      logger.trace('Get shanka task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
