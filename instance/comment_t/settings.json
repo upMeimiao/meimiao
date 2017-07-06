@@ -101,5 +101,6 @@
     "time":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=0&page="
   },
   "douyin": "https://aweme.snssdk.com/aweme/v1/comment/list/?count=20&aweme_id=",
-  "aipai": "http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-"
+  "aipai": "http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-",
+  "xiaokaxiu": "https://api.xiaokaxiu.com/comment/api/get_comments"
 }

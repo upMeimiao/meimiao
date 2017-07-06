@@ -63,7 +63,7 @@
             $.ajax({
                 type: "GET",
                 url: `http://spider-monitor.meimiaoip.com/auth/?url=${url}&code=${codeV}`,
-//                url: "http://127.0.0.1:2018?url=" + url+ "&code=" + codeV,
+                // url: "http://127.0.0.1:2018?url=" + url+ "&code=" + codeV,
                 success: function(data) {
                     p.innerHTML = data
                     err.innerHTML =''

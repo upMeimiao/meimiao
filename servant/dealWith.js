@@ -2885,5 +2885,47 @@ class DealWith {
       callback(null, res);
     });
   }
+  xiaokaxiu(data, callback) {
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'ShockwaveFlash/26.0.0.131'
+      }
+    };
+    let res = null, id = null,
+      vid = data.match(/v\/(\w*-*\w*)\.html/)[1];
+    options.url = `http://api.xiaokaxiu.com/video/web/get_play_video?scid=${vid}`;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 49 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', error.message);
+        callback(error, { code: 102, p: 49 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.debug('解析失败', result.body);
+        callback(e, { code: 102, p: 49 });
+        return;
+      }
+      if (!result || Number(result.result) !== 1 || !result.data) {
+        callback(e, { code: 102, p: 49 });
+        return;
+      }
+      id = URL.parse(result.data.avatar, true).pathname.split('/')[4];
+      res = {
+        id,
+        name: result.data.nickname,
+        avatar: result.data.avatar,
+        p: 49
+      };
+      callback(null, res);
+    });
+  }
 }
 module.exports = DealWith;
