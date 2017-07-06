@@ -282,6 +282,7 @@ class dealWith {
   getVidInfo(vid, callback) {
     const option = {
       method: 'POST',
+      timeout: 6000,
       headers: {
         'User-Agent': 'V1_vodone/6.0.1 (iPhone; iOS 10.3.2; Scale/3.00)'
       }
