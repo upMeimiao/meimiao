@@ -18,10 +18,27 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
-    this.channel(task, (err) => {
+    async.parallel({
+      channel: (cb) => {
+        this.channel(task, (err) => {
+          if (err) {
+            cb(err);
+          } else {
+            cb(null, 'channel完成');
+          }
+        });
+      },
+      // paogram: (cb) => {
+      //   this.core.getProgram.start(task, () => {
+      //     cb(null, '专辑视频完成');
+      //   });
+      // }
+    },
+    (err, result) => {
       if (err) {
         callback(err);
       } else {
+        logger.debug('result : ', result);
         callback(null, task.total);
       }
     });
