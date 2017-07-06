@@ -278,6 +278,7 @@ class spiderCore {
         this.handle.aipaiHandle(ctx, remote);
         break;
       case 'v.xiaokaxiu.com':
+      case 'm.xiaokaxiu.com':
         this.handle.xiaokaxiuHandle(ctx, remote);
         break;
       default:
