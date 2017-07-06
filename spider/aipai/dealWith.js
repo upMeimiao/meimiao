@@ -32,7 +32,16 @@ class dealWith {
           this.getVideoList(task, () => {
             cb(null, '视频信息返回');
           });
-        }
+        },
+        // program: (cb) => {
+        //   this.core.getProgram.start(task, (err) => {
+        //     if (err) {
+        //       cb(err);
+        //       return;
+        //     }
+        //     cb(null, '栏目信息已返回');
+        //   });
+        // }
       },
       (err, result) => {
         if (err) {
@@ -244,7 +253,7 @@ class dealWith {
         callback(null, '');
         return;
       }
-      if (response.headers['content-encoding'] && response.headers['content-encoding'].toLowerCase.includes('gzip')) {
+      if (response.headers['content-encoding'] && response.headers['content-encoding'].toLowerCase().includes('gzip')) {
         body = zlib.unzipSync(body);
       }
       try {
