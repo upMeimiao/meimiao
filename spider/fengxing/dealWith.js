@@ -312,6 +312,10 @@ class dealWith {
           }
         ],
           (err, result) => {
+          if (err) {
+            callback();
+            return;
+          }
             const media = {
               author: task.name,
               platform: task.p,
@@ -371,6 +375,7 @@ class dealWith {
         );
     } else {
       option.url = `http://www.fun.tv/vplay/g-${task.id}.v-${vid}/`;
+      logger.debug(option.url);
       async.waterfall(
         [
           (cb) => {
@@ -383,7 +388,7 @@ class dealWith {
             request.get(logger, option, (err, result) => {
               if (err) {
                 logger.error('单个DOM接口请求错误 : ', err);
-                callback(err);
+                callback('next');
                 return;
               }
               const $ = cheerio.load(result.body),
@@ -394,6 +399,10 @@ class dealWith {
                   class: vidClass || '',
                   time: data || ''
                 };
+              if (!res.time) {
+                callback('next');
+                return;
+              }
               callback(null, res);
             });
           }
