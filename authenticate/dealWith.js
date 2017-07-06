@@ -7,6 +7,7 @@ const request = require('../lib/request');
 const async = require('neo-async');
 const req = require('request');
 const crypto = require('crypto');
+const zlib = require('zlib');
 
 const sign = (e) => {
   const md5 = crypto.createHash('md5');
@@ -3009,6 +3010,105 @@ class DealWith {
           return;
         }
         callback(null, result);
+      }
+    );
+  }
+  xiaokaxiu(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      host = URL.parse(htmlUrl, true).hostname,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        headers: {
+          'user-agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
+        }
+      };
+    let vid = null;
+    if (host === 'v.xiaokaxiu.com') {
+      option.url = htmlUrl.replace('https://v.xiaokaxiu.com/v', 'https://m.xiaokaxiu.com/m');
+    }
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频详情请求失败', err);
+        callback(err, { code: 103, p: 49 });
+        return;
+      }
+      const $ = cheerio.load(result.body);
+      vid = $('div.sp a').attr('class').match(/btnOpenApp(\d*)/);
+      if (!vid) {
+        logger.error('DOM数据可能有问题');
+        callback('err', { code: 103, p: 49 });
+        return;
+      }
+      this.xiaokaxiuComment(userVal, vid[1], (error, user) => {
+        if (error) {
+          callback(error, { code: 105, p: 49 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  xiaokaxiuComment(userVal, vid, callback) {
+    const option = {
+      url: 'https://api.xiaokaxiu.com/comment/api/get_comments',
+      encoding: 1,
+      headers: {
+        'User-Agent': 'YXCaptureApp/1.7.6 (iPhone; iOS 10.3.2; Scale/3.00)',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: {
+        _secdata: 'fCuZ0_Ms-qbyC4qqBOeeoMQy8R5R2hUJvIVd6fWGz0nLP1Pv2ohw19C6xI6dSjkapKvrMNoEDkqaSe3_Vhg2WvCrtCSjqLaW_Y5uP8vqFNR4iTaKSaSH5k7m8AVpQrckFxDVyYyLKrHmwFr06TXTQ_5TJi55BBf_1nc8avzmZTrE-3s9AkP5y8JmownDLlE6wSzczGa3s_qFV_H36O5cX29ij5AVtfFkqfszFzuF2p86w8G9eXondEFTldsc17YBISXniJR1k6v8f6PtiV2xrMpZV6DGzfuYVmPnp6ouEuZoWZ3Mz2Lqd2qHCRcAHjmKbBfraMvpEskjcc7aB_cPrVWqUScztHKtQ3EywufXxPu2dQ4thBArQ3-loiShxdhkkwRJb-ErTpLxC2UF_bDIbFlhShNZxL6_dL42tJr28pf2Ovutg0pELRhNmae-_kasBPqhbbgEaAmy2mcdiKrlrA..',
+        limit: 20,
+        page: 1,
+        videoid: vid
+      }
+    };
+    let page = 1,
+      cycle = true,
+      user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.data.page = page;
+        request.post(logger, option, (err, result) => {
+          if (err) {
+            logger.error('列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(zlib.unzipSync(result.body).toString());
+          } catch (e) {
+            logger.error('列表请求失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.data || !result.data.list || !result.data.list.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          result.data.list = result.data.list.concat(result.data.hotlist);
+          for (const value of result.data.list) {
+            // logger.debug(value);
+            if (userVal == value.content.replace(/\s/, '')) {
+              user = {
+                id: value.memberid,
+                name: value.nickname,
+                p: 49
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          page += 1;
+          cb();
+        });
+      },
+      (err, result) => {
+        callback(err, result);
       }
     );
   }

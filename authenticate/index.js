@@ -221,6 +221,10 @@ class spiderCore {
       case 'm.aipai.com':
         handle.aipaiHandle(ctx, verifyData);
         break;
+      case 'v.xiaokaxiu.com':
+      case 'm.xiaokaxiu.com':
+        handle.xiaokaxiuHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);

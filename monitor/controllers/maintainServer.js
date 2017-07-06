@@ -14,7 +14,7 @@ const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.r
 kue.createQueue({
   redis: {
     port: '6379',
-    host: 'r-m5e970ad613f13a4.redis.rds.aliyuncs.com',
+    host: '192.168.1.31',
     auth: 'C19prsPjHs52CHoA0vm',
     db: 2
   }

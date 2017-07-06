@@ -276,6 +276,9 @@
       "list": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-userAsset_sort-id_pageSize-50_bid-",
       "video": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-indexDataNew_assetId-",
       "comment": "http://m.aipai.com/api/aipaiApp_action-getComment_mobile-1_type-2_page-1_share-1_cid-"
+    },
+    "xiaokaxiu": {
+      "list": "https://v.xiaokaxiu.com/video/web/get_member_videos?limit=10&memberid="
     }
   },
   "servantAPI": {
