@@ -46,6 +46,7 @@ const platformMap = new Map([
   [46, '咪咕动漫'],
   [47, '抖音'],
   [48, '爱拍'],
-  [49, '小咖秀']
+  [49, '小咖秀'],
+  [50, '闪咖']
 ]);
 module.exports = platformMap;

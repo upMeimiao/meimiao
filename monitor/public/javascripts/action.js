@@ -46,7 +46,8 @@ const platformMap = new Map([
   [46, '咪咕动漫'],
   [47, '抖音'],
   [48, '爱拍'],
-  [49, '小咖秀']
+  [49, '小咖秀'],
+  [50, '闪咖']
 ]);
 const platform = [
   { id: 1, name: '优酷' },
@@ -96,7 +97,8 @@ const platform = [
   { id: 46, name: '咪咕动漫' },
   { id: 47, name: '抖音' },
   { id: 48, name: '爱拍'},
-  { id: 49, name: '小咖秀'}
+  { id: 49, name: '小咖秀'},
+  { id: 50, name: '闪咖'}
 ];
 const vm = new Vue({
   el: '#app',
