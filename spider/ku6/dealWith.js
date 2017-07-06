@@ -16,25 +16,37 @@ class dealWith {
   todo(task, callback) {
     task.total = 0;
     async.parallel({
-      user: (callback) => {
+      user: (cb) => {
         this.getUser(task, task.id, (err) => {
           if (err) {
-            return callback(err);
+            cb(err);
+            return;
           }
-          callback(null, '用户信息已返回');
+          cb(null, '用户信息已返回');
         });
       },
-      media: (callback) => {
+      media: (cb) => {
         this.getTotal(task, task.id, (err) => {
           if (err) {
-            return callback(err);
+            cb(err);
+            return;
           }
-          callback(null, '视频信息已返回');
+          cb(null, '视频信息已返回');
         });
-      }
+      },
+      // program: (cb) => {
+      //   this.core.getProgram.start(task, (err) => {
+      //     if (err) {
+      //       cb(err);
+      //       return;
+      //     }
+      //     cb(null, '栏目信息已返回');
+      //   });
+      // }
     }, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       logger.debug('result : ', result);
       callback(null, task.total);

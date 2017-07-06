@@ -14,6 +14,7 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
+    // this.getProgram = new (require('./program'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
@@ -33,7 +34,7 @@ class spiderCore {
   test() {
     const work = {
       p: 14,
-      name: '181****1164',
+      name: '26109613',
       id: 27606560
     };
     this.dealWith.todo(work, (err, total, uid) => {

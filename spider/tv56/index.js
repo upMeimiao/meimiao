@@ -14,6 +14,7 @@ class spiderCore {
     this.redis = settings.redis;
     this.request = request;
     this.dealWith = new (require('./dealWith'))(this);
+    // this.getProgram = new (require('./program'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }

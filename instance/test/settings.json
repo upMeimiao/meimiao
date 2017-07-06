@@ -188,7 +188,9 @@
       "userInfo": "http://push.my.tv.sohu.com/user/a/fa/count.do",
       "list": "http://my.tv.sohu.com/user/wm/56ta/v.do?sortType=2&size=20&callback=jsonp&uid=",
       "video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
-      "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk"
+      "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk",
+      "programList":"http://my.tv.sohu.com/user/wm/ta/pl.do?sortType=2&size=40&uid=",
+      "programVideolist":"http://my.tv.sohu.com/user/wm/ta/plv.do?size=30&pid="
     },
     "v1": {
       "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid=",

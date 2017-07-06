@@ -36,16 +36,25 @@ class dealWith {
             }
             cb(null, '视频信息已返回');
           });
-        }
+        },
+        // program: (cb) => {
+        //   this.core.getProgram.start(task, (err) => {
+        //     if (err) {
+        //       cb(err);
+        //       return;
+        //     }
+        //     cb(null, '专辑信息已返回');
+        //   });
+        // }
       },
-        (err, result) => {
-          if (err) {
-            callback(err);
-            return;
-          }
-          logger.debug(`${task.id}_result:`, result);
-          callback(null, task.total);
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
         }
+        logger.debug(`${task.id}_result:`, result);
+        callback(null, task.total);
+      }
     );
   }
   getUser(task, callback) {
