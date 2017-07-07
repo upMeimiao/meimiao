@@ -132,7 +132,7 @@ http://momentjs.cn/
 13. 爆米花
 14. 酷6视频
 15. 北京时间
-16. 微视
+16. 微视（待下线）
 17. 小影
 18. 百思不得姐
 19. 内涵段子
@@ -165,6 +165,9 @@ http://momentjs.cn/
 46. 咪咕动漫
 47. 抖音
 48. 爱拍
+49. 小咖秀
+50. 闪咖
+51. 奶糖
 
 ## 流程图
 ![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)
