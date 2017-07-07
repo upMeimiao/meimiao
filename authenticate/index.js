@@ -229,6 +229,9 @@ class spiderCore {
       case 'shaka.qq.com':
         handle.shankaHandle(ctx, verifyData);
         break;
+      case 'www.naitang.tv':
+        handle.naitangHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);

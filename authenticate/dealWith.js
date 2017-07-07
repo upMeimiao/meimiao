@@ -3150,7 +3150,8 @@ class DealWith {
               user = {
                 id: value.poster.id,
                 name: value.poster.nick,
-                p: 50
+                p: 50,
+                avatar: value.poster.avatar
               };
               cycle = false;
               cb(null, user);
@@ -3164,6 +3165,89 @@ class DealWith {
       (err, result) => {
         if (err) {
           callback(err, { code: 105, p: 50 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+  naitang(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        ua: 1
+      };
+    let vid = '';
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频请求失败', err);
+        callback(err, { code: 103, p: 51 });
+        return;
+      }
+      result = result.body.replace(/[\n\s\r]/g, '');
+      vid = result.match(/varvideoId=(\d*)/);
+      if (!vid) {
+        callback(err, { code: 103, p: 51 });
+        return;
+      }
+      this.naitangComment(userVal, vid[1], (e, user) => {
+        if (e) {
+          callback(e, { code: 105, p: 51 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  naitangComment(userVal, vid, callback) {
+    let cycle = true, start = 0, user;
+    const option = {
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
+    };
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `https://toffee.app.tvfanqie.com/iphone/comment/list?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&videoid=${vid}&start=${start}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('视频详情请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('解析失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.data || !result.data.list.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          for (const value of result.data.list) {
+            if (userVal == value.title.replace(/\s/g, '')) {
+              user = {
+                id: value.userid,
+                name: value.nickname,
+                p: 51,
+                avatar: value.img
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          start += 12;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err, { code: 105, p: 51 });
           return;
         }
         callback(null, result);

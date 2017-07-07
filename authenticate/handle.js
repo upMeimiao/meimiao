@@ -56,7 +56,8 @@ class Handle {
           bid: result.id,
           bname: result.name,
           type: result.type ? result.type : 0,
-          encodeId: result.encode_id ? result.encode_id : ''
+          encodeId: result.encode_id ? result.encode_id : '',
+          avatar: result.avatar || ''
         }
       };
     }
@@ -359,6 +360,13 @@ class Handle {
   }
   shankaHandle(ctx, verifyData) {
     dealWith.shanka(verifyData, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  naitangHandle(ctx, verifyData) {
+    dealWith.naitang(verifyData, (err, result) => {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
       ctx.res.writeHead(200);
       ctx.res.end(JSON.stringify(this.preResult(err, result)));

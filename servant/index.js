@@ -285,6 +285,9 @@ class spiderCore {
       case 'shaka.qq.com':
         this.handle.shankaHandle(ctx, remote);
         break;
+      case 'www.naitang.tv':
+        this.handle.naitangHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');

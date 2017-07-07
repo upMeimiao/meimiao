@@ -2968,5 +2968,76 @@ class DealWith {
       callback(null, res);
     });
   }
+  naitang(data, callback) {
+    const options = {
+      url: data,
+      ua: 1
+    };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 51 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', error.message);
+        callback(error, { code: 102, p: 51 });
+        return;
+      }
+      const $ = cheerio.load(result.body),
+        ID = $('p.actor-id').text().replace('ID:', '');
+      if (!ID) {
+        callback('e', { code: 102, p: 51 });
+        return;
+      }
+      this.naitangSearch(ID, (error, user) => {
+        if (error) {
+          callback(error, { code: 102, p: 51 });
+          return;
+        }
+        if (Number(user.ID) !== Number(ID)) {
+          logger.error('搜索数据有问题');
+          callback('e', { code: 102, p: 51 });
+          return;
+        }
+        res = {
+          id: user.id,
+          name: user.name,
+          avatar: user.avatar,
+          p: 51
+        };
+        callback(null, res);
+      });
+    });
+  }
+  naitangSearch(id, callback) {
+    const options = {
+      url: `https://toffee.app.tvfanqie.com/iphone/search/userlist?ch=AppStore&fquc=&ios_ver=10.3.2&isAppend=0&kw=${id}&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0`,
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
+    };
+    request.get(options, (err, result) => {
+      if (err) {
+        logger.error('用户搜索失败', err);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('数据解析失败', result.body);
+        callback(err);
+        return;
+      }
+      if (Number(result.error) !== 0 || !result.data || !result.data.list.length || result.data.list.length > 1) {
+        logger.error('当前用户可能不存在(或者数据接口出问题)');
+        callback('e');
+        return;
+      }
+      result = result.data.list[0];
+      callback(null, { id: result.userid, name: result.name, avatar: result.img, ID: result.uidshow })
+    });
+  }
 }
 module.exports = DealWith;
