@@ -1,12 +1,19 @@
 /**
- * Created by zhupenghui on 17/7/3.
+ * Created by zhupenghui on 17/7/7.
  */
-const zlib = require('zlib');
 const async = require('neo-async');
-const req = require('request');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
+const _playNum = (num) => {
+  if (!num) {
+    return null;
+  }
+  if (num.includes('.')) {
+    return Number(num.replace('w', '000').replace(/./g, ''));
+  }
+  return Number(num.replace('w', '0000'));
+};
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -46,8 +53,9 @@ class dealWith {
   }
   getUser(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.aipai.user + task.id}`,
-      ua: 2
+      url: `${this.settings.spiderAPI.naitang.user + task.id}`,
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -62,7 +70,7 @@ class dealWith {
         callback(e);
         return;
       }
-      if (Number(result.code) !== 0 || !result.data) {
+      if (Number(result.error) !== 0 || !result.data) {
         spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
         callback();
         return;
@@ -70,7 +78,7 @@ class dealWith {
       const user = {
         bid: task.id,
         platform: task.p,
-        fans_num: result.data.fansCount
+        fans_num: result.data.follower.count
       };
       // this.sendUser(user, () => {
       //   callback();
@@ -133,14 +141,14 @@ class dealWith {
   }
   getVideoList(task, callback) {
     const option = {
-      ua: 2
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
-    let cycle = true, page = 1;
+    let cycle = true, start = 0;
     async.whilst(
       () => cycle,
       (cb) => {
-        option.url = `${this.settings.spiderAPI.aipai.list + task.id}_self-0_page-${page}.html`;
-        // logger.debug(option.url);
+        option.url = `${this.settings.spiderAPI.naitang.list + task.id}&start=${start}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频列表请求失败', err);
@@ -154,21 +162,19 @@ class dealWith {
             cb();
             return;
           }
-          if (Number(result.code) !== 0 || !result.data.length) {
+          if (Number(result.error) !== 0 || !result.data || !result.data.list.length) {
             cycle = false;
             cb();
             return;
           }
-          task.total = task.total || result.total;
-          this.deal(task, result.data, () => {
-            page += 1;
+          task.total = task.total || result.data.total;
+          this.deal(task, result.data.list, () => {
+            start += 12;
             cb();
           });
         });
       },
-      () => {
-        callback();
-      }
+      () => callback()
     );
   }
   deal(task, list, callback) {
@@ -182,105 +188,29 @@ class dealWith {
           cb();
         });
       },
-      () => {
-        callback();
-      }
+      () => callback()
     );
   }
   media(task, video, callback) {
-    async.parallel(
-      [
-        (cb) => {
-          this.videoInfo(video.id, (err, result) => {
-            cb(null, result);
-          });
-        },
-        (cb) => {
-          this.comment(video.id, (err, result) => {
-            cb(null, result);
-          });
-        }
-      ],
-      (err, result) => {
-        const media = {
-          author: task.name,
-          bid: task.id,
-          platform: task.p,
-          aid: video.id,
-          title: spiderUtils.stringHandling(video.title, 80),
-          desc: spiderUtils.stringHandling(video.adwords, 100),
-          play_num: video.click,
-          a_create_time: video.saveTime,
-          v_img: video['800fix'],
-          class: video.appName,
-          comment_num: result[1],
-          long_t: result[0],
-          v_url: video.url
-        };
-        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        spiderUtils.commentSnapshots(this.core.taskDB,
-          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-        callback();
-      }
-    );
-  }
-  videoInfo(vid, callback) {
-    const option = {
-      method: 'GET',
-      url: `${this.settings.spiderAPI.aipai.video + vid}_os-2.html`,
-      encoding: null,
-      headers: {
-        'User-Agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
-      }
+    const media = {
+      author: task.name,
+      bid: task.id,
+      platform: task.p,
+      aid: video.id,
+      title: spiderUtils.stringHandling(video.base.title, 80),
+      desc: spiderUtils.stringHandling(video.share.desc, 100),
+      play_num: _playNum(video.base.playcount),
+      v_img: video.cover,
+      class: video.topic.title,
+      comment_num: video.comment.title,
+      long_t: video.base.duration,
+      v_url: video.share.url,
+      support: video.like.title
     };
-    req(option, (error, response, body) => {
-      if (error) {
-        logger.error('视频详情请求错误', error);
-        callback(null, '');
-        return;
-      }
-      if (response.statusCode !== 200) {
-        logger.error('视频详情请求状态码错误', response.statusCode);
-        callback(null, '');
-        return;
-      }
-      if (response.headers['content-encoding'] && response.headers['content-encoding'].toLowerCase.includes('gzip')) {
-        body = zlib.unzipSync(body);
-      }
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        logger.error('视频详情解析失败', body.toString());
-        callback(null, '');
-        return;
-      }
-      if (Number(body.code) !== 0 || !body.data || !body.data.assetInfo) {
-        callback(null, '');
-        return;
-      }
-      callback(null, body.data.assetInfo.totalTime);
-    });
-  }
-  comment(vid, callback) {
-    const option = {
-      url: `${this.settings.spiderAPI.aipai.comment + vid}.html`,
-      ua: 2
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('commentNum 请求失败', err);
-        callback(null, '');
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('comment解析失败', result.body);
-        callback(null, '');
-        return;
-      }
-      callback(null, result.total);
-    });
+    spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+    spiderUtils.commentSnapshots(this.core.taskDB,
+      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+    callback();
   }
 }
 module.exports = dealWith;
