@@ -98,7 +98,8 @@ const platform = [
   { id: 47, name: '抖音' },
   { id: 48, name: '爱拍'},
   { id: 49, name: '小咖秀'},
-  { id: 50, name: '闪咖'}
+  { id: 50, name: '闪咖'},
+  { id: 51, name: '奶糖'}
 ];
 const platformMap = new Map()
 for (let [index, elem] of platform.entries()) {

@@ -47,6 +47,7 @@ const platformMap = new Map([
   [47, '抖音'],
   [48, '爱拍'],
   [49, '小咖秀'],
-  [50, '闪咖']
+  [50, '闪咖'],
+  [51, '奶糖']
 ]);
 module.exports = platformMap;

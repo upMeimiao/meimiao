@@ -274,6 +274,9 @@ then
             '闪咖')
                 ssh root@${loop} 'pm2 reload 闪咖'
                 ;;
+            '奶糖')
+                ssh root@${loop} 'pm2 reload 奶糖'
+                ;;
             esac
             echo
             echo "--------------$2 视频服务重启完成，退出服务器 $loop --------------"
@@ -429,6 +432,9 @@ then
                 ;;
             '闪咖')
                 ssh root@${loop} 'pm2 reload 闪咖'
+                ;;
+            '奶糖')
+                ssh root@${loop} 'pm2 reload 奶糖'
                 ;;
             esac
             echo
