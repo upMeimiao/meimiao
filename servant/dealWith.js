@@ -3039,5 +3039,44 @@ class DealWith {
       callback(null, { id: result.userid, name: result.name, avatar: result.img, ID: result.uidshow })
     });
   }
+  // muse(data, callback) {
+  //   const vid = data.match(/(\w*).html/)[1],
+  //     options = {
+  //     url: `https://www.musical.ly/api/musical/share-info-musical?musicalCode=${vid}`,
+  //     ua: 2,
+  //     referer: data
+  //   };
+  //   let res = null;
+  //   request.get(options, (error, result) => {
+  //     if (error) {
+  //       logger.error('视频接口请求失败', error.message);
+  //       callback(error, { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     if (result.statusCode !== 200) {
+  //       logger.error('视频接口状态码', error.message);
+  //       callback(error, { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     try {
+  //       result = JSON.parse(result.body);
+  //     } catch (e) {
+  //       logger.error('视频信息解析失败', result.body);
+  //       callback(error, { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     if (!result.result) {
+  //       callback('e', { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     res = {
+  //       id: result.result.author.userIdStr,
+  //       name: result.result.author.nickName,
+  //       avatar: result.result.author.icon,
+  //       p: 52
+  //     };
+  //     callback(null, res);
+  //   });
+  // }
 }
 module.exports = DealWith;
