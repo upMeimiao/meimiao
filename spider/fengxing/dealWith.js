@@ -120,8 +120,8 @@ class dealWith {
           .replace('g_', '');
         if (task.id == bid) {
           user.fans_num = list.eq(i).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text();
-          logger.info(user);
-          this.sendUser(user);
+          // logger.info(user);
+          // this.sendUser(user);
           this.sendStagingUser(user);
           callback();
         }
@@ -283,6 +283,10 @@ class dealWith {
           }
         ],
           (err, result) => {
+          if (err) {
+            callback();
+            return;
+          }
             const media = {
               author: task.name,
               platform: task.p,
@@ -354,7 +358,7 @@ class dealWith {
             request.get(logger, option, (err, result) => {
               if (err) {
                 logger.error('单个视频接口请求错误 : ', err);
-                callback(err);
+                callback('next');
                 return;
               }
               try {
@@ -369,6 +373,7 @@ class dealWith {
               const time = new Date(`${result.release} 00:00:00`);
               result.release = moment(time).format('X');
               result.comment_num = data || '';
+              logger.info(result);
               callback(null, result);
             });
           }

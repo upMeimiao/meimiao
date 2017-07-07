@@ -22,13 +22,15 @@
         p{
             width: 450px;
             margin: 60px auto;
-            text-align: center;
+            font-size: 16px;
             word-wrap: break-word;
         }
         p#success{
+            width: 560px;
             color: green;
         }
         p#error{
+            text-align: center;
             color: red;
         }
     </style>
@@ -54,8 +56,8 @@
                 url: "http://121.42.164.116:2017?url=" + url,
                 // url: "http://127.0.0.1:2017?url=" + url,
                 success: function(data) {
-                    p.innerHTML = data
-                    err.innerHTML =''
+                  p.innerHTML = `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
+                  err.innerHTML =''
                 },
                 error:function(XMLHttpRequest, textStatus, errorThrown) {
                     p.innerHTML = ''
