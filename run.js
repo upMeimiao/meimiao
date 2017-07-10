@@ -405,6 +405,12 @@ const naitang = () => {
   const spider = new (require(`${spiderDir}naitang`))(settings);
   spider.start();
 };
+const youliao = () => {
+  settings.logger = logging.getLogger('有料', options.i, logLevel);
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}youliao`))(settings);
+  spider.start();
+};
 const test = () => {
   settings.logger = logging.getLogger('测试', options.i, logLevel);
   settings.instance = options.i;
@@ -588,6 +594,9 @@ switch (options.a) {
     break;
   case 'naitang':
     naitang();
+    break;
+  case 'youliao':
+    youliao();
     break;
   case 'test':
     test();

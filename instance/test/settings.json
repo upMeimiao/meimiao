@@ -285,6 +285,11 @@
     "naitang": {
       "user": "https://toffee.app.tvfanqie.com/iphone/user/detail?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&type=2&vr=2.3.0&userid=",
       "list": "https://toffee.app.tvfanqie.com/iphone/user/mylist?ch=AppStore&fquc=&ios_ver=10.3.2&isAppend=0&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&userid="
+    },
+    "youliao": {
+      "user": "http://wjgl.xlmc.xunlei.com/api/index/user_getRa2UserInfo?userId=",
+      "list": "http://wjgl.xlmc.xunlei.com/api/index/file_list",
+      "comment": "http://wjgl.xlmc.xunlei.com/api/index/comment_list"
     }
   },
   "servantAPI": {
