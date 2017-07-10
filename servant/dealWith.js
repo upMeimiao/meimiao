@@ -3038,6 +3038,42 @@ class DealWith {
       callback(null, { id: result.userid, name: result.name, avatar: result.img, ID: result.uidshow })
     });
   }
+  youliao(data, callback) {
+    const options = {
+      url: data,
+      ua: 1
+    };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 52 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', error.message);
+        callback(error, { code: 102, p: 52 });
+        return;
+      }
+      const $ = cheerio.load(result.body),
+        id = $('#userId').attr('data-id');
+      result = result.body.replace(/[\n\s\r]/g, '');
+      const name = result.substring(result.indexOf('nickname=\'') + 10, result.indexOf('\';varheadIconUrl')),
+        avatar = result.substring(result.indexOf('headIconUrl=\'') + 13, result.indexOf('\';varposterUrl'));
+      if (!id || !name) {
+        // logger.debug(id, '---', name);
+        callback('e', { code: 102, p: 52 });
+        return;
+      }
+      res = {
+        id,
+        name,
+        avatar,
+        p: 52
+      };
+      callback(null, res);
+    });
+  }
   kaiyan(data, callback) {
     const vid = URL.parse(data, true).query.vid,
       options = {

@@ -423,6 +423,13 @@ class Handle {
       ctx.res.end(JSON.stringify(this.preResult(err, result)));
     });
   }
+  youliaoHandle(ctx, remote) {
+    dealWith.youliao(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
   kaiyanHandle(ctx, remote) {
     dealWith.kaiyan(remote, (err, result) => {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');

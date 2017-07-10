@@ -411,6 +411,12 @@ const youliao = () => {
   const spider = new (require(`${spiderDir}youliao`))(settings);
   spider.start();
 };
+const kaiyan = () => {
+  settings.logger = logging.getLogger('开眼', options.i, logLevel);
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}youliao`))(settings);
+  spider.start();
+};
 const test = () => {
   settings.logger = logging.getLogger('测试', options.i, logLevel);
   settings.instance = options.i;
@@ -597,6 +603,9 @@ switch (options.a) {
     break;
   case 'youliao':
     youliao();
+    break;
+  case 'kaiyan':
+    kaiyan();
     break;
   case 'test':
     test();

@@ -288,6 +288,9 @@ class spiderCore {
       case 'www.naitang.tv':
         this.handle.naitangHandle(ctx, remote);
         break;
+      case 'wjgl.xlmc.xunlei.com':
+        this.handle.youliaoHandle(ctx, remote);
+        break;
       case 'www.eyepetizer.net':
         this.handle.kaiyanHandle(ctx, remote);
         break;
