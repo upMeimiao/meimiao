@@ -288,6 +288,9 @@ class spiderCore {
       case 'www.naitang.tv':
         this.handle.naitangHandle(ctx, remote);
         break;
+      case 'www.eyepetizer.net':
+        this.handle.kaiyanHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');

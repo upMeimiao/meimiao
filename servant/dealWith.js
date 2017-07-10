@@ -2971,7 +2971,7 @@ class DealWith {
   naitang(data, callback) {
     const options = {
       url: data,
-      ua: 1
+      ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
     };
     let res = null;
     request.get(options, (error, result) => {
@@ -2982,7 +2982,7 @@ class DealWith {
       }
       if (result.statusCode !== 200) {
         logger.error('视频接口状态码', error.message);
-        callback(error, { code: 102, p: 51 });
+        callback('e', { code: 102, p: 51 });
         return;
       }
       const $ = cheerio.load(result.body),
@@ -3014,8 +3014,7 @@ class DealWith {
   naitangSearch(id, callback) {
     const options = {
       url: `https://toffee.app.tvfanqie.com/iphone/search/userlist?ch=AppStore&fquc=&ios_ver=10.3.2&isAppend=0&kw=${id}&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0`,
-      ua: 3,
-      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
+      ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
     request.get(options, (err, result) => {
       if (err) {
@@ -3027,7 +3026,7 @@ class DealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('数据解析失败', result.body);
-        callback(err);
+        callback(e);
         return;
       }
       if (Number(result.error) !== 0 || !result.data || !result.data.list.length || result.data.list.length > 1) {
@@ -3037,6 +3036,44 @@ class DealWith {
       }
       result = result.data.list[0];
       callback(null, { id: result.userid, name: result.name, avatar: result.img, ID: result.uidshow })
+    });
+  }
+  kaiyan(data, callback) {
+    const vid = URL.parse(data, true).query.vid,
+      options = {
+      url: `http://baobab.kaiyanapp.com/api/v1/video/${vid}`,
+      ua: 'Eyepetizer/3107 CFNetwork/811.5.4 Darwin/16.6.0'
+    };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 53 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', error.message);
+        callback('e', { code: 102, p: 53 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('解析失败', result.body);
+        callback(e, { code: 102, p: 53 });
+        return;
+      }
+      if (!result || !result.author) {
+        callback('e', { code: 102, p: 53 });
+        return;
+      }
+      res = {
+        id: result.author.id,
+        name: result.author.name,
+        avatar: result.author.icon,
+        p: 53
+      };
+      callback(null, res);
     });
   }
 }
