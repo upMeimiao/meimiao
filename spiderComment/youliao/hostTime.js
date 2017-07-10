@@ -103,7 +103,6 @@ class hostTime {
             cb();
             return;
           }
-          logger.info(result.conmments);
           this.deal(task, result.conmments, () => {
             lastId = result.conmments[result.conmments.length - 1].cid;
             page += 1;
