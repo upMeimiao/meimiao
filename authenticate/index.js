@@ -232,6 +232,9 @@ class spiderCore {
       case 'www.naitang.tv':
         handle.naitangHandle(ctx, verifyData);
         break;
+      case 'wjgl.xlmc.xunlei.com':
+        handle.youliaoHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);
