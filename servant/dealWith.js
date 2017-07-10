@@ -2856,7 +2856,7 @@ class DealWith {
         return;
       }
       if (result.statusCode !== 200) {
-        logger.error('视频接口状态码', error.message);
+        logger.error('视频接口状态码', result.statusCode);
         callback(error, { code: 102, p: 48 });
         return;
       }
@@ -2902,7 +2902,7 @@ class DealWith {
         return;
       }
       if (result.statusCode !== 200) {
-        logger.error('视频接口状态码', error.message);
+        logger.error('视频接口状态码', result.statusCode);
         callback(error, { code: 102, p: 49 });
         return;
       }
@@ -2944,7 +2944,7 @@ class DealWith {
         return;
       }
       if (result.statusCode !== 200) {
-        logger.error('视频接口状态码', error.message);
+        logger.error('视频接口状态码', result.statusCode);
         callback(error, { code: 102, p: 50 });
         return;
       }
@@ -2981,7 +2981,7 @@ class DealWith {
         return;
       }
       if (result.statusCode !== 200) {
-        logger.error('视频接口状态码', error.message);
+        logger.error('视频接口状态码', result.statusCode);
         callback('e', { code: 102, p: 51 });
         return;
       }
@@ -3052,7 +3052,7 @@ class DealWith {
         return;
       }
       if (result.statusCode !== 200) {
-        logger.error('视频接口状态码', error.message);
+        logger.error('视频接口状态码', result.statusCode);
         callback('e', { code: 102, p: 53 });
         return;
       }
