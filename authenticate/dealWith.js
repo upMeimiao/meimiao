@@ -3254,5 +3254,114 @@ class DealWith {
       }
     );
   }
+  youliao(verifyData, callback) {
+    const cookieStr = () => {
+      const str = 'qwertyuiopasdfghjklzxcvbnm0123456789';
+      let cookie = '';
+      for (let i = 0; i < 39; i += 1) {
+        cookie += str.charAt(Math.floor(Math.random() * str.length));
+      }
+      return `wjgl_device_id=${cookie};`;
+    };
+    const cookie = cookieStr(),
+      htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        headers: {
+          'Upgrade-Insecure-Requests': 1,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          cookie
+        }
+      };
+    let cid = '';
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频请求失败', err);
+        callback(err, { code: 103, p: 52 });
+        return;
+      }
+      result = result.body.replace(/[\n\s\r]/g, '');
+      cid = result.match(/gcid='(\w*)/);
+      if (!cid) {
+        callback(err, { code: 103, p: 52 });
+        return;
+      }
+      this.youliaoComment(userVal, cid[1], cookie, (e, user) => {
+        if (e) {
+          callback(e, { code: 105, p: 52 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  youliaoComment(userVal, cid, cookie, callback) {
+    const option = {
+      url: 'http://wjgl.xlmc.xunlei.com/api/index/comment_list',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'X-Requested-With',
+        cookie
+      },
+      data: {
+        tid: cid,
+        typeId: 1,
+        type: 'loadmore',
+        pageSize: 20,
+        category: 'new'
+      }
+    };
+    let cycle = true,
+      user, lastId = '';
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.data.lastId = lastId;
+        request.post(logger, option, (err, result) => {
+          if (err) {
+            logger.error('列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('列表数据解析失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.conmments || !result.conmments.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          for (const value of result.conmments) {
+            if (userVal == value.comment.replace(/\s/g, '')) {
+              user = {
+                id: value.uid,
+                name: value.userName,
+                avatar: value.userImg,
+                p: 52
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          lastId = result.conmments[result.conmments.length - 1].cid;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
 }
 module.exports = DealWith;

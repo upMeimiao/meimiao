@@ -114,7 +114,7 @@ class dealWith {
       () => index < comments.length,
       (cb) => {
         time = comments[index].time;
-        if (task.commentId == comments[index].cid || task.commentTime >= time) {
+        if (task.commentId == comments[index].id || task.commentTime >= time) {
           task.isEnd = true;
           callback();
           return;
@@ -136,6 +136,7 @@ class dealWith {
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
+        logger.debug(comment);
         index += 1;
         cb();
       },

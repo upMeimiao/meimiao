@@ -292,6 +292,9 @@ class spiderCore {
       case 'share.musemuse.cn':
         this.handle.museHandle(ctx, remote);
         break;
+      case 'wjgl.xlmc.xunlei.com':
+        this.handle.youliaoHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');
