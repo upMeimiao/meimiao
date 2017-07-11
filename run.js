@@ -414,7 +414,7 @@ const youliao = () => {
 const kaiyan = () => {
   settings.logger = logging.getLogger('开眼', options.i, logLevel);
   settings.instance = options.i;
-  const spider = new (require(`${spiderDir}youliao`))(settings);
+  const spider = new (require(`${spiderDir}kaiyan`))(settings);
   spider.start();
 };
 const test = () => {

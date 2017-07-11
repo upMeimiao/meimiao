@@ -106,5 +106,9 @@
   "xiaokaxiu": "https://api.xiaokaxiu.com/comment/api/get_comments",
   "shanka": "http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetFeedCommentList&data=",
   "naitang": "https://toffee.app.tvfanqie.com/iphone/comment/list?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&videoid=",
-  "youliao": "http://wjgl.xlmc.xunlei.com/api/index/comment_list"
+  "youliao": "http://wjgl.xlmc.xunlei.com/api/index/comment_list",
+  "kaiyan": {
+    "time": "https://baobab.kaiyanapp.com/api/v2/replies/video?videoId=",
+    "hot": "https://baobab.kaiyanapp.com/api/v2/replies/hot?videoId="
+  }
 }
