@@ -186,6 +186,9 @@ then
             '奶糖')
                 ssh root@${loop} 'pm2 stop 奶糖'
                 ;;
+            '有料')
+                ssh root@${loop} 'pm2 stop 有料'
+                ;;
             esac
             echo
             echo "--------------$2 视频服务停止完成，退出服务器 $loop --------------"
@@ -344,6 +347,9 @@ then
                 ;;
             '奶糖')
                 ssh root@${loop} 'pm2 stop 奶糖'
+                ;;
+            '有料')
+                ssh root@${loop} 'pm2 stop 有料'
                 ;;
             esac
             echo

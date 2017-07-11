@@ -286,6 +286,11 @@
       "user": "https://toffee.app.tvfanqie.com/iphone/user/detail?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&type=2&vr=2.3.0&userid=",
       "list": "https://toffee.app.tvfanqie.com/iphone/user/mylist?ch=AppStore&fquc=&ios_ver=10.3.2&isAppend=0&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&userid="
     },
+    "muse": {
+      "user": "https://share.musemuse.cn/api/user/share-info?userCode=",
+      "list": "https://mus-api-prod.zhiliaoapp.com/rest/discover/musical/owned_v2/list?limit=20&___d=eyJhYyI6IkxJU1QiLCJieiI6Im11c2ljYWxzX293bmVkIiwiZG0iOiJNVVNJQ0FMIiwidmVyIjoidjIifQ%3D%3D&target_user_id=",
+      "video": "https://www.musical.ly/api/musical/share-info-musical?musicalCode="
+    },
     "youliao": {
       "user": "http://wjgl.xlmc.xunlei.com/api/index/user_getRa2UserInfo?userId=",
       "list": "http://wjgl.xlmc.xunlei.com/api/index/file_list",
