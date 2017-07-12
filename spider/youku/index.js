@@ -21,6 +21,7 @@ class spiderCore {
   assembly() {
     this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`);
     this.cache_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.cache_db}`);
+    this.test_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/15`);
     if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
       this.deal();
     } else {

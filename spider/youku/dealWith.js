@@ -365,6 +365,9 @@ class dealWith {
           step: result.down_count,
           a_create_time: video.publishtime
         };
+        // if (task.id === '401218607' || task.id === '715543674') {
+        //   this.core.test_db
+        // }
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
