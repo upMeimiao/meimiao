@@ -13,7 +13,7 @@ const monitorClint = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.
 });
 const _saveInactiveLog = (info) => {
   const numArr = [];
-  for (let i = 0; i < 51; i += 1) {
+  for (let i = 0; i < 54; i += 1) {
     numArr[i] = 0;
   }
   for (const [index, item] of info.entries()) {
