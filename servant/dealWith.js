@@ -3151,5 +3151,43 @@ class DealWith {
       callback(null, res);
     });
   }
+  jd(data, callback) {
+    const vid = URL.parse(data, true).query.id,
+      options = {
+        url: `https://api.m.jd.com/client.action?functionId=jdDiscoveryArticleDetail&body={"id":"${vid}"}&client=wh5&clientVersion=1.0.0&_=1499770426825`,
+        ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+      };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 54 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback('e', { code: 102, p: 54 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('解析失败', result.body);
+        callback(e, { code: 102, p: 54 });
+        return;
+      }
+      if (!result || !result.data) {
+        callback('e', { code: 102, p: 54 });
+        return;
+      }
+      res = {
+        id: result.data.authorId,
+        name: result.data.authorName,
+        avatar: `http://m.360buyimg.com/${result.data.authorPic}`,
+        p: 54
+      };
+      callback(null, res);
+    });
+  }
 }
 module.exports = DealWith;

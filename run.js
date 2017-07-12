@@ -417,6 +417,12 @@ const eyepetizer = () => {
   const spider = new (require(`${spiderDir}eyepetizer`))(settings);
   spider.start();
 };
+const jd = () => {
+  settings.logger = logging.getLogger('京东视频', options.i, logLevel);
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}jd`))(settings);
+  spider.start();
+};
 const test = () => {
   settings.logger = logging.getLogger('测试', options.i, logLevel);
   settings.instance = options.i;
@@ -606,6 +612,9 @@ switch (options.a) {
     break;
   case 'eyepetizer':
     eyepetizer();
+    break;
+  case 'jd':
+    jd();
     break;
   case 'test':
     test();
