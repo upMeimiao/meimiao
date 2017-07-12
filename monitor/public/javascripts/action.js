@@ -100,7 +100,8 @@ const platform = [
   { id: 49, name: '小咖秀' },
   { id: 50, name: '闪咖' },
   { id: 51, name: '奶糖' },
-  { id: 52, name: '有料' }
+  { id: 52, name: '有料' },
+  { id: 53, name: '开眼Eyepetizer' }
 ];
 const platformMap = new Map()
 for (let [index, elem] of platform.entries()) {

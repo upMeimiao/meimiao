@@ -411,10 +411,10 @@ const youliao = () => {
   const spider = new (require(`${spiderDir}youliao`))(settings);
   spider.start();
 };
-const kaiyan = () => {
+const eyepetizer = () => {
   settings.logger = logging.getLogger('开眼', options.i, logLevel);
   settings.instance = options.i;
-  const spider = new (require(`${spiderDir}kaiyan`))(settings);
+  const spider = new (require(`${spiderDir}eyepetizer`))(settings);
   spider.start();
 };
 const jd = () => {
@@ -610,8 +610,8 @@ switch (options.a) {
   case 'youliao':
     youliao();
     break;
-  case 'kaiyan':
-    kaiyan();
+  case 'eyepetizer':
+    eyepetizer();
     break;
   case 'jd':
     jd();

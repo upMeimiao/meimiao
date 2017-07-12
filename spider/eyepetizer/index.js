@@ -56,8 +56,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('kaiyan', this.settings.concurrency, (job, done) => {
-      logger.trace('Get kaiyan task!');
+    queue.process('eyepetizer', this.settings.concurrency, (job, done) => {
+      logger.trace('Get eyepetizer task!');
       const work = job.data,
         key = `${work.p}:${work.id}`;
       logger.info(work);

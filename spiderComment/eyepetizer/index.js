@@ -71,8 +71,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_kaiyan', this.settings.concurrency, (job, done) => {
-      logger.trace('Get kaiyan task!');
+    queue.process('comment_eyepetizer', this.settings.concurrency, (job, done) => {
+      logger.trace('Get eyepetizer task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
@@ -91,8 +91,8 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_kaiyan', this.settings.concurrency, (job, done) => {
-      logger.trace('Get kaiyan task!');
+    queue.process('comment_update_eyepetizer', this.settings.concurrency, (job, done) => {
+      logger.trace('Get eyepetizer task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
       logger.info(work);
