@@ -56,7 +56,8 @@ class Handle {
           bid: result.id,
           bname: result.name,
           type: result.type ? result.type : 0,
-          encodeId: result.encode_id ? result.encode_id : ''
+          encodeId: result.encode_id ? result.encode_id : '',
+          avatar: result.avatar || ''
         }
       };
     }
@@ -338,6 +339,41 @@ class Handle {
   }
   gumiHandle(ctx, verifyData) {
     dealWith.gumi(verifyData, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  douyinHandle(ctx, verifyData) {
+    dealWith.douyin(verifyData, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  aipaiHandle(ctx, verifyData) {
+    dealWith.aipai(verifyData, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  shankaHandle(ctx, verifyData) {
+    dealWith.shanka(verifyData, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  naitangHandle(ctx, verifyData) {
+    dealWith.naitang(verifyData, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  youliaoHandle(ctx, verifyData) {
+    dealWith.youliao(verifyData, (err, result) => {
       ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
       ctx.res.writeHead(200);
       ctx.res.end(JSON.stringify(this.preResult(err, result)));

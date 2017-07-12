@@ -146,7 +146,7 @@ class hostTime {
           c_user: {
             uid: comments[index].user ? comments[index].user.userId : comments[index].userId,
             uname: comments[index].user ? comments[index].user.userName : '',
-            avatar: comments[index].user ? comments[index].user.avatarLarge : ''
+            uavatar: comments[index].user ? comments[index].user.avatarLarge : ''
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_update_cache', comment);

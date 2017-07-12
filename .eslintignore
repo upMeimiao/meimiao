@@ -8,6 +8,7 @@ spider/facebook/casper.js
 spider/facebook/loginFacebook.js
 oneTimeTask/avatar/*.js
 authenticate/dealWith-v1.js
+#authenticate/dealWith.js
 lib/req.js
 monitorSpider/**/*.js
 monitor/controllers/mSpiderServer.js

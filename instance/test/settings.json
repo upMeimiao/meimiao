@@ -60,7 +60,8 @@
     },
     "acfun": {
       "userInfo": "http://api.aixifan.com/users/",
-      "media": "http://www.aixifan.com/u/contributeList.aspx?pageSize=10&channelId=0&userId="
+      "media": "http://www.aixifan.com/u/contributeList.aspx?pageSize=10&channelId=0&userId=",
+      "programList":"http://api.app.acfun.cn/apiserver/user/contribution?app_version=4.4.1&market=appstore&origin=ios&pageSize=20&resolution=1242x2208&sys_name=ios&sys_version=10.2&type=2&userId="
     },
     "baidu": {
       "videoAlbum":"http://v.baidu.com/i/albumlist?type=2&id=",
@@ -81,7 +82,8 @@
     "bili": {
       "userInfo": "http://space.bilibili.com/ajax/member/GetInfo",
       "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
-      "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid="
+      "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
+      "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid="
     },
     "btime": {
       "userInfo": "http://record.btime.com/getUserChannel?uid=",
@@ -163,14 +165,18 @@
       "videoList":"http://api.tv.sohu.com/v4/user/video.json?page_size=20&with_fee_video=2&page=",
       "videoInfo": "http://s1.api.tv.itc.cn/v4/video/info/",
       "digg":"http://score.my.tv.sohu.com/digg/get.do?type=9001&callback=jsonp&vid=",
-      "comment":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=&page_size=1&topic_source_id=bk"
+      "comment":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=&page_size=1&topic_source_id=bk",
+      "programList":"http://my.tv.sohu.com/user/wm/ta/pl.do?sortType=2&size=40&uid=",
+      "programVideolist":"http://my.tv.sohu.com/user/wm/ta/plv.do?size=30&pid="
     },
     "tencent": {
       "user": "http://c.v.qq.com/followcount?low_login=1&otype=json&callback=jsonp&euin=",
       "videoList": "http://c.v.qq.com/vchannelinfo?otype=json&qm=1&sorttype=0&orderflag=0&callback=jsonp&low_login=1&num=25&uin=",
       "commentId": "http://ncgi.video.qq.com/fcgi-bin/video_comment_id?op=1&otype=json&callback=jsonp&vid=",
       "commentNum": "http://coral.qq.com/article/",
-      "view": "http://data.video.qq.com/fcgi-bin/data?tid=376&appid=10001007&appkey=e075742beb866145&callback=jsonp&low_login=1&otype=json&idlist="
+      "view": "http://data.video.qq.com/fcgi-bin/data?tid=376&appid=10001007&appkey=e075742beb866145&callback=jsonp&low_login=1&otype=json&idlist=",
+      "programList":"http://c.v.qq.com/vchannelinfo?otype=json&qm=2&num=20&sorttype=0&orderflag=0&callback=jsonp&low_login=1&uin=",
+      "proVideoList":"http://c.v.qq.com/vchannelinfo?otype=json&qm=3&num=30&sorttype=0&orderflag=1&callback=jsonp&low_login=1&uin="
     },
     "tudou": {
       "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",
@@ -182,7 +188,9 @@
       "userInfo": "http://push.my.tv.sohu.com/user/a/fa/count.do",
       "list": "http://my.tv.sohu.com/user/wm/56ta/v.do?sortType=2&size=20&callback=jsonp&uid=",
       "video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
-      "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk"
+      "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk",
+      "programList":"http://my.tv.sohu.com/user/wm/ta/pl.do?sortType=2&size=40&uid=",
+      "programVideolist":"http://my.tv.sohu.com/user/wm/ta/plv.do?size=30&pid="
     },
     "v1": {
       "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid=",
@@ -237,11 +245,12 @@
     },
     "facebook":{
       "list": "https://www.facebook.com/ajax/pagelet/generic.php/PagesVideoHubVideoContainerPagelet?dpr=1&data=",
+      "userList": "https://www.facebook.com/ajax/pagelet/generic.php/TimelineMedleyView?dpr=1&ajaxpipe=1&ajaxpipe_token=AXjFmSJv5Zyf4HRV&no_script_path=1&ajaxpipe_fetch_stream=1&data=",
+      "userList2": "https://www.facebook.com/ajax/pagelet/generic.php/VideosByUserAppCollectionPagelet?dpr=1&data=",
       "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',",
       "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
       "auth": [
-        {"email": "1425423221@qq.com","pass": "hui11111"},
-        {"email": "2781800124@qq.com","pass": "hui11111"}
+        {"email": "15910630070 ","pass": "15910630070 "}
       ]
     },
     "bolo":{
@@ -256,6 +265,41 @@
     "gumi": {
       "list": "http://www.migudm.cn/userPage/index.html?pageSize=20&opusType=8&userId=",
       "comment": "http://m.migudm.cn/opus/topic/list.html?opusType=29&hwOpusId="
+    },
+    "douyin": {
+      "user": "https://aweme.snssdk.com/aweme/v1/user/?user_id=",
+      "list": "https://www.amemv.com/aweme/v1/aweme/post/?count=50&user_id="
+    },
+    "aipai": {
+      "user": "http://m.aipai.com/mobile/apps/apps.php?module=space&func=RelationCount&bid=",
+      "list": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-userAsset_sort-id_pageSize-50_bid-",
+      "video": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-indexDataNew_assetId-",
+      "comment": "http://m.aipai.com/api/aipaiApp_action-getComment_mobile-1_type-2_page-1_share-1_cid-"
+    },
+    "xiaokaxiu": {
+      "list": "https://v.xiaokaxiu.com/video/web/get_member_videos?limit=10&memberid="
+    },
+    "shanka": {
+      "list": "http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetPersonalPage&data="
+    },
+    "naitang": {
+      "user": "https://toffee.app.tvfanqie.com/iphone/user/detail?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&type=2&vr=2.3.0&userid=",
+      "list": "https://toffee.app.tvfanqie.com/iphone/user/mylist?ch=AppStore&fquc=&ios_ver=10.3.2&isAppend=0&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&userid="
+    },
+    "muse": {
+      "user": "https://share.musemuse.cn/api/user/share-info?userCode=",
+      "list": "https://mus-api-prod.zhiliaoapp.com/rest/discover/musical/owned_v2/list?limit=20&___d=eyJhYyI6IkxJU1QiLCJieiI6Im11c2ljYWxzX293bmVkIiwiZG0iOiJNVVNJQ0FMIiwidmVyIjoidjIifQ%3D%3D&target_user_id=",
+      "video": "https://www.musical.ly/api/musical/share-info-musical?musicalCode="
+    },
+    "youliao": {
+      "user": "http://wjgl.xlmc.xunlei.com/api/index/user_getRa2UserInfo?userId=",
+      "list": "http://wjgl.xlmc.xunlei.com/api/index/file_list",
+      "comment": "http://wjgl.xlmc.xunlei.com/api/index/comment_list"
+    },
+    "kaiyan": {
+      "list": "https://baobab.kaiyanapp.com/api/v4/pgcs/videoList?v=3.8.0&id=",
+      "video": "http://baobab.kaiyanapp.com/api/v1/video/",
+      "programList": "https://baobab.kaiyanapp.com/api/v4/pgcs/detail/playlist?id="
     }
   },
   "servantAPI": {

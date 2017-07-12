@@ -15,10 +15,16 @@ class dealWith {
     logger.trace('DealWith instantiation ...');
   }
   todo(task, callback) {
+    task.isUser = Number(task.id.substring(0, 3));
+    task.userId = task.cookies.match(/c_user=(\d*)/)[1];
     task.total = 0;
     async.series(
       {
         user: (cb) => {
+          if (task.isUser === 100) {
+            cb(null, '用户主页没有粉丝');
+            return;
+          }
           this.getUserInfo(task, (err) => {
             if (err) {
               cb(err);
@@ -28,6 +34,16 @@ class dealWith {
           });
         },
         media: (cb) => {
+          if (task.isUser === 100) {
+            this.getUserList(task, (err) => {
+              if (err) {
+                cb(err);
+                return;
+              }
+              cb(null, '视频信息已返回');
+            });
+            return;
+          }
           this.getListInfo(task, (err) => {
             if (err) {
               cb(err);
@@ -133,6 +149,91 @@ class dealWith {
       }
     });
   }
+  getUserList(task, callback) {
+    const time = parseInt(new Date().getTime() / 1000, 10),
+      option = {
+        url: `${this.settings.spiderAPI.facebook.userList}{"profile_id":"${task.id}","tab_key":"videos","lst":"${task.userId}:${task.id}:${time}"}`,
+        ua: 1,
+        // proxy: 'http://127.0.0.1:56777',
+        Cookie: task.cookies
+      };
+    let token = null,
+      cycle = true,
+      num = 1,
+      cursor = '',
+      tokenList = null,
+      videolist = null,
+      $ = null;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        if (num !== 1) {
+          option.url = `${this.settings.spiderAPI.facebook.userList2}{"collection_token":"${token}","cursor":"${cursor}","disablepager":false,"overview":false,"profile_id":"${task.id}","tab_key":"videos","lst":"${task.userId}:${task.id}:${time}","ftid":null,"order":null,"sk":"videos","importer_state":null}&__user=${task.userId}&__a=1&__spin_t=${time}`;
+        }
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('用户视频列表接口请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            if (num === 1) {
+              result = result.body.replace(/[\n\r]/g, '');
+              result = result.split('/*<!-- fetch-stream -->*/');
+              result = JSON.parse(result[3]);
+            } else {
+              result = JSON.parse(result.body.replace('for (;;);', ''));
+            }
+          } catch (e) {
+            logger.error('用户列表解析失败', result);
+            cb();
+            return;
+          }
+          if (num === 1) {
+            tokenList = result.content.payload.jsmods.require;
+            for (const [key, value] of tokenList.entries()) {
+              if (value[1] == 'enableContentLoader') {
+                token = value[3][0].replace('pagelet_timeline_app_collection_', '');
+                cursor = value[3][2];
+                $ = cheerio.load(result.content.payload.content[value[3][0]]);
+                videolist = $('ul li');
+                num = 2;
+                break;
+              }
+            }
+          } else {
+            if (!result.payload || result.payload == '') {
+              cycle = false;
+              cb();
+              return;
+            }
+            tokenList = result.jsmods.require;
+            $ = cheerio.load(result.payload);
+            videolist = $('ul li');
+            for (const [key, value] of tokenList.entries()) {
+              if (value[1] == 'enableContentLoader') {
+                if (token != value[3][0]) {
+                  token = value[3][0].replace('pagelet_timeline_app_collection_', '');
+                  cursor = value[3][2];
+                  break;
+                }
+                cycle = false;
+                cb();
+                return;
+              }
+            }
+          }
+          task.total += videolist.length;
+          this.deal(task, videolist, () => {
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
+  }
   getListInfo(task, callback) {
     const option = {
       ua: 1,
@@ -196,9 +297,15 @@ class dealWith {
     );
   }
   getMedia(task, video, callback) {
-    let aid = video.find('div._3v4h>a').attr('href');
-    aid = aid ? aid.split('/')[3] : video.find('div._5asl>a.__-q').attr('href').split('/')[3];
+    let aid = video.find('div._3v4h>a').attr('href'),
+      img = video.find('div._46-h img').attr('src');
     const time = video.find('div._5ig6').text();
+    if (task.isUser === 100) {
+      aid = video.attr('data-fbid');
+      img = video.find('img').attr('src');
+    } else {
+      aid = aid ? aid.split('/')[3] : video.find('div._5asl>a.__-q').attr('href').split('/')[3];
+    }
     async.series(
       [
         (cb) => {
@@ -223,7 +330,7 @@ class dealWith {
           aid,
           title: result[0].title,
           desc: result[0].desc,
-          v_img: video.find('div._46-h img').attr('src'),
+          v_img: img,
           support: result[0].ding,
           comment_num: result[0].commentNum,
           play_num: result[0].playNum,
@@ -231,11 +338,10 @@ class dealWith {
           long_t: spiderUtils.longTime(time),
           a_create_time: result[0].time
         };
-        // logger.debug(media);
         media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        // spiderUtils.commentSnapshots(this.core.taskDB,
-        //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+        spiderUtils.commentSnapshots(this.core.taskDB,
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
       }
     );
@@ -249,7 +355,6 @@ class dealWith {
       Cookie: task.cookies,
     };
     option.url = option.url.replace(/'/g, '"').replace(/[\\]/g, '');
-    // logger.debug(option);
     let dataJson = null,
       time, title, desc, playNum, commentNum, ding, sharecount, $, _$, vImg;
     option.url = option.url.toString().replace(/'/g, '"');

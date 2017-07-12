@@ -19,6 +19,10 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
+    if (task.id === '1816475038') {
+      callback(null, task.total);
+      return;
+    }
     async.parallel(
       [
         (cb) => {
@@ -151,18 +155,20 @@ class dealWith {
           if (err) {
             logger.error('接口请求错误 : ', err);
             if (num <= 1) {
-              return setTimeout(() => {
+              setTimeout(() => {
                 num += 1;
                 logger.debug('300毫秒之后重新请求一下当前列表');
                 cb();
               }, 300);
+              return;
             }
-            return setTimeout(() => {
+            setTimeout(() => {
               start += 10;
               num = 0;
               logger.debug('300毫秒之后重新请求下一页列表');
               cb();
             }, 300);
+            return;
           }
           num = 0;
           try {
@@ -170,38 +176,43 @@ class dealWith {
           } catch (e) {
             logger.error('json数据解析失败');
             logger.info(result);
-            return callback(e);
+            callback(e);
+            return;
           }
           if (!result.data) {
             if (num <= 1) {
-              return setTimeout(() => {
+              setTimeout(() => {
                 num += 1;
                 logger.debug('300毫秒之后重新请求一下');
                 cb();
               }, 300);
+              return;
             }
-            return setTimeout(() => {
+            setTimeout(() => {
               num = 0;
               start += 10;
               logger.debug('300毫秒之后重新请求下一页列表');
               cb();
             }, 300);
+            return;
           }
           num = 0;
           if (!result.data.friend_data) {
             if (num <= 1) {
-              return setTimeout(() => {
+              setTimeout(() => {
                 num += 1;
                 logger.debug('300毫秒之后重新请求一下');
                 cb();
               }, 300);
+              return;
             }
-            return setTimeout(() => {
+            setTimeout(() => {
               num = 0;
               start += 10;
               logger.debug('300毫秒之后重新请求下一页列表');
               cb();
             }, 300);
+            return;
           }
           num = 0;
           const length = result.data.friend_data.length - 1;
@@ -210,7 +221,8 @@ class dealWith {
             logger.debug('已经没有数据');
             page = 0;
             sign += 1;
-            return cb();
+            cb();
+            return;
           }
           this.deal(task, result.data, length, () => {
             sign += 1;
@@ -297,24 +309,31 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('单个视频请求失败 ', err);
-        return callback(null, '抛掉当前的');
+        callback(null, '抛掉当前的');
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.error('_Callback数据解析失败');
         logger.info(result);
-        return callback(null, '抛掉当前的');
+        callback(null, '抛掉当前的');
+        return;
       }
       if (!result.data) {
-        return callback(null, '抛掉当前的');
+        callback(null, '抛掉当前的');
+        return;
       }
       result = result.data.all_videolist_data[0];
       if (!result || !result.singlefeed) {
-        return callback(null, '抛掉当前的');
+        callback(null, '抛掉当前的');
+        return;
       }
       if (result.singlefeed['1'] && result.singlefeed['1'].user && result.singlefeed['1'].user.uin != task.id) {
-        // logger.debug('当前视频被删掉或者是数据错误');
+        callback(null, '抛掉当前的');
+        return;
+      }
+      if (result.singlefeed['2'] && result.singlefeed['2'].cellid != video.key) {
         callback(null, '抛掉当前的');
         return;
       }
@@ -335,13 +354,15 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('评论总量请求失败');
-        return callback(null, '');
+        callback(null, '');
+        return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
         logger.debug('评论量数据解析失败');
-        return callback(null, '');
+        callback(null, '');
+        return;
       }
       callback(null, result);
     });

@@ -24,7 +24,7 @@
     "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=600&area=%E4%B8%AD%E5%9B%BD&protocol=1&method=1&an_tr=1&an_an=1&an_ha=1&sp1=1&sp2=1&quality=1&f_pr=1&format=json&sep=1",
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
   },
-  "url": "http://100.98.39.12/index.php/Spider/videoCommO/getUpdateV?limit=6000",
+  "url": "http://100.98.39.12/index.php/Spider/videoCommO/getUpdateV?limit=2000",
   "sendUrl": "http://100.98.39.12/index.php/Spider/comment/postComments",
   "youku":{
     "list":"http://p.comments.youku.com/ycp/comment/pc/commentList?app=100-DDwODVkv&objectType=1&listType=0&pageSize=30&objectId=",
@@ -85,7 +85,7 @@
   "qzone":"https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?num=20&uin=",
   "cctv":"http://bbs.cntv.cn/api/?module=post&method=getchannelposts&channel=xiyou&perpage=10&itemid=video_",
   "xinlan":"http://api.my.cztv.com/api/list?type=video&rows=20",
-  "v1":"http://user.v1.cn/ucommnet/get.json?videoId=",
+  "v1":"http://app.v1.cn/comment/getList?pcode=010210000&version=6.1.2&devid=1098B90D-3A6F-41B2-9F03-ED7D66FA69C2&plat=1002",
   "huashu":{
     "getSid":"http://clientapi.wasu.cn/AggPhone/vodinfo/id/",
     "topicId":"http://changyan.sohu.com/api/3/topic/liteload?client_id=cyrHNCs04&topic_category_id=37&page_size=10&hot_size=10&topic_source_id=",
@@ -100,5 +100,15 @@
     "comment":"http://m.weibo.cn/article/rcMod?type=comment&id=",
     "hot":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=1&page=",
     "time":"http://m.weibo.cn/single/rcList?format=cards&type=comment&hot=0&page="
+  },
+  "douyin": "https://aweme.snssdk.com/aweme/v1/comment/list/?count=20&aweme_id=",
+  "aipai": "http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-",
+  "xiaokaxiu": "https://api.xiaokaxiu.com/comment/api/get_comments",
+  "shanka": "http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetFeedCommentList&data=",
+  "naitang": "https://toffee.app.tvfanqie.com/iphone/comment/list?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&videoid=",
+  "youliao": "http://wjgl.xlmc.xunlei.com/api/index/comment_list",
+  "kaiyan": {
+    "time": "https://baobab.kaiyanapp.com/api/v2/replies/video?videoId=",
+    "hot": "https://baobab.kaiyanapp.com/api/v2/replies/hot?videoId="
   }
 }

@@ -18,77 +18,80 @@ class dealWith {
     task.total = 0;
     this.getVidList(task, (err) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       callback(null, task.total);
     });
   }
 
   getVidList(task, callback) {
+    const option = {};
     let sign = 0,
       page = 1,
       month = '';
     async.whilst(
-            () => sign < page,
-            (cb) => {
-              const option = {
-                url: `${this.settings.spiderAPI.mgtv.listVideo + task.id}&month=${month}&_=${(new Date()).getTime()}`
-              };
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.error('接口请求错误 : ', err);
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.error('json数据解析失败');
-                  logger.info(result);
-                  sign++;
-                  page++;
-                  return cb();
-                }
-                const length = result.data.list.length;
-                task.total += length;
-                if (sign >= result.data.tab_m.length) {
-                  logger.debug('已经没有数据');
-                  page = 0;
-                  sign++;
-                  return cb();
-                }
-                month = result.data.tab_m[sign].m;
-                this.deal(task, result.data.list, length, () => {
-                  sign++;
-                  page++;
-                  cb();
-                });
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign < page,
+      (cb) => {
+        option.url = `${this.settings.spiderAPI.mgtv.listVideo + task.id}&month=${month}&_=${(new Date()).getTime()}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('接口请求错误 : ', err);
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            sign += 1;
+            page += 1;
+            cb();
+            return;
+          }
+          const length = result.data.list.length;
+          task.total += length;
+          if (sign >= result.data.tab_m.length) {
+            logger.debug('已经没有数据');
+            page = 0;
+            sign += 1;
+            cb();
+            return;
+          }
+          month = result.data.tab_m[sign].m;
+          this.deal(task, result.data.list, length, () => {
+            sign += 1;
+            page += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, user, length, callback) {
     let index = 0;
     async.whilst(
-            () => index < length,
-            (cb) => {
-              this.getAllInfo(task, user[index], () => {
-                index++;
-                cb();
-              });
-            },
-            (err, data) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        this.getAllInfo(task, user[index], () => {
+          index += 1;
+          cb();
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getAllInfo(task, video, callback) {
     async.parallel([
       (cb) => {
         this.getVideoInfo(task, video, (err, result) => {
           if (err) {
-            return cb(err);
+            cb(err);
+            return;
           }
           cb(null, result);
         });
@@ -96,7 +99,8 @@ class dealWith {
       (cb) => {
         this.getPlayNum(video, (err, result) => {
           if (err) {
-            return cb(err);
+            cb(err);
+            return;
           }
           cb(null, result);
         });
@@ -104,7 +108,8 @@ class dealWith {
       (cb) => {
         this.getClass(video, (err, result) => {
           if (err) {
-            return cb(err);
+            cb(err);
+            return;
           }
           cb(null, result);
         });
@@ -112,7 +117,8 @@ class dealWith {
       (cb) => {
         this.getDesc(task, video, (err, result) => {
           if (err) {
-            return cb(err);
+            cb(err);
+            return;
           }
           cb(null, result);
         });
@@ -120,7 +126,8 @@ class dealWith {
       (cb) => {
         this.getLike(video, (err, result) => {
           if (err) {
-            return cb(err);
+            cb(err);
+            return;
           }
           cb(null, result);
         });
@@ -128,14 +135,16 @@ class dealWith {
       (cb) => {
         this.getComNum(video, (err, result) => {
           if (err) {
-            return cb(err);
+            cb(err);
+            return;
           }
           cb(null, result);
         });
       }
     ], (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       const media = {
         author: task.name,
@@ -143,7 +152,7 @@ class dealWith {
         bid: task.id,
         aid: video.video_id,
         title: video.t1.replace(/"/g, ''),
-        long_t: result[0].info.duration,
+        long_t: result[0].duration,
         v_img: video.img,
         v_url: `http://www.mgtv.com${video.url}`,
         play_num: result[1].all,
@@ -166,13 +175,15 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug(`视频评论数请求失败 ${err}`);
-        return callback(err, null);
+        callback(err, null);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('数据解析失败');
-        return callback(e, null);
+        callback(e, null);
+        return;
       }
       if (!result.total_number) {
         result.total_number = '';
@@ -187,13 +198,15 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug(`视频评论数、点赞量、踩请求失败 ${err}`);
-        return callback(err, null);
+        callback(err, null);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('数据解析失败');
-        return callback(e, null);
+        callback(e, null);
+        return;
       }
       if (!result.data) {
         result.data = {
@@ -205,16 +218,16 @@ class dealWith {
     });
   }
   getDesc(task, video, callback) {
-    let option = {
-        url: `http://www.mgtv.com/b/${task.id}/${video.video_id}.html`
-      },
-      desc = '';
+    const option = {
+      url: `http://www.mgtv.com/b/${task.id}/${video.video_id}.html`
+    };
+    let desc = '';
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug(`描述请求失败 ${err}`);
-        return callback(err, null);
+        callback(err, null);
+        return;
       }
-
       const $ = cheerio.load(result.body);
       desc = $('span.details').text();
       callback(null, desc);
@@ -227,13 +240,15 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug(`视频播放量请求失败 ${err}`);
-        return callback(err, null);
+        callback(err, null);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('数据解析失败');
-        return callback(e, null);
+        callback(e, null);
+        return;
       }
       if (!result.data.fstlvlName) {
         result.data = {
@@ -245,19 +260,21 @@ class dealWith {
   }
   getPlayNum(video, callback) {
     const option = {
-            // 用户的信息后边参数是cid,播放量是vid
+      // 用户的信息后边参数是cid,播放量是vid
       url: `${this.settings.spiderAPI.mgtv.userInfo}vid=${video.video_id}`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug(`视频播放量请求失败 ${err}`);
-        return callback(err, null);
+        callback(err, null);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('数据解析失败');
-        return callback(e, null);
+        callback(e, null);
+        return;
       }
       if (!result.data.all) {
         result.data.all = '';
@@ -272,24 +289,19 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug(`单个视频请求失败 ${err}`);
-        return callback(err, null);
+        callback(err, null);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('数据解析失败');
-        return callback(e, null);
+        callback(e, null);
+        return;
       }
-      if (!result.info) {
-        result.info = {
-          duration: ''
-        };
-      } else if (!result.info.duration) {
-        result.info = {
-          duration: ''
-        };
-      }
-      callback(null, result.data);
+      result.duration = result.info ? result.info.duration : '';
+      result.duration = !result.duration ? result.data.info.duration : '';
+      callback(null, result);
     });
   }
 }

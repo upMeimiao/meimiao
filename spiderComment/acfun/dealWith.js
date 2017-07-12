@@ -30,7 +30,9 @@ class dealWith {
   }
   totalPage(task, callback) {
     const option = {
-      url: `${this.settings.acfun}${task.aid}&currentPage=1`
+      url: `${this.settings.acfun}${task.aid}&currentPage=1`,
+      ua: 1,
+      referer: `http://www.acfun.cn/v/ac${task.aid}`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -74,7 +76,10 @@ class dealWith {
     });
   }
   commentList(task, total, callback) {
-    const option = {};
+    const option = {
+      ua: 1,
+      referer: `http://www.acfun.cn/v/ac${task.aid}`
+    };
     let page = 1;
     async.whilst(
       () => page <= total,

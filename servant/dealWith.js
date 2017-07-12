@@ -654,8 +654,11 @@ class DealWith {
         name: result.data.screen_name || result.data.name,
         avatar: result.data.avatar_url || result.data.big_avatar_url,
         bid: result.data.user_id,
-        id: result.data.ugc_publish_media_id
+        id: result.data.media_id
       };
+      if (Number(res.bid) === Number(res.id)) {
+        res.id = result.data.ugc_publish_media_id;
+      }
       callback(null, res);
     })
   }
@@ -2797,6 +2800,353 @@ class DealWith {
         name: name,
         avatar: avatar,
         p: 46
+      };
+      callback(null, res);
+    });
+  }
+  douyin(data, callback) {
+    const host = URL.parse(data, true).hostname,
+      options = {
+        url: data,
+        ua: 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
+      };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 47 });
+        return;
+      }
+      result = result.body.replace(/[\s\n\r]/g, '');
+      const start = result.indexOf('[{"status":'),
+        last = result.indexOf(';require(');
+      if (start === -1 || last === -1) {
+        logger.debug('截取失败');
+        callback('error', { code: 102, p: 47 });
+        return;
+      }
+      result = result.substring(start, last);
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.debug('解析失败', result);
+        callback(e, { code: 102, p: 47 });
+        return;
+      }
+      res = {
+        id: result[0].author.uid,
+        name: result[0].author.nickname,
+        avatar: result[0].author.avatar_medium.url_list[0],
+        p: 47
+      };
+      callback(null, res);
+    });
+  }
+  aipai(data, callback) {
+    const options = {
+        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+      };
+    let res = null,
+      vid = data.match(/(\w*)\.html/)[1];
+    options.url = `http://www.aipai.com/c37/${vid}.html`;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 48 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback(error, { code: 102, p: 48 });
+        return;
+      }
+      result = result.body.replace(/[\s\n\r]/g, '');
+      const start = result.indexOf('{"bid":'),
+        last = result.indexOf('||{},//信息文本');
+      if (start === -1 || last === -1) {
+        logger.debug('截取失败');
+        callback('error', { code: 102, p: 48 });
+        return;
+      }
+      result = result.substring(start, last);
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.debug('解析失败', result);
+        callback(e, { code: 102, p: 48 });
+        return;
+      }
+      res = {
+        id: result.bid,
+        name: result.nickname,
+        avatar: result.big,
+        p: 48
+      };
+      callback(null, res);
+    });
+  }
+  xiaokaxiu(data, callback) {
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'ShockwaveFlash/26.0.0.131'
+      }
+    };
+    let res = null, id = null,
+      vid = data.match(/v\/(\w*-*\w*)\.html/)[1];
+    options.url = `http://api.xiaokaxiu.com/video/web/get_play_video?scid=${vid}`;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 49 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback(error, { code: 102, p: 49 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.debug('解析失败', result.body);
+        callback(e, { code: 102, p: 49 });
+        return;
+      }
+      if (!result || Number(result.result) !== 1 || !result.data) {
+        callback(e, { code: 102, p: 49 });
+        return;
+      }
+      id = URL.parse(result.data.avatar, true).pathname.split('/')[4];
+      res = {
+        id,
+        name: result.data.nickname,
+        avatar: result.data.avatar,
+        p: 49
+      };
+      callback(null, res);
+    });
+  }
+  shanka(data, callback) {
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    };
+    let res = null,
+      vid = data.match(/feed_id=(\w*)/)[1];
+    options.url = `http://yingdi.qq.com/cgi/kingGetFeedDetail.php?feed_id=${vid}`;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 50 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback(error, { code: 102, p: 50 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.debug('解析失败', result.body);
+        callback(e, { code: 102, p: 50 });
+        return;
+      }
+      if (!result) {
+        callback(e, { code: 102, p: 50 });
+        return;
+      }
+      res = {
+        id: result.posterId,
+        name: result.posterNick,
+        avatar: result.posterAvatar,
+        p: 50
+      };
+      callback(null, res);
+    });
+  }
+  naitang(data, callback) {
+    const options = {
+      url: data,
+      ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 51 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback('e', { code: 102, p: 51 });
+        return;
+      }
+      const $ = cheerio.load(result.body),
+        ID = $('p.actor-id').text().replace('ID:', '');
+      if (!ID) {
+        callback('e', { code: 102, p: 51 });
+        return;
+      }
+      this.naitangSearch(ID, (error, user) => {
+        if (error) {
+          callback(error, { code: 102, p: 51 });
+          return;
+        }
+        if (Number(user.ID) !== Number(ID)) {
+          logger.error('搜索数据有问题');
+          callback('e', { code: 102, p: 51 });
+          return;
+        }
+        res = {
+          id: user.id,
+          name: user.name,
+          avatar: user.avatar,
+          p: 51
+        };
+        callback(null, res);
+      });
+    });
+  }
+  naitangSearch(id, callback) {
+    const options = {
+      url: `https://toffee.app.tvfanqie.com/iphone/search/userlist?ch=AppStore&fquc=&ios_ver=10.3.2&isAppend=0&kw=${id}&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0`,
+      ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
+    };
+    request.get(options, (err, result) => {
+      if (err) {
+        logger.error('用户搜索失败', err);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('数据解析失败', result.body);
+        callback(e);
+        return;
+      }
+      if (Number(result.error) !== 0 || !result.data || !result.data.list.length || result.data.list.length > 1) {
+        logger.error('当前用户可能不存在(或者数据接口出问题)');
+        callback('e');
+        return;
+      }
+      result = result.data.list[0];
+      callback(null, { id: result.userid, name: result.name, avatar: result.img, ID: result.uidshow })
+    });
+  }
+  // muse(data, callback) {
+  //   const vid = data.match(/(\w*).html/)[1],
+  //     options = {
+  //     url: `https://www.musical.ly/api/musical/share-info-musical?musicalCode=${vid}`,
+  //     ua: 2,
+  //     referer: data
+  //   };
+  //   let res = null;
+  //   request.get(options, (error, result) => {
+  //     if (error) {
+  //       logger.error('视频接口请求失败', error.message);
+  //       callback(error, { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     if (result.statusCode !== 200) {
+  //       logger.error('视频接口状态码', error.message);
+  //       callback(error, { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     try {
+  //       result = JSON.parse(result.body);
+  //     } catch (e) {
+  //       logger.error('视频信息解析失败', result.body);
+  //       callback(error, { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     if (!result.result) {
+  //       callback('e', { code: 102, p: 52 });
+  //       return;
+  //     }
+  //     res = {
+  //       id: result.result.author.userIdStr,
+  //       name: result.result.author.nickName,
+  //       avatar: result.result.author.icon,
+  //       p: 52
+  //     };
+  //     callback(null, res);
+  //   });
+  // }
+  youliao(data, callback) {
+    const options = {
+      url: data,
+      ua: 1
+    };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 52 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback(error, { code: 102, p: 52 });
+        return;
+      }
+      const $ = cheerio.load(result.body),
+        id = $('#userId').attr('data-id');
+      result = result.body.replace(/[\n\s\r]/g, '');
+      const name = result.substring(result.indexOf('nickname=\'') + 10, result.indexOf('\';varheadIconUrl')),
+        avatar = result.substring(result.indexOf('headIconUrl=\'') + 13, result.indexOf('\';varposterUrl'));
+      if (!id || !name) {
+        // logger.debug(id, '---', name);
+        callback('e', { code: 102, p: 52 });
+        return;
+      }
+      res = {
+        id,
+        name,
+        avatar,
+        p: 52
+      };
+      callback(null, res);
+    });
+  }
+  kaiyan(data, callback) {
+    const vid = URL.parse(data, true).query.vid,
+      options = {
+      url: `http://baobab.kaiyanapp.com/api/v1/video/${vid}`,
+      ua: 'Eyepetizer/3107 CFNetwork/811.5.4 Darwin/16.6.0'
+    };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 53 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback('e', { code: 102, p: 53 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('解析失败', result.body);
+        callback(e, { code: 102, p: 53 });
+        return;
+      }
+      if (!result || !result.author) {
+        callback('e', { code: 102, p: 53 });
+        return;
+      }
+      res = {
+        id: result.author.id,
+        name: result.author.name,
+        avatar: result.author.icon,
+        p: 53
       };
       callback(null, res);
     });

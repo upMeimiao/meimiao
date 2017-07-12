@@ -213,6 +213,28 @@ class spiderCore {
       case 'm.migudm.cn':
         handle.gumiHandle(ctx, verifyData);
         break;
+      case 'www.douyin.com':
+      case 'www.amemv.com':
+        handle.douyinHandle(ctx, verifyData);
+        break;
+      case 'www.aipai.com':
+      case 'm.aipai.com':
+        handle.aipaiHandle(ctx, verifyData);
+        break;
+      case 'v.xiaokaxiu.com':
+      case 'm.xiaokaxiu.com':
+        handle.xiaokaxiuHandle(ctx, verifyData);
+        break;
+      case 'yingdi.qq.com':
+      case 'shaka.qq.com':
+        handle.shankaHandle(ctx, verifyData);
+        break;
+      case 'www.naitang.tv':
+        handle.naitangHandle(ctx, verifyData);
+        break;
+      case 'wjgl.xlmc.xunlei.com':
+        handle.youliaoHandle(ctx, verifyData);
+        break;
       default:
         res.setHeader('Content-Type', 'text/plain;charset=utf-8');
         res.writeHead(200);

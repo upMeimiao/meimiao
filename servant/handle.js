@@ -388,5 +388,61 @@ class Handle {
       ctx.res.end(JSON.stringify(this.preResult(err, result)));
     });
   }
+  douyinHandle(ctx, remote) {
+    dealWith.douyin(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  aipaiHandle(ctx, remote) {
+    dealWith.aipai(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  xiaokaxiuHandle(ctx, remote) {
+    dealWith.xiaokaxiu(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  shankaHandle(ctx, remote) {
+    dealWith.shanka(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  naitangHandle(ctx, remote) {
+    dealWith.naitang(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  museHandle(ctx, remote) {
+    dealWith.muse(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  youliaoHandle(ctx, remote) {
+    dealWith.youliao(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
+  kaiyanHandle(ctx, remote) {
+    dealWith.kaiyan(remote, (err, result) => {
+      ctx.res.setHeader('Content-Type', 'text/plain;charset=utf-8');
+      ctx.res.writeHead(200);
+      ctx.res.end(JSON.stringify(this.preResult(err, result)));
+    });
+  }
 }
 module.exports = Handle;

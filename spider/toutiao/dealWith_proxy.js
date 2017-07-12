@@ -256,11 +256,11 @@ class dealWith {
                 return;
               }
               proxyStatus = false;
-              this.core.proxy.back(proxy, true);// 原来是false
+              this.core.proxy.back(proxy, false);// 原来是false
               cb();
               return;
             }
-            if (Number(result.has_more) === 0 && bid !== task.encodeId) {
+            if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
               bid = task.encodeId;
               cb();
               return;
@@ -314,13 +314,13 @@ class dealWith {
                   return;
                 }
                 proxyStatus = false;
-                this.core.proxy.back(_proxy, true);// 原来是false
+                this.core.proxy.back(_proxy, false);// 原来是false
                 cb();
                 return;
               }
               proxyStatus = true;
               proxy = _proxy;
-              if (Number(result.has_more) === 0 && bid !== task.encodeId) {
+                if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
                 bid = task.encodeId;
                 cb();
                 return;

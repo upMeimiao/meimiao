@@ -40,8 +40,13 @@ class dealWith {
         callback(e);
         return;
       }
-      if (result.infoList.length === 0) {
-        callback('异常错误');
+      // logger.debug(result);
+      if (!result.infoList || !result.infoList.length) {
+        if (task.id === '12') {
+          callback();
+        } else {
+          callback('异常错误');
+        }
         return;
       }
       task.total = result.infoList[0].weMedia.totalNum;
@@ -66,12 +71,12 @@ class dealWith {
             cb(null, '视频信息已返回');
           });
         }
-      }, (err, result) => {
+      }, (err, res) => {
         if (err) {
           callback(err);
           return;
         }
-        logger.debug('result:', result);
+        logger.debug('result:', res);
         callback();
       });
     });
@@ -134,7 +139,7 @@ class dealWith {
       ua: 3,
       own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
     };
-    if (page == 0) {
+    if (page === 0) {
       page = 1;
     }
     async.whilst(
@@ -218,15 +223,15 @@ class dealWith {
           (cb) => {
             option.url = `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${video.memberItem.guid}ding&format=js&serverid=1&var=ding`;
             option.own_ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36';
-            this._ding(option, (err, result) => {
-              cb(result);
+            this._ding(option, (err, res) => {
+              cb(res);
             });
           },
           (cb) => {
             option.url = `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${video.memberItem.guid}cai&format=js&serverid=1&var=cai`;
             option.own_ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36';
-            this._cai(option, (err, result) => {
-              cb(result);
+            this._cai(option, (err, res) => {
+              cb(res);
             });
           }
         ],

@@ -7,6 +7,7 @@ const request = require('../lib/request');
 const async = require('neo-async');
 const req = require('request');
 const crypto = require('crypto');
+const zlib = require('zlib');
 
 const sign = (e) => {
   const md5 = crypto.createHash('md5');
@@ -2405,7 +2406,7 @@ class DealWith {
           'X-Requested-With': 'XMLHttpRequest'
         },
         data: {
-          vid: vid
+          vid
         }
       };
     let lastid = 0,
@@ -2464,8 +2465,6 @@ class DealWith {
     const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
       urlObj = URL.parse(htmlUrl, true),
-      // host    = urlObj.hostname,
-      // path    = urlObj.pathname,
       aid = urlObj.query.v,
       user = {},
       option = {
@@ -2473,7 +2472,6 @@ class DealWith {
         proxy: 'http://127.0.0.1:56777',
         method: 'GET',
         headers: {
-          // referer: `https://www.youtube.com/channel/${task.bid}`,
           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
           'accept-language': 'zh-CN,zh;q=0.8',
           cookie: 'PREF=f5=30&fms2=10000&fms1=10000&al=zh-CN&f1=50000000; VISITOR_INFO1_LIVE=G3t2ohxkCtA; YSC=24sBeukc1vk;'
@@ -2497,7 +2495,6 @@ class DealWith {
       user.page_token = body.match(/'COMMENTS_TOKEN':"[\w%]*/).toString().replace(/'COMMENTS_TOKEN':"/, '').replace('",', '');
       user.userVal = userVal;
       user.aid = aid;
-      // logger.debug('第一步');
       this.ytbTimeComment(user, (err, users) => {
         if (err) {
           callback(err, { code: 103, p: 39 });
@@ -2540,7 +2537,6 @@ class DealWith {
         callback(e);
         return;
       }
-      // logger.debug('第二步');
       const $ = cheerio.load(body.body['watch-discussion']);
       user.page_token = $('div.yt-uix-menu.comment-section-sort-menu>div.yt-uix-menu-content>ul>li').eq(1).find('button').attr('data-token').replace(/(253D)/g, '3D');
       this.ytbCommentList(user, (err, users) => {
@@ -2577,7 +2573,7 @@ class DealWith {
             cb();
             return;
           }
-          if (response.statusCode != 200) {
+          if (response.statusCode !== 200) {
             logger.debug(option);
             logger.debug('评论列表状态码错误', response.statusCode);
             cb();
@@ -2590,7 +2586,6 @@ class DealWith {
             cb();
             return;
           }
-          // logger.debug('第三步');
           if (!body.content_html) {
             cycle = false;
             cb();
@@ -2628,8 +2623,8 @@ class DealWith {
     );
   }
   ytbdeal(task, comments, callback) {
-    let length = comments.length,
-      index = 0,
+    const length = comments.length;
+    let index = 0,
       user,
       content,
       comment;
@@ -2643,11 +2638,9 @@ class DealWith {
           name: comment.find('div.comment-renderer div.comment-renderer-header>a').text(),
           p: 39
         };
-        // logger.debug('匹配成功',user);
         callback(null, user);
         return;
       }
-      // logger.debug('匹配失败');
     }
     callback(null, null);
   }
@@ -2667,7 +2660,6 @@ class DealWith {
           cookie: 'datr=uarsWNHwHCDMME4QegGkXoHN;locale=zh_CN;'
         },
         formData: {
-          // ft_ent_identifier:641513322701092,
           offset: 0,
           length: 50,
           orderingmode: 'recent_activity',
@@ -2817,7 +2809,6 @@ class DealWith {
   gumi(verifyData, callback) {
     const htmlUrl = verifyData.remote,
       userVal = verifyData.verifyCode.replace(/\s/g, ''),
-      urlObj = URL.parse(htmlUrl, true),
       vid = htmlUrl.match(/(\d*)\.html/)[1],
       option = {
         headers: {
@@ -2868,6 +2859,504 @@ class DealWith {
       (err, result) => {
         if (err) {
           callback(err, { code: 105, p: 46 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+  douyin(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      vid = htmlUrl.match(/\/video\/(\d*)/)[1],
+      option = {
+        headers: {
+          'user-agent': 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
+        }
+      };
+    let cycle = true,
+      cursor = 0,
+      user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `https://aweme.snssdk.com/aweme/v1/comment/list/?app_name=aweme&aweme_id=${vid}&count=20&cursor=${cursor}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('抖音评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('抖音评论列表解析失败', e);
+            cb();
+            return;
+          }
+          if (!result.comments || !result.comments.length) {
+            cb('error');
+            return;
+          }
+          for (const [key, value] of result.comments.entries()) {
+            if (userVal == value.text.replace(/\s/g, '')) {
+              user = {
+                id: value.user.uid,
+                name: value.user.nickname,
+                p: 47
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          cursor += 20;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err, { code: 105, p: 47 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+  aipai(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      host = URL.parse(htmlUrl, true).hostname,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        headers: {
+          'user-agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
+        }
+      };
+    let vid = null;
+    if (host === 'www.aipai.com') {
+      option.url = htmlUrl.replace('http://www.aipai.com/c', 'http://m.aipai.com/m');
+    }
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频详情请求失败', err);
+        callback(err, { code: 103, p: 48 });
+        return;
+      }
+      result = result.body.replace(/[\s\r\n]/g, '');
+      vid = result.match(/asset_id="(\d*)/);
+      if (!vid) {
+        logger.error('DOM数据可能有问题');
+        callback('err', { code: 103, p: 48 });
+        return;
+      }
+      this.aipaiComment(userVal, vid[1], (error, user) => {
+        if (error) {
+          callback(error, { code: 105, p: 48 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  aipaiComment(userVal, vid, callback) {
+    const option = {
+      ua: 3,
+      own_ua: 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
+    };
+    let cycle = true,
+      page = 1,
+      user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-${page}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${vid}.html`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('抖音评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('抖音评论列表解析失败', e);
+            cb();
+            return;
+          }
+          if (!result.list || !result.list.length) {
+            cb('error');
+            return;
+          }
+          for (const value of result.list) {
+            if (userVal == value.comment.replace(/\s/g, '')) {
+              user = {
+                id: value.bid,
+                name: value.nick,
+                p: 48
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          page += 1;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+  xiaokaxiu(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      host = URL.parse(htmlUrl, true).hostname,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        headers: {
+          'user-agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
+        }
+      };
+    let vid = null;
+    if (host === 'v.xiaokaxiu.com') {
+      option.url = htmlUrl.replace('https://v.xiaokaxiu.com/v', 'https://m.xiaokaxiu.com/m');
+    }
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频详情请求失败', err);
+        callback(err, { code: 103, p: 49 });
+        return;
+      }
+      const $ = cheerio.load(result.body);
+      vid = $('div.sp a').attr('class').match(/btnOpenApp(\d*)/);
+      if (!vid) {
+        logger.error('DOM数据可能有问题');
+        callback('err', { code: 103, p: 49 });
+        return;
+      }
+      this.xiaokaxiuComment(userVal, vid[1], (error, user) => {
+        if (error) {
+          callback(error, { code: 105, p: 49 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  xiaokaxiuComment(userVal, vid, callback) {
+    const option = {
+      url: 'https://api.xiaokaxiu.com/comment/api/get_comments',
+      encoding: 1,
+      headers: {
+        'User-Agent': 'YXCaptureApp/1.7.6 (iPhone; iOS 10.3.2; Scale/3.00)',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: {
+        _secdata: 'fCuZ0_Ms-qbyC4qqBOeeoMQy8R5R2hUJvIVd6fWGz0nLP1Pv2ohw19C6xI6dSjkapKvrMNoEDkqaSe3_Vhg2WvCrtCSjqLaW_Y5uP8vqFNR4iTaKSaSH5k7m8AVpQrckFxDVyYyLKrHmwFr06TXTQ_5TJi55BBf_1nc8avzmZTrE-3s9AkP5y8JmownDLlE6wSzczGa3s_qFV_H36O5cX29ij5AVtfFkqfszFzuF2p86w8G9eXondEFTldsc17YBISXniJR1k6v8f6PtiV2xrMpZV6DGzfuYVmPnp6ouEuZoWZ3Mz2Lqd2qHCRcAHjmKbBfraMvpEskjcc7aB_cPrVWqUScztHKtQ3EywufXxPu2dQ4thBArQ3-loiShxdhkkwRJb-ErTpLxC2UF_bDIbFlhShNZxL6_dL42tJr28pf2Ovutg0pELRhNmae-_kasBPqhbbgEaAmy2mcdiKrlrA..',
+        limit: 20,
+        page: 1,
+        videoid: vid
+      }
+    };
+    let page = 1,
+      cycle = true,
+      user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.data.page = page;
+        request.post(logger, option, (err, result) => {
+          if (err) {
+            logger.error('列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(zlib.unzipSync(result.body).toString());
+          } catch (e) {
+            logger.error('列表请求失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.data || !result.data.list || !result.data.list.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          result.data.list = result.data.list.concat(result.data.hotlist);
+          for (const value of result.data.list) {
+            // logger.debug(value);
+            if (userVal == value.content.replace(/\s/, '')) {
+              user = {
+                id: value.memberid,
+                name: value.nickname,
+                p: 49
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          page += 1;
+          cb();
+        });
+      },
+      (err, result) => {
+        callback(err, result);
+      }
+    );
+  }
+  shanka(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      },
+      vid = URL.parse(htmlUrl, true).query.feed_id;
+    let cycle = true, info = '', user;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetFeedCommentList&data={"attach_info":"${info}","feed_id":"${vid}"}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('视频详情请求失败', err);
+            callback(err, { code: 103, p: 50 });
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('解析失败', result.body);
+            callback(err, { code: 103, p: 50 });
+            return;
+          }
+          if (!result.data || !result.data.comments.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          for (const value of result.data.comments) {
+            if (userVal == value.wording.replace(/\s/g, '')) {
+              user = {
+                id: value.poster.id,
+                name: value.poster.nick,
+                p: 50,
+                avatar: value.poster.avatar
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          info = result.data.attach_info;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err, { code: 105, p: 50 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+  naitang(verifyData, callback) {
+    const htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        ua: 1
+      };
+    let vid = '';
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频请求失败', err);
+        callback(err, { code: 103, p: 51 });
+        return;
+      }
+      result = result.body.replace(/[\n\s\r]/g, '');
+      vid = result.match(/varvideoId=(\d*)/);
+      if (!vid) {
+        callback(err, { code: 103, p: 51 });
+        return;
+      }
+      this.naitangComment(userVal, vid[1], (e, user) => {
+        if (e) {
+          callback(e, { code: 105, p: 51 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  naitangComment(userVal, vid, callback) {
+    let cycle = true, start = 0, user;
+    const option = {
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
+    };
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `https://toffee.app.tvfanqie.com/iphone/comment/list?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&videoid=${vid}&start=${start}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('视频详情请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('解析失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.data || !result.data.list.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          for (const value of result.data.list) {
+            if (userVal == value.title.replace(/\s/g, '')) {
+              user = {
+                id: value.userid,
+                name: value.nickname,
+                p: 51,
+                avatar: value.img
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          start += 12;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err, { code: 105, p: 51 });
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+  youliao(verifyData, callback) {
+    const cookieStr = () => {
+      const str = 'qwertyuiopasdfghjklzxcvbnm0123456789';
+      let cookie = '';
+      for (let i = 0; i < 39; i += 1) {
+        cookie += str.charAt(Math.floor(Math.random() * str.length));
+      }
+      return `wjgl_device_id=${cookie};`;
+    };
+    const cookie = cookieStr(),
+      htmlUrl = verifyData.remote,
+      userVal = verifyData.verifyCode.replace(/\s/g, ''),
+      option = {
+        url: htmlUrl,
+        headers: {
+          'Upgrade-Insecure-Requests': 1,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          cookie
+        }
+      };
+    let cid = '';
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频请求失败', err);
+        callback(err, { code: 103, p: 52 });
+        return;
+      }
+      result = result.body.replace(/[\n\s\r]/g, '');
+      cid = result.match(/gcid='(\w*)/);
+      if (!cid) {
+        callback(err, { code: 103, p: 52 });
+        return;
+      }
+      this.youliaoComment(userVal, cid[1], cookie, (e, user) => {
+        if (e) {
+          callback(e, { code: 105, p: 52 });
+          return;
+        }
+        callback(null, user);
+      });
+    });
+  }
+  youliaoComment(userVal, cid, cookie, callback) {
+    const option = {
+      url: 'http://wjgl.xlmc.xunlei.com/api/index/comment_list',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'X-Requested-With',
+        cookie
+      },
+      data: {
+        tid: cid,
+        typeId: 1,
+        type: 'loadmore',
+        pageSize: 20,
+        category: 'new'
+      }
+    };
+    let cycle = true,
+      user, lastId = '';
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.data.lastId = lastId;
+        request.post(logger, option, (err, result) => {
+          if (err) {
+            logger.error('列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('列表数据解析失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.conmments || !result.conmments.length) {
+            cycle = false;
+            cb('error');
+            return;
+          }
+          for (const value of result.conmments) {
+            if (userVal == value.comment.replace(/\s/g, '')) {
+              user = {
+                id: value.uid,
+                name: value.userName,
+                avatar: value.userImg,
+                p: 52
+              };
+              cycle = false;
+              cb(null, user);
+              return;
+            }
+          }
+          lastId = result.conmments[result.conmments.length - 1].cid;
+          cb();
+        });
+      },
+      (err, result) => {
+        if (err) {
+          callback(err);
           return;
         }
         callback(null, result);

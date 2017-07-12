@@ -169,7 +169,28 @@ then
                 ssh root@${loop} 'pm2 stop 火山小视频'
                 ;;
             '咪咕动漫')
-                ssh root@${loop} 'pm2 reload 咪咕动漫'
+                ssh root@${loop} 'pm2 stop 咪咕动漫'
+                ;;
+            '抖音')
+                ssh root@${loop} 'pm2 stop 抖音'
+                ;;
+            '爱拍')
+                ssh root@${loop} 'pm2 stop 爱拍'
+                ;;
+            '小咖秀')
+                ssh root@${loop} 'pm2 stop 小咖秀'
+                ;;
+            '闪咖')
+                ssh root@${loop} 'pm2 stop 闪咖'
+                ;;
+            '奶糖')
+                ssh root@${loop} 'pm2 stop 奶糖'
+                ;;
+            '有料')
+                ssh root@${loop} 'pm2 stop 有料'
+                ;;
+            '开眼')
+                ssh root@${loop} 'pm2 stop 开眼'
                 ;;
             esac
             echo
@@ -313,7 +334,28 @@ then
                 ssh root@${loop} 'pm2 stop 火山小视频'
                 ;;
             '咪咕动漫')
-                ssh root@${loop} 'pm2 reload 咪咕动漫'
+                ssh root@${loop} 'pm2 stop 咪咕动漫'
+                ;;
+            '抖音')
+                ssh root@${loop} 'pm2 stop 抖音'
+                ;;
+            '爱拍')
+                ssh root@${loop} 'pm2 stop 爱拍'
+                ;;
+            '小咖秀')
+                ssh root@${loop} 'pm2 stop 小咖秀'
+                ;;
+            '闪咖')
+                ssh root@${loop} 'pm2 stop 闪咖'
+                ;;
+            '奶糖')
+                ssh root@${loop} 'pm2 stop 奶糖'
+                ;;
+            '有料')
+                ssh root@${loop} 'pm2 stop 有料'
+                ;;
+            '开眼')
+                ssh root@${loop} 'pm2 stop 开眼'
                 ;;
             esac
             echo
