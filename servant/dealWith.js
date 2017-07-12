@@ -2893,7 +2893,7 @@ class DealWith {
       }
     };
     let res = null, id = null,
-      vid = data.match(/v\/(\w*-*\w*)\.html/)[1];
+      vid = data.match(/(\w*[-|~]\w*)\.html/)[1];
     options.url = `http://api.xiaokaxiu.com/video/web/get_play_video?scid=${vid}`;
     request.get(options, (error, result) => {
       if (error) {
@@ -2918,6 +2918,22 @@ class DealWith {
         return;
       }
       id = URL.parse(result.data.avatar, true).pathname.split('/')[4];
+      if (!id || Number(id) === 0) {
+        this.xiaokaxiuUser(data, (error, uid) => {
+          if (error) {
+            callback(e, { code: 102, p: 49 });
+            return;
+          }
+          res = {
+            id: uid,
+            name: result.data.nickname,
+            avatar:result.data.avatar,
+            p: 49
+          };
+          callback(null, res);
+        });
+        return;
+      }
       res = {
         id,
         name: result.data.nickname,
@@ -2925,6 +2941,28 @@ class DealWith {
         p: 49
       };
       callback(null, res);
+    });
+  }
+  xiaokaxiuUser(url, callback) {
+    const option = {
+        url,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          'X-Requested-With': 'ShockwaveFlash/26.0.0.131'
+        }
+      };
+    request.get(option, (err, result) => {
+      if (err) {
+        logger.error('DOM结构请求失败', err);
+        callback(err);
+        return;
+      }
+      const $ = cheerio.load(result.body);
+      let id = $('div.txname a').attr('href').match(/(\d*).html/);
+      if (!id) {
+        id = $('div.top3>a').eq(0).attr('class').match(/(\d*)/);
+      }
+      callback(null, id[1]);
     });
   }
   shanka(data, callback) {
