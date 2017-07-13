@@ -9,11 +9,31 @@ const redis = new Redis('redis://:@127.0.0.1:6379/15', {
     return err.message.slice(0, 'READONLY'.length) === 'READONLY';
   }
 });
-
-// redis.zrangebyscore('app:401218607:XMjc0MDg2MzQ1Mg==', '-inf', '+inf', (err, result) => {
-//   console.log(result);
-// });
 exports.getData = (req, res) => {
-  async.parallel()
-  res.json({bid: req.query.bid});
-}
+  async.parallel([
+    (callback) => {
+      redis.zrangebyscore('app:401218607:XMjc0MDg2MzQ1Mg==', '-inf', '+inf', (err, result) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, result);
+        }
+      });
+    },
+    (callback) => {
+      redis.zrangebyscore('openapi:401218607:XMjc0MDg2MzQ1Mg==', '-inf', '+inf', (err, result) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, result);
+        }
+      });
+    },
+  ], (err, result) => {
+    if (err) {
+      res.status(502).send();
+    } else {
+      res.json(result);
+    }
+  });
+};

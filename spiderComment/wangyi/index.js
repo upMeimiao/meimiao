@@ -35,13 +35,15 @@ class spiderCore {
     // 需要做处理把开头的v去掉
     const work = {
       bid: 'T1460515714367',
-      aid: 'BLKGM6BO',
+      aid: 'VCAV5MAUU',
       p: 25,
       taskType: 0,
       commentId: 0,
       commentTime: 0,
       commentNum: 0
     };
+    work.OriginAid = work.aid;
+    work.aid = work.aid[0] !== 'V' ? work.aid : work.aid.replace('V', '');
     if (Number(work.taskType) === 1) {
       this.hostTime.todo(work, (err, hostTotal, timeTotal) => {
         logger.debug(hostTotal);
@@ -75,7 +77,7 @@ class spiderCore {
     logger.trace('Queue get ready');
     queue.process('comment_wangyi', this.settings.concurrency, (job, done) => {
       logger.trace('Get wangyi task!');
-      job.data.aid = job.data.aid.toString();
+      job.data.OriginAid = job.data.aid;
       job.data.aid = job.data.aid[0] !== 'V' ? job.data.aid : job.data.aid.replace('V', '');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;

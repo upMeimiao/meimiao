@@ -149,7 +149,7 @@ class dealWith {
           content: spiderUtils.stringHandling(commentData.content),
           platform: task.p,
           bid: task.bid,
-          aid: task.aid,
+          aid: task.OriginAid,
           ctime: time,
           support: commentData.vote,
           step: commentData.against,
@@ -159,6 +159,7 @@ class dealWith {
             uavatar: commentData.user.avatar
           }
         };
+        // logger.debug(comment)
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
