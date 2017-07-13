@@ -1,5 +1,5 @@
 /**
- * Created by zhupenghui on 17/6/21.
+ * Created by zhupenghui on 17/7/12.
  */
 let logger, typeErr, request, infoCheck, async;
 class dealWith {
@@ -10,7 +10,7 @@ class dealWith {
     infoCheck = core.modules.infoCheck;
     async = core.modules.async;
     logger = this.settings.logger;
-    logger.trace('acfun monitor begin...');
+    logger.trace('douyin monitor begin...');
     core = null;
   }
   start(task, callback) {
@@ -33,10 +33,9 @@ class dealWith {
   }
   getUser(task) {
     let option = {
-      url: this.settings.spiderAPI.acfun.userInfo + task.id,
-      referer: `http://m.acfun.tv/details?upid=${task.id}`,
-      deviceType: 2,
-      ua: 2
+      url: this.settings.spiderAPI.douyin.user + task.id,
+      ua: 3,
+      own_ua: 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -60,8 +59,8 @@ class dealWith {
         typeErr = null;
         return;
       }
-      if (!result.data || !result.data.followed) {
-        typeErr = {type: 'data', err: 'acfun-粉丝数不存在或者本次请求异常', interface: 'user', url: option.url};
+      if (Number(result.status_code) !== 0 || !result.user) {
+        typeErr = {type: 'data', err: 'douyin-粉丝数不存在或者本次请求异常', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -70,9 +69,12 @@ class dealWith {
   }
   list(task) {
     let option = {
-      url: `${this.settings.spiderAPI.acfun.media}${task.id}&pageNo=1`,
-      referer: `http://www.aixifan.com/u/${task.id}.aspx`,
-      ua: 1
+      url: `${this.settings.spiderAPI.douyin.list + task.id}&max_cursor=0`,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest',
+        Accept: 'application/json'
+      }
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -96,8 +98,8 @@ class dealWith {
         typeErr = null;
         return;
       }
-      if(!result.contents ||  result.contents.length === 0) {
-        typeErr = {type: 'data', err: 'acfun-视频列表出现异常', interface: 'list', url: option.url};
+      if(!result || !result.aweme_list.length) {
+        typeErr = {type: 'data', err: 'douyin-视频列表出现异常', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

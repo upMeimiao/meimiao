@@ -4,41 +4,54 @@
  */
 const async = require('neo-async');
 const getTask = require('./platform.json');
-let logger;
+let logger, db;
 class setTask {
   constructor(monitorSpider) {
     this.settings = monitorSpider;
+    db = monitorSpider.MSDB;
     logger = monitorSpider.settings.logger;
     logger.debug('Start the crawler platform task ...');
   }
-  start(pname, platform, callback) {
+  start(task, callback) {
     const q = async.queue((work, callback) => {
-      this.beginTask(work, platform);
+      work.type = task.type;
+      this.beginTask(work, task.platform);
       work = null;
       callback();
     }, 2);
     q.drain = () => {
       // logger.debug('单个平台任务并发完成');
-      pname = null;
-      platform = null;
+      task = null;
       callback();
     };
-    q.push(getTask[pname], (err) => {
+    q.push(getTask[task.name], (err) => {
       if (err) {
         this.settings.emit('error', { error: '任务启动失败', platform: pname });
-        pname = null;
-        platform = null;
+        task = null;
       }
     });
   }
   beginTask(work, platform) {
-    platform.start(work, (err) => {
+    const time = parseInt(new Date().getTime() / 1000, 10);
+    db.get('alone:weiboStatus', (err, result) => {
       if (err) {
         this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });
+        return;
       }
+      if (result && work.p === 23 && (time - result) < 3600) {
+        work = null;
+        platform = null;
+        return;
+      }
+      db.del('alone:weiboStatus');
+      platform.start(work, (err) => {
+        if (err) {
+          this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });
+        }
+      });
+      work = null;
+      platform = null;
     });
-    work = null;
-    platform = null;
   }
 }
 module.exports = setTask;

@@ -5,7 +5,9 @@
 const request = require('../lib/request');
 const Redis = require( 'ioredis' );
 const async = require( 'neo-async' );
+const zlib = require('zlib');
 const events = require('events');
+const req = require('request');
 const platfrom = require('./controllers/platform');
 const infoCheck = require('./controllers/infoCheck');
 const cheerio = require('cheerio');
@@ -17,12 +19,10 @@ class spiderCore extends events{
     settings = _settings;
     this.settings = settings;
     this.redis = settings.redis;
-    this.request = request;
-    this.infoCheck = infoCheck;
-    this.cheerio = cheerio;
-    this.async = async;
+    this.modules = {
+      request, infoCheck, cheerio, async, req, zlib
+    };
     this.proxy = new (require('./controllers/proxy'))(this);
-    this.getTask = new (require('./controllers/beginTask'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
     _settings = null;
@@ -44,10 +44,11 @@ class spiderCore extends events{
   }
   initPlatForm() {
     let platfromArr = [];
+    this.getTask = new (require('./controllers/beginTask'))(this);
     for (const [key, value] of platfrom.entries()) {
-      platfromArr.push({ name: value, platform: new (require('./dealWith/' + value))(this) });
+      platfromArr.push({ name: value, type: 'ceshi', platform: new (require('./dealWith/' + value))(this) });
     }
-    // platfromArr.push({ name: 'le', platform: new (require('./dealWith/le'))(this) });
+    // platfromArr.push({ name: 'eyepetizer', type: 'ceshi', platform: new (require('./dealWith/eyepetizer'))(this) });
     this.beginTask(platfromArr);
     platfromArr = null;
   }
@@ -55,11 +56,11 @@ class spiderCore extends events{
     // 并行执行任务
     const time = new Date().getHours(),
       queue = async.queue((task, callback) => {
-      this.getTask.start(task.name, task.platform, () => {
+      this.getTask.start(task, () => {
         task = null;
         callback();
       });
-    }, 45);
+    }, 30);
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');

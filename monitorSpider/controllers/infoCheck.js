@@ -37,6 +37,10 @@ const errorNum = (events, result, typeErr) => {
       events = null; result = null; typeErr = null;
       return;
     }
+    // 对微博的404 单独处理
+    if (!isNaN(errorData.message) && Number(errorData.message) === 403) {
+      events.MSDB.set('alone:weiboStatus', time);
+    }
     // 当错误进来之后会先进行时间的判断，如果当前的错误记录的起始时间到目前为止超过了20分钟，
     // 并且最新的一次错误发生所记录的时间超过五分钟没有更新，那么就认为该平台在某个时间段出现故障，
     // 错误记录清除重新记录
@@ -118,6 +122,7 @@ exports.interface = (events, task, typeErr) => {
     typeErr.platform = p;
     typeErr.bname = task.name;
     typeErr.lastTime = time;
+    typeErr.type = result.type;
     editEmail.interEmail(events, typeErr);
     events = null; task = null; typeErr = null;
     return;
@@ -156,6 +161,7 @@ exports.interface = (events, task, typeErr) => {
         url: typeErr.url,
         startTime: time,
         lastTime: time,
+        type: task.type,
         num
       };
       events.MSDB.set(key, JSON.stringify(errorInfo));

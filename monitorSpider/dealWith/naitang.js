@@ -1,5 +1,5 @@
 /**
- * Created by zhupenghui on 17/6/21.
+ * Created by zhupenghui on 17/7/12.
  */
 let logger, typeErr, request, infoCheck, async;
 class dealWith {
@@ -10,7 +10,7 @@ class dealWith {
     infoCheck = core.modules.infoCheck;
     async = core.modules.async;
     logger = this.settings.logger;
-    logger.trace('acfun monitor begin...');
+    logger.trace('naitang monitor begin...');
     core = null;
   }
   start(task, callback) {
@@ -21,8 +21,8 @@ class dealWith {
           this.getUser(task);
           cb();
         },
-        list: (cb) => {
-          this.list(task);
+        video: (cb) => {
+          this.getVideoList(task);
           cb();
         }
       },
@@ -33,10 +33,9 @@ class dealWith {
   }
   getUser(task) {
     let option = {
-      url: this.settings.spiderAPI.acfun.userInfo + task.id,
-      referer: `http://m.acfun.tv/details?upid=${task.id}`,
-      deviceType: 2,
-      ua: 2
+      url: `${this.settings.spiderAPI.naitang.user + task.id}`,
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -56,24 +55,23 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        option = null;
-        typeErr = null;
         return;
       }
-      if (!result.data || !result.data.followed) {
-        typeErr = {type: 'data', err: 'acfun-粉丝数不存在或者本次请求异常', interface: 'user', url: option.url};
+      if (Number(result.error) !== 0 || !result.data) {
+        typeErr = {type: 'data', err: 'naitang-粉丝数不存在或者有问题', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
       typeErr = null;
     });
   }
-  list(task) {
+  getVideoList(task) {
     let option = {
-      url: `${this.settings.spiderAPI.acfun.media}${task.id}&pageNo=1`,
-      referer: `http://www.aixifan.com/u/${task.id}.aspx`,
-      ua: 1
+      url: `${this.settings.spiderAPI.naitang.list + task.id}&start=0`,
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
+    let start = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -92,12 +90,10 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        option = null;
-        typeErr = null;
         return;
       }
-      if(!result.contents ||  result.contents.length === 0) {
-        typeErr = {type: 'data', err: 'acfun-视频列表出现异常', interface: 'list', url: option.url};
+      if (Number(result.error) !== 0 || !result.data || !result.data.list.length) {
+        typeErr = {type: 'data', err: 'naitang-视频列表', interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

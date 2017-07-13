@@ -31,6 +31,9 @@ exports.sendEmail = (title, content, type) => {
     text: content, // plaintext body
     html: content // html body
   };
+  if (type) {
+    mailOptions.to = ['zhupenghui@meimiao.net'];
+  }
   transporter.sendMail(mailOptions, (error) => {
     if (error) {
       console.log('error in sending Email', error);
