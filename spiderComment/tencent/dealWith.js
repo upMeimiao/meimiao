@@ -23,6 +23,7 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
+    task.total = 0;
     this.commentId(task, (err) => {
       if (err) {
         callback(err);
@@ -83,7 +84,7 @@ class dealWith {
         callback(e);
         return;
       }
-      if (result.errCode != 0) {
+      if (Number(result.errCode) !== 0) {
         callback();
         return;
       }
@@ -109,10 +110,60 @@ class dealWith {
       task.lastId = result.data.commentid[0].id;
       task.lastTime = result.data.commentid[0].time;
       task.addCount = task.cNum - task.commentNum;
-      this.commentList(task, total, commentId, () => {
-        callback();
-      });
+      async.parallel(
+        {
+          hot: (cb) => {
+            this.commentHot(task, commentId, () => {
+              cb();
+            });
+          },
+          time: (cb) => {
+            this.commentList(task, total, commentId, () => {
+              cb();
+            });
+          }
+        },
+        () => {
+          callback();
+        }
+      );
     });
+  }
+  commentHot(task, commnentId, callback) {
+    const option = {
+      ua: 1
+    };
+    let cycle = true, lastId = '';
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `https://coral.qq.com/article/${commnentId}/hotcomment?reqnum=20&_=${new Date().getTime()}&commentid=${lastId}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.debug('腾讯热门评论列表请求失败', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('腾讯评论热门数据解析失败', result);
+            cb();
+            return;
+          }
+          if (Number(result.errCode) !== 0 || !result.data || !result.data.commentid.length) {
+            cycle = false;
+            cb();
+            return;
+          }
+          this.deal(task, result.data.commentid, () => {
+            lastId = result.data.commentid[result.data.commentid.length - 1].id;
+            cb();
+          });
+        });
+      },
+      () => callback()
+    );
   }
   commentList(task, total, commentId, callback) {
     let page = 1,
@@ -122,7 +173,8 @@ class dealWith {
       () => page <= total,
       (cb) => {
         option = {
-          url: `https://coral.qq.com/article/${commentId}/comment?reqnum=20&commentid=${lastId}`
+          url: `https://coral.qq.com/article/${commentId}/comment?reqnum=20&commentid=${lastId}`,
+          ua: 1
         };
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -134,6 +186,11 @@ class dealWith {
             result = JSON.parse(result.body);
           } catch (e) {
             logger.error('腾讯评论数据解析失败', result);
+            cb();
+            return;
+          }
+          if (Number(result.errCode) !== 0 || !result.data || !result.data.commentid.length) {
+            total = -1;
             cb();
             return;
           }
@@ -174,6 +231,7 @@ class dealWith {
           ctime: comments[index].time,
           support: comments[index].up,
           step: comments[index].poke,
+          reply: comments[index].rep,
           c_user: {
             uid: comments[index].userinfo.userid,
             uname: comments[index].userinfo.nick,
