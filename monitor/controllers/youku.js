@@ -10,22 +10,32 @@ const redis = new Redis('redis://:@127.0.0.1:6379/15', {
   }
 });
 exports.getData = (req, res) => {
+  const bid = req.query.bid;
+  const aid = req.query.aid;
+  const appArr = [];
+  const openapiArr = [];
   async.parallel([
     (callback) => {
-      redis.zrangebyscore('app:401218607:XMjc0MDg2MzQ1Mg==', '-inf', '+inf', (err, result) => {
+      redis.zrangebyscore(`app:${bid}:${aid}`, '-inf', '+inf', (err, result) => {
         if (err) {
           callback(err);
         } else {
-          callback(null, result);
+          for (const [index, elem] of result.entries()) {
+            appArr.push(JSON.parse(elem));
+          }
+          callback(null, appArr);
         }
       });
     },
     (callback) => {
-      redis.zrangebyscore('openapi:401218607:XMjc0MDg2MzQ1Mg==', '-inf', '+inf', (err, result) => {
+      redis.zrangebyscore(`openapi:${bid}:${aid}`, '-inf', '+inf', (err, result) => {
         if (err) {
           callback(err);
         } else {
-          callback(null, result);
+          for (const [index, elem] of result.entries()) {
+            openapiArr.push(JSON.parse(elem));
+          }
+          callback(null, openapiArr);
         }
       });
     },
@@ -33,7 +43,10 @@ exports.getData = (req, res) => {
     if (err) {
       res.status(502).send();
     } else {
-      res.json(result);
+      res.json({
+        app: result[0],
+        openapi: result[0]
+      });
     }
   });
 };
