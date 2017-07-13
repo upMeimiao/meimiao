@@ -195,7 +195,7 @@ class commentScheduler extends events {
         return;
       }
       this.taskDB.hset(`c:${raw.p}:${raw.aid}`, 'kue_id', job.id);
-      this.logger.debug(`任务: ${job.type}_${job.data.aid} 创建完成`);
+      // this.logger.debug(`任务: ${job.type}_${job.data.aid} 创建完成`);
       job = null;
       raw = null;
     });
@@ -209,11 +209,12 @@ class commentScheduler extends events {
       }
       kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
         if (err) {
-          if (err.message.includes('doesnt exist') || err.message === 'invalid id param') {
-            this.emit('task_set_create', raw);
-          } else {
-            this.logger.error('Job get error : ', err);
-          }
+          // if (err.message.includes('doesnt exist') || err.message === 'invalid id param') {
+          //   this.emit('task_set_create', raw);
+          // } else {
+          //   this.logger.error('Job get error : ', err);
+          // }
+          this.emit('task_set_create', raw);
           return;
         }
         const time = new Date().getTime();
