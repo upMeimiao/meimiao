@@ -80,7 +80,7 @@ class spiderCore {
       job.data.OriginAid = job.data.aid;
       job.data.aid = job.data.aid[0] !== 'V' ? job.data.aid : job.data.aid.replace('V', '');
       const work = job.data,
-        key = `c:${work.p}:${work.aid}`;
+        key = `c:${work.p}:${work.OriginAid}`;
       logger.info(work);
       const d = domain.create();
       d.on('error', (err) => {
