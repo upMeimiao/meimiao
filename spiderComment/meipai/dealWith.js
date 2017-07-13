@@ -3,6 +3,7 @@
 */
 const request = require('../../lib/request');
 const async = require('neo-async');
+const trimHtml = require('trim-html');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
@@ -93,7 +94,7 @@ class dealWith {
         }
         comment = {
           cid: comments[index].id,
-          content: spiderUtils.stringHandling(comments[index].content),
+          content: spiderUtils.stringHandling(trimHtml(comments[index].content, { preserveTags: false, limit: comments[index].content.length + 1 }).html),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
@@ -106,6 +107,7 @@ class dealWith {
             uavatar: comments[index].user.avatar ? comments[index].user.avatar : ''
           }
         };
+        // logger.debug(comment)
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
