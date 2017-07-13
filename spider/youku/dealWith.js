@@ -3,10 +3,17 @@
  */
 const async = require('neo-async');
 const request = require('request');
+const moment = require('moment')
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
 const blacklist = ['UNDY2MTM4MjAyMA==', 'UNDY0Mzc5ODk0OA==', 'UNDY1NTk2NzE3Ng==', 'UMzIyNjE5OTkyMA==', 'UNDQ3MzYyMTI5Ng==', 'UNDUyMDQ2OTU5Mg==', 'UNDUzODExMDgzNg==', 'UNTUxMTg0Nzc2', 'UMzQzNzMzODE5Mg==', 'UNDUxMTEzNjkxMg==', 'UNDQ3OTUwMjgwMA==', 'UNDA2NDk5NTY2MA==', 'UMzE0MTkzODk1Ng==', 'UNDM1ODkyNDc2MA==', 'UNDQ3NjI5MDg2OA==', 'UMjc0NDAwMzAwNA==', 'UMTIwODgxMTI5Mg==', 'UNDQ3MzU1ODUwNA==', 'UMzI5NjQwOTUwNA==', 'UNDQ1OTQyMjM1Mg=='];
+
+const annal = (db, key, data) => {
+  const score = Number(moment().format('MDDHH'));
+  db.zadd(key, score, JSON.stringify(Object.assign(data, { score_time: score })));
+};
+
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -294,6 +301,9 @@ class dealWith {
   info(task, list, callback) {
     const idList = [];
     for (const index in list) {
+      if (task.id === '401218607' || task.id === '715543674') {
+        annal(this.core.test_db, `app:${task.id}:${list[index].videoid}`, list[index]);
+      }
       idList.push(list[index].videoid);
     }
     const ids = idList.join(',');
@@ -365,9 +375,9 @@ class dealWith {
           step: result.down_count,
           a_create_time: video.publishtime
         };
-        // if (task.id === '401218607' || task.id === '715543674') {
-        //   this.core.test_db
-        // }
+        if (task.id === '401218607' || task.id === '715543674') {
+          annal(this.core.test_db, `openapi:${task.id}:${result.id}`, result);
+        }
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
