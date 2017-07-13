@@ -54,7 +54,7 @@
             $.ajax({
                 type: "GET",
                 url: "http://121.42.164.116:2017?url=" + url,
-              // url: "http://127.0.0.1:2017?url=" + url,
+                // url: "http://127.0.0.1:2017?url=" + url,
                 success: function(data) {
                   p.innerHTML = `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
                   err.innerHTML =''

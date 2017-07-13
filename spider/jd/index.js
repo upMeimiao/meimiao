@@ -1,11 +1,11 @@
 /**
  * Spider Core
- * Created by junhao on 16/6/22.
+ * Created by zhupenghui on 17/7/3.
  */
 const kue = require('kue');
 const request = require('request');
-const Redis = require('ioredis');
 const domain = require('domain');
+const Redis = require('ioredis');
 
 let logger, settings;
 class spiderCore {
@@ -14,14 +14,12 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
-    // this.getProgram = new (require('./program'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
   assembly() {
     this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`);
     this.cache_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.cache_db}`);
-    this.test_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/15`);
     if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
       this.deal();
     } else {
@@ -34,14 +32,12 @@ class spiderCore {
   }
   test() {
     const work = {
-      p: 1,
-      name: '柚子木字幕组',
-      id: '370501042',
-      encodeId: 'UMTQ4MjAwNDE2OA=='
+      id: '30247',
+      name: '运营宝',
+      p: 54
     };
-    this.dealWith.todo(work, (err, total, uid) => {
+    this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
-      logger.debug(uid);
       logger.debug('end');
     });
   }
@@ -59,8 +55,8 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('youku', this.settings.concurrency, (job, done) => {
-      logger.trace('Get youku task!');
+    queue.process('jdmi', this.settings.concurrency, (job, done) => {
+      logger.trace('Get jdmi task!');
       const work = job.data,
         key = `${work.p}:${work.id}`;
       logger.info(work);

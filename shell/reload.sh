@@ -283,6 +283,9 @@ then
             '开眼')
                 ssh root@${loop} 'pm2 reload 开眼'
                 ;;
+            '京东觅')
+                ssh root@${loop} 'pm2 reload 京东觅'
+                ;;
             esac
             echo
             echo "--------------$2 视频服务重启完成，退出服务器 $loop --------------"
@@ -447,6 +450,9 @@ then
                 ;;
             '开眼')
                 ssh root@${loop} 'pm2 reload 开眼'
+                ;;
+            '京东觅')
+                ssh root@${loop} 'pm2 reload 京东觅'
                 ;;
             esac
             echo

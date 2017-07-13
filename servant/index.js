@@ -298,6 +298,9 @@ class spiderCore {
       case 'www.eyepetizer.net':
         this.handle.kaiyanHandle(ctx, remote);
         break;
+      case 'h5.m.jd.com':
+        this.handle.jdHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');

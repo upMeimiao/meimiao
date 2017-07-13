@@ -300,6 +300,11 @@
       "list": "https://baobab.kaiyanapp.com/api/v4/pgcs/videoList?v=3.8.0&id=",
       "video": "http://baobab.kaiyanapp.com/api/v1/video/",
       "programList": "https://baobab.kaiyanapp.com/api/v4/pgcs/detail/playlist?id="
+    },
+    "jd": {
+      "user": "https://api.m.jd.com/client.action?functionId=jdDiscoveryAuthorPageHead&client=wh5&clientVersion=1.0.0&_=",
+      "list": "https://api.m.jd.com/client.action?functionId=discAuthorRelaseList&client=wh5&clientVersion=1.0.0&env=&_=",
+      "video": "https://api.m.jd.com/client.action?functionId=jdDiscoveryArticleDetail&client=wh5&clientVersion=1.0.0&env=&_="
     }
   },
   "servantAPI": {

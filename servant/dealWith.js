@@ -2893,7 +2893,7 @@ class DealWith {
       }
     };
     let res = null, id = null,
-      vid = data.match(/v\/(\w*-*\w*)\.html/)[1];
+      vid = data.match(/(\w*[-|~]\w*)\.html/)[1];
     options.url = `http://api.xiaokaxiu.com/video/web/get_play_video?scid=${vid}`;
     request.get(options, (error, result) => {
       if (error) {
@@ -2918,6 +2918,22 @@ class DealWith {
         return;
       }
       id = URL.parse(result.data.avatar, true).pathname.split('/')[4];
+      if (!id || Number(id) === 0) {
+        this.xiaokaxiuUser(data, (error, uid) => {
+          if (error) {
+            callback(e, { code: 102, p: 49 });
+            return;
+          }
+          res = {
+            id: uid,
+            name: result.data.nickname,
+            avatar:result.data.avatar,
+            p: 49
+          };
+          callback(null, res);
+        });
+        return;
+      }
       res = {
         id,
         name: result.data.nickname,
@@ -2925,6 +2941,28 @@ class DealWith {
         p: 49
       };
       callback(null, res);
+    });
+  }
+  xiaokaxiuUser(url, callback) {
+    const option = {
+        url,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          'X-Requested-With': 'ShockwaveFlash/26.0.0.131'
+        }
+      };
+    request.get(option, (err, result) => {
+      if (err) {
+        logger.error('DOM结构请求失败', err);
+        callback(err);
+        return;
+      }
+      const $ = cheerio.load(result.body);
+      let id = $('div.txname a').attr('href').match(/(\d*).html/);
+      if (!id) {
+        id = $('div.top3>a').eq(0).attr('class').match(/(\d*)/);
+      }
+      callback(null, id[1]);
     });
   }
   shanka(data, callback) {
@@ -3147,6 +3185,44 @@ class DealWith {
         name: result.author.name,
         avatar: result.author.icon,
         p: 53
+      };
+      callback(null, res);
+    });
+  }
+  jd(data, callback) {
+    const vid = URL.parse(data, true).query.id,
+      options = {
+        url: `https://api.m.jd.com/client.action?functionId=jdDiscoveryArticleDetail&body={"id":"${vid}"}&client=wh5&clientVersion=1.0.0&_=1499770426825`,
+        ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+      };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 54 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback('e', { code: 102, p: 54 });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('解析失败', result.body);
+        callback(e, { code: 102, p: 54 });
+        return;
+      }
+      if (!result || !result.data) {
+        callback('e', { code: 102, p: 54 });
+        return;
+      }
+      res = {
+        id: result.data.authorId,
+        name: result.data.authorName,
+        avatar: `http://m.360buyimg.com/${result.data.authorPic}`,
+        p: 54
       };
       callback(null, res);
     });
