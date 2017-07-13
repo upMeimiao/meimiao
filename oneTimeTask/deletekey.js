@@ -41,7 +41,7 @@ function loop(info, callback) {
 //   loop(result);
 // });
 const start = (k) => {
-  redis.scan(k, 'MATCH', 'c:25:*', 'COUNT', '50000000', (err, result) => {
+  redis.scan(k, 'MATCH', 'c:4:*', 'COUNT', '50000000', (err, result) => {
     loop(result[1], () => {
       start(result[0]);
     });
