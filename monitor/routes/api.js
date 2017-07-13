@@ -4,6 +4,7 @@ const cors = require('cors');
 const apiController = require('../controllers/api');
 const emailServer = require('../controllers/emailServer');
 const uctt = require('../controllers/uctt');
+const youku = require('../controllers/youku');
 const mblog = require('../controllers/hotWeibo');
 
 // const apiCon = new ApiController();
@@ -41,4 +42,5 @@ router.get('/uctt', uctt.getAids);
 router.route('/hotWeibo')
   .get(mblog.getMblog)
   .post(mblog.saveMblog);
+router.get('/youku', youku.getData)
 module.exports = router;

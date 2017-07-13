@@ -115,7 +115,7 @@ class commentScheduler extends events {
     req.addListener('end', () => {
       if (postData && postData !== '') {
         body = JSON.parse(postData);
-        this.emit('task_check_kue', body);
+        this.emit('task_loaded', body);
       }
     });
     res.setHeader('Content-Type', 'application/json;charset=utf-8');
