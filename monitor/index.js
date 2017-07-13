@@ -20,7 +20,7 @@ class monitor {
     io.on('connection', (socket) => {
       heartbeat.do(io, socket);
     });
-    // monitorServer.start();
+    monitorServer.start();
     // mSpiderServer.start();
     maintainServer.start();
     logger.debug('Monitor started on port 3001');
