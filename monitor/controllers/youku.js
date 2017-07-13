@@ -45,7 +45,7 @@ exports.getData = (req, res) => {
     } else {
       res.json({
         app: result[0],
-        openapi: result[0]
+        openapi: result[1]
       });
     }
   });
