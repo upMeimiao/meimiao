@@ -79,9 +79,10 @@ class commentHandle {
       //   this.scheduler.emit('task_check_kue', raw);
       //   return;
       // }
-      if (Number(result[0]) !== Number(result[1])) {
-        this.scheduler.emit('task_check_kue', raw);
-      }
+      this.scheduler.emit('task_check_kue', raw);
+      // if (Number(result[0]) !== Number(result[1])) {
+      //   this.scheduler.emit('task_check_kue', raw);
+      // }
     });
   }
   setInit(raw) {
