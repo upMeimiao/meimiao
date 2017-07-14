@@ -44,8 +44,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: 'dsIm1',
-      name: '唐晓玉💄',
+      id: '72znv',
+      name: '何仙姑夫工作室',
       p: 17
     };
     this.dealWith.todo(work, (err, total) => {

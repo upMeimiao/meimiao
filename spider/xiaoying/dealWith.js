@@ -5,7 +5,6 @@ const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 const moment = require('moment');
-const newRequest = require('request');
 
 function longT(time) {
   const timeArr = time.split(':');
@@ -39,6 +38,7 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
+    task.num = 0;
     this.getTotal(task, (err) => {
       if (err) {
         callback(err);
@@ -168,7 +168,7 @@ class dealWith {
         request.get(logger, options, (err, result) => {
           if (err) {
             logger.error('occur error : ', err);
-            callback(err);
+            cb();
             return;
           }
           try {
@@ -176,7 +176,7 @@ class dealWith {
           } catch (e) {
             logger.error('json数据解析失败');
             logger.info(result);
-            callback(e);
+            cb();
             return;
           }
           const list = result.videolist;
@@ -231,7 +231,6 @@ class dealWith {
         a_create_time
       };
     spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-    // logger.info(media);
     spiderUtils.commentSnapshots(this.core.taskDB,
       { p: media.platform, aid: media.aid, comment_num: media.comment_num });
     callback();
