@@ -222,7 +222,7 @@ class dealWith {
           aid: data.videoID,
           title: data.title.substr(0, 100).replace(/"/g, ''),
           desc: data.digest.substr(0, 100).replace(/"/g, ''),
-          comment_num: data.replyCount || null,
+          comment_num: result[1].replyCount || null,
           a_create_time: moment(data.ptime).format('X'),
           v_img: data.imgsrc,
           long_t: longt || (data.videoinfo ? data.videoinfo.length : null),
@@ -234,7 +234,7 @@ class dealWith {
         };
         media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        // logger.debug(media);
+        // console.log(media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();

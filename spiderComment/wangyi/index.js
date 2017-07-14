@@ -35,9 +35,9 @@ class spiderCore {
     // 需要做处理把开头的v去掉
     const work = {
       bid: 'T1460515714367',
-      aid: 'VCAV5MAUU',
+      aid: 'VXOAH5AKP',
       p: 25,
-      taskType: 0,
+      taskType: 1,
       commentId: 0,
       commentTime: 0,
       commentNum: 0

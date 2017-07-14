@@ -6,6 +6,7 @@ const moment = require('moment');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
+const videoList = (data) => data;
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -20,7 +21,7 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.totalPage(task, (err) => {
+    this.getReplyId(task, (err) => {
       if (err) {
         callback(err);
         return;
@@ -28,9 +29,41 @@ class dealWith {
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
+  getReplyId(task, callback) {
+    const option = {
+      url: `http://3g.163.com/touch/video/detail/jsonp/${task.OriginAid}.html?callback=videoList`
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('获取评论id失败', err);
+        callback(null, err);
+        return;
+      }
+      try {
+        result = eval(result.body);
+      } catch (e) {
+        logger.error('评论ID解析失败', result.body);
+        callback(null, e);
+        return;
+      }
+      if (!result) {
+        logger.error('评论ID数据异常');
+        callback('replyid-error');
+        return;
+      }
+      task.replyId = result.replyid;
+      this.totalPage(task, (error) => {
+        if (error) {
+          callback(error);
+          return;
+        }
+        callback();
+      });
+    });
+  }
   totalPage(task, callback) {
     const option = {
-        url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=0&limit=20`
+        url: `http://sdk.comment.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.replyId}/comments/newList?limit=10&showLevelThreshold=72&headLimit=0&offset=0&ibc=jssdk`
       },
       cidArr = [];
     let total = 0;
@@ -72,7 +105,9 @@ class dealWith {
         callback();
         return;
       }
-      const comment = result.comments[cidArr[0]],
+      let cid = result.commentIds[0].split(',');
+      cid = cid[cid.length - 1];
+      const comment = result.comments[cid],
         time = new Date(comment.createTime);
       task.lastTime = moment(time).format('X');
       task.lastId = comment.commentId;
@@ -90,7 +125,7 @@ class dealWith {
       () => page <= total,
       (cb) => {
         option = {
-          url: `http://comment.api.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.aid}008535RB/app/comments/newList?offset=${offset}&limit=20`
+          url: `http://sdk.comment.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.replyId}/comments/newList?limit=20&showLevelThreshold=72&headLimit=0&offset=${offset}&ibc=jssdk`
         };
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -124,14 +159,15 @@ class dealWith {
     );
   }
   deal(task, comments, callback) {
-    const cidArr = [];
     let index = 0,
       commentData,
       time,
-      comment;
-    for (const key in comments.comments) {
+      comment,
+      cidArr = [];
+    for (let key in comments.comments) {
       cidArr.push(key);
     }
+    cidArr = cidArr.reverse();
     async.whilst(
       () => index < cidArr.length,
       (cb) => {
@@ -155,11 +191,13 @@ class dealWith {
           step: commentData.against,
           reply: commentData.favCount,
           c_user: {
-            uname: commentData.user.nickname,
-            uavatar: commentData.user.avatar
+            uid: commentData.user.userId || '',
+            uname: commentData.user.nickname || '',
+            uavatar: commentData.user.avatar || ''
           }
         };
         // logger.debug(comment)
+        // console.log(comment);
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();
