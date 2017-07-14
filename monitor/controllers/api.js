@@ -98,3 +98,16 @@ exports.changeStatus = (req, res) => {
     res.json(result);
   });
 };
+exports.commentStatus = (req, res) => {
+  if (!req.query.p || !req.query.aid) {
+    res.status(400).send('请求参数有误');
+    return;
+  }
+  redis.hgetall(`c:${req.query.p}:${req.query.aid}`, (err, result) => {
+    if (err) {
+      res.status(502).send(err.message);
+      return;
+    }
+    res.json(result);
+  });
+};

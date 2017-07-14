@@ -39,6 +39,7 @@ router.route('/alarm')
   })
   .post(emailServer.sendEmail);
 router.get('/uctt', uctt.getAids);
+router.get('/debug/comment', apiController.commentStatus)
 router.route('/hotWeibo')
   .get(mblog.getMblog)
   .post(mblog.saveMblog);
