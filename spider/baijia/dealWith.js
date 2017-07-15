@@ -80,7 +80,7 @@ class dealWith {
         platform: task.p,
         fans_num: result['baijia/authorInfo'].data.subscribe_total
       };
-      // this.sendUser(user);
+      this.sendUser(user);
       this.sendStagingUser(user);
       callback();
     });
@@ -234,7 +234,7 @@ class dealWith {
         return;
       }
       task.total += 1;
-      // logger.debug(media);
+      logger.debug(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
