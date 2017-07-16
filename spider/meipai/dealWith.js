@@ -132,7 +132,12 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        return callback(err);
+        if (task.id === '63571599') {
+          callback();
+        } else {
+          callback(err);
+        }
+        return;
       }
       try {
         result = JSON.parse(result.body);
