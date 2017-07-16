@@ -119,6 +119,7 @@ const souhu = () => {
   spider.start();
 };
 const toutiao = () => {
+  settings.logger = logging.getLogger('今日头条', options.i, logLevel);
   settings.instance = options.i;
   const spider = new (require(`${spiderDir}toutiao`))(settings);
   spider.start();
