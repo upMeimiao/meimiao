@@ -18,28 +18,30 @@ class dealWith {
     task.total = 0;
     async.parallel(
       {
-        user: (callback) => {
-          this.getUser(task, (err) => {
-            callback(null, '用户信息已返回');
+        user: (cb) => {
+          this.getUser(task, () => {
+            cb(null, '用户信息已返回');
           });
         },
-        media: (callback) => {
+        media: (cb) => {
           this.getTotal(task, (err) => {
             if (err) {
-              return callback(err);
+              cb(err);
+              return;
             }
-            callback(null, '视频信息已返回');
+            cb(null, '视频信息已返回');
           });
         }
       },
-            (err, result) => {
-              if (err) {
-                return callback(err);
-              }
-              logger.debug(`${task.id}_result:`, result);
-              callback(null, task.total);
-            }
-        );
+      (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        logger.debug(`${task.id}_result:`, result);
+        callback(null, task.total);
+      }
+    );
   }
   getUser(task, callback) {
     const option = {
@@ -47,18 +49,16 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback();
-      }
-      if (result.statusCode != 200) {
-        logger.error('获取粉丝code error：', result.statusCode);
-        return callback();
+        callback();
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info('json error:', result.body);
-        return callback();
+        callback();
+        return;
       }
       const user = {
         platform: 5,
@@ -66,7 +66,7 @@ class dealWith {
         fans_num: result.followers_count
       };
       result = null;
-      this.sendUser(user, (err, result) => {
+      this.sendUser(user, () => {
         callback();
       });
       this.sendStagingUser(user);
@@ -81,16 +81,18 @@ class dealWith {
       if (err) {
         logger.error('occur error:', err);
         logger.info(`返回美拍用户 ${user.bid} 连接服务器失败`);
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         back = JSON.parse(back.body);
       } catch (e) {
         logger.error(`美拍用户 ${user.bid} json数据解析失败`);
         logger.info(back);
-        return callback(e);
+        callback(e);
+        return;
       }
-      if (back.errno == 0) {
+      if (Number(back.errno) === 0) {
         logger.debug('美拍用户:', `${user.bid} back_end`);
       } else {
         logger.error('美拍用户:', `${user.bid} back_error`);
@@ -117,7 +119,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -144,14 +146,16 @@ class dealWith {
       } catch (e) {
         logger.error('json数据解析失败');
         logger.info(result);
-        return callback(e);
+        callback(e);
+        return;
       }
-      let videos_count = result.videos_count, page;
-      task.total = videos_count;
-      if (videos_count % 20 == 0) {
-        page = videos_count / 20;
+      const videosCount = result.videos_count;
+      let page;
+      task.total = videosCount;
+      if (videosCount % 20 === 0) {
+        page = videosCount / 20;
       } else {
-        page = Math.floor(videos_count / 20) + 1;
+        page = Math.floor(videosCount / 20) + 1;
       }
       result = null;
       this.getVideos(task, page, () => {
@@ -160,60 +164,64 @@ class dealWith {
     });
   }
   getVideos(task, page, callback) {
-    let maxId = '', sign = 1, option = {};
+    const option = {};
+    let maxId = '', sign = 1;
     async.whilst(
-            () => sign <= page,
-            (cb) => {
-              option.url = `${this.settings.spiderAPI.meipai.mediaList + task.id}&max_id=${maxId}`;
-              request.get(logger, option, (err, result) => {
-                if (err) {
-                  logger.error('occur error : ', err);
-                  sign++;
-                  return cb();
-                }
-                try {
-                  result = JSON.parse(result.body);
-                } catch (e) {
-                  logger.error('json数据解析失败');
-                  logger.info(result);
-                  sign++;
-                  return cb();
-                }
-                if (!result || result.length == 0) {
-                  logger.error('数据解析异常失败');
-                  logger.error(result);
-                  sign++;
-                  return cb();
-                }
-                maxId = result[result.length - 1].id;
-                this.deal(task, result, () => {
-                  sign++;
-                  cb();
-                });
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign <= page,
+      (cb) => {
+        option.url = `${this.settings.spiderAPI.meipai.mediaList + task.id}&max_id=${maxId}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('occur error : ', err);
+            sign += 1;
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('json数据解析失败');
+            logger.info(result);
+            sign += 1;
+            cb();
+            return;
+          }
+          if (!result || result.length === 0) {
+            logger.error('数据解析异常失败');
+            logger.error(result);
+            sign += 1;
+            cb();
+            return;
+          }
+          maxId = result[result.length - 1].id;
+          this.deal(task, result, () => {
+            sign += 1;
+            cb();
+          });
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   deal(task, list, callback) {
     let id, sign = true;
     async.whilst(
-            () => sign,
-            (cb) => {
-              id = list.shift().id;
-              this.getInfo(task, id, (err) => {
-                if (list.length === 0) {
-                  sign = false;
-                }
-                cb();
-              });
-            },
-            (err, result) => {
-              callback();
-            }
-        );
+      () => sign,
+      (cb) => {
+        id = list.shift().id;
+        this.getInfo(task, id, () => {
+          if (list.length === 0) {
+            sign = false;
+          }
+          cb();
+        });
+      },
+      () => {
+        callback();
+      }
+    );
   }
   getInfo(task, id, callback) {
     const option = {
@@ -222,7 +230,8 @@ class dealWith {
     let title = '', _tags = [], __tags = [], tags = '', tagArr;
     request.get(logger, option, (err, result) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       try {
         result = JSON.parse(result.body);
@@ -230,13 +239,15 @@ class dealWith {
         logger.error('json数据解析失败');
         logger.info(result.body);
         result = null;
-        return callback(e);
+        callback(e);
+        return;
       }
       if (result.lives) {
         result = null;
-        return callback();
+        callback();
+        return;
       }
-      if (result.caption && result.caption != '') {
+      if (result.caption && result.caption !== '') {
         title = result.caption.substr(0, 100);
         tagArr = result.caption.match(/#[^0-9a-zA-Z\x00-\xff]+#/ig);
         if (tagArr) {
@@ -246,21 +257,21 @@ class dealWith {
               __tags.push(elem.replace(/#/g, ''));
             }
           }
-          if (__tags.length != 0) {
+          if (__tags.length !== 0) {
             tags = __tags.join(',');
           }
         }
-                // for( let i in tagArr){
-                //     _tags.push(tagArr[i].replace(/#/g,''))
-                // }
-                // for( let i in _tags){
-                //     if(this.classification.includes(_tags[i])){
-                //         __tags.push(_tags[i])
-                //     }
-                // }
-                // if(__tags.length != 0){
-                //     tags = __tags.join(',')
-                // }
+        // for( let i in tagArr){
+        //     _tags.push(tagArr[i].replace(/#/g,''))
+        // }
+        // for( let i in _tags){
+        //     if(this.classification.includes(_tags[i])){
+        //         __tags.push(_tags[i])
+        //     }
+        // }
+        // if(__tags.length != 0){
+        //     tags = __tags.join(',')
+        // }
       } else {
         title = 'btwk_caihongip';
       }
