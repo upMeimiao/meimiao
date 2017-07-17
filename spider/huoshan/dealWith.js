@@ -65,9 +65,9 @@ class dealWith {
           platform: task.p,
           fans_num: fans
         };
-      // this.sendUser(user, () => {
-      //   callback();
-      // });
+      this.sendUser(user, () => {
+        callback();
+      });
       this.sendStagingUser(user);
       callback();
     });
@@ -218,8 +218,8 @@ class dealWith {
         task.total += 1;
         // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        // spiderUtils.commentSnapshots(this.core.taskDB,
-        //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+        spiderUtils.commentSnapshots(this.core.taskDB,
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
       }
     );
