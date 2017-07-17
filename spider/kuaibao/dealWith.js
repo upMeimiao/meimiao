@@ -212,7 +212,7 @@ class dealWith {
         callback(e);
         return;
       }
-      task.total = result.newslist.length;
+      // task.total = result.newslist.length;
       let idStr = '';
       for (const ids of result.ids) {
         idStr += `,${ids.id}`;
@@ -245,20 +245,19 @@ class dealWith {
         return;
       }
       for (const video of result.newslist) {
-        if (!video.video_channel) {
-          continue;
+        if (video.video_channel) {
+          videoArr.push({
+            id: video.id,
+            title: video.title,
+            desc: video.video_channel.video.desc,
+            vid: video.video_channel.video.vid,
+            img: video.thumbnails_qqnews_photo[0],
+            longt: video.video_channel.video.duration,
+            createTime: video.timestamp,
+            commentid: video.commentid,
+            type: video.articletype
+          });
         }
-        videoArr.push({
-          id: video.id,
-          title: video.title,
-          desc: video.video_channel.video.desc,
-          vid: video.video_channel.video.vid,
-          img: video.thumbnails_qqnews_photo[0],
-          longt: video.video_channel.video.duration,
-          createTime: video.timestamp,
-          commentid: video.commentid,
-          type: video.articletype
-        });
       }
       for (const ids of videoArr) {
         for (const vid of result.videoHits) {
@@ -268,6 +267,7 @@ class dealWith {
         }
       }
       result = null;
+      task.total = videoArr.length;
       this.deal(task, videoArr, () => {
         callback();
       });
@@ -395,6 +395,7 @@ class dealWith {
         class: results.newField ? results.newField.class : null
       };
       media = spiderUtils.deleteProperty(media);
+      // logger.debug(media)
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
