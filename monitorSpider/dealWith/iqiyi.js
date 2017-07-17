@@ -1,21 +1,22 @@
 /**
  * Created by zhupenghui on 17/6/15.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => {
   return data
 };
-let logger, typeErr;
+let logger, typeErr, async, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('iqiyi monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -60,7 +61,7 @@ class dealWith {
         return;
       }
       if (!fans) {
-        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-user-dom-error, data: ${JSON.stringify(fans)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; fans = null; fansDom = null;
@@ -75,10 +76,10 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: err.statusCode, interface: 'user', url: option.url};
+          typeErr = {type: 'status', err: err.statusCode, interface: '_user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: '_user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -86,7 +87,7 @@ class dealWith {
       let $ = cheerio.load(result.body),
         fans = $('h3.tle').text().substring(2);
       if (!fans) {
-        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-user-dom-error, data: ${JSON.stringify(fans)}`, interface: '_user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; fans = null;
@@ -146,7 +147,7 @@ class dealWith {
         }),
         titleDom = $('p.mod-piclist_info_title a');
       if (titleDom.length === 0) {
-        typeErr = {type: 'data', err: 'videoList-dom-error', interface: 'videoList', url: option.url};
+        typeErr = {type: 'data', err: `videoList-dom-error, data: ${JSON.stringify(titleDom.length)}`, interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -159,7 +160,7 @@ class dealWith {
     });
   }
   getIds(task, raw) {
-    const option = {
+    let option = {
       ua: 1,
       url: raw.link
     };
@@ -174,21 +175,22 @@ class dealWith {
         }
         return;
       }
-      const $ = cheerio.load(result.body, {
+      let $ = cheerio.load(result.body, {
           ignoreWhitespace: true
         }),
         id = $('#flashbox').attr('data-player-tvid');
       if (!id) {
-        typeErr = {type: 'error', err: 'iqiyi-tvid-error', interface: 'videoList', url: option.url};
+        typeErr = {type: 'error', err: `iqiyi-tvid-error, data: ${id}`, interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       raw.id = id;
       this.info(task, raw);
+      option = null; result = null; $ = null; id = null; raw = null;
     });
   }
   getList(task) {
-    const option = {
+    let option = {
       ua: 1,
       url: `${this.settings.spiderAPI.iqiyi.list[0] + task.id}&page=1`,
       referer: 'http://www.iqiyi.com/u/' + task.id + "/v"
@@ -211,20 +213,20 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      const data = result.data,
+      let data = result.data,
         $ = cheerio.load(data, {
           ignoreWhitespace: true
         });
       if ($('.wrap-customAuto-ht li').length === 0) {
-        typeErr = {type: 'bid', err: 'iqiyi-getList-(dom-error/bid-error)', interface: 'getList', url: option.url};
+        typeErr = {type: 'bid', err: `iqiyi-getList-(dom-error/bid-error), data: ${JSON.stringify($('.wrap-customAuto-ht li').length)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      const lis = $('li[tvid]'), ids = [],
+      let lis = $('li[tvid]'), ids = [],
         ats = $('a[data-title]'), titles = [],
         href = $('.site-piclist_info a[title]'), links = [];
       if (!lis || !ats || !href) {
-        typeErr = {type: 'data', err: 'iqiyi-getList-listData-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-getList-listData-error, data: ${JSON.stringify({lis, ats, href})}}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -243,6 +245,8 @@ class dealWith {
       this.getInfo(task, ids[0], links[0]);
       this.getExpr(task, ids[0], links[0]);
       this.getPlay(task, ids[0], links[0]);
+      option = null; result = null; data = null; $ = null; links = null;
+      lis = null; ids = null; ats = null; titles = null; href = null;
     });
   }
   getInfo(task, id, link) {
@@ -270,22 +274,23 @@ class dealWith {
         return;
       }
       if (result.code != 'A00000') {
-        typeErr = {type: 'data', err: 'iqiyi-videoInfo-aid-error', interface: 'videoInfo', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-videoInfo-aid-error, data: ${JSON.stringify(result)}`, interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: 'iqiyi-videoInfo-data-error', interface: 'videoInfo', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-videoInfo-data-error, data: ${JSON.stringify(result.data)}`, interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (result.data.commentCount < 0) {
-        this.getComment(result.data, link)
+        this.getComment(task, result.data, link);
       }
-    })
+      option = null; result = null; id = null; link = null;
+    });
   }
   getExpr(task, id, link) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.iqiyi.expr + id,
       referer: link,
       ua: 1
@@ -302,21 +307,22 @@ class dealWith {
         return;
       }
       try {
-        result = eval(`(${result.body})`);
+        result = eval(`${result.body}`);
       } catch (e) {
-        typeErr = {type: 'json', err:`'iqiyi-Expr-json-error': ${e.message}, data: ${result.body}`, interface: 'getExpr', url: option.url};
+        typeErr = {type: 'json', err:`iqiyi-Expr-json-error: ${e.message}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (result.code != 'A00000') {
-        typeErr = {type: 'data', err: 'iqiyi-Expr-data-error', interface: 'getExpr', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-Expr-data-error, data: ${JSON.stringify(result)}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      option = null; result = null; id = null; link = null;
     });
   }
   getPlay(task, id, link) {
-    const option = {
+    let option = {
       url: this.settings.spiderAPI.iqiyi.play + id + '/?callback=jsonp',
       referer: link,
       ua: 1
@@ -339,10 +345,15 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      if (!result || !result.length) {
+        typeErr = {type: 'data', err:  `iqiyi-play-data-error, data: ${JSON.stringify(result)}`, interface: 'getPlay', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+      }
+      option = null; result = null; id = null; link = null;
     });
   }
-  getComment(data, link) {
-    const option = {
+  getComment(task, data, link) {
+    let option = {
       url: `http://cmts.iqiyi.com/comment/tvid/${data.qitanId}_${data.tvId}_hot_2?is_video_page=true&albumid=${data.albumId}`,
       referer: link,
       ua: 1
@@ -366,10 +377,11 @@ class dealWith {
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: 'iqiyi-comment-data-error', interface: 'comment', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      option = null; result = null; data = null; link = null;
     });
   }
 }

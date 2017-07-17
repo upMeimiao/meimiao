@@ -11,6 +11,75 @@ const platform = require('./platform');
 let logger = logging.getLogger('信息处理');
 
 /**
+ * 查看一下发送报警的次数，如果同一错误在短时间内连续发送五次，
+ * 应当停止发送需要间隔20分钟之后如果同一错误还在发生继续发送（否则删除错误发送记录）
+ * */
+const errorNum = (events, result, typeErr) => {
+  const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
+    keyNum = `errorNum:${result.platform}:${result.bid}:${typeErr.type}`,
+    aloneKey = `alone:${result.platform}:${result.bid}`,
+    time =  parseInt(new Date().getTime() / 1000, 10);
+  events.MSDB.get(keyNum, (err, errorData) => {
+    if (err) {
+      events.emit('error', {error: '发送错误次数数据查询失败', platform: result.platform});
+      events = null; result = null; typeErr = null;
+      return;
+    }
+    if (!errorData) {
+      editEmail.interEmail(events, result);
+      events.MSDB.set(keyNum, JSON.stringify({num: 1, startTime: time, lastTime: time}));
+      events = null; result = null; typeErr = null;
+      return;
+    }
+    try {
+      errorData = JSON.parse(errorData);
+    } catch (e) {
+      events.emit('error', {error: '发送错误次数数据解析失败', platform: result.platform});
+      events = null; result = null; typeErr = null;
+      return;
+    }
+    // 对个别平台的单独处理
+    if (Number(errorData.num) === 2) {
+      if (result.platform === 'weibo' && !isNaN(result.message) && Number(result.message) === 403) {
+        events.MSDB.set(aloneKey, time);
+      }
+      if (result.platform === 'xiaoying' && !isNaN(result.message)) {
+        if (Number(result.message) === 404 || Number(result.message) === 502){
+          events.MSDB.set(aloneKey, time);
+        }
+      }
+    }
+    // 当错误进来之后会先进行时间的判断，如果当前的错误记录的起始时间到目前为止超过了20分钟，
+    // 并且最新的一次错误发生所记录的时间超过五分钟没有更新，那么就认为该平台在某个时间段出现故障，
+    // 错误记录清除重新记录
+    if ((Number(time) - Number(errorData.startTime) >= 1200) && (Number(time) - Number(errorData.lastTime) > 300)) {
+      events.MSDB.del(key);
+      events.MSDB.del(keyNum);
+      return;
+    }
+    if ((Number(time) - Number(errorData.startTime) >= 1200) && Number(errorData.num) > 10) {
+      result.num = 1;
+      events.MSDB.set(key, JSON.stringify(result));
+      events.MSDB.del(keyNum);
+      return;
+    }
+    if (Number(errorData.num) <= 5) {
+      editEmail.interEmail(events, result);
+      errorData.num += 1;
+      errorData.lastTime = time;
+      events.MSDB.set(keyNum, JSON.stringify(errorData));
+      events.MSDB.expire(key, 1200);
+      events = null; result = null; typeErr = null; errorData = null;
+      return;
+    }
+    errorData.num += 1;
+    errorData.lastTime = time;
+    events.MSDB.set(keyNum, JSON.stringify(errorData));
+    events = null; result = null; typeErr = null; errorData = null;
+  });
+};
+
+/**
  *  接口存储方式处理
  *  将当前的数据跟库里存下来的数据进行比对判断
  *  当接口异常之后进行报警操作
@@ -18,7 +87,7 @@ let logger = logging.getLogger('信息处理');
 const interSetErr = (events, result, typeErr) => {
   const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
     time =  parseInt(new Date().getTime() / 1000, 10);
-  if ((Number(time) - Number(result.startTime)) >= 3600) {
+  if ((Number(time) - Number(result.startTime)) >= 300 && (Number(time) - Number(result.lastTime)) >= 120) {
     events.MSDB.del(key);
     return;
   }
@@ -27,25 +96,19 @@ const interSetErr = (events, result, typeErr) => {
     result.message = typeErr.err;
     result.lastTime = time;
     events.MSDB.set(key, JSON.stringify(result));
-    events = null;
-    result = null;
-    typeErr = null;
+    events = null; result = null; typeErr = null;
     return;
   }
-  if (Number(result.num) >= 5) {
-    editEmail.interEmail(events, result);
-    events.MSDB.del(key);
-    events = null;
-    result = null;
-    typeErr = null;
+  if (Number(result.num) >= 7) {
+    errorNum(events, result, typeErr);
+    events = null; result = null; typeErr = null;
     return;
   }
   result.num = Number(result.num) + 1;
   result.lastTime = time;
   events.MSDB.set(key, JSON.stringify(result));
-  events = null;
-  result = null;
-  typeErr = null;
+  events.MSDB.expire(key, 300);
+  events = null; result = null; typeErr = null;
 };
 /**
  *  接口信息处理方法
@@ -62,44 +125,39 @@ exports.interface = (events, task, typeErr) => {
     num = 0,
     time = parseInt(new Date().getTime() / 1000, 10);
   typeErr.err = JSON.stringify(typeErr.err);
+  if (!typeErr.err) {
+    typeErr.typeErr = 'NoError';
+    typeErr.message = '错误发生了，但是没有错误信息';
+    typeErr.bid = task.id;
+    typeErr.platform = p;
+    typeErr.bname = task.name;
+    typeErr.lastTime = time;
+    typeErr.type = result.type;
+    editEmail.interEmail(events, typeErr);
+    events = null; task = null; typeErr = null;
+    return;
+  }
   if (typeErr.err.includes('TIMEDOUT')) {
     // 超时的错误暂时先不管
-    events = null;
-    task = null;
-    typeErr = null;
+    events = null; task = null; typeErr = null;
     return;
   }
   if (typeErr.err.includes('Unexpected') || typeErr.err.includes('unexpected') || typeErr.err.includes('Invalid hexadecimal escape sequence') || typeErr.err.includes('read ECONNRESET')) {
     // 意外的json错误
-    events = null;
-    task = null;
-    typeErr = null;
+    events = null; task = null; typeErr = null;
     return;
-  }
-  if (Number(task.p) === 14) {
-    if (!isNaN(typeErr.err) && Number(typeErr.err) >= 500) {
-      // 酷六的500 错误略过
-      events = null;
-      task = null;
-      typeErr = null;
-      return;
-    }
   }
   events.MSDB.get(key, (err, result) => {
     if (err) {
-      events.emit('error', {error: '接口数据库查询失败', platform: p});
-      events = null;
-      task = null;
-      typeErr = null;
+      events.emit('error', {error: '存放错误信息数据库查询失败', platform: p});
+      events = null; task = null; typeErr = null;
       return;
     }
     try {
       result = JSON.parse(result)
     } catch (e) {
-      events.emit('error', {error: '接口数据解析失败', data: result});
-      events = null;
-      task = null;
-      typeErr = null;
+      events.emit('error', {error: '错误信息数据解析失败', data: result});
+      events = null; task = null; typeErr = null;
       return;
     }
     if (!result) {
@@ -113,18 +171,15 @@ exports.interface = (events, task, typeErr) => {
         url: typeErr.url,
         startTime: time,
         lastTime: time,
+        type: task.type,
         num
       };
       events.MSDB.set(key, JSON.stringify(errorInfo));
-      events = null;
-      task = null;
-      typeErr = null;
+      events = null; task = null; typeErr = null;
       return;
     }
     interSetErr(events, result, typeErr);
-    events = null;
-    typeErr = null;
-    result = null;
+    events = null; typeErr = null; result = null;
   });
 };
 

@@ -1,13 +1,10 @@
 /**
  * Created by zhupenghui on 17/6/19.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-const crypto = require('crypto');
 
-const getHoney = () => {
-  const hash = crypto.createHash('md5');
+let logger, typeErr, async, request, infoCheck, crypto;
+const getHoney = (md5) => {
+  const hash = md5.createHash('md5');
   const t = Math.floor((new Date()).getTime() / 1e3),
     e = t.toString(16).toUpperCase(),
     n = hash.update(t.toString()).digest('hex').toUpperCase();
@@ -25,11 +22,14 @@ const getHoney = () => {
     cp: `${e.slice(0, 3) + l}E1`
   };
 };
-let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
+    crypto = core.modules.crypto;
     logger = this.settings.logger;
     logger.trace('toutiao monitor begin...');
     core = null;
@@ -74,6 +74,17 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (result.message !== 'success' || !result.data) {
+        typeErr = {type: 'data', err: `toutiao-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      let fans = result.data.total_cnt;
+      if (Number(fans) === 0 && result.data.users.length !== 0) {
+        typeErr = {type: 'data', err: `toutiao-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -82,7 +93,7 @@ class dealWith {
     if (times >= 3) {
       return;
     }
-    let { as, cp } = getHoney(),
+    let { as, cp } = getHoney(crypto),
       option = {
         ua: 3,
         own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)',
@@ -120,7 +131,7 @@ class dealWith {
           return;
         }
         if (!result || result.length === 0) {
-          typeErr = {type: 'data', err: 'toutiao-list-data-null', interface: 'list', url: option.url};
+          typeErr = {type: 'data', err: `toutiao-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         option = null; result = null; cp = null; as = null;

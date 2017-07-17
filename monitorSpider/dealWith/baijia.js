@@ -1,16 +1,14 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-
-let logger, typeErr;
+let logger, typeErr, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('baijia monitor begin...');
     core = null;
@@ -45,6 +43,11 @@ class dealWith {
       result = result.body.replace(/[\s\n\r]/g, '');
       const startIndex = result.indexOf('videoData={"id'),
         endIndex = result.indexOf(';window.listInitData');
+      if (startIndex === -1 || endIndex === -1) {
+        typeErr = {type: 'json', err: 'baijia-fans-播放详情页DOM结构异常', interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
       let dataJson = result.substring(startIndex + 10, endIndex);
       try {
         dataJson = JSON.parse(dataJson);
@@ -52,11 +55,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(dataJson)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      typeErr = null;
-      option = null;
-      $ = null;
-      result = null;
-      dataJson = null;
+      typeErr = null; option = null; $ = null; result = null; dataJson = null;
     });
   }
   getList(task, callback) {
@@ -86,7 +85,7 @@ class dealWith {
         return;
       }
       if (!result.items || result.items.length === 0) {
-        typeErr = {type: 'data', err: 'baijia-list-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `{error: baijia-list-视频列表数据异常, data: ${JSON.stringify(result.items)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -127,6 +126,10 @@ class dealWith {
         return;
       }
       let dataJson = result.body.replace(/[\s\n\r]/g, '');
+      if (dataJson.includes('很抱歉，您要访问的文章已蒸发，或者该网址不存在')) {
+        option = null; typeErr = null; dataJson = null;
+        return;
+      }
       const startIndex = dataJson.indexOf('videoData={"id') === -1 ? dataJson.indexOf('={tplData:{') : dataJson.indexOf('videoData={"id'),
         endIndex = dataJson.indexOf(';window.listInitData') === -1 ? dataJson.indexOf(',userInfo:') : dataJson.indexOf(';window.listInitData');
       if (startIndex === -1 || endIndex === -1) {
@@ -141,10 +144,7 @@ class dealWith {
         typeErr = {type: 'json', err: `{error: ${e.message}, data: ${dataJson}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      typeErr = null;
-      option = null;
-      dataJson = null;
-      $ = null;
+      typeErr = null; option = null; dataJson = null; $ = null;
     });
   }
 }

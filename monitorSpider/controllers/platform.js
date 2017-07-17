@@ -44,6 +44,15 @@ const dealWith = new Map([
   [41, 'renren'],
   [42, 'dianshi'],
   [44, 'bolo'],
-  [45, 'huoshan']
+  [45, 'huoshan'],
+  [46, 'migu'],
+  [47, 'douyin'],
+  [48, 'aipai'],
+  [49, 'xiaokaxiu'],
+  [50, 'shanka'],
+  [51, 'naitang'],
+  [52, 'youliao'],
+  [53, 'eyepetizer'],
+  [54, 'jd']
 ]);
 module.exports = dealWith;

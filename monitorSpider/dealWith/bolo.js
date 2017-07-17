@@ -1,16 +1,16 @@
 /**
  * Created by zhupenghui on 17/6/23.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('bolo monitor begin...');
     core = null;
@@ -51,7 +51,7 @@ class dealWith {
       let $ = cheerio.load(result.body),
         fans_num = $('span.item.fans').text();
       if (!fans_num) {
-        typeErr = {type: 'data', err: 'bolo-data-fans-null', interface: 'getUser', url: option.url};
+        typeErr = {type: 'data', err: `bolo-data-fans-null, data: ${fans_num}`, interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; fans_num = null;
@@ -80,7 +80,7 @@ class dealWith {
         return;
       }
       if (!result || !result.length) {
-        typeErr = {type: 'data', err: 'bolo-data-list-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `bolo-data-list-error, data: ${JSON.stringify(result)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -107,6 +107,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideoInfo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.videoInfo) {
+        typeErr = {type: 'data', err: `bolo-videoInfo-数据异常, data: ${JSON.stringify(result)}`, interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

@@ -1,15 +1,13 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-
-let logger, typeErr;
+let logger, typeErr, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('ifeng monitor begin...');
     core = null;
@@ -47,13 +45,13 @@ class dealWith {
         return;
       }
       if (!result.infoList || result.infoList.length === 0) {
-        typeErr = {type: 'data', err: 'ifeng-list-异常错误', interface: 'user-total', url: option.url};
+        typeErr = {type: 'data', err: `ifeng-list-异常错误, data: ${JSON.stringify(result.infoList)}`, interface: 'user-total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       if (!result.infoList[0] || !result.infoList[0].weMedia.followNo) {
-        typeErr = {type: 'data', err: 'ifeng-fans-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `ifeng-fans-data-error, data: ${JSON.stringify(result.infoList)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       this.getVideo(task, result.infoList[0].bodyList[0]);
@@ -85,6 +83,10 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      if (!result) {
+        typeErr = {type: 'data', err: `ifeng-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+      }
       this._ding(task, video.memberItem.guid);
       this._cai(task, video.memberItem.guid);
       option = null; result = null;
@@ -112,6 +114,13 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'ding', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.browse) {
+        if (Number(result.browse) !== 0) {
+          typeErr = {type: 'data', err: `ifeng-ding-data-error: ${JSON.stringify(result)}`, interface: 'ding', url: option.url};
+          infoCheck.interface(this.core, task, typeErr);
+        }
       }
       option = null; result = null;
     });
@@ -138,6 +147,13 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'cai', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.browse) {
+        if (Number(result.browse) !== 0) {
+          typeErr = {type: 'data', err: `ifeng-cai-data-error: ${JSON.stringify(result)}`, interface: 'cai', url: option.url};
+          infoCheck.interface(this.core, task, typeErr);
+        }
       }
       option = null; result = null;
     });

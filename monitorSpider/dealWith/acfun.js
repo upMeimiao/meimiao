@@ -1,15 +1,14 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-
-let logger, typeErr;
+let logger, typeErr, request, infoCheck, async;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
+    async = core.modules.async;
     logger = this.settings.logger;
     logger.trace('acfun monitor begin...');
     core = null;
@@ -62,7 +61,7 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.followed) {
-        typeErr = {type: 'data', err: 'acfun-fans-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `粉丝数据: ${JSON.stringify(result.data)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -98,7 +97,7 @@ class dealWith {
         return;
       }
       if(!result.contents ||  result.contents.length === 0) {
-        typeErr = {type: 'data', err: 'acfun-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.contents)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

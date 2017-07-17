@@ -1,18 +1,19 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const cheerio = require('cheerio');
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, cheerio, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    cheerio = core.modules.cheerio;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('yy monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -87,7 +88,7 @@ class dealWith {
         return;
       }
       if(!result.data ||  result.data.length === 0) {
-        typeErr = {type: 'data', err: 'yy-duanpai-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `yy-duanpai-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       result = null; option = null; typeErr = null;
@@ -116,7 +117,7 @@ class dealWith {
         return;
       }
       if(!result.data ||  result.data.length === 0) {
-        typeErr = {type: 'data', err: 'yy-shenqu-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `yy-shenqu-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       result = null; typeErr = null; option = null;
@@ -145,7 +146,7 @@ class dealWith {
         return;
       }
       if(!result.data.list ||  result.data.list.length === 0) {
-        typeErr = {type: 'data', err: 'yy-huifang-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `yy-huifang-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; typeErr = null;

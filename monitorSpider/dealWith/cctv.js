@@ -2,17 +2,17 @@
 /**
  * Created by zhupenghui on 17/6/22.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const URL = require('url');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, cheerio, URL, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    cheerio = core.modules.cheerio;
+    URL = core.modules.URL;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('cctv monitor begin...');
     core = null;
@@ -55,6 +55,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err: `cctv-fans-数据异常, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -77,8 +82,8 @@ class dealWith {
       }
       $ = cheerio.load(result.body);
       content = $('div.shipin_list_boxs>ul>li');
-      if (content.length === 0) {
-        typeErr = {type: 'data', err: 'cctv-list-data-null', interface: 'list', url: option.url};
+      if (content.length === 0 || !content) {
+        typeErr = {type: 'data', err: `cctv-list-data-null, data: ${content.length}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       this.getVidInfo(task, content.eq(0));
@@ -87,11 +92,10 @@ class dealWith {
   }
   getVidInfo(task, video) {
     let vid = video.find('div.images>a').attr('href'),
-      option = {
-        url: this.settings.spiderAPI.cctv.videoInfo + vid
-      };
+      option = {};
     vid = URL.parse(vid, true).pathname;
     vid = vid.replace('/v-', '').replace('.html', '');
+    option.url = this.settings.spiderAPI.cctv.videoInfo + vid;
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -107,6 +111,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(err.message)}, data: ${result.body}`, interface: 'video', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err: `cctv-videoInfo-数据异常, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; vid = null;

@@ -1,15 +1,14 @@
 /**
  * Created by zhupenghui on 17/6/20.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('ku6 monitor begin...');
     core = null;
@@ -56,6 +55,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err:  `ku6-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -81,6 +85,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getTotal', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err:  `ku6-total-data-error, data: ${JSON.stringify(result)}`, interface: 'getTotal', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -108,8 +117,8 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result.data || result.data.length === 0) {
-        typeErr = {type: 'data', err: 'ku6-list-data-error', interface: 'list', url: option.url};
+      if (!result.data || !result.data.length) {
+        typeErr = {type: 'data', err: `ku6-list-data-error, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

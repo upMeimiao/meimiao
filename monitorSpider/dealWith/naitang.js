@@ -1,17 +1,16 @@
 /**
- * Created by zhupenghui on 17/6/20.
+ * Created by zhupenghui on 17/7/12.
  */
-
-let logger, typeErr, async, request, infoCheck;
+let logger, typeErr, request, infoCheck, async;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
     request = core.modules.request;
     infoCheck = core.modules.infoCheck;
+    async = core.modules.async;
     logger = this.settings.logger;
-    logger.trace('neihan monitor begin...');
+    logger.trace('naitang monitor begin...');
     core = null;
   }
   start(task, callback) {
@@ -22,8 +21,8 @@ class dealWith {
           this.getUser(task);
           cb();
         },
-        list: (cb) => {
-          this.list(task);
+        video: (cb) => {
+          this.getVideoList(task);
           cb();
         }
       },
@@ -34,8 +33,9 @@ class dealWith {
   }
   getUser(task) {
     let option = {
-      ua: 1,
-      url: this.settings.spiderAPI.neihan.userInfo + task.id
+      url: `${this.settings.spiderAPI.naitang.user + task.id}`,
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -46,26 +46,32 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null;
+        typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result || !result.data) {
-        typeErr = {type: 'data', err: `neihan-fans-data-error, data: ${JSON.stringify(result.data)}`, interface: 'user', url: option.url};
+      if (Number(result.error) !== 0 || !result.data) {
+        typeErr = {type: 'data', err: `naitang-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null;
+      typeErr = null;
     });
   }
-  list(task) {
+  getVideoList(task) {
     let option = {
-      url: `${this.settings.spiderAPI.neihan.medialist + task.id}&min_time=0`
+      url: `${this.settings.spiderAPI.naitang.list + task.id}&start=0`,
+      ua: 3,
+      own_ua: 'Toffee/2.3.0 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
+    let start = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -75,21 +81,23 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null;
+        typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      let data = result.data.data;
-      if(!data || data.length === 0) {
-        typeErr = {type: 'data', err: `budejie-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
+      if (Number(result.error) !== 0 || !result.data || !result.data.list.length) {
+        typeErr = {type: 'data', err: `naitang-视频列表, data: ${JSOM.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      data = null; option = null; result = null;
+      option = null;
+      typeErr = null;
     });
   }
 }

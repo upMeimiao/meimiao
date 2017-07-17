@@ -2,14 +2,18 @@
  * Spider Core
  * created by zhupenghui on 17/6/12.
  */
-const kue = require( 'kue' );
-const request = require('request');
-const Redis = require( 'ioredis' );
-const async = require( 'neo-async' );
-const domain = require('domain');
-const events = require('events');
-const platfrom = require('./controllers/platform');
-const schedule = require('node-schedule');
+const request = require('../lib/request'),
+ Redis = require( 'ioredis' ),
+ async = require( 'neo-async' ),
+ zlib = require('zlib'),
+ events = require('events'),
+ req = require('request'),
+ platfrom = require('./controllers/platform'),
+ infoCheck = require('./controllers/infoCheck'),
+ cheerio = require('cheerio'),
+ URL = require('url'),
+ crypto = require('crypto'),
+ fetchUrl = require('fetch').fetchUrl;
 
 let logger,settings;
 class spiderCore extends events{
@@ -18,14 +22,16 @@ class spiderCore extends events{
     settings = _settings;
     this.settings = settings;
     this.redis = settings.redis;
+    this.modules = {
+      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl
+    };
     this.proxy = new (require('./controllers/proxy'))(this);
-    this.getTask = new (require('./controllers/beginTask'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
     _settings = null;
   }
   assembly() {
-    // 连接存储正确数据的缓存库
+    // 连接存储数据的缓存库
     this.MSDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:6379/${this.redis.MSDB}`, {
       reconnectOnError(err) {
         return err.message.slice(0, 'READONLY'.length) === 'READONLY';
@@ -37,30 +43,43 @@ class spiderCore extends events{
     this.assembly();
     this.on('error', (massage) => {
       this.error_event(massage);
-    })
+    });
   }
   initPlatForm() {
+    // 实例化平台模块
     let platfromArr = [];
+    this.getTask = new (require('./controllers/beginTask'))(this);
     for (const [key, value] of platfrom.entries()) {
-      platfromArr.push({ name: value, platform: new (require('./dealWith/' + value))(this) });
+      platfromArr.push({ name: value, type: '', platform: new (require('./dealWith/' + value))(this) });
     }
+    // platfromArr.push({ name: 'youliao', type: 'ceshi', platform: new (require('./dealWith/youliao'))(this) });
     this.beginTask(platfromArr);
+    this.modules = null;
     platfromArr = null;
   }
   beginTask(plat) {
     // 并行执行任务
-    const queue = async.queue((task, callback) => {
-      this.getTask.start(task.name, task.platform, () => {
-        task = null;
-        callback();
-      });
-    }, 45);
+    const time = new Date().getHours(),
+      queue = async.queue((task, callback) => {
+        this.getTask.start(task, () => {
+          task = null;
+          callback();
+        });
+      }, 30);
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
-      setTimeout(() => {
-        this.beginTask(plat);
-      }, 12000);
+      if ((time >= 19 && time <= 23) || (time >= 0 && time <= 7)) {
+        setTimeout(() => {
+          this.beginTask(plat);
+          plat = null;
+        }, 20000);
+      } else {
+        setTimeout(() => {
+          this.beginTask(plat);
+          plat = null;
+        }, 12000);
+      }
     };
     // 任务添加
     queue.push(plat, (err) => {

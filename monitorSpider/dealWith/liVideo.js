@@ -1,16 +1,14 @@
 /**
  * Created by zhupenghui on 17/6/23.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('liVideo monitor begin...');
     core = null;
@@ -58,7 +56,7 @@ class dealWith {
         return;
       }
       if (!result.contList || result.contList.length === 0) {
-        typeErr = {type: 'json', err: 'liVideo-list-data-error', interface: 'getVidList', url: option.url};
+        typeErr = {type: 'json', err: `liVideo-list-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -103,7 +101,7 @@ class dealWith {
         return;
       }
       if (!result.content) {
-        typeErr = {type: 'data', err: 'liVideo-data-error', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `liVideo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

@@ -1,16 +1,16 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('mgtv monitor begin...');
     core = null;
@@ -76,7 +76,7 @@ class dealWith {
         return;
       }
       if (!result.data.list || result.data.list.length === 0) {
-        typeErr = {type: 'data', err: 'mgtv-list-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `mgtv-list-data-null, data: ${JSON.stringify(result.data)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -102,7 +102,6 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        return;
       }
       option = null; result = null;
     });
@@ -126,6 +125,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getPlayNum', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data || !result.data.all) {
+        typeErr = {type: 'data', err: `mgtv-play-data-error, data: ${JSON.stringify(result)}`, interface: 'getPlayNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -151,6 +155,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getClass', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data || !result.data.fstlvlName) {
+        typeErr = {type: 'data', err: `mgtv-class-data-error, data: ${JSON.stringify(result)}`, interface: 'getClass', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -173,7 +182,7 @@ class dealWith {
       let $ = cheerio.load(result.body),
         desc = $('span.details').text();
       if (!desc) {
-        typeErr = {type: 'data', err: 'mgtv-desc-null', interface: 'getDesc', url: option.url};
+        typeErr = {type: 'data', err: `mgtv-desc-null, data: ${JSON.stringify(desc)}`, interface: 'getDesc', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; desc = null;
@@ -199,6 +208,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getLike', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.data) {
+        typeErr = {type: 'data', err: `mgtv-like-data-error, data: ${JSON.stringify(result)}`, interface: 'getLike', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -222,6 +236,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComNum', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.total_number) {
+        typeErr = {type: 'data', err: `mgtv-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getComNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

@@ -1,23 +1,23 @@
 /**
  * Created by zhupenghui on 17/6/20.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-const crypto = require('crypto');
 
-const sign = (t, e) => {
+const sign = (crypto, t, e) => {
   const md5 = crypto.createHash('md5');
   if (t === 'v') {
     return md5.update(`100-DDwODVkv&6c4aa6af6560efff5df3c16c704b49f1&${e}`).digest('hex');
   }
   return md5.update(`700-cJpvjG4g&bad4543751cacf3322ab683576474e31&${e}`).digest('hex');
 };
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck, crypto;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
+    crypto = core.modules.crypto;
     logger = this.settings.logger;
     logger.trace('tudou monitor begin...');
     core = null;
@@ -65,6 +65,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.html) {
+        typeErr = {type: 'data', err: `tudou-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
     });
@@ -72,7 +77,7 @@ class dealWith {
   getTotal(task) {
     let time = new Date().getTime().toString().substring(0, 10),
       option = {
-      url: `${this.settings.spiderAPI.tudou.newList}&pg=1&uid=${task.encodeId}&_s_=${sign('v', time)}&_t_=${time}&e=md5`,
+      url: `${this.settings.spiderAPI.tudou.newList}&pg=1&uid=${task.encodeId}&_s_=${sign(crypto, 'v', time)}&_t_=${time}&e=md5`,
       ua: 1
     };
     request.get(logger, option, (err, result) => {
@@ -91,6 +96,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getTotal', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || !result.data) {
+        typeErr = {type: 'data', err: `tudou-total-data-error, data: ${JSON.stringify(result)}`, interface: 'getTotal', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; time = null;
     });
@@ -98,7 +108,7 @@ class dealWith {
   getComment(task) {
     let time = new Date().getTime().toString().substring(0, 10),
       option = {
-        url: `${this.settings.spiderAPI.tudou.comment}${task.aid}&objectType=1&listType=0&currentPage=1&pageSize=30&sign=${sign('c', time)}&time=${time}`,
+        url: `${this.settings.spiderAPI.tudou.comment}${task.aid}&objectType=1&listType=0&currentPage=1&pageSize=30&sign=${sign(crypto, 'c', time)}&time=${time}`,
         ua: 1
       };
     request.get(logger, option, (err, result) => {
@@ -116,6 +126,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (result.code !== 0) {
+        typeErr = {type: 'data', err: `tudou-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; time = null;

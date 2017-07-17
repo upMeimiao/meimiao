@@ -1,19 +1,18 @@
 /**
- * Created by zhupenghui on 17/6/21.
+ * Created by zhupenghui on 17/7/12.
  */
-
-const jsonp = (data) => data;
-let logger, typeErr, async, request, fetchUrl, infoCheck;
+let logger, typeErr, request, infoCheck, async, req, zlib;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
     request = core.modules.request;
-    fetchUrl = core.modules.fetchUrl;
     infoCheck = core.modules.infoCheck;
+    async = core.modules.async;
+    req = core.modules.req;
+    zlib = core.modules.zlib;
     logger = this.settings.logger;
-    logger.trace('tv56 monitor begin...');
+    logger.trace('aipai monitor begin...');
     core = null;
   }
   start(task, callback) {
@@ -29,11 +28,11 @@ class dealWith {
           cb();
         },
         video: (cb) => {
-          this.getVideo(task);
+          this.video(task);
           cb();
         },
         comment: (cb) => {
-          this.getComment(task);
+          this.comment(task);
           cb();
         }
       },
@@ -44,8 +43,8 @@ class dealWith {
   }
   getUser(task) {
     let option = {
-      url: `${this.settings.spiderAPI.tv56.userInfo}?uids=${task.id}&_=${new Date().getTime()}`,
-      ua: 1
+      url: this.settings.spiderAPI.aipai.user + task.id,
+      ua: 2
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -56,27 +55,31 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null;
+        typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        option = null;
+        typeErr = null;
         return;
       }
-      let userInfo = result.data;
-      if (userInfo.length === 0) {
-        typeErr = {type: 'data', err: `tv56-dans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+      if (Number(result.code) !== 0 || !result.data) {
+        typeErr = {type: 'data', err: `aipai-粉丝数: ${JSON.stringify(result)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      option = null; result = null; userInfo = null;
+      option = null;
+      typeErr = null;
     });
   }
   list(task) {
     let option = {
-      url: `${this.settings.spiderAPI.tv56.list}${task.id}&_=${new Date().getTime()}&pg=1`,
-      ua: 1
+      url: `${this.settings.spiderAPI.aipai.list + task.id}_self-0_page-1.html`,
+      ua: 2
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -87,61 +90,69 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null;
+        typeErr = null;
         return;
       }
       try {
-        result = eval(result.body);
+        result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
+        option = null;
+        typeErr = null;
         return;
       }
-      if(!result.data.list ||  result.data.list.length === 0) {
-        typeErr = {type: 'data', err: `tv56-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
+      if(Number(result.code) !== 0 || !result.data.length) {
+        typeErr = {type: 'data', err: `aipai-视频列表: ${JSON.stringify(result.data)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null;
+      typeErr = null;
     });
   }
-  getVideo(task) {
+  video(task) {
     let option = {
+      method: 'GET',
+      url: `${this.settings.spiderAPI.aipai.video + task.aid}_os-2.html`,
+      encoding: null,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+        'User-Agent': 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
       }
     };
-    fetchUrl(`${this.settings.spiderAPI.tv56.video}${task.aid}&_=${new Date().getTime()}`, option, (err, meta, body) => {
-      if (err) {
-        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: option.url};
+    req(option, (error, response, body) => {
+      if (error) {
+        typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (meta.status !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(meta.status), interface: 'video', url: option.url};
+      if (response.statusCode !== 200) {
+        typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
+      }
+      if (response.headers['content-encoding'] && response.headers['content-encoding'].toLowerCase().includes('gzip')) {
+        body = zlib.unzipSync(body);
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'video', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(body)}}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (body.status !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(body.status), interface: 'video', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-        return;
-      }
-      if (!body.data.video_desc) {
-        typeErr = {type: 'data', err: 'tv56-video-data-error', interface: 'video', url: option.url};
+      if (Number(body.code) !== 0 || !body.data || !body.data.assetInfo) {
+        typeErr = {type: 'data', err: `aipai-单视频信息: ${JSON.stringify(body)}}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      option = null; body = null;
+      option = null;
+      body = null;
     });
   }
-  getComment(task) {
+  comment(task) {
     let option = {
-      url: `${this.settings.spiderAPI.tv56.comment}${task.aid}&_=${new Date().getTime()}`,
+      url: `${this.settings.spiderAPI.aipai.comment + task.aid}.html`,
+      ua: 2
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -152,20 +163,23 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
+        option = null;
+        typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'comment', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(body)}}`, interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result) {
-        typeErr = {type: 'data', err: 'tv56-comment-data-error', interface: 'comment', url: option.url};
+      if (!result.total) {
+        typeErr = {type: 'data', err: `aipai-评论数: ${JSON.stringify(result)}}`, interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null;
+      result = null;
     });
   }
 }

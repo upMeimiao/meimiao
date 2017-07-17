@@ -1,18 +1,18 @@
 /**
  * Created by zhupenghui on 17/6/22.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const fetchUrl = require('fetch').fetchUrl;
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => data;
-let logger, typeErr;
+let logger, typeErr, async, cheerio, fetchUrl, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    cheerio = core.modules.cheerio;
+    fetchUrl = core.modules.fetchUrl;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('v1 monitor begin...');
     core = null;
@@ -75,7 +75,7 @@ class dealWith {
         return;
       }
       if (!result.body || !result.body.data) {
-        typeErr = {type: 'data', err: 'v1-list-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `v1-list-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -105,6 +105,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      if (!body.body || !body.body.obj || !body.body.obj.videoDetail) {
+          typeErr = {type: 'data', err: `v1-video-data-error, data: ${JSON.stringify(body)}`, interface: 'getVideo', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
       option = null; body = null;
     });
   }
@@ -127,7 +132,7 @@ class dealWith {
         tag = this.getTag($('li.summaryList_item ul.tagList li')),
         desc = $('p.summaryList_long').text();
       if (!tag && desc) {
-        typeErr = {type: 'data', err: 'v1-data-DOM-error', interface: 'getVideoInfo', url: option.url};
+        typeErr = {type: 'data', err: `v1-data-DOM-error, data: ${JSON.stringify(tag, '&&&', desc)}`, interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; tag = null; desc = null;
@@ -152,6 +157,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getSupport', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: `v1-support-data-error, data: ${JSON.stringify(result)}`, interface: 'getSupport', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

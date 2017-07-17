@@ -1,15 +1,15 @@
 /**
  * Created by zhupenghui on 17/6/19.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('miaopai monitor begin...');
     core = null;
@@ -55,6 +55,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result.header) {
+        typeErr = {type: 'data', err: 'miaopai-fans-data-error', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -112,7 +117,7 @@ class dealWith {
         return;
       }
       if (Number(result.status) !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(result.status), interface: 'getInfo', url: option.url};
+        typeErr = {type: 'status', err: `miaopai-videoInfo-data-status-${JSON.stringify(result.status)}`, interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

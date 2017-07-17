@@ -1,16 +1,14 @@
 /**
  * Created by zhupenghui on 17/6/23.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
-
-let logger, typeErr;
+let logger, typeErr, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('baiduVideo monitor begin...');
     core = null;
@@ -58,18 +56,13 @@ class dealWith {
       }
       const fan = $('div.num-sec').eq(0).find('p.num').text();
       if (!fan) {
-        typeErr = {type: 'data', err: `baiduVideo-fan-dom-error`, interface: 'videoAlbum', url: option.url};
+        typeErr = {type: 'data', err: `baiduVideo-粉丝数: ${JSON.stringify(fan)}, DOM结构可能出问题了`, interface: 'videoAlbum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       this.getVidList(task, listData[0].album.id);
-      listData = null;
-      option = null;
-      $ = null;
-      script = null;
-      startIndex = null;
-      endIndex = null;
+      listData = null; option = null; $ = null; script = null; startIndex = null; endIndex = null;
       callback();
     });
   }
@@ -95,6 +88,11 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
+      if (!result || !result.data.length) {
+        typeErr = {type: 'json', err: `{error: 视频列表, data: ${JSON.stringify(result.data)}}`, interface: 'getVidList', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
       this.getVidInfo(task, result.data[0].play_link);
       result = null;
       option = null;
@@ -102,11 +100,11 @@ class dealWith {
   }
   getVidInfo(task, url) {
     if (!url) {
-      typeErr = {type: 'data', err: 'baiduVideo-getVidInfo-url-error', interface: 'getVidInfo', url: option.url};
+      typeErr = {type: 'data', err: 'baiduVideo-getVidInfo-url-error', interface: 'getVidInfo', url};
       infoCheck.interface(this.core, task, typeErr);
       return;
     }
-    const option = {
+    let option = {
       url
     };
     request.get(logger, option, (err, result) => {
@@ -123,13 +121,10 @@ class dealWith {
       let $ = cheerio.load(result.body),
         playNum = $('p.title-info .play').text().replace('次', '');
       if (!playNum) {
-        typeErr = {type: 'data', err: 'baiduVideo-playNum-null', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `{error: 单视频接口播放量, data: ${playNum}}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      typeErr = null;
-      $ = null;
-      playNum = null;
-      result = null;
+      option = null; typeErr = null; $ = null; playNum = null; result = null;
     });
   }
 }
