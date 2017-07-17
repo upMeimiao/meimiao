@@ -69,7 +69,6 @@ class dealWith {
         callback();
       });
       this.sendStagingUser(user);
-      callback();
     });
   }
   sendUser(user, callback) {
