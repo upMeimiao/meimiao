@@ -1,17 +1,16 @@
 /**
  * Created by zhupenghui on 17/6/20.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => data;
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('kuaibao monitor begin...');
     core = null;
@@ -57,12 +56,12 @@ class dealWith {
         return;
       }
       if (result.ret === 1) {
-        typeErr = {type: 'data', err: 'kuaibao-user-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `kuaibao-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.channelInfo) {
-        typeErr = {type: 'data', err: 'kuaibao-user-data-null(undefind)', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `kuaibao-user-data-null(undefind), data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -133,7 +132,7 @@ class dealWith {
         return;
       }
       if (!result || !result.newslist.length) {
-        typeErr = {type: 'data', err: 'kuaibao-list-data-null', interface: 'getVideoList', url: option.url};
+        typeErr = {type: 'data', err: `kuaibao-list-data-null, data: ${JSON.stringify(result)}`, interface: 'getVideoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -186,7 +185,7 @@ class dealWith {
         return;
       }
       if (!result.comments && !result.comments.count) {
-        typeErr = {type: 'data', err: 'kuaibao-comment-data-error', interface: 'getCommentNum', url: option.url};
+        typeErr = {type: 'data', err: `kuaibao-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -220,7 +219,7 @@ class dealWith {
         return;
       }
       if (!result || !result.like_info || !result.expr_info) {
-        typeErr = {type: 'data', err: 'kuaibao-Expr-data-error', interface: 'getExpr', url: option.url};
+        typeErr = {type: 'data', err: `kuaibao-Expr-data-error, data: ${JSON.stringify(result)}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -250,7 +249,7 @@ class dealWith {
         return;
       }
       if (!result.video) {
-        typeErr = {type: 'data', err: 'kuaibao-Field-data-error', interface: 'getField', url: option.url};
+        typeErr = {type: 'data', err: `kuaibao-Field-data-error, data: ${JSON.stringify(result)}`, interface: 'getField', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

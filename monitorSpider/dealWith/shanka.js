@@ -56,7 +56,7 @@ class dealWith {
         return;
       }
       if (Number(result.ret) !== 0 || !result.data || !result.data.feeds.length) {
-        typeErr = {type: 'data', err: 'shanka-粉丝数不存在或者视频列表有问题', interface: 'user(list)', url: option.url};
+        typeErr = {type: 'data', err: `shanka-粉丝数不存在或者视频列表有问题, data: ${JSON.stringify(result)}`, interface: 'user(list)', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

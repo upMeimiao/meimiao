@@ -69,7 +69,7 @@ class dealWith {
         return;
       }
       if (Number(result.code) !== 0 || !result.data) {
-        typeErr = {type: 'data', err: 'aipai-粉丝数不存在或者本次请求异常', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `aipai-粉丝数: ${JSON.stringify(result)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -104,7 +104,7 @@ class dealWith {
         return;
       }
       if(Number(result.code) !== 0 || !result.data.length) {
-        typeErr = {type: 'data', err: 'aipai-视频列表出现异常', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `aipai-视频列表: ${JSON.stringify(result.data)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -142,7 +142,7 @@ class dealWith {
         return;
       }
       if (Number(body.code) !== 0 || !body.data || !body.data.assetInfo) {
-        typeErr = {type: 'data', err: 'aipai-单视频信息出现异常', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: `aipai-单视频信息: ${JSON.stringify(body)}}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -175,7 +175,7 @@ class dealWith {
         return;
       }
       if (!result.total) {
-        typeErr = {type: 'data', err: 'aipai-评论数不存在或者本次请求异常', interface: 'comment', url: option.url};
+        typeErr = {type: 'data', err: `aipai-评论数: ${JSON.stringify(result)}}`, interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

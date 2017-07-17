@@ -2,17 +2,16 @@
 /**
  * Created by zhupenghui on 17/6/22.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => data;
-let logger, typeErr;
+let logger, typeErr, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('pptv monitor begin...');
     core = null;
@@ -48,7 +47,7 @@ class dealWith {
         return;
       }
       if (!result || !result.ppi) {
-        typeErr = {type: 'data', err: 'pptv-ppi获取失败', interface: 'ppi', url: option.url};
+        typeErr = {type: 'data', err: `pptv-ppi获取失败, data: ${JSON.stringify(result)}`, interface: 'ppi', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -85,7 +84,7 @@ class dealWith {
       }
       if (result.err == -1 && !result.data) {
         if (task.timeout > 2) {
-          typeErr = {type: 'data', err: 'pptv-list-error', interface: 'list', url: option.url};
+          typeErr = {type: 'data', err: `pptv-list-error, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
           return;
         }
@@ -120,7 +119,7 @@ class dealWith {
         time = result.body.match(/"duration":\d+/) ? result.body.match(/"duration":\d+/).toString().replace('"duration":', '') : '',
         tag = $('div#video-info .bd .tabs a').eq(0).text();
       if (!time && !tag) {
-        typeErr = {type: 'data', err: 'pptv-DOM-error', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: `pptv-DOM-error`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; vid = null; $ = null; time = null; tag = null;
@@ -149,7 +148,7 @@ class dealWith {
         return;
       }
       if (!result || !result.data) {
-        typeErr = {type: 'data', err: 'pptv-total-data-error', interface: 'total', url: option.url};
+        typeErr = {type: 'data', err: `pptv-total-data-error, data: ${JSON.stringify(result)}`, interface: 'total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

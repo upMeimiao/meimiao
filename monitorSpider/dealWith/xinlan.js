@@ -2,16 +2,15 @@
 /**
  * Created by zhupenghui on 17/6/22.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('xinlan monitor begin...');
     core = null;
@@ -70,7 +69,7 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.length) {
-        typeErr = {type: 'data', err: 'xinlan-list-error', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `xinlan-list-error, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -100,7 +99,7 @@ class dealWith {
         return;
       }
       if (!result.content || !result.content.list.length) {
-        typeErr = {type: 'data', err: 'xinlan-video-data-error', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: `xinlan-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -155,7 +154,7 @@ class dealWith {
         return;
       }
       if (!result.content) {
-        typeErr = {type: 'data', err: 'xinlan-support-data-error', interface: 'getSupport', url: option.url};
+        typeErr = {type: 'data', err: `xinlan-support-data-error, data: ${JSON.stringify(result)}`, interface: 'getSupport', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -185,7 +184,7 @@ class dealWith {
         return;
       }
       if (!result.content || ! result.content.list.length) {
-        typeErr = {type: 'data', err: 'xinlan-sava-data-list', interface: 'getSava', url: option.url};
+        typeErr = {type: 'data', err: `xinlan-sava-data-list, data: ${JSON.stringify(result)}`, interface: 'getSava', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

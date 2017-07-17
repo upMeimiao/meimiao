@@ -1,16 +1,15 @@
 /**
  * Created by zhupenghui on 17/6/23.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('huoshan monitor begin...');
     core = null;
@@ -51,13 +50,13 @@ class dealWith {
       }
       result = result.body.replace(/[\n\s\r]/g, '');
       if (!result.match(/"stats":{"follower_count":(\d*)/)) {
-        typeErr = {type: 'data', err: 'huoshan-data-fans-正则匹配失败', interface: 'getUser', url: option.url};
+        typeErr = {type: 'data', err: `huoshan-data-fans-正则匹配失败, data: ${JSON.stringify(result.match(/"stats":{"follower_count":(\d*)/))}`, interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       let fans = result.match(/"stats":{"follower_count":(\d*)/)[1];
       if (!fans) {
-        typeErr = {type: 'data', err: 'huoshan-data-fans-null', interface: 'getUser', url: option.url};
+        typeErr = {type: 'data', err: `huoshan-data-fans-null, data: ${fans}`, interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; fans = null;
@@ -87,7 +86,7 @@ class dealWith {
         return;
       }
       if (!result.data.items || !result.data.items.length) {
-        typeErr = {type: 'data', err: 'huoshan-data-list-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `huoshan-data-list-error, data: ${JSON.stringify(result.data)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -113,9 +112,9 @@ class dealWith {
       }
       result = result.body.replace(/[\s\n\r]/g, '');
       const startIndex = result.indexOf('vardata='),
-        endIndex = result.indexOf(";require('pagelet/reflow_video/detail/detail')");
+        endIndex = result.indexOf(";require('wap:component/reflow_video/detail/detail').create");
       if (startIndex === -1 || endIndex === -1) {
-        typeErr = {type: 'data', err: 'huoshan-video-dom-error', interface: 'getVideoInfo', url: option.url};
+        typeErr = {type: 'data', err: `huoshan-video-dom-error, data: ${startIndex + '&&&&' +endIndex}`, interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -128,7 +127,7 @@ class dealWith {
         return;
       }
       if (!result || !result.stats) {
-        typeErr = {type: 'data', err: 'huoshan-videoInfo-data-error', interface: 'getVideoInfo', url: option.url};
+        typeErr = {type: 'data', err: `huoshan-videoInfo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVideoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

@@ -1,17 +1,16 @@
 /**
  * Created by zhupenghui on 17/6/20.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => data;
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('souhu monitor begin...');
     core = null;
@@ -69,7 +68,7 @@ class dealWith {
         return;
       }
       if (!result || !result.data) {
-        typeErr = {type: 'data', err: 'souhu-user-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `souhu-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -98,7 +97,7 @@ class dealWith {
         return;
       }
       if (!result.data || result.data.videos.length === 0) {
-        typeErr = {type: 'data', err: 'bili-list-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `bili-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -156,7 +155,7 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'souhu-Info-data-error', interface: 'getInfo', url: option.url};
+        typeErr = {type: 'data', err: `souhu-Info-data-error, data: ${JSON.stringify(result)}`, interface: 'getInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -185,7 +184,7 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'souhu-comment-data', interface: 'getCommentNum', url: option.url};
+        typeErr = {type: 'data', err: `souhu-comment-data, ${JSON.stringify(result)}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

@@ -1,17 +1,17 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const fetchUrl = require('fetch').fetchUrl;
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => data;
-let logger, typeErr;
+let logger, typeErr, async, request, fetchUrl, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    fetchUrl = core.modules.fetchUrl;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('tv56 monitor begin...');
     core = null;
@@ -67,7 +67,7 @@ class dealWith {
       }
       let userInfo = result.data;
       if (userInfo.length === 0) {
-        typeErr = {type: 'data', err: 'tv56-dans-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `tv56-dans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; userInfo = null;
@@ -97,7 +97,7 @@ class dealWith {
         return;
       }
       if(!result.data.list ||  result.data.list.length === 0) {
-        typeErr = {type: 'data', err: 'tv56-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `tv56-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

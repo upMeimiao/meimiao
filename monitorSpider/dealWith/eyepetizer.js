@@ -2,7 +2,6 @@
  * Created by zhupenghui on 17/7/12.
  */
 let logger, typeErr, request, infoCheck, async;
-
 class dealWith {
   constructor(core) {
     this.core = core;
@@ -63,7 +62,7 @@ class dealWith {
         return;
       }
       if (!result.itemList || !result.itemList.length) {
-        typeErr = {type: 'data', err: '开眼视频-视频列表数据出错', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `开眼视频-视频列表数据出错, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -96,7 +95,7 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'kaiyan-视频详情接口', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: `kaiyan-视频详情接口, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -127,7 +126,7 @@ class dealWith {
         return;
       }
       if (result.total === undefined) {
-        typeErr = {type: 'data', err: 'kaiyan-评论', interface: 'comment', url: option.url};
+        typeErr = {type: 'data', err: `kaiyan-评论, data: ${JSON.stringify(result)}`, interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

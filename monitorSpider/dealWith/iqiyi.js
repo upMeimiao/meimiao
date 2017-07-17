@@ -1,21 +1,22 @@
 /**
  * Created by zhupenghui on 17/6/15.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => {
   return data
 };
-let logger, typeErr;
+let logger, typeErr, async, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('iqiyi monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -60,7 +61,7 @@ class dealWith {
         return;
       }
       if (!fans) {
-        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-user-dom-error, data: ${JSON.stringify(fans)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; fans = null; fansDom = null;
@@ -86,7 +87,7 @@ class dealWith {
       let $ = cheerio.load(result.body),
         fans = $('h3.tle').text().substring(2);
       if (!fans) {
-        typeErr = {type: 'data', err: 'iqiyi-user-dom-error', interface: '_user', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-user-dom-error, data: ${JSON.stringify(fans)}`, interface: '_user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; fans = null;
@@ -146,7 +147,7 @@ class dealWith {
         }),
         titleDom = $('p.mod-piclist_info_title a');
       if (titleDom.length === 0) {
-        typeErr = {type: 'data', err: 'videoList-dom-error', interface: 'videoList', url: option.url};
+        typeErr = {type: 'data', err: `videoList-dom-error, data: ${JSON.stringify(titleDom.length)}`, interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -179,7 +180,7 @@ class dealWith {
         }),
         id = $('#flashbox').attr('data-player-tvid');
       if (!id) {
-        typeErr = {type: 'error', err: 'iqiyi-tvid-error', interface: 'videoList', url: option.url};
+        typeErr = {type: 'error', err: `iqiyi-tvid-error, data: ${id}`, interface: 'videoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -217,7 +218,7 @@ class dealWith {
           ignoreWhitespace: true
         });
       if ($('.wrap-customAuto-ht li').length === 0) {
-        typeErr = {type: 'bid', err: 'iqiyi-getList-(dom-error/bid-error)', interface: 'getList', url: option.url};
+        typeErr = {type: 'bid', err: `iqiyi-getList-(dom-error/bid-error), data: ${JSON.stringify($('.wrap-customAuto-ht li').length)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -225,7 +226,7 @@ class dealWith {
         ats = $('a[data-title]'), titles = [],
         href = $('.site-piclist_info a[title]'), links = [];
       if (!lis || !ats || !href) {
-        typeErr = {type: 'data', err: 'iqiyi-getList-listData-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-getList-listData-error, data: ${JSON.stringify({lis, ats, href})}}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -273,12 +274,12 @@ class dealWith {
         return;
       }
       if (result.code != 'A00000') {
-        typeErr = {type: 'data', err: 'iqiyi-videoInfo-aid-error', interface: 'videoInfo', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-videoInfo-aid-error, data: ${JSON.stringify(result)}`, interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: 'iqiyi-videoInfo-data-error', interface: 'videoInfo', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-videoInfo-data-error, data: ${JSON.stringify(result.data)}`, interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -313,7 +314,7 @@ class dealWith {
         return;
       }
       if (result.code != 'A00000') {
-        typeErr = {type: 'data', err: 'iqiyi-Expr-data-error', interface: 'getExpr', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-Expr-data-error, data: ${JSON.stringify(result)}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -345,7 +346,7 @@ class dealWith {
         return;
       }
       if (!result || !result.length) {
-        typeErr = {type: 'data', err:  'iqiyi-play-data-error', interface: 'getPlay', url: option.url};
+        typeErr = {type: 'data', err:  `iqiyi-play-data-error, data: ${JSON.stringify(result)}`, interface: 'getPlay', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; id = null; link = null;
@@ -376,7 +377,7 @@ class dealWith {
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: 'iqiyi-comment-data-error', interface: 'comment', url: option.url};
+        typeErr = {type: 'data', err: `iqiyi-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'comment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

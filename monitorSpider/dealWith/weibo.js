@@ -1,15 +1,15 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('weibo monitor begin...');
     core = null;
@@ -63,7 +63,7 @@ class dealWith {
         return;
       }
       if (!result.userInfo || !result.userInfo.followers_count) {
-        typeErr = {type: 'data', err: 'weibo-fans-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `weibo-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -113,7 +113,7 @@ class dealWith {
         return;
       }
       if(!result.cards ||  result.cards.length === 0) {
-        typeErr = {type: 'data', err: 'weibo-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `weibo-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; data = null;
@@ -145,12 +145,12 @@ class dealWith {
         return;
       }
       if (!result.page_info) {
-        typeErr = {type: 'data', err: 'weibo-video-data-error', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: `weibo-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.page_info.media_info) {
-        typeErr = {type: 'data', err: 'weibo-video-data-error', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: `weibo-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

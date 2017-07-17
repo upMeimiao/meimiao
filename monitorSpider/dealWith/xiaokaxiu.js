@@ -49,8 +49,7 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null;
         return;
       }
       const $ = cheerio.load(result.body),
@@ -59,8 +58,7 @@ class dealWith {
         typeErr = {type: 'data', err: 'xiaokaxiu-粉丝数不存在或者本次请求异常', interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null;
     });
   }
   list(task) {
@@ -81,8 +79,7 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null;
         return;
       }
       try {
@@ -90,12 +87,11 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null;
         return;
       }
       if(Number(result.result) !== 1 || !result.data || !result.data.list.length) {
-        typeErr = {type: 'data', err: '小咖秀-视频列表出现异常', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `小咖秀-视频列表出现异常, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -124,11 +120,10 @@ class dealWith {
         ding = $('div.uk-grid.uk-grid-collapse.uk-text-center>div').eq(0).find('span').text(),
         comment = $('div.uk-grid.uk-grid-collapse.uk-text-center>div').eq(1).find('span').text();
       if (!ding || !comment) {
-        typeErr = {type: 'data', err: 'xiaokaxiu-单视频信息出现异常', interface: 'video', url: option.url};
+        typeErr = {type: 'data', err: `xiaokaxiu-单视频信息出现异常`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
-      option = null;
-      result = null;
+      option = null; result = null;
     });
   }
 }

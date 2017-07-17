@@ -52,6 +52,7 @@ const dealWith = new Map([
   [50, 'shanka'],
   [51, 'naitang'],
   [52, 'youliao'],
-  [53, 'eyepetizer']
+  [53, 'eyepetizer'],
+  [54, 'jd']
 ]);
 module.exports = dealWith;

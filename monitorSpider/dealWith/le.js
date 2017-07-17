@@ -1,19 +1,19 @@
 /**
  * Created by zhupenghui on 17/6/15.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => {
   return data
 };
-let logger,  typeErr;
+let logger,  typeErr, async, cheerio, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    cheerio = core.modules.cheerio;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('le monitor begin...');
     core = null;
@@ -68,7 +68,7 @@ class dealWith {
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: '可能是接口变了，数据返回出问题', interface: 'videolist', url: option.url};
+        typeErr = {type: 'data', err: `可能是接口变了，数据返回出问题, data: ${JSON.stringify(result)}`, interface: 'videolist', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -99,7 +99,7 @@ class dealWith {
         return;
       }
       if (!result || result.length === 0) {
-        typeErr = {type: 'data', err: 'le-videoInfo-aid-error', interface: 'videoInfo', url: option.url};
+        typeErr = {type: 'data', err: `le-videoInfo-aid-error, data: ${JSON.stringify(result)}`, interface: 'videoInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -126,7 +126,7 @@ class dealWith {
         timeDom2 = $('#video_time'),
         timeDom3 = $('li.li_04 em');
       if (timeDom.length === 0 && timeDom2.length === 0 && timeDom3.length === 0) {
-        typeErr = {type: 'data', err: 'le-getExpr-接口返回的数据有问题', interface: 'getExpr', url: option.url};
+        typeErr = {type: 'data', err: `le-getExpr-接口返回的数据有问题, data: ${JSON.stringify({1: timeDom.length, 2: timeDom2.length, 3: timeDom3.length})}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; $ = null; timeDom = null; timeDom2 = null; timeDom3 = null;
@@ -157,7 +157,7 @@ class dealWith {
       }
       result = result.data.introduction;
       if (!result) {
-        typeErr = {type: 'data', err: 'le-getDesc-data', interface: 'getDesc', url: option.url};
+        typeErr = {type: `data', err: 'le-getDesc-data, data: ${JSON.stringify(result)}`, interface: 'getDesc', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

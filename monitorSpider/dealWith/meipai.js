@@ -1,19 +1,19 @@
 /**
  * Created by zhupenghui on 17/6/19.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     this.classification = ['热门', '直播', '搞笑', '明星名人', '明星', '女神', '舞蹈', '音乐', '美食', '美妆', '男神', '宝宝', '宠物', '吃秀', '手工', '游戏'];
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
-    core = null;
     logger.trace('meipai monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -57,7 +57,7 @@ class dealWith {
       }
       const fans = result.followers_count;
       if (!fans) {
-        typeErr = {type: 'data', err: 'meipai-user-fansData-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `meipai-user-fansData-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -86,7 +86,7 @@ class dealWith {
         return;
       }
       if (!result || result.length == 0) {
-        typeErr = {type: 'data', err: 'meipai-list-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `meipai-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -118,7 +118,7 @@ class dealWith {
         return;
       }
       if (result.lives) {
-        typeErr = {type: 'data', err: 'meipai-media-data-error', interface: 'media', url: option.url};
+        typeErr = {type: 'data', err: `meipai-media-data-error, data: ${JSON.stringify(result)}`, interface: 'media', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null; id = null; list = null;

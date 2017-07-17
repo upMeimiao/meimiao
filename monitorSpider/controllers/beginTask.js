@@ -2,18 +2,21 @@
  * spider task.
  * created by zhupenghui on 17/6/12.
  */
-const async = require('neo-async');
 const getTask = require('./platform.json');
-let logger, db;
+
+let logger, db, async;
 class setTask {
   constructor(monitorSpider) {
     this.settings = monitorSpider;
     db = monitorSpider.MSDB;
+    async = monitorSpider.modules.async;
     logger = monitorSpider.settings.logger;
     logger.debug('Start the crawler platform task ...');
+    monitorSpider = null;
   }
   start(task, callback) {
     const q = async.queue((work, callback) => {
+      work.pname = task.name;
       work.type = task.type;
       this.beginTask(work, task.platform);
       work = null;
@@ -33,7 +36,7 @@ class setTask {
   }
   beginTask(work, platform) {
     const time = parseInt(new Date().getTime() / 1000, 10);
-    db.get('alone:weiboStatus', (err, result) => {
+    db.get(`alone:${work.pname}:${work.id}`, (err, result) => {
       if (err) {
         this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });
         return;
@@ -43,7 +46,12 @@ class setTask {
         platform = null;
         return;
       }
-      db.del('alone:weiboStatus');
+      if (result && work.p === 17 && (time - result) < 300) {
+        work = null;
+        platform = null;
+        return;
+      }
+      db.del(`alone:${work.pname}:${work.id}`);
       platform.start(work, (err) => {
         if (err) {
           this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });

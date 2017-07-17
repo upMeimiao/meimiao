@@ -1,16 +1,16 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const videoList = (data) => data;
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('wangyi monitor begin...');
     core = null;
@@ -64,7 +64,7 @@ class dealWith {
         return;
       }
       if (!result.topicSet) {
-        typeErr = {type: 'data', err: 'wangyi-user-data-error', interface: 'user-total', url: option.url};
+        typeErr = {type: 'data', err: `wangyi-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user-total', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -94,7 +94,7 @@ class dealWith {
         return;
       }
       if (!result || result.length === 0) {
-        typeErr = {type: 'data', err: 'wangyi-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `wangyi-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -123,7 +123,7 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'wangyi-data-null', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `wangyi-data-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -153,7 +153,7 @@ class dealWith {
         return;
       }
       if (!result.info) {
-        typeErr = {type: 'data', err: 'wangyi-play-data-error', interface: 'getPlay', url: option.url};
+        typeErr = {type: 'data', err: `wangyi-play-data-error, data: ${JSON.stringify(result)}`, interface: 'getPlay', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

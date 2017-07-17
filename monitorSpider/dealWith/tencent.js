@@ -1,18 +1,18 @@
 /**
  * Created by zhupenghui on 17/6/15.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => {
   return data
 };
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('tencent monitor begin...');
     core = null;
@@ -171,9 +171,9 @@ class dealWith {
       option = null; result = null;
     });
   }
-  getCommentNum(task) {
+  getCommentNum(task, cid) {
     let option = {
-      url: `${this.settings.spiderAPI.tencent.commentNum + task.aid}/commentnum?_=${new Date().getTime()}`,
+      url: `${this.settings.spiderAPI.tencent.commentNum + cid}/commentnum?_=${new Date().getTime()}`,
       referer: 'https://v.qq.com/txyp/coralComment_yp_1.0.htm',
       ua: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36'
     };
@@ -196,7 +196,7 @@ class dealWith {
         return;
       }
       if (!result || !result.result) {
-        typeErr = {type: 'data', err: 'tencent-comment-data-error', interface: 'getCommentNum', url: option.url};
+        typeErr = {type: 'data', err: `tencent-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getCommentNum', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -225,7 +225,7 @@ class dealWith {
         return;
       }
       if (!result.v || result.v.length === 0) {
-        typeErr = {type: 'data', err: 'data-null', interface: 'getVidTag', url: option.url};
+        typeErr = {type: 'data', err: `data-null, data: ${JSON.stringify(result)}`, interface: 'getVidTag', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

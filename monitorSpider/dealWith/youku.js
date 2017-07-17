@@ -1,17 +1,18 @@
 /**
  * Created by zhupenghui on 17/6/15.
  */
-const async = require( 'neo-async' );
-const request = require( 'request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger;
+let logger, async, infoCheck, req;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    infoCheck = core.modules.infoCheck;
+    req = core.modules.req;
     logger = this.settings.logger;
     logger.trace('youku monitor begin...');
+    core = null;
   }
   start(task, callback) {
     task.total = 0;
@@ -40,7 +41,7 @@ class dealWith {
       method: 'GET',
       url: `${this.settings.spiderAPI.youku.userInfo + task.encodeId}`
     }, typeErr = {};
-    request(option, (err, res, body) => {
+    req(option, (err, res, body) => {
       if (err) {
         typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
@@ -59,12 +60,12 @@ class dealWith {
         return;
       }
       if (body.code !== 1) {
-        typeErr = {type: 'bid', err: 'bid-error', interface: 'user', url: option.url};
+        typeErr = {type: 'bid', err: `bid-error, data: ${JSON.stringify(body)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!body.data) {
-        typeErr = {type: 'data', err: 'data-null', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `data-null, data: ${JSON.stringify(body)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; body = null; typeErr = null;
@@ -81,7 +82,7 @@ class dealWith {
         },
         timeout: 5000
       };
-    request(option, (error, response, body) => {
+    req(option, (error, response, body) => {
       if (error) {
         typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'total', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
@@ -101,18 +102,18 @@ class dealWith {
       }
       if (body.code !== 1) {
         if (body.code === -503) {
-          typeErr = {type: 'bid', err: 'bid-error', interface: 'total', url: JSON.stringify(option)};
+          typeErr = {type: 'bid', err: `bid-error, data: ${JSON.stringify(body)}`, interface: 'total', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
           return;
         }
         if (body.code === -102) {
-          typeErr = {type: 'bid', err: 'bid-error', interface: 'total', url: JSON.stringify(option)};
+          typeErr = {type: 'bid', err: `bid-error, data: ${JSON.stringify(body)}`, interface: 'total', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
       }
       let data = body.data;
       if (!data) {
-        typeErr = {type: 'data', err: 'data-null', interface: 'total', url: JSON.stringify(option)};
+        typeErr = {type: 'data', err: `data-null, data: ${JSON.stringify(data)}`, interface: 'total', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; data = null; typeErr = null;
@@ -130,7 +131,7 @@ class dealWith {
         timeout: 5000
       };
     let typeErr = {};
-    request(option, (error, response, body) => {
+    req(option, (error, response, body) => {
       if (error) {
         typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'videoInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
@@ -149,7 +150,7 @@ class dealWith {
         return;
       }
       if (!body.videos) {
-        typeErr = {type: 'data', err: 'data-null(或者当前接口异常)', interface: 'videoInfo', url: JSON.stringify(option)};
+        typeErr = {type: 'data', err: `data-null(或者当前接口异常), data: ${JSON.stringify(body)}`, interface: 'videoInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
       ids = null; option = null; typeErr = null; body = null;

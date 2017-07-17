@@ -17,6 +17,7 @@ let logger = logging.getLogger('信息处理');
 const errorNum = (events, result, typeErr) => {
   const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
     keyNum = `errorNum:${result.platform}:${result.bid}:${typeErr.type}`,
+    aloneKey = `alone:${result.platform}:${result.bid}`,
     time =  parseInt(new Date().getTime() / 1000, 10);
   events.MSDB.get(keyNum, (err, errorData) => {
     if (err) {
@@ -37,9 +38,16 @@ const errorNum = (events, result, typeErr) => {
       events = null; result = null; typeErr = null;
       return;
     }
-    // 对微博的404 单独处理
-    if (!isNaN(errorData.message) && Number(errorData.message) === 403) {
-      events.MSDB.set('alone:weiboStatus', time);
+    // 对个别平台的单独处理
+    if (Number(errorData.num) === 2) {
+      if (result.platform === 'weibo' && !isNaN(result.message) && Number(result.message) === 403) {
+        events.MSDB.set(aloneKey, time);
+      }
+      if (result.platform === 'xiaoying' && !isNaN(result.message)) {
+        if (Number(result.message) === 404 || Number(result.message) === 502){
+          events.MSDB.set(aloneKey, time);
+        }
+      }
     }
     // 当错误进来之后会先进行时间的判断，如果当前的错误记录的起始时间到目前为止超过了20分钟，
     // 并且最新的一次错误发生所记录的时间超过五分钟没有更新，那么就认为该平台在某个时间段出现故障，
@@ -60,6 +68,7 @@ const errorNum = (events, result, typeErr) => {
       errorData.num += 1;
       errorData.lastTime = time;
       events.MSDB.set(keyNum, JSON.stringify(errorData));
+      events.MSDB.expire(key, 1200);
       events = null; result = null; typeErr = null; errorData = null;
       return;
     }
@@ -98,6 +107,7 @@ const interSetErr = (events, result, typeErr) => {
   result.num = Number(result.num) + 1;
   result.lastTime = time;
   events.MSDB.set(key, JSON.stringify(result));
+  events.MSDB.expire(key, 300);
   events = null; result = null; typeErr = null;
 };
 /**

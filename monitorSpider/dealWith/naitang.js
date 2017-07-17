@@ -58,7 +58,7 @@ class dealWith {
         return;
       }
       if (Number(result.error) !== 0 || !result.data) {
-        typeErr = {type: 'data', err: 'naitang-粉丝数不存在或者有问题', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `naitang-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -93,7 +93,7 @@ class dealWith {
         return;
       }
       if (Number(result.error) !== 0 || !result.data || !result.data.list.length) {
-        typeErr = {type: 'data', err: 'naitang-视频列表', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `naitang-视频列表, data: ${JSOM.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

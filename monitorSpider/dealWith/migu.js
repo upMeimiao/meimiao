@@ -1,15 +1,14 @@
 /**
  * Created by zhupenghui on 17/6/20.
  */
-const async = require( 'neo-async' );
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('migu monitor begin...');
     core = null;
@@ -49,13 +48,13 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.userInfo) {
-        typeErr = {type: 'data', err: 'migu-user-fans-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `migu-user-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       if (!result.data.opusList) {
-        typeErr = {type: 'data', err: 'migu-user-list-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `migu-user-list-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
@@ -93,7 +92,7 @@ class dealWith {
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: 'migu-comment-data-error', interface: 'getComment', url: option.url};
+        typeErr = {type: 'data', err: `migu-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

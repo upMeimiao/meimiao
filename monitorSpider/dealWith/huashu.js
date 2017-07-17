@@ -1,17 +1,15 @@
 /**
  * Created by zhupenghui on 17/6/22.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const jsonp = (data) => data;
-let logger, typeErr;
+let logger, typeErr, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('huashu monitor begin...');
     core = null;
@@ -47,7 +45,7 @@ class dealWith {
         return;
       }
       if (!result[1] || !result[1].aggData) {
-        typeErr = {type: 'data', err: 'huashu-video-data-error', interface: 'getVideo', url: option.url};
+        typeErr = {type: 'data', err: `huashu-video-data-error, data: ${JSON.stringify(result)}`, interface: 'getVideo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -96,7 +94,7 @@ class dealWith {
         return;
       }
       if (!result || !result.dramadatas.length) {
-        typeErr = {type: 'data', err: 'huashu-videolit-data-error', interface: 'getVideoList', url: option.url};
+        typeErr = {type: 'data', err: `huashu-videolit-data-error, data: ${JSON.stringify(result)}`, interface: 'getVideoList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -131,12 +129,12 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'huashu-data-null', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `huashu-data-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.class && !result.duration && !result.updatetime) {
-        typeErr = {type: 'data', err: 'huashu-data-null-class', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `huashu-data-null-class, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -165,7 +163,7 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'huashu-comment-data-error', interface: 'getComment', url: option.url};
+        typeErr = {type: 'data', err: `huashu-comment-data-error, data:  ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -194,7 +192,7 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'huashu-play-data-error', interface: 'getPlay', url: option.url};
+        typeErr = {type: 'data', err: `huashu-play-data-error, data: ${JSON.stringify(result)}`, interface: 'getPlay', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

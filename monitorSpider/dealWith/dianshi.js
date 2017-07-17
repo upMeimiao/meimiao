@@ -1,15 +1,15 @@
 /**
  * Created by zhupenghui on 17/6/23.
  */
-const async = require( 'neo-async' );
-const request = require( 'request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, request, req, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    req = core.modules.req;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('dianshi monitor begin...');
     core = null;
@@ -31,7 +31,7 @@ class dealWith {
       body: { brandId: task.id, pageSize: 10, pageNum: 1 },
       json: true
     };
-    request(option, (err, res, body) => {
+    req(option, (err, res, body) => {
       if (err) {
         typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
@@ -53,13 +53,13 @@ class dealWith {
         return;
       }
       if (!body.data || !body.data.attentionNum) {
-        typeErr = {type: 'data', err: 'dianshi-data-fans-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `dianshi-data-fans-error, data: ${JSON.stringify(body)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
       if (!body.data.list.length) {
-        typeErr = {type: 'data', err: 'dianshi-data-list-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `dianshi-data-list-error, data: ${JSON.stringify(body)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; body = null;

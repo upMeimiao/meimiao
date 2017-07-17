@@ -2,14 +2,7 @@
  * Created by zhupenghui on 17/7/12.
  */
 let logger, typeErr, request, infoCheck, async;
-const cookieStr = () => {
-  const str = 'qwertyuiopasdfghjklzxcvbnm0123456789';
-  let cookie = '';
-  for (let i = 0; i < 39; i += 1) {
-    cookie += str.charAt(Math.floor(Math.random() * str.length));
-  }
-  return `wjgl_device_id=${cookie};`;
-};
+
 class dealWith {
   constructor(core) {
     this.core = core;
@@ -23,15 +16,18 @@ class dealWith {
   }
   start(task, callback) {
     task.total = 0;
-    task.cookie = cookieStr();
     async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
           cb();
         },
-        video: (cb) => {
+        list: (cb) => {
           this.getVideoList(task);
+          cb();
+        },
+        video: (cb) => {
+          this.video(task);
           cb();
         }
       },
@@ -42,12 +38,8 @@ class dealWith {
   }
   getUser(task) {
     let option = {
-      url: this.settings.spiderAPI.youliao.user + task.id,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-        'X-Requested-With': 'X-Requested-With',
-        cookie: task.cookie
-      }
+      url: `${this.settings.spiderAPI.jd.user + new Date().getTime()}&body={"authorId":"${task.id}"}`,
+      ua: 2
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -58,8 +50,6 @@ class dealWith {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
         return;
       }
       try {
@@ -69,8 +59,8 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result || !result.userId) {
-        typeErr = {type: 'data', err: `youliao-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+      if (!result || !result.data) {
+        typeErr = {type: 'data', err: `京东视频-用户粉丝出错, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -79,21 +69,10 @@ class dealWith {
   }
   getVideoList(task) {
     let option = {
-      url: this.settings.spiderAPI.youliao.list,
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-        'X-Requested-With': 'X-Requested-With',
-        cookie: task.cookie
-      },
-      data: {
-        category: 'followFeed',
-        orderBy: 'desc',
-        pageSize: 20,
-        userId: task.id
-      }
+      url: `${this.settings.spiderAPI.jd.list + new Date().getTime()}&body={"authorId":"${task.id}","page":1,"pagesize":20,"type":1}`,
+      ua: 2
     };
-    request.post(logger, option, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
@@ -113,41 +92,26 @@ class dealWith {
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (!result.data || Object.prototype.toString.call(result.data) !== '[object Array]' || !result.data.length) {
-        typeErr = {type: 'data', err: JSON.stringify(result.data), interface: 'list', url: option.url};
+      if (!result.page || !result.page.content.length) {
+        typeErr = {type: 'data', err: `京东视频-视频列表数据出错, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
-        return;
       }
-      this.comment(task, result.data[0].gcid);
       option = null;
       typeErr = null;
     });
   }
-  comment(task, cid) {
+  video(task) {
     let option = {
-      url: this.settings.spiderAPI.youliao.comment,
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-        'X-Requested-With': 'X-Requested-With',
-        cookie: task.cookie
-      },
-      data: {
-        tid: cid,
-        typeId: 1,
-        lastId: '',
-        type: 'loadmore',
-        pageSize: 20,
-        category: 'new'
-      }
+      url: `${this.settings.spiderAPI.jd.video + new Date().getTime()}&body={"id":"${task.aid}"}`,
+      ua: 2
     };
-    request.post(logger, option, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'comment', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'video', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -155,12 +119,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'comment', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
-      if (result.status !== 'ok') {
-        typeErr = {type: 'data', err: `youliao-评论, data: ${JSON.stringify(result)}`, interface: 'comment', url: option.url};
+      if (!result.data) {
+        typeErr = {type: 'data', err: `jd-视频详情接口, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

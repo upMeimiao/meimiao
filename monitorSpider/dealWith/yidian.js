@@ -1,16 +1,15 @@
 /**
  * Created by zhupenghui on 17/6/20.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('yidian monitor begin...');
     core = null;
@@ -58,7 +57,7 @@ class dealWith {
         return;
       }
       if (!result.result || !result.result.channels) {
-        typeErr = {type: 'data', err: 'yidian-user-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `yidian-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -89,13 +88,13 @@ class dealWith {
         return;
       }
       if (result.status !== 'success' || !result.result.length) {
-        typeErr = {type: 'data', err: 'yidian-videos-data-error', interface: 'getVideos', url: option.url};
+        typeErr = {type: 'data', err: `yidian-videos-data-error, data: ${JSON.stringify(result)}`, interface: 'getVideos', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (result.result[0].ctype === 'interest_navigation') {
         if (!result.result[0].columns || result.result[0].columns.length < 2) {
-          typeErr = {type: 'data', err: 'yidian-videos-data-error', interface: 'getVideos', url: option.url};
+          typeErr = {type: 'data', err: `yidian-videos-data-error, data: ${JSON.stringify(result)}`, interface: 'getVideos', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
           return;
         }
@@ -136,7 +135,7 @@ class dealWith {
         return;
       }
       if (!result.result || result.result.length === 0 || Number(result.code) !== 0) {
-        typeErr = {type: 'data', err: '一点资讯列表数据-null', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `一点资讯列表数据-null, data: ${JSON.stringify(result)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }

@@ -2,15 +2,18 @@
  * Spider Core
  * created by zhupenghui on 17/6/12.
  */
-const request = require('../lib/request');
-const Redis = require( 'ioredis' );
-const async = require( 'neo-async' );
-const zlib = require('zlib');
-const events = require('events');
-const req = require('request');
-const platfrom = require('./controllers/platform');
-const infoCheck = require('./controllers/infoCheck');
-const cheerio = require('cheerio');
+const request = require('../lib/request'),
+ Redis = require( 'ioredis' ),
+ async = require( 'neo-async' ),
+ zlib = require('zlib'),
+ events = require('events'),
+ req = require('request'),
+ platfrom = require('./controllers/platform'),
+ infoCheck = require('./controllers/infoCheck'),
+ cheerio = require('cheerio'),
+ URL = require('url'),
+ crypto = require('crypto'),
+ fetchUrl = require('fetch').fetchUrl;
 
 let logger,settings;
 class spiderCore extends events{
@@ -20,7 +23,7 @@ class spiderCore extends events{
     this.settings = settings;
     this.redis = settings.redis;
     this.modules = {
-      request, infoCheck, cheerio, async, req, zlib
+      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl
     };
     this.proxy = new (require('./controllers/proxy'))(this);
     logger = settings.logger;
@@ -43,34 +46,38 @@ class spiderCore extends events{
     });
   }
   initPlatForm() {
+    // 实例化平台模块
     let platfromArr = [];
     this.getTask = new (require('./controllers/beginTask'))(this);
     for (const [key, value] of platfrom.entries()) {
-      platfromArr.push({ name: value, type: 'ceshi', platform: new (require('./dealWith/' + value))(this) });
+      platfromArr.push({ name: value, type: '', platform: new (require('./dealWith/' + value))(this) });
     }
-    // platfromArr.push({ name: 'eyepetizer', type: 'ceshi', platform: new (require('./dealWith/eyepetizer'))(this) });
+    // platfromArr.push({ name: 'youliao', type: 'ceshi', platform: new (require('./dealWith/youliao'))(this) });
     this.beginTask(platfromArr);
+    this.modules = null;
     platfromArr = null;
   }
   beginTask(plat) {
     // 并行执行任务
     const time = new Date().getHours(),
       queue = async.queue((task, callback) => {
-      this.getTask.start(task, () => {
-        task = null;
-        callback();
-      });
-    }, 30);
+        this.getTask.start(task, () => {
+          task = null;
+          callback();
+        });
+      }, 30);
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
       if ((time >= 19 && time <= 23) || (time >= 0 && time <= 7)) {
         setTimeout(() => {
           this.beginTask(plat);
+          plat = null;
         }, 20000);
       } else {
         setTimeout(() => {
           this.beginTask(plat);
+          plat = null;
         }, 12000);
       }
     };

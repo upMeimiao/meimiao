@@ -61,7 +61,7 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.followed) {
-        typeErr = {type: 'data', err: 'acfun-粉丝数不存在或者本次请求异常', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `粉丝数据: ${JSON.stringify(result.data)}}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -97,7 +97,7 @@ class dealWith {
         return;
       }
       if(!result.contents ||  result.contents.length === 0) {
-        typeErr = {type: 'data', err: 'acfun-视频列表出现异常', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.contents)}}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

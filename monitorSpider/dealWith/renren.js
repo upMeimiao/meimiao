@@ -1,16 +1,15 @@
 /**
  * Created by zhupenghui on 17/6/23.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('renren monitor begin...');
     core = null;
@@ -65,7 +64,7 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.user || !result.data.user.fansCount) {
-        typeErr = {type: 'json', err: 'renren-fans-error', interface: 'getUser', url: option.url};
+        typeErr = {type: 'json', err: `renren-fans-error, data: ${JSON.stringify(result)}`, interface: 'getUser', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -106,7 +105,7 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.results.length === 0) {
-        typeErr = {type: 'data', err: 'renren-data-list-error', interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `renren-data-list-error, data: ${JSON.stringify(result)}`, interface: 'getList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -146,7 +145,7 @@ class dealWith {
         return;
       }
       if (!result || !result.data) {
-        typeErr = {type: 'data', err: 'renren-videoInfo-data-error', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `renren-videoInfo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

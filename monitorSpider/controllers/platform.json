@@ -193,10 +193,14 @@
   ],
   "youliao": [
     {"p": 52, "id": "649844667", "name": "西瓜味的小仙女-", "encodeId": "", "aid": ""},
-    {"p": 52, "id": "667112070", "name": "Janeng", "encodeId": "", "aid": ""}
+    {"p": 52, "id": "650406118", "name": "你的宝贝", "encodeId": "", "aid": ""}
   ],
   "eyepetizer": [
     {"p": 53, "id": "764", "name": "泰fashion_菜粥粥", "encodeId": "", "aid": "35247"},
     {"p": 53, "id": "619", "name": "广告裁判", "encodeId": "", "aid": "35366"}
+  ],
+  "jd": [
+    {"p": 54, "id": "30247", "name": "运营宝", "encodeId": "", "aid": "155132"},
+    {"p": 54, "id": "62900", "name": "爱的味道", "encodeId": "", "aid": "206105"}
   ]
 }

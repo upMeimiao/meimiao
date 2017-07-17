@@ -1,17 +1,16 @@
 /**
  * Created by zhupenghui on 17/6/21.
  */
-const async = require( 'neo-async' );
-const cheerio = require('cheerio');
-const request = require( '../../lib/request' );
-const infoCheck = require('../controllers/infoCheck');
 
 const _Callback = (data) => data;
-let logger, typeErr;
+let logger, typeErr, async, request, infoCheck;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
+    async = core.modules.async;
+    request = core.modules.request;
+    infoCheck = core.modules.infoCheck;
     logger = this.settings.logger;
     logger.trace('qzone monitor begin...');
     core = null;
@@ -67,7 +66,7 @@ class dealWith {
         return;
       }
       if (!result || !result.data || !result.data.data) {
-        typeErr = {type: 'data', err: 'qzone-user-data-error', interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `qzone-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -98,7 +97,7 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.friend_data || result.data.friend_data.length === 0) {
-        typeErr = {type: 'data', err: 'qzone-list-data-null', interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: `qzone-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -127,13 +126,13 @@ class dealWith {
         return;
       }
       if (!result.data || !result.data.all_videolist_data) {
-        typeErr = {type: 'data', err: 'qzone-data-null', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `qzone-data-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       result = result.data.all_videolist_data[0];
       if (!result || !result.singlefeed) {
-        typeErr = {type: 'data', err: 'qzone-singlefeed-null', interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `qzone-singlefeed-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -167,7 +166,7 @@ class dealWith {
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: 'qzone-comment-data-error', interface: 'getVidCom', url: option.url};
+        typeErr = {type: 'data', err: `qzone-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidCom', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
