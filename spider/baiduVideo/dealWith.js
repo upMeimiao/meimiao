@@ -126,37 +126,40 @@ class dealWith {
     });
   }
   getVidList(task, listData, length, callback) {
-    const programInfo = {
-      platform: task.p,
-      bid: task.id,
-      program_list: []
-    };
+    // const programInfo = {
+    //   platform: task.p,
+    //   bid: task.id,
+    //   program_list: []
+    // };
     let programData = {}, index = 0;
     async.whilst(
       () => index < length,
       (cb) => {
-        programData.program_id = listData[index].album.id;
-        programData.program_name = listData[index].album.album_name;
-        programData.link = `http://v.baidu.com/i/albumlist?type=3&id=${programData.program_id}`;
-        programData.thumbnail = listData[index].album.poster_imgurl;
-        programData.video_count = listData[index].album.video_num;
+        // programData.program_id = listData[index].album.id;
+        // programData.program_name = listData[index].album.album_name;
+        // programData.link = `http://v.baidu.com/i/albumlist?type=3&id=${programData.program_id}`;
+        // programData.thumbnail = listData[index].album.poster_imgurl;
+        // programData.video_count = listData[index].album.video_num;
         this.getListInfo(task, listData[index].album.id, (error, videoList, playNum) => {
-          programData.video_list = videoList;
-          programData.view_count = playNum;
-          programInfo.program_list.push(programData);
-          programData = {};
+          // programData.video_list = videoList;
+          // programData.view_count = playNum;
+          // programInfo.program_list.push(programData);
+          // programData = {};
           index += 1;
           cb();
         });
       },
       () => {
-        //logger.debug(programInfo);
+        // logger.debug(programInfo);
         callback();
       }
     );
   }
   getListInfo(task, listVid, callback) {
-    const option = {},
+    const option = {
+        ua: 1,
+        referer: `http://v.baidu.com/i/albumlist?type=3&id=${listVid}`
+      },
       videoList = [];
     let index = 0,
       length = 2,
@@ -208,19 +211,19 @@ class dealWith {
     );
   }
   deal(task, user, length, callback) {
-    const videoList = [];
+    // const videoList = [];
     let index = 0;
     async.whilst(
       () => index < length,
       (cb) => {
-        videoList.push(user[index].id);
+        // videoList.push(user[index].id);
         this.getMedia(task, user[index], () => {
           index += 1;
           cb();
         });
       },
       () => {
-        callback(null, videoList);
+        callback(null, null);
       }
     );
   }
@@ -249,6 +252,7 @@ class dealWith {
           play_num: result[0],
           v_url: video.play_link
         };
+        // task.playNum += Number(media.play_num);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         // spiderUtils.commentSnapshots(this.core.taskDB,
         //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -277,7 +281,10 @@ class dealWith {
         return;
       }
       const $ = cheerio.load(result.body),
-        playNum = $('p.title-info .play').text().replace('次', '');
+        playNum = $('p.title-info .play').text()
+          .replace('万次', '000')
+          .replace('次', '')
+          .replace(/\./g, '');
       if (!playNum) {
         callback(null, '');
         return;
