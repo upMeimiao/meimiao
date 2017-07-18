@@ -236,6 +236,7 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('数据解析失败');
+        callback(e, null);
         return;
       }
       const time = new Date(`${result.data[0].uploadTime} 00:00:00`);
