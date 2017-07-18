@@ -53,7 +53,7 @@ class dealWith {
         fans_num: body.data.attentionNum
       };
       task.total = body.data.count;
-      // this.sendUser(user);
+      this.sendUser(user);
       this.sendStagingUser(user);
       this.getList(task, options, () => {
         callback();

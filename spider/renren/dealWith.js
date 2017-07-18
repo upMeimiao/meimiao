@@ -100,8 +100,8 @@ class dealWith {
         platform: task.p,
         fans_num: body.data.user.fansCount
       };
-      logger.debug(user);
-      // this.sendUser(user);
+      // logger.debug(user);
+      this.sendUser(user);
       this.sendStagingUser(user);
       callback();
     });
