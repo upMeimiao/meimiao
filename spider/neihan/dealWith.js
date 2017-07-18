@@ -224,13 +224,13 @@ class dealWith {
       () => {
         callback();
       }
-  );
+    );
   }
   getInfo(task, data, callback) {
     const group = data.group;
     let title;
-    if (group.title !== '') {
-      title = group.title;
+    if (group.text !== '') {
+      title = group.text;
     } else {
       title = 'btwk_caihongip';
     }
