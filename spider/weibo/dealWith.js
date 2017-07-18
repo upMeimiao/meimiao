@@ -215,9 +215,8 @@ class dealWith {
         return;
       }
       try {
-        result = result.body;
-        const length = result.length + 1;
-        result = trimHtml(result, { preserveTags: false, limit: length });
+        const length = result.body.length + 1;
+        result = trimHtml(result.body, { preserveTags: false, limit: length });
         result = JSON.parse(result.html);
       } catch (e) {
         logger.error('总数json数据解析失败', result.html);
