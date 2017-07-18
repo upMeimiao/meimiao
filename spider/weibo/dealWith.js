@@ -20,6 +20,7 @@ class dealWith {
   todo(task, callback) {
     task.total = 0;
     task.page = 1;
+    task.fans = null;
     this.getUserInfo(task, (err) => {
       if (err) {
         callback(err);
@@ -34,6 +35,7 @@ class dealWith {
       ua: 3,
       own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
     };
+    // console.log(option.url);
     this.core.proxy.getProxy((err, proxy) => {
       if (proxy === 'timeout') {
         callback();
@@ -64,28 +66,28 @@ class dealWith {
           callback();
           return;
         }
-        const fans = result.userInfo ? result.userInfo.followers_count : '',
-          user = {
-            platform: task.p,
-            bid: task.id,
-            fans_num: fans || ''
-          };
+        // const fans = result.userInfo ? result.userInfo.followers_count : '',
+        //   user = {
+        //     platform: task.p,
+        //     bid: task.id,
+        //     fans_num: fans || ''
+        //   };
         // logger.info(user);
-        if (Number(user.fans_num) === 428472) {
-          req({
-            method: 'POST',
-            url: 'http://10.251.55.50:3001/api/alarm',
-            form: {
-              mailGroup: 3,
-              subject: '粉丝数据异常',
-              content: JSON.stringify(result)
-            }
-          });
-        }
-        if (user.fans_num !== '') {
-          this.sendUser(user);
-          this.sendStagingUser(user);
-        }
+        // if (Number(user.fans_num) === 428472) {
+        //   req({
+        //     method: 'POST',
+        //     url: 'http://10.251.55.50:3001/api/alarm',
+        //     form: {
+        //       mailGroup: 3,
+        //       subject: '粉丝数据异常',
+        //       content: JSON.stringify(result)
+        //     }
+        //   });
+        // }
+        // if (user.fans_num !== '') {
+        //   this.sendUser(user);
+        //   this.sendStagingUser(user);
+        // }
         if (result.tabsInfo.tabs[2].title !== '视频') {
           task.NoVideo = true;
           this.getVidTotal(task, result, proxy, (erro) => {
@@ -109,7 +111,28 @@ class dealWith {
       });
     });
   }
-
+  fansNum(task, video) {
+    const user = {
+      platform: task.p,
+      bid: task.id,
+      fans_num: task.fans || ''
+    };
+    if (Number(user.fans_num) === 428472) {
+      req({
+        method: 'POST',
+        url: 'http://10.251.55.50:3001/api/alarm',
+        form: {
+          mailGroup: 3,
+          subject: '粉丝数据异常',
+          content: JSON.stringify(video)
+        }
+      });
+    }
+    if (user.fans_num !== '') {
+      this.sendUser(user);
+      this.sendStagingUser(user);
+    }
+  }
   sendUser(user) {
     const option = {
       url: this.settings.sendFans,
@@ -192,11 +215,12 @@ class dealWith {
         return;
       }
       try {
-        const length = result.body.length + 1;
-        result = trimHtml(result.body, { preserveTags: true, limit: length });
+        result = result.body;
+        const length = result.length + 1;
+        result = trimHtml(result, { preserveTags: false, limit: length });
         result = JSON.parse(result.html);
       } catch (e) {
-        logger.error('总数json数据解析失败', result);
+        logger.error('总数json数据解析失败', result.html);
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
@@ -269,7 +293,7 @@ class dealWith {
           }
           try {
             length = result.body.length + 1;
-            result = trimHtml(result.body, { preserveTags: true, limit: length });
+            result = trimHtml(result.body, { preserveTags: false, limit: length });
             result = JSON.parse(result.html);
           } catch (e) {
             logger.error('视频列表json数据解析失败', result);
@@ -366,6 +390,10 @@ class dealWith {
         } else if (!video.mblog.user) {
           callback();
           return;
+        }
+        if (Number(task.id) === Number(video.mblog.user.id) && !task.fans) {
+          task.fans = video.mblog.user.followers_count;
+          this.fansNum(task, video);
         }
         const media = {
           author: task.name,
