@@ -157,10 +157,10 @@ class dealWith {
   }
   getListInfo(task, listVid, callback) {
     const option = {
-        ua: 1,
-        referer: `http://v.baidu.com/i/albumlist?type=3&id=${listVid}`
-      },
-      videoList = [];
+      ua: 1,
+      referer: `http://v.baidu.com/i/albumlist?type=3&id=${listVid}`
+    };
+      // videoList = [];
     let index = 0,
       length = 2,
       page = 1,
@@ -196,9 +196,9 @@ class dealWith {
           }
           length = result.data.length;
           this.deal(task, result.data, length, (error, vidList) => {
-            for (const value of vidList) {
-              videoList.push(value);
-            }
+            // for (const value of vidList) {
+            //   videoList.push(value);
+            // }
             index += 1;
             page += 1;
             cb();
@@ -206,7 +206,8 @@ class dealWith {
         });
       },
       () => {
-        callback(null, videoList, task.playNum);
+        // callback(null, videoList, task.playNum);
+        callback();
       }
     );
   }
