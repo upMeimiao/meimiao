@@ -121,7 +121,7 @@ class dealWith {
         if (task.id == bid) {
           user.fans_num = list.eq(i).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text();
           // logger.info(user);
-          // this.sendUser(user);
+          this.sendUser(user);
           this.sendStagingUser(user);
           callback();
         }
@@ -187,9 +187,15 @@ class dealWith {
       startIndex = null,
       endIndex = null,
       length = null,
-      content = null;
+      content = null,
+      jsonData = {};
     const vidlength = vidObj.length,
-      option = {};
+      option = {},
+      programInfo = {
+        platform: task.p,
+        bid: task.id,
+        program_list: []
+      };
     task.type = '视频号';
     async.whilst(
       () => index < vidlength,
@@ -218,7 +224,19 @@ class dealWith {
           content = dataJson.dvideos[0].videos;
           task.h = h;
           task.total += length;
-          this.deal(task, content, length, () => {
+          this.deal(task, content, length, (error, data) => {
+            // if (data) {
+            //   jsonData.program_id = task.h;
+            //   jsonData.program_name = vidObj.eq(index).find('a').attr('title');
+            //   jsonData.link = `http://www.fun.tv/channel/lists/${task.id}/`;
+            //   jsonData.thumbnail = vidObj.find('div.pic a img').attr('_lazysrc');
+            //   jsonData.video_count = data.video_count;
+            //   jsonData.view_count = data.view_count;
+            //   jsonData.video_list = data.video_list;
+            //   programInfo.program_list.push(jsonData);
+            //   jsonData = {};
+            // }
+            data = null;
             index += 1;
             cb();
           });
@@ -259,15 +277,25 @@ class dealWith {
   }
   deal(task, user, length, callback) {
     let index = 0;
+    // const data = {
+    //   video_list: [],
+    //   video_count: length,
+    //   view_count: 0
+    // };
     async.whilst(
       () => index < length,
       (cb) => {
+        // if (task.type === '视频号') {
+        //   data.video_list.push(user[index].videoid);
+        //   data.view_count += Number(user[index].play_index.replace(/,/g, ''));
+        // }
         this.getAllInfo(task, user[index], () => {
           index += 1;
           cb();
         });
       },
       () => {
+        // if (task.type === '视频号') { callback(null, data); return; }
         callback();
       }
     );
@@ -283,10 +311,10 @@ class dealWith {
           }
         ],
           (err, result) => {
-          if (err) {
-            callback();
-            return;
-          }
+            if (err) {
+              callback();
+              return;
+            }
             const media = {
               author: task.name,
               platform: task.p,
@@ -316,10 +344,10 @@ class dealWith {
           }
         ],
           (err, result) => {
-          if (err) {
-            callback();
-            return;
-          }
+            if (err) {
+              callback();
+              return;
+            }
             const media = {
               author: task.name,
               platform: task.p,
@@ -355,9 +383,9 @@ class dealWith {
           }
         ],
           (err, data) => {
-            request.get(logger, option, (err, result) => {
-              if (err) {
-                logger.error('单个视频接口请求错误 : ', err);
+            request.get(logger, option, (error, result) => {
+              if (error) {
+                logger.error('单个视频接口请求错误 : ', error);
                 callback('next');
                 return;
               }
@@ -373,7 +401,6 @@ class dealWith {
               const time = new Date(`${result.release} 00:00:00`);
               result.release = moment(time).format('X');
               result.comment_num = data || '';
-              logger.info(result);
               callback(null, result);
             });
           }
@@ -390,9 +417,9 @@ class dealWith {
           }
         ],
           (err, data) => {
-            request.get(logger, option, (err, result) => {
-              if (err) {
-                logger.error('单个DOM接口请求错误 : ', err);
+            request.get(logger, option, (error, result) => {
+              if (error) {
+                logger.error('单个DOM接口请求错误 : ', error);
                 callback('next');
                 return;
               }
