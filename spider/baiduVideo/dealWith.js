@@ -255,8 +255,8 @@ class dealWith {
         };
         // task.playNum += Number(media.play_num);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        // spiderUtils.commentSnapshots(this.core.taskDB,
-        //   { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+        spiderUtils.commentSnapshots(this.core.taskDB,
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
         callback();
       }
     );
@@ -285,7 +285,8 @@ class dealWith {
         playNum = $('p.title-info .play').text()
           .replace('万次', '000')
           .replace('次', '')
-          .replace(/\./g, '');
+          .replace(/\./g, '')
+          .replace(/\n/g, '');
       if (!playNum) {
         callback(null, '');
         return;

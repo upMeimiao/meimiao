@@ -310,30 +310,32 @@ class dealWith {
             });
           }
         ],
-          (err, result) => {
-            if (err) {
-              callback();
-              return;
-            }
-            const media = {
-              author: task.name,
-              platform: task.p,
-              bid: task.id,
-              aid: video.videoid,
-              title: result[0].name ? result[0].name.replace(/"/g, '') : '',
-              comment_num: result[0].comment_num ? result[0].comment_num : '',
-              class: result[0].channel ? result[0].channel : '',
-              long_t: video.raw_dura,
-              desc: result[0].brief ? result[0].brief.substring(0, 100).replace(/"/g, '') : '',
-              v_img: video.still,
-              play_num: video.play_index,
-              v_url: result[0].share ? result[0].share : '',
-              a_create_time: result[0].release ? result[0].release : ''
-            };
-            spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        (err, result) => {
+          if (err) {
             callback();
+            return;
           }
-        );
+          const media = {
+            author: task.name,
+            platform: task.p,
+            bid: task.id,
+            aid: video.videoid,
+            title: result[0].name ? result[0].name.replace(/"/g, '') : '',
+            comment_num: result[0].comment_num ? result[0].comment_num : '',
+            class: result[0].channel ? result[0].channel : '',
+            long_t: video.raw_dura,
+            desc: result[0].brief ? result[0].brief.substring(0, 100).replace(/"/g, '') : '',
+            v_img: video.still,
+            play_num: isNaN(video.play_index) ? Number(video.play_index.replace(/,/g, '')) : Number(video.play_index),
+            v_url: result[0].share ? result[0].share : '',
+            a_create_time: result[0].release ? result[0].release : ''
+          };
+          spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+          spiderUtils.commentSnapshots(this.core.taskDB,
+            { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+          callback();
+        }
+      );
     } else {
       async.series(
         [
@@ -343,31 +345,32 @@ class dealWith {
             });
           }
         ],
-          (err, result) => {
-            if (err) {
-              callback();
-              return;
-            }
-            const media = {
-              author: task.name,
-              platform: task.p,
-              bid: task.id,
-              aid: video.id,
-              title: video.name.replace(/"/g, ''),
-              comment_num: result[0].comment_num,
-              class: result[0].class,
-              long_t: getVidTime(video.duration),
-              v_img: video.still,
-              play_num: video.total_vv,
-              v_url: `http://www.fun.tv/vplay/g-${task.id}.v-${video.id}/`,
-              a_create_time: result[0].time
-            };
-            spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-            spiderUtils.commentSnapshots(this.core.taskDB,
-              { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+        (err, result) => {
+          if (err) {
             callback();
+            return;
           }
-        );
+          const media = {
+            author: task.name,
+            platform: task.p,
+            bid: task.id,
+            aid: video.id,
+            title: video.name.replace(/"/g, ''),
+            comment_num: result[0].comment_num,
+            class: result[0].class,
+            long_t: getVidTime(video.duration),
+            v_img: video.still,
+            play_num: isNaN(video.total_vv) ? Number(video.total_vv.replace(/,/g, '')) : Number(video.total_vv),
+            v_url: `http://www.fun.tv/vplay/g-${task.id}.v-${video.id}/`,
+            a_create_time: result[0].time
+          };
+          spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+          logger.debug(media)
+          spiderUtils.commentSnapshots(this.core.taskDB,
+            { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+          callback();
+        }
+      );
     }
   }
   getVideoInfo(task, vid, callback) {
@@ -382,29 +385,29 @@ class dealWith {
             });
           }
         ],
-          (err, data) => {
-            request.get(logger, option, (error, result) => {
-              if (error) {
-                logger.error('单个视频接口请求错误 : ', error);
-                callback('next');
-                return;
-              }
-              try {
-                result = JSON.parse(result.body);
-              } catch (e) {
-                logger.error('json数据解析失败');
-                logger.info(result);
-                callback(e);
-                return;
-              }
-              result.release = result.release.replace(/[年月]/g, '-').replace('日', '');
-              const time = new Date(`${result.release} 00:00:00`);
-              result.release = moment(time).format('X');
-              result.comment_num = data || '';
-              callback(null, result);
-            });
-          }
-        );
+        (err, data) => {
+          request.get(logger, option, (error, result) => {
+            if (error) {
+              logger.error('单个视频接口请求错误 : ', error);
+              callback('next');
+              return;
+            }
+            try {
+              result = JSON.parse(result.body);
+            } catch (e) {
+              logger.error('json数据解析失败');
+              logger.info(result);
+              callback(e);
+              return;
+            }
+            result.release = result.release.replace(/[年月]/g, '-').replace('日', '');
+            const time = new Date(`${result.release} 00:00:00`);
+            result.release = moment(time).format('X');
+            result.comment_num = data || '';
+            callback(null, result);
+          });
+        }
+      );
     } else {
       option.url = `http://www.fun.tv/vplay/g-${task.id}.v-${vid}/`;
       logger.debug(option.url);
@@ -416,29 +419,29 @@ class dealWith {
             });
           }
         ],
-          (err, data) => {
-            request.get(logger, option, (error, result) => {
-              if (error) {
-                logger.error('单个DOM接口请求错误 : ', error);
-                callback('next');
-                return;
-              }
-              const $ = cheerio.load(result.body),
-                vidClass = $('div.crumbsline a').eq(1).text(),
-                commentNum = $('a.commentbtn span.count').text(),
-                res = {
-                  comment_num: commentNum || '',
-                  class: vidClass || '',
-                  time: data || ''
-                };
-              if (!res.time) {
-                callback('next');
-                return;
-              }
-              callback(null, res);
-            });
-          }
-        );
+        (err, data) => {
+          request.get(logger, option, (error, result) => {
+            if (error) {
+              logger.error('单个DOM接口请求错误 : ', error);
+              callback('next');
+              return;
+            }
+            const $ = cheerio.load(result.body),
+              vidClass = $('div.crumbsline a').eq(1).text(),
+              commentNum = $('a.commentbtn span.count').text(),
+              res = {
+                comment_num: commentNum || '',
+                class: vidClass || '',
+                time: data || ''
+              };
+            if (!res.time) {
+              callback('next');
+              return;
+            }
+            callback(null, res);
+          });
+        }
+      );
     }
   }
   getCreatTime(id, vid, callback) {
