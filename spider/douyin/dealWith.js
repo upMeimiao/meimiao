@@ -178,7 +178,7 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        title = list[index].cha_list[0] ? list[index].cha_list[0].cha_name : 'btwk_caihongip';
+        title = list[index].desc ? list[index].desc : 'btwk_caihongip';
         desc = list[index].cha_list[0] ? list[index].cha_list[0].desc : '';
         media = {
           author: task.name,
@@ -196,7 +196,7 @@ class dealWith {
           v_url: list[index].share_info.share_url
         };
         task.total += 1;
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
