@@ -174,10 +174,13 @@ class mediaScheduler extends events {
       encodeId: raw.encodeId,
       type: raw.type,
       mapBid: raw.mapBid
-    }).priority('critical').backoff({ delay: 150 * 1000, type: 'fixed' }).removeOnComplete(true);
-    if (p !== 6) {
-      job.attempts(5);
-    }
+    }).priority('critical')
+      .attempts(5)
+      .backoff({ delay: 150 * 1000, type: 'fixed' })
+      .removeOnComplete(true);
+    // if (p !== 6) {
+    //   job.attempts(5);
+    // }
     if (job.data.type === 0) {
       delete job.data.type;
     }
