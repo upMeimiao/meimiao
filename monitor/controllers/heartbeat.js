@@ -42,9 +42,14 @@ exports.do = (io, socket) => {
     });
   };
   query();
-  queryMemory();
+  const t = setTimeout(() => {
+    queryMemory();
+    clearTimeout(t);
+  }, 30000)
   setInterval(() => {
     query();
-    queryMemory();
   }, 300000);
+  setInterval(() => {
+    queryMemory();
+  }, 303000);
 };
