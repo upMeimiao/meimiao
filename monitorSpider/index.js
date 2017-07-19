@@ -25,7 +25,7 @@ class spiderCore extends events{
     this.modules = {
       request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl
     };
-    this.proxy = new (require('./controllers/proxy'))(this);
+    // this.proxy = new (require('./controllers/proxy'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
     _settings = null;
