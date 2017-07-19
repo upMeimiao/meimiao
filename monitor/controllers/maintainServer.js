@@ -77,7 +77,7 @@ exports.start = () => {
           memory[elem.split(':')[0]] = elem.split(':')[1];
         }
       }
-      if (Math.round((memory.used_memory / 4294967296) * 100) >= 40) {
+      if (Math.round((memory.used_memory / 4294967296) * 100) >= 90) {
         request({
           method: 'POST',
           url: 'http://10.251.55.50:3001/api/alarm',
