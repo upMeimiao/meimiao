@@ -44,7 +44,16 @@ class dealWith {
             }
             cb(null, '视频信息已返回');
           });
-        }
+        },
+        // program: (cb) => {
+        //   this.core.getProgram.start(task, (err) => {
+        //     if (err) {
+        //       cb(err);
+        //       return;
+        //     }
+        //     callback(null, '栏目信息已返回');
+        //   });
+        // }
       },
       (err, result) => {
         if (err) {
@@ -249,6 +258,7 @@ class dealWith {
           a_create_time: data.publishtime
         };
         media = spiderUtils.deleteProperty(media);
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
