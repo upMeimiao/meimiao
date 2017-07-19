@@ -120,7 +120,6 @@ class dealWith {
       () => page <= Number(total),
       (cb) => {
         option.url = `${this.settings.spiderAPI.gumi.list + task.id}&pageNo=${page}`;
-        console.log(option);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频列表请求失败', err);
@@ -205,7 +204,7 @@ class dealWith {
           long_t: Math.round(video.playDuration),
           class: _class.replace(',', '')
         };
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
