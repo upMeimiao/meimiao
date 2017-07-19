@@ -6,6 +6,17 @@ const redis = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.r
   }
 });
 exports.do = (io, socket) => {
+  const queryMemory = () => {
+    redis.info('memory', (err, result) => {
+      const memory = {}
+      for (const [index, elem] of result.split('\r\n').entries()) {
+        if (index !== 0 && elem !== '') {
+          memory[elem.split(':')[0]] = elem.split(':')[1];
+        }
+      }
+      socket.emit('memoryMonitor', memory);
+    });
+  };
   const query = () => {
     redis.pipeline(
       [
@@ -31,7 +42,9 @@ exports.do = (io, socket) => {
     });
   };
   query();
+  queryMemory();
   setInterval(() => {
     query();
+    queryMemory();
   }, 300000);
 };

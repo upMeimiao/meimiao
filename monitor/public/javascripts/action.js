@@ -289,6 +289,14 @@ const vm = new Vue({
         duration: 360000
       });
     });
+    socket.on('memoryMonitor', (memory) => {
+      this.$notify({
+        title: 'Redis内存监控',
+        message: `当前Redis内存已使用${memory.used_memory_human}，达到${(memory.used_memory / 4294967296 * 100).toFixed(2)}%`,
+        duration: 360000,
+        type: Math.round(memory.used_memory / 4294967296 * 100) >= 90 ? 'error' : 'success'
+      });
+    });
     const worker = new Worker('./javascripts/worker.js');
     worker.onmessage = (event) => {
       if (event.data.infos) {
