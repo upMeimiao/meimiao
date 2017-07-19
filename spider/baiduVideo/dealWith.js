@@ -196,9 +196,11 @@ class dealWith {
           }
           length = result.data.length;
           this.deal(task, result.data, length, (error, vidList) => {
-            // for (const value of vidList) {
-            //   videoList.push(value);
-            // }
+            if (vidList || vidList.length) {
+              // for (const value of vidList) {
+              //   videoList.push(value);
+              // }
+            }
             index += 1;
             page += 1;
             cb();
@@ -224,6 +226,7 @@ class dealWith {
         });
       },
       () => {
+        // callback(null, videoList);
         callback(null, null);
       }
     );
