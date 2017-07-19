@@ -14,10 +14,10 @@ let logger = logging.getLogger('信息处理');
  * 查看一下发送报警的次数，如果同一错误在短时间内连续发送五次，
  * 应当停止发送需要间隔20分钟之后如果同一错误还在发生继续发送（否则删除错误发送记录）
  * */
-const errorNum = (events, result, typeErr, t) => {
-  const key = `${t || 'video'}-error:${result.platform}:${result.bid}:${typeErr.type}`,
-    keyNum = `${t || 'video'}-errorNum:${result.platform}:${result.bid}:${typeErr.type}`,
-    aloneKey = `${result.t || 'video'}:${result.platform}:${result.bid}`,
+const errorNum = (events, result, typeErr) => {
+  const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
+    keyNum = `errorNum:${result.platform}:${result.bid}:${typeErr.type}`,
+    aloneKey = `alone:${result.platform}:${result.bid}`,
     time =  parseInt(new Date().getTime() / 1000, 10);
   events.MSDB.get(keyNum, (err, errorData) => {
     if (err) {
@@ -63,7 +63,7 @@ const errorNum = (events, result, typeErr, t) => {
       events.MSDB.del(keyNum);
       return;
     }
-    if (Number(errorData.num) < 3) {
+    if (Number(errorData.num) <= 5) {
       editEmail.interEmail(events, result);
       errorData.num += 1;
       errorData.lastTime = time;
@@ -84,8 +84,8 @@ const errorNum = (events, result, typeErr, t) => {
  *  将当前的数据跟库里存下来的数据进行比对判断
  *  当接口异常之后进行报警操作
 * */
-const interSetErr = (events, result, typeErr, t) => {
-  const key = `${t || 'video'}-error:${result.platform}:${result.bid}:${typeErr.type}`,
+const interSetErr = (events, result, typeErr) => {
+  const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
     time =  parseInt(new Date().getTime() / 1000, 10);
   if ((Number(time) - Number(result.startTime)) >= 300 && (Number(time) - Number(result.lastTime)) >= 120) {
     events.MSDB.del(key);
@@ -100,7 +100,7 @@ const interSetErr = (events, result, typeErr, t) => {
     return;
   }
   if (Number(result.num) >= 7) {
-    errorNum(events, result, typeErr, t);
+    errorNum(events, result, typeErr);
     events = null; result = null; typeErr = null;
     return;
   }
@@ -121,7 +121,7 @@ exports.interface = (events, task, typeErr) => {
   // 配置错误类型的数据库key名
   // 当前接口请求次数
   const p = platform.get(Number(task.p)),
-    key = `${task.t || 'video'}-error:${p}:${task.id}:${typeErr.type}`,
+    key = `error:${p}:${task.id}:${typeErr.type}`,
     num = 0,
     time = parseInt(new Date().getTime() / 1000, 10);
   typeErr.err = JSON.stringify(typeErr.err);
@@ -178,7 +178,7 @@ exports.interface = (events, task, typeErr) => {
       events = null; task = null; typeErr = null;
       return;
     }
-    interSetErr(events, result, typeErr, task.t);
+    interSetErr(events, result, typeErr);
     events = null; typeErr = null; result = null;
   });
 };

@@ -18,7 +18,6 @@ class setTask {
     const q = async.queue((work, callback) => {
       work.pname = task.name;
       work.type = task.type;
-      work.t = task.t;
       this.beginTask(work, task.platform);
       work = null;
       callback();
@@ -37,7 +36,7 @@ class setTask {
   }
   beginTask(work, platform) {
     const time = parseInt(new Date().getTime() / 1000, 10);
-    db.get(`${work.t}:${work.pname}:${work.id}`, (err, result) => {
+    db.get(`alone:${work.pname}:${work.id}`, (err, result) => {
       if (err) {
         this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });
         return;
@@ -52,7 +51,7 @@ class setTask {
         platform = null;
         return;
       }
-      db.del(`${work.t}:${work.pname}:${work.id}`);
+      db.del(`alone:${work.pname}:${work.id}`);
       platform.start(work, (err) => {
         if (err) {
           this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });

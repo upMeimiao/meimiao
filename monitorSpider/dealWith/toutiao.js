@@ -43,7 +43,7 @@ class dealWith {
           cb();
         },
         list: (cb) => {
-          this.list(task, 0);
+          this.list(task);
           cb();
         }
       },
@@ -89,53 +89,39 @@ class dealWith {
       option = null; result = null;
     });
   }
-  list(task, times) {
-    if (times >= 3) {
-      return;
-    }
+  list(task) {
     let { as, cp } = getHoney(crypto),
       option = {
         ua: 3,
         own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)',
         url: `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.mapBid}&cp=${cp}&as=${as}&max_behot_time=`
       };
-    this.core.proxy.getProxy(0, (err, proxy) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
-        return;
-      }
-      if (proxy === 'timeout') {
-        return;
-      }
-      option.proxy = proxy;
-      request.get(logger, option, (err, result) => {
-        if (err) {
-          if (err.status && err.status !== 200) {
-            if (err.status >= 500) {
-              typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-              infoCheck.interface(this.core, task, typeErr);
-            }
-          } else {
-            typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
+        if (err.status && err.status !== 200) {
+          if (err.status >= 500) {
+            typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
             infoCheck.interface(this.core, task, typeErr);
           }
-          this.list(task, times + 1);
-          this.core.proxy.back(proxy, false);
-          return;
-        }
-        times = 0;
-        try {
-          result = JSON.parse(result.body);
-        } catch (e) {
-          typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
-          return;
-        }
-        if (!result || result.length === 0) {
-          typeErr = {type: 'data', err: `toutiao-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         }
-        option = null; result = null; cp = null; as = null;
-      });
+        this.list(task);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
+      if (!result || result.length === 0) {
+        typeErr = {type: 'data', err: `toutiao-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
+        infoCheck.interface(this.core, task, typeErr);
+      }
+      option = null; result = null; cp = null; as = null;
     });
   }
 }
