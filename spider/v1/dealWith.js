@@ -46,8 +46,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('V1 json数据解析失败');
-        logger.error(result);
+        logger.error('V1 json数据解析失败', result.body);
         callback(e);
         return;
       }
@@ -60,7 +59,6 @@ class dealWith {
         bid: task.id,
         fans_num: result.body.data.fans_num
       };
-      task.total = result.body.data.video_num;
       this.sendUser(user);
       this.sendStagingUser(user);
       this.getVidList(task, () => {
@@ -119,23 +117,20 @@ class dealWith {
   }
   getVidList(task, callback) {
     const option = {
-        url: this.settings.spiderAPI.v1.newList,
-        headers: {
-          'User-Agent': 'V1_vodone/6.0.1 (iPhone; iOS 10.3.2; Scale/3.00)',
-          'Content-Type': 'multipart/form-data; boundary=Boundary+A967927714B045D1'
-        },
-        data: {
-          p: 0,
-          s: 20,
-          tid: task.id
-        }
+      url: this.settings.spiderAPI.v1.newList,
+      headers: {
+        'User-Agent': 'V1_vodone/6.0.1 (iPhone; iOS 10.3.2; Scale/3.00)',
+        'Content-Type': 'multipart/form-data; boundary=Boundary+A967927714B045D1'
       },
-      page = Number(task.total) % 20 === 0 ?
-        Number(task.total) / 20 :
-        Math.ceil(Number(task.total) / 20);
-    let sign = 0;
+      data: {
+        p: 0,
+        s: 20,
+        tid: task.id
+      }
+    };
+    let sign = 0, cycle = true;
     async.whilst(
-      () => sign < page,
+      () => cycle,
       (cb) => {
         option.data.p = sign;
         request.post(logger, option, (err, result) => {
@@ -147,8 +142,12 @@ class dealWith {
           try {
             result = JSON.parse(result.body);
           } catch (e) {
-            logger.error('json数据解析失败');
-            logger.info(result);
+            logger.error('json数据解析失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.body.data.video_list || !result.body.data.video_list.data.length) {
+            cycle = false;
             cb();
             return;
           }
@@ -216,6 +215,8 @@ class dealWith {
         if (!media.support) {
           delete media.support;
         }
+        task.total += 1;
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -236,8 +237,7 @@ class dealWith {
       try {
         result = eval(result.body);
       } catch (e) {
-        logger.debug('点赞量解析失败');
-        logger.info(result);
+        logger.debug('点赞量解析失败', result.body);
         callback(null, null);
         return;
       }
