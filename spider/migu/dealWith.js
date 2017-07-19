@@ -1,9 +1,7 @@
 /**
  * Created by junhao on 16/6/21.
  */
-// const moment = require('moment');
 const async = require('neo-async');
-// const cheerio = require('cheerio');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
@@ -111,16 +109,18 @@ class dealWith {
   }
   getVideoList(task, callback) {
     const option = {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    };
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      },
+      total = task.total % 20 === 0 ? task.total / 20 : Math.ceil(task.total / 20);
     let page = 1;
     async.whilst(
-      () => page <= Number(task.total),
+      () => page <= Number(total),
       (cb) => {
         option.url = `${this.settings.spiderAPI.gumi.list + task.id}&pageNo=${page}`;
+        console.log(option);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('视频列表请求失败', err);
@@ -196,7 +196,7 @@ class dealWith {
           aid: video.hwOpusId,
           title: spiderUtils.stringHandling(video.opusName, 100),
           desc: spiderUtils.stringHandling(video.opusDesc, 100),
-          play_num: video.weekAttention,
+          play_num: video.attention,
           v_img: video.opusDetailUrl,
           comment_num: result[0],
           a_create_time: parseInt(video.opusItemLastUpdateTime / 1000, 10),
@@ -205,6 +205,7 @@ class dealWith {
           long_t: Math.round(video.playDuration),
           class: _class.replace(',', '')
         };
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
