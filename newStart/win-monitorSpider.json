@@ -12,19 +12,6 @@
       "env": {
         "NODE_ENV": "production"
       }
-    },
-    {
-      "name"        : "proxy",
-      "script"      : "run.js",
-      "args"        : ["-i","test","-a","proxy"],
-      "log_date_format"  : "YYYY-MM-DD HH:mm Z",
-      "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
-      "watch"       : false,
-      "node_args"   : "",
-      "cwd"         : "D:\\meimiao_xiangmu\\meimiao2\\code",
-      "env": {
-        "NODE_ENV": "production"
-      }
     }
   ]
 }
