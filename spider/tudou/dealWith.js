@@ -211,6 +211,10 @@ class dealWith {
     );
   }
   deal(task, list, callback) {
+    if (!Array.isArray(list)) {
+      callback();
+      return;
+    }
     let index = 0;
     async.whilst(
       () => index < list.length,
