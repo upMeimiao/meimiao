@@ -1,7 +1,7 @@
 /**
  * Created by zhupenghui on 2017/7/17.
  */
-let async, request, logger, typeErr, infoCheck;
+let async, request, logger, typeErr, infoCheck, URL, cheerio;
 class program {
   constructor(core) {
     this.core = core;
@@ -9,8 +9,10 @@ class program {
     async = core.modules.async;
     request = core.modules.request;
     infoCheck = core.modules.infoCheck;
+    cheerio = core.modules.cheerio;
+    URL = core.modules.URL;
     logger = core.settings.logger;
-    logger.trace('acfun program instantiation ...');
+    logger.trace('ku6 program instantiation ...');
   }
   start(task, callback) {
     this.getProgramList(task, () => {
@@ -19,7 +21,7 @@ class program {
   }
   getProgramList(task, callback) {
     let option = {
-      url: `${this.settings.spiderAPI.acfun.programList + task.id}&pageNo=1`
+      url: `http://boke.ku6.com/${task.id}?mode=2&view=2`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -33,33 +35,28 @@ class program {
         callback();
         return;
       }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'proList', url: option.url};
+      const $ = cheerio.load(result.body),
+        proList = $('div.listContent>div.ku6_box');
+      if (proList.length <= 3) {
+        callback();
+        return;
+      }
+      if (!proList || !proList.length) {
+        typeErr = {type: 'data', err: `栏目数据出问题: ${JSON.stringify('ku6-DOM结构异常')}}`, interface: 'proList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
-      if (!result || result.msg !== 'ok' || !result.data || !result.data.page) {
-        typeErr = {type: 'data', err: `栏目数据出问题: ${JSON.stringify(result.data)}}`, interface: 'proList', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-        callback();
-        return;
-      }
-      if (!result.data.page.list.length) {
-        callback();
-        return;
-      }
-      this.programIdlist(task, result.data.page.list[0].specialId);
+      this.programIdlist(task, proList.eq(0));
       callback();
       option = null; result = null;  typeErr = null;
     });
   }
-  programIdlist(task, proId) {
+  programIdlist(task, program) {
     let option = {
-      url: `http://api.aixifan.com/albums/${proId}/contents?page={"num":1,"size":20}`
-    };
+        url: program.find('div.fleft>a').attr('href')
+      },
+      total = 0;
     request.get(logger, option, (err, result) => {
      if (err) {
        if (err.status && err.status !== 200) {
@@ -71,14 +68,13 @@ class program {
        }
        return;
      }
-     try {
-       result = JSON.parse(result.body);
-     } catch (e) {
-       typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'proIdList', url: option.url};
-       infoCheck.interface(this.core, task, typeErr);
+     const $ = cheerio.load(result.body),
+        vidList = $('#PlayList>li');
+     total = $('div.tRight>span').text();
+     if (total === 0) {
        return;
      }
-     if (!result || !result.data || !result.data.list.length) {
+     if (!total && !vidList.length) {
        typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.data)}}`, interface: 'proIdList', url: option.url};
        infoCheck.interface(this.core, task, typeErr);
      }

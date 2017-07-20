@@ -59,7 +59,7 @@ class spiderCore extends events{
       // for (const [key, value] of platfrom.entries()) {
       //   platfromArr.push({ name: value, type: '', platform: new (require('./program/' + value))(this) });
       // }
-      platfromArr.push({ name: 'acfun', type: 'ceshi', t: 'program', platform: new (require('./program/acfun'))(this) });
+      platfromArr.push({ name: 'cctv', type: 'ceshi', t: 'program', platform: new (require('./program/cctv'))(this) });
     }
     if (!this.settings.type) {
       for (const [key, value] of platfrom.entries()) {

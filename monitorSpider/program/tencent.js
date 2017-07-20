@@ -1,6 +1,7 @@
 /**
  * Created by zhupenghui on 2017/7/17.
  */
+const jsonp = data => data;
 let async, request, logger, typeErr, infoCheck;
 class program {
   constructor(core) {
@@ -10,7 +11,7 @@ class program {
     request = core.modules.request;
     infoCheck = core.modules.infoCheck;
     logger = core.settings.logger;
-    logger.trace('acfun program instantiation ...');
+    logger.trace('tencent program instantiation ...');
   }
   start(task, callback) {
     this.getProgramList(task, () => {
@@ -19,7 +20,7 @@ class program {
   }
   getProgramList(task, callback) {
     let option = {
-      url: `${this.settings.spiderAPI.acfun.programList + task.id}&pageNo=1`
+      url: `${this.settings.spiderAPI.tencent.programList + task.id}&pagenum=1&_${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -34,31 +35,31 @@ class program {
         return;
       }
       try {
-        result = JSON.parse(result.body);
+        result = eval(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'proList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
-      if (!result || result.msg !== 'ok' || !result.data || !result.data.page) {
+      if (!result || !result.folderlist) {
         typeErr = {type: 'data', err: `栏目数据出问题: ${JSON.stringify(result.data)}}`, interface: 'proList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
-      if (!result.data.page.list.length) {
+      if (!result.folderlist.length) {
         callback();
         return;
       }
-      this.programIdlist(task, result.data.page.list[0].specialId);
+      this.programIdlist(task, result.folderlist[0].cid);
       callback();
       option = null; result = null;  typeErr = null;
     });
   }
   programIdlist(task, proId) {
     let option = {
-      url: `http://api.aixifan.com/albums/${proId}/contents?page={"num":1,"size":20}`
+      url: `${this.settings.spiderAPI.tencent.proVideoList + task.id}&cid=${proId}&pagenum=1&_${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
      if (err) {
@@ -72,13 +73,13 @@ class program {
        return;
      }
      try {
-       result = JSON.parse(result.body);
+       result = eval(result.body);
      } catch (e) {
        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'proIdList', url: option.url};
        infoCheck.interface(this.core, task, typeErr);
        return;
      }
-     if (!result || !result.data || !result.data.list.length) {
+     if (!result || !result.videolst) {
        typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.data)}}`, interface: 'proIdList', url: option.url};
        infoCheck.interface(this.core, task, typeErr);
      }

@@ -13,6 +13,8 @@ let logger = logging.getLogger('信息处理');
 /**
  * 查看一下发送报警的次数，如果同一错误在短时间内连续发送五次，
  * 应当停止发送需要间隔20分钟之后如果同一错误还在发生继续发送（否则删除错误发送记录）
+ * keyNum 用来记录发送的次数
+ * alonekey 单独处理的key
  * */
 const errorNum = (events, result, typeErr, t) => {
   const key = `${t || 'video'}-error:${result.platform}:${result.bid}:${typeErr.type}`,
@@ -48,6 +50,9 @@ const errorNum = (events, result, typeErr, t) => {
           events.MSDB.set(aloneKey, time);
         }
       }
+      if (result.platform === 'v1' && result.message.includes('获取失败')) {
+        events.MSDB.set(aloneKey, time);
+      }
     }
     // 当错误进来之后会先进行时间的判断，如果当前的错误记录的起始时间到目前为止超过了20分钟，
     // 并且最新的一次错误发生所记录的时间超过五分钟没有更新，那么就认为该平台在某个时间段出现故障，
@@ -60,6 +65,7 @@ const errorNum = (events, result, typeErr, t) => {
     if ((Number(time) - Number(errorData.startTime) >= 1200) && Number(errorData.num) > 10) {
       result.num = 1;
       events.MSDB.set(key, JSON.stringify(result));
+      events.MSDB.expire(key, 300);
       events.MSDB.del(keyNum);
       return;
     }
@@ -68,13 +74,14 @@ const errorNum = (events, result, typeErr, t) => {
       errorData.num += 1;
       errorData.lastTime = time;
       events.MSDB.set(keyNum, JSON.stringify(errorData));
-      events.MSDB.expire(key, 1200);
+      events.MSDB.expire(keyNum, 300);
       events = null; result = null; typeErr = null; errorData = null;
       return;
     }
     errorData.num += 1;
     errorData.lastTime = time;
     events.MSDB.set(keyNum, JSON.stringify(errorData));
+    events.MSDB.expire(keyNum, 300);
     events = null; result = null; typeErr = null; errorData = null;
   });
 };
@@ -96,6 +103,7 @@ const interSetErr = (events, result, typeErr, t) => {
     result.message = typeErr.err;
     result.lastTime = time;
     events.MSDB.set(key, JSON.stringify(result));
+    events.MSDB.expire(key, 300);
     events = null; result = null; typeErr = null;
     return;
   }
@@ -175,6 +183,7 @@ exports.interface = (events, task, typeErr) => {
         num
       };
       events.MSDB.set(key, JSON.stringify(errorInfo));
+      events.MSDB.expire(key, 300);
       events = null; task = null; typeErr = null;
       return;
     }
