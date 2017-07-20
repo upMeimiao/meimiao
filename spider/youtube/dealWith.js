@@ -62,16 +62,27 @@ class dealWith {
     request(options, (error, response, body) => {
       if (error) {
         logger.error('occur error : ', error.message);
-        return callback(error.message);
+        callback(error.message);
+        return;
       }
       if (response.statusCode !== 200) {
         logger.error(`list error code: ${response.statusCode}`);
-        return callback(JSON.stringify({ statusCode: response.statusCode }));
+        callback(JSON.stringify({ statusCode: response.statusCode }));
+        return;
       }
       try {
         body = JSON.parse(body.replace(')]}\'', ''));
       } catch (e) {
-        return callback(e.message);
+        callback(e.message);
+        return;
+      }
+      if (body.result === 'error') {
+        if (body.errors.includes('该频道已关闭，无法访问。')) {
+          callback();
+        } else {
+          callback(body.errors);
+        }
+        return;
       }
       const fansInfo = {
           platform: task.p,
