@@ -82,7 +82,6 @@ class videoSend extends events {
     }
     // this.onlineOption.body = JSON.stringify({data: list})
     // this.onlineOption.form = {data: newList}
-    this.logger.debug(newList[0])
     this.onlineOption.body = JSON.stringify({ data: newList });
     request.post(this.onlineOption, (err, res, result) => {
       if (err) {
@@ -92,6 +91,7 @@ class videoSend extends events {
           list = null;
           time = null;
           newList = null;
+          err = null;
         } else {
           setTimeout(() => {
             this.emit('send_data', list, time);
@@ -107,6 +107,7 @@ class videoSend extends events {
           list = null;
           time = null;
           newList = null;
+          res = null;
         } else {
           setTimeout(() => {
             this.emit('send_data', list, time);
@@ -123,6 +124,8 @@ class videoSend extends events {
         list = null;
         time = null;
         newList = null;
+        res = null;
+        result = null;
         return;
       }
       if (Number(result.errno) === 0) {
@@ -138,6 +141,8 @@ class videoSend extends events {
       list = null;
       newList = null;
       time = null;
+      res = null;
+      result = null;
     });
   }
   sendStaging(list) {
@@ -155,12 +160,14 @@ class videoSend extends events {
       if (err) {
         this.logger.error('staging occur error : ', err.message);
         list = null;
+        err = null;
         return;
       }
       if (res.statusCode !== 200) {
         this.logger.error(`staging errorCode: ${res.statusCode}`);
         this.logger.error(result);
         list = null;
+        res = null;
         return;
       }
       try {
@@ -170,6 +177,8 @@ class videoSend extends events {
         this.logger.error(result);
         this.logger.error(JSON.stringify(list));
         list = null;
+        res = null;
+        result = null;
         return;
       }
       if (Number(result.errno) === 0) {
@@ -182,6 +191,8 @@ class videoSend extends events {
         // this.logger.error('media info: ',list)
       }
       list = null;
+      res = null;
+      result = null;
       // newList = null;
     });
   }

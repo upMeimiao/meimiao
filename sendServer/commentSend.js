@@ -90,6 +90,7 @@ class commentSend extends events {
           list = null;
           time = null;
           newList = null;
+          err = null;
         } else {
           setTimeout(() => {
             this.emit('send_data', list, time);
@@ -106,6 +107,7 @@ class commentSend extends events {
           list = null;
           time = null;
           newList = null;
+          res = null;
         } else {
           setTimeout(() => {
             this.emit('send_data', list, time);
@@ -122,6 +124,8 @@ class commentSend extends events {
         list = null;
         time = null;
         newList = null;
+        res = null;
+        result = null;
         return;
       }
       if (Number(result.errno) === 0) {
@@ -137,6 +141,8 @@ class commentSend extends events {
       list = null;
       newList = null;
       time = null;
+      res = null;
+      result = null;
     });
   }
   sendStaging(list) {
@@ -155,6 +161,7 @@ class commentSend extends events {
         this.logger.error(`staging errorCode: ${res.statusCode}`);
         this.logger.error(result);
         list = null;
+        res = null;
         return;
       }
       try {
@@ -164,6 +171,8 @@ class commentSend extends events {
         this.logger.error(result);
         this.logger.error(JSON.stringify(list));
         list = null;
+        res = null;
+        result = null;
         return;
       }
       if (Number(result.errno) === 0) {
@@ -176,6 +185,8 @@ class commentSend extends events {
         // this.logger.error('media info: ',list)
       }
       list = null;
+      res = null;
+      result = null;
       // newList = null;
     });
   }
