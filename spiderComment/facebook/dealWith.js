@@ -28,7 +28,7 @@ class dealWith {
       cycle = true;
     const option = {
       method: 'POST',
-      // proxy: 'http://127.0.0.1:56777',
+      proxy: 'http://127.0.0.1:56777',
       url: 'https://www.facebook.com/ajax/ufi/comment_fetch.php',
       qs: { dpr: '1' },
       headers:
@@ -36,7 +36,7 @@ class dealWith {
         'cache-control': 'no-cache',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
         referer: `https//www.facebook.com/${task.bid}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
-        cookie: 'locale=zh_CN; datr=uarsWNHwHCDMME4QegGkXoHN;'
+        cookie: task.cookies
       },
       formData:
       {
@@ -47,8 +47,8 @@ class dealWith {
         feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
         __user: '0',
         __a: '1',
-        __dyn: '5V8WXxaAcomgDxKS5o9FEbFbGEW8xdLFwgoqwWhEnz8nyUdUb8a-exebmbxK5WxucDKaxeUW2y5pQ12VVojxCaCx3ypUkgmxWcwJwkEG9J7wHx61cxy5FEG48B0Wwwh8gUW1MBg9V8aE8o98pKHxC6ElBy8pxO12y9E9oKfxy5uaw',
-        lsd: 'AVoSHAgn'
+        __dyn: '5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8otUKezob4q2i5UK3u2CEaUgxebkwy8xa5WjzHz9XDG4XzEa8iGta3_DBxe6rCCyVeFFUkgmUnAz8lUlwQxSayrhVo9ohxGbwBxrxqrXG49Z1G7WxR4ypKexm8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uaK9yUaopJa9gK',
+        fb_dtsg: 'AQF7poz_bBtc:AQFlEi2AAWFb'
       }
     };
     async.whilst(
@@ -74,6 +74,11 @@ class dealWith {
             cb();
             return;
           }
+          if (!body || !body.jsmods || !body.jsmods.require) {
+            cycle = false;
+            cb('数据出错');
+            return;
+          }
           body = body.jsmods.require[0][3][1];
           if (!task.lastId) {
             task.lastId = body.comments[0].id;
@@ -90,8 +95,8 @@ class dealWith {
           });
         });
       },
-      () => {
-        callback();
+      (err) => {
+        callback(err);
       }
     );
   }
