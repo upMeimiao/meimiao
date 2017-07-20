@@ -13,6 +13,8 @@ let logger = logging.getLogger('信息处理');
 /**
  * 查看一下发送报警的次数，如果同一错误在短时间内连续发送五次，
  * 应当停止发送需要间隔20分钟之后如果同一错误还在发生继续发送（否则删除错误发送记录）
+ * keyNum 用来记录发送的次数
+ * alonekey 单独处理的key
  * */
 const errorNum = (events, result, typeErr) => {
   const key = `error:${result.platform}:${result.bid}:${typeErr.type}`,
@@ -63,21 +65,23 @@ const errorNum = (events, result, typeErr) => {
     if ((Number(time) - Number(errorData.startTime) >= 1200) && Number(errorData.num) > 10) {
       result.num = 1;
       events.MSDB.set(key, JSON.stringify(result));
+      events.MSDB.expire(key, 300);
       events.MSDB.del(keyNum);
       return;
     }
-    if (Number(errorData.num) <= 5) {
+    if (Number(errorData.num) < 3) {
       editEmail.interEmail(events, result);
       errorData.num += 1;
       errorData.lastTime = time;
       events.MSDB.set(keyNum, JSON.stringify(errorData));
-      events.MSDB.expire(key, 1200);
+      events.MSDB.expire(keyNum, 300);
       events = null; result = null; typeErr = null; errorData = null;
       return;
     }
     errorData.num += 1;
     errorData.lastTime = time;
     events.MSDB.set(keyNum, JSON.stringify(errorData));
+    events.MSDB.expire(keyNum, 300);
     events = null; result = null; typeErr = null; errorData = null;
   });
 };
@@ -99,6 +103,7 @@ const interSetErr = (events, result, typeErr) => {
     result.message = typeErr.err;
     result.lastTime = time;
     events.MSDB.set(key, JSON.stringify(result));
+    events.MSDB.expire(key, 300);
     events = null; result = null; typeErr = null;
     return;
   }

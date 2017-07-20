@@ -8,7 +8,7 @@
       "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
       "watch"       : false,
       "node_args"   : "",
-      "cwd"         : "D:\\meimiao_xiangmu\\meimiao2\\code",
+      "cwd"         : "D:\\meimiao_xiangmu\\meimiao3\\code",
       "env": {
         "NODE_ENV": "production"
       }
