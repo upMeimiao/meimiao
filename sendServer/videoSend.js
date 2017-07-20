@@ -43,7 +43,7 @@ class videoSend extends events {
   }
   getData() {
     const key = [], list = [];
-    for (let i = 0; i < 1000; i += 1) {
+    for (let i = 0; i < 1200; i += 1) {
       key[i] = ['lpop', 'cache'];
     }
     this.redis.pipeline(
