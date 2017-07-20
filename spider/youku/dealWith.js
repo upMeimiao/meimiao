@@ -378,6 +378,7 @@ class dealWith {
         if (task.id === '401218607' || task.id === '715543674') {
           annal(this.core.test_db, `openapi:${task.id}:${result.id}`, result);
         }
+        // console.log(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
