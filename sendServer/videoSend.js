@@ -43,7 +43,7 @@ class videoSend extends events {
   }
   getData() {
     const key = [], list = [];
-    for (let i = 0; i < 800; i += 1) {
+    for (let i = 0; i < 1000; i += 1) {
       key[i] = ['lpop', 'cache'];
     }
     this.redis.pipeline(
@@ -82,6 +82,7 @@ class videoSend extends events {
     }
     // this.onlineOption.body = JSON.stringify({data: list})
     // this.onlineOption.form = {data: newList}
+    this.logger.debug(newList[0])
     this.onlineOption.body = JSON.stringify({ data: newList });
     request.post(this.onlineOption, (err, res, result) => {
       if (err) {
