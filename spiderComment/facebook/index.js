@@ -73,7 +73,7 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_facebook', this.settings.concurrency, (job, done) => {
+    queue.process('comment_Facebook', this.settings.concurrency, (job, done) => {
       logger.trace('Get facebook task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
@@ -97,7 +97,7 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_facebook', this.settings.concurrency, (job, done) => {
+    queue.process('comment_update_Facebook', this.settings.concurrency, (job, done) => {
       logger.trace('Get facebook task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
