@@ -109,5 +109,12 @@
   "kaiyan": {
     "time": "https://baobab.kaiyanapp.com/api/v2/replies/video?videoId=",
     "hot": "https://baobab.kaiyanapp.com/api/v2/replies/hot?videoId="
+  },
+  "facebook": {
+    "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
+    "auth": [
+      {"email": "15718811500 ","pass": "15718811500 "},
+      {"email": "15910869550 ","pass": "15910869550 "}
+    ]
   }
 }
