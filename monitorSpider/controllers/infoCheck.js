@@ -183,6 +183,7 @@ exports.interface = (events, task, typeErr) => {
         num
       };
       events.MSDB.set(key, JSON.stringify(errorInfo));
+      events.MSDB.expire(key, 300);
       events = null; task = null; typeErr = null;
       return;
     }
