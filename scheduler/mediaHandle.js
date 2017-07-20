@@ -8,8 +8,19 @@ class mediaHandle {
     this.logger.debug('视频任务处理模块 实例化...');
   }
   rawLoop(raw) {
-    const data = raw.data,
-      len = data ? data.length : 0;
+    let data = raw.data;
+    raw = null;
+    if (!Array.isArray(data) || data.length === 0) {
+      data = null;
+      return;
+    }
+    const map = new Map();
+    for (const [index, elem] of data.entries()) {
+      map.set(elem.bid, elem);
+    }
+    data = [...map.values()]
+    map.clear();
+    const len = data ? data.length : 0;
     let i = 0;
     // this.logger.debug(raw)
     async.whilst(
@@ -21,6 +32,7 @@ class mediaHandle {
         });
       },
       () => {
+        data = null;
         // this.logger.debug("开始等待下次执行时间")
       }
     );
