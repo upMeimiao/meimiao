@@ -25,5 +25,12 @@
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
   },
   "url": "http://www.meimiaoip.com/index.php/Spider/videoCommO/getUpdateV",
-  "sendUrl": "http://www.meimiaoip.com/index.php/Spider/comment/postComments"
+  "sendUrl": "http://www.meimiaoip.com/index.php/Spider/comment/postComments",
+  "facebook": {
+    "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
+    "auth": [
+      {"email": "15718811500 ","pass": "15718811500 "},
+      {"email": "15910869550 ","pass": "15910869550 "}
+    ]
+  }
 }
