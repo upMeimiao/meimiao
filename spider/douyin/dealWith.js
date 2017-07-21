@@ -71,11 +71,11 @@ class dealWith {
         platform: task.p,
         fans_num: result.user.follower_count
       };
-      // this.sendUser(user, () => {
-      //   callback();
-      // });
+      this.sendUser(user, () => {
+        callback();
+      });
       this.sendStagingUser(user);
-      callback();
+      // callback();
     });
   }
   sendUser(user, callback) {
