@@ -2770,7 +2770,7 @@ class DealWith {
       res = {
         id: result.author.id,
         name: result.author.nickname,
-        avatar: result.author.avatar_thumb.url_list[2],
+        avatar: result.author.avatar_thumb.url_list[0],
         p: 45
       };
       callback(null, res);
