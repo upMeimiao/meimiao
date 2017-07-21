@@ -2901,7 +2901,7 @@ class DealWith {
       }
     };
     let res = null, id = null,
-      vid = data.match(/(\w*[-|~]\w*)\.html/)[1];
+      vid = data.match(/([\w-~]*)\.html/)[1];
     options.url = `http://api.xiaokaxiu.com/video/web/get_play_video?scid=${vid}`;
     request.get(options, (error, result) => {
       if (error) {
@@ -2911,7 +2911,7 @@ class DealWith {
       }
       if (result.statusCode !== 200) {
         logger.error('视频接口状态码', result.statusCode);
-        callback(error, { code: 102, p: 49 });
+        callback(result.statusCode, { code: 102, p: 49 });
         return;
       }
       try {
@@ -2921,15 +2921,16 @@ class DealWith {
         callback(e, { code: 102, p: 49 });
         return;
       }
+      console.log(result);
       if (!result || Number(result.result) !== 1 || !result.data) {
-        callback(e, { code: 102, p: 49 });
+        callback('e', { code: 102, p: 49 });
         return;
       }
       id = URL.parse(result.data.avatar, true).pathname.split('/')[4];
       if (!id || Number(id) === 0) {
         this.xiaokaxiuUser(data, (error, uid) => {
           if (error) {
-            callback(e, { code: 102, p: 49 });
+            callback(error, { code: 102, p: 49 });
             return;
           }
           res = {
@@ -2991,7 +2992,7 @@ class DealWith {
       }
       if (result.statusCode !== 200) {
         logger.error('视频接口状态码', result.statusCode);
-        callback(error, { code: 102, p: 50 });
+        callback(result.statusCode, { code: 102, p: 50 });
         return;
       }
       try {
@@ -3002,7 +3003,7 @@ class DealWith {
         return;
       }
       if (!result) {
-        callback(e, { code: 102, p: 50 });
+        callback('e', { code: 102, p: 50 });
         return;
       }
       res = {
