@@ -183,7 +183,9 @@
       "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",
       "fans": "http://video.tudou.com/subscribe/check?uid=",
       "newList": "https://mapi-channel.youku.com/feed.stream/show/get_yt_channel.json?app_ver=6.2.1&brand=apple&btype=iPhone8%2C2&caller=1&devicetype=phone&module=videolist&os=ios&os_ver=10.3.1&pl=20&scale=3&version=6.2.1",
-      "comment": "http://p.comments.youku.com/ycp/comment/pc/commentList?app=700-cJpvjG4g&objectId="
+      "comment": "http://p.comments.youku.com/ycp/comment/pc/commentList?app=700-cJpvjG4g&objectId=",
+      "programList":"https://mapi-channel.youku.com/feed.stream/show/get_yt_channel.json?app_ver=6.6.1&brand=apple&caller=1&module=playlists&network=WIFI&os=ios&os_ver=10.3.2&version=6.6.1&pl=20&uid=",
+      "proVideoList": "https://apis.tudou.com/play/v1/choose?app=newtudou-iflow&app_ver=6.6.1&brand=apple&devicetype=phone&fr=iphone&network=WIFI&nt=2&os=ios&os_ver=10.3.2&ver=6.6.1&playListId="
     },
     "tv56": {
       "userInfo": "http://push.my.tv.sohu.com/user/a/fa/count.do",
@@ -229,7 +231,9 @@
       "newInfo": "https://openapi.youku.com/v2/videos/show.json",
       "info": "http://api.mobile.youku.com/layout/ios5_0/play/detail",
       "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp=",
-      "userInfo": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid="
+      "userInfo": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid=",
+      "programList": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_playlists.json?caller=1&pl=20&uid=",
+      "albumList": "http://c-api.youku.com/collection?brand=apple&btype=iPhone8%2C2&clid="
     },
     "yy": {
       "userInfo": "http://www.yy.com/u/",

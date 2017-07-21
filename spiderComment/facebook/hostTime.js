@@ -1,7 +1,6 @@
 /**
  * Created by dell on 2017/3/20.
  */
-const request = require('../../lib/request');
 const Utils = require('../../lib/spiderUtils');
 const async = require('neo-async');
 const req = require('request');
@@ -48,7 +47,7 @@ class hostTime {
         'cache-control': 'no-cache',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
         referer: `https//www.facebook.com/${task.bid}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
-        cookie: 'locale=zh_CN; datr=uarsWNHwHCDMME4QegGkXoHN;'
+        cookie: task.cookies
       },
       formData:
       {
@@ -59,8 +58,8 @@ class hostTime {
         feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
         __user: '0',
         __a: '1',
-        __dyn: '5V8WXxaAcomgDxKS5o9FEbFbGEW8xdLFwgoqwWhEnz8nyUdUb8a-exebmbxK5WxucDKaxeUW2y5pQ12VVojxCaCx3ypUkgmxWcwJwkEG9J7wHx61cxy5FEG48B0Wwwh8gUW1MBg9V8aE8o98pKHxC6ElBy8pxO12y9E9oKfxy5uaw',
-        lsd: 'AVoSHAgn'
+        __dyn: '5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8otUKezob4q2i5UK3u2CEaUgxebkwy8xa5WjzHz9XDG4XzEa8iGta3_DBxe6rCCyVeFFUkgmUnAz8lUlwQxSayrhVo9ohxGbwBxrxqrXG49Z1G7WxR4ypKexm8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uaK9yUaopJa9gK',
+        fb_dtsg: 'AQF7poz_bBtc:AQFlEi2AAWFb'
       }
     };
     async.whilst(
@@ -73,7 +72,7 @@ class hostTime {
             cb();
             return;
           }
-          if (response.statusCode != 200) {
+          if (response.statusCode !== 200) {
             logger.debug('评论状态码错误', response.statusCode);
             cb();
             return;
@@ -120,8 +119,8 @@ class hostTime {
       {
         'cache-control': 'no-cache',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-        referer: `https//www.facebook.com/${task.bid}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
-        cookie: 'datr=uarsWNHwHCDMME4QegGkXoHN;locale=zh_CN;'
+        referer: `https//www.facebook.com/${task.bid}/videos/vb.${task.bid}/${task.did}/?type=3&theater`,
+        cookie: task.cookies
       },
       formData:
       {
@@ -132,8 +131,8 @@ class hostTime {
         feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
         __user: '0',
         __a: '1',
-        __dyn: '5V8WXxaAcomgDxKS5o9FEbFbGEW8xdLFwgoqwWhEnz8nyUdUb8a-exebmbxK5WxucDKaxeUW2y5pQ12VVojxCaCx3ypUkgmxWcwJwkEG9J7wHx61cxy5FEG48B0Wwwh8gUW1MBg9V8aE8o98pKHxC6ElBy8pxO12y9E9oKfxy5uaw',
-        lsd: 'AVoSHAgn'
+        __dyn: '5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8otUKezob4q2i5UK3u2CEaUgxebkwy8xa5WjzHz9XDG4XzEa8iGta3_DBxe6rCCyVeFFUkgmUnAz8lUlwQxSayrhVo9ohxGbwBxrxqrXG49Z1G7WxR4ypKexm8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uaK9yUaopJa9gK',
+        fb_dtsg: 'AQF7poz_bBtc:AQFlEi2AAWFb'
       }
     };
     async.whilst(

@@ -1654,9 +1654,9 @@ negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
 
-neo-async@^2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.2.2.tgz#202694aa9f66c85e8c3893c630ecb15453da5471"
+neo-async@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.3.0.tgz#24798bdfbe9f33ad29ad121e51c4e55726536638"
 
 nib@~1.1.2:
   version "1.1.2"
@@ -2173,9 +2173,9 @@ resolve@^1.1.6, resolve@^1.2.0:
   dependencies:
     path-parse "^1.0.5"
 
-restc@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/restc/-/restc-0.1.0.tgz#7dcc4d824b90992ca77a54f127e25356215ba57b"
+restc@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/restc/-/restc-0.2.1.tgz#bccb5e9b85327a2a58f728f9ac1e2ba39117e5e5"
 
 restore-cursor@^2.0.0:
   version "2.0.0"

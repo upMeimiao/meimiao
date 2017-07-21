@@ -69,4 +69,25 @@ exports.start = () => {
   setInterval(() => {
     monitorBanned();
   }, 1200000);
+  schedule.scheduleJob('*/2 * * * *', () => {
+    redis.info('memory', (err, result) => {
+      const memory = {}
+      for (const [index, elem] of result.split('\r\n').entries()) {
+        if (index !== 0 && elem !== '') {
+          memory[elem.split(':')[0]] = elem.split(':')[1];
+        }
+      }
+      if (Math.round((memory.used_memory / 4294967296) * 100) >= 90) {
+        request({
+          method: 'POST',
+          url: 'http://10.251.55.50:3001/api/alarm',
+          form: {
+            mailGroup: 3,
+            subject: 'Redis 内存占用报警',
+            content: `当前Redis内存已使用${memory.used_memory_human}，达到${((memory.used_memory / 4294967296) * 100).toFixed(2)}%`
+          }
+        });
+      }
+    });
+  });
 };

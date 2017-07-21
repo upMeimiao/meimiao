@@ -2736,9 +2736,9 @@ class DealWith {
     });
   }
   huoshan(data, callback) {
-    const urlObj = URL.parse(data, true),
+    const vid = data.match(/video\/(\d*)/)[1],
       options = {
-        url: data,
+        url: `https://www.huoshan.com/share/video/${vid}`,
         ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       };
     let res = null;
@@ -2749,8 +2749,15 @@ class DealWith {
         return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
-      const startIndex = result.indexOf('vardata='),
-        endIndex = result.indexOf(";require('pagelet/reflow_video/detail/detail')");
+      const startIndex = result.indexOf('vardata=');
+      let endIndex = result.indexOf(";require('pagelet/reflow_video/detail/detail')");
+      if (endIndex === -1) {
+        endIndex = result.indexOf(";require('wap:component/reflow_video/detail/detail')");
+      }
+      if (startIndex === -1 || endIndex === -1) {
+        callback('error', { code: 102, p: 45 });
+        return;
+      }
       result = result.substring(startIndex + 8, endIndex);
       try {
         result = JSON.parse(result);
@@ -2759,10 +2766,11 @@ class DealWith {
         callback(e, { code: 102, p: 45});
         return;
       }
+      // console.log(result);
       res = {
         id: result.author.id,
         name: result.author.nickname,
-        avatar: result.author.avatar_thumb.url_list[2],
+        avatar: result.author.avatar_thumb.url_list[0],
         p: 45
       };
       callback(null, res);

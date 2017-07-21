@@ -50,7 +50,7 @@ class dealWith {
         fans_num: result.data.userInfo.fansNum
       };
       task.total = result.data.total;
-      // this.sendUser(user);
+      this.sendUser(user);
       this.sendStagingUser(user);
       this.getVideoList(task, () => {
         callback();

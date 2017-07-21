@@ -5,6 +5,8 @@
 const kue = require('kue');
 const Redis = require('ioredis');
 const domain = require('domain');
+const loginFacebook = require('../../spider/facebook/loginFacebook');
+const spiderUtils = require('../../lib/spiderUtils');
 
 let logger, settings;
 class spiderCore {
@@ -20,17 +22,67 @@ class spiderCore {
   assembly() {
     this.taskDB = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.taskDB}`);
     this.cache_db = new Redis(`redis://:${this.redis.auth}@${this.redis.host}:${this.redis.port}/${this.redis.cache_db}`);
-    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-      this.deal();
-    } else {
-      this.test();
+    const email = this.settings.facebook.auth,
+      keys = [];
+    for (const value of email) {
+      keys.push(['sismember', 'user:Facebook', value.email]);
     }
+    this.searchDB(keys);
   }
   start() {
     logger.trace('启动函数');
     this.assembly();
   }
-
+  searchDB(keys) {
+    this.taskDB.pipeline(
+      keys
+    ).exec((err, result) => {
+      if (err) {
+        logger.debug('error', err);
+        return;
+      }
+      let auth;
+      for (const [key, val] of result.entries()) {
+        if (val[1] === 0) {
+          auth = this.settings.facebook.auth[key];
+          break;
+        }
+      }
+      if (!auth) {
+        spiderUtils.sendError(this.taskDB, 'Facebook当前没有可用账号', () => {
+          process.exit();
+        });
+        return;
+      }
+      this.auth = auth;
+      this.getCookie(auth, () => {
+        // process.env.NODE_ENV = 'production';
+        if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+          this.deal();
+        } else {
+          this.test();
+        }
+      });
+    });
+  }
+  getCookie(auth, callback) {
+    const parameter = {
+      loginAddr: this.settings.facebook.loginAddr,
+      timeout: 0,
+      auth
+    };
+    loginFacebook.start(parameter, (err, result) => {
+      if (err) {
+        logger.debug('当前用户不可用', err);
+        callback();
+        return;
+      }
+      this.cookies = result;
+      if (callback) {
+        callback();
+      }
+    });
+  }
   test() {
     const work = {
       bid: 374308376088256,
@@ -39,7 +91,8 @@ class spiderCore {
       taskType: 0,
       commentId: 0,
       commentTime: 0,
-      commentNum: 0
+      commentNum: 0,
+      cookies: this.cookies
     };
     if (Number(work.taskType) === 1) {
       this.hostTime.todo(work, (err, hostTotal, timeTotal) => {
@@ -73,10 +126,11 @@ class spiderCore {
     });
     // queue.watchStuckJobs(1000);
     logger.trace('Queue get ready');
-    queue.process('comment_facebook', this.settings.concurrency, (job, done) => {
+    queue.process('comment_Facebook', this.settings.concurrency, (job, done) => {
       logger.trace('Get facebook task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;
+      work.cookies = this.cookies;
       logger.info(work);
       const d = domain.create();
       d.on('error', (err) => {
@@ -97,7 +151,7 @@ class spiderCore {
         });
       });
     });
-    queue.process('comment_update_facebook', this.settings.concurrency, (job, done) => {
+    queue.process('comment_update_Facebook', this.settings.concurrency, (job, done) => {
       logger.trace('Get facebook task!');
       const work = job.data,
         key = `c:${work.p}:${work.aid}`;

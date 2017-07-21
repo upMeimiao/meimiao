@@ -3,7 +3,7 @@
  */
 const moment = require('moment');
 const async = require('neo-async');
-const request = require('request');
+const request = require('../../lib/request');
 
 let logger;
 class getProgram {
@@ -30,55 +30,38 @@ class getProgram {
     let sign = true, page = 1;
     const programArr = [],
       options = {
-        method: 'GET',
-        url: 'https://openapi.youku.com/v2/playlists/by_user.json',
-        qs: {
-          client_id: this.settings.app_key,
-          user_id: task.id,
-          count: 10
-        },
-        timeout: 5000
+        ua: 3,
+        own_ua: 'Youku;6.7.4;iOS;10.3.2;iPhone8,2'
       };
     async.whilst(
       () => sign,
       (cb) => {
-        options.qs.page = page;
-        request(options, (error, response, body) => {
+        options.url = `${this.settings.spiderAPI.youku.programList + task.encodeId}&pg=${page}&_t_=${parseInt(new Date().getTime() / 1000, 10)}`;
+        // console.log(options.url);
+        // return;
+        request.get(logger, options, (error, result) => {
           if (error) {
             logger.error('occur error : ', error);
             cb();
             return;
           }
-          if (response.statusCode !== 200) {
-            logger.error(`list error code: ${response.statusCode}`);
-            cb();
-            return;
-          }
           try {
-            body = JSON.parse(body);
+            result = JSON.parse(result.body);
           } catch (e) {
-            logger.error('获取专辑列表json数据解析失败');
-            logger.error('获取专辑列表 json error:', body);
+            logger.error('获取专辑列表 json error:', result.body);
             cb();
             return;
           }
-          const data = body.playlists;
-          if (!data) {
-            // logger.error('body data : ',sign)
-            // logger.error(body)
-            page += 1;
+          if (!result || !result.data || !result.data.items.length) {
+            sign = false;
             cb();
             return;
           }
-          this.dealAlbum(task, data, (err, result) => {
-            for (const [i, album] of result.entries()) {
+          this.dealAlbum(result.data.items, (err, list) => {
+            for (const album of list) {
               programArr.push(album);
             }
-            if (body.total <= 10 * page) {
-              sign = false;
-              cb();
-              return;
-            }
+            list = null;
             page += 1;
             cb();
           });
@@ -90,13 +73,13 @@ class getProgram {
           bid: task.id,
           program_list: programArr
         };
-        logger.debug(program)
+        // logger.debug(program);
         // this.sendProgram(program);
         callback();
       }
     );
   }
-  dealAlbum(task, albums, callback) {
+  dealAlbum(albums, callback) {
     let index = 0, album;
     const albumArr = [],
       length = albums.length;
@@ -104,18 +87,20 @@ class getProgram {
       () => index < length,
       (cb) => {
         album = albums[index];
-        this.getAlbumVideo(task, album, (err, result) => {
-          albumArr.push({
-            program_id: album.id,
-            program_name: album.name,
-            link: album.link,
-            play_link: album.play_link, // 专辑播放链接
-            thumbnail: album.thumbnail, // 专辑截图
-            video_count: album.video_count, // 专辑视频数量
-            view_count: album.view_count, // 专辑总播放数
-            published: moment(album.published).format('X'), // 创建时间
-            video_list: result
-          });
+        this.getAlbumVideo(album, (err, result) => {
+          if (result) {
+            albumArr.push({
+              program_id: album.folderId_encode,
+              program_name: album.folderName,
+              // link: album.link,
+              play_link: album.click_url, // 专辑播放链接
+              thumbnail: album.logo, // 专辑截图
+              video_count: album.contentTotal, // 专辑视频数量
+              view_count: album.total_pv, // 专辑总播放数
+              published: album.upTime, // 创建时间
+              video_list: result
+            });
+          }
           index += 1;
           cb();
         });
@@ -125,66 +110,41 @@ class getProgram {
       }
     );
   }
-  getAlbumVideo(task, album, callback) {
-    let index = 1, page, videos;
+  getAlbumVideo(album, callback) {
+    let videos;
     const albumVideo = [],
       options = {
-        method: 'GET',
-        url: 'https://openapi.youku.com/v2/playlists/videos.json',
-        qs: {
-          client_id: this.settings.app_key,
-          playlist_id: album.id,
-          count: 50
-        },
-        timeout: 5000
+        url: this.settings.spiderAPI.youku.albumList + album.folderId_encode,
+        ua: 3,
+        own_ua: 'Youku;6.7.4;iOS;10.3.2;iPhone8,2'
       };
-    if (album.video_count % 50 !== 0) {
-      page = Math.ceil(album.video_count / 50);
-    } else {
-      page = album.video_count / 50;
-    }
-    async.whilst(
-      () => index <= page,
-      (cb) => {
-        options.qs.page = index;
-        request(options, (error, response, body) => {
-          if (error) {
-            logger.error(' occur error : ', error);
-            cb();
-            return;
-          }
-          if (response.statusCode !== 200) {
-            logger.error(`list error code: ${response.statusCode}`);
-            cb();
-            return;
-          }
-          try {
-            body = JSON.parse(body);
-          } catch (e) {
-            logger.error('获取专辑列表json数据解析失败');
-            logger.error('获取专辑列表 json error:', body);
-            cb();
-            return;
-          }
-          videos = body.videos;
-          if (!videos) {
-            // logger.error('body data : ',sign)
-            // logger.error(body)
-            index += 1;
-            cb();
-            return;
-          }
-          for (const [i, video] of videos.entries()) {
-            albumVideo.push(video.id);
-          }
-          index += 1;
-          cb();
-        });
-      },
-      () => {
-        callback(null, albumVideo);
+    request.get(logger, options, (error, result) => {
+      if (error) {
+        logger.error('单个 occur error : ', error);
+        this.getAlbumVideo(album, callback);
+        return;
       }
-    );
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('获取专辑列表 json error:', result.body);
+        this.getAlbumVideo(album, callback);
+        return;
+      }
+      if (Number(result.code) !== 0) {
+        callback();
+        return;
+      }
+      videos = result.result.videos.data;
+      if (!videos) {
+        callback();
+        return;
+      }
+      for (const video of videos) {
+        albumVideo.push(video.id);
+      }
+      callback(null, albumVideo);
+    });
   }
   // sendProgram(program) {
   //   const options = {

@@ -36,8 +36,8 @@ class commentSend extends events {
     this.on('send_data', (raw, time) => {
       this.sendOnline(raw, time);
     });
-    this.on('send_data_staging', (raw, time) => {
-      this.sendStaging(raw, time);
+    this.on('send_data_staging', (raw) => {
+      this.sendStaging(raw);
     });
     this.assembly();
   }
@@ -58,7 +58,7 @@ class commentSend extends events {
         }
       }
       this.emit('send_data', list, 0);
-      this.emit('send_data_staging', list, 0);
+      this.emit('send_data_staging', list);
     });
   }
   sendOnline(list, time) {
@@ -71,7 +71,7 @@ class commentSend extends events {
       // if (elem.platform < 40 || Number(elem.platform) === 44) {
       //   newList.push(elem);
       // }
-      if (Number(elem.platform) < 46) {
+      if (Number(elem.platform) < 48) {
         newList.push(elem);
       }
     }
@@ -90,6 +90,7 @@ class commentSend extends events {
           list = null;
           time = null;
           newList = null;
+          err = null;
         } else {
           setTimeout(() => {
             this.emit('send_data', list, time);
@@ -106,6 +107,7 @@ class commentSend extends events {
           list = null;
           time = null;
           newList = null;
+          res = null;
         } else {
           setTimeout(() => {
             this.emit('send_data', list, time);
@@ -122,6 +124,8 @@ class commentSend extends events {
         list = null;
         time = null;
         newList = null;
+        res = null;
+        result = null;
         return;
       }
       if (Number(result.errno) === 0) {
@@ -137,9 +141,11 @@ class commentSend extends events {
       list = null;
       newList = null;
       time = null;
+      res = null;
+      result = null;
     });
   }
-  sendStaging(list, time) {
+  sendStaging(list) {
     if (list.length === 0) {
       list = null;
       return;
@@ -148,31 +154,14 @@ class commentSend extends events {
     request.post(this.stagingOption, (err, res, result) => {
       if (err) {
         this.logger.error('staging occur error : ', err.message);
-        time += 1;
-        if (time > 3) {
-          list = null;
-          time = null;
-          // newList = null
-        } else {
-          setTimeout(() => {
-            this.emit('send_data_staging', list, time);
-          }, 300);
-        }
+        list = null;
         return;
       }
       if (res.statusCode !== 200) {
         this.logger.error(`staging errorCode: ${res.statusCode}`);
         this.logger.error(result);
-        time += 1;
-        if (time > 3) {
-          list = null;
-          time = null;
-          // newList = null
-        } else {
-          setTimeout(() => {
-            this.emit('send_data_staging', list, time);
-          }, 1500);
-        }
+        list = null;
+        res = null;
         return;
       }
       try {
@@ -182,7 +171,8 @@ class commentSend extends events {
         this.logger.error(result);
         this.logger.error(JSON.stringify(list));
         list = null;
-        time = null;
+        res = null;
+        result = null;
         return;
       }
       if (Number(result.errno) === 0) {
@@ -194,11 +184,10 @@ class commentSend extends events {
         this.logger.error(result);
         // this.logger.error('media info: ',list)
       }
-      // this.logger.info('客户端发出', list)
-      // this.logger.debug(`${list.length}个视频 staging back end`)
       list = null;
+      res = null;
+      result = null;
       // newList = null;
-      time = null;
     });
   }
 }

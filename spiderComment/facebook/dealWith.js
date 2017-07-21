@@ -36,7 +36,8 @@ class dealWith {
         'cache-control': 'no-cache',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
         referer: `https//www.facebook.com/${task.bid}/videos/vb.${task.bid}/${task.aid}/?type=3&theater`,
-        cookie: 'locale=zh_CN; datr=uarsWNHwHCDMME4QegGkXoHN;'
+        cookie: task.cookies
+        // cookie: 'EDvF3EtimeF1500550729EuserFA21B17442481022A2EstateFDutF1500550729333CEchFDp_5f1B17442481022F2CC;test_cookie=CheckForPermission;datr=Q5ZwWdqiig3xvJo2YH5Z1TrQ;lu=gA;pl=n;fr=0lSlsaYU26ljPfpvs.AWUiOubwF5k9aN6Yv17YeuiKS8I.BZcJZD.1g.AAA.0.0.BZcJZG.AWUGxZN_;xs=12%3A-xVmU_YlqZE71w%3A2%3A1500550726%3A-1%3A-1;c_user=100017442481022;sb=RpZwWdMebjyFVLcPrPFXPc31;AA003=AXz8mqhHsDR7qNrYqbj19WJYfXfrPozX_SbmyBQ27y7QaF832zoRrqySI4OHECEtWVw;ATN=1.1500550725.5956246839214508332.AYLe0b3-CKBePTcyAgA;'
       },
       formData:
       {
@@ -47,8 +48,8 @@ class dealWith {
         feed_context: '{"story_width":230,"is_snowlift":true,"fbfeed_context":true}',
         __user: '0',
         __a: '1',
-        __dyn: '5V8WXxaAcomgDxKS5o9FEbFbGEW8xdLFwgoqwWhEnz8nyUdUb8a-exebmbxK5WxucDKaxeUW2y5pQ12VVojxCaCx3ypUkgmxWcwJwkEG9J7wHx61cxy5FEG48B0Wwwh8gUW1MBg9V8aE8o98pKHxC6ElBy8pxO12y9E9oKfxy5uaw',
-        lsd: 'AVoSHAgn'
+        __dyn: '5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8otUKezob4q2i5UK3u2CEaUgxebkwy8xa5WjzHz9XDG4XzEa8iGta3_DBxe6rCCyVeFFUkgmUnAz8lUlwQxSayrhVo9ohxGbwBxrxqrXG49Z1G7WxR4ypKexm8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uaK9yUaopJa9gK',
+        fb_dtsg: 'AQF7poz_bBtc:AQFlEi2AAWFb'
       }
     };
     async.whilst(
@@ -74,7 +75,17 @@ class dealWith {
             cb();
             return;
           }
+          if (!body || !body.jsmods || !body.jsmods.require) {
+            cycle = false;
+            cb('数据出错');
+            return;
+          }
           body = body.jsmods.require[0][3][1];
+          if (!body.comments.length) {
+            cycle = false;
+            cb('没有评论');
+            return;
+          }
           if (!task.lastId) {
             task.lastId = body.comments[0].id;
           }
@@ -90,8 +101,8 @@ class dealWith {
           });
         });
       },
-      () => {
-        callback();
+      (err) => {
+        callback(err);
       }
     );
   }

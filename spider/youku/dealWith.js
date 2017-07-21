@@ -301,9 +301,9 @@ class dealWith {
   info(task, list, callback) {
     const idList = [];
     for (const index in list) {
-      if (task.id === '401218607' || task.id === '715543674') {
-        annal(this.core.test_db, `app:${task.id}:${list[index].videoid}`, list[index]);
-      }
+      // if (task.id === '401218607' || task.id === '715543674') {
+      //   annal(this.core.test_db, `app:${task.id}:${list[index].videoid}`, list[index]);
+      // }
       idList.push(list[index].videoid);
     }
     const ids = idList.join(',');
@@ -375,9 +375,10 @@ class dealWith {
           step: result.down_count,
           a_create_time: video.publishtime
         };
-        if (task.id === '401218607' || task.id === '715543674') {
-          annal(this.core.test_db, `openapi:${task.id}:${result.id}`, result);
-        }
+        // if (task.id === '401218607' || task.id === '715543674') {
+        //   annal(this.core.test_db, `openapi:${task.id}:${result.id}`, result);
+        // }
+        // console.log(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });

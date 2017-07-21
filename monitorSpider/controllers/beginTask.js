@@ -51,6 +51,11 @@ class setTask {
         platform = null;
         return;
       }
+      if (result && work.p === 33 && (time - result) < 300) {
+        work = null;
+        platform = null;
+        return;
+      }
       db.del(`alone:${work.pname}:${work.id}`);
       platform.start(work, (err) => {
         if (err) {

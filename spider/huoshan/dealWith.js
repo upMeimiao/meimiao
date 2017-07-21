@@ -232,7 +232,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('视频详情请求失败', err);
-        if (err.status != 200) {
+        if (err.status !== 200) {
           callback('next');
           return;
         }
