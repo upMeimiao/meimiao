@@ -230,7 +230,9 @@
       "list": "http://mapi.channel.youku.com/feed.stream/show/get_channel_owner_videos.json",
       "newInfo": "https://openapi.youku.com/v2/videos/show.json",
       "info": "http://api.mobile.youku.com/layout/ios5_0/play/detail",
-      "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp="
+      "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp=",
+      "programList": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_playlists.json?caller=1&pl=20&uid=",
+      "albumList": "http://c-api.youku.com/collection?brand=apple&btype=iPhone8%2C2&clid="
     },
     "yy": {
       "userInfo": "http://www.yy.com/u/",

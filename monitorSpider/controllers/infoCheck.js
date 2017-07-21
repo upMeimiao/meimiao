@@ -53,6 +53,12 @@ const errorNum = (events, result, typeErr, t) => {
       if (result.platform === 'v1' && result.message.includes('获取失败')) {
         events.MSDB.set(aloneKey, time);
       }
+      if (result.platform === 'v1' && Number(result.message) === 500) {
+        events.MSDB.set(aloneKey, time);
+      }
+      if (result.platform === 'renren' && Number(result.message) === 504) {
+        events.MSDB.set(aloneKey, time);
+      }
     }
     // 当错误进来之后会先进行时间的判断，如果当前的错误记录的起始时间到目前为止超过了20分钟，
     // 并且最新的一次错误发生所记录的时间超过五分钟没有更新，那么就认为该平台在某个时间段出现故障，

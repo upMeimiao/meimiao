@@ -10,7 +10,7 @@ class program {
     request = core.modules.request;
     infoCheck = core.modules.infoCheck;
     logger = core.settings.logger;
-    logger.trace('acfun program instantiation ...');
+    logger.trace('renren program instantiation ...');
   }
   start(task, callback) {
     this.getProgramList(task, () => {
@@ -19,12 +19,22 @@ class program {
   }
   getProgramList(task, callback) {
     let option = {
-      url: `${this.settings.spiderAPI.acfun.programList + task.id}&pageNo=1`
+      url: 'http://web.rr.tv/v3plus/subject/list',
+      headers: {
+        clienttype: 'web',
+        clientversion: '0.1.0',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+        referer: 'http//rr.tv/'
+      },
+      data: {
+        id: `${task.id}`,
+        row: 20,
+        page: 1
+      }
     };
-    request.get(logger, option, (err, result) => {
+    request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          console.log(result);
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'proList', url: option.url};
           infoCheck.interface(this.core, task, typeErr);
         } else {
@@ -42,27 +52,36 @@ class program {
         callback();
         return;
       }
-      // console.log('-----', result);
-      if (!result || result.msg !== 'ok' || !result.data || !result.data.page) {
+      if (!result || !result.data || !result.data.results) {
         typeErr = {type: 'data', err: `栏目数据出问题: ${JSON.stringify(result.data)}}`, interface: 'proList', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
         callback();
         return;
       }
-      if (!result.data.page.list.length) {
+      if (!result.data.results.length) {
         callback();
         return;
       }
-      this.programIdlist(task, result.data.page.list[0].specialId);
+      this.programIdlist(task, result.data.results[0].id);
       callback();
       option = null; result = null;  typeErr = null;
     });
   }
   programIdlist(task, proId) {
     let option = {
-      url: `http://api.aixifan.com/albums/${proId}/contents?page={"num":1,"size":20}`
+      url: 'http://web.rr.tv/subject/detail',
+      headers: {
+        clienttype: 'web',
+        clientversion: '0.1.0',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+        'content-type': 'application/x-www-form-urlencoded',
+        referer: 'http//rr.tv/'
+      },
+      data: {
+        id: `${proId}`
+      }
     };
-    request.get(logger, option, (err, result) => {
+    request.post(logger, option, (err, result) => {
      if (err) {
        if (err.status && err.status !== 200) {
          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'proIdList', url: option.url};
@@ -80,10 +99,12 @@ class program {
        infoCheck.interface(this.core, task, typeErr);
        return;
      }
-     if (!result || !result.data || !result.data.list) {
+     if (!result.data || !result.data.subject || !result.data.videos) {
        typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.data)}}`, interface: 'proIdList', url: option.url};
        infoCheck.interface(this.core, task, typeErr);
+       return;
      }
+     this.playNum(task, result.data.list[0].id);
      option = null; result = null; typeErr = null;
     });
   }
