@@ -424,6 +424,12 @@ const jd = () => {
   const spider = new (require(`${spiderDir}jd`))(settings);
   spider.start();
 };
+const meimiao = () => {
+  settings.logger = logging.getLogger('美秒视频', options.i, logLevel);
+  settings.instance = options.i;
+  const spider = new (require(`${spiderDir}meimiao`))(settings);
+  spider.start();
+};
 const test = () => {
   settings.logger = logging.getLogger('测试', options.i, logLevel);
   settings.instance = options.i;
@@ -616,6 +622,9 @@ switch (options.a) {
     break;
   case 'jd':
     jd();
+    break;
+  case 'meimiao':
+    meimiao();
     break;
   case 'test':
     test();

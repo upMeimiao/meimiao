@@ -301,6 +301,10 @@ class spiderCore {
       case 'h5.m.jd.com':
         this.handle.jdHandle(ctx, remote);
         break;
+      case 'm-v.gomeplus.com':
+      case 'v.gomeplus.com':
+        this.handle.meimiaoHandle(ctx, remote);
+        break;
       default:
         if (remote.includes('miaopai.com')) {
           this.handle.miaopaiHandle(ctx, remote, 'default');

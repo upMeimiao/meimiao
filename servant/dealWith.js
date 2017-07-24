@@ -3236,5 +3236,40 @@ class DealWith {
       callback(null, res);
     });
   }
+  meimiao(data, callback) {
+    const vid = data.match(/(\d*)\.html/)[1],
+      options = {
+        url: `https://m-v.gomeplus.com/v/${vid}.html`,
+        ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+      };
+    let res = null;
+    request.get(options, (error, result) => {
+      if (error) {
+        logger.error('视频接口请求失败', error.message);
+        callback(error, { code: 102, p: 55 });
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('视频接口状态码', result.statusCode);
+        callback('e', { code: 102, p: 55 });
+        return;
+      }
+      const $ = cheerio.load(result.body),
+        id = $('a.btn-ding ').attr('data-subscribeid'),
+        name = $('div.user-box a.user-name span').text(),
+        avatar = $('div.user-box a.user-name img').attr('src');
+      if (!id || !name || !avatar) {
+        callback('e', { code: 102, p: 55 });
+        return;
+      }
+      res = {
+        id,
+        name,
+        avatar,
+        p: 54
+      };
+      callback(null, res);
+    });
+  }
 }
 module.exports = DealWith;

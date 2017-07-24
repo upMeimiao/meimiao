@@ -310,6 +310,10 @@
       "user": "https://api.m.jd.com/client.action?functionId=jdDiscoveryAuthorPageHead&client=wh5&clientVersion=1.0.0&_=",
       "list": "https://api.m.jd.com/client.action?functionId=discAuthorRelaseList&client=wh5&clientVersion=1.0.0&env=&_=",
       "video": "https://api.m.jd.com/client.action?functionId=jdDiscoveryArticleDetail&client=wh5&clientVersion=1.0.0&env=&_="
+    },
+    "meimiao": {
+      "list": "https://v.gomeplus.com/json/publisherDetail.json?id=",
+      "comment": "https://m-v.gomeplus.com/api/comment/list?size=20"
     }
   },
   "servantAPI": {
