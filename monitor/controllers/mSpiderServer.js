@@ -6,14 +6,16 @@ const logging = require('log4js');
 const logger = logging.getLogger('接口监控');
 const async = require('neo-async');
 const events = require('events');
-const storageClient = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/6', {
+const redisConf = require('../config/redis');
+
+const storageClient = new Redis(`redis://:${redisConf.auth}@${redisConf.host}:6379/6`, {
   reconnectOnError(err) {
     if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
       return true;
     }
   }
 });
-const mSpiderClient = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/7', {
+const mSpiderClient = new Redis(`redis://:${redisConf.auth}@${redisConf.host}:6379/7`, {
   reconnectOnError(err) {
     if (err.message.slice(0, 'READONLY'.length) === 'READONLY') {
       return true;

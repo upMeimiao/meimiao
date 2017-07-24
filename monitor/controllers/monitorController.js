@@ -4,9 +4,10 @@ const request = require('request');
 const crypto = require('crypto');
 const moment = require('moment');
 const logging = require('log4js');
+const redisConf = require('../config/redis');
 
 const logger = logging.getLogger('状态监控');
-const monitorClint = new Redis('redis://:C19prsPjHs52CHoA0vm@r-m5e970ad613f13a4.redis.rds.aliyuncs.com:6379/5', {
+const monitorClint = new Redis(`redis://:${redisConf.auth}@${redisConf.host}:6379/5`, {
   reconnectOnError(err) {
     return err.message.slice(0, 'READONLY'.length) === 'READONLY';
   }
