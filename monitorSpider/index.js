@@ -54,10 +54,9 @@ class spiderCore extends events{
     this.getTask = new (require('./controllers/beginTask'))(this);
     switch (this.settings.type) {
       case 'video':
-        // for (const [key, value] of platfrom.entries()) {
-        //   videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
-        // }
-        videoList.push({ name: 'meimiao', type: 'ceshi', t: 'video', platform: new (require('./dealWith/meimiao'))(this) });
+        for (const [key, value] of platfrom.entries()) {
+          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+        }
         platfromObj = { videoList };
         break;
       case 'program':
@@ -70,7 +69,7 @@ class spiderCore extends events{
         break;
       case 'all':
         for (const [key, value] of platfrom.entries()) {
-          videoList.push({ name: value, type: 'ceshi', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
           if (program.program().get(key)) {
             programList.push({ name: value, type: 'ceshi', t: 'program', platform: new (require('./program/' + value))(this) });
           }
