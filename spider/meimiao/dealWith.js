@@ -164,7 +164,7 @@ class dealWith {
           v_img: video.image,
           tag: result[0],
           comment_num: result[1],
-          upport: video.praise_num
+          support: video.praise_num
         };
         // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
