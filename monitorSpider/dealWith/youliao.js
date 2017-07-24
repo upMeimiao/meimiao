@@ -18,7 +18,7 @@ class dealWith {
     infoCheck = core.modules.infoCheck;
     async = core.modules.async;
     logger = this.settings.logger;
-    logger.trace('naitang monitor begin...');
+    logger.trace('youliao monitor begin...');
     core = null;
   }
   start(task, callback) {
@@ -52,10 +52,10 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
         option = null;
@@ -65,12 +65,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result || !result.userId) {
-        typeErr = {type: 'data', err: `youliao-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
+        typeErr = {type: 'data', err: `youliao-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;
@@ -96,10 +96,10 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
         option = null;
@@ -109,7 +109,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -144,10 +144,10 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'comment', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'comment', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -155,12 +155,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'comment', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'comment', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (result.status !== 'ok') {
-        typeErr = {type: 'data', err: `youliao-评论, data: ${JSON.stringify(result)}`, interface: 'comment', url: option.url};
+        typeErr = {type: 'data', err: `youliao-评论, data: ${JSON.stringify(result)}`, interface: 'comment', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null;

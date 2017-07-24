@@ -31,6 +31,7 @@
 > * newStart —— 用于pm2启动的脚本存放文件夹
 > * run.js —— 程序启动文件
 > * node run.js -i 配置文件夹下的某个文件夹名 -a 启动文件中定义的方法名
+> * node run.js -i [test/master] -a monitorSpider -t [video/program/all] (默认是video启动视频信息监控)
 
 ## 主要模块及作用
 
