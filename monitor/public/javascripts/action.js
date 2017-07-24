@@ -102,7 +102,8 @@ const platform = [
   { id: 51, name: '奶糖' },
   { id: 52, name: '有料' },
   { id: 53, name: '开眼Eyepetizer' },
-  { id: 54, name: '京东觅•Me'}
+  { id: 54, name: '京东觅•Me'},
+  { id: 55, name: '美秒' }
 ];
 const platformMap = new Map()
 for (let [index, elem] of platform.entries()) {

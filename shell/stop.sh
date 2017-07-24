@@ -195,6 +195,9 @@ then
             '京东觅')
                 ssh root@${loop} 'pm2 stop 京东觅'
                 ;;
+            '美秒')
+                ssh root@${loop} 'pm2 stop 美秒'
+                ;;
             esac
             echo
             echo "--------------$2 视频服务停止完成，退出服务器 $loop --------------"
@@ -362,6 +365,9 @@ then
                 ;;
             '京东觅')
                 ssh root@${loop} 'pm2 stop 京东觅'
+                ;;
+            '美秒')
+                ssh root@${loop} 'pm2 stop 美秒'
                 ;;
             esac
             echo

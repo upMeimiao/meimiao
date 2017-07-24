@@ -51,6 +51,7 @@ const platformMap = new Map([
   [51, 'naitang'],
   [52, 'youliao'],
   [53, 'eyepetizer'],
-  [54, 'jdmi']
+  [54, 'jdmi'],
+  [55, 'meimiao']
 ]);
 module.exports = platformMap;
