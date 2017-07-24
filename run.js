@@ -83,6 +83,7 @@ const statusMonitor = () => {
 const monitorSpider = () => {
   settings.logger = logging.getLogger('接口监控', options.i, logLevel);
   settings.instance = options.i;
+  settings.type = options.t;
   const spider = new (require('./monitorSpider'))(settings);
   spider.start();
 };

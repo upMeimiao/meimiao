@@ -3,7 +3,7 @@
     {
       "name"        : "monitorSpider",
       "script"      : "run.js",
-      "args"        : ["-i","test","-a","monitorSpider"],
+      "args"        : ["-i","test","-a","monitorSpider","-t","all"],
       "log_date_format"  : "YYYY-MM-DD HH:mm Z",
       "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
       "watch"       : false,

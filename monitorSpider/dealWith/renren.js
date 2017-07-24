@@ -48,10 +48,10 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getUser', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getUser', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getUser', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getUser', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -59,12 +59,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getUser', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getUser', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.data || !result.data.user || !result.data.user.fansCount) {
-        typeErr = {type: 'json', err: `renren-fans-error, data: ${JSON.stringify(result)}`, interface: 'getUser', url: option.url};
+        typeErr = {type: 'json', err: `renren-fans-error, data: ${JSON.stringify(result)}`, interface: 'getUser', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;
@@ -89,10 +89,10 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getList', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getList', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -100,12 +100,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getList', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getList', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result.data || !result.data.results.length === 0) {
-        typeErr = {type: 'data', err: `renren-data-list-error, data: ${JSON.stringify(result)}`, interface: 'getList', url: option.url};
+        typeErr = {type: 'data', err: `renren-data-list-error, data: ${JSON.stringify(result)}`, interface: 'getList', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
@@ -129,10 +129,10 @@ class dealWith {
     request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidInfo', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidInfo', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidInfo', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidInfo', url: JSON.stringify(option)};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
@@ -140,12 +140,12 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
         return;
       }
       if (!result || !result.data) {
-        typeErr = {type: 'data', err: `renren-videoInfo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
+        typeErr = {type: 'data', err: `renren-videoInfo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: JSON.stringify(option)};
         infoCheck.interface(this.core, task, typeErr);
       }
       option = null; result = null;

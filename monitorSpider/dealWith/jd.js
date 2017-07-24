@@ -11,7 +11,7 @@ class dealWith {
     infoCheck = core.modules.infoCheck;
     async = core.modules.async;
     logger = this.settings.logger;
-    logger.trace('naitang monitor begin...');
+    logger.trace('jd monitor begin...');
     core = null;
   }
   start(task, callback) {

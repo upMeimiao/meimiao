@@ -3,17 +3,18 @@
  * created by zhupenghui on 17/6/12.
  */
 const request = require('../lib/request'),
- Redis = require( 'ioredis' ),
- async = require( 'neo-async' ),
- zlib = require('zlib'),
- events = require('events'),
- req = require('request'),
- platfrom = require('./controllers/platform'),
- infoCheck = require('./controllers/infoCheck'),
- cheerio = require('cheerio'),
- URL = require('url'),
- crypto = require('crypto'),
- fetchUrl = require('fetch').fetchUrl;
+  Redis = require( 'ioredis' ),
+  async = require( 'neo-async' ),
+  zlib = require('zlib'),
+  events = require('events'),
+  req = require('request'),
+  cheerio = require('cheerio'),
+  URL = require('url'),
+  crypto = require('crypto'),
+  fetchUrl = require('fetch').fetchUrl,
+  platfrom = require('./controllers/platform'),
+  infoCheck = require('./controllers/infoCheck'),
+  program = require('./controllers/program');
 
 let logger,settings;
 class spiderCore extends events{
@@ -47,15 +48,52 @@ class spiderCore extends events{
   }
   initPlatForm() {
     // 实例化平台模块
-    let platfromArr = [];
+    let platfromObj = {},
+      videoList = [],
+      programList = [];
     this.getTask = new (require('./controllers/beginTask'))(this);
-    for (const [key, value] of platfrom.entries()) {
-      platfromArr.push({ name: value, type: '', platform: new (require('./dealWith/' + value))(this) });
+    switch (this.settings.type) {
+      case 'video':
+        for (const [key, value] of platfrom.entries()) {
+          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+        }
+        platfromObj = { videoList };
+        break;
+      case 'program':
+        for (const [key, value] of platfrom.entries()) {
+          if (program.program().get(key)) {
+            programList.push({ name: value, type: 'ceshi', t: 'program', platform: new (require('./program/' + value))(this) });
+          }
+        }
+        platfromObj = { programList };
+        break;
+      case 'all':
+        for (const [key, value] of platfrom.entries()) {
+          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+          if (program.program().get(key)) {
+            programList.push({ name: value, type: 'ceshi', t: 'program', platform: new (require('./program/' + value))(this) });
+          }
+        }
+        platfromObj = { videoList, programList };
+        break;
+      default:
+        for (const [key, value] of platfrom.entries()) {
+          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+        }
+        platfromObj = { videoList };
     }
-    // platfromArr.push({ name: 'youliao', type: 'ceshi', platform: new (require('./dealWith/youliao'))(this) });
-    this.beginTask(platfromArr);
-    this.modules = null;
-    platfromArr = null;
+    this.distribution(platfromObj);
+    this.modules = null; videoList = null; programList = null;
+  }
+  distribution(platfromObj) {
+    const iterator = (plat, done) => {
+      this.beginTask(plat);
+      done();
+    };
+    async.each(platfromObj, iterator, () => {
+    //  监控分类执行完毕
+      platfromObj = null;
+    });
   }
   beginTask(plat) {
     // 并行执行任务

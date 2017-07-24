@@ -1,9 +1,13 @@
 /**
  * Created by zhupenghui on 17/6/15.
  */
+const vm = require('vm');
 
 const jsonp = (data) => {
   return data
+};
+const sandbox = {
+  jsonp: data => data
 };
 let logger, typeErr, async, cheerio, request, infoCheck;
 class dealWith {
@@ -298,16 +302,21 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: option};
           infoCheck.interface(this.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: option};
           infoCheck.interface(this.core, task, typeErr);
         }
         return;
       }
+      if (result.body.startsWith('statusCode')) {
+        typeErr = {type: 'data', err: `iqiyi-Expr-data-error, data: ${JSON.stringify(result.body)}`, interface: 'getExpr', url: option};
+        infoCheck.interface(this.core, task, typeErr);
+        return;
+      }
       try {
-        result = eval(`${result.body}`);
+        result = vm.runInNewContext(result.body, sandbox);
       } catch (e) {
         typeErr = {type: 'json', err:`iqiyi-Expr-json-error: ${e.message}, data: ${result.body}`, interface: 'getExpr', url: option.url};
         infoCheck.interface(this.core, task, typeErr);
