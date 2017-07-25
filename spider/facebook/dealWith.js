@@ -65,9 +65,9 @@ class dealWith {
   }
   getUserInfo(task, callback) {
     const option = {
-      url: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
-      // proxy: 'http://127.0.0.1:56777',
-      referer: `https://www.facebook.com/pg/${task.id}/likes/?ref=page_internal`,
+      url: `https://www.facebook.com/pg/${task.id}/community/?ref=page_internal`,
+      proxy: 'http://127.0.0.1:56777',
+      referer: `https://www.facebook.com/pg/${task.id}/community/?ref=page_internal`,
       ua: 1
     };
     request.get(logger, option, (err, result) => {
@@ -75,24 +75,18 @@ class dealWith {
         callback(err);
         return;
       }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      const renderFollowsData = result.indexOf('renderFollowsData');
-      if (renderFollowsData === -1) {
-        logger.debug('没有粉丝数');
-        callback();
-        return;
-      }
-      result = result.substr(renderFollowsData);
-      const fans = result.match(/,(\d*)],\[\]\],\["PagesLikesTab",/);
+      const $ = cheerio.load(result.body),
+        fansDom = $('div#content_container>div>div.clearfix div._4bl7._3xoj').eq(1).find('._3xom').text(),
+        fans = Number(fansDom.replace(/,/g, ''));
       if (!fans) {
-        logger.debug('没有找到');
+        logger.debug('没有粉丝数', fans);
         callback();
         return;
       }
       const res = {
         bid: task.id,
         platform: task.p,
-        fans_num: fans[1]
+        fans_num: fans
       };
       // logger.info(res);
       this.sendUser(res);
@@ -152,11 +146,12 @@ class dealWith {
   getUserList(task, callback) {
     const time = parseInt(new Date().getTime() / 1000, 10),
       option = {
-        url: `${this.settings.spiderAPI.facebook.userList}{"profile_id":"${task.id}","tab_key":"videos","lst":"${task.userId}:${task.id}:${time}"}`,
+        url: `https://www.facebook.com/${task.id + this.settings.spiderAPI.facebook.userList}&lst=${task.userId}:${task.id}:${time}&__user=${task.userId}&__a=1`,
         ua: 1,
-        // proxy: 'http://127.0.0.1:56777',
+        proxy: 'http://127.0.0.1:56777',
         Cookie: task.cookies
-      };
+      },
+      pageletToken = 'AWtVRp2c4s4CWvlzBp5SG3ZMV2ky5ZXF9N5fW0lykpNiwcajcO6-L0UD-ljqleyXeIo';
     let token = null,
       cycle = true,
       num = 1,
@@ -168,7 +163,7 @@ class dealWith {
       () => cycle,
       (cb) => {
         if (num !== 1) {
-          option.url = `${this.settings.spiderAPI.facebook.userList2}{"collection_token":"${token}","cursor":"${cursor}","disablepager":false,"overview":false,"profile_id":"${task.id}","tab_key":"videos","lst":"${task.userId}:${task.id}:${time}","ftid":null,"order":null,"sk":"videos","importer_state":null}&__user=${task.userId}&__a=1&__spin_t=${time}`;
+          option.url = `${this.settings.spiderAPI.facebook.userList2}{"collection_token":"${token}","cursor":"${cursor}","disablepager":false,"overview":false,"profile_id":"${task.id}","pagelet_token":"${pageletToken}","tab_key":"videos","lst":"${task.userId}:${task.id}:${time}","ftid":null,"order":null,"sk":"videos","importer_state":null}&__user=${task.userId}`;
         }
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -178,9 +173,13 @@ class dealWith {
           }
           try {
             if (num === 1) {
-              result = result.body.replace(/[\n\r]/g, '');
-              result = result.split('/*<!-- fetch-stream -->*/');
-              result = JSON.parse(result[3]);
+              const _$ = cheerio.load(result.body),
+                script = _$('script').eq(13).html();
+              result = script.replace(/[\n\r]/g, '')
+                .replace('parent.require("JSONPTransport").respond(4, ', '')
+                .replace(',true);', '');
+              result = result.substring(result.indexOf('if (self != top) {') + 18, result.indexOf(', true);} else {'));
+              result = JSON.parse(result);
             } else {
               result = JSON.parse(result.body.replace('for (;;);', ''));
             }
@@ -190,12 +189,12 @@ class dealWith {
             return;
           }
           if (num === 1) {
-            tokenList = result.content.payload.jsmods.require;
+            tokenList = result.payload.jsmods.require;
             for (const [key, value] of tokenList.entries()) {
               if (value[1] == 'enableContentLoader') {
                 token = value[3][0].replace('pagelet_timeline_app_collection_', '');
                 cursor = value[3][2];
-                $ = cheerio.load(result.content.payload.content[value[3][0]]);
+                $ = cheerio.load(result.payload.content[value[3][0]]);
                 videolist = $('ul li');
                 num = 2;
                 break;
@@ -237,7 +236,7 @@ class dealWith {
   getListInfo(task, callback) {
     const option = {
       ua: 1,
-      // proxy: 'http://127.0.0.1:56777',
+      proxy: 'http://127.0.0.1:56777',
       referer: 'https://www.facebook.com'
     };
     let cursor = null,
@@ -328,7 +327,7 @@ class dealWith {
           platform: task.p,
           bid: task.id,
           aid,
-          title: result[0].title,
+          title: result[0].title.replace('查看翻译', ''),
           desc: result[0].desc,
           v_img: img,
           support: result[0].ding,
@@ -339,6 +338,7 @@ class dealWith {
           a_create_time: result[0].time
         };
         media = spiderUtils.deleteProperty(media);
+        // logger.info(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -350,9 +350,9 @@ class dealWith {
     const option = {
       url: `${this.settings.spiderAPI.facebook.vidInfo}"v":"${vid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`,
       ua: 1,
-      // proxy: 'http://127.0.0.1:56777',
+      proxy: 'http://127.0.0.1:56777',
       referer: `https://www.facebook.com/${task.id}/?fref=ts`,
-      Cookie: task.cookies,
+      Cookie: task.cookies
     };
     option.url = option.url.replace(/'/g, '"').replace(/[\\]/g, '');
     let dataJson = null,
