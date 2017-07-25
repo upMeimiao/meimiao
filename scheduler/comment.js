@@ -82,9 +82,9 @@ class commentScheduler extends events {
       this.originOverseas(raw);
     });
     this.on('redis_error', (raw) => {
-            /**
-             * todo send email
-             */
+      /**
+       * todo send email
+       */
       this.logger.error(raw);
     });
     this.assembly();
@@ -133,10 +133,12 @@ class commentScheduler extends events {
     request.get(this.settings.url, (err, res, body) => {
       if (err) {
         this.logger.error('occur error : ', err);
+        err = null;
         return;
       }
       if (res.statusCode !== 200) {
         this.logger.error('get comment task : ', res.statusCode);
+        res = null;
         return;
       }
       try {
@@ -144,15 +146,20 @@ class commentScheduler extends events {
       } catch (e) {
         this.logger.error('json数据解析失败');
         this.logger.info(body);
+        res = null;
+        body = null;
         return;
       }
       this.logger.debug(body);
-      if (!body.data || !Array.isArray(body.data) || body.data.length === 0) return;
-      if (Number(body.data[0].platform) === 39 || Number(body.data[0].platform) === 40) {
-        this.emit('origin_youtube', body.data);
-        return;
+      const data = body.data;
+      res = null;
+      body = null;
+      if (!data || !Array.isArray(data) || data.length === 0) return;
+      if (Number(data[0].platform) === 39 || Number(data[0].platform) === 40) {
+        this.emit('origin_youtube', data);
+      } else {
+        this.emit('task_loaded', data);
       }
-      this.emit('task_loaded', body);
     });
   }
   originOverseas(raw) {
@@ -168,17 +175,21 @@ class commentScheduler extends events {
     };
     request(options, (err, res, body) => {
       console.log(body);
+      err = null;
+      res = null;
+      body = null;
+      delete options.body;
     });
   }
   createQueue(raw) {
-    let jobType;
-    if (Number(raw.taskType) === 0) {
-      jobType = `comment_${raw.platform}`;
-    }
-    if (Number(raw.taskType) === 1) {
-      jobType = `comment_update_${raw.platform}`;
-    }
-    let job = this.queue.create(jobType, {
+    // let jobType;
+    // if (Number(raw.taskType) === 0) {
+    //   jobType = `comment_${raw.platform}`;
+    // }
+    // if (Number(raw.taskType) === 1) {
+    //   jobType = `comment_update_${raw.platform}`;
+    // }
+    let job = this.queue.create(`comment_${raw.platform}`, {
       p: raw.p,
       bid: raw.bid,
       aid: raw.aid,
@@ -192,19 +203,20 @@ class commentScheduler extends events {
       if (err) {
         this.logger.error('Create queue occur error：', err);
         this.emit('redis_error', { db: 'jobDB', action: 6 });
+        err = null;
         return;
       }
       this.taskDB.hset(`c:${raw.p}:${raw.aid}`, 'kue_id', job.id);
-      // this.logger.debug(`任务: ${job.type}_${job.data.aid} 创建完成`);
+      this.logger.debug(`任务: ${job.type}_${job.data.aid} 创建完成`);
       job = null;
       raw = null;
     });
   }
   checkKue(raw) {
-    const key = `c:${raw.p}:${raw.aid}`;
-    this.taskDB.hget(key, 'kue_id', (error, result) => {
+    this.taskDB.hget(`c:${raw.p}:${raw.aid}`, 'kue_id', (error, result) => {
       if (error) {
         commentScheduler.emit('redis_error', { db: 'taskDB', action: 2 });
+        error = null;
         return;
       }
       kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
@@ -215,16 +227,21 @@ class commentScheduler extends events {
             this.logger.error('Job get error : ', err);
           }
           // this.emit('task_set_create', raw);
+          err = null;
           return;
         }
-        const time = new Date().getTime();
-        if ((job.state() === 'active' || job.state() === 'delayed') && time - job.created_at >= 3600000) {
+        let time = new Date().getTime();
+        if ((job.state() === 'active' || job.state() === 'delayed') && (time - job.created_at) >= 3600000) {
           this.emit('task_set_create', raw);
+          time = null;
+          job = null;
           return;
         }
         if (job.state() === 'failed') {
           this.emit('task_set_create', raw);
         }
+        time = null;
+        job = null;
       });
     });
   }
