@@ -39,11 +39,11 @@ class commentScheduler extends events {
     } else {
       switch (osName) {
         case 'servant_3':
-          rule.second = [1, 21, 41];
+          rule.second = [1, 13, 25, 37, 49];
           // rule.second = [20, 50];
           break;
         case 'iZ28ilm78mlZ':
-          rule.second = [11, 31, 51];
+          rule.second = [7, 19, 31, 43, 55];
           break;
         default:
           rule.second = [1, 11, 21, 31, 31, 51];
