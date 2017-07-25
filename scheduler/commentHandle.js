@@ -82,7 +82,7 @@ class commentHandle {
       //   return;
       // }
       // this.scheduler.emit('task_check_kue', raw);
-      if (Number(result[1]) > Number(result[0])) {
+      if (Number(result[1]) !== Number(result[0])) {
         this.scheduler.emit('task_check_kue', raw);
       }
       result = null;
