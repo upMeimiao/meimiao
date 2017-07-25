@@ -86,7 +86,7 @@
   "xinlan":"http://api.my.cztv.com/api/list?type=video&rows=20",
   "v1":"http://app.v1.cn/comment/getList?pcode=010210000&version=6.1.2&devid=1098B90D-3A6F-41B2-9F03-ED7D66FA69C2&plat=1002",
   "huashu":{
-    "getSid":"http://clientapi.wasu.cn/AggPhone/vodinfo/id/",
+    "getSid":"https://phoneapi.wasu.cn/AggPhone/vodinfo/id/",
     "topicId":"http://changyan.sohu.com/api/3/topic/liteload?client_id=cyrHNCs04&topic_category_id=37&page_size=10&hot_size=10&topic_source_id=",
     "list":"http://changyan.sohu.com/api/2/topic/comments?client_id=cyrHNCs04&page_size=10&topic_id="
   },

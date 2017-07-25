@@ -104,8 +104,8 @@
       "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid="
     },
     "huashu": {
-      "videoList":"http://clientapi.wasu.cn/AggPhone/vodinfo/id/",
-      "videoList2":"http://clientapi.wasu.cn/Phone/vodinfo/id/"
+      "videoList":"https://phoneapi.wasu.cn/AggPhone/vodinfo/id/",
+      "videoList2":"https://phoneapi.wasu.cn/Phone/vodinfo/id/"
     },
     "ifeng": {
       "medialist": "http://vcis.ifeng.com/api/weMediaVideoList?type=new&pageSize=20&weMediaID=",
