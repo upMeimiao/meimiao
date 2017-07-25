@@ -72,17 +72,17 @@ class commentHandle {
         err = null;
         return;
       }
-      if (Number(result[0]) === -1 || Number(result[1]) === -1) {
-        this.scheduler.emit('task_check_kue', raw);
-        result = null;
-        return;
-      }
+      // if (Number(result[0]) === -1 || Number(result[1]) === -1) {
+      //   this.scheduler.emit('task_check_kue', raw);
+      //   result = null;
+      //   return;
+      // }
       // if (Number(raw.p) === 23 && (Number(result[0]) === -1 || Number(result[1]) === -1)) {
       //   this.scheduler.emit('task_check_kue', raw);
       //   return;
       // }
       // this.scheduler.emit('task_check_kue', raw);
-      if (Number(result[0]) !== Number(result[1])) {
+      if (Number(result[1]) > Number(result[0])) {
         this.scheduler.emit('task_check_kue', raw);
       }
       result = null;
