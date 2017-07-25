@@ -16,7 +16,7 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
-    this.cookies = 'locale=zh_CN; datr=uarsWNHwHCDMME4QegGkXoHN; sb=6YrtWNWdRZc0ZD6Icppm_tQu; pl=n; lu=gA; c_user=100017290094462; xs=37%3AxIXj8PMRj_BcyQ%3A2%3A1500607556%3A-1%3A-1; fr=0r8fZNLbaDU2imrlv.AWX2VhYB8XMmoetcopKHxFvkUiM.BZK-yc.9Q.Flx.0.0.BZdseO.AWV9a201; presence=EDvF3EtimeF1500956561EuserFA21B17290094462A2EstateFDutF1500956561492CEchFDp_5f1B17290094462F2CC';
+    this.cookies = '';
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
@@ -56,14 +56,14 @@ class spiderCore {
         return;
       }
       this.auth = auth;
-      // this.getCookie(auth, () => {
+      this.getCookie(auth, () => {
         // process.env.NODE_ENV = 'production';
-      if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-        this.deal();
-      } else {
-        this.test();
-      }
-      // });
+        if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+          this.deal();
+        } else {
+          this.test();
+        }
+      });
     });
   }
   getCookie(auth, callback) {
