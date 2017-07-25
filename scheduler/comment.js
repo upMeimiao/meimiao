@@ -195,7 +195,7 @@ class commentScheduler extends events {
         return;
       }
       this.taskDB.hset(`c:${raw.p}:${raw.aid}`, 'kue_id', job.id);
-      this.logger.debug(`任务: ${job.type}_${job.data.aid} 创建完成`);
+      // this.logger.debug(`任务: ${job.type}_${job.data.aid} 创建完成`);
       job = null;
       raw = null;
     });
