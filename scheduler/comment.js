@@ -82,9 +82,9 @@ class commentScheduler extends events {
       this.originOverseas(raw);
     });
     this.on('redis_error', (raw) => {
-      /**
-       * todo send email
-       */
+            /**
+             * todo send email
+             */
       this.logger.error(raw);
     });
     this.assembly();
@@ -205,7 +205,6 @@ class commentScheduler extends events {
     this.taskDB.hget(key, 'kue_id', (error, result) => {
       if (error) {
         commentScheduler.emit('redis_error', { db: 'taskDB', action: 2 });
-        error = null;
         return;
       }
       kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
@@ -216,19 +215,16 @@ class commentScheduler extends events {
             this.logger.error('Job get error : ', err);
           }
           // this.emit('task_set_create', raw);
-          err = null;
           return;
         }
         const time = new Date().getTime();
         if ((job.state() === 'active' || job.state() === 'delayed') && time - job.created_at >= 3600000) {
           this.emit('task_set_create', raw);
-          job = null;
           return;
         }
         if (job.state() === 'failed') {
           this.emit('task_set_create', raw);
         }
-        job = null;
       });
     });
   }
