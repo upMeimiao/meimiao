@@ -40,7 +40,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('视频列表解析失败');
+        logger.debug('视频列表解析失败', result.body);
         callback(e);
         return;
       }
@@ -179,6 +179,7 @@ class dealWith {
         if (!media.play_num) {
           delete media.play_num;
         }
+        // console.log(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -188,7 +189,7 @@ class dealWith {
   }
   getVidInfo(vid, callback) {
     const option = {
-      url: `http://clientapi.wasu.cn/Phone/vodinfo/id/${vid}`
+      url: `https://phoneapi.wasu.cn/Phone/vodinfo/id/${vid}`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
