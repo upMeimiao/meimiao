@@ -29,11 +29,13 @@ class commentHandle {
   classify(_, callback) {
     if (Number(_.platform) === 16 || Number(_.platform) === 37
       || Number(_.platform) === 42) {
+      _ = null;
       callback();
       return;
     }
     if (_.bid === '' || _.aid === '') {
       this.logger.error('task info error:', _);
+      _ = null;
       callback();
       return;
     }
@@ -45,6 +47,7 @@ class commentHandle {
         platform,
         taskType: _.taskType
       };
+    _ = null;
     this.scheduler.emit('task_init', baseInfo);
     callback();
   }
@@ -53,6 +56,7 @@ class commentHandle {
     this.scheduler.taskDB.exists(key, (err, result) => {
       if (err) {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 1 });
+        err = null;
         return;
       }
       if (result === 0) {
@@ -62,6 +66,7 @@ class commentHandle {
       if (result === 1) {
         this.scheduler.emit('task_check_snapshots', raw);
       }
+      result = null;
     });
   }
   checkSnapshots(raw) {
@@ -69,10 +74,12 @@ class commentHandle {
     this.scheduler.taskDB.hmget(key, 'oldSnapshots', 'newSnapshots', (err, result) => {
       if (err) {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
+        err = null;
         return;
       }
       if (Number(result[0]) === -1 || Number(result[1]) === -1) {
         this.scheduler.emit('task_check_kue', raw);
+        result = null;
         return;
       }
       // if (Number(raw.p) === 23 && (Number(result[0]) === -1 || Number(result[1]) === -1)) {
@@ -83,6 +90,7 @@ class commentHandle {
       if (Number(result[0]) !== Number(result[1])) {
         this.scheduler.emit('task_check_kue', raw);
       }
+      result = null;
     });
   }
   setInit(raw) {
@@ -93,6 +101,7 @@ class commentHandle {
       'oldSnapshots', -1, 'newSnapshots', -1, (err) => {
         if (err) {
           this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
+          err = null;
           return;
         }
         raw.comment_id = 0;
@@ -108,6 +117,7 @@ class commentHandle {
     this.scheduler.taskDB.hset(key, 'create', time, (err) => {
       if (err) {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
+        err = null;
         return;
       }
       this.getRedisInfo(raw);
@@ -118,11 +128,13 @@ class commentHandle {
     this.scheduler.taskDB.hmget(key, 'comment_number', 'last_comment_id', 'last_comment_time', (err, result) => {
       if (err) {
         this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
+        err = null;
         return;
       }
       raw.comment_num = result[0];
       raw.comment_id = result[1];
       raw.comment_time = result[2];
+      result = null;
       this.scheduler.emit('task_create', raw);
     });
   }
