@@ -114,7 +114,8 @@
     "ku6": {
       "allInfo": "http://new.ku6.com/mobile/getuploadedvideos?rn=20&uid=",
       "fansNum": "http://my.ku6.com/user/getvipuserinfo?uid=",
-      "listNum": "http://v.ku6.com/user.htm?t=statuser&uid="
+      "listNum": "http://v.ku6.com/user.htm?t=statuser&uid=",
+      "comment": "http://comment.ku6.com/api/list.jhtm?vtype=111&type=2&size=20&id="
     },
     "kuaibao": {
       "user": "http://r.cnews.qq.com/getSubItem?chlid=",
