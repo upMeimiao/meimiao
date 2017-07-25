@@ -250,8 +250,8 @@
     },
     "facebook":{
       "list": "https://www.facebook.com/ajax/pagelet/generic.php/PagesVideoHubVideoContainerPagelet?dpr=1&data=",
-      "userList": "https://www.facebook.com/ajax/pagelet/generic.php/TimelineMedleyView?dpr=1&ajaxpipe=1&ajaxpipe_token=AXjFmSJv5Zyf4HRV&no_script_path=1&ajaxpipe_fetch_stream=1&data=",
-      "userList2": "https://www.facebook.com/ajax/pagelet/generic.php/VideosByUserAppCollectionPagelet?dpr=1&data=",
+      "userList": "/videos?dpr=1&ajaxpipe=1&__af=j0&__req=jsonp_4&__be=-1&__pc=EXP1:home_page_pkg&__adt=4&__dyn=5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8ovyUWdwIhE98nyUdUy22EaUgxebkwy8xa5WjzHz9XDG4XzEa8iGt0gKum4UpKqqbAWCDxi5-ufAz8lUlwkEG9J7BwBx66EK2m5K5FLKEgDQ6EvG7ki4e2i8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uazoK2C6riykbybQ",
+      "userList2": "https://www.facebook.com/ajax/pagelet/generic.php/VideosByUserAppCollectionPagelet?dpr=1&__a=1&__af=j0&__req=v&__be=-1&__pc=EXP1:home_page_pkg&__dyn=5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8ovyUWdwIhE98nyUdUy22EaUgxebkwy8xa5WjzHz9XDG4XzEa8iGt0gKum4UpKqqbAWCDxi5-ufAz8lUlwkEG9J7BwBx66EK2m5K5FLKEgDQ6EvG7ki4e2i8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uazoK2C6riykbybQ&data=",
       "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',",
       "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
       "auth": [
