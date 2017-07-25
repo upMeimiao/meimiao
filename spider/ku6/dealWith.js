@@ -100,7 +100,7 @@ class dealWith {
         callback(e);
         return;
       }
-      if (result.errno === 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('酷6用户:', `${user.bid} back_end`);
       } else {
         logger.error('酷6用户:', `${user.bid} back_error`);
@@ -125,7 +125,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno === 0) {
+      if (Number(result.errno) === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
