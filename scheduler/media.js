@@ -164,9 +164,12 @@ class mediaScheduler extends events {
       this.emit('origin_youtube', raw);
       return;
     }
-    if ((p === 6 && raw.id === '6116731501') || (p === 2 && raw.id === '1045961206')) {
+    if (p === 2 && raw.id === '1045961206') {
       return;
     }
+    // if ((p === 6 && raw.id === '6116731501') || (p === 2 && raw.id === '1045961206')) {
+    //   return;
+    // }
     let job = this.queue.create(raw.platform, {
       id: raw.id,
       p: raw.p,
