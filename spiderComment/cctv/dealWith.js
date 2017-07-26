@@ -36,15 +36,20 @@ class dealWith {
     let total;
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('cctv的评论总数请求失败');
+        logger.debug('cctv的评论总数请求失败', err);
         callback(err);
+        return;
+      }
+      if (!result.body.replace(' ', '')) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('cctv数据解析失败');
-        logger.info(result);
+        logger.debug('cctv数据解析失败', result);
         callback(e);
         return;
       }
