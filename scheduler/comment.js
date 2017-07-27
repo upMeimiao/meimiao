@@ -32,21 +32,25 @@ class commentScheduler extends events {
         return err.message.slice(0, 'READONLY'.length) === 'READONLY';
       }
     });
-    const rule = new schedule.RecurrenceRule();
+    // const rule = new schedule.RecurrenceRule();
+    let rule;
     const osName = os.hostname();
     if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
       this.createServer();
     } else {
       switch (osName) {
         case 'servant_3':
-          rule.second = [1, 13, 25, 37, 49];
+          rule = '1,13,25,37,49 * * * * *';
+          // rule.second = [1, 13, 25, 37, 49];
           // rule.second = [20, 50];
           break;
         case 'iZ28ilm78mlZ':
-          rule.second = [7, 19, 31, 43, 55];
+          rule = '7,19,31,43,55 * * * * *';
+          // rule.second = [7, 19, 31, 43, 55];
           break;
         default:
-          rule.second = [1, 11, 21, 31, 31, 51];
+          rule = '1,11,21,31,41,51 * * * * *';
+          // rule.second = [1, 11, 21, 31, 31, 51];
           break;
       }
       schedule.scheduleJob(rule, () => {
