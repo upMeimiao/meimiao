@@ -134,7 +134,7 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('occur error : ', err);
-        if (task.id === '63571599') {
+        if (task.id === '1509140942') {
           callback();
         } else {
           callback(err);

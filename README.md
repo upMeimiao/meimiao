@@ -171,6 +171,8 @@ http://momentjs.cn/
 51. 奶糖
 52. 有料
 53. 开眼Eyepetizer
+54. 京东觅•Me
+55. 国美•美秒
 
 ## 流程图
 ![spider-flow](http://git.meimiao.net/qiaosuan_spider/code/wikis/img/introduction.svg)

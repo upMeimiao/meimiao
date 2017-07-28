@@ -78,14 +78,14 @@ exports.start = () => {
           memory[elem.split(':')[0]] = elem.split(':')[1];
         }
       }
-      if (Math.round((memory.used_memory / 4294967296) * 100) >= 90) {
+      if (Math.round((memory.used_memory_rss / 4294967296) * 100) >= 90) {
         request({
           method: 'POST',
           url: 'http://10.251.55.50:3001/api/alarm',
           form: {
             mailGroup: 3,
             subject: 'Redis 内存占用报警',
-            content: `当前Redis内存已使用${memory.used_memory_human}，达到${((memory.used_memory / 4294967296) * 100).toFixed(2)}%`
+            content: `当前Redis内存已使用${(memory.used_memory_rss / 1073741824).toFixed(2)}G，达到${((memory.used_memory_rss / 4294967296) * 100).toFixed(2)}%`
           }
         });
       }

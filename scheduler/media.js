@@ -31,7 +31,8 @@ class mediaScheduler extends events {
       }
     });
     // this.emit('task_loaded',test_data)
-    const rule = new schedule.RecurrenceRule();
+    // const rule = new schedule.RecurrenceRule();
+    let rule
     const osName = os.hostname();
     // if (osName === 'iFabledeMacBook-Pro.local') {
     if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
@@ -39,18 +40,21 @@ class mediaScheduler extends events {
     } else {
       switch (osName) {
         case 'servant_3':
-          rule.second = [0];
+          rule = '0 * * * * *';
+          // rule.second = [0];
           // rule.minute = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58];
           // rule.second = [0, 6, 12, 18, 24, 30, 36, 45, 51, 57];
           break;
         case 'iZ28ilm78mlZ':
-          rule.second = [30];
+          rule = '30 * * * * *';
+          // rule.second = [30];
           // rule.minute = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59];
           // rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
           break;
         default:
-          rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24,
-            27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57];
+          rule = '30 * * * * *'
+          // rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24,
+          //   27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57];
           break;
       }
       schedule.scheduleJob(rule, () => {
@@ -164,9 +168,12 @@ class mediaScheduler extends events {
       this.emit('origin_youtube', raw);
       return;
     }
-    if ((p === 6 && raw.id === '6116731501') || (p === 2 && raw.id === '1045961206')) {
+    if (p === 2 && raw.id === '1045961206') {
       return;
     }
+    // if ((p === 6 && raw.id === '6116731501') || (p === 2 && raw.id === '1045961206')) {
+    //   return;
+    // }
     let job = this.queue.create(raw.platform, {
       id: raw.id,
       p: raw.p,

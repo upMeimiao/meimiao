@@ -49,7 +49,7 @@ const createTime = (time) => {
     time = new Date(time);
     return moment(time).format('X');
   }
-  return '';
+  return moment(new Date(time)).format('X');
 };
 class dealWith {
   constructor(spiderCore) {
@@ -102,7 +102,7 @@ class dealWith {
         }, 2400);
         return;
       }
-      if (result.ok != 0) {
+      if (Number(result.ok) !== 0) {
         setTimeout(() => {
           this.total(task, num += 1, callback);
         }, 2400);
@@ -209,6 +209,7 @@ class dealWith {
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
+        // console.log(comment);
         index += 1;
         cb();
       },

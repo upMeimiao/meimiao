@@ -45,6 +45,7 @@ class dealWith {
         callback(e);
         return;
       }
+      // console.log(result);
       this.total(task, result[1].aggData[0].aggRel.video_sid, (error) => {
         if (error) {
           callback(error);
