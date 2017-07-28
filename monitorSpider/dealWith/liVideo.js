@@ -2,20 +2,22 @@
  * Created by zhupenghui on 17/6/23.
  */
 
-let logger, typeErr, request, infoCheck;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('liVideo monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.timeout = 0;
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.infoCheck = this.modules.infoCheck;
     this.getVidList(task, () => {
+      task = null;
       callback();
     });
   }
@@ -35,34 +37,37 @@ class dealWith {
           'X-Client-ID': '2C2DECE9-B2CD-4B8B-A044-6D904ACFB5E7'
         }
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidList', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidList', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidList', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidList', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidList', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidList', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         callback();
         return;
       }
       if (!result.contList || result.contList.length === 0) {
-        typeErr = {type: 'json', err: `liVideo-list-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidList', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `liVideo-list-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidList', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         callback();
         return;
       }
       this.getVidInfo(task, result.contList[0].contId);
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
       callback();
     });
   }
@@ -82,29 +87,31 @@ class dealWith {
           'X-Client-ID': '2C2DECE9-B2CD-4B8B-A044-6D904ACFB5E7'
         }
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidInfo', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidInfo', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.content) {
-        typeErr = {type: 'data', err: `liVideo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `liVideo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
 }

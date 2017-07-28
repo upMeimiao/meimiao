@@ -2,21 +2,22 @@
  * Created by zhupenghui on 17/6/19.
  */
 
-let logger, typeErr, async, request, infoCheck;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('bili monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.request = this.modules.request;
+    task.async = this.modules.async;
+    task.infoCheck = this.modules.infoCheck;
+    task.core = this.core;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -32,6 +33,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -44,87 +46,93 @@ class dealWith {
         mid: task.id
       }
     };
-    request.post(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; typeErr = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; typeErr = null; task = null;
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'json', err: `baomihua-fans-粉丝数据异常, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `baomihua-fans-粉丝数据异常, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; typeErr = null; task = null;
     });
   }
   list(task) {
     let option = {
       url: `${this.settings.spiderAPI.bili.mediaList + task.id}&pagesize=30&page=1`
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.data || result.data.vlist.length === 0) {
         typeErr = {type: 'data', err: `bili-list-data-null, data: ${JSON.stringify(result.data)}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   getInfo(task) {
     let option = {
       url: this.settings.spiderAPI.bili.media + task.aid
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; typeErr = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'error', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; typeErr = null; task = null;
         return;
       }
       if (Number(result.code) !== 0) {
         typeErr = {type: 'data', err: `bili-video-data-error, data: ${JSON.stringify(result)}`, interface: 'getInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; typeErr = null; task = null;
     });
   }
 }

@@ -2,24 +2,25 @@
  * Created by zhupenghui on 17/6/15.
  */
 
-const jsonp = (data) => {
-  return data
-};
-let logger,  typeErr, async, cheerio, request, infoCheck;
+const jsonp = (data) => data;
+let logger,  typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    cheerio = core.modules.cheerio;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('le monitor begin...');
     core = null;
   }
   start(task, callback) {
-    async.parallel(
+    task.core = this.core;
+    task.async = this.modules.async;
+    task.cheerio = this.modules.cheerio;
+    task.request = this.modules.request;
+    task.infoCheck = this.modules.infoCheck;
+    task.fetchUrl = this.modules.fetchUrl;
+    task.async.parallel(
       {
         list: (cb) => {
           this.getTotal(task);
@@ -39,6 +40,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -49,29 +51,31 @@ class dealWith {
       referer: `http://chuang.le.com/u/${task.id}/videolist`,
       ua: 1
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videolist', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videolist', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videolist', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videolist', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = eval(`(${result.body})`);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videolist', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videolist', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.data) {
-        typeErr = {type: 'data', err: `可能是接口变了，数据返回出问题, data: ${JSON.stringify(result)}`, interface: 'videolist', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `可能是接口变了，数据返回出问题, data: ${JSON.stringify(result)}`, interface: 'videolist', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   getInfo(task) {
@@ -80,29 +84,31 @@ class dealWith {
       referer: `http://www.le.com/ptv/vplay/${task.aid}.html`,
       ua: 1
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoInfo', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoInfo', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videoInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videoInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result || result.length === 0) {
-        typeErr = {type: 'data', err: `le-videoInfo-aid-error, data: ${JSON.stringify(result)}`, interface: 'videoInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `le-videoInfo-aid-error, data: ${JSON.stringify(result)}`, interface: 'videoInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   getExpr(task) {
@@ -110,57 +116,66 @@ class dealWith {
       url: `http://www.le.com/ptv/vplay/${task.aid}.html`,
       ua: 1
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getExpr', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getExpr', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
-      let $ = cheerio.load(result.body),
+      let $ = task.cheerio.load(result.body),
         timeDom = $('p.p_02 b.b_02'),
         timeDom2 = $('#video_time'),
         timeDom3 = $('li.li_04 em');
       if (timeDom.length === 0 && timeDom2.length === 0 && timeDom3.length === 0) {
-        typeErr = {type: 'data', err: `le-getExpr-接口返回的数据有问题, data: ${JSON.stringify({1: timeDom.length, 2: timeDom2.length, 3: timeDom3.length})}`, interface: 'getExpr', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `le-getExpr-接口返回的数据有问题, data: ${JSON.stringify({1: timeDom.length, 2: timeDom2.length, 3: timeDom3.length})}`, interface: 'getExpr', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null; $ = null; timeDom = null; timeDom2 = null; timeDom3 = null;
+      option = null; result = null; $ = null; timeDom = null; timeDom2 = null; timeDom3 = null; task = null; typeErr = null;
     });
   }
   getDesc(task) {
     let option = {
-      url: this.settings.spiderAPI.le.desc + task.aid,
-      referer: `http://m.le.com/vplay_${task.aid}.html`
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
+        referer: `http://m.le.com/vplay_${task.aid}.html`,
+        'Accept-Language': 'zh-CN,zh;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, sdch'
+      }
     };
-    request.get(logger, option, (err, result) => {
+    task.fetchUrl(this.settings.spiderAPI.le.desc + task.aid, option, (err, meta, body) => {
       if (err) {
-        if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getDesc', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
-        } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getDesc', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
-        }
+        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getDesc', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; body = null; task = null; typeErr = null;
+        return;
+      }
+      if (meta.status !== 200) {
+        typeErr = {type: 'status', err: JSON.stringify(meta.status), interface: 'getDesc', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; body = null; task = null; typeErr = null;
         return;
       }
       try {
-        result = JSON.parse(result.body);
+        body = JSON.parse(body.toString());
       } catch (e) {
-        typeErr = {type: 'data', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getDesc', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `{error: ${JSON.stringify(e.message)}, data: ${body.body}`, interface: 'getDesc', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; body = null; task = null; typeErr = null;
         return;
       }
-      result = result.data.introduction;
-      if (!result) {
-        typeErr = {type: `data', err: 'le-getDesc-data, data: ${JSON.stringify(result)}`, interface: 'getDesc', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+      body = body.data.introduction;
+      if (!body) {
+        typeErr = {type: 'data', err: `le-getDesc-data, data: ${JSON.stringify(body)}`, interface: 'getDesc', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; body = null; task = null; typeErr = null;
     });
   }
 }

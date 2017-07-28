@@ -3,21 +3,22 @@
  */
 
 const _Callback = (data) => data;
-let logger, typeErr, async, request, infoCheck;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('qzone monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.async = this.modules.async;
+    task.infoCheck = this.modules.infoCheck;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -37,6 +38,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -46,30 +48,31 @@ class dealWith {
       url: `https://h5.qzone.qq.com/proxy/domain/r.qzone.qq.com/cgi-bin/tfriend/cgi_like_check_and_getfansnum.cgi?uin=${task.id}&mask=3&fupdate=1`,
       ua: 1
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
-        result = null;
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       if (!result || !result.data || !result.data.data) {
-        typeErr = {type: 'data', err: `qzone-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `qzone-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      result = null; task = null; typeErr = null; option = null;
     });
   }
   getList(task) {
@@ -78,98 +81,106 @@ class dealWith {
       url:  `${this.settings.spiderAPI.qzone.listVideo + task.id}&start=0`,
       ua: 1
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       if (!result.data || !result.data.friend_data || result.data.friend_data.length === 0) {
-        typeErr = {type: 'data', err: `qzone-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `qzone-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      result = null; task = null; typeErr = null; option = null;
     });
   }
   getVidInfo(task) {
     let option = {
       url: `${this.settings.spiderAPI.qzone.videoInfo + task.id}&appid=${task.appid}&tid=${task.aid}&ugckey=${task.id}_${task.appid}_${task.aid}_&qua=V1_PC_QZ_1.0.0_0_IDC_B`
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidInfo', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidInfo', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidInfo', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       if (!result.data || !result.data.all_videolist_data) {
-        typeErr = {type: 'data', err: `qzone-data-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `qzone-data-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       result = result.data.all_videolist_data[0];
       if (!result || !result.singlefeed) {
-        typeErr = {type: 'data', err: `qzone-singlefeed-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `qzone-singlefeed-null, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       if (result.singlefeed['1'] && result.singlefeed['1'].user && result.singlefeed['1'].user.uin != task.id) {
-        typeErr = {type: 'data', err: '当前视频被删掉或者是数据错误', interface: 'getVidInfo', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: '当前视频被删掉或者是数据错误', interface: 'getVidInfo', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      result = null; task = null; typeErr = null; option = null;
     });
   }
   getVidCom(task) {
     let option = {
       url: `https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?uin=${task.id}&tid=${task.aid}&t1_source=1&ftype=0&sort=0&pos=0&num=20&code_version=1&format=jsonp&need_private_comment=1`
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidCom', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidCom', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidCom', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidCom', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       try {
         result = eval(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidCom', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidCom', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        result = null; task = null; typeErr = null; option = null;
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: `qzone-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidCom', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `qzone-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidCom', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      result = null; task = null; typeErr = null; option = null;
     });
   }
 }

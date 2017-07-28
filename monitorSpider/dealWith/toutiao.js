@@ -2,7 +2,7 @@
  * Created by zhupenghui on 17/6/19.
  */
 
-let logger, typeErr, async, request, infoCheck, crypto;
+let logger, typeErr;
 const getHoney = (md5) => {
   const hash = md5.createHash('md5');
   const t = Math.floor((new Date()).getTime() / 1e3),
@@ -26,17 +26,18 @@ class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
-    crypto = core.modules.crypto;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('toutiao monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.core = this.core;
+    task.async = this.modules.async;
+    task.request = this.modules.request;
+    task.infoCheck = this.modules.infoCheck;
+    task.crypto = this.modules.crypto;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -48,6 +49,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -58,69 +60,74 @@ class dealWith {
       ua: 3,
       own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; task = null; result = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; result = null; typeErr = null;
         return;
       }
       if (result.message !== 'success' || !result.data) {
-        typeErr = {type: 'data', err: `toutiao-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `toutiao-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; result = null; typeErr = null;
         return;
       }
       let fans = result.data.total_cnt;
       if (Number(fans) === 0 && result.data.users.length !== 0) {
-        typeErr = {type: 'data', err: `toutiao-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `toutiao-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; task = null; result = null; typeErr = null;
     });
   }
   list(task) {
-    let { as, cp } = getHoney(crypto),
+    let { as, cp } = getHoney(task.crypto),
       option = {
         ua: 3,
         own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)',
         url: `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${task.mapBid}&cp=${cp}&as=${as}&max_behot_time=`
       };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           if (err.status >= 500) {
-            typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-            infoCheck.interface(this.core, task, typeErr);
+            typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: JSON.stringify(option)};
+            task.infoCheck.interface(task.core, task, typeErr);
           }
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; task = null; result = null; typeErr = null; cp = null; as = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; result = null; typeErr = null; cp = null; as = null;
         return;
       }
       if (!result || result.length === 0) {
-        typeErr = {type: 'data', err: `toutiao-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `toutiao-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null; cp = null; as = null;
+      option = null; result = null; cp = null; as = null; task = null; typeErr = null;
     });
   }
 }

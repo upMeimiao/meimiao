@@ -2,21 +2,22 @@
  * Created by zhupenghui on 17/6/21.
  */
 
-let logger, typeErr, async, request, infoCheck;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('weibo monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.core = this.core;
+    task.async = this.modules.async;
+    task.request = this.modules.request;
+    task.infoCheck = this.modules.infoCheck;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -28,6 +29,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -39,32 +41,36 @@ class dealWith {
       own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0' // ,
       // proxy: 'http://127.0.0.1:56777'
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (result.errno && result.errno === 20003) {
-        typeErr = {type: 'data', err: `weibo-fans-${result.errno}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `weibo-fans-${result.errno}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.userInfo || !result.userInfo.followers_count) {
-        typeErr = {type: 'data', err: `weibo-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `weibo-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.tabsInfo) {
@@ -77,7 +83,7 @@ class dealWith {
         task.NoVideo = false;
         this.list(task, result);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   list(task, data) {
@@ -94,29 +100,31 @@ class dealWith {
       containerid = data.tabsInfo.tabs[2].containerid;
       option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}_time&page=0`;
     }
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if(!result.cards ||  result.cards.length === 0) {
-        typeErr = {type: 'data', err: `weibo-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `weibo-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null; data = null;
+      option = null; result = null; data = null; task = null; typeErr = null;
     });
   }
   getVideoInfo(task) {
@@ -126,35 +134,37 @@ class dealWith {
       own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0' // ,
       // proxy: 'http://127.0.0.1:56777'
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'video', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'video', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'video', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'video', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.page_info) {
-        typeErr = {type: 'data', err: `weibo-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `weibo-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.page_info.media_info) {
-        typeErr = {type: 'data', err: `weibo-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-        return;
+        typeErr = {type: 'data', err: `weibo-video-data-error, data: ${JSON.stringify(result)}`, interface: 'video', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
 }

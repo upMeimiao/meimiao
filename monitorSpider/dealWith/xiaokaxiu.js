@@ -1,22 +1,23 @@
 /**
  * Created by zhupenghui on 17/7/12.
  */
-let logger, typeErr, request, infoCheck, async, cheerio;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
-    async = core.modules.async;
-    cheerio = core.modules.cheerio;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('xiaokaxiu monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.async = this.modules.async;
+    task.infoCheck = this.modules.infoCheck;
+    task.cheerio = this.modules.cheerio;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -28,6 +29,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -40,25 +42,25 @@ class dealWith {
         'Upgrade-Insecure-Requests': 1
       }
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(this.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(this.core, task, typeErr);
         }
-        option = null; typeErr = null;
+        option = null; task = null; typeErr = null; result = null;
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = task.cheerio.load(result.body),
         fans_num = $('div.uk-grid.uk-grid-collapse.uk-text-center>div').eq(2).text().replace('粉丝', '');
       if (fans_num == '') {
         typeErr = {type: 'data', err: 'xiaokaxiu-粉丝数不存在或者本次请求异常', interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(this.core, task, typeErr);
       }
-      option = null; typeErr = null;
+      option = null; result = null; task = null; typeErr = null; $ = null;
     });
   }
   list(task) {
@@ -70,34 +72,34 @@ class dealWith {
         Referer: `https://v.xiaokaxiu.com/u/${task.id}.html`
       }
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(this.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(this.core, task, typeErr);
         }
-        option = null; typeErr = null;
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-        option = null; typeErr = null;
+        task.infoCheck.interface(this.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if(Number(result.result) !== 1 || !result.data || !result.data.list.length) {
         typeErr = {type: 'data', err: `小咖秀-视频列表出现异常, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(this.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       this.video(task, result.data.list[0].scid);
-      option = null;
-      typeErr = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   video(task, scid) {
@@ -105,25 +107,26 @@ class dealWith {
       url: `https://v.xiaokaxiu.com/v/${scid}.html`,
       ua: 1
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(this.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(this.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = task.cheerio.load(result.body),
         ding = $('div.uk-grid.uk-grid-collapse.uk-text-center>div').eq(0).find('span').text(),
         comment = $('div.uk-grid.uk-grid-collapse.uk-text-center>div').eq(1).find('span').text();
       if (!ding || !comment) {
         typeErr = {type: 'data', err: `xiaokaxiu-单视频信息出现异常`, interface: 'video', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(this.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null; $ = null; ding = null; comment = null;
     });
   }
 }

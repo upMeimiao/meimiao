@@ -1,7 +1,7 @@
 /**
  * Created by zhupenghui on 17/7/12.
  */
-let logger, typeErr, request, infoCheck, async;
+let logger, typeErr;
 const cookieStr = () => {
   const str = 'qwertyuiopasdfghjklzxcvbnm0123456789';
   let cookie = '';
@@ -14,17 +14,18 @@ class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
-    async = core.modules.async;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('youliao monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.async = this.modules.async;
+    task.infoCheck = this.modules.infoCheck;
     task.cookie = cookieStr();
-    async.parallel(
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -36,6 +37,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -49,32 +51,31 @@ class dealWith {
         cookie: task.cookie
       }
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       if (!result || !result.userId) {
         typeErr = {type: 'data', err: `youliao-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; result = null; task = null;
     });
   }
   getVideoList(task) {
@@ -93,34 +94,34 @@ class dealWith {
         userId: task.id
       }
     };
-    request.post(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       if (!result.data || Object.prototype.toString.call(result.data) !== '[object Array]' || !result.data.length) {
         typeErr = {type: 'data', err: JSON.stringify(result.data), interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       this.comment(task, result.data[0].gcid);
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; result = null; task = null;
     });
   }
   comment(task, cid) {
@@ -141,30 +142,31 @@ class dealWith {
         category: 'new'
       }
     };
-    request.post(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'comment', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'comment', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       if (result.status !== 'ok') {
         typeErr = {type: 'data', err: `youliao-评论, data: ${JSON.stringify(result)}`, interface: 'comment', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; result = null; task = null;
     });
   }
 }

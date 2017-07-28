@@ -2,21 +2,22 @@
  * Created by zhupenghui on 17/6/23.
  */
 
-let logger, typeErr, async, request, infoCheck;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('renren monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.timeout = 0;
-    async.parallel(
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.async = this.modules.async;
+    task.infoCheck = this.modules.infoCheck;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -28,6 +29,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -45,29 +47,31 @@ class dealWith {
         id: task.id
       }
     };
-    request.post(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getUser', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getUser', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getUser', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.data || !result.data.user || !result.data.user.fansCount) {
         typeErr = {type: 'json', err: `renren-fans-error, data: ${JSON.stringify(result)}`, interface: 'getUser', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   getList(task) {
@@ -86,31 +90,34 @@ class dealWith {
         row: 20
       }
     };
-    request.post(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getList', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getList', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getList', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result.data || !result.data.results.length === 0) {
         typeErr = {type: 'data', err: `renren-data-list-error, data: ${JSON.stringify(result)}`, interface: 'getList', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       this.getVidInfo(task, result.data.results[0].id);
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   getVidInfo(task, aid) {
@@ -126,29 +133,31 @@ class dealWith {
         videoId: aid
       }
     };
-    request.post(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVidInfo', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getVidInfo', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
         return;
       }
       if (!result || !result.data) {
         typeErr = {type: 'data', err: `renren-videoInfo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVidInfo', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
 }

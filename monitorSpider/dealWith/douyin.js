@@ -1,21 +1,22 @@
 /**
  * Created by zhupenghui on 17/7/12.
  */
-let logger, typeErr, request, infoCheck, async;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
-    async = core.modules.async;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('douyin monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.infoCheck = this.modules.infoCheck;
+    task.async = this.modules.async;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -27,6 +28,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -37,34 +39,31 @@ class dealWith {
       ua: 3,
       own_ua: 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-        option = null;
-        typeErr = null;
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       if (Number(result.status_code) !== 0 || !result.user) {
-        typeErr = {type: 'data', err: `douyin-粉丝数不存在或者本次请求异常, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `douyin-粉丝数不存在或者本次请求异常, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; result = null; task = null;
     });
   }
   list(task) {
@@ -76,34 +75,31 @@ class dealWith {
         Accept: 'application/json'
       }
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
-        option = null;
-        typeErr = null;
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       if(!result || !result.aweme_list.length) {
-        typeErr = {type: 'data', err: `douyin-视频列表出现异常, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `douyin-视频列表出现异常, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; task = null; result = null;
     });
   }
 }

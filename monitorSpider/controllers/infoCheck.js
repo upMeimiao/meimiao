@@ -30,6 +30,7 @@ const errorNum = (events, result, typeErr, t) => {
     if (!errorData) {
       editEmail.interEmail(events, result);
       events.MSDB.set(keyNum, JSON.stringify({num: 1, startTime: time, lastTime: time}));
+      events.MSDB.expire(keyNum, 300);
       events = null; result = null; typeErr = null;
       return;
     }
@@ -148,6 +149,10 @@ exports.interface = (events, task, typeErr) => {
     events = null; task = null; typeErr = null;
     return;
   }
+  if (task.error && typeErr === 'p-error') {
+    editEmail.interEmail(events, { error: task.error, p: task.p, typeErr: 'p-error', time });
+    return;
+  }
   if (typeErr.err.includes('TIMEDOUT')) {
     // 超时的错误暂时先不管
     events = null; task = null; typeErr = null;
@@ -155,8 +160,10 @@ exports.interface = (events, task, typeErr) => {
   }
   if (typeErr.err.includes('Unexpected') || typeErr.err.includes('unexpected') || typeErr.err.includes('Invalid hexadecimal escape sequence') || typeErr.err.includes('read ECONNRESET')) {
     // 意外的json错误
-    events = null; task = null; typeErr = null;
-    return;
+    if (!typeErr.err.includes('JSON')) {
+      events = null; task = null; typeErr = null;
+      return;
+    }
   }
   events.MSDB.get(key, (err, result) => {
     if (err) {
@@ -191,7 +198,7 @@ exports.interface = (events, task, typeErr) => {
       return;
     }
     interSetErr(events, result, typeErr, task.t);
-    events = null; typeErr = null; result = null;
+    events = null; typeErr = null; result = null; task = null;
   });
 };
 

@@ -2,21 +2,22 @@
  * Created by zhupenghui on 17/6/15.
  */
 
-let logger, async, infoCheck, req;
+let logger;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    infoCheck = core.modules.infoCheck;
-    req = core.modules.req;
+    this.modules = core.modules;
     logger = this.settings.logger;
     logger.trace('youku monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.core = this.core;
+    task.async = this.modules.async;
+    task.req = this.modules.req;
+    task.infoCheck = this.modules.infoCheck;
+    task.async.parallel(
       {
         user: (cb) => {
           this.getUser(task);
@@ -32,6 +33,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -41,34 +43,38 @@ class dealWith {
       method: 'GET',
       url: `${this.settings.spiderAPI.youku.userInfo + task.encodeId}`
     }, typeErr = {};
-    req(option, (err, res, body) => {
+    task.req(option, (err, res, body) => {
       if (err) {
-        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       if (res.statusCode !== 200) {
-        typeErr = {type: 'status', err: JSON.stringify(res.statusCode), interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'status', err: JSON.stringify(res.statusCode), interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       try {
         body = JSON.parse(body)
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       if (body.code !== 1) {
-        typeErr = {type: 'bid', err: `bid-error, data: ${JSON.stringify(body)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'bid', err: `bid-error, data: ${JSON.stringify(body)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       if (!body.data) {
-        typeErr = {type: 'data', err: `data-null, data: ${JSON.stringify(body)}`, interface: 'user', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `data-null, data: ${JSON.stringify(body)}`, interface: 'user', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; body = null; typeErr = null;
+      option = null; body = null; typeErr = null; task = null; typeErr = null;
     });
   }
   getTotal(task) {
@@ -82,41 +88,47 @@ class dealWith {
         },
         timeout: 5000
       };
-    req(option, (error, response, body) => {
+    task.req(option, (error, response, body) => {
       if (error) {
         typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'total', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       if (response.statusCode !== 200) {
         typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'total', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'total', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       if (body.code !== 1) {
         if (body.code === -503) {
           typeErr = {type: 'bid', err: `bid-error, data: ${JSON.stringify(body)}`, interface: 'total', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
+          option = null; task = null; typeErr = null; body = null;
           return;
         }
         if (body.code === -102) {
           typeErr = {type: 'bid', err: `bid-error, data: ${JSON.stringify(body)}`, interface: 'total', url: JSON.stringify(option)};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
+          option = null; task = null; typeErr = null; body = null;
         }
+        return
       }
       let data = body.data;
       if (!data) {
         typeErr = {type: 'data', err: `data-null, data: ${JSON.stringify(data)}`, interface: 'total', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; data = null; typeErr = null;
+      option = null; task = null; typeErr = null; body = null; data = null;
     });
   }
   info(task) {
@@ -131,29 +143,33 @@ class dealWith {
         timeout: 5000
       };
     let typeErr = {};
-    req(option, (error, response, body) => {
+    task.req(option, (error, response, body) => {
       if (error) {
         typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'videoInfo', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       if (response.statusCode !== 200) {
         typeErr = {type: 'status', err: JSON.stringify(response.statusCode), interface: 'videoInfo', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${body}`, interface: 'videoInfo', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; body = null;
         return;
       }
+      // task.infoCheck.interface();
       if (!body.videos) {
         typeErr = {type: 'data', err: `data-null(或者当前接口异常), data: ${JSON.stringify(body)}`, interface: 'videoInfo', url: JSON.stringify(option)};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      ids = null; option = null; typeErr = null; body = null;
+      ids = null; option = null; typeErr = null; body = null; task = null; typeErr = null;
     });
   }
 }

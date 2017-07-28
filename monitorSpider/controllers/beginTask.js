@@ -19,9 +19,10 @@ class setTask {
       work.pname = task.name;
       work.type = task.type;
       work.t = task.t;
-      this.beginTask(work, task.platform);
+      this.beginTask(work, task.platform, () => {
+        callback();
+      });
       work = null;
-      callback();
     }, 2);
     q.drain = () => {
       // logger.debug('单个平台任务并发完成');
@@ -35,7 +36,7 @@ class setTask {
       }
     });
   }
-  beginTask(work, platform) {
+  beginTask(work, platform, callback) {
     const time = parseInt(new Date().getTime() / 1000, 10);
     db.get(`${work.t}:${work.pname}:${work.id}`, (err, result) => {
       if (err) {
@@ -62,9 +63,9 @@ class setTask {
         if (err) {
           this.settings.emit('error', { error: err, platform: `平台号：${work.p}` });
         }
+        callback();
       });
-      work = null;
-      platform = null;
+      work = null; platform = null;
     });
   }
 }

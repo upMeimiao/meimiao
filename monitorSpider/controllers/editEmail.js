@@ -48,6 +48,10 @@ exports.interEmail = (events, message) => {
       emailContent += `<tr style="background: rgba(255, 0, 90, 0.55);"><td>${message.platform}</td><td>${message.bid}</td><td>${message.bname}</td><td>${message.type}:${message.interface}</td><td>${message.url}</td><td>${message.message}</td><td>${message.lastTime}</td></tr></table>`;
       sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回格式异常`, emailContent, message.type);
       break;
+    case 'p-error':
+      emailContent = `<table><tr><td colspan="3">异常错误导致发送报警</td></tr><tr style="background: rgba(255, 0, 90, 0.55);"><td>平台：${message.p}</td><td>错误信息：${message.error}</td><td>错误时间：${message.time}</td></tr></table>`;
+      sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回格式异常`, emailContent, message.type);
+      break;
     default:
       events.emit('error', { error: '无法判断是什么类型的错误', platform: message.platform, bid: message.bid });
       break;

@@ -1,20 +1,23 @@
 /**
  * Created by zhupenghui on 2017/7/17.
  */
-let async, request, cheerio, logger, typeErr, infoCheck;
+let logger, typeErr;
 class program {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    async = core.modules.async;
-    request = core.modules.request;
-    cheerio = core.modules.cheerio;
-    infoCheck = core.modules.infoCheck;
+    this.modules = core.modules;
     logger = core.settings.logger;
     logger.trace('aipai program instantiation ...');
+    core = null;
   }
   start(task, callback) {
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.cheerio = this.modules.cheerio;
+    task.infoCheck = this.modules.infoCheck;
     this.getProgramList(task, () => {
+      task = null;
       callback();
     });
   }
@@ -22,34 +25,37 @@ class program {
     let option = {
       url: `http://home.aipai.com/${task.id}?action=album&catagory=albumList&page=1`
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'proList', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'proList', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'proList', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'proList', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; result = null; task = null; typeErr = null;
         callback();
         return;
       }
-      const $ = cheerio.load(result.body),
+      let $ = task.cheerio.load(result.body),
         total = Number($('div.hd h6 strong').text().replace(/,/g, '')),
         proList = $('.zhuanji_list>ul.wrapfix>li');
       if (total === 0) {
+        option = null; result = null; task = null; typeErr = null; $ = null; total = null; proList = null;
         callback();
         return;
       }
       if (!proList.length || !total) {
-        typeErr = {type: 'data', err: `栏目Dom结构出问题: ${JSON.stringify(total)}}`, interface: 'proList', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `栏目Dom结构出问题: ${JSON.stringify(total)}}`, interface: 'proList', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null; $ = null; total = null; proList = null;
         callback();
         return;
       }
       this.programIdlist(task, proList.eq(0));
       callback();
-      option = null; result = null;  typeErr = null;
+      option = null; result = null; task = null; typeErr = null; $ = null; total = null; proList = null;
     });
   }
   programIdlist(task, program) {
@@ -58,24 +64,25 @@ class program {
         url: `http://www.aipai.com/space.php?catagory=workList&action=album&bid=${task.id}&id=${listId}&page=1`,
         ua: 1
       };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
      if (err) {
        if (err.status && err.status !== 200) {
-         typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'proIdList', url: option.url};
-         infoCheck.interface(this.core, task, typeErr);
+         typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'proIdList', url: JSON.stringify(option)};
+         task.infoCheck.interface(task.core, task, typeErr);
        } else {
-         typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'proIdList', url: option.url};
-         infoCheck.interface(this.core, task, typeErr);
+         typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'proIdList', url: JSON.stringify(option)};
+         task.infoCheck.interface(task.core, task, typeErr);
        }
+       option = null; result = null; task = null; typeErr = null;
        return;
      }
-      const $ = cheerio.load(result.body),
+      let $ = task.cheerio.load(result.body),
         vidlist = $('div.video_list>ul');
       if (!vidlist.length) {
-       typeErr = {type: 'data', err: `list-data: ${JSON.stringify('dom结构出错')}}`, interface: 'proIdList', url: option.url};
-       infoCheck.interface(this.core, task, typeErr);
+       typeErr = {type: 'data', err: `list-data: ${JSON.stringify('dom结构出错')}}`, interface: 'proIdList', url: JSON.stringify(option)};
+       task.infoCheck.interface(task.core, task, typeErr);
      }
-     option = null; result = null; typeErr = null;
+      option = null; result = null; task = null; typeErr = null; $ = null; vidlist = null;
     });
   }
 }

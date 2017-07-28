@@ -16,7 +16,7 @@ const request = require('../lib/request'),
   infoCheck = require('./controllers/infoCheck'),
   program = require('./controllers/program');
 
-let logger,settings;
+let logger, settings;
 class spiderCore extends events{
   constructor(_settings) {
     super();
@@ -24,9 +24,9 @@ class spiderCore extends events{
     this.settings = settings;
     this.redis = settings.redis;
     this.modules = {
-      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl
+      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl,
+      'aaa': 123
     };
-    // this.proxy = new (require('./controllers/proxy'))(this);
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
     _settings = null;
@@ -62,7 +62,7 @@ class spiderCore extends events{
       case 'program':
         for (const [key, value] of platfrom.entries()) {
           if (program.program().get(key)) {
-            programList.push({ name: value, type: 'ceshi', t: 'program', platform: new (require('./program/' + value))(this) });
+            programList.push({ name: value, type: '', t: 'program', platform: new (require('./program/' + value))(this) });
           }
         }
         platfromObj = { programList };
@@ -103,7 +103,7 @@ class spiderCore extends events{
           task = null;
           callback();
         });
-      }, 30);
+      }, 15);
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
@@ -133,6 +133,7 @@ class spiderCore extends events{
      *  用来处理错误信息，并发送邮件通知哪个监控平台挂掉了
      * */
     logger.debug('return-error:', message);
+    infoCheck.interface(events, message, 'p-error');
     message = null;
     return;
   }

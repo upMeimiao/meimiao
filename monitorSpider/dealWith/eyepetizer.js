@@ -6,16 +6,20 @@ class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
-    request = core.modules.request;
-    infoCheck = core.modules.infoCheck;
-    async = core.modules.async;
+    this.modules = core.modules;
+    // request = core.modules.request;
+    // infoCheck = core.modules.infoCheck;
+    // async = core.modules.async;
     logger = this.settings.logger;
     logger.trace('eyepetizer monitor begin...');
     core = null;
   }
   start(task, callback) {
-    task.total = 0;
-    async.parallel(
+    task.core = this.core;
+    task.request = this.modules.request;
+    task.infoCheck = this.modules.infoCheck;
+    task.async = this.modules.async;
+    task.async.parallel(
       {
         list: (cb) => {
           this.getVideoList(task);
@@ -31,6 +35,7 @@ class dealWith {
         }
       },
       () => {
+        task = null;
         callback();
       }
     );
@@ -41,33 +46,32 @@ class dealWith {
       ua: 3,
       own_ua: 'Eyepetizer/3107 CFNetwork/811.5.4 Darwin/16.6.0'
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'list', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
-        option = null;
-        typeErr = null;
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
         return;
       }
       if (!result.itemList || !result.itemList.length) {
-        typeErr = {type: 'data', err: `开眼视频-视频列表数据出错, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `开眼视频-视频列表数据出错, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
         return;
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; task = null; result = null;
     });
   }
   video(task) {
@@ -76,30 +80,31 @@ class dealWith {
       ua: 3,
       own_ua: 'Eyepetizer/3107 CFNetwork/811.5.4 Darwin/16.6.0'
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'video', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'video', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'video', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; typeErr = null; task = null; result = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'video', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'video', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; task = null; result = null;
         return;
       }
       if (!result) {
-        typeErr = {type: 'data', err: `kaiyan-视频详情接口, data: ${JSON.stringify(result)}`, interface: 'video', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        typeErr = {type: 'data', err: `kaiyan-视频详情接口, data: ${JSON.stringify(result)}`, interface: 'video', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; task = null; result = null;
     });
   }
   comment(task) {
@@ -107,30 +112,31 @@ class dealWith {
       url: `${this.settings.spiderAPI.aipai.comment + task.aid}.html`,
       ua: 2
     };
-    request.get(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'comment', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         } else {
           typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'comment', url: option.url};
-          infoCheck.interface(this.core, task, typeErr);
+          task.infoCheck.interface(task.core, task, typeErr);
         }
+        option = null; typeErr = null; task = null; result = null;
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'comment', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; task = null; result = null;
         return;
       }
       if (result.total === undefined) {
         typeErr = {type: 'data', err: `kaiyan-评论, data: ${JSON.stringify(result)}`, interface: 'comment', url: option.url};
-        infoCheck.interface(this.core, task, typeErr);
+        task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null;
-      typeErr = null;
+      option = null; typeErr = null; task = null; result = null;
     });
   }
 }
