@@ -36,9 +36,23 @@ class spiderCore {
       name: '迷迭香Rosemary_',
       p: 2
     };
-    this.dealWith.todo(work, (err, total) => {
-      logger.debug(total);
-      logger.debug('end');
+    // this.dealWith.todo(work, (err, total) => {
+    //   logger.debug(total);
+    //   logger.debug('end');
+    // });
+    const workSingle = {
+      p: 2,
+      id: '1059582818',
+      url: 'http://www.iqiyi.com/w_19rsgrjr1l.html?list=19rrhem2xy#vfrm=8-8-0-1',
+      aid: '2355015109',
+      title: '【新片场发行】出走云南'
+    };
+    this.dealWith.goto(workSingle, (err, message) => {
+      if (err) {
+        logger.error(err);
+      } else {
+        logger.debug(message);
+      }
     });
   }
   deal() {
@@ -96,6 +110,24 @@ class spiderCore {
                 logger.info(body);
               }
             });
+        });
+      });
+    });
+    queue.process('iqiyi_single', 2, (job, done) => {
+      logger.trace('Get iqiyi_single task!');
+      const work = job.data;
+      logger.info(work);
+      const d = domain.create();
+      d.on('error', (err) => {
+        done(err);
+      });
+      d.run(() => {
+        this.dealWith.goto(work, (err, message) => {
+          if (err) {
+            logger.error(err);
+          } else {
+            logger.debug(message);
+          }
         });
       });
     });
