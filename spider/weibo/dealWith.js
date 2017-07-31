@@ -21,12 +21,146 @@ class dealWith {
     task.total = 0;
     task.page = 1;
     task.fans = null;
-    this.getUserInfo(task, (err) => {
-      if (err) {
-        callback(err);
+    async.parallel(
+      {
+        fans: (cb) => {
+          this.getFans(task, () => {
+            cb(null, '粉丝信息已返回');
+          });
+        },
+        user: (cb) => {
+          this.getUserInfo(task, (err) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, '用户信息已返回');
+          });
+        }
+      },
+      () => callback(null, task.total)
+    );
+  }
+  getFans(task, callback) {
+    const option = {
+      url: this.settings.spiderAPI.weibo.fans + task.id,
+      ua: 2,
+      referer: `https://m.weibo.cn/u/${task.id}`
+    };
+    let _proxy;
+    this.core.proxy.getProxy((error, proxy) => {
+      if (proxy === 'timeout') {
+        callback('proxy_timeout');
         return;
       }
-      callback(null, task.total);
+      _proxy = proxy;
+      option.proxy = _proxy;
+      request.get(logger, option, (err, result) => {
+        if (err) {
+          logger.error('粉丝数请求失败', err);
+          this.core.proxy.back(_proxy, false);
+          this.getFans(task, callback);
+          return;
+        }
+        try {
+          result = JSON.parse(result.body);
+        } catch (e) {
+          logger.error('粉丝数解析失败', result.body);
+          this.core.proxy.back(_proxy, false);
+          this.getFans(task, callback);
+          return;
+        }
+        if (!result || !result.userInfo) {
+          callback('粉丝数数据异常');
+          return;
+        }
+        const user = {
+          platform: task.p,
+          bid: task.id,
+          fans_num: result.userInfo.followers_count || ''
+        };
+        this.sendUser(user, () => {
+          callback();
+        });
+        this.sendStagingUser(user);
+      });
+    });
+  }
+  // fansNum(task, video) {
+  //   const user = {
+  //     platform: task.p,
+  //     bid: task.id,
+  //     fans_num: task.fans || ''
+  //   };
+  //   if (Number(user.fans_num) === 428472) {
+  //     req({
+  //       method: 'POST',
+  //       url: 'http://10.251.55.50:3001/api/alarm',
+  //       form: {
+  //         mailGroup: 3,
+  //         subject: '粉丝数据异常',
+  //         content: JSON.stringify(video)
+  //       }
+  //     });
+  //   }
+  //   if (user.fans_num !== '') {
+  //     this.sendUser(user);
+  //     this.sendStagingUser(user);
+  //   }
+  // }
+  sendUser(user, callback) {
+    const option = {
+      url: this.settings.sendFans,
+      data: user
+    };
+    request.post(logger, option, (err, back) => {
+      if (err) {
+        logger.error('occur error : ', err.message);
+        logger.info(`返回微博视频用户 ${user.bid} 连接服务器失败`);
+        callback();
+        return;
+      }
+      try {
+        back = JSON.parse(back.body);
+      } catch (e) {
+        logger.error(`微博视频用户 ${user.bid} json数据解析失败`);
+        logger.info(back);
+        callback();
+        return;
+      }
+      if (back.errno === 0) {
+        logger.debug('微博视频用户:', `${user.bid} back_end`);
+      } else {
+        logger.error('微博视频用户:', `${user.bid} back_error`);
+        logger.info(back);
+        logger.info('user info: ', user);
+      }
+      callback();
+    });
+  }
+  sendStagingUser(user) {
+    const option = {
+      url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
+      data: user
+    };
+    request.post(logger, option, (err, result) => {
+      if (err) {
+        logger.error('occur error : ', err.message);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('json数据解析失败');
+        logger.info('send error:', result);
+        return;
+      }
+      if (result.errno === 0) {
+        logger.debug('用户:', `${user.bid} back_end`);
+      } else {
+        logger.error('用户:', `${user.bid} back_error`);
+        logger.info(result);
+      }
     });
   }
   getUserInfo(task, callback) {
@@ -111,81 +245,6 @@ class dealWith {
       });
     });
   }
-  fansNum(task, video) {
-    const user = {
-      platform: task.p,
-      bid: task.id,
-      fans_num: task.fans || ''
-    };
-    if (Number(user.fans_num) === 428472) {
-      req({
-        method: 'POST',
-        url: 'http://10.251.55.50:3001/api/alarm',
-        form: {
-          mailGroup: 3,
-          subject: '粉丝数据异常',
-          content: JSON.stringify(video)
-        }
-      });
-    }
-    if (user.fans_num !== '') {
-      this.sendUser(user);
-      this.sendStagingUser(user);
-    }
-  }
-  sendUser(user) {
-    const option = {
-      url: this.settings.sendFans,
-      data: user
-    };
-    request.post(logger, option, (err, back) => {
-      if (err) {
-        logger.error('occur error : ', err.message);
-        logger.info(`返回微博视频用户 ${user.bid} 连接服务器失败`);
-        return;
-      }
-      try {
-        back = JSON.parse(back.body);
-      } catch (e) {
-        logger.error(`微博视频用户 ${user.bid} json数据解析失败`);
-        logger.info(back);
-        return;
-      }
-      if (back.errno === 0) {
-        logger.debug('微博视频用户:', `${user.bid} back_end`);
-      } else {
-        logger.error('微博视频用户:', `${user.bid} back_error`);
-        logger.info(back);
-        logger.info('user info: ', user);
-      }
-    });
-  }
-  sendStagingUser(user) {
-    const option = {
-      url: 'http://staging-dev.meimiaoip.com/index.php/Spider/Fans/postFans',
-      data: user
-    };
-    request.post(logger, option, (err, result) => {
-      if (err) {
-        logger.error('occur error : ', err.message);
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info('send error:', result);
-        return;
-      }
-      if (result.errno === 0) {
-        logger.debug('用户:', `${user.bid} back_end`);
-      } else {
-        logger.error('用户:', `${user.bid} back_error`);
-        logger.info(result);
-      }
-    });
-  }
-
   getVidTotal(task, data, proxy, callback) {
     const option = {
       ua: 3,
@@ -390,10 +449,10 @@ class dealWith {
           callback();
           return;
         }
-        if (Number(task.id) === Number(video.mblog.user.id) && !task.fans) {
-          task.fans = video.mblog.user.followers_count;
-          this.fansNum(task, video);
-        }
+        // if (Number(task.id) === Number(video.mblog.user.id) && !task.fans) {
+        //   task.fans = video.mblog.user.followers_count;
+        //   this.fansNum(task, video);
+        // }
         const media = {
           author: task.name,
           platform: task.p,
