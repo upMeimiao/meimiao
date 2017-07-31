@@ -44,8 +44,11 @@ class dealWith {
   getFans(task, callback) {
     const option = {
       url: this.settings.spiderAPI.weibo.fans + task.id,
-      ua: 2,
-      referer: `https://m.weibo.cn/u/${task.id}`
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
+        Referer: `https://m.weibo.cn/u/${task.id}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
     };
     let _proxy;
     this.core.proxy.getProxy((error, proxy) => {
