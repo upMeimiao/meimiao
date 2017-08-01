@@ -130,7 +130,8 @@ class commentHandle {
   }
   setCreate(raw) {
     if (!Array.isArray(raw)) {
-      this.logger.debug(raw)
+      this.logger.debug(raw);
+      return;
     }
     let key = [];
     const list = [], time = new Date().getTime();
