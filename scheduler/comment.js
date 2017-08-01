@@ -1,8 +1,8 @@
-const kue = require('kue');
-const request = require('request');
 const os = require('os');
 const HTTP = require('http');
 const events = require('events');
+const kue = require('kue');
+const request = require('request');
 const Redis = require('ioredis');
 const schedule = require('node-schedule');
 // const _getTask = require('./getTask');
@@ -62,7 +62,7 @@ class commentScheduler extends events {
   start() {
     this.logger.trace('启动函数');
     this.on('task_loaded', (raw) => {
-      this.handle.rawLoop(raw);
+      this.handle.classify(raw);
     });
     this.on('task_init', (raw) => {
       this.handle.checkInit(raw);
@@ -70,8 +70,8 @@ class commentScheduler extends events {
     this.on('task_init_set', (raw) => {
       this.handle.setInit(raw);
     });
-    this.on('task_check_snapshots', (raw) => {
-      this.handle.checkSnapshots(raw);
+    this.on('task_info_get', (raw) => {
+      this.handle.getRedisInfo(raw);
     });
     this.on('task_check_kue', (raw) => {
       this.checkKue(raw);
@@ -148,17 +148,21 @@ class commentScheduler extends events {
       try {
         body = JSON.parse(body);
       } catch (e) {
-        this.logger.error('json数据解析失败');
-        this.logger.info(body);
+        this.logger.error('json数据解析失败', body);
         res = null;
         body = null;
         return;
       }
       this.logger.debug(body);
-      const data = body.data;
+      let data = body.data;
       res = null;
       body = null;
       if (!data || !Array.isArray(data) || data.length === 0) return;
+      if (Number(data[0].platform) === 16 || Number(data[0].platform) === 37
+        || Number(data[0].platform) === 42) {
+        data = null;
+        return;
+      }
       if (Number(data[0].platform) === 39 || Number(data[0].platform) === 40) {
         this.emit('origin_youtube', data);
       } else {
@@ -244,6 +248,7 @@ class commentScheduler extends events {
         if (job.state() === 'failed') {
           this.emit('task_set_create', raw);
         }
+        this.logger.debug(raw)
         time = null;
         job = null;
       });

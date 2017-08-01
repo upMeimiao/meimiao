@@ -1,4 +1,3 @@
-const async = require('neo-async');
 const platformMap = require('./platform');
 
 class commentHandle {
@@ -7,132 +6,149 @@ class commentHandle {
     this.logger = commentScheduler.logger;
     this.logger.debug('评论任务处理模块 实例化...');
   }
-  rawLoop(raw) {
-    async.whilst(
-      () => raw.length,
-      (cb) => {
-        this.classify(raw.shift(), () => {
-          cb();
+  classify(raw) {
+    const baseInfo = []
+    for (const [index, elem] of raw.entries()) {
+      if (elem.bid !== '' && elem.aid !== '') {
+        baseInfo.push({
+          p: elem.platform,
+          bid: elem.bid,
+          aid: elem.aid,
+          platform: platformMap.get(Number(elem.platform)),
+          taskType: elem.taskType
         });
-      },
-      () => {
-        raw = null;
-        // this.logger.debug("开始等待下次执行时间");
       }
-    );
-  }
-  classify(_, callback) {
-    if (Number(_.platform) === 16 || Number(_.platform) === 37
-      || Number(_.platform) === 42) {
-      _ = null;
-      callback();
-      return;
     }
-    if (_.bid === '' || _.aid === '') {
-      this.logger.error('task info error:', _);
-      _ = null;
-      callback();
-      return;
-    }
-    const baseInfo = {
-      p: _.platform,
-      bid: _.bid,
-      aid: _.aid,
-      platform: platformMap.get(Number(_.platform)),
-      taskType: _.taskType
-    };
+    raw = null;
     this.scheduler.emit('task_init', baseInfo);
-    _ = null;
-    callback();
   }
   checkInit(raw) {
     // const key = `c:${raw.p}:${raw.aid}`;
-    this.scheduler.taskDB.exists(`c:${raw.p}:${raw.aid}`, (err, result) => {
+    let key = [];
+    const initList = [], list = []
+    for (const [index, elem] of raw.entries()) {
+      key[index] = ['exists', `c:${elem.p}:${elem.aid}`];
+    }
+    this.scheduler.taskDB.pipeline(
+      key
+    ).exec((err, result) => {
       if (err) {
-        this.scheduler.emit('redis_error', { db: 'taskDB', action: 1 });
         err = null;
         return;
       }
-      if (result === 0) {
-        this.scheduler.emit('task_init_set', raw);
-        result = null;
-        return;
-      }
-      if (result === 1) {
-        this.scheduler.emit('task_check_snapshots', raw);
-        result = null;
-      }
-    });
-  }
-  checkSnapshots(raw) {
-    // const key = `c:${raw.p}:${raw.aid}`;
-    this.scheduler.taskDB.hmget(`c:${raw.p}:${raw.aid}`, 'oldSnapshots', 'newSnapshots', (err, result) => {
-      if (err) {
-        this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
-        err = null;
-        return;
-      }
-      if (Number(result[1]) === 0 || (Number(raw.p) === 23 && Number(result[1]) === -1)) {
-        result = null;
-        return;
-      }
-      // if (Number(raw.p) === 23 && Number(result[1]) === -1) {
-      //   return;
-      // }
-      if (Number(result[0]) === -1 || Number(result[1]) === -1) {
-        this.scheduler.emit('task_check_kue', raw);
-        result = null;
-        return;
-      }
-      // this.scheduler.emit('task_check_kue', raw);
-      if (Number(result[1]) > Number(result[0])) {
-        this.scheduler.emit('task_check_kue', raw);
+      for (const [index, elem] of result.entries()) {
+        if (elem[0] === null && elem[1] === 0) {
+          initList.push(raw[index]);
+        }
+        if (elem[0] === null && elem[1] === 1) {
+          list.push(raw[index]);
+        }
       }
       result = null;
+      raw = null;
+      key = null;
+      if (initList.length > 0) {
+        this.scheduler.emit('task_init_set', initList);
+      }
+      if (list.length > 0) {
+        this.scheduler.emit('task_info_get', list);
+      }
     });
   }
   setInit(raw) {
-    // const key = `c:${raw.p}:${raw.aid}`
+    let key = [];
     const time = new Date().getTime();
-    this.scheduler.taskDB.hmset(`c:${raw.p}:${raw.aid}`, 'bid', raw.bid, 'aid', raw.aid, 'init', time, 'create', time,
-      'comment_number', -1, 'last_comment_id', 0, 'last_comment_time', 0,
-      'oldSnapshots', -1, 'newSnapshots', -1, (err) => {
-        if (err) {
-          this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
-          err = null;
-          return;
-        }
-        raw.comment_id = 0;
-        raw.comment_time = 0;
-        raw.comment_num = 0;
-        this.scheduler.emit('task_create', raw);
-      }
-    );
-  }
-  setCreate(raw) {
-    // const key = `c:${raw.p}:${raw.aid}`,
-    //   time = new Date().getTime();
-    this.scheduler.taskDB.hset(`c:${raw.p}:${raw.aid}`, 'create', new Date().getTime(), (err) => {
+    for (const [index, elem] of raw.entries()) {
+      key[index] = ['hmset', `c:${elem.p}:${elem.aid}`, 'bid', elem.bid, 'aid', elem.aid, 'init', time, 'create', time,
+        'comment_number', -1, 'last_comment_id', 0, 'last_comment_time', 0,
+        'oldSnapshots', -1, 'newSnapshots', -1, ];
+    }
+    this.scheduler.taskDB.pipeline(
+      key
+    ).exec((err, result) => {
       if (err) {
-        this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
         err = null;
         return;
       }
-      this.getRedisInfo(raw);
+      for (const [index, elem] of result.entries()) {
+        if (elem[0] === null && elem[1] === 'OK') {
+          this.scheduler.emit('task_create', Object.assign(raw[index], {
+            comment_id: 0,
+            comment_time: 0,
+            comment_num: -1
+          }));
+        }
+      }
+      result = null;
+      key = null;
+      raw = null;
     });
   }
   getRedisInfo(raw) {
-    // const key = `c:${raw.p}:${raw.aid}`;
-    this.scheduler.taskDB.hmget(`c:${raw.p}:${raw.aid}`, 'comment_number', 'last_comment_id', 'last_comment_time', (err, result) => {
+    let key = [];
+    const list = [];
+    for (const [index, elem] of raw.entries()) {
+      key[index] = ['hmget', `c:${elem.p}:${elem.aid}`, 'comment_number', 'last_comment_id', 'last_comment_time', 'oldSnapshots', 'newSnapshots'];
+    }
+    this.scheduler.taskDB.pipeline(
+      key
+    ).exec((err, result) => {
       if (err) {
-        this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });
         err = null;
         return;
       }
-      raw.comment_num = result[0];
-      raw.comment_id = result[1];
-      raw.comment_time = result[2];
-      this.scheduler.emit('task_create', raw);
+      for (const [index, elem] of result.entries()) {
+        if (elem[0] === null && elem[1].length === 5) {
+          if (Number(elem[1][4]) === 0
+            || (Number(raw[index].p) === 23 && Number(elem[1][4]) === -1)) {
+            continue;
+          }
+          if (Number(elem[1][3]) === -1 && Number(elem[1][4]) === -1) {
+            list.push(Object.assign(raw[index], {
+              comment_num: elem[1][0],
+              comment_id: elem[1][1],
+              comment_time: elem[1][2]
+            }));
+            continue;
+          }
+          if (Number(elem[1][4]) > Number(elem[1][3])) {
+            list.push(Object.assign(raw[index], {
+              comment_num: elem[1][0],
+              comment_id: elem[1][1],
+              comment_time: elem[1][2]
+            }));
+          }
+        }
+      }
+      result = null;
+      key = null;
+      raw = null;
+      if (list.length > 0) {
+        this.scheduler.emit('task_set_create', list);
+      }
+    });
+  }
+  setCreate(raw) {
+    let key = [];
+    const list = [], time = new Date().getTime();
+    for (const [index, elem] of raw.entries()) {
+      key[index] = ['hset', `c:${elem.p}:${elem.aid}`, 'create', time];
+    }
+    this.scheduler.taskDB.pipeline(
+      key
+    ).exec((err, result) => {
+      if (err) {
+        err = null;
+        return;
+      }
+      for (const [index, elem] of result.entries()) {
+        if (elem[0] === null && elem[1] === 0) {
+          this.scheduler.emit('task_check_kue', raw[index]);
+        }
+      }
+      result = null;
+      key = null;
+      raw = null;
     });
   }
 }
