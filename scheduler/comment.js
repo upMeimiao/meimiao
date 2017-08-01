@@ -70,9 +70,6 @@ class commentScheduler extends events {
     this.on('task_init_set', (raw) => {
       this.handle.setInit(raw);
     });
-    this.on('task_info_get', (raw) => {
-      this.handle.getRedisInfo(raw);
-    });
     this.on('task_check_kue', (raw) => {
       this.checkKue(raw);
     });

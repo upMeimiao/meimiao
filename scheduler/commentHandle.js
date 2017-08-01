@@ -23,11 +23,10 @@ class commentHandle {
     this.scheduler.emit('task_init', baseInfo);
   }
   checkInit(raw) {
-    // const key = `c:${raw.p}:${raw.aid}`;
     let key = [];
     const initList = [], list = []
     for (const [index, elem] of raw.entries()) {
-      key[index] = ['exists', `c:${elem.p}:${elem.aid}`];
+      key[index] = ['hmget', `c:${elem.p}:${elem.aid}`, 'comment_number', 'last_comment_id', 'last_comment_time', 'oldSnapshots', 'newSnapshots'];
     }
     this.scheduler.taskDB.pipeline(
       key
@@ -37,11 +36,29 @@ class commentHandle {
         return;
       }
       for (const [index, elem] of result.entries()) {
-        if (elem[0] === null && elem[1] === 0) {
+        if (elem[0] === null && elem[1][0] === null) {
           initList.push(raw[index]);
         }
-        if (elem[0] === null && elem[1] === 1) {
-          list.push(raw[index]);
+        if (elem[0] === null && elem[1][0] !== null) {
+          if (Number(elem[1][4]) === 0
+            || (Number(raw[index].p) === 23 && Number(elem[1][4]) === -1)) {
+            continue;
+          }
+          if (Number(elem[1][3]) === -1 && Number(elem[1][4]) === -1) {
+            list.push(Object.assign(raw[index], {
+              comment_num: elem[1][0],
+              comment_id: elem[1][1],
+              comment_time: elem[1][2]
+            }));
+            continue;
+          }
+          if (Number(elem[1][4]) > Number(elem[1][3])) {
+            list.push(Object.assign(raw[index], {
+              comment_num: elem[1][0],
+              comment_id: elem[1][1],
+              comment_time: elem[1][2]
+            }));
+          }
         }
       }
       result = null;
@@ -51,7 +68,7 @@ class commentHandle {
         this.scheduler.emit('task_init_set', initList);
       }
       if (list.length > 0) {
-        this.scheduler.emit('task_info_get', list);
+        this.scheduler.emit('task_set_create', list);
       }
     });
   }
@@ -84,55 +101,7 @@ class commentHandle {
       raw = null;
     });
   }
-  getRedisInfo(raw) {
-    let key = [];
-    const list = [];
-    for (const [index, elem] of raw.entries()) {
-      key[index] = ['hmget', `c:${elem.p}:${elem.aid}`, 'comment_number', 'last_comment_id', 'last_comment_time', 'oldSnapshots', 'newSnapshots'];
-    }
-    this.scheduler.taskDB.pipeline(
-      key
-    ).exec((err, result) => {
-      if (err) {
-        err = null;
-        return;
-      }
-      for (const [index, elem] of result.entries()) {
-        if (elem[0] === null && elem[1].length === 5) {
-          if (Number(elem[1][4]) === 0
-            || (Number(raw[index].p) === 23 && Number(elem[1][4]) === -1)) {
-            continue;
-          }
-          if (Number(elem[1][3]) === -1 && Number(elem[1][4]) === -1) {
-            list.push(Object.assign(raw[index], {
-              comment_num: elem[1][0],
-              comment_id: elem[1][1],
-              comment_time: elem[1][2]
-            }));
-            continue;
-          }
-          if (Number(elem[1][4]) > Number(elem[1][3])) {
-            list.push(Object.assign(raw[index], {
-              comment_num: elem[1][0],
-              comment_id: elem[1][1],
-              comment_time: elem[1][2]
-            }));
-          }
-        }
-      }
-      result = null;
-      key = null;
-      raw = null;
-      if (list.length > 0) {
-        this.scheduler.emit('task_set_create', list);
-      }
-    });
-  }
   setCreate(raw) {
-    if (!Array.isArray(raw)) {
-      this.logger.debug(raw);
-      return;
-    }
     let key = [];
     const list = [], time = new Date().getTime();
     for (const [index, elem] of raw.entries()) {
