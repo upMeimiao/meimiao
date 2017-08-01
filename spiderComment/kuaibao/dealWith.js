@@ -19,7 +19,7 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.commentId(task, (err) => {
+    this.commentTotal(task, (err) => {
       if (err) {
         callback(err);
         return;
@@ -27,60 +27,48 @@ class dealWith {
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
-  commentId(task, callback) {
+  commentTotal(task, callback) {
     const option = {
-      url: this.settings.kuaibao.commentId + task.aid
-    };
-    let commentId;
-    request.get(logger, option, (error, result) => {
-      if (error) {
-        logger.debug('天天快报请求评论Id失败');
-        callback(error);
-        return;
+      url: this.settings.kuaibao.commentList,
+      headers: {
+        apptype: 'ios',
+        'device-model': 'iPhone8,2',
+        connection: 'keep-alive',
+        apptypeext: 'qnreading',
+        appversion: '2.8.0',
+        referer: 'http://r.cnews.qq.com/inews/iphone/',
+        'content-type': 'application/x-www-form-urlencoded',
+        'user-agent': '%e5%a4%a9%e5%a4%a9%e5%bf%ab%e6%8a%a5 2.8.0 qnreading (iPhone; iOS 10.3.3; zh_CN; 2.8.0.11)'
+      },
+      data: {
+        chlid: 'daily_timeline',
+        c_type: 'comment',
+        article_id: task.aid,
+        byaid: 1,
+        page: 1
       }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      if (!result.match(/commentId="(\d*)/) || !result.match(/commentId="(\d*)/)[1]) {
-        task.lastId = task.commentId;
-        task.lastTime = task.commentTime;
-        callback();
-        return;
-      }
-      commentId = result.match(/commentId="(\d*)/)[1];
-      task.commentId = commentId;
-      this.totalPage(task, (err) => {
-        if (err) {
-          callback(err);
-          return;
-        }
-        callback();
-      });
-    });
-  }
-  totalPage(task, callback) {
-    const option = {
-      url: `http://coral.qq.com/article/${task.commentId}/comment?commentid=&reqnum=20`
     };
-    let total = 0;
-    request.get(logger, option, (err, result) => {
+    let total;
+    // console.log(option);
+    request.post(logger, option, (err, result) => {
       if (err) {
-        logger.debug('天天快报评论总量请求失败', err);
+        logger.error('评论总数请求失败', err);
         callback(err);
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('天天快报评论数据解析失败');
-        logger.info(result);
+        logger.error('解析失败', result.body);
         callback(e);
         return;
       }
-      if (result.errCode !== 0) {
+      if (Number(result.ret) !== 0) {
         callback();
         return;
       }
-      task.cNum = result.data.total;
-      if ((task.cNum - task.commentNum) <= 0 || result.data.commentid.length === 0) {
+      task.cNum = result.comments.count;
+      if ((task.cNum - task.commentNum) <= 0 || !result.comments.new || !result.comments.new.length) {
         task.lastId = task.commentId;
         task.lastTime = task.commentTime;
         callback();
@@ -92,8 +80,9 @@ class dealWith {
         total = (task.cNum - task.commentNum);
         total = (total % 20) === 0 ? total / 20 : Math.ceil(total / 20);
       }
-      task.lastTime = result.data.commentid[0].time;
-      task.lastId = result.data.commentid[0].id;
+      result = result.comments.new[0];
+      task.lastTime = result[result.length - 1].pub_time;
+      task.lastId = result[result.length - 1].reply_id;
       task.addCount = task.cNum - task.commentNum;
       this.commentList(task, total, () => {
         callback();
@@ -101,16 +90,32 @@ class dealWith {
     });
   }
   commentList(task, total, callback) {
-    let page = 1,
-      commentId = '',
-      option;
+    const option = {
+      url: this.settings.kuaibao.commentList,
+      headers: {
+        'User-Agent': '%e5%a4%a9%e5%a4%a9%e5%bf%ab%e6%8a%a5 2.8.0 qnreading (iPhone; iOS 10.3.3; zh_CN; 2.8.0.11)',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Referer: 'http://r.cnews.qq.com/inews/iphone/',
+        appversion: '0',
+        apptypeExt: 'qnreading',
+        Connection: 'keep-alive',
+        'device-model': 'iPhone8,2',
+        apptype: 'ios'
+      },
+      data: {
+        chlid: 'daily_timeline',
+        c_type: 'comment',
+        article_id: task.aid,
+        byaid: 1,
+        page: 1
+      }
+    };
+    let page = 1;
     async.whilst(
       () => page <= total,
       (cb) => {
-        option = {
-          url: `http://coral.qq.com/article/${task.commentId}/comment?commentid=${commentId}&reqnum=20`
-        };
-        request.get(logger, option, (err, result) => {
+        option.data.page = page;
+        request.post(logger, option, (err, result) => {
           if (err) {
             logger.debug('天天快报评论列表请求失败', err);
             cb();
@@ -124,20 +129,17 @@ class dealWith {
             cb();
             return;
           }
-          this.deal(task, result.data.commentid, () => {
+          this.deal(task, result.comments.new, () => {
             if (task.isEnd) {
               callback();
               return;
             }
             page += 1;
-            commentId = result.data.last;
             cb();
           });
         });
       },
-      () => {
-        callback();
-      }
+      () => callback()
     );
   }
   deal(task, comments, callback) {
@@ -147,23 +149,24 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        if (task.commentId == comments[index].id || task.commentTime >= comments[index].time) {
+        comment = comments[index].pop();
+        if (task.commentId == comment.reply_id || task.commentTime >= comment.pub_time) {
           task.isEnd = true;
           callback();
           return;
         }
         comment = {
-          cid: comments[index].id,
-          content: spiderUtils.stringHandling(comments[index].content),
+          cid: comment.reply_id,
+          content: spiderUtils.stringHandling(comment.reply_content),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
-          ctime: comments[index].time,
-          support: comments[index].up,
+          ctime: comment.pub_time,
+          support: comment.agree_count,
           c_user: {
-            uid: comments[index].userid,
-            uname: comments[index].userinfo.nick,
-            uavatar: comments[index].userinfo.head
+            uid: comment.coral_uid,
+            uname: comment.nick,
+            uavatar: comment.head_url
           }
         };
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);

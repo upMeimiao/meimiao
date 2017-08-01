@@ -52,7 +52,7 @@
     "list":"http://changyan.sohu.com/api/2/topic/comments?client_id=cyqyBluaj&page_size=20&order_by=time&topic_id="
   },
   "kuaibao":{
-    "commentId":"https://kuaibao.qq.com/s/"
+    "commentList": "http://r.cnews.qq.com/getQQNewsComment?qqnetwork=wifi&apptype=ios&apptypeExt=qnreading&appversion=2.8.0&activefrom=icon&device_model=iPhone8%2C2&startarticleid=&appver=10.3.3_qnreading_2.8.0"
   },
   "yidian":"http://www.yidianzixun.com/api/q/?path=contents/comments&version=999999&count=20&docid=",
   "tudou":{
