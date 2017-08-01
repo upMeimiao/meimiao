@@ -26,7 +26,7 @@ class commentHandle {
     let key = [];
     const initList = [], list = []
     for (const [index, elem] of raw.entries()) {
-      key[index] = ['hmget', `c:${elem.p}:${elem.aid}`, 'comment_number', 'last_comment_id', 'last_comment_time', 'oldSnapshots', 'newSnapshots'];
+      key[index] = ['hmget', `c:${elem.p}:${elem.aid}`, 'comment_number', 'last_comment_id', 'last_comment_time', 'oldSnapshots', 'newSnapshots', 'kue_id'];
     }
     this.scheduler.taskDB.pipeline(
       key
@@ -48,7 +48,8 @@ class commentHandle {
             list.push(Object.assign(raw[index], {
               comment_num: elem[1][0],
               comment_id: elem[1][1],
-              comment_time: elem[1][2]
+              comment_time: elem[1][2],
+              kue_id: elem[1][5]
             }));
             continue;
           }
@@ -56,7 +57,8 @@ class commentHandle {
             list.push(Object.assign(raw[index], {
               comment_num: elem[1][0],
               comment_id: elem[1][1],
-              comment_time: elem[1][2]
+              comment_time: elem[1][2],
+              kue_id: elem[1][5]
             }));
           }
         }
@@ -78,7 +80,7 @@ class commentHandle {
     for (const [index, elem] of raw.entries()) {
       key[index] = ['hmset', `c:${elem.p}:${elem.aid}`, 'bid', elem.bid, 'aid', elem.aid, 'init', time, 'create', time,
         'comment_number', -1, 'last_comment_id', 0, 'last_comment_time', 0,
-        'oldSnapshots', -1, 'newSnapshots', -1, ];
+        'oldSnapshots', -1, 'newSnapshots', -1];
     }
     this.scheduler.taskDB.pipeline(
       key
