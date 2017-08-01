@@ -129,7 +129,9 @@ class commentHandle {
     });
   }
   setCreate(raw) {
-    console.log(Array.isArray(raw))
+    if (Array.isArray(raw)) {
+      this.logger.debug(raw)
+    }
     let key = [];
     const list = [], time = new Date().getTime();
     for (const [index, elem] of raw.entries()) {
