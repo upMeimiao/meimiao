@@ -230,25 +230,24 @@ class commentScheduler extends events {
       kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
         if (err) {
           if (err.message.includes('doesnt exist') || err.message === 'invalid id param') {
-            this.emit('task_set_create', raw);
+            this.emit('task_create', raw);
           } else {
             this.logger.error('Job get error : ', err);
           }
-          // this.emit('task_set_create', raw);
+          // this.emit('task_create', raw);
           err = null;
           return;
         }
         let time = new Date().getTime();
         if ((job.state() === 'active' || job.state() === 'delayed') && (time - job.created_at) >= 3600000) {
-          this.emit('task_set_create', raw);
+          this.emit('task_create', raw);
           time = null;
           job = null;
           return;
         }
         if (job.state() === 'failed') {
-          this.emit('task_set_create', raw);
+          this.emit('task_create', raw);
         }
-        this.logger.debug(raw)
         time = null;
         job = null;
       });
