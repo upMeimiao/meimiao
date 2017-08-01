@@ -129,7 +129,7 @@ class commentHandle {
     });
   }
   setCreate(raw) {
-    if (Array.isArray(raw)) {
+    if (!Array.isArray(raw)) {
       this.logger.debug(raw)
     }
     let key = [];
