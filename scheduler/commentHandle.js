@@ -129,7 +129,7 @@ class commentHandle {
     });
   }
   setCreate(raw) {
-    console.log(typeof raw)
+    console.log(Array.isArray(raw))
     let key = [];
     const list = [], time = new Date().getTime();
     for (const [index, elem] of raw.entries()) {
