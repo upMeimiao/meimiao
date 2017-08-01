@@ -33,8 +33,8 @@ class spiderCore {
   test() {
     const work = {
       p: 10,
-      name: '用武之地',
-      id: 5064482
+      name: '飞碟说',
+      id: 8403
     };
     this.dealWith.todo(work, (err, total) => {
       logger.debug(total);
