@@ -15,7 +15,7 @@ class dealWith {
     task.request = this.modules.request;
     task.async = this.modules.async;
     task.infoCheck = this.modules.infoCheck;
-    task.core = this.core;
+    task.core = this.core;;
     task.async.parallel(
       {
         user: (cb) => {

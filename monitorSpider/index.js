@@ -24,9 +24,10 @@ class spiderCore extends events{
     this.settings = settings;
     this.redis = settings.redis;
     this.modules = {
-      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl,
-      'aaa': 123
+      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl
     };
+    this.h = '';
+    this.time = '';
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
     _settings = null;
@@ -38,7 +39,7 @@ class spiderCore extends events{
         return err.message.slice(0, 'READONLY'.length) === 'READONLY';
       }
     });
-    this.initPlatForm();
+    this.getH();
   }
   start() {
     this.assembly();
@@ -46,11 +47,45 @@ class spiderCore extends events{
       this.error_event(massage);
     });
   }
+  getH() {
+    const options = { method: 'POST',
+      url: 'http://viva.api.xiaoying.co/api/rest/d/dg',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'XiaoYing/5.3.5 (iPhone; iOS 10.1.1; Scale/3.00)'
+      },
+      form: {
+        a: 'dg',
+        b: '1.0',
+        c: '20007700',
+        e: 'DIqmr4fb',
+        i: '{"a":"[I]a8675492c8816a22c28a1b97f890ae144a8a4fa3","b":"zh_CN"}',
+        j: '6a0ea6a13e76e627121ee75c2b371ef2',
+        k: 'xysdkios20130711'
+      }
+    };
+    this.modules.req(options, (error, response, body) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        callback(e);
+        return;
+      }
+      this.h = body.a.a;
+      this.time = new Date().getTime();
+      this.initPlatForm();
+    });
+  }
   initPlatForm() {
     // 实例化平台模块
     let platfromObj = {},
       videoList = [],
-      programList = [];
+      programList = [],
+      commentList = [];
     this.getTask = new (require('./controllers/beginTask'))(this);
     switch (this.settings.type) {
       case 'video':
@@ -67,14 +102,14 @@ class spiderCore extends events{
         }
         platfromObj = { programList };
         break;
-      case 'all':
-        for (const [key, value] of platfrom.entries()) {
-          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
-          if (program.program().get(key)) {
-            programList.push({ name: value, type: 'ceshi', t: 'program', platform: new (require('./program/' + value))(this) });
-          }
-        }
-        platfromObj = { videoList, programList };
+      case 'comment':
+        // for (const [key, value] of platfrom.entries()) {
+        //   if (program.program().get(key)) {
+        //     commentList.push({ name: value, type: '', t: 'comment', platform: new (require('./comment/' + value))(this) });
+        //   }
+        // }
+        commentList.push({ name: 'xiaoying', type: '', t: 'comment', platform: new (require('./comment/xiaoying'))(this) });
+        platfromObj = { commentList };
         break;
       default:
         for (const [key, value] of platfrom.entries()) {
@@ -107,6 +142,10 @@ class spiderCore extends events{
     // 当并发任务完成
     queue.drain = () => {
       logger.debug('任务处理完毕');
+      if (time - this.time >= 86400000) {
+        this.getH();
+        return;
+      }
       if ((time >= 19 && time <= 23) || (time >= 0 && time <= 7)) {
         setTimeout(() => {
           this.beginTask(plat);

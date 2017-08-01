@@ -156,31 +156,43 @@ class dealWith {
         commentid: video.commentid,
         type: video.articletype
       });
-      this.getCommentNum(task, videoArr[0]);
+      this.videoInfo(task, videoArr[0]);
       this.getExpr(task, videoArr[0]);
-      this.getField(task, videoArr[0]);
       option = null; result = null; videoArr = null; video = null; task = null;
     });
   }
-  getCommentNum(task, info) {
+  videoInfo(task, info) {
     let option = {
-      url: this.settings.spiderAPI.kuaibao.comment,
-      referer: 'http://r.cnews.qq.com/inews/iphone/',
+      url: this.settings.spiderAPI.kuaibao.videoInfo,
+      headers: {
+        Host: 'r.cnews.qq.com',
+        mac: '020000000000',
+        deviceToken: '<3974bb04 ceb38ada 1b112517 33e04962 c93a1039 4d661ce1 92ae4227 4d1ae769>',
+        'qn-rid': '1f3058de4b3b',
+        'qn-sig': 'B7363F31352D9CF98A1E9F2914F5B533',
+        'User-Agent': '%e5%a4%a9%e5%a4%a9%e5%bf%ab%e6%8a%a5 2.8.0 qnreading (iPhone; iOS 10.3.3; zh_CN; 2.8.0.11)',
+        Referer: 'http://r.cnews.qq.com/inews/iphone/',
+        '--qnr': '1f3058de1a30',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        appver: '10.3.3_qnreading_2.8.0',
+        appversion: '2.8.0',
+        apptypeExt: 'qnreading',
+        devid: '34F1E7F9-270C-473F-B1F4-454EEE21B9D9',
+        'keep-alive': 'iPhone8,2',
+        apptype: 'ios'
+      },
       data: {
-        chlid: 'media_article',
-        comment_id: info.commentid,
-        c_type: 'comment',
-        article_id: info.id,
-        page: 1
+        chlid: 'media_video',
+        id: info.id
       }
     };
     task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getCommentNum', url: JSON.stringify(option)};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'videoInfo', url: JSON.stringify(option)};
           task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getCommentNum', url: JSON.stringify(option)};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'videoInfo', url: JSON.stringify(option)};
           task.infoCheck.interface(task.core, task, typeErr);
         }
         option = null; task = null; result = null; typeErr = null;
@@ -189,16 +201,17 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getCommentNum', url: JSON.stringify(option)};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'videoInfo', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result.comments && !result.comments.count) {
-        typeErr = {type: 'data', err: `kuaibao-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getCommentNum', url: JSON.stringify(option)};
+      if (!result.kankaninfo || !result.kankaninfo.videoInfo) {
+        typeErr = {type: 'json', err: `{error: 视频数据异常, data: ${JSON.stringify(result)}`, interface: 'videoInfo', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; task = null; result = null; typeErr = null;
+      return;
     });
   }
   getExpr(task, info) {
@@ -232,38 +245,6 @@ class dealWith {
       }
       if (!result || !result.like_info || !result.expr_info) {
         typeErr = {type: 'data', err: `kuaibao-Expr-data-error, data: ${JSON.stringify(result)}`, interface: 'getExpr', url: JSON.stringify(option)};
-        task.infoCheck.interface(task.core, task, typeErr);
-      }
-      option = null; task = null; result = null; typeErr = null;
-    });
-  }
-  getField(task, info) {
-    let option = {
-      url: `http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid=${info.vid}&plat=5&pver=0&otype=json&callback=jsonp`,
-      referer: 'http://r.cnews.qq.com/inews/iphone/'
-    };
-    task.request.get(logger, option, (err, result) => {
-      if (err) {
-        if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getField', url: JSON.stringify(option)};
-          task.infoCheck.interface(task.core, task, typeErr);
-        } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getField', url: JSON.stringify(option)};
-          task.infoCheck.interface(task.core, task, typeErr);
-        }
-        option = null; task = null; result = null; typeErr = null;
-        return;
-      }
-      try {
-        result = eval(result.body);
-      } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getField', url: JSON.stringify(option)};
-        task.infoCheck.interface(task.core, task, typeErr);
-        option = null; task = null; result = null; typeErr = null;
-        return;
-      }
-      if (!result.video) {
-        typeErr = {type: 'data', err: `kuaibao-Field-data-error, data: ${JSON.stringify(result)}`, interface: 'getField', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; task = null; result = null; typeErr = null;

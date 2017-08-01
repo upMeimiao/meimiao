@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name"        : "monitorSpider",
+      "name"        : "video",
       "script"      : "run.js",
       "args"        : ["-i","test","-a","monitorSpider","-t","video"],
       "log_date_format"  : "YYYY-MM-DD HH:mm Z",

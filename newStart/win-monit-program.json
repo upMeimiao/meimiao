@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name"        : "monitorSpider",
+      "name"        : "program",
       "script"      : "run.js",
       "args"        : ["-i","test","-a","monitorSpider","-t","program"],
       "log_date_format"  : "YYYY-MM-DD HH:mm Z",

@@ -123,7 +123,8 @@
       "list": "http://r.cnews.qq.com/getSubNewsListItems",
       "comment": "http://r.cnews.qq.com/getQQNewsComment",
       "expr": "http://w.cnews.qq.com/getArticleExprList?appver=9.3.2_qnreading_2.1.1",
-      "play": "http://r.cnews.qq.com/getSubNewsContent?appver=9.3.2_qnreading_2.1.1"
+      "play": "http://r.cnews.qq.com/getSubNewsContent?appver=9.3.2_qnreading_2.1.1",
+      "videoInfo": "http://r.cnews.qq.com/getSubNewsContent?qqnetwork=wifi&apptype=ios&screen_height=736&logfrom=0&store=1&apptypeExt=qnreading&appversion=2.8.0&device_model=iPhone8%2C2&startarticleid=&appver=10.3.3_qnreading_2.8.0"
     },
     "le": {
       "list":"http://api.my.le.com/video/user/videolist?callback=jsonp&pagesize=30&userid=",
