@@ -129,6 +129,7 @@ class commentHandle {
     });
   }
   setCreate(raw) {
+    console.log(typeof raw)
     let key = [];
     const list = [], time = new Date().getTime();
     for (const [index, elem] of raw.entries()) {
