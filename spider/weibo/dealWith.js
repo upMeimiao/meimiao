@@ -432,7 +432,7 @@ class dealWith {
       callback();
       return;
     }
-    if (video.mblog.source.includes('一直播')) {
+    if (!video.mblog.source || video.mblog.source.includes('一直播')) {
       callback();
       return;
     }
