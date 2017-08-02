@@ -57,7 +57,7 @@
     "weibo": {
       "userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=6dd467f9&profile_entry_key=1&user_domain=",
       "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=6dd467f9&count=20&containerid=",
-      "fans": "https://m.weibo.cn/api/container/getIndex?type=uid&value="
+      "fans": "http://m.weibo.cn/api/container/getIndex?type=uid&value="
     },
     "acfun": {
       "userInfo": "http://api.aixifan.com/users/",
