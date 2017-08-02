@@ -24,7 +24,11 @@ class dealWith {
     async.parallel(
       {
         fans: (cb) => {
-          this.getFans(task, () => {
+          this.getFans(task, (err) => {
+            if (err) {
+              cb(err);
+              return;
+            }
             cb(null, '粉丝信息已返回');
           });
         },
@@ -50,43 +54,32 @@ class dealWith {
         'X-Requested-With': 'XMLHttpRequest'
       }
     };
-    let _proxy;
-    this.core.proxy.getProxy((error, proxy) => {
-      if (proxy === 'timeout') {
-        callback('proxy_timeout');
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('粉丝数请求失败', err);
+        callback(err);
         return;
       }
-      _proxy = proxy;
-      option.proxy = _proxy;
-      request.get(logger, option, (err, result) => {
-        if (err) {
-          logger.error('粉丝数请求失败', err);
-          this.core.proxy.back(_proxy, false);
-          this.getFans(task, callback);
-          return;
-        }
-        try {
-          result = JSON.parse(result.body);
-        } catch (e) {
-          logger.error('粉丝数解析失败', result.body);
-          this.core.proxy.back(_proxy, false);
-          this.getFans(task, callback);
-          return;
-        }
-        if (!result || !result.userInfo) {
-          callback('粉丝数数据异常');
-          return;
-        }
-        const user = {
-          platform: task.p,
-          bid: task.id,
-          fans_num: result.userInfo.followers_count || ''
-        };
-        this.sendUser(user, () => {
-          callback();
-        });
-        this.sendStagingUser(user);
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('粉丝数解析失败', result.body);
+        callback(e);
+        return;
+      }
+      if (!result || !result.userInfo) {
+        callback('粉丝数数据异常');
+        return;
+      }
+      const user = {
+        platform: task.p,
+        bid: task.id,
+        fans_num: result.userInfo.followers_count || ''
+      };
+      this.sendUser(user, () => {
+        callback();
       });
+      this.sendStagingUser(user);
     });
   }
   // fansNum(task, video) {
@@ -185,7 +178,7 @@ class dealWith {
       option.proxy = proxy;
       request.get(logger, option, (error, result) => {
         if (error) {
-          logger.debug('用户的粉丝数请求错误', error.message);
+          logger.debug('用户的主页请求错误', error.message);
           this.core.proxy.back(proxy, false);
           this.getUserInfo(task, callback);
           return;
@@ -400,7 +393,6 @@ class dealWith {
         });
       },
       () => {
-        logger.debug('没有数据了');
         callback();
       }
     );
@@ -436,6 +428,10 @@ class dealWith {
       callback();
       return;
     }
+    if (video.mblog.source.includes('一直播')) {
+      callback();
+      return;
+    }
     async.series(
       [
         (cb) => {
@@ -467,7 +463,7 @@ class dealWith {
           comment_num: video.mblog.comments_count,
           forward_num: video.mblog.reposts_count,
           support: video.mblog.attitudes_count,
-          long_t: result[0].page_info.media_info.duration,
+          long_t: result[0].page_info.media_info.duration || '',
           v_img: result[0].page_info.page_pic,
           a_create_time: result[0].created_at,
           v_url: video.mblog.mblogid
