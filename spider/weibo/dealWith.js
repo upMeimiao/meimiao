@@ -64,7 +64,11 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('粉丝数解析失败', result.body);
-        callback(e);
+        if (result.body.includes('用户不存在')) {
+          callback();
+        } else {
+          callback(result.body);
+        }
         return;
       }
       if (!result || !result.userInfo) {
