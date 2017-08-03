@@ -3,7 +3,6 @@
  */
 const moment = require('moment');
 const async = require('neo-async');
-const req = require('request');
 const request = require('../../lib/request');
 const trimHtml = require('trim-html');
 const spiderUtils = require('../../lib/spiderUtils');
@@ -86,28 +85,6 @@ class dealWith {
       this.sendStagingUser(user);
     });
   }
-  // fansNum(task, video) {
-  //   const user = {
-  //     platform: task.p,
-  //     bid: task.id,
-  //     fans_num: task.fans || ''
-  //   };
-  //   if (Number(user.fans_num) === 428472) {
-  //     req({
-  //       method: 'POST',
-  //       url: 'http://10.251.55.50:3001/api/alarm',
-  //       form: {
-  //         mailGroup: 3,
-  //         subject: '粉丝数据异常',
-  //         content: JSON.stringify(video)
-  //       }
-  //     });
-  //   }
-  //   if (user.fans_num !== '') {
-  //     this.sendUser(user);
-  //     this.sendStagingUser(user);
-  //   }
-  // }
   sendUser(user, callback) {
     const option = {
       url: this.settings.sendFans,
@@ -200,28 +177,10 @@ class dealWith {
           callback();
           return;
         }
-        // const fans = result.userInfo ? result.userInfo.followers_count : '',
-        //   user = {
-        //     platform: task.p,
-        //     bid: task.id,
-        //     fans_num: fans || ''
-        //   };
-        // logger.info(user);
-        // if (Number(user.fans_num) === 428472) {
-        //   req({
-        //     method: 'POST',
-        //     url: 'http://10.251.55.50:3001/api/alarm',
-        //     form: {
-        //       mailGroup: 3,
-        //       subject: '粉丝数据异常',
-        //       content: JSON.stringify(result)
-        //     }
-        //   });
-        // }
-        // if (user.fans_num !== '') {
-        //   this.sendUser(user);
-        //   this.sendStagingUser(user);
-        // }
+        if (!result.tabsInfo.tabs) {
+          this.getUserInfo(task, callback);
+          return;
+        }
         if (result.tabsInfo.tabs[2].title !== '视频') {
           task.NoVideo = true;
           this.getVidTotal(task, result, proxy, (erro) => {
@@ -241,7 +200,7 @@ class dealWith {
             callback();
           });
         }
-        this.core.proxy.back(proxy, true);
+        // this.core.proxy.back(proxy, true);
       });
     });
   }
@@ -258,6 +217,9 @@ class dealWith {
     } else {
       containerid = data.tabsInfo.tabs[2].containerid;
       option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}_time&page=0`;
+      if (!data.tabsInfo.tabs[2].filter_group_info) {
+        option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}&page=0`;
+      }
     }
     option.proxy = proxy;
     request.get(logger, option, (err, result) => {
@@ -293,6 +255,7 @@ class dealWith {
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
+            console.log('123');
             callback();
             return;
           }
@@ -332,8 +295,12 @@ class dealWith {
         } else {
           containerid = data.tabsInfo.tabs[2].containerid;
           option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}_time&page=${task.page}`;
+          if (!data.tabsInfo.tabs[2].filter_group_info) {
+            option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}&page=${task.page}`;
+          }
         }
         option.proxy = _proxy;
+
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('视频列表数据请求错误', err.message);
@@ -452,10 +419,6 @@ class dealWith {
           callback();
           return;
         }
-        // if (Number(task.id) === Number(video.mblog.user.id) && !task.fans) {
-        //   task.fans = video.mblog.user.followers_count;
-        //   this.fansNum(task, video);
-        // }
         const media = {
           author: task.name,
           platform: task.p,
