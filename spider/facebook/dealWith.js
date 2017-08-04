@@ -381,6 +381,7 @@ class dealWith {
       for (let i = 0; i < result.jsmods.markup.length; i += 1) {
         if (result.jsmods.markup[i][2] == 16) {
           _$ = cheerio.load(result.jsmods.markup[i][1].__html);
+          logger.debug(result.jsmods.markup[i][1].__html);
           break;
         }
       }
