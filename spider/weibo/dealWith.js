@@ -302,7 +302,7 @@ class dealWith {
     async.whilst(
       () => page <= 1,
       (cb) => {
-        option.url = `${this.settings.spiderAPI.weibo.newList}&page=${task.page}&pagebar=${page}&pl_name=${task.PI}&id=${task.pageId}&script_uri=/${task.id}&feed_type=0&pre_page=${task.pageId}&domain_op=100505&__rnd=${new Date().getTime()}`;
+        option.url = `${this.settings.spiderAPI.weibo.newList}&page=${task.page}&pagebar=${page}&pl_name=${task.PI}&id=${task.pageId}&script_uri=/${task.id}&feed_type=0&pre_page=${task.page}&domain_op=100505&__rnd=${new Date().getTime()}`;
         option.proxy = _proxy;
         request.get(logger, option, (err, result) => {
           if (err) {
@@ -422,7 +422,7 @@ class dealWith {
         if (!media.play_num) {
           delete media.play_num;
         }
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
