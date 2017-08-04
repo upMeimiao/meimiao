@@ -228,7 +228,7 @@ class dealWith {
       url: `${this.settings.spiderAPI.huoshan.video}${vid}`,
       ua: 2
     };
-    console.log(option);
+    // console.log(option);
     let startIndex, endIndex, res;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -237,7 +237,7 @@ class dealWith {
           callback('next');
           return;
         }
-        this.getVideoInfo(vid, callback);
+        this.getVideoInfo(task, vid, callback);
         return;
       }
       result = result.body.replace(/[\s\n\r]/g, '');
@@ -254,7 +254,7 @@ class dealWith {
         result = JSON.parse(result);
       } catch (e) {
         logger.error('视频详情解析失败', result);
-        this.getVideoInfo(vid, callback);
+        this.getVideoInfo(task, vid, callback);
         return;
       }
       res = {
