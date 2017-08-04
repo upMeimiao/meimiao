@@ -386,11 +386,15 @@ class dealWith {
         }
       ],
       (err, result) => {
-        let _playNum = result[0].page_info.media_info.online_users_number;
         if (result[0] === '抛掉当前的') {
           callback();
           return;
         }
+        if (!result[0].page_info.media_info) {
+          callback();
+          return;
+        }
+        let _playNum = result[0].page_info.media_info.online_users_number;
         if (playNum > 0 && (Number(_playNum) - playNum) > 10000) {
           _playNum = null;
         }
@@ -403,8 +407,8 @@ class dealWith {
           platform: task.p,
           bid: task.id,
           aid: video.attr('mid'),
-          title: spiderUtils.stringHandling(trimHtml(video.find('div.WB_text.W_f14').text(), { limit: 80 }).html, ''),
-          desc: spiderUtils.stringHandling(trimHtml(video.find('div.WB_text.W_f14').text(), { limit: 100 }).html, ''),
+          title: spiderUtils.stringHandling(trimHtml(video.find('div.WB_text.W_f14').text()).html, 80).replace(/\.\.\./g, '') || 'btwk_caihongip',
+          desc: spiderUtils.stringHandling(trimHtml(video.find('div.WB_text.W_f14').text()).html, 100).replace(/\.\.\./g, '') || 'mswk_caihongip',
           play_num: _playNum,
           comment_num: __num(dataNum.eq(2).find('.line.S_line1 em').eq(1).text()),
           forward_num: __num(dataNum.eq(1).find('.line.S_line1 em').eq(1).text()),
