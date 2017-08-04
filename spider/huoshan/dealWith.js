@@ -4,7 +4,19 @@
 const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
+const cheerio = require('cheerio');
+const vm = require('vm');
 
+const sandbox = {
+  window: {},
+  require: () => {
+    return { create: () => {} };
+  },
+  $: { browser: {} },
+  listener: {
+    trigger: () => {}
+  }
+};
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -215,7 +227,7 @@ class dealWith {
           forward_num: result[0].forward_num
         };
         task.total += 1;
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -228,8 +240,7 @@ class dealWith {
       url: `${this.settings.spiderAPI.huoshan.video}${vid}`,
       ua: 2
     };
-    // console.log(option);
-    let startIndex, endIndex, res;
+    let res;
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('视频详情请求失败', err);
@@ -240,23 +251,12 @@ class dealWith {
         this.getVideoInfo(task, vid, callback);
         return;
       }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      startIndex = result.indexOf('vardata=');
-      endIndex = result.indexOf(";require('wap:component/detail_video/detail').create");
-      if (startIndex === -1 || endIndex === -1) {
-        task.timeout += 1;
-        callback('Video structure is wrong ');
-        return;
-      }
-      task.timeout = 0;
-      result = result.substring(startIndex + 8, endIndex);
-      try {
-        result = JSON.parse(result);
-      } catch (e) {
-        logger.error('视频详情解析失败', result);
-        this.getVideoInfo(task, vid, callback);
-        return;
-      }
+      const _$ = cheerio.load(result.body),
+        script = _$('script').eq(15).html().replace('$', '');
+      result = new vm.Script(`${script.substring(0, script.length - 4)} window.data = data; return window;})();`);
+      const context = new vm.createContext(sandbox);
+      result = result.runInContext(context);
+      result = result.data;
       res = {
         create_time: result.create_time,
         title: result.text || '',
