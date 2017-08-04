@@ -215,7 +215,7 @@ class dealWith {
           forward_num: result[0].forward_num
         };
         task.total += 1;
-        // logger.debug(media);
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -228,6 +228,7 @@ class dealWith {
       url: `${this.settings.spiderAPI.huoshan.video}${vid}`,
       ua: 2
     };
+    console.log(option);
     let startIndex, endIndex, res;
     request.get(logger, option, (err, result) => {
       if (err) {
