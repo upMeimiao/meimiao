@@ -408,7 +408,7 @@ class dealWith {
           bid: task.id,
           aid: video.attr('mid'),
           title: spiderUtils.stringHandling(trimHtml(video.find('div.WB_text.W_f14').text()).html, 80).replace(/\.\.\./g, '') || 'btwk_caihongip',
-          desc: spiderUtils.stringHandling(trimHtml(video.find('div.WB_text.W_f14').text()).html, 100).replace(/\.\.\./g, '') || 'mswk_caihongip',
+          desc: spiderUtils.stringHandling(trimHtml(video.find('div.WB_text.W_f14').text()).html, 100).replace(/\.\.\./g, '') || '',
           play_num: _playNum,
           comment_num: __num(dataNum.eq(2).find('.line.S_line1 em').eq(1).text()),
           forward_num: __num(dataNum.eq(1).find('.line.S_line1 em').eq(1).text()),
