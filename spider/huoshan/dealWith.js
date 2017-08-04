@@ -241,7 +241,7 @@ class dealWith {
       }
       result = result.body.replace(/[\s\n\r]/g, '');
       startIndex = result.indexOf('vardata=');
-      endIndex = result.indexOf(";require('wap:component/reflow_video/detail/detail').create");
+      endIndex = result.indexOf(";require('wap:component/detail_video/detail').create");
       if (startIndex === -1 || endIndex === -1) {
         task.timeout += 1;
         callback('Video structure is wrong ');
