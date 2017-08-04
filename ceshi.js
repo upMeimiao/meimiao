@@ -76,7 +76,7 @@ const sendEmail = (task, fansInfo, Info, time) => {
     if (error) {
       console.log('error in sending Email', error);
     }
-    html = null;
+    html = null; task = null; fansInfo = null; Info = null;
   });
 };
 
@@ -130,6 +130,7 @@ const setFans = (task, fans, info) => {
     result.last = time;
     result.fans = fans;
     redis.set(fansKey, JSON.stringify(result));
+    task = null; info = null; fans = null; result = null;
   });
 };
 
@@ -188,7 +189,7 @@ const setFans = (task, fans, info) => {
 // };
 
 const user = (task, callback) => {
-  const option = {
+  let option = {
     method: 'GET',
     url: `https://m.weibo.cn/api/container/getIndex?type=uid&value=${task.bid}`,
     headers: {
@@ -200,15 +201,18 @@ const user = (task, callback) => {
   request(option, (err, res, body) => {
     if (err) {
       if (err.includes('socket hang up')) {
+        task = null; body = null; option = null;
         callback();
         return;
       }
       errorInfo(task, err.message);
+      task = null; body = null; option = null;
       callback();
       return;
     }
     if (Number(res.statusCode) !== 200) {
       errorInfo(task, res.statusCode);
+      task = null; body = null; option = null;
       callback();
       return;
     }
@@ -216,11 +220,13 @@ const user = (task, callback) => {
       body = JSON.parse(body);
     } catch (e) {
       errorInfo(task, res.statusCode);
+      task = null; body = null; option = null;
       callback();
       return;
     }
     if (!body || !body.userInfo || !body.userInfo.followers_count) {
       errorInfo(task, body);
+      task = null; body = null; option = null;
       callback();
       return;
     }
@@ -233,6 +239,7 @@ const user = (task, callback) => {
     //   list(task, body);
     // }
     setFans(task, task.fans, body);
+    task = null; body = null; option = null;
     callback();
   });
 };
@@ -253,6 +260,7 @@ const weiboTask = (plat) => {
   };
   queue.push(plat, () => {
     // 1111111
+    plat = null;
   });
 };
 weiboTask(platform);
