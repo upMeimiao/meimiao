@@ -67,8 +67,12 @@ class dealWith {
     const option = {
       url: `https://www.facebook.com/pg/${task.id}/community/?ref=page_internal`,
       proxy: 'http://127.0.0.1:56777',
-      referer: `https://www.facebook.com/pg/${task.id}/community/?ref=page_internal`,
-      ua: 1
+      headers: {
+        'accept-language': 'zh-CN,zh;q=0.8',
+        referer: `https://www.facebook.com/pg/${task.id}/community/?ref=page_internal`,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        cookie: task.cookies
+      }
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -76,9 +80,12 @@ class dealWith {
         return;
       }
       const $ = cheerio.load(result.body),
-        fansDom = $('div#content_container>div>div.clearfix div._4bl7._3xoj').eq(1).find('._3xom').text(),
-        fans = Number(fansDom.replace(/,/g, ''));
-      if (!fans) {
+        fansDom = $('div#content_container>div>div.clearfix div._4bl7._3xoj').eq(1).find('._3xom').text();
+      let fans = fansDom.replace(/[\s,]/g, '');
+      if (fans.includes('万')) {
+        fans = fans.replace('万', '0000');
+      }
+      if (!Number(fans)) {
         logger.debug('没有粉丝数', fans);
         callback();
         return;
@@ -86,7 +93,7 @@ class dealWith {
       const res = {
         bid: task.id,
         platform: task.p,
-        fans_num: fans
+        fans_num: Number(fans)
       };
       // logger.info(res);
       this.sendUser(res);
@@ -381,7 +388,6 @@ class dealWith {
       for (let i = 0; i < result.jsmods.markup.length; i += 1) {
         if (result.jsmods.markup[i][2] == 16) {
           _$ = cheerio.load(result.jsmods.markup[i][1].__html);
-          logger.debug(result.jsmods.markup[i][1].__html);
           break;
         }
       }
@@ -397,10 +403,8 @@ class dealWith {
       time = $('a._39g5>abbr').attr('data-utime');
       title = spiderUtils.stringHandling($('span.hasCaption').text(), 80);
       desc = spiderUtils.stringHandling($('span.hasCaption').text(), 100);
-      playNum = $('div._4p3v>span.fcg').text().replace('次播放', '').replace(/[\s,]/g, '');
-      console.log(_$('img._1445').attr('style'));
-      vImg = _$('img._1445').attr('style').replace('background-image: url(', '').replace(');', '');
-      vImg = decodeURIComponent(vImg);
+      playNum = $('div._4p3v').text().replace('次播放', '').replace(/[\s,]/g, '');
+      vImg = _$('img._1445').attr('src');
       dataJson = result.jsmods.require;
       for (let i = 0; i < dataJson.length; i += 1) {
         if (dataJson[i][0] === 'UFIController' && dataJson[i][3][1].ftentidentifier == vid) {
@@ -414,7 +418,7 @@ class dealWith {
         time: time || null,
         title: title || 'btwk_caihongip',
         desc: desc || '',
-        playNum: playNum || null,
+        playNum: Number(playNum) || null,
         vImg: vImg || '',
         commentNum: commentNum || null,
         ding: ding || null,
