@@ -87,7 +87,7 @@ class dealWith {
       const fansInfo = {
           platform: task.p,
           bid: task.id,
-          fans_num: spiderUtils.numberHandling(body.content.header.subscribe_button.subscriber_count_text.runs[0].text)
+          fans_num: body.content.header.subscribe_button.subscriber_count_text.runs[0] ? spiderUtils.numberHandling(body.content.header.subscribe_button.subscriber_count_text.runs[0].text) : null
         },
         listArg = {
           itct: body.content.tab_settings.available_tabs[1].content.continuations[0].click_tracking_params,
@@ -102,6 +102,10 @@ class dealWith {
   channelDeal(task, fansInfo, listArg, callback) {
     async.parallel({
       user: (cb) => {
+        if (fansInfo.fans_num === null) {
+          cb(null, '用户信息已返回');
+          return;
+        }
         this.sendUser(fansInfo, () => {
           cb(null, '用户信息已返回');
         });
