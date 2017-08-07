@@ -439,10 +439,9 @@ class dealWith {
           callback();
           return;
         }
-        const _playNum = Number(result[0].page_info.media_info.online_users_number);
+        let _playNum = Number(result[0].page_info.media_info.online_users_number);
         if (_playNum - result[1] > 10000) {
-          callback();
-          return;
+          _playNum = null;
         }
         const media = {
           author: task.name,
@@ -464,7 +463,7 @@ class dealWith {
         if (!media.play_num) {
           delete media.play_num;
         }
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
