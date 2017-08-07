@@ -24,7 +24,7 @@ class getProxy {
         api = settings.proxy.newApi1
         break;
       case 'iZ28ilm78mlZ':
-        api = settings.proxy.newApi;
+        api = settings.proxy.newApi1;
         break;
       default:
         api = settings.proxy.newApi1;
