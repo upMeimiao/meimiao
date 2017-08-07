@@ -292,6 +292,7 @@ class dealWith {
           }
         }
         option.proxy = _proxy;
+        logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('视频列表数据请求错误', err.message);
@@ -347,7 +348,6 @@ class dealWith {
             cb();
             return;
           }
-          this.core.proxy.back(_proxy, true);
           task.proxy = _proxy;
           this.deal(task, result.cards, _proxy, () => {
             task.page += 1;
@@ -361,14 +361,14 @@ class dealWith {
     );
   }
 
-  deal(task, data, user, proxy, callback) {
+  deal(task, data, proxy, callback) {
     let index = 0;
     const length = data.length;
     async.whilst(
       () => index < length,
       (cb) => {
-        this.getAllInfo(task, data[index], user, proxy, () => {
-          index += 1;
+        this.getAllInfo(task, data[index], proxy, () => {
+         index += 1;
           cb();
         });
       },
@@ -392,6 +392,7 @@ class dealWith {
       return;
     }
     if (!video.mblog.source || video.mblog.source.includes('一直播')) {
+      console.log('44444');
       callback();
       return;
     }
@@ -405,13 +406,16 @@ class dealWith {
       ],
       (err, result) => {
         if (result[0] === '抛掉当前的') {
+          console.log('55555');
           callback();
           return;
         } else if (!video.mblog.user) {
+          console.log('66666');
           callback();
           return;
         }
         if (!result[0].page_info.media_info.duration) {
+          console.log('77777');
           callback();
           return;
         }
