@@ -32,7 +32,7 @@ class spiderCore {
     this.assembly();
   }
   test() {
-    const work = { id: '5324616226', mapBid: '5324616226', p: '23', name: '快美妆BeautyQ' };
+    const work = { id: '5884829935', mapBid: '5884829935', p: '23', name: '一色神技能' };
     this.dealWith.todo(work, (err, total, uid) => {
       logger.debug(total);
       logger.debug(uid);
