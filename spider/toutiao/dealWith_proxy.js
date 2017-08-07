@@ -212,7 +212,7 @@ class dealWith {
       bid = task.mapBid;
     const option = {
       ua: 3,
-      own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
+      own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60 NewsArticle/6.2.6.5 JsSdk/2.0 NetType/WIFI (News 6.2.6 10.300000)'
     };
     async.whilst(
       () => sign,
@@ -225,9 +225,9 @@ class dealWith {
         }
         const { as, cp } = getHoney();
         if (hotTime) {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&from=user_profile_app&max_behot_time=${hotTime}`;
         } else {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&max_behot_time=`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&from=user_profile_app&max_behot_time=`;
         }
         logger.debug(option.url);
         if (proxyStatus && proxy) {
