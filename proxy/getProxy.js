@@ -21,15 +21,13 @@ class getProxy {
     let api;
     switch (os.hostname()) {
       case 'servant_3':
-        api = settings.proxy.api
-        // api = settings.proxy.newApi1
+        api = settings.proxy.newApi1
         break;
       case 'iZ28ilm78mlZ':
-        api = settings.proxy.api
-        // api = settings.proxy.newApi;
+        api = settings.proxy.newApi;
         break;
       default:
-        api = settings.proxy.api;
+        api = settings.proxy.newApi1;
     }
     request(api, { gzip: true }, (err, res, body) => {
       if (err) {
@@ -42,22 +40,18 @@ class getProxy {
         logger.error('parse proxy-json  error');
         return callback(e.message);
       }
-      body.forEach((item) => {
-        proxy.push(`http://${item.host}:${item.port}`);
+      if (Number(body.code) !== 0) {
+        return callback(body.msg);
+      }
+      let itemArr;
+      body.data.proxy_list.forEach((item) => {
+        if (item.includes(',')) {
+          itemArr = item.split(',');
+          proxy.push(`${itemArr[1].toLowerCase()}://${itemArr[0]}`);
+        } else {
+          proxy.push(item);
+        }
       });
-      // if (Number(body.code) !== 0) {
-      //   return callback(body.msg);
-      // }
-      // let itemArr;
-      // body.data.proxy_list.forEach((item) => {
-      //   if (item.includes(',')) {
-      //     itemArr = item.split(',');
-      //     proxy.push(`${itemArr[1].toLowerCase()}://${itemArr[0]}`);
-      //   } else {
-      //     proxy.push(item);
-      //   }
-      // });
-      // logger.debug(proxy)
       return callback(null, proxy);
     });
   }
