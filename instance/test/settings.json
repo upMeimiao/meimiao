@@ -18,7 +18,7 @@
     "port": 3002,
     "newApi": "http://dps.kuaidaili.com/api/getdps/?orderid=919820893731562&num=5&format=json&sep=1",
     "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=50&protocol=1&method=1&an_an=1&an_ha=1&sp1=1&sp2=1&f_pr=1&quality=1&format=json&sep=1",
-    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
+    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=5&format=json"
   },
   "kue": {
     "ip": "127.0.0.1",
