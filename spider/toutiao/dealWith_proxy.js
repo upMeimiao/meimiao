@@ -225,9 +225,9 @@ class dealWith {
         }
         const { as, cp } = getHoney();
         if (hotTime) {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
         } else {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&cp=${cp}&as=${as}&max_behot_time=`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&max_behot_time=`;
         }
         logger.debug(option.url);
         if (proxyStatus && proxy) {
