@@ -21,10 +21,12 @@ class getProxy {
     let api;
     switch (os.hostname()) {
       case 'servant_3':
-        api = settings.proxy.newApi1
+        api = settings.proxy.api
+        // api = settings.proxy.newApi1
         break;
       case 'iZ28ilm78mlZ':
-        api = settings.proxy.newApi1;
+        api = settings.proxy.api
+        // api = settings.proxy.newApi;
         break;
       default:
         api = settings.proxy.api;
