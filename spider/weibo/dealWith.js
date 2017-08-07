@@ -15,7 +15,8 @@ const _cookie = () => {
   for (let i = 0; i < length; i += 1) {
     sub += str.charAt(Math.floor(Math.random() * length));
   }
-  return `SINAGLOBAL=9973892314779.559.${time - 117817}; _s_tentry=www.baidu.com; Apache=2296727999173.48.${time}; ULV=${time + 4}:2:2:2:2296727999173.48.${time}:${time - 117775}; SUB=_2A${sub}g..; UOR=,,login.sina.com.cn;`;
+  // return `SINAGLOBAL=9973892314779.559.${time - 117817}; _s_tentry=www.baidu.com; Apache=2296727999173.48.${time}; ULV=${time + 4}:2:2:2:2296727999173.48.${time}:${time - 117775}; SUB=_2A${sub}g..; UOR=,,login.sina.com.cn;`;
+  return `_2A${sub}g..`;
 };
 let logger;
 class dealWith {
@@ -223,6 +224,7 @@ class dealWith {
         option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}&page=0`;
       }
     }
+    task.containerid = containerid;
     option.proxy = proxy;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -302,7 +304,7 @@ class dealWith {
           }
         }
         option.proxy = _proxy;
-        logger.debug(option.url);
+        // logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('视频列表数据请求错误', err.message);
@@ -417,7 +419,7 @@ class dealWith {
           });
         },
         (cb) => {
-          this.playNum(task, video.mblog.mblogid, proxy, (err, result) => {
+          this.playNum(task, video, proxy, (err, result) => {
             if (err) {
               cb(err);
               return;
@@ -525,59 +527,95 @@ class dealWith {
       callback(null, result);
     });
   }
-  playNum(task, id, proxy, callback) {
+  playNum(task, res, proxy, callback) {
     const option = {
-      url: `http://weibo.com/${task.id}/${id}?mod=weibotime&type=comment`,
+      url: `http://api.weibo.cn/2/guest/statuses_extend?gsid=${task.cookie}&wm=3333_2001&i=9bfc65e&b=1&from=1075293010&c=iphone&networktype=wifi&v_p=48&skin=default&s=350a1d30&v_f=1&lang=zh_CN&sflag=1&id=${res.mblog.id}&mid=${res.mblog.id}&sourcetype=page&_status_id=${res.mblog.id}&is_recom=-1&lfid=${task.containerid}&moduleID=feed&lcardid=${task.containerid}_-_HOTMBLOG`,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-        referer: 'http://weibo.com/',
-        cookie: task.cookie
+        'user-agent': 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
       }
     };
     option.proxy = proxy;
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.error('播放页请求失败', err);
+        logger.error('播放量请求失败', err);
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
             callback('error');
             return;
           }
-          this.playNum(task, id, _proxy, callback);
+          this.playNum(task, res, _proxy, callback);
         });
         return;
       }
-      const start = result.body.indexOf('&play_count='),
-        end = result.body.indexOf('&duration=');
-      let play = '';
-      if (start === -1 || end === -1) {
-        console.log(start, '/-*/-*/*/-/++++/+', end);
-        logger.debug(option.url);
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('解析失败', e);
+        callback(e);
+        return;
+      }
+      if (!result || !result.online_users_number) {
         callback('error');
         return;
       }
-      play = result.body.substring(start + 12, end);
-      if (!play) {
-        callback(null, 0);
-        return;
-      }
-      if (play.includes('万')) {
-        play = play.match(/(\d*)万/)[1];
-        play = `${play}0000`;
-        if (isNaN(play)) {
-          callback(null, 0);
-          return;
-        }
-        callback(null, Number(play));
-        return;
-      }
-      if (isNaN(play)) {
-        callback(null, 0);
-        return;
-      }
-      callback(null, Number(play));
+      task.proxy = proxy;
+      callback(null, result.online_users_number);
     });
   }
+  // playNum(task, id, proxy, callback) {
+  //   const option = {
+  //     url: `http://weibo.com/${task.id}/${id}?mod=weibotime&type=comment`,
+  //     headers: {
+  //       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+  //       referer: 'http://weibo.com/',
+  //       cookie: task.cookie
+  //     }
+  //   };
+  //   option.proxy = proxy;
+  //   request.get(logger, option, (err, result) => {
+  //     if (err) {
+  //       logger.error('播放页请求失败', err);
+  //       this.core.proxy.back(proxy, false);
+  //       this.core.proxy.getProxy((error, _proxy) => {
+  //         if (_proxy === 'timeout') {
+  //           callback('error');
+  //           return;
+  //         }
+  //         this.playNum(task, id, _proxy, callback);
+  //       });
+  //       return;
+  //     }
+  //     const start = result.body.indexOf('&play_count='),
+  //       end = result.body.indexOf('&duration=');
+  //     let play = '';
+  //     if (start === -1 || end === -1) {
+  //       console.log(start, '/-*/-*/*/-/++++/+', end);
+  //       logger.debug(option.url);
+  //       callback('error');
+  //       return;
+  //     }
+  //     play = result.body.substring(start + 12, end);
+  //     if (!play) {
+  //       callback(null, 0);
+  //       return;
+  //     }
+  //     if (play.includes('万')) {
+  //       play = play.match(/(\d*)万/)[1];
+  //       play = `${play}0000`;
+  //       if (isNaN(play)) {
+  //         callback(null, 0);
+  //         return;
+  //       }
+  //       callback(null, Number(play));
+  //       return;
+  //     }
+  //     if (isNaN(play)) {
+  //       callback(null, 0);
+  //       return;
+  //     }
+  //     callback(null, Number(play));
+  //   });
+  // }
 }
 module.exports = dealWith;
