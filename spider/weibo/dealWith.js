@@ -7,6 +7,16 @@ const request = require('../../lib/request');
 const trimHtml = require('trim-html');
 const spiderUtils = require('../../lib/spiderUtils');
 
+const _cookie = () => {
+  const time = new Date().getTime(),
+    str = '36822K7dcPxrAZUn_wUyWPkaY1H-jydDgtNAn7uJhMyAxh87lsCabckHQtcyq-4VhvteW82bogQ3mL9Z',
+    length = str.length;
+  let sub = '';
+  for (let i = 0; i < length; i += 1) {
+    sub += str.charAt(Math.floor(Math.random() * length));
+  }
+  return `SINAGLOBAL=9973892314779.559.${time - 117817}; _s_tentry=www.baidu.com; Apache=2296727999173.48.${time}; ULV=${time + 4}:2:2:2:2296727999173.48.${time}:${time - 117775}; SUB=_2A${sub}g..; UOR=,,login.sina.com.cn;`;
+};
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -19,8 +29,8 @@ class dealWith {
   todo(task, callback) {
     task.total = 0;
     task.page = 1;
-    task.fans = null;
     task.proxy = null;
+    task.cookie = _cookie();
     async.parallel(
       {
         fans: (cb) => {
@@ -368,7 +378,7 @@ class dealWith {
       () => index < length,
       (cb) => {
         this.getAllInfo(task, data[index], proxy, () => {
-         index += 1;
+          index += 1;
           cb();
         });
       },
@@ -392,7 +402,6 @@ class dealWith {
       return;
     }
     if (!video.mblog.source || video.mblog.source.includes('一直播')) {
-      console.log('44444');
       callback();
       return;
     }
@@ -400,22 +409,38 @@ class dealWith {
       [
         (cb) => {
           this.getVideoInfo(task, video.mblog.mblogid, proxy, (err, result) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, result);
+          });
+        },
+        (cb) => {
+          this.playNum(task, video.mblog.mblogid, proxy, (err, result) => {
+            if (err) {
+              cb(err);
+              return;
+            }
             cb(null, result);
           });
         }
       ],
       (err, result) => {
-        if (result[0] === '抛掉当前的') {
-          console.log('55555');
+        if (err) {
           callback();
           return;
-        } else if (!video.mblog.user) {
-          console.log('66666');
+        }
+        if (!video.mblog.user) {
           callback();
           return;
         }
         if (!result[0].page_info.media_info.duration) {
-          console.log('77777');
+          callback();
+          return;
+        }
+        const _playNum = Number(result[0].page_info.media_info.online_users_number);
+        if (_playNum - result[1] > 10000) {
           callback();
           return;
         }
@@ -426,7 +451,7 @@ class dealWith {
           aid: video.mblog.id,
           title: video.mblog.text.substr(0, 80).replace(/"/g, ''),
           desc: !video.mblog.user.description ? '' : video.mblog.user.description.substr(0, 100).replace(/"/g, ''),
-          play_num: result[0].page_info.media_info.online_users_number,
+          play_num: _playNum,
           comment_num: video.mblog.comments_count,
           forward_num: video.mblog.reposts_count,
           support: video.mblog.attitudes_count,
@@ -439,7 +464,7 @@ class dealWith {
         if (!media.play_num) {
           delete media.play_num;
         }
-        // logger.debug(media);
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -463,7 +488,7 @@ class dealWith {
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
-            callback(null, '抛掉当前的');
+            callback('error');
             return;
           }
           this.getVideoInfo(task, id, _proxy, callback);
@@ -479,7 +504,7 @@ class dealWith {
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
-            callback(null, '抛掉当前的');
+            callback('error');
             return;
           }
           this.getVideoInfo(task, id, _proxy, callback);
@@ -487,11 +512,11 @@ class dealWith {
         return;
       }
       if (!result.page_info) {
-        callback(null, '抛掉当前的');
+        callback('抛掉当前的');
         return;
       }
       if (!result.page_info.media_info) {
-        callback(null, '抛掉当前的');
+        callback('抛掉当前的');
         return;
       }
       dataTime = new Date(result.created_at);
@@ -499,6 +524,60 @@ class dealWith {
       result.created_at = isNaN(dataTime) ? '' : dataTime;
       task.proxy = proxy;
       callback(null, result);
+    });
+  }
+  playNum(task, id, proxy, callback) {
+    const option = {
+      url: `http://weibo.com/${task.id}/${id}?mod=weibotime&type=comment`,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        referer: 'http://weibo.com/',
+        cookie: task.cookie
+      }
+    };
+    option.proxy = proxy;
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('播放页请求失败', err);
+        this.core.proxy.back(proxy, false);
+        this.core.proxy.getProxy((error, _proxy) => {
+          if (_proxy === 'timeout') {
+            callback('error');
+            return;
+          }
+          this.playNum(task, id, _proxy, callback);
+        });
+        return;
+      }
+      const start = result.body.indexOf('&play_count='),
+        end = result.body.indexOf('&duration=');
+      let play = '';
+      if (start === -1 || end === -1) {
+        console.log(start, '/-*/-*/*/-/++++/+', end);
+        logger.debug(option.url);
+        callback('error');
+        return;
+      }
+      play = result.body.substring(start + 12, end);
+      if (!play) {
+        callback(null, 0);
+        return;
+      }
+      if (play.includes('万')) {
+        play = play.match(/(\d*)万/)[1];
+        play = `${play}0000`;
+        if (isNaN(play)) {
+          callback(null, 0);
+          return;
+        }
+        callback(null, Number(play));
+        return;
+      }
+      if (isNaN(play)) {
+        callback(null, 0);
+        return;
+      }
+      callback(null, Number(play));
     });
   }
 }
