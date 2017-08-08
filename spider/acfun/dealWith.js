@@ -246,28 +246,73 @@ class dealWith {
       callback();
       return;
     }
-    const time = data.releaseDate,
-      a_create_time = time.toString().substring(0, 10),
-      media = {
-        author: task.name,
-        platform: 22,
-        bid: task.id,
-        aid: data.aid,
-        title: spiderUtils.stringHandling(data.title, 100),
-        desc: spiderUtils.stringHandling(data.description, 100),
-        play_num: data.views,
-        save_num: data.stows,
-        comment_num: data.comments,
-        a_create_time,
-        long_t: data.time,
-        v_img: data.titleImg,
-        tag: _tags(data.tags),
-        class: channels.get(Number(data.channelId))
-      };
-    spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-    spiderUtils.commentSnapshots(this.core.taskDB,
-      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-    callback();
+    async.parallel(
+      [
+        (cb) => {
+          this.getComment(data.aid, (err, result) => {
+            cb(null, result);
+          });
+        }
+      ],
+      (err, result) => {
+        const time = data.releaseDate,
+          a_create_time = time.toString().substring(0, 10),
+          media = {
+            author: task.name,
+            platform: 22,
+            bid: task.id,
+            aid: data.aid,
+            title: spiderUtils.stringHandling(data.title, 100),
+            desc: spiderUtils.stringHandling(data.description, 100),
+            play_num: data.views,
+            save_num: data.stows,
+            comment_num: result[0],
+            a_create_time,
+            long_t: data.time,
+            v_img: data.titleImg,
+            tag: _tags(data.tags),
+            class: channels.get(Number(data.channelId))
+          };
+        if (!media.comment_num) {
+          delete media.comment_num;
+        }
+        logger.debug(media);
+        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+        spiderUtils.commentSnapshots(this.core.taskDB,
+          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+        callback();
+      }
+    );
+  }
+  getComment(aid, callback) {
+    const option = {
+      url: `${this.settings.spiderAPI.acfun.comment + aid}&currentPage=1`,
+      ua: 1,
+      referer: `http://www.acfun.cn/v/ac${aid}`
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('acfun评论总量请求失败', err);
+        if (err.status === 500) {
+          callback(err, '');
+          return;
+        }
+        callback(err, '');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('acfun评论数据解析失败', result.body);
+        callback(e, '');
+        return;
+      }
+      if (!result || !result.data) {
+        callback(null, '');
+        return;
+      }
+      callback(null, result.data.totalCount);
+    });
   }
 }
 module.exports = dealWith;

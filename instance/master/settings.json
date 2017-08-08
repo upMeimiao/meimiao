@@ -64,7 +64,8 @@
     "acfun": {
       "userInfo": "http://api.aixifan.com/users/",
       "media": "http://www.aixifan.com/u/contributeList.aspx?pageSize=10&channelId=0&userId=",
-      "programList":"http://api.app.acfun.cn/apiserver/user/contribution?app_version=4.4.1&market=appstore&origin=ios&pageSize=20&resolution=1242x2208&sys_name=ios&sys_version=10.2&type=2&userId="
+      "programList":"http://api.app.acfun.cn/apiserver/user/contribution?app_version=4.4.1&market=appstore&origin=ios&pageSize=20&resolution=1242x2208&sys_name=ios&sys_version=10.2&type=2&userId=",
+      "comment": "http://www.acfun.cn/comment_list_json.aspx?isNeedAllCount=true&contentId="
     },
     "baidu": {
       "videoAlbum":"http://v.baidu.com/i/albumlist?type=2&id=",
