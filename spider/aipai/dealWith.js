@@ -226,6 +226,10 @@ class dealWith {
           long_t: result[0],
           v_url: video.url
         };
+        if (!media.comment_num) {
+          delete media.comment_num;
+        }
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -272,8 +276,9 @@ class dealWith {
   }
   comment(vid, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.aipai.comment + vid}.html`,
-      ua: 2
+      url: `${this.settings.spiderAPI.aipai.newComment}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${vid}.html`,
+      ua: 3,
+      own_ua: 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -285,6 +290,10 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         logger.error('comment解析失败', result.body);
+        callback(null, '');
+        return;
+      }
+      if (!result.list || !result.list.length) {
         callback(null, '');
         return;
       }
