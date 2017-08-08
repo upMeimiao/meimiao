@@ -33,8 +33,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '50063223',
-      name: '备胎说车',
+      id: '39993890',
+      name: '呆呆文化',
       p: 8
     };
     this.dealWith.todo(work, (err, total) => {

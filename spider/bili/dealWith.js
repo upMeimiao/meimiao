@@ -239,6 +239,10 @@ class dealWith {
     );
   }
   getInfo(task, video, callback) {
+    if (Number(task.id) !== Number(video.mid)) {
+      callback();
+      return;
+    }
     const option = {
       url: this.settings.spiderAPI.bili.media + video.aid
     };
@@ -282,6 +286,7 @@ class dealWith {
         tag: tagStr
       };
       media = spiderUtils.deleteProperty(media);
+      // logger.info(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
