@@ -146,7 +146,7 @@ class dealWith {
         }
       ],
       (err, result) => {
-        const media = {
+        let media = {
           author: task.name,
           platform: task.p,
           bid: task.id,
@@ -161,6 +161,8 @@ class dealWith {
           v_url: `http://www.baofeng.com/play/${task.bid}/play-${task.id}-drama-${video.location}.html`,
           comment_num: result[2]
         };
+        media = spiderUtils.deleteProperty(media);
+        console.log(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -210,7 +212,7 @@ class dealWith {
   }
   getComment(vid, callback) {
     const option = {
-      url: `http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&xid=${vid}&page=1&pagesize=6`
+      url: `http://comments.baofeng.com/pull?type=movie&from=2&sort=new&pagesize=10&xid=${vid}&page=1`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -221,6 +223,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
+        logger.debug('评论量解析失败');
         logger.debug('评论量解析失败');
         callback(null, '1');
         return;
