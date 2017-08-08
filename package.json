@@ -33,7 +33,7 @@
     "node-schedule": "^1.2.3",
     "nodemailer": "^4.0.1",
     "optimist": "^0.6.1",
-    "redis": "^2.7.1",
+    "redis": "^2.8.0",
     "request": "^2.81.0",
     "restc": "^0.2.1",
     "socket.io": "^2.0.3",
@@ -45,7 +45,7 @@
     "url": "http://git.meimiao.net/qiaosuan_spider/code.git"
   },
   "devDependencies": {
-    "eslint": "^4.4.0",
+    "eslint": "^4.4.1",
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.7.0"
   }
