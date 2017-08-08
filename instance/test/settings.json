@@ -87,7 +87,8 @@
       "userInfo": "http://space.bilibili.com/ajax/member/GetInfo",
       "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
       "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
-      "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid="
+      "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid=",
+      "time": "http://api.bilibili.com/x/v2/reply?nohot=1&type=1&oid="
     },
     "btime": {
       "userInfo": "http://record.btime.com/getUserChannel?uid=",

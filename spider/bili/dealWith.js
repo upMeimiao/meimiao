@@ -268,31 +268,67 @@ class dealWith {
       if (back.data.tags && back.data.tags.length !== 0) {
         tagStr = back.data.tags.join(',');
       }
-      let media = {
-        author: back.data.owner.name,
-        platform: 8,
-        bid: task.id,
-        aid: back.data.aid,
-        title: spiderUtils.stringHandling(back.data.title, 100),
-        desc: spiderUtils.stringHandling(back.data.desc, 100),
-        play_num: back.data.stat.view,
-        save_num: back.data.stat.favorite > 0 ? back.data.stat.favorite : null,
-        comment_num: back.data.stat.reply,
-        forward_num: back.data.stat.share,
-        a_create_time: back.data.pubdate,
-        long_t: spiderUtils.longTime(video.length),
-        v_img: video.pic,
-        class: back.data.tname,
-        tag: tagStr
-      };
-      media = spiderUtils.deleteProperty(media);
-      // logger.info(media);
-      spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-      spiderUtils.commentSnapshots(this.core.taskDB,
-        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-      callback();
+      async.waterfall(
+        [
+          (cb) => {
+            this.getComment(back.data.aid, (error, result) => {
+              cb(null, result);
+            });
+          }
+        ],
+        (error, result) => {
+          let media = {
+            author: back.data.owner.name,
+            platform: 8,
+            bid: task.id,
+            aid: back.data.aid,
+            title: spiderUtils.stringHandling(back.data.title, 100),
+            desc: spiderUtils.stringHandling(back.data.desc, 100),
+            play_num: back.data.stat.view,
+            save_num: back.data.stat.favorite > 0 ? back.data.stat.favorite : null,
+            comment_num: result,
+            forward_num: back.data.stat.share,
+            a_create_time: back.data.pubdate,
+            long_t: spiderUtils.longTime(video.length),
+            v_img: `http:${video.pic}`,
+            class: back.data.tname,
+            tag: tagStr
+          };
+          media = spiderUtils.deleteProperty(media);
+          // logger.info(media);
+          spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+          spiderUtils.commentSnapshots(this.core.taskDB,
+            { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+          callback();
+        }
+      );
     });
   }
+  getComment(aid, callback) {
+    const option = {
+      url: `${this.settings.spiderAPI.bili.time + aid}&pn=1`
+    };
 
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.debug('bili评论总量请求失败', err);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.debug('bili评论数据解析失败');
+        logger.info(result);
+        callback(e);
+        return;
+      }
+      if (result.code == '12002') {
+        callback(null, '');
+        return;
+      }
+      callback(null, result.data.page.count);
+    });
+  }
 }
 module.exports = dealWith;
