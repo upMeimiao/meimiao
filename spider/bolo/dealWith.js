@@ -178,6 +178,11 @@ class dealWith {
           this.getVideoInfo(video.videoId, (err, result) => {
             cb(null, result);
           });
+        },
+        (cb) => {
+          this.getComment(video.videoId, (err, result) => {
+            cb(null, result);
+          });
         }
       ],
       (err, result) => {
@@ -193,12 +198,15 @@ class dealWith {
           a_create_time: parseInt(video.uploadTime / 1000, 10),
           v_img: video.cover,
           tag: result[0].tags,
-          comment_num: result[0].commentCount,
+          comment_num: result[1],
           class: result[0].zoneName,
           support: result[0].favorCount
         };
+        if (!media.comment_num) {
+          delete media.comment_num;
+        }
         task.total += 1;
-        // logger.debug(media);
+        logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -224,6 +232,31 @@ class dealWith {
         return;
       }
       callback(null, result.videoInfo);
+    });
+  }
+  getComment(aid, callback) {
+    const option = {
+      url: `http://bolo.163.com/bolo/api/video/commentList.htm?videoId=${aid}&pageNum=1&pageSize=-1&type=0`,
+      ua: 1
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('评论列表请求失败', err);
+        callback(null, '');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('评论列表解析失败', result.body);
+        callback(null, '');
+        return;
+      }
+      if (!result.data || result.data.length <= 0) {
+        callback(null, '');
+        return;
+      }
+      callback(null, result.totalCommentCount);
     });
   }
 }
