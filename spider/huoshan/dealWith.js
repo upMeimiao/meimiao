@@ -5,26 +5,7 @@ const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
-const vm = require('vm');
 
-const sandbox = {
-  window: {},
-  require: () => {
-    return { create: () => {} };
-  },
-  $: { browser: {} },
-  listener: {
-    trigger: () => {}
-  },
-  Common: {
-    Util: {
-      getUrlParam: () => {}
-    }
-  },
-  location: {
-    href: ''
-  }
-};
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -261,7 +242,16 @@ class dealWith {
       }
       const _$ = cheerio.load(result.body),
         script = _$('script').eq(15).html().replace('$', '');
-      result = vm.runInNewContext(`${script.substring(0, script.length - 4)} window.data = data; return window;})();`, sandbox).data;
+      // result = vm.runInNewContext(`${script.substring(0, script.length - 4)} window.data = data; return window;})();`, sandbox).data;
+      result = script.replace(/[\n\r\t]/g, '');
+      result = result.substring(result.indexOf('var data = ') + 11, result.indexOf('};') + 1);
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.error('单个视频解析失败', result);
+        callback('next');
+        return;
+      }
       res = {
         create_time: result.create_time,
         title: result.text || '',
