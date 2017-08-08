@@ -296,7 +296,7 @@ class dealWith {
             option.proxy = _proxy;
             request.get(logger, option, (err, result) => {
               if (err) {
-                logger.error(error)
+                logger.error(err)
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, false);
                 cb();
