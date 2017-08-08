@@ -15,6 +15,14 @@ const sandbox = {
   $: { browser: {} },
   listener: {
     trigger: () => {}
+  },
+  Common: {
+    Util: {
+      getUrlParam: () => {}
+    }
+  },
+  location: {
+    href: ''
   }
 };
 let logger;
@@ -253,10 +261,7 @@ class dealWith {
       }
       const _$ = cheerio.load(result.body),
         script = _$('script').eq(15).html().replace('$', '');
-      result = new vm.Script(`${script.substring(0, script.length - 4)} window.data = data; return window;})();`);
-      const context = new vm.createContext(sandbox);
-      result = result.runInContext(context);
-      result = result.data;
+      result = vm.runInNewContext(`${script.substring(0, script.length - 4)} window.data = data; return window;})();`, sandbox).data;
       res = {
         create_time: result.create_time,
         title: result.text || '',
