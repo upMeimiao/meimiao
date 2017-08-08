@@ -224,7 +224,7 @@
       "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId="
     },
     "yidian": {
-      "userInfo": "http://m.yidianzixun.com/api/channel/subnum?platform=0&appid=yidian&cv=4.3.4.4&version=020113&fromid=",
+      "userInfo": "https://m.yidianzixun.com/api/channel/subnum?distribution=com.apple.appstore&platform=0&appid=yidian&cv=1.0.9.7&version=020125&fromid=",
       "list": "http://www.yidianzixun.com/api/q/?fields=docid&fields=category&fields=date&fields=image&fields=image_urls&fields=like&fields=source&fields=title&fields=url&fields=comment_count&fields=summary&fields=up&version=999999&infinite=true"
     },
     "youku": {
