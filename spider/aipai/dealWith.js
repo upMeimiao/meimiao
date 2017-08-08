@@ -229,7 +229,7 @@ class dealWith {
         if (!media.comment_num) {
           delete media.comment_num;
         }
-        logger.debug(media);
+        // logger.debug(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -276,7 +276,7 @@ class dealWith {
   }
   comment(vid, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.aipai.newComment}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${vid}.html`,
+      url: `${this.settings.spiderAPI.aipai.comment}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${vid}.html`,
       ua: 3,
       own_ua: 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
     };
