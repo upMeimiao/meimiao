@@ -211,15 +211,18 @@ class dealWith {
       hotTime = null,
       bid = task.mapBid;
     const option = {
-      ua: 3,
-      own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60 NewsArticle/6.2.6.5 JsSdk/2.0 NetType/WIFI (News 6.2.6 10.300000)'
+      headers: {
+        accept: 'application/json',
+        'x-requested-with': 'XMLHttpRequest',
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60 NewsArticle/6.2.6.5 JsSdk/2.0 NetType/WIFI (News 6.2.6 10.300000)'
+      }
     };
     async.whilst(
       () => sign,
       (cb) => {
         if (index > 200) {
           sign = false;
-          task.total = 50 * index;
+          task.total = 20 * index;
           cb();
           return;
         }
@@ -234,6 +237,7 @@ class dealWith {
           option.proxy = proxy;
           request.get(logger, option, (error, result) => {
             if (error) {
+              logger.error(error)
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
               cb();
@@ -292,6 +296,7 @@ class dealWith {
             option.proxy = _proxy;
             request.get(logger, option, (err, result) => {
               if (err) {
+                logger.error(error)
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, false);
                 cb();
