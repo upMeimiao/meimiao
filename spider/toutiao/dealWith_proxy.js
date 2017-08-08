@@ -220,7 +220,7 @@ class dealWith {
     async.whilst(
       () => sign,
       (cb) => {
-        if (index > 200) {
+        if (index > 300) {
           sign = false;
           task.total = 20 * index;
           cb();
@@ -270,7 +270,7 @@ class dealWith {
               return;
             }
             if (!result.data || result.data.length === 0) {
-              task.total = 50 * index;
+              task.total = 20 * index;
               sign = false;
               cb();
               return;
@@ -325,13 +325,13 @@ class dealWith {
               }
               proxyStatus = true;
               proxy = _proxy;
-                if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
+              if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
                 bid = task.encodeId;
                 cb();
                 return;
               }
               if (!result.data || result.data.length === 0) {
-                task.total = 50 * index;
+                task.total = 20 * index;
                 sign = false;
                 cb();
                 return;
