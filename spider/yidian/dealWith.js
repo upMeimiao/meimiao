@@ -95,7 +95,7 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.yidian.userInfo + task.id,
       ua: 3,
-      own_ua: 'yidian/4.3.4.4 (iPhone; iOS 10.1.1; Scale/3.00)'
+      own_ua: 'yidian-pro/1.0.9.7 (iPhone; iOS 10.3.3; Scale/3.00)'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -271,7 +271,7 @@ class dealWith {
             cb();
             return;
           }
-          if (result.code != 0) {
+          if (Number(result.code) !== 0) {
             cb();
             return;
           }
