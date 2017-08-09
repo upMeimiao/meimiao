@@ -364,8 +364,8 @@ class dealWith {
             v_url: `http://www.fun.tv/vplay/g-${task.id}.v-${video.id}/`,
             a_create_time: result[0].time
           };
+          // logger.debug(media);
           spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-          logger.debug(media)
           spiderUtils.commentSnapshots(this.core.taskDB,
             { p: media.platform, aid: media.aid, comment_num: media.comment_num });
           callback();
@@ -428,9 +428,7 @@ class dealWith {
             }
             const $ = cheerio.load(result.body),
               vidClass = $('div.crumbsline a').eq(1).text(),
-              commentNum = $('a.commentbtn span.count').text(),
               res = {
-                comment_num: commentNum || '',
                 class: vidClass || '',
                 time: data || ''
               };
@@ -438,7 +436,10 @@ class dealWith {
               callback('next');
               return;
             }
-            callback(null, res);
+            this.comment(task, (e, comment) => {
+              res.comment_num = comment;
+              callback(null, res);
+            });
           });
         }
       );
@@ -486,6 +487,26 @@ class dealWith {
         return;
       }
       callback(null, result.data.total_num);
+    });
+  }
+  comment(task, callback) {
+    const option = {
+      url: `http://api1.fun.tv/comment/display/gallery/${task.id}?pg=1&isajax=1&dtime=${new Date().getTime()}`
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('风行网的评论总数请求失败', err.message);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('风行网数据解析失败', result);
+        callback(e);
+        return;
+      }
+      callback(null, Number(result.data.total_num));
     });
   }
 }
