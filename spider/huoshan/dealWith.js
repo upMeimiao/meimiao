@@ -190,6 +190,11 @@ class dealWith {
             }
             cb(null, result);
           });
+        },
+        (cb) => {
+          this.getComment(video.id, (err, result) => {
+            cb(null, result);
+          });
         }
       ],
       (err, result) => {
@@ -211,7 +216,7 @@ class dealWith {
           play_num: result[0].play_num,
           a_create_time: result[0].create_time,
           v_img: video.video.cover.url_list[0],
-          comment_num: result[0].comment_num,
+          comment_num: result[1],
           support: result[0].support,
           forward_num: result[0].forward_num
         };
@@ -226,7 +231,7 @@ class dealWith {
   }
   getVideoInfo(task, vid, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.huoshan.video}${vid}`,
+      url: this.settings.spiderAPI.huoshan.video + vid,
       ua: 2
     };
     let res;
@@ -242,7 +247,6 @@ class dealWith {
       }
       const _$ = cheerio.load(result.body),
         script = _$('script').eq(15).html().replace('$', '');
-      // result = vm.runInNewContext(`${script.substring(0, script.length - 4)} window.data = data; return window;})();`, sandbox).data;
       result = script.replace(/[\n\r\t]/g, '');
       result = result.substring(result.indexOf('var data = ') + 11, result.indexOf('};') + 1);
       try {
@@ -261,6 +265,27 @@ class dealWith {
         forward_num: result.stats.share_count
       };
       callback(null, res);
+    });
+  }
+  getComment(aid, callback) {
+    const option = {
+      url: `https://api.huoshan.com/hotsoon/item/${aid}/comments/?aid=1112&os_version=10.3.1&app_name=live_stream&device_type=iPhone8,2&version_code=2.1.0&count=20&offset=0`,
+      ua: 2
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('评论列表请求失败', err);
+        callback(null, '');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('评论列表解析失败', result.body);
+        callback(null, '');
+        return;
+      }
+      callback(null, result.extra.total);
     });
   }
 }
