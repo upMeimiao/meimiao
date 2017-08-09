@@ -98,7 +98,8 @@
     },
     "budejie": {
       "userInfo": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid=",
-      "medialist": "http://s.budejie.com/topic/user-topic/"
+      "medialist": "http://s.budejie.com/topic/user-topic/",
+      "comment": "http://api.budejie.com/api/api_open.php?a=datalist&per=5&c=comment&data_id="
     },
     "cctv": {
       "videoInfo":"http://xiyou.cctv.com/interface/index?videoId=",
