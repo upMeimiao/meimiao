@@ -113,7 +113,8 @@
     },
     "ifeng": {
       "medialist": "http://vcis.ifeng.com/api/weMediaVideoList?type=new&pageSize=20&weMediaID=",
-      "info": "http://vcis.ifeng.com/api/videoGuid?adapterNo=7.1.0&protocol=1.0.0&guid="
+      "info": "http://vcis.ifeng.com/api/videoGuid?adapterNo=7.1.0&protocol=1.0.0&guid=",
+      "comment": "http://comment.ifeng.com/geti?pagesize=10&type=new&docUrl="
     },
     "ku6": {
       "allInfo": "http://new.ku6.com/mobile/getuploadedvideos?rn=20&uid=",
