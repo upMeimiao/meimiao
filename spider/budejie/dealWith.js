@@ -216,33 +216,63 @@ class dealWith {
           cb();
           return;
         }
-        media = {
-          author: video.u.name,
-          platform: 18,
-          bid: task.id,
-          aid: video.id,
-          title: video.text ? video.text.substr(0, 100).replace(/"/g, '') : 'btwk_caihongip',
-          desc: spiderUtils.stringHandling(video.text, 100),
-          play_num: video.video.playcount,
-          forward_num: video.forward,
-          comment_num: video.comment,
-          support: video.up,
-          step: video.down,
-          a_create_time: moment(video.passtime).unix(),
-          long_t: video.video.duration,
-          v_img: _vImg(video.video.thumbnail),
-          tag: _tag(video.tags)
-        };
-        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        spiderUtils.commentSnapshots(this.core.taskDB,
-          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-        index += 1;
-        cb();
+        this.getComment(video.id, (err, result) => {
+          media = {
+            author: video.u.name,
+            platform: 18,
+            bid: task.id,
+            aid: video.id,
+            title: video.text ? video.text.substr(0, 100).replace(/"/g, '') : 'btwk_caihongip',
+            desc: spiderUtils.stringHandling(video.text, 100),
+            play_num: video.video.playcount,
+            forward_num: video.forward,
+            comment_num: result,
+            support: video.up,
+            step: video.down,
+            a_create_time: moment(video.passtime).unix(),
+            long_t: video.video.duration,
+            v_img: _vImg(video.video.thumbnail),
+            tag: _tag(video.tags)
+          };
+          if (!media.comment_num) {
+            delete media.comment_num;
+          }
+          // logger.debug(media);
+          spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+          spiderUtils.commentSnapshots(this.core.taskDB,
+            { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+          index += 1;
+          cb();
+        });
       },
       () => {
         callback();
       }
     );
+  }
+  getComment(aid, callback) {
+    const option = {
+      url: `${this.settings.spiderAPI.budejie.comment + aid}&page=1`
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('不得姐评论总量请求失败', err);
+        callback(null, '');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('不得姐评论数据解析失败', result.body);
+        callback(null, '');
+        return;
+      }
+      if (result == '' || result.total == 0) {
+        callback(null, '');
+        return;
+      }
+      callback(null, result.total);
+    });
   }
 }
 module.exports = dealWith;
