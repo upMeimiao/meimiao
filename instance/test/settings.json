@@ -280,7 +280,8 @@
     },
     "douyin": {
       "user": "https://aweme.snssdk.com/aweme/v1/user/?user_id=",
-      "list": "https://www.amemv.com/aweme/v1/aweme/post/?count=50&user_id="
+      "list": "https://www.amemv.com/aweme/v1/aweme/post/?count=50&user_id=",
+      "comment": "https://aweme.snssdk.com/aweme/v1/comment/list/?count=20&aweme_id="
     },
     "aipai": {
       "user": "http://m.aipai.com/mobile/apps/apps.php?module=space&func=RelationCount&bid=",
