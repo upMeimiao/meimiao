@@ -154,7 +154,8 @@
     },
     "neihan": {
       "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?device_platform=iphone&user_id=",
-      "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id="
+      "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id=",
+      "comment": "http://neihanshequ.com/m/api/get_essay_comments/?app_name=neihanshequ_web&group_id="
     },
     "pptv": {
       "listVideo":"http://apis.web.pptv.com/show/videoList?from=web&version=1.0.0&format=jsonp&vt=22",
