@@ -15,11 +15,11 @@ class dealWith {
     logger.trace('DealWith instantiation ...');
   }
   todo(task, callback) {
-    task.cNum = 0;      // 评论的数量
-    task.lastId = 0;      // 第一页评论的第一个评论Id
-    task.lastTime = 0;      // 第一页评论的第一个评论时间
-    task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
-    task.addCount = 0;      // 新增的评论数
+    task.cNum = 0; // 评论的数量
+    task.lastId = 0; // 第一页评论的第一个评论Id
+    task.lastTime = 0; // 第一页评论的第一个评论时间
+    task.isEnd = false; // 判断当前评论跟库里返回的评论是否一致
+    task.addCount = 0; // 新增的评论数
     this.commentList(task, (err) => {
       if (err) {
         callback(err);
@@ -29,44 +29,46 @@ class dealWith {
     });
   }
   commentList(task, callback) {
-    let page = 1,
-      cycle = true,
-      option;
+    const time = new Date().getTime(),
+      option = {
+        ua: 3,
+        own_ua: 'Meipai/6.2.1 (iPhone; iOS 10.3.3; Scale/3.00)'
+      };
+    let maxId = '',
+      cycle = true;
     async.whilst(
       () => cycle,
       (cb) => {
-        option = {
-          url: `${this.settings.meipai}${task.aid}&page=${page}`
-        };
+        option.url = `${this.settings.meipai + task.aid}&max_id=${maxId}&sigTime=${time}`;
+        logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
-            logger.debug('美拍评论列表请求失败', err);
+            logger.error('美拍评论列表请求失败', err);
             cb();
             return;
           }
           try {
             result = JSON.parse(result.body);
           } catch (e) {
-            logger.debug('美拍评论数据解析失败');
-            logger.info(result);
+            logger.error('美拍评论数据解析失败', result.body);
             cb();
             return;
           }
-          if (result.length <= 0) {
+          if (result.comments.length <= 0) {
             cycle = false;
             cb();
             return;
           }
           if (!task.lastId) {
-            task.lastId = result[0].id;
-            task.lastTime = result[0].created_at_origin;
+            task.lastId = result.comments[0].id;
+            task.lastTime = result.comments[0].created_at;
           }
-          this.deal(task, result, () => {
+          this.deal(task, result.comments, () => {
             if (task.isEnd) {
               callback();
               return;
             }
-            page += 1;
+            maxId = result.comments[result.comments.length - 1].id;
             cb();
           });
         });
@@ -85,25 +87,28 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        if (task.commentId == comments[index].id || task.commentTime >= comments[index].created_at_origin) {
+        if (task.commentId == comments[index].id ||
+          task.commentTime >= comments[index].created_at) {
           task.isEnd = true;
-          task.cNum = parseInt(task.commentNum, 10) + (index === 0 ? index : index + 1);
-          task.addCount = task.cNum - task.commentNum;
+          task.cNum = (parseInt(task.commentNum, 10) + (index === 0 ? index : index + 1)) +
+            (task.cNum - length);
           callback();
           return;
         }
         comment = {
           cid: comments[index].id,
-          content: spiderUtils.stringHandling(trimHtml(comments[index].content, { preserveTags: false, limit: comments[index].content.length + 1 }).html),
+          content: spiderUtils.stringHandling(trimHtml(comments[index].content,
+            { preserveTags: false, limit: comments[index].content.length + 1 }).html),
           platform: task.p,
           bid: task.bid,
           aid: task.aid,
-          ctime: comments[index].created_at_origin,
+          ctime: comments[index].created_at,
           support: comments[index].liked_count,
           step: '',
           c_user: {
             uid: comments[index].user.id,
-            uname: comments[index].user.screen_name ? comments[index].user.screen_name : comments[index].user.screen_name_origin,
+            uname: comments[index].user.screen_name ?
+              comments[index].user.screen_name : comments[index].user.screen_name_origin,
             uavatar: comments[index].user.avatar ? comments[index].user.avatar : ''
           }
         };
