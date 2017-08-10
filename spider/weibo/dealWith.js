@@ -407,10 +407,6 @@ class dealWith {
       callback();
       return;
     }
-    if (video.mblog.url_struct && !video.mblog.url_struct[0].ori_url.includes('object_type=video')) {
-      callback();
-      return;
-    }
     async.series(
       [
         (cb) => {
