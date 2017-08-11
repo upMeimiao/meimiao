@@ -29,7 +29,12 @@ class spiderCore {
   }
   start() {
     logger.trace('启动函数');
-    this.assembly();
+    this.getH(() => {
+      this.assembly();
+      setInterval(() => {
+        this.getH();
+      }, 86400000);
+    });
   }
   getH(callback) {
     this.dealWith.getH((err, result) => {

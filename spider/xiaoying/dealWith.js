@@ -47,6 +47,38 @@ class dealWith {
       callback(null, task.total);
     });
   }
+  getH(callback) {
+    const options = { method: 'POST',
+      url: 'http://viva.api.xiaoying.co/api/rest/d/dg',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'XiaoYing/5.3.5 (iPhone; iOS 10.1.1; Scale/3.00)'
+      },
+      data: {
+        a: 'dg',
+        b: '1.0',
+        c: '20007700',
+        e: 'DIqmr4fb',
+        i: '{"a":"[I]a8675492c8816a22c28a1b97f890ae144a8a4fa3","b":"zh_CN"}',
+        j: '6a0ea6a13e76e627121ee75c2b371ef2',
+        k: 'xysdkios20130711'
+      }
+    };
+    request.post(logger, options, (error, result) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        callback(e);
+        return;
+      }
+      const h = result.a;
+      callback(null, h.a);
+    });
+  }
   getTotal(task, callback) {
     logger.debug('开始获取视频总数');
     const option = {
@@ -119,7 +151,7 @@ class dealWith {
         callback(e);
         return;
       }
-      if (result.errno == 0) {
+      if (result.errno === 0) {
         logger.debug('小影用户:', `${user.bid} back_end`);
       } else {
         logger.error('小影用户:', `${user.bid} back_error`);
@@ -146,7 +178,7 @@ class dealWith {
         logger.info('send error:', result);
         return;
       }
-      if (result.errno == 0) {
+      if (result.errno === 0) {
         logger.debug('用户:', `${user.bid} back_end`);
       } else {
         logger.error('用户:', `${user.bid} back_error`);
@@ -213,8 +245,9 @@ class dealWith {
   }
   getInfo(task, data, callback) {
     const time = data.publishtime,
-      a_create_time = moment(time, ['YYYYMMDDHHmmss'], true).unix(),
-      media = {
+      a_create_time = moment(time, ['YYYYMMDDHHmmss'], true).unix();
+    this.getComment(data.puid, (err, result) => {
+      let media = {
         author: task.name,
         platform: 17,
         bid: task.id,
@@ -226,14 +259,51 @@ class dealWith {
         long_t: longT(data.duration),
         play_num: data.playcount,
         forward_num: data.forwardcount,
-        comment_num: data.commentCount,
+        comment_num: result,
         support: data.likecount,
         a_create_time
       };
-    spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-    spiderUtils.commentSnapshots(this.core.taskDB,
-      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-    callback();
+      media = spiderUtils.deleteProperty(media);
+      // logger.debug(media);
+      spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+      callback();
+    });
+  }
+  getComment(aid, callback) {
+    const option = {
+      url: this.settings.spiderAPI.xiaoying.comment,
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'user-agent': 'XiaoYing/5.5.6 (iPhone; iOS 10.2.1; Scale/3.00)'
+      },
+      data: {
+        a: 'pa',
+        b: '1.0',
+        c: '20008400',
+        e: 'DIqmr4fb',
+        h: this.core.h,
+        i: `{"d":20,"b":"1","c":1,"a":"${aid}"}`,
+        j: 'ae788dbe17e25d0cff743af7c3225567',
+        k: 'xysdkios20130711'
+      }
+    };
+    request.post(logger, option, (error, result) => {
+      if (error) {
+        logger.debug('小影评论总量请求失败', error);
+        callback(null, '');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('小影评论数据解析失败', result.body);
+        callback(e);
+        return;
+      }
+      callback(null, result.total);
+    });
   }
 }
 module.exports = dealWith;
