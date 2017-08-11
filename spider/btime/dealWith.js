@@ -155,7 +155,7 @@ class dealWith {
           }
           const list = result.data;
           if (list.length !== 0) {
-            lastTime = list[list.length - 1].pdate;
+            lastTime = list[list.length - 1].data.pdate;
           }
           if (list.length >= 20) {
             this.deal(task, list, () => {
