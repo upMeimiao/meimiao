@@ -165,6 +165,10 @@ class dealWith {
         callback(err);
         return;
       }
+      if (!result.body) {
+        callback();
+        return;
+      }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
