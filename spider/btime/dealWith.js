@@ -2,7 +2,6 @@
  * Created by yunsong on 16/8/1.
  */
 const async = require('neo-async');
-const moment = require('moment');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
@@ -174,7 +173,7 @@ class dealWith {
       () => {
         callback();
       }
-  );
+    );
   }
   deal(task, list, callback) {
     let index = 0;
@@ -223,14 +222,15 @@ class dealWith {
       media.aid = data.gid;
       media.title = spiderUtils.stringHandling(data.data.title, 100);
       media.desc = spiderUtils.stringHandling(data.data.summary, 100);
-      media.play_num = data.click_count;
+      media.play_num = result[1].playNum;
       media.comment_num = result[0];
       media.a_create_time = data.data.pdate;
       media.support = result[1].ding;
       media.v_url = data.gid;
       media.v_img = data.data.covers && data.data.covers.length !== 0 ? data.data.covers[0] : '';
       media.long_t = spiderUtils.longTime(data.data.duration);
-      media = spiderUtils.deleteProperty(media)
+      media = spiderUtils.deleteProperty(media);
+      // console.log(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -259,7 +259,8 @@ class dealWith {
       const data = {
         play: result.data.watches,
         comment: result.data.comment,
-        ding: result.data.ding
+        ding: result.data.ding,
+        playNum: result.data.watches || ''
       };
       callback(null, data);
     });
