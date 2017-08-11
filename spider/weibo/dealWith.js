@@ -291,7 +291,7 @@ class dealWith {
       page = total / 20;
     }
     async.whilst(
-      () => task.page <= Math.min(page, 500),
+      () => task.page <= Math.min(page, 300),
       (cb) => {
         if (task.NoVideo) {
           containerid = data.tabsInfo.tabs[1].containerid;
