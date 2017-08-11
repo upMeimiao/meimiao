@@ -192,7 +192,7 @@ class dealWith {
     );
   }
   getVideo(task, data, callback) {
-    const media = {};
+    let media = {};
     async.parallel([
       (cb) => {
         this.getComment(data, (err, result) => {
@@ -230,7 +230,7 @@ class dealWith {
       media.v_url = data.gid;
       media.v_img = data.data.covers && data.data.covers.length !== 0 ? data.data.covers[0] : '';
       media.long_t = spiderUtils.longTime(data.data.duration);
-      console.log(media)
+      media = spiderUtils.deleteProperty(media)
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
