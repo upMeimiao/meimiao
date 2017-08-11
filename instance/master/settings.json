@@ -226,7 +226,8 @@
     },
     "xinlan": {
       "listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
-      "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId="
+      "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId=",
+      "comment": "http://api.my.cztv.com/api/list?type=video&rows=20"
     },
     "yidian": {
       "userInfo": "https://m.yidianzixun.com/api/channel/subnum?distribution=com.apple.appstore&platform=0&appid=yidian&cv=1.0.9.7&version=020125&fromid=",
