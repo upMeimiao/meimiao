@@ -17,6 +17,7 @@ class dealWith {
     task.request = this.modules.request;
     task.async = this.modules.async;
     task.infoCheck = this.modules.infoCheck;
+    task.cheerio = this.modules.cheerio;
     task.async.parallel(
       {
         user: (cb) => {
@@ -118,16 +119,10 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      const startIndex = result.indexOf('vardata='),
-        endIndex = result.indexOf(";require('wap:component/reflow_video/detail/detail').create");
-      if (startIndex === -1 || endIndex === -1) {
-        typeErr = {type: 'data', err: `huoshan-video-dom-error, data: ${startIndex + '&&&&' +endIndex}`, interface: 'getVideoInfo', url: option.url};
-        task.infoCheck.interface(task.core, task, typeErr);
-        option = null; result = null; task = null; typeErr = null;
-        return;
-      }
-      result = result.substring(startIndex + 8, endIndex);
+      const _$ = task.cheerio.load(result.body),
+        script = _$('script').eq(15).html().replace('$', '');
+      result = script.replace(/[\n\r\t]/g, '');
+      result = result.substring(result.indexOf('var data = ') + 11, result.indexOf('};') + 1);
       try {
         result = JSON.parse(result);
       } catch (e) {

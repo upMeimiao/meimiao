@@ -149,8 +149,9 @@ class dealWith {
   }
   comment(task) {
     let option = {
-      url: `${this.settings.spiderAPI.aipai.comment + task.aid}.html`,
-      ua: 2
+      url: `${this.settings.spiderAPI.aipai.comment}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${vid}.html`,
+      ua: 3,
+      own_ua: 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {

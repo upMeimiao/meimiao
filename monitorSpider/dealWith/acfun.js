@@ -15,7 +15,7 @@ class dealWith {
     task.request = this.modules.request;
     task.async = this.modules.async;
     task.infoCheck = this.modules.infoCheck;
-    task.core = this.core;;
+    task.core = this.core;
     task.async.parallel(
       {
         user: (cb) => {
@@ -24,6 +24,10 @@ class dealWith {
         },
         list: (cb) => {
           this.list(task);
+          cb();
+        },
+        comment: (cb) => {
+          this.getComment(task);
           cb();
         }
       },
@@ -94,6 +98,39 @@ class dealWith {
         return;
       }
       if(!result.contents ||  result.contents.length === 0) {
+        typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.contents)}}`, interface: 'list', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+      }
+      option = null; typeErr = null; result = null; task = null;
+    });
+  }
+  getComment(task) {
+    let option = {
+      url: `${this.settings.spiderAPI.acfun.comment + task.aid}&currentPage=1`,
+      ua: 1,
+      referer: `http://www.acfun.cn/v/ac${task.aid}`
+    };
+    task.request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; typeErr = null; result = null; task = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'getComment', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
+        return;
+      }
+      if (!result || !result.data) {
         typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.contents)}}`, interface: 'list', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

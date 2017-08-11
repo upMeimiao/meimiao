@@ -89,9 +89,10 @@ class spiderCore extends events{
     this.getTask = new (require('./controllers/beginTask'))(this);
     switch (this.settings.type) {
       case 'video':
-        for (const [key, value] of platfrom.entries()) {
-          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
-        }
+        // for (const [key, value] of platfrom.entries()) {
+        //   videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+        // }
+        videoList.push({ name: 'aipai', type: 'ceshi', t: 'video', platform: new (require('./dealWith/aipai'))(this) });
         platfromObj = { videoList };
         break;
       case 'program':
