@@ -137,7 +137,7 @@ class dealWith {
       (cb) => {
         logger.debug(`开始获取第${sign}页视频列表`);
         const option = {
-          url: `${this.settings.spiderAPI.btime.medialist + id}&pageNo=${sign}&lastTime=${lastTime}`
+          url: `${this.settings.spiderAPI.btime.medialist + id}&refresh=${sign}&lastTime=${lastTime}`
         };
         request.get(logger, option, (err, result) => {
           if (err) {
