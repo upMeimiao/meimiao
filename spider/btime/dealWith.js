@@ -221,15 +221,16 @@ class dealWith {
       media.platform = 15;
       media.bid = task.id;
       media.aid = data.gid;
-      media.title = spiderUtils.stringHandling(data.title, 100);
-      media.desc = spiderUtils.stringHandling(data.description, 100);
+      media.title = spiderUtils.stringHandling(data.data.title, 100);
+      media.desc = spiderUtils.stringHandling(data.data.summary, 100);
       media.play_num = data.click_count;
       media.comment_num = result[0];
-      media.a_create_time = moment(data.ctime).format('X');
+      media.a_create_time = data.data.pdate;
       media.support = result[1].ding;
       media.v_url = data.gid;
-      media.v_img = data.image_url;
-      media.long_t = spiderUtils.longTime(data.duration);
+      media.v_img = data.data.covers && data.data.covers.length !== 0 ? data.data.covers[0] : '';
+      media.long_t = spiderUtils.longTime(data.data.duration);
+      console.log(media)
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
