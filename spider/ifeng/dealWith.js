@@ -139,7 +139,7 @@ class dealWith {
       ua: 3,
       own_ua: 'ifengPlayer/7.1.0 (iPhone; iOS 10.2; Scale/3.00)'
     };
-    if (page === 0) {
+    if (Number(page) === 0) {
       page = 1;
     }
     async.whilst(
@@ -224,14 +224,19 @@ class dealWith {
             option.url = `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${video.memberItem.guid}ding&format=js&serverid=1&var=ding`;
             option.own_ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36';
             this._ding(option, (err, res) => {
-              cb(res);
+              cb(null, res);
             });
           },
           (cb) => {
             option.url = `http://survey.news.ifeng.com/getaccumulator_ext.php?key=${video.memberItem.guid}cai&format=js&serverid=1&var=cai`;
             option.own_ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36';
             this._cai(option, (err, res) => {
-              cb(res);
+              cb(null, res);
+            });
+          },
+          (cb) => {
+            this.getComment(video.memberItem.guid, (err, res) => {
+              cb(null, res);
             });
           }
         ],
@@ -244,7 +249,7 @@ class dealWith {
             title: result.title ? result.title.substr(0, 100).replace(/"/g, '') : 'btwk_caihongip',
             desc: result.abstractDesc ? result.abstractDesc.substr(0, 100).replace(/"/g, '') : (result.name ? result.name.substr(0, 100).replace(/"/g, '') : ''),
             play_num: result.playTime,
-            comment_num: result.commentNo,
+            comment_num: data[2],
             a_create_time: moment(result.createDate).format('X'),
             v_img: result.image,
             long_t: result.duration,
@@ -253,6 +258,7 @@ class dealWith {
             step: data[1],
             v_url: video.memberItem.pcUrl
           };
+          // logger.debug(media);
           spiderUtils.saveCache(this.core.cache_db, 'cache', media);
           spiderUtils.commentSnapshots(this.core.taskDB,
             { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -295,6 +301,26 @@ class dealWith {
         return;
       }
       callback(null, result.browse);
+    });
+  }
+  getComment(cid, callback) {
+    const option = {
+      url: `${this.settings.spiderAPI.ifeng.comment + cid}&p=1`
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('凤凰评论总量请求失败', err);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('凤凰评论数据解析失败', result.body);
+        callback(e);
+        return;
+      }
+      callback(null, result.count);
     });
   }
 }

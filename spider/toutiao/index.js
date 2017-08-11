@@ -15,6 +15,7 @@ class spiderCore {
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith_proxy'))(this);
     this.proxy = new (require('./proxy'))(this);
+    this.banned = require('./banned');
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
@@ -29,6 +30,10 @@ class spiderCore {
   }
   start() {
     logger.trace('启动函数');
+    setInterval(() => {
+      delete require.cache[require.resolve('./banned')]
+      this.banned = require('./banned');
+    }, 120000)
     this.assembly();
   }
   test() {

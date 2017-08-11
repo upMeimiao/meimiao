@@ -234,29 +234,52 @@ class dealWith {
     } else {
       title = 'btwk_caihongip';
     }
-    let media = {
-      author: group.user.name,
-      platform: 19,
-      bid: task.id,
-      aid: group.id_str,
-      title: title.substr(0, 100).replace(/"/g, ''),
-      desc: group.text.substr(0, 100).replace(/"/g, ''),
-      play_num: group.play_count,
-      save_num: group.favorite_count,
-      forward_num: group.share_count,
-      comment_num: group.comment_count,
-      support: group.digg_count,
-      step: group.bury_count,
-      a_create_time: group.create_time,
-      v_img: _vImg(group),
-      long_t: group.duration ? longT(group.duration) : null,
-      class: group.category_name
+    this.getComment(group.id_str, (err, result) => {
+      let media = {
+        author: group.user.name,
+        platform: 19,
+        bid: task.id,
+        aid: group.id_str,
+        title: title.substr(0, 100).replace(/"/g, ''),
+        desc: group.text.substr(0, 100).replace(/"/g, ''),
+        play_num: group.play_count,
+        save_num: group.favorite_count,
+        forward_num: group.share_count,
+        comment_num: result,
+        support: group.digg_count,
+        step: group.bury_count,
+        a_create_time: group.create_time,
+        v_img: _vImg(group),
+        long_t: group.duration ? longT(group.duration) : null,
+        class: group.category_name
+      };
+      media = spiderUtils.deleteProperty(media);
+      logger.debug(media);
+      spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+      spiderUtils.commentSnapshots(this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+      callback();
+    });
+  }
+  getComment(aid, callback) {
+    const option = {
+      url: `${this.settings.spiderAPI.neihan.comment + aid}&offset=0`
     };
-    media = spiderUtils.deleteProperty(media);
-    spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-    spiderUtils.commentSnapshots(this.core.taskDB,
-      { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-    callback();
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('内涵评论总量请求失败', err);
+        callback(err);
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('内涵评论数据解析失败', result.body);
+        callback(e);
+        return;
+      }
+      callback(null, result.total_number);
+    });
   }
 }
 module.exports = dealWith;

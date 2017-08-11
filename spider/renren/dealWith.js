@@ -268,7 +268,7 @@ class dealWith {
           callback();
           return;
         }
-        const media = {
+        let media = {
           bid: task.id,
           author: task.name,
           platform: task.p,
@@ -285,6 +285,7 @@ class dealWith {
           desc: spiderUtils.stringHandling(data.brief, 100),
           long_t: result.rawDuration
         };
+        media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });

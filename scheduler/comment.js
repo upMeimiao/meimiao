@@ -1,8 +1,8 @@
-const kue = require('kue');
-const request = require('request');
 const os = require('os');
 const HTTP = require('http');
 const events = require('events');
+const kue = require('kue');
+const request = require('request');
 const Redis = require('ioredis');
 const schedule = require('node-schedule');
 // const _getTask = require('./getTask');
@@ -62,16 +62,13 @@ class commentScheduler extends events {
   start() {
     this.logger.trace('启动函数');
     this.on('task_loaded', (raw) => {
-      this.handle.rawLoop(raw);
+      this.handle.classify(raw);
     });
     this.on('task_init', (raw) => {
       this.handle.checkInit(raw);
     });
     this.on('task_init_set', (raw) => {
       this.handle.setInit(raw);
-    });
-    this.on('task_check_snapshots', (raw) => {
-      this.handle.checkSnapshots(raw);
     });
     this.on('task_check_kue', (raw) => {
       this.checkKue(raw);
@@ -148,17 +145,21 @@ class commentScheduler extends events {
       try {
         body = JSON.parse(body);
       } catch (e) {
-        this.logger.error('json数据解析失败');
-        this.logger.info(body);
+        this.logger.error('json数据解析失败', body);
         res = null;
         body = null;
         return;
       }
       this.logger.debug(body);
-      const data = body.data;
+      let data = body.data;
       res = null;
       body = null;
       if (!data || !Array.isArray(data) || data.length === 0) return;
+      if (Number(data[0].platform) === 16 || Number(data[0].platform) === 37
+        || Number(data[0].platform) === 42 || Number(data[0].platform) === 30) {
+        data = null;
+        return;
+      }
       if (Number(data[0].platform) === 39 || Number(data[0].platform) === 40) {
         this.emit('origin_youtube', data);
       } else {
@@ -201,7 +202,7 @@ class commentScheduler extends events {
       commentId: raw.comment_id,
       commentTime: raw.comment_time,
       commentNum: raw.comment_num
-    }).priority('critical').attempts(5).backoff({ delay: 20 * 1000, type: 'fixed' })
+    }).attempts(5).backoff({ delay: 20 * 1000, type: 'fixed' })
       .removeOnComplete(true);
     job.save((err) => {
       if (err) {
@@ -217,36 +218,30 @@ class commentScheduler extends events {
     });
   }
   checkKue(raw) {
-    this.taskDB.hget(`c:${raw.p}:${raw.aid}`, 'kue_id', (error, result) => {
-      if (error) {
-        commentScheduler.emit('redis_error', { db: 'taskDB', action: 2 });
-        error = null;
+    kue.Job.get(raw.kue_id, `comment_${raw.platform}`, (err, job) => {
+      if (err) {
+        if (err.message.includes('doesnt exist') || err.message === 'invalid id param') {
+          this.emit('task_create', raw);
+        } else {
+          this.logger.error('Job get error : ', err);
+        }
+        // this.emit('task_create', raw);
+        err = null;
         return;
       }
-      kue.Job.get(result, `comment_${raw.platform}`, (err, job) => {
-        if (err) {
-          if (err.message.includes('doesnt exist') || err.message === 'invalid id param') {
-            this.emit('task_set_create', raw);
-          } else {
-            this.logger.error('Job get error : ', err);
-          }
-          // this.emit('task_set_create', raw);
-          err = null;
-          return;
-        }
-        let time = new Date().getTime();
-        if ((job.state() === 'active' || job.state() === 'delayed') && (time - job.created_at) >= 3600000) {
-          this.emit('task_set_create', raw);
-          time = null;
-          job = null;
-          return;
-        }
-        if (job.state() === 'failed') {
-          this.emit('task_set_create', raw);
-        }
+      delete raw.kue_id;
+      let time = new Date().getTime();
+      if ((job.state() === 'active' || job.state() === 'delayed') && (time - job.created_at) >= 3600000) {
+        this.emit('task_create', raw);
         time = null;
         job = null;
-      });
+        return;
+      }
+      if (job.state() === 'failed') {
+        this.emit('task_create', raw);
+      }
+      time = null;
+      job = null;
     });
   }
 }

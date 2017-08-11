@@ -32,8 +32,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '889247',
-      name: '正宗社交力学',
+      id: '58128',
+      name: '一色神技能',
       p: 15
     };
     this.dealWith.todo(work, (err, total) => {

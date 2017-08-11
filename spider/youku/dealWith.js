@@ -3,8 +3,9 @@
  */
 const async = require('neo-async');
 const request = require('request');
-const moment = require('moment')
+const moment = require('moment');
 const spiderUtils = require('../../lib/spiderUtils');
+const crypto = require('crypto');
 
 let logger;
 const blacklist = ['UNDY2MTM4MjAyMA==', 'UNDY0Mzc5ODk0OA==', 'UNDY1NTk2NzE3Ng==', 'UMzIyNjE5OTkyMA==', 'UNDQ3MzYyMTI5Ng==', 'UNDUyMDQ2OTU5Mg==', 'UNDUzODExMDgzNg==', 'UNTUxMTg0Nzc2', 'UMzQzNzMzODE5Mg==', 'UNDUxMTEzNjkxMg==', 'UNDQ3OTUwMjgwMA==', 'UNDA2NDk5NTY2MA==', 'UMzE0MTkzODk1Ng==', 'UNDM1ODkyNDc2MA==', 'UNDQ3NjI5MDg2OA==', 'UMjc0NDAwMzAwNA==', 'UMTIwODgxMTI5Mg==', 'UNDQ3MzU1ODUwNA==', 'UMzI5NjQwOTUwNA==', 'UNDQ1OTQyMjM1Mg=='];
@@ -13,7 +14,10 @@ const annal = (db, key, data) => {
   const score = Number(moment().format('MDDHH'));
   db.zadd(key, score, JSON.stringify(Object.assign(data, { score_time: score })));
 };
-
+const sign = (e) => {
+  const md5 = crypto.createHash('md5');
+  return md5.update(`100-DDwODVkv&6c4aa6af6560efff5df3c16c704b49f1&${e}`).digest('hex');
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -335,7 +339,7 @@ class dealWith {
         callback(e);
         return;
       }
-      if (body.total == 0) {
+      if (Number(body.total) === 0) {
         callback();
         return;
       }
@@ -357,38 +361,74 @@ class dealWith {
       (cb) => {
         video = list[index];
         result = videos[index];
-        media = {
-          author: task.name,
-          platform: 1,
-          bid: task.id,
-          aid: video.videoid,
-          title: video.title.substr(0, 100).replace(/"/g, ''),
-          desc: result.description.substr(0, 100).replace(/"/g, ''),
-          class: result.category,
-          tag: result.tags,
-          v_img: result.bigThumbnail,
-          long_t: Math.round(result.duration),
-          play_num: video.total_vv,
-          save_num: result.favorite_count,
-          comment_num: result.comment_count,
-          support: result.up_count,
-          step: result.down_count,
-          a_create_time: video.publishtime
-        };
-        // if (task.id === '401218607' || task.id === '715543674') {
-        //   annal(this.core.test_db, `openapi:${task.id}:${result.id}`, result);
-        // }
-        // console.log(media);
-        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        spiderUtils.commentSnapshots(this.core.taskDB,
-          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-        index += 1;
-        cb();
+        this.getComment(video.videoid, (err, comment_num) => {
+          media = {
+            author: task.name,
+            platform: 1,
+            bid: task.id,
+            aid: video.videoid,
+            title: video.title.substr(0, 100).replace(/"/g, ''),
+            desc: result.description.substr(0, 100).replace(/"/g, ''),
+            class: result.category,
+            tag: result.tags,
+            v_img: result.bigThumbnail,
+            long_t: Math.round(result.duration),
+            play_num: video.total_vv,
+            save_num: result.favorite_count,
+            comment_num,
+            support: result.up_count,
+            step: result.down_count,
+            a_create_time: video.publishtime
+          };
+          // if (task.id === '401218607' || task.id === '715543674') {
+          //   annal(this.core.test_db, `openapi:${task.id}:${result.id}`, result);
+          // }
+          media = spiderUtils.deleteProperty(media);
+          // console.log(media);
+          spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+          spiderUtils.commentSnapshots(this.core.taskDB,
+            { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+          index += 1;
+          cb();
+        });
       },
       () => {
         callback();
       }
     );
+  }
+  getComment(aid, callback) {
+    const time = parseInt(new Date().getTime() / 1000, 10),
+      option = {
+        method: 'GET',
+        url: `${this.settings.spiderAPI.youku.comment + aid}&currentPage=1&sign=${sign(time)}&time=${time}`
+      };
+    // console.log(option.url);
+    // return;
+    request(option, (err, res, body) => {
+      if (err) {
+        logger.error('优酷评论总量请求失败', err);
+        callback(err);
+        return;
+      }
+      if (res.statusCode !== 200) {
+        logger.error('评论状态码错误', res.statusCode);
+        callback(null, '');
+        return;
+      }
+      try {
+        body = JSON.parse(body.replace(/[\n\r]/g, ''));
+      } catch (e) {
+        logger.error('优酷评论总量数据解析失败', body);
+        callback(err);
+        return;
+      }
+      if (body.code && Number(body.code) === -4) {
+        callback(null, '');
+        return;
+      }
+      callback(null, body.data.totalSize);
+    });
   }
 }
 module.exports = dealWith;

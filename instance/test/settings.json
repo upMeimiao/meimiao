@@ -18,7 +18,7 @@
     "port": 3002,
     "newApi": "http://dps.kuaidaili.com/api/getdps/?orderid=919820893731562&num=5&format=json&sep=1",
     "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=50&protocol=1&method=1&an_an=1&an_ha=1&sp1=1&sp2=1&f_pr=1&quality=1&format=json&sep=1",
-    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=200&delay=5&format=json"
+    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=5&format=json"
   },
   "kue": {
     "ip": "127.0.0.1",
@@ -56,7 +56,9 @@
     },
     "weibo": {
       "userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=6dd467f9&profile_entry_key=1&user_domain=",
-      "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=6dd467f9&count=20&containerid="
+      "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=6dd467f9&count=20&containerid=",
+      "fans": "https://m.weibo.cn/api/container/getIndex?type=uid&value=",
+      "newList": "http://weibo.com/p/aj/v6/mblog/mbloglist?ajwvr=6&domain=100505&is_search=0&visible=0&is_video=1&is_tag=0&profile_ftype=1"
     },
     "acfun": {
       "userInfo": "http://api.aixifan.com/users/",
@@ -85,7 +87,8 @@
       "userInfo": "http://space.bilibili.com/ajax/member/GetInfo",
       "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
       "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
-      "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid="
+      "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid=",
+      "time": "http://api.bilibili.com/x/v2/reply?nohot=1&type=1&oid="
     },
     "btime": {
       "userInfo": "http://record.btime.com/getUserChannel?uid=",
@@ -94,7 +97,8 @@
     },
     "budejie": {
       "userInfo": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid=",
-      "medialist": "http://s.budejie.com/topic/user-topic/"
+      "medialist": "http://s.budejie.com/topic/user-topic/",
+      "comment": "http://api.budejie.com/api/api_open.php?a=datalist&per=5&c=comment&data_id="
     },
     "cctv": {
       "videoInfo":"http://xiyou.cctv.com/interface/index?videoId=",
@@ -109,7 +113,8 @@
     },
     "ifeng": {
       "medialist": "http://vcis.ifeng.com/api/weMediaVideoList?type=new&pageSize=20&weMediaID=",
-      "info": "http://vcis.ifeng.com/api/videoGuid?adapterNo=7.1.0&protocol=1.0.0&guid="
+      "info": "http://vcis.ifeng.com/api/videoGuid?adapterNo=7.1.0&protocol=1.0.0&guid=",
+      "comment": "http://comment.ifeng.com/geti?pagesize=10&type=new&docUrl="
     },
     "ku6": {
       "allInfo": "http://new.ku6.com/mobile/getuploadedvideos?rn=20&uid=",
@@ -149,7 +154,8 @@
     },
     "neihan": {
       "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?device_platform=iphone&user_id=",
-      "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id="
+      "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id=",
+      "comment": "http://neihanshequ.com/m/api/get_essay_comments/?app_name=neihanshequ_web&group_id="
     },
     "pptv": {
       "listVideo":"http://apis.web.pptv.com/show/videoList?from=web&version=1.0.0&format=jsonp&vt=22",
@@ -214,14 +220,16 @@
       "userInfo": "http://viva.api.xiaoying.co/webapi2/rest/user/detail?appkey=10000000&auid=",
       "videoInfo": "https://viva.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&ver=1&puid=",
       "List": "http://viva.api.xiaoying.co/api/rest/v/vq",
-      "list": "http://w.api.xiaoying.co/webapi2/rest/video/projectlist?appkey=10000000&format=MP4&pagesize=30&auid="
+      "list": "http://w.api.xiaoying.co/webapi2/rest/video/projectlist?appkey=10000000&format=MP4&pagesize=30&auid=",
+      "comment": "http://viva.api.xiaoying.co/api/rest/p/pa"
     },
     "xinlan": {
       "listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
-      "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId="
+      "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId=",
+      "comment": "http://api.my.cztv.com/api/list?type=video&rows=20"
     },
     "yidian": {
-      "userInfo": "http://m.yidianzixun.com/api/channel/subnum?platform=0&appid=yidian&cv=4.3.4.4&version=020113&fromid=",
+      "userInfo": "https://m.yidianzixun.com/api/channel/subnum?distribution=com.apple.appstore&platform=0&appid=yidian&cv=1.0.9.7&version=020125&fromid=",
       "list": "http://www.yidianzixun.com/api/q/?fields=docid&fields=category&fields=date&fields=image&fields=image_urls&fields=like&fields=source&fields=title&fields=url&fields=comment_count&fields=summary&fields=up&version=999999&infinite=true"
     },
     "youku": {
@@ -236,7 +244,8 @@
       "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp=",
       "userInfo": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid=",
       "programList": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_playlists.json?caller=1&pl=20&uid=",
-      "albumList": "http://c-api.youku.com/collection?brand=apple&btype=iPhone8%2C2&clid="
+      "albumList": "http://c-api.youku.com/collection?brand=apple&btype=iPhone8%2C2&clid=",
+      "comment": "http://p.comments.youku.com/ycp/comment/pc/commentList?app=100-DDwODVkv&objectType=1&listType=0&pageSize=30&objectId="
     },
     "yy": {
       "userInfo": "http://www.yy.com/u/",
@@ -276,13 +285,14 @@
     },
     "douyin": {
       "user": "https://aweme.snssdk.com/aweme/v1/user/?user_id=",
-      "list": "https://www.amemv.com/aweme/v1/aweme/post/?count=50&user_id="
+      "list": "https://www.amemv.com/aweme/v1/aweme/post/?count=50&user_id=",
+      "comment": "https://aweme.snssdk.com/aweme/v1/comment/list/?count=20&aweme_id="
     },
     "aipai": {
       "user": "http://m.aipai.com/mobile/apps/apps.php?module=space&func=RelationCount&bid=",
       "list": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-userAsset_sort-id_pageSize-50_bid-",
       "video": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-indexDataNew_assetId-",
-      "comment": "http://m.aipai.com/api/aipaiApp_action-getComment_mobile-1_type-2_page-1_share-1_cid-"
+      "comment": "http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-"
     },
     "xiaokaxiu": {
       "list": "https://v.xiaokaxiu.com/video/web/get_member_videos?limit=10&memberid="

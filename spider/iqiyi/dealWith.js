@@ -3,7 +3,8 @@
  */
 const async = require('neo-async');
 const cheerio = require('cheerio');
-const vm = require('vm')
+const vm = require('vm');
+const URL = require('url');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
@@ -600,6 +601,47 @@ class dealWith {
         return;
       }
       callback(null, result.data.$comment$get_video_comments.data.count);
+    });
+  }
+
+  goto(task, callback) {
+    if (task.aid) {
+      this.info(task, { id: task.aid, title: task.title, link: task.url }, () => {
+        callback();
+      });
+    } else {
+      this.singleId(task, (err, message) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, message);
+        }
+      });
+    }
+  }
+  singleId(task, callback) {
+    const option = {
+      url: task.url,
+      referer: `http://www.iqiyi.com${URL.parse(task.url).pathname}`,
+      ua: 1
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error(err);
+        callback(err);
+        return;
+      }
+      let $ = cheerio.load(result.body);
+      const info = {
+        id: $('#flashbox').attr('data-player-tvid'),
+        title: $('meta[name="irTitle"]').attr('content'),
+        link: task.url
+      };
+      $ = null;
+      result = null;
+      this.info(task, info, () => {
+        callback(null, info);
+      });
     });
   }
 }

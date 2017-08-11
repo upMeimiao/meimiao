@@ -1,10 +1,14 @@
 /**
-* Created by junhao on 2017/2/08.
-*/
+ * Created by junhao on 2017/2/08.
+ */
 const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
+const vm = require('vm');
 
+const sandbox = {
+  jsonp: data => data
+};
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -19,7 +23,7 @@ class dealWith {
     task.lastTime = 0;      // 第一页评论的第一个评论时间
     task.isEnd = false;  // 判断当前评论跟库里返回的评论是否一致
     task.addCount = 0;      // 新增的评论数
-    this.totalPage(task, (err) => {
+    this.albumid(task, (err) => {
       if (err) {
         callback(err);
         return;
@@ -27,9 +31,31 @@ class dealWith {
       callback(null, task.cNum, task.lastId, task.lastTime, task.addCount);
     });
   }
+  albumid(task, callback) {
+    const option = {
+      url: `http://mixer.video.iqiyi.com/jp/mixin/videos/${task.aid}?callback=jsonp&status=1`,
+      ua: 1
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('视频详情请求失败', err.message);
+        callback(err);
+        return;
+      }
+      result = vm.runInNewContext(result.body, sandbox);
+      task.albumid = result.data.albumId;
+      this.totalPage(task, (err) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        callback();
+      });
+    });
+  }
   totalPage(task, callback) {
     const option = {
-      url: `${this.settings.iqiyi.list}${task.aid}&tvid=${task.aid}&page=1`
+      url: `${this.settings.iqiyi.list}${task.albumid}&tvid=${task.aid}&page=1`
     };
     let total = 0;
     request.get(logger, option, (err, result) => {
@@ -73,7 +99,7 @@ class dealWith {
     async.whilst(
       () => page <= total,
       (cb) => {
-        option.url = `${this.settings.iqiyi.list}${task.aid}&tvid=${task.aid}&page=${page}`;
+        option.url = `${this.settings.iqiyi.list}${task.albumid}&tvid=${task.aid}&page=${page}`;
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('爱奇艺评论列表请求失败', err);
@@ -137,6 +163,7 @@ class dealWith {
             uavatar: comments[index].userInfo.icon
           }
         };
+        // console.log(comment);
         spiderUtils.saveCache(this.core.cache_db, 'comment_cache', comment);
         index += 1;
         cb();

@@ -6,9 +6,7 @@ const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger;
-const jsonp = function (data) {
-  return data;
-};
+const jsonp = (data) => data;
 const _time = (time) => {
   if (!time) {
     return '';
@@ -39,31 +37,23 @@ const getDevId = () => {
   }
   return devId;
 };
-const _class = (raw) => {
-  if (typeof raw === 'string') {
-    return raw;
-  }
-  if (Object.prototype.toString.call(raw) === '[object Array]') {
-    return raw.join(',');
-  }
-  return '';
-};
 const _tag = (raw) => {
   const _tagArr = [];
   if (!raw) {
     return '';
   }
+  if (!raw.videoInfo) {
+    return '';
+  }
+  raw = raw.videoInfo.tags || '';
   if (Object.prototype.toString.call(raw) === '[object Array]' && raw.length !== 0) {
-    for (const elem of raw.entries()) {
-      _tagArr.push(elem[1].tag);
+    for (const elem of raw) {
+      _tagArr.push(elem.name);
     }
     return _tagArr.join(',');
   }
   if (Object.prototype.toString.call(raw) === '[object Array]' && raw.length === 0) {
     return '';
-  }
-  if (typeof raw === 'object') {
-    return raw.tag;
   }
   return '';
 };
@@ -336,8 +326,8 @@ class dealWith {
   // }
   getDetail(task, info, callback) {
     async.parallel({
-      comment: (cb) => {
-        this.getCommentNum(info, (err, num) => {
+      videoInfo: (cb) => {
+        this.videoInfo(info, (err, num) => {
           if (err) {
             cb(err);
             return;
@@ -347,24 +337,6 @@ class dealWith {
       },
       expr: (cb) => {
         this.getExpr(info, (err, data) => {
-          if (err) {
-            cb(err);
-            return;
-          }
-          cb(null, data);
-        });
-      },
-      // play: (cb) => {
-      //   this.getPlayNum(task, info, (err, num) => {
-      //     if (err) {
-      //       cb(err);
-      //       return;
-      //     }
-      //     cb(null, num);
-      //   });
-      // },
-      newField: (cb) => {
-        this.getField(info, (err, data) => {
           if (err) {
             cb(err);
             return;
@@ -384,55 +356,66 @@ class dealWith {
         aid: info.id,
         title: info.title.substr(0, 100).replace(/"/g, ''),
         play_num: info.playNum,
-        comment_num: Number(results.comment),
+        comment_num: results.videoInfo.commentNum,
         support: results.expr.up,
         step: results.expr.down,
         save_num: results.expr.like,
         a_create_time: info.createTime,
         long_t: _time(info.longt),
         v_img: info.img,
-        tag: results.newField ? results.newField.tag : null,
-        class: results.newField ? results.newField.class : null
+        tag: results.videoInfo.tag || ''
       };
       media = spiderUtils.deleteProperty(media);
-      // logger.debug(media)
+      logger.debug(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
       callback();
     });
   }
-  getCommentNum(info, callback) {
+  videoInfo(info, callback) {
     const option = {
-      url: this.settings.spiderAPI.kuaibao.comment,
-      referer: 'http://r.cnews.qq.com/inews/iphone/',
+      url: this.settings.spiderAPI.kuaibao.videoInfo,
+      headers: {
+        Host: 'r.cnews.qq.com',
+        mac: '020000000000',
+        deviceToken: '<3974bb04 ceb38ada 1b112517 33e04962 c93a1039 4d661ce1 92ae4227 4d1ae769>',
+        'qn-rid': '1f3058de4b3b',
+        'qn-sig': 'B7363F31352D9CF98A1E9F2914F5B533',
+        'User-Agent': '%e5%a4%a9%e5%a4%a9%e5%bf%ab%e6%8a%a5 2.8.0 qnreading (iPhone; iOS 10.3.3; zh_CN; 2.8.0.11)',
+        Referer: 'http://r.cnews.qq.com/inews/iphone/',
+        '--qnr': '1f3058de1a30',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        appver: '10.3.3_qnreading_2.8.0',
+        appversion: '2.8.0',
+        apptypeExt: 'qnreading',
+        devid: '34F1E7F9-270C-473F-B1F4-454EEE21B9D9',
+        'keep-alive': 'iPhone8,2',
+        apptype: 'ios'
+      },
       data: {
-        chlid: 'media_article',
-        comment_id: info.commentid,
-        c_type: 'comment',
-        article_id: info.id,
-        page: 1
+        chlid: 'media_video',
+        id: info.id
       }
     };
     request.post(logger, option, (err, result) => {
       if (err) {
-        logger.error('occur error : ', err);
-        callback(err);
+        logger.error('视频信息请求失败', err);
+        callback(null, {});
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info(result);
-        callback(e);
+        logger.error('视频信息解析失败', result.body);
+        callback(null, {});
         return;
       }
-      if (result.comments && result.comments.count) {
-        callback(null, result.comments.count);
-      } else {
-        callback(null, 0);
-      }
+      const res = {
+        commentNum: result.kankaninfo ? result.kankaninfo.videoInfo.cmtnum : '',
+        tag: _tag(result.kankaninfo || null)
+      };
+      callback(null, res);
     });
   }
   getExpr(info, callback) {
@@ -464,68 +447,6 @@ class dealWith {
         down: result.expr_info.list[1].count || null
       };
       callback(null, data);
-    });
-  }
-  getPlayNum(task, info, callback) {
-    const option = {
-      url: `${this.settings.spiderAPI.kuaibao.play}&devid=${task.devId}`,
-      referer: 'http://r.cnews.qq.com/inews/iphone/',
-      data: {
-        id: info.id,
-        chlid: 'media_video',
-        articletype: info.type
-      }
-    };
-    request.post(logger, option, (err, result) => {
-      if (err) {
-        logger.error('occur error : ', err);
-        callback(err);
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info(result);
-        callback(e);
-        return;
-      }
-      if (result.kankaninfo &&
-        (result.kankaninfo.videoInfo || result.kankaninfo.videoInfo === 0)) {
-        callback(null, result.kankaninfo.videoInfo.playcount);
-      } else {
-        callback(true);
-      }
-    });
-  }
-  getField(info, callback) {
-    const option = {
-      url: `http://ncgi.video.qq.com/tvideo/fcgi-bin/vp_iphone?vid=${info.vid}&plat=5&pver=0&otype=json&callback=jsonp`,
-      referer: 'http://r.cnews.qq.com/inews/iphone/'
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('occur error : ', err);
-        callback(null, { tag: '', class: '' });
-        return;
-      }
-      try {
-        result = eval(result.body);
-      } catch (e) {
-        logger.error('jsonp数据解析失败');
-        logger.error(result);
-        callback(null, { tag: '', class: '' });
-        return;
-      }
-      if (!result.video) {
-        callback(null, null);
-        return;
-      }
-      const backData = {
-        tag: _tag(result.video.tags),
-        class: _class(result.video.ctypename)
-      };
-      callback(null, backData);
     });
   }
 }

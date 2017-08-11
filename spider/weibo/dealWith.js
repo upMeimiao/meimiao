@@ -3,11 +3,21 @@
  */
 const moment = require('moment');
 const async = require('neo-async');
-const req = require('request');
 const request = require('../../lib/request');
 const trimHtml = require('trim-html');
 const spiderUtils = require('../../lib/spiderUtils');
 
+const _cookie = () => {
+  const time = new Date().getTime(),
+    str = '36822K7dcPxrAZUn_wUyWPkaY1H-jydDgtNAn7uJhMyAxh87lsCabckHQtcyq-4VhvteW82bogQ3mL9Z',
+    length = str.length;
+  let sub = '';
+  for (let i = 0; i < length; i += 1) {
+    sub += str.charAt(Math.floor(Math.random() * length));
+  }
+  // return `SINAGLOBAL=9973892314779.559.${time - 117817}; _s_tentry=www.baidu.com; Apache=2296727999173.48.${time}; ULV=${time + 4}:2:2:2:2296727999173.48.${time}:${time - 117775}; SUB=_2A${sub}g..; UOR=,,login.sina.com.cn;`;
+  return `_2A${sub}g..`;
+};
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -20,120 +30,77 @@ class dealWith {
   todo(task, callback) {
     task.total = 0;
     task.page = 1;
-    task.fans = null;
-    this.getUserInfo(task, (err) => {
+    task.proxy = null;
+    task.cookie = _cookie();
+    async.parallel(
+      {
+        fans: (cb) => {
+          this.getFans(task, (err) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, '粉丝信息已返回');
+          });
+        },
+        user: (cb) => {
+          this.getUserInfo(task, (err) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, '用户信息已返回');
+          });
+        }
+      },
+      () => {
+        this.core.proxy.back(task.proxy, true);
+        callback(null, task.total);
+      }
+    );
+  }
+  getFans(task, callback) {
+    const option = {
+      url: this.settings.spiderAPI.weibo.fans + task.id,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
+        Referer: `https://m.weibo.cn/u/${task.id}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    };
+    request.get(logger, option, (err, result) => {
       if (err) {
+        logger.error('粉丝数请求失败', err);
         callback(err);
         return;
       }
-      callback(null, task.total);
-    });
-  }
-  getUserInfo(task, callback) {
-    const option = {
-      url: this.settings.spiderAPI.weibo.userInfo + task.id,
-      ua: 3,
-      own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
-    };
-    // console.log(option.url);
-    this.core.proxy.getProxy((err, proxy) => {
-      if (proxy === 'timeout') {
-        callback();
-        return;
-      }
-      if (!proxy) {
-        this.getUserInfo(task, callback);
-        return;
-      }
-      option.proxy = proxy;
-      request.get(logger, option, (error, result) => {
-        if (error) {
-          logger.debug('用户的粉丝数请求错误', error.message);
-          this.core.proxy.back(proxy, false);
-          this.getUserInfo(task, callback);
-          return;
-        }
-        try {
-          result = JSON.parse(result.body);
-        } catch (e) {
-          logger.error('用户json解析错误', result.body);
-          this.core.proxy.back(proxy, false);
-          this.getUserInfo(task, callback);
-          return;
-        }
-        if (result.errno && result.errno === 20003) {
-          spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('粉丝数解析失败', result.body);
+        if (result.body.includes('用户不存在')) {
           callback();
-          return;
-        }
-        // const fans = result.userInfo ? result.userInfo.followers_count : '',
-        //   user = {
-        //     platform: task.p,
-        //     bid: task.id,
-        //     fans_num: fans || ''
-        //   };
-        // logger.info(user);
-        // if (Number(user.fans_num) === 428472) {
-        //   req({
-        //     method: 'POST',
-        //     url: 'http://10.251.55.50:3001/api/alarm',
-        //     form: {
-        //       mailGroup: 3,
-        //       subject: '粉丝数据异常',
-        //       content: JSON.stringify(result)
-        //     }
-        //   });
-        // }
-        // if (user.fans_num !== '') {
-        //   this.sendUser(user);
-        //   this.sendStagingUser(user);
-        // }
-        if (result.tabsInfo.tabs[2].title !== '视频') {
-          task.NoVideo = true;
-          this.getVidTotal(task, result, proxy, (erro) => {
-            if (erro) {
-              callback(erro);
-              return;
-            }
-            callback();
-          });
         } else {
-          task.NoVideo = false;
-          this.getVidTotal(task, result, proxy, (erro) => {
-            if (erro) {
-              callback(erro);
-              return;
-            }
-            callback();
-          });
+          callback(result.body);
         }
-        this.core.proxy.back(proxy, true);
+        return;
+      }
+      if (!result || !result.userInfo) {
+        callback('粉丝数数据异常');
+        return;
+      }
+      const user = {
+        platform: task.p,
+        bid: task.id,
+        fans_num: result.userInfo.followers_count || ''
+      };
+      this.sendUser(user, () => {
+        callback();
       });
+      this.sendStagingUser(user);
     });
   }
-  fansNum(task, video) {
-    const user = {
-      platform: task.p,
-      bid: task.id,
-      fans_num: task.fans || ''
-    };
-    if (Number(user.fans_num) === 428472) {
-      req({
-        method: 'POST',
-        url: 'http://10.251.55.50:3001/api/alarm',
-        form: {
-          mailGroup: 3,
-          subject: '粉丝数据异常',
-          content: JSON.stringify(video)
-        }
-      });
-    }
-    if (user.fans_num !== '') {
-      this.sendUser(user);
-      this.sendStagingUser(user);
-    }
-  }
-  sendUser(user) {
+  sendUser(user, callback) {
     const option = {
       url: this.settings.sendFans,
       data: user
@@ -142,6 +109,7 @@ class dealWith {
       if (err) {
         logger.error('occur error : ', err.message);
         logger.info(`返回微博视频用户 ${user.bid} 连接服务器失败`);
+        callback();
         return;
       }
       try {
@@ -149,6 +117,7 @@ class dealWith {
       } catch (e) {
         logger.error(`微博视频用户 ${user.bid} json数据解析失败`);
         logger.info(back);
+        callback();
         return;
       }
       if (back.errno === 0) {
@@ -158,6 +127,7 @@ class dealWith {
         logger.info(back);
         logger.info('user info: ', user);
       }
+      callback();
     });
   }
   sendStagingUser(user) {
@@ -185,7 +155,58 @@ class dealWith {
       }
     });
   }
-
+  getUserInfo(task, callback) {
+    const option = {
+      url: this.settings.spiderAPI.weibo.userInfo + task.id,
+      ua: 3,
+      own_ua: 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
+    };
+    this.core.proxy.getProxy((err, proxy) => {
+      if (proxy === 'timeout') {
+        callback();
+        return;
+      }
+      if (!proxy) {
+        this.getUserInfo(task, callback);
+        return;
+      }
+      option.proxy = proxy;
+      request.get(logger, option, (error, result) => {
+        if (error) {
+          logger.debug('用户的主页请求错误', error.message);
+          this.core.proxy.back(proxy, false);
+          this.getUserInfo(task, callback);
+          return;
+        }
+        try {
+          result = JSON.parse(result.body);
+        } catch (e) {
+          logger.error('用户json解析错误', result.body);
+          this.core.proxy.back(proxy, false);
+          this.getUserInfo(task, callback);
+          return;
+        }
+        if (result.errno && result.errno === 20003) {
+          spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
+          callback();
+          return;
+        }
+        if (!result.tabsInfo.tabs) {
+          this.getUserInfo(task, callback);
+          return;
+        }
+        task.NoVideo = true;
+        task.proxy = proxy;
+        this.getVidTotal(task, result, proxy, (erro) => {
+          if (erro) {
+            callback(erro);
+            return;
+          }
+          callback();
+        });
+      });
+    });
+  }
   getVidTotal(task, data, proxy, callback) {
     const option = {
       ua: 3,
@@ -199,7 +220,11 @@ class dealWith {
     } else {
       containerid = data.tabsInfo.tabs[2].containerid;
       option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}_time&page=0`;
+      if (!data.tabsInfo.tabs[2].filter_group_info) {
+        option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}&page=0`;
+      }
     }
+    task.containerid = containerid;
     option.proxy = proxy;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -234,6 +259,7 @@ class dealWith {
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
+            console.log('123');
             callback();
             return;
           }
@@ -241,8 +267,8 @@ class dealWith {
         });
         return;
       }
-      this.core.proxy.back(proxy, true);
       total = result.cardlistInfo.total;
+      task.proxy = proxy;
       this.getVidList(task, data, total, proxy, () => {
         callback();
       });
@@ -265,7 +291,7 @@ class dealWith {
       page = total / 20;
     }
     async.whilst(
-      () => task.page <= Math.min(page, 500),
+      () => task.page <= Math.min(page, 300),
       (cb) => {
         if (task.NoVideo) {
           containerid = data.tabsInfo.tabs[1].containerid;
@@ -273,8 +299,12 @@ class dealWith {
         } else {
           containerid = data.tabsInfo.tabs[2].containerid;
           option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}_time&page=${task.page}`;
+          if (!data.tabsInfo.tabs[2].filter_group_info) {
+            option.url = `${this.settings.spiderAPI.weibo.videoList + containerid}&page=${task.page}`;
+          }
         }
         option.proxy = _proxy;
+        // logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('视频列表数据请求错误', err.message);
@@ -330,27 +360,26 @@ class dealWith {
             cb();
             return;
           }
-          this.core.proxy.back(_proxy, true);
-          this.deal(task, result.cards, data, _proxy, () => {
+          task.proxy = _proxy;
+          this.deal(task, result.cards, _proxy, () => {
             task.page += 1;
             cb();
           });
         });
       },
       () => {
-        logger.debug('没有数据了');
         callback();
       }
     );
   }
 
-  deal(task, data, user, proxy, callback) {
+  deal(task, data, proxy, callback) {
     let index = 0;
     const length = data.length;
     async.whilst(
       () => index < length,
       (cb) => {
-        this.getAllInfo(task, data[index], user, proxy, () => {
+        this.getAllInfo(task, data[index], proxy, () => {
           index += 1;
           cb();
         });
@@ -361,7 +390,7 @@ class dealWith {
     );
   }
 
-  getAllInfo(task, video, user, proxy, callback) {
+  getAllInfo(task, video, proxy, callback) {
     if (!video.mblog) {
       callback();
       return;
@@ -374,25 +403,47 @@ class dealWith {
       callback();
       return;
     }
+    if (!video.mblog.source || video.mblog.source.includes('一直播')) {
+      callback();
+      return;
+    }
     async.series(
       [
         (cb) => {
-          this.getVideoInfo(video.mblog.mblogid, proxy, (err, result) => {
+          this.getVideoInfo(task, video.mblog.mblogid, proxy, (err, result) => {
+            if (err) {
+              cb(err);
+              return;
+            }
+            cb(null, result);
+          });
+        },
+        (cb) => {
+          this.playNum(task, video, proxy, (err, result) => {
+            if (err) {
+              cb(err);
+              return;
+            }
             cb(null, result);
           });
         }
       ],
       (err, result) => {
-        if (result[0] === '抛掉当前的') {
-          callback();
-          return;
-        } else if (!video.mblog.user) {
+        if (err) {
           callback();
           return;
         }
-        if (Number(task.id) === Number(video.mblog.user.id) && !task.fans) {
-          task.fans = video.mblog.user.followers_count;
-          this.fansNum(task, video);
+        if (!video.mblog.user) {
+          callback();
+          return;
+        }
+        if (!result[0].page_info.media_info.duration) {
+          callback();
+          return;
+        }
+        let _playNum = Number(result[0].page_info.media_info.online_users_number);
+        if (_playNum - result[1] > 10000) {
+          _playNum = null;
         }
         const media = {
           author: task.name,
@@ -401,11 +452,11 @@ class dealWith {
           aid: video.mblog.id,
           title: video.mblog.text.substr(0, 80).replace(/"/g, ''),
           desc: !video.mblog.user.description ? '' : video.mblog.user.description.substr(0, 100).replace(/"/g, ''),
-          play_num: result[0].page_info.media_info.online_users_number,
+          play_num: _playNum,
           comment_num: video.mblog.comments_count,
           forward_num: video.mblog.reposts_count,
           support: video.mblog.attitudes_count,
-          long_t: result[0].page_info.media_info.duration,
+          long_t: Math.round(result[0].page_info.media_info.duration) || '',
           v_img: result[0].page_info.page_pic,
           a_create_time: result[0].created_at,
           v_url: video.mblog.mblogid
@@ -423,7 +474,7 @@ class dealWith {
     );
   }
 
-  getVideoInfo(id, proxy, callback) {
+  getVideoInfo(task, id, proxy, callback) {
     const option = {
       url: `http://api.weibo.cn/2/guest/statuses_show?from=1067293010&c=iphone&s=6dd467f9&id=${id}`,
       ua: 3,
@@ -438,10 +489,10 @@ class dealWith {
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
-            callback(null, '抛掉当前的');
+            callback('error');
             return;
           }
-          this.getVideoInfo(id, _proxy, callback);
+          this.getVideoInfo(task, id, _proxy, callback);
         });
         return;
       }
@@ -454,27 +505,117 @@ class dealWith {
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
-            callback(null, '抛掉当前的');
+            callback('error');
             return;
           }
-          this.getVideoInfo(id, _proxy, callback);
+          this.getVideoInfo(task, id, _proxy, callback);
         });
         return;
       }
       if (!result.page_info) {
-        callback(null, '抛掉当前的');
+        callback('抛掉当前的');
         return;
       }
       if (!result.page_info.media_info) {
-        callback(null, '抛掉当前的');
+        callback('抛掉当前的');
         return;
       }
       dataTime = new Date(result.created_at);
       dataTime = moment(dataTime).unix();
       result.created_at = isNaN(dataTime) ? '' : dataTime;
-      this.core.proxy.back(proxy, true);
+      task.proxy = proxy;
       callback(null, result);
     });
   }
+  playNum(task, res, proxy, callback) {
+    const option = {
+      url: `http://api.weibo.cn/2/guest/statuses_extend?gsid=${task.cookie}&wm=3333_2001&i=9bfc65e&b=1&from=1075293010&c=iphone&networktype=wifi&v_p=48&skin=default&s=350a1d30&v_f=1&lang=zh_CN&sflag=1&id=${res.mblog.id}&mid=${res.mblog.id}&sourcetype=page&_status_id=${res.mblog.id}&is_recom=-1&lfid=${task.containerid}&moduleID=feed&lcardid=${task.containerid}_-_HOTMBLOG`,
+      headers: {
+        'user-agent': 'Weibo/5598 CFNetwork/811.5.4 Darwin/16.6.0'
+      }
+    };
+    option.proxy = proxy;
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('播放量请求失败', err);
+        this.core.proxy.back(proxy, false);
+        this.core.proxy.getProxy((error, _proxy) => {
+          if (_proxy === 'timeout') {
+            callback('error');
+            return;
+          }
+          this.playNum(task, res, _proxy, callback);
+        });
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('解析失败', e);
+        callback(e);
+        return;
+      }
+      if (!result || !result.online_users_number) {
+        callback('error');
+        return;
+      }
+      task.proxy = proxy;
+      callback(null, result.online_users_number);
+    });
+  }
+  // playNum(task, id, proxy, callback) {
+  //   const option = {
+  //     url: `http://weibo.com/${task.id}/${id}?mod=weibotime&type=comment`,
+  //     headers: {
+  //       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+  //       referer: 'http://weibo.com/',
+  //       cookie: task.cookie
+  //     }
+  //   };
+  //   option.proxy = proxy;
+  //   request.get(logger, option, (err, result) => {
+  //     if (err) {
+  //       logger.error('播放页请求失败', err);
+  //       this.core.proxy.back(proxy, false);
+  //       this.core.proxy.getProxy((error, _proxy) => {
+  //         if (_proxy === 'timeout') {
+  //           callback('error');
+  //           return;
+  //         }
+  //         this.playNum(task, id, _proxy, callback);
+  //       });
+  //       return;
+  //     }
+  //     const start = result.body.indexOf('&play_count='),
+  //       end = result.body.indexOf('&duration=');
+  //     let play = '';
+  //     if (start === -1 || end === -1) {
+  //       console.log(start, '/-*/-*/*/-/++++/+', end);
+  //       logger.debug(option.url);
+  //       callback('error');
+  //       return;
+  //     }
+  //     play = result.body.substring(start + 12, end);
+  //     if (!play) {
+  //       callback(null, 0);
+  //       return;
+  //     }
+  //     if (play.includes('万')) {
+  //       play = play.match(/(\d*)万/)[1];
+  //       play = `${play}0000`;
+  //       if (isNaN(play)) {
+  //         callback(null, 0);
+  //         return;
+  //       }
+  //       callback(null, Number(play));
+  //       return;
+  //     }
+  //     if (isNaN(play)) {
+  //       callback(null, 0);
+  //       return;
+  //     }
+  //     callback(null, Number(play));
+  //   });
+  // }
 }
 module.exports = dealWith;

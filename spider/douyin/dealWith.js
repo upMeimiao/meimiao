@@ -178,35 +178,66 @@ class dealWith {
     async.whilst(
       () => index < length,
       (cb) => {
-        title = list[index].desc ? list[index].desc : 'btwk_caihongip';
-        desc = list[index].cha_list[0] ? list[index].cha_list[0].desc : '';
-        media = {
-          author: task.name,
-          bid: task.id,
-          platform: task.p,
-          aid: list[index].statistics.aweme_id,
-          title: spiderUtils.stringHandling(title, 80),
-          desc: spiderUtils.stringHandling(desc, 100),
-          play_num: list[index].statistics.play_count,
-          a_create_time: list[index].create_time,
-          v_img: list[index].video.cover.url_list[0],
-          comment_num: list[index].statistics.comment_count,
-          support: list[index].statistics.digg_count,
-          forward_num: list[index].statistics.share_count,
-          v_url: list[index].share_info.share_url
-        };
-        task.total += 1;
-        // logger.debug(media);
-        spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-        spiderUtils.commentSnapshots(this.core.taskDB,
-          { p: media.platform, aid: media.aid, comment_num: media.comment_num });
-        index += 1;
-        cb();
+        this.getComment(list[index].statistics.aweme_id, (err, result) => {
+          title = list[index].desc ? list[index].desc : 'btwk_caihongip';
+          desc = list[index].cha_list[0] ? list[index].cha_list[0].desc : '';
+          media = {
+            author: task.name,
+            bid: task.id,
+            platform: task.p,
+            aid: list[index].statistics.aweme_id,
+            title: spiderUtils.stringHandling(title, 80),
+            desc: spiderUtils.stringHandling(desc, 100),
+            play_num: list[index].statistics.play_count,
+            a_create_time: list[index].create_time,
+            v_img: list[index].video.cover.url_list[0],
+            comment_num: result,
+            support: list[index].statistics.digg_count,
+            forward_num: list[index].statistics.share_count,
+            v_url: list[index].share_info.share_url
+          };
+          if (!media.comment_num) {
+            delete media.comment_num;
+          }
+          task.total += 1;
+          // logger.debug(media);
+          spiderUtils.saveCache(this.core.cache_db, 'cache', media);
+          spiderUtils.commentSnapshots(this.core.taskDB,
+            { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+          index += 1;
+          cb();
+        });
       },
       () => {
         callback();
       }
     );
+  }
+  getComment(aid, callback) {
+    const option = {
+      url: `${this.settings.spiderAPI.douyin.comment + aid}&cursor=0&app_name=aweme`,
+      ua: 3,
+      own_ua: 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
+    };
+    request.get(logger, option, (err, result) => {
+      if (err) {
+        logger.error('评论列表请求失败', err);
+        callback(null, '');
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('评论列表解析失败', result.body);
+        callback(null, '');
+        return;
+      }
+      if (!result.comments || !result.comments.length) {
+        callback(null, '');
+        return;
+      }
+      callback(null, result.total);
+    });
   }
 }
 module.exports = dealWith;

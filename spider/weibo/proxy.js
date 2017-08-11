@@ -22,7 +22,7 @@ class proxyInfo {
       this.need(0, (err, _proxy) => {
         if (err) {
           if (err === 'timeout!') {
-            callback(null, 'timeout');
+            callback(null, 'timeout!');
             return;
           }
           logger.error('Get proxy occur error:', err.message);

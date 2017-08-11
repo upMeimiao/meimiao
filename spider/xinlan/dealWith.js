@@ -5,9 +5,7 @@ const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
-const _Callback = function (data) {
-  return data;
-};
+const _Callback = (data) => data;
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -20,7 +18,8 @@ class dealWith {
     task.total = 0;
     this.getVidList(task, (err) => {
       if (err) {
-        return callback(err);
+        callback(err);
+        return;
       }
       callback(null, task.total);
     });
@@ -34,17 +33,19 @@ class dealWith {
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('接口请求错误 : ', err);
-        return this.getVidList(task, callback);
+        this.getVidList(task, callback);
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info(result);
-        return this.getVidList(task, callback);
+        logger.error('json数据解析失败', result);
+        this.getVidList(task, callback);
+        return;
       }
       if (!result.data || !result.data.length) {
-        return this.getVidList(task, callback);
+        this.getVidList(task, callback);
+        return;
       }
       const length = result.data.length;
       task.total = length;
@@ -56,17 +57,15 @@ class dealWith {
   deal(task, user, length, callback) {
     let index = 0;
     async.whilst(
-            () => index < length,
-            (cb) => {
-              this.getAllInfo(task, user[index], () => {
-                index++;
-                cb();
-              });
-            },
-            (err, data) => {
-              callback();
-            }
-        );
+      () => index < length,
+      (cb) => {
+        this.getAllInfo(task, user[index], () => {
+          index += 1;
+          cb();
+        });
+      },
+      () => callback()
+    );
   }
   getAllInfo(task, video, callback) {
     const num = 0;
@@ -77,7 +76,7 @@ class dealWith {
         });
       },
       (cb) => {
-        this.getComment(task, (err, result) => {
+        this.getComment(task, video.vid, (err, result) => {
           cb(null, result);
         });
       },
@@ -92,10 +91,11 @@ class dealWith {
         });
       }
     ], (err, result) => {
-      if (result[0] == 'next') {
-        return callback();
+      if (result[0] === 'next') {
+        callback();
+        return;
       }
-      const media = {
+      let media = {
         author: task.name,
         platform: task.p,
         bid: task.id,
@@ -106,10 +106,11 @@ class dealWith {
         long_t: video.durationApp,
         v_img: video.pic,
         v_url: video.url,
-        comment_num: result[1].total,
+        comment_num: result[1],
         support: result[2].supportNumber,
         save_num: result[3].hasCollect
       };
+      media = spiderUtils.deleteProperty(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -123,15 +124,16 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('收藏量请求失败');
-        return callback(null, { hasCollect: '' });
+        logger.error('收藏量请求失败', err);
+        callback(null, { hasCollect: '' });
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('收藏量解析失败');
-        logger.info(result);
-        return callback(null, { hasCollect: '' });
+        logger.error('收藏量解析失败', result);
+        callback(null, { hasCollect: '' });
+        return;
       }
       callback(null, result.content.list[0]);
     });
@@ -141,42 +143,44 @@ class dealWith {
       url: `http://proxy.app.cztv.com/getSupportStatus.do?videoIdList=${vid}`,
       authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
     };
-        // logger.debug(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('点赞量请求失败');
-        return callback(null, { supportNumber: '' });
+        logger.error('点赞量请求失败', err);
+        callback(null, { supportNumber: '' });
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('点赞量解析失败');
-        logger.info(result);
-        return callback(null, { supportNumber: '' });
+        logger.error('点赞量解析失败', result.body);
+        callback(null, { supportNumber: '' });
+        return;
       }
-      if (result.content == undefined) {
-        return this.getSupport(vid, callback);
+      if (result.content === undefined) {
+        this.getSupport(vid, callback);
+        return;
       }
       callback(null, result.content.list[0]);
     });
   }
-  getComment(task, callback) {
+  getComment(task, aid, callback) {
     const option = {
-      url: `http://api.my.cztv.com/api/list?xid=${task.id}&pid=6&type=video&page=1&rows=10&_=${new Date().getTime()}`,
-      authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
+      url: `${this.settings.spiderAPI.xinlan.comment}&xid=${aid}&pid=${task.id}&page=1&_${new Date().getTime()}`
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('评论量请求失败 ', err);
-        return callback(null, { comment_count: '' });
+        logger.error('评论量请求失败 ', err);
+        callback(null, { comment_count: '' });
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('评论量数据解析失败');
-        return callback(null, { comment_count: '' });
+        logger.error('评论量数据解析失败', result.body);
+        callback(null, { comment_count: '' });
+        return;
       }
-      callback(null, result);
+      callback(null, result.total);
     });
   }
   getVideoInfo(vid, num, callback) {
@@ -186,12 +190,14 @@ class dealWith {
     };
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.debug('单个视频请求失败 ', err);
+        logger.error('单个视频请求失败 ', err);
         if (num <= 1) {
-          num++;
-          return this.getVideoInfo(vid, num, callback);
+          num += 1;
+          this.getVideoInfo(vid, num, callback);
+          return;
         }
-        return callback(null, 'next');
+        callback(null, 'next');
+        return;
       }
       num = 0;
       try {
@@ -199,10 +205,12 @@ class dealWith {
       } catch (e) {
         logger.error('新蓝网单个数据解析失败');
         if (num <= 1) {
-          num++;
-          return this.getVideoInfo(vid, num, callback);
+          num += 1;
+          this.getVideoInfo(vid, num, callback);
+          return;
         }
-        return callback(null, 'next');
+        callback(null, 'next');
+        return;
       }
       callback(null, result.content.list[0]);
     });

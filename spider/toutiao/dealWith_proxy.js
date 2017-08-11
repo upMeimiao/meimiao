@@ -211,29 +211,33 @@ class dealWith {
       hotTime = null,
       bid = task.mapBid;
     const option = {
-      ua: 3,
-      own_ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 NewsArticle/5.9.5.4 JsSdk/2.0 NetType/WIFI (News 5.9.5 10.200000)'
+      headers: {
+        accept: 'application/json',
+        'x-requested-with': 'XMLHttpRequest',
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60 NewsArticle/6.2.6.5 JsSdk/2.0 NetType/WIFI (News 6.2.6 10.300000)'
+      }
     };
     async.whilst(
       () => sign,
       (cb) => {
-        if (index > 200) {
+        if (index >= 400) {
           sign = false;
-          task.total = 50 * index;
+          task.total = 20 * index;
           cb();
           return;
         }
         const { as, cp } = getHoney();
         if (hotTime) {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&cp=${cp}&as=${as}&max_behot_time=${hotTime}`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&from=user_profile_app&max_behot_time=${hotTime}`;
         } else {
-          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&cp=${cp}&as=${as}&max_behot_time=`;
+          option.url = `http://ic.snssdk.com${this.settings.spiderAPI.toutiao.newList}${bid}&uid=${task.encodeId}&cp=${cp}&as=${as}&from=user_profile_app&max_behot_time=`;
         }
         logger.debug(option.url);
         if (proxyStatus && proxy) {
           option.proxy = proxy;
           request.get(logger, option, (error, result) => {
             if (error) {
+              logger.error(error)
               proxyStatus = false;
               this.core.proxy.back(proxy, false);
               cb();
@@ -250,7 +254,8 @@ class dealWith {
               return;
             }
             if (result.has_more === false) {
-              if ((task.id === '1570072688988162' || task.id === '1573581954212878' || task.id === '1566789731554306' || task.id === '1571336929415170' || task.id === '1569456576470017' || task.id === '5836890714' || task.id === '51090620837' || task.id === '51919907973' || task.id === '6104624179' || task.id === '3785249520' || task.id === '52378452732' || task.id === '52673486454' || task.id === '1564257331844098' || task.id === '6357263281' || task.id === '6276458172' || task.id === '6542432526' || task.id === '6104275014' || task.id === '6976935001' || task.id === '6037403091' || task.id === '51174033215') && index === 0) {
+              if (this.core.banned.includes(task.id) && index === 0) {
+              // if ((task.id === '1565649022089218' || task.id === '1562801004838914' || task.id === '50471172620' || task.id === '6044722367' || task.id === '1564010034962434' || task.id === '1570072688988162' || task.id === '1573581954212878' || task.id === '1566789731554306' || task.id === '1571336929415170' || task.id === '1569456576470017' || task.id === '5836890714' || task.id === '51090620837' || task.id === '51919907973' || task.id === '6104624179' || task.id === '3785249520' || task.id === '52378452732' || task.id === '52673486454' || task.id === '1564257331844098' || task.id === '6357263281' || task.id === '6276458172' || task.id === '6542432526' || task.id === '6104275014' || task.id === '6976935001' || task.id === '6037403091' || task.id === '51174033215') && index === 0) {
                 sign = false;
                 cb();
                 return;
@@ -266,7 +271,7 @@ class dealWith {
               return;
             }
             if (!result.data || result.data.length === 0) {
-              task.total = 50 * index;
+              task.total = 20 * index;
               sign = false;
               cb();
               return;
@@ -292,6 +297,7 @@ class dealWith {
             option.proxy = _proxy;
             request.get(logger, option, (err, result) => {
               if (err) {
+                logger.error(err)
                 proxyStatus = false;
                 this.core.proxy.back(_proxy, false);
                 cb();
@@ -308,7 +314,8 @@ class dealWith {
                 return;
               }
               if (result.has_more === false) {
-                if ((task.id === '1570072688988162' || task.id === '1573581954212878' || task.id === '1566789731554306' || task.id === '1571336929415170' || task.id === '1569456576470017' || task.id === '5836890714' || task.id === '51090620837' || task.id === '51919907973' || task.id === '6104624179' || task.id === '3785249520' || task.id === '52378452732' || task.id === '52673486454' || task.id === '1564257331844098' || task.id === '6357263281' || task.id === '6276458172' || task.id === '6542432526' || task.id === '6104275014' || task.id === '6976935001' || task.id === '6037403091' || task.id === '51174033215') && index === 0) {
+                if (this.core.banned.includes(task.id) && index === 0) {
+                // if ((task.id === '1565649022089218' || task.id === '1562801004838914' || task.id === '50471172620' || task.id === '6044722367' || task.id === '1564010034962434' || task.id === '1570072688988162' || task.id === '1573581954212878' || task.id === '1566789731554306' || task.id === '1571336929415170' || task.id === '1569456576470017' || task.id === '5836890714' || task.id === '51090620837' || task.id === '51919907973' || task.id === '6104624179' || task.id === '3785249520' || task.id === '52378452732' || task.id === '52673486454' || task.id === '1564257331844098' || task.id === '6357263281' || task.id === '6276458172' || task.id === '6542432526' || task.id === '6104275014' || task.id === '6976935001' || task.id === '6037403091' || task.id === '51174033215') && index === 0) {
                   sign = false;
                   cb();
                   return;
@@ -320,13 +327,13 @@ class dealWith {
               }
               proxyStatus = true;
               proxy = _proxy;
-                if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
+              if (Number(result.has_more) === 0 && result.data.length === 0 && bid !== task.encodeId) {
                 bid = task.encodeId;
                 cb();
                 return;
               }
               if (!result.data || result.data.length === 0) {
-                task.total = 50 * index;
+                task.total = 20 * index;
                 sign = false;
                 cb();
                 return;
