@@ -314,7 +314,8 @@
     "kaiyan": {
       "list": "https://baobab.kaiyanapp.com/api/v4/pgcs/videoList?v=3.8.0&id=",
       "video": "http://baobab.kaiyanapp.com/api/v1/video/",
-      "programList": "https://baobab.kaiyanapp.com/api/v4/pgcs/detail/playlist?id="
+      "programList": "https://baobab.kaiyanapp.com/api/v4/pgcs/detail/playlist?id=",
+      "comment": "https://baobab.kaiyanapp.com/api/v2/replies/video?videoId="
     },
     "jd": {
       "user": "https://api.m.jd.com/client.action?functionId=jdDiscoveryAuthorPageHead&client=wh5&clientVersion=1.0.0&_=",
