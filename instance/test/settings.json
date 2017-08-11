@@ -244,7 +244,8 @@
       "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp=",
       "userInfo": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_page.json?content=info&caller=1&uid=",
       "programList": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_playlists.json?caller=1&pl=20&uid=",
-      "albumList": "http://c-api.youku.com/collection?brand=apple&btype=iPhone8%2C2&clid="
+      "albumList": "http://c-api.youku.com/collection?brand=apple&btype=iPhone8%2C2&clid=",
+      "comment": "http://p.comments.youku.com/ycp/comment/pc/commentList?app=100-DDwODVkv&objectType=1&listType=0&pageSize=30&objectId="
     },
     "yy": {
       "userInfo": "http://www.yy.com/u/",
