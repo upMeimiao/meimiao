@@ -31,7 +31,6 @@ class spiderCore {
     this.assembly();
   }
   test() {
-    process.env.NODE_ENV = 'production';
     const work = {
       id: 3474255662,
       name: '我叫萌迪迪',
