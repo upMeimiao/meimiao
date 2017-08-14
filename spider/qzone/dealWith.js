@@ -155,25 +155,19 @@ class dealWith {
             if (num <= 1) {
               setTimeout(() => {
                 num += 1;
-                logger.debug('300毫秒之后重新请求一下当前列表');
                 cb();
               }, 300);
               return;
             }
-            setTimeout(() => {
-              start += 10;
-              num = 0;
-              logger.debug('300毫秒之后重新请求下一页列表');
-              cb();
-            }, 300);
+            start += 20;
+            num = 0;
+            cb();
             return;
           }
-          num = 0;
           try {
             result = eval(result.body);
           } catch (e) {
-            logger.error('json数据解析失败');
-            logger.info(result);
+            logger.error('json数据解析失败', result.body);
             callback(e);
             return;
           }
@@ -181,42 +175,30 @@ class dealWith {
             if (num <= 1) {
               setTimeout(() => {
                 num += 1;
-                logger.debug('300毫秒之后重新请求一下');
                 cb();
               }, 300);
               return;
             }
-            setTimeout(() => {
-              num = 0;
-              start += 10;
-              logger.debug('300毫秒之后重新请求下一页列表');
-              cb();
-            }, 300);
+            num = 0;
+            start += 20;
+            cb();
             return;
           }
-          num = 0;
           if (!result.data.friend_data) {
             if (num <= 1) {
               setTimeout(() => {
                 num += 1;
-                logger.debug('300毫秒之后重新请求一下');
                 cb();
               }, 300);
               return;
             }
-            setTimeout(() => {
-              num = 0;
-              start += 10;
-              logger.debug('300毫秒之后重新请求下一页列表');
-              cb();
-            }, 300);
+            num = 0;
+            start += 20;
+            cb();
             return;
           }
-          num = 0;
           const length = result.data.friend_data.length - 1;
-          task.total += length;
           if (length <= 0) {
-            logger.debug('已经没有数据');
             page = 0;
             sign += 1;
             cb();
@@ -226,6 +208,7 @@ class dealWith {
             sign += 1;
             page += 1;
             start += 20;
+            num = 0;
             cb();
           });
         });
@@ -293,6 +276,7 @@ class dealWith {
         forward_num: result[1].fwdnum,
         play_num: result[0].singlefeed['7'].videoplaycnt
       };
+      task.total += 1;
       media = spiderUtils.deleteProperty(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
