@@ -275,6 +275,12 @@ class dealWith {
             cb();
             return;
           }
+          if (result.result.length === 1 && result.result[0].ctype !== 'video_live') {
+            sign = false;
+            task.total = cstart;
+            cb();
+            return;
+          }
           this.deal(task, result.result, () => {
             cstart += 50;
             cend += 50;
