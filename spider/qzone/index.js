@@ -31,9 +31,10 @@ class spiderCore {
     this.assembly();
   }
   test() {
+    process.env.NODE_ENV = 'production';
     const work = {
-      id: 2513883391,
-      name: '陈翔六点半',
+      id: 3474255662,
+      name: '我叫萌迪迪',
       p: 29
     };
     this.dealWith.todo(work, (err, total) => {

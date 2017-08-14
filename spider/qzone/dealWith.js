@@ -6,9 +6,7 @@ const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 const cheerio = require('cheerio');
 
-const _Callback = function (data) {
-  return data;
-};
+const _Callback = (data) => data;
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -279,12 +277,12 @@ class dealWith {
         callback();
         return;
       }
-      const media = {
+      let media = {
         author: video.nickname,
         platform: task.p,
         bid: task.id,
         aid: video.key,
-        title: spiderUtils.stringHandling(result[0].singlefeed['4'].summary, 100),
+        title: spiderUtils.stringHandling(result[0].singlefeed['4'].summary, 100) || 'btwk_caihongip',
         support: result[0].singlefeed['11'].num,
         long_t: result[0].singlefeed['7'].videotime / 1000,
         v_img: result[0].v_img,
@@ -295,6 +293,7 @@ class dealWith {
         forward_num: result[1].fwdnum,
         play_num: result[0].singlefeed['7'].videoplaycnt
       };
+      media = spiderUtils.deleteProperty(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
