@@ -171,6 +171,11 @@ class dealWith {
             callback(e);
             return;
           }
+          if (Number(result.code) === -5008) {
+            page = -1;
+            cb();
+            return;
+          }
           if (!result.data) {
             if (num <= 1) {
               setTimeout(() => {
