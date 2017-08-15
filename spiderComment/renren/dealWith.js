@@ -107,7 +107,7 @@ class dealWith {
             cb();
             return;
           }
-          if (result.data.results <= 0) {
+          if (!result.data || !result.data.results || !result.data.results.length <= 0) {
             cycle = false;
             cb();
             return;
