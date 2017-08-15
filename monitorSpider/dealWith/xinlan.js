@@ -113,8 +113,7 @@ class dealWith {
   }
   getComment(task) {
     let option = {
-      url: `http://api.my.cztv.com/api/list?xid=${task.id}&pid=6&type=video&page=1&rows=10&_=${new Date().getTime()}`,
-      authtoken: '103uXIxNMiH1xVhHVNZWabr1EOqgE3DdXlnzzbldw'
+      url: `${this.settings.spiderAPI.xinlan.comment}&xid=${task.aid}&pid=${task.id}&page=1&_${new Date().getTime()}`
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {
@@ -132,6 +131,12 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; typeErr = null; result = null;
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'json', err: `{error: xinlan-comment-error, data: ${result.body}`, interface: 'getComment', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; task = null; typeErr = null; result = null;

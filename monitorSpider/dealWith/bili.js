@@ -30,6 +30,10 @@ class dealWith {
         media: (cb) => {
           this.getInfo(task);
           cb();
+        },
+        comment: (cb) => {
+          this.getComment(task);
+          cb();
         }
       },
       () => {
@@ -130,6 +134,37 @@ class dealWith {
       }
       if (Number(result.code) !== 0) {
         typeErr = {type: 'data', err: `bili-video-data-error, data: ${JSON.stringify(result)}`, interface: 'getInfo', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+      }
+      option = null; result = null; typeErr = null; task = null;
+    });
+  }
+  getComment(task) {
+    let option = {
+      url: `${this.settings.spiderAPI.bili.time + task.aid}&pn=1`
+    };
+    task.request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; result = null; typeErr = null; task = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'error', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; typeErr = null; task = null;
+        return;
+      }
+      if (result.code == '12002') {
+        typeErr = {type: 'data', err: `bili-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; result = null; typeErr = null; task = null;

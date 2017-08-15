@@ -1,9 +1,9 @@
 {
   "apps": [
     {
-      "name"        : "monitorSpider",
+      "name"        : "comment",
       "script"      : "run.js",
-      "args"        : ["-i","test","-a","monitorSpider"],
+      "args"        : ["-i","comment_t","-a","monitorSpider","-t","comment"],
       "log_date_format"  : "YYYY-MM-DD HH:mm Z",
       "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
       "watch"       : false,

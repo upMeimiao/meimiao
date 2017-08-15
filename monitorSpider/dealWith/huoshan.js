@@ -27,6 +27,10 @@ class dealWith {
         list: (cb) => {
           this.getList(task);
           cb();
+        },
+        comment: (cb) => {
+          this.getComment(task);
+          cb();
         }
       },
       () => {
@@ -133,6 +137,38 @@ class dealWith {
       }
       if (!result || !result.stats) {
         typeErr = {type: 'data', err: `huoshan-videoInfo-data-error, data: ${JSON.stringify(result)}`, interface: 'getVideoInfo', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+      }
+      option = null; result = null; task = null; typeErr = null;
+    });
+  }
+  getComment(task) {
+    let option = {
+      url: `https://api.huoshan.com/hotsoon/item/${task.aid}/comments/?aid=1112&os_version=10.3.1&app_name=live_stream&device_type=iPhone8,2&version_code=2.1.0&count=20&offset=0`,
+      ua: 2
+    };
+    task.request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; result = null; task = null; typeErr = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
+        return;
+      }
+      if (!result.extra) {
+        typeErr = {type: 'data', err: `huoshan-comment-data-error, data: ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; result = null; task = null; typeErr = null;

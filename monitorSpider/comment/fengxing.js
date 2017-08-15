@@ -1,59 +1,30 @@
 /**
- * Created by zhupenghui on 17/6/21.
+ * Created by zhupenghui on 17/8/15.
  */
 let logger, typeErr;
-const sandbox = {
-  jsonp: data => data
-};
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     this.modules = core.modules;
     logger = this.settings.logger;
-    logger.trace('iqiyi comment begin...');
+    logger.trace('fengxing comment begin...');
     core = null;
   }
   start(task, callback) {
     task.core = this.core;
     task.request = this.modules.request;
     task.infoCheck = this.modules.infoCheck;
-    task.vm = this.modules.vm;
-    this.albumid(task, () => {
-      callback();
-    });
-  }
-  albumid(task, callback) {
-    let option = {
-      url: `http://mixer.video.iqiyi.com/jp/mixin/videos/${task.aid}?callback=jsonp&status=1`,
-      ua: 1
-    };
-    task.request.get(logger, option, (err, result) => {
-      if (err) {
-        if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'albumid', url: JSON.stringify(option)};
-          task.infoCheck.interface(task.core, task, typeErr);
-        } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'albumid', url: JSON.stringify(option)};
-          task.infoCheck.interface(task.core, task, typeErr);
-        }
-        option = null; typeErr = null; result = null; task = null;
-        callback();
-        return;
-      }
-      result = task.vm.runInNewContext(result.body, sandbox);
-      task.albumid = result.data.albumId;
-      this.commentList(task, () => {
-        option = null; typeErr = null; result = null; task = null;
-        callback();
-      });
-    });
+    this.commentList(task, () => callback());
   }
   commentList(task, callback) {
     let option = {
-        url: `${this.settings.iqiyi.list}${task.albumid}&tvid=${task.aid}&page=1`
-      };
-    task.request.get(logger, option, (err, result) => {
+      url: `http://api1.fun.tv/comment/display/gallery/${task.bid}?pg=1&isajax=1&dtime=${new Date().getTime()}`
+    };
+    if (task.id.length < 6) {
+      option.url = `http://api1.fun.tv/comment/display/video/${task.aid}?pg=1&pg_size=30&isajax=1&dtime=${new Date().getTime()}`;
+    }
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'commentList', url: JSON.stringify(option)};
@@ -75,8 +46,8 @@ class dealWith {
         callback();
         return;
       }
-      if (!result.data) {
-        typeErr = {type: 'data', err: `评论数据: ${JSON.stringify(result.data)}}`, interface: 'commentList', url: JSON.stringify(option)};
+      if (!result || !result.data) {
+        typeErr = {type: 'data', err: `{error: 评论列表数据error, data: ${JSON.stringify(result)}}`, interface: 'commentList', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; typeErr = null; result = null; task = null;

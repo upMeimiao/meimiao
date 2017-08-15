@@ -109,8 +109,9 @@ class dealWith {
   }
   comment(task) {
     let option = {
-      url: `${this.settings.spiderAPI.aipai.comment + task.aid}.html`,
-      ua: 2
+      url: `${this.settings.spiderAPI.kaiyan.comment + task.aid}&num=50&lastId=`,
+      ua: 3,
+      own_ua: 'Eyepetizer/3107 CFNetwork/811.5.4 Darwin/16.6.0'
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {
@@ -132,7 +133,7 @@ class dealWith {
         option = null; typeErr = null; task = null; result = null;
         return;
       }
-      if (result.total === undefined) {
+      if (!result.total) {
         typeErr = {type: 'data', err: `kaiyan-评论, data: ${JSON.stringify(result)}`, interface: 'comment', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

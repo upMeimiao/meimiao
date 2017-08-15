@@ -14,7 +14,8 @@ const request = require('../lib/request'),
   fetchUrl = require('fetch').fetchUrl,
   platfrom = require('./controllers/platform'),
   infoCheck = require('./controllers/infoCheck'),
-  program = require('./controllers/program');
+  program = require('./controllers/program'),
+  vm = require('vm');
 
 let logger, settings;
 class spiderCore extends events{
@@ -24,7 +25,7 @@ class spiderCore extends events{
     this.settings = settings;
     this.redis = settings.redis;
     this.modules = {
-      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl
+      request, infoCheck, cheerio, async, req, zlib, URL, crypto, fetchUrl, vm
     };
     this.h = '';
     this.time = '';
@@ -89,10 +90,10 @@ class spiderCore extends events{
     this.getTask = new (require('./controllers/beginTask'))(this);
     switch (this.settings.type) {
       case 'video':
-        // for (const [key, value] of platfrom.entries()) {
-        //   videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
-        // }
-        videoList.push({ name: 'aipai', type: 'ceshi', t: 'video', platform: new (require('./dealWith/aipai'))(this) });
+        for (const [key, value] of platfrom.entries()) {
+          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+        }
+        // videoList.push({ name: 'youku', type: 'ceshi', t: 'video', platform: new (require('./dealWith/youku'))(this) });
         platfromObj = { videoList };
         break;
       case 'program':
@@ -104,12 +105,12 @@ class spiderCore extends events{
         platfromObj = { programList };
         break;
       case 'comment':
-        // for (const [key, value] of platfrom.entries()) {
-        //   if (program.program().get(key)) {
-        //     commentList.push({ name: value, type: '', t: 'comment', platform: new (require('./comment/' + value))(this) });
-        //   }
-        // }
-        commentList.push({ name: 'xiaoying', type: '', t: 'comment', platform: new (require('./comment/xiaoying'))(this) });
+        for (const [key, value] of platfrom.entries()) {
+          if (program.program().get(key)) {
+            commentList.push({ name: value, type: 'ceshi', t: 'comment', platform: new (require('./comment/' + value))(this) });
+          }
+        }
+        // commentList.push({ name: 'meimiao', type: '', t: 'comment', platform: new (require('./comment/meimiao'))(this) });
         platfromObj = { commentList };
         break;
       default:
@@ -158,6 +159,9 @@ class spiderCore extends events{
           plat = null;
         }, 12000);
       }
+      process.on('SIGINT', () => {
+        setTimeout(() => { process.exit(0); });
+      });
     };
     // 任务添加
     queue.push(plat, (err) => {

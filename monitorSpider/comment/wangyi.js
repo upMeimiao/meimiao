@@ -1,48 +1,59 @@
 /**
- * Created by zhupenghui on 17/6/21.
+ * Created by zhupenghui on 17/8/14.
  */
 let logger, typeErr;
-const sandbox = {
-  jsonp: data => data
-};
+const videoList = (data) => data;
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     this.modules = core.modules;
     logger = this.settings.logger;
-    logger.trace('iqiyi comment begin...');
+    logger.trace('wangyi comment begin...');
     core = null;
   }
   start(task, callback) {
     task.core = this.core;
     task.request = this.modules.request;
     task.infoCheck = this.modules.infoCheck;
-    task.vm = this.modules.vm;
-    this.albumid(task, () => {
-      callback();
-    });
+    task.cid = task.aid[0] !== 'V' ? task.aid : task.aid.replace('V', '');
+    this.getReplyId(task, () => callback());
   }
-  albumid(task, callback) {
+  getReplyId(task, callback) {
     let option = {
-      url: `http://mixer.video.iqiyi.com/jp/mixin/videos/${task.aid}?callback=jsonp&status=1`,
+      url: `http://3g.163.com/touch/video/detail/jsonp/${task.aid}.html?callback=videoList`,
       ua: 1
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'albumid', url: JSON.stringify(option)};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getReplyId', url: JSON.stringify(option)};
           task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'albumid', url: JSON.stringify(option)};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getReplyId', url: JSON.stringify(option)};
           task.infoCheck.interface(task.core, task, typeErr);
         }
         option = null; typeErr = null; result = null; task = null;
         callback();
         return;
       }
-      result = task.vm.runInNewContext(result.body, sandbox);
-      task.albumid = result.data.albumId;
+      try {
+        result = eval(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'getReplyId', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
+        callback();
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: `{error: 当前视频数据异常, data: ${JSON.stringify(result)}}`, interface: 'getReplyId', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
+        callback();
+        return;
+      }
+      task.replyId = result.replyid;
       this.commentList(task, () => {
         option = null; typeErr = null; result = null; task = null;
         callback();
@@ -51,8 +62,8 @@ class dealWith {
   }
   commentList(task, callback) {
     let option = {
-        url: `${this.settings.iqiyi.list}${task.albumid}&tvid=${task.aid}&page=1`
-      };
+      url: `http://sdk.comment.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/${task.replyId}/comments/newList?limit=10&showLevelThreshold=72&headLimit=0&offset=0&ibc=jssdk`
+    };
     task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -75,8 +86,8 @@ class dealWith {
         callback();
         return;
       }
-      if (!result.data) {
-        typeErr = {type: 'data', err: `评论数据: ${JSON.stringify(result.data)}}`, interface: 'commentList', url: JSON.stringify(option)};
+      if (!result || !result.commentIds) {
+        typeErr = {type: 'data', err: `{error: 评论列表数据error, data: ${JSON.stringify(result)}}`, interface: 'commentList', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; typeErr = null; result = null; task = null;

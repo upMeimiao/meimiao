@@ -161,9 +161,9 @@ class dealWith {
       typeErr = null; option = null; result = null; task = null;
     });
   }
-  getComment(task, sid) {
+  getComment(task) {
     let option = {
-      url: `http://comments.baofeng.com/pull?type=movie&from=2&sort=hot&xid=${sid}&page=1&pagesize=6`
+      url: `http://comments.baofeng.com/pull?type=movie&from=2&sort=new&pagesize=10&xid=${task.aid}&page=1`
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {

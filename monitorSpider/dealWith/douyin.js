@@ -25,6 +25,10 @@ class dealWith {
         list: (cb) => {
           this.list(task);
           cb();
+        },
+        comment: (cb) => {
+          this.getComment(task);
+          cb();
         }
       },
       () => {
@@ -100,6 +104,39 @@ class dealWith {
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; typeErr = null; task = null; result = null;
+    });
+  }
+  getComment(task) {
+    let option = {
+      url: `${this.settings.spiderAPI.douyin.comment + task.aid}&cursor=0&app_name=aweme`,
+      ua: 3,
+      own_ua: 'Aweme/1.4.6 (iPhone; iOS 10.3.2; Scale/3.00)'
+    };
+    task.request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getComment', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; typeErr = null; result = null; task = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'getComment', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
+        return;
+      }
+      if (!result.comments || !result.comments.length) {
+        typeErr = {type: 'data', err: `douyin-comment列表出现异常, data: ${JSON.stringify(result)}`, interface: 'getComment', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+      }
+      option = null; typeErr = null; result = null; task = null;
     });
   }
 }

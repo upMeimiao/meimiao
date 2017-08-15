@@ -262,11 +262,12 @@ class dealWith {
       });
       return;
     }
-    option.url = `http://www.fun.tv/vplay/g-${task.id}.v-${vid}/`;
+    option.url = `http://pm.funshion.com/v5/media/profile?cl=iphone&id=${task.id}&si=0&uc=202&ve=4.0.2.2`;
+    option.ua = 3;
+    option.own_ua = 'Funshion/4.0.2.2 (IOS/10.3.3; iphone; iPhone8,2)';
     task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          console.log('123123123');
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getVideoInfo-原创', url: option.url};
           task.infoCheck.interface(task.core, task, typeErr);
         } else {
@@ -276,13 +277,18 @@ class dealWith {
         typeErr = null; task = null; result = null; option = null;
         return;
       }
-      let $ = task.cheerio.load(result.body),
-        vidClass = $('div.crumbsline a');
-      if (!vidClass.length) {
-        typeErr = {type: 'data', err: `fengxing-原创-视频详情页DOM结构异常, data: ${JSON.stringify(vidClass.length)}`, interface: 'getVideoInfo-原创', url: option.url};
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        logger.error('专辑视频解析失败', result.body);
+        callback('next');
+        return;
+      }
+      if (!result || !result.release) {
+        typeErr = {type: 'data', err: `fengxing-原创-视频数据异常, data: ${JSON.stringify(result)}`, interface: 'getVideoInfo-原创', url: JSON.stringify(option.url)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
-      typeErr = null; task = null; result = null; option = null; $ = null; vidClass = null;
+      typeErr = null; task = null; result = null; option = null;
     });
   }
   getComment(task, vid) {

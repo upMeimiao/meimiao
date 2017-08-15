@@ -28,6 +28,10 @@ class dealWith {
         list: (cb) => {
           this.getList(task);
           cb();
+        },
+        comment: (cb) => {
+          this.getComment(task);
+          cb();
         }
       },
       () => {
@@ -123,7 +127,39 @@ class dealWith {
         typeErr = {type: 'data', err: `bolo-videoInfo-数据异常, data: ${JSON.stringify(result)}`, interface: 'getVideoInfo', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null; result = null; task = null;
+      option = null; typeErr = null; result = null; task = null;
+    });
+  }
+  getComment(task) {
+    let option = {
+      url: `http://bolo.163.com/bolo/api/video/commentList.htm?videoId=${task.aid}&pageNum=1&pageSize=-1&type=0`,
+      ua: 1
+    };
+    task.request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; typeErr = null; result = null; task = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
+        return;
+      }
+      if (!result.data || result.data.length <= 0) {
+        typeErr = {type: 'data', err: `bolo-comment-数据异常, data: ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+      }
+      option = null; result = null; task = null; typeErr = null;
     });
   }
 }

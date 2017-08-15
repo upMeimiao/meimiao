@@ -1,29 +1,40 @@
 /**
- * Created by zhupenghui on 17/7/31.
+ * Created by zhupenghui on 17/8/15.
  */
-const jsonp = (data) => data;
 let logger, typeErr;
+const cookieStr = () => {
+  const str = 'qwertyuiopasdfghjklzxcvbnm0123456789';
+  let cookie = '';
+  for (let i = 0; i < 39; i += 1) {
+    cookie += str.charAt(Math.floor(Math.random() * str.length));
+  }
+  return `wjgl_device_id=${cookie};`;
+};
 class dealWith {
   constructor(core) {
     this.core = core;
     this.settings = core.settings;
     this.modules = core.modules;
     logger = this.settings.logger;
-    logger.trace('tencent comment begin...');
+    logger.trace('youliao comment begin...');
     core = null;
   }
   start(task, callback) {
     task.core = this.core;
     task.request = this.modules.request;
     task.infoCheck = this.modules.infoCheck;
-    this.commentId(task, () => {
-      callback();
-    });
+    task.cookie = cookieStr();
+    this.commentId(task, () => callback());
   }
   commentId(task, callback) {
     let option = {
-        url: this.settings.tencent.commentId + task.aid
-      };
+      url: `http://wjgl.xlmc.xunlei.com/video/share?videoId=${task.aid}&hmsr=youliaoios&newRec=true`,
+      headers: {
+        'Upgrade-Insecure-Requests': 1,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        cookie: task.cookie
+      }
+    };
     task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
@@ -37,32 +48,40 @@ class dealWith {
         callback();
         return;
       }
-      try {
-        result = eval(result.body);
-      } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'commentId', url: JSON.stringify(option)};
+      result = result.body.replace(/[\n\s\r]/g, '');
+      const cid = result.match(/gcid='(\w*)/);
+      if (!cid) {
+        typeErr = {type: 'data', err: `{error: 评论列表异常, data: ${JSON.stringify(result)}}`, interface: 'commentId', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; typeErr = null; result = null; task = null;
         callback();
         return;
       }
-      if (!result.comment_id) {
-        typeErr = {type: 'data', err: `评论ID异常: ${JSON.stringify(result)}}`, interface: 'commentId', url: JSON.stringify(option)};
-        task.infoCheck.interface(task.core, task, typeErr);
+      this.commentList(task, cid[1], () => {
         option = null; typeErr = null; result = null; task = null;
         callback();
-        return;
-      }
-      this.commentList(task, result.comment_id);
-      option = null; typeErr = null; result = null; task = null;
-      callback();
+      });
     });
   }
-  commentList(task, cid) {
+  commentList(task, cid, callback) {
     let option = {
-      url: `https://coral.qq.com/article/${cid}/comment?reqnum=20&commentid=0`
+      url: this.settings.youliao,
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'X-Requested-With': 'X-Requested-With',
+        cookie: task.cookie
+      },
+      data: {
+        tid: cid,
+        typeId: 1,
+        lastId: '',
+        type: 'loadmore',
+        pageSize: 20,
+        category: 'new'
+      }
     };
-    task.request.get(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'commentList', url: JSON.stringify(option)};
@@ -72,25 +91,24 @@ class dealWith {
           task.infoCheck.interface(task.core, task, typeErr);
         }
         option = null; typeErr = null; result = null; task = null;
+        callback();
         return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'commentList', url: JSON.stringify(option)};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'commentList', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; typeErr = null; result = null; task = null;
+        callback();
         return;
       }
-      if (Number(result.errCode) !== 0) {
-        typeErr = {type: 'data', err: `评论列表异常: ${JSON.stringify(result)}}`, interface: 'commentList', url: JSON.stringify(option)};
-        task.infoCheck.interface(task.core, task, typeErr);
-      }
-      if (!result.data || !result.data.commentid) {
-        typeErr = {type: 'data', err: `评论列表异常: ${JSON.stringify(result)}}`, interface: 'commentList', url: JSON.stringify(option)};
+      if (!result || !result.conmments) {
+        typeErr = {type: 'data', err: `{error: 评论列表异常, data: ${JSON.stringify(result)}`, interface: 'commentList', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; typeErr = null; result = null; task = null;
+      callback();
     });
   }
 }

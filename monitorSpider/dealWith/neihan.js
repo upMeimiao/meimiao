@@ -26,6 +26,10 @@ class dealWith {
         list: (cb) => {
           this.list(task);
           cb();
+        },
+        comment: (cb) => {
+          this.getComment(task);
+          cb();
         }
       },
       () => {
@@ -96,6 +100,37 @@ class dealWith {
         task.infoCheck.interface(task.core, task, typeErr);
       }
       data = null; option = null; result = null; task = null; typeErr = null;
+    });
+  }
+  getComment(task) {
+    let option = {
+      url: `${this.settings.spiderAPI.neihan.comment + task.aid}&offset=0`
+    };
+    task.request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getComment', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; result = null; task = null; typeErr = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: `budejie-comment-data-null, data: ${JSON.stringify(result)}`, interface: 'getComment', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+      }
+      option = null; result = null; task = null; typeErr = null;
     });
   }
 }

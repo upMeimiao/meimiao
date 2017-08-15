@@ -149,7 +149,7 @@ class dealWith {
   }
   comment(task) {
     let option = {
-      url: `${this.settings.spiderAPI.aipai.comment}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${vid}.html`,
+      url: `${this.settings.spiderAPI.aipai.comment}_spread-0_mobile-1_appver-i3.6.1_type-2_cid-${task.aid}.html`,
       ua: 3,
       own_ua: 'Aipai/342 (iPhone; iOS 10.3.2; Scale/3.0) aipai/iOS/aipai/aipai/v(342)'
     };
@@ -173,7 +173,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (!result.total) {
+      if (!result.list || !result.list.length) {
         typeErr = {type: 'data', err: `aipai-评论数: ${JSON.stringify(result)}}`, interface: 'comment', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

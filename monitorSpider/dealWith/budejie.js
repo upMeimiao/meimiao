@@ -98,5 +98,36 @@ class dealWith {
       option = null; result = null; data = null; typeErr = null; task = null;
     });
   }
+  getComment(task) {
+    let option = {
+      url: `${this.settings.spiderAPI.budejie.comment + task.aid}&page=1`
+    };
+    task.request.get(logger, option, (err, result) => {
+      if (err) {
+        if (err.status && err.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'getComment', url: option.url};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; result = null; typeErr = null; task = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; typeErr = null; task = null;
+        return;
+      }
+      if (result == '' || result.total === 0) {
+        typeErr = {type: 'data', err: `budejie-comment-data-null, data: ${JSON.stringify(result)}`, interface: 'getComment', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+      }
+      option = null; result = null; typeErr = null; task = null;
+    });
+  }
 }
 module.exports = dealWith;
