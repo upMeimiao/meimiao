@@ -40,9 +40,13 @@ class dealWith {
       () => cycle,
       (cb) => {
         option.url = `${this.settings.meipai + task.aid}&max_id=${maxId}&sigTime=${time}`;
-        logger.debug(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
+            if (Number(err.status) === 400 && Number(err.message) === 400) {
+              cycle = false;
+              cb();
+              return;
+            }
             logger.error('美拍评论列表请求失败', err);
             cb();
             return;
