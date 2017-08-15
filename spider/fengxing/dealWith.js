@@ -19,6 +19,16 @@ const getVidTime = (time) => {
   }
   return longT;
 };
+const __time = (time) => {
+  if (!time) {
+    return '';
+  }
+  if (typeof time !== 'string') {
+    return '';
+  }
+  time = moment(`${time.replace(/[年月日]/g, '')} 00:00:00`, 'YYYYMMDD HH:mm:ss').format('X');
+  return time === 'Invalid date' ? '' : time;
+};
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -83,7 +93,7 @@ class dealWith {
           callback(e.message);
           return;
         }
-        if (result.retcode == 404) {
+        if (Number(result.retcode) === 404) {
           spiderUtils.banned(this.core.taskDB, `${task.p}_${task.id}_${task.name}`);
           callback();
           return;
@@ -118,7 +128,7 @@ class dealWith {
       for (let i = 0; i < list.length; i += 1) {
         const bid = list.eq(i).attr('block').match(/g_\d*/).toString()
           .replace('g_', '');
-        if (task.id == bid) {
+        if (Number(task.id) === Number(bid)) {
           user.fans_num = list.eq(i).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text();
           // logger.info(user);
           this.sendUser(user);
@@ -315,7 +325,7 @@ class dealWith {
             callback();
             return;
           }
-          const media = {
+          let media = {
             author: task.name,
             platform: task.p,
             bid: task.id,
@@ -330,6 +340,7 @@ class dealWith {
             v_url: result[0].share ? result[0].share : '',
             a_create_time: result[0].release ? result[0].release : ''
           };
+          media = spiderUtils.deleteProperty(media);
           spiderUtils.saveCache(this.core.cache_db, 'cache', media);
           spiderUtils.commentSnapshots(this.core.taskDB,
             { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -350,7 +361,7 @@ class dealWith {
             callback();
             return;
           }
-          const media = {
+          let media = {
             author: task.name,
             platform: task.p,
             bid: task.id,
@@ -364,7 +375,7 @@ class dealWith {
             v_url: `http://www.fun.tv/vplay/g-${task.id}.v-${video.id}/`,
             a_create_time: result[0].time
           };
-          // logger.debug(media);
+          media = spiderUtils.deleteProperty(media);
           spiderUtils.saveCache(this.core.cache_db, 'cache', media);
           spiderUtils.commentSnapshots(this.core.taskDB,
             { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -409,64 +420,33 @@ class dealWith {
         }
       );
     } else {
-      option.url = `http://www.fun.tv/vplay/g-${task.id}.v-${vid}/`;
-      logger.debug(option.url);
-      async.waterfall(
-        [
-          (cb) => {
-            this.getCreatTime(task.id, vid, (error, result) => {
-              cb(error, result);
-            });
-          }
-        ],
-        (err, data) => {
-          request.get(logger, option, (error, result) => {
-            if (error) {
-              logger.error('单个DOM接口请求错误 : ', error);
-              callback('next');
-              return;
-            }
-            const $ = cheerio.load(result.body),
-              vidClass = $('div.crumbsline a').eq(1).text(),
-              res = {
-                class: vidClass || '',
-                time: data || ''
-              };
-            if (!res.time) {
-              callback('next');
-              return;
-            }
-            this.comment(task, (e, comment) => {
-              res.comment_num = comment;
-              callback(null, res);
-            });
-          });
+      option.url = `http://pm.funshion.com/v5/media/profile?cl=iphone&id=${task.id}&si=0&uc=202&ve=4.0.2.2`;
+      option.ua = 3;
+      option.own_ua = 'Funshion/4.0.2.2 (IOS/10.3.3; iphone; iPhone8,2)';
+      request.get(logger, option, (error, result) => {
+        if (error) {
+          logger.error('单个DOM接口请求错误 : ', error);
+          callback('next');
+          return;
         }
-      );
+        try {
+          result = JSON.parse(result.body);
+        } catch (e) {
+          logger.error('专辑视频解析失败', result.body);
+          callback('next');
+          return;
+        }
+        const time = __time(result.release),
+          res = {
+            class: result.channel,
+            time
+          };
+        this.comment(task, (e, comment) => {
+          res.comment_num = comment;
+          callback(null, res);
+        });
+      });
     }
-  }
-  getCreatTime(id, vid, callback) {
-    const option = {
-      url: `http://api1.fun.tv/ajax/new_playinfo/gallery/${vid}/?user=funshion&mid=${id}`
-    };
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('time接口请求错误 : ', err);
-        callback(err);
-        // TODO 错误重试
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info(result);
-        callback(e);
-        return;
-      }
-      result.data.number = moment(`${result.data.number} 00:00:00`, 'YYYYMMDD HH:mm:ss').format('X');
-      callback(null, result.data.number);
-    });
   }
   getComment(vid, callback) {
     const option = {
