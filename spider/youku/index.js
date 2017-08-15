@@ -36,8 +36,8 @@ class spiderCore {
     const work = {
       p: 1,
       name: '洪冰瑶',
-      id: '401218607',
-      encodeId: 'UMTYwNDg3NDQyOA=='
+      id: '391203782',
+      encodeId: 'UMTU2NDgxNTEyOA=='
     };
     this.dealWith.todo(work, (err, total, uid) => {
       logger.debug(total);

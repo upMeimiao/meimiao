@@ -427,6 +427,10 @@ class dealWith {
         callback(null, '');
         return;
       }
+      if (!body.data) {
+        callback(null, '');
+        return;
+      }
       callback(null, body.data.totalSize);
     });
   }

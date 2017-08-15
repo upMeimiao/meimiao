@@ -29,9 +29,11 @@ class dealWith {
     });
   }
   total(task, callback) {
-    const option = {
-      url: `http://api1.fun.tv/comment/display/gallery/${task.bid}?pg=1&isajax=1&dtime=${new Date().getTime()}`
-    };
+    const option = {};
+    option.url = `http://api1.fun.tv/comment/display/gallery/${task.bid}?pg=1&isajax=1&dtime=${new Date().getTime()}`;
+    if (task.bid.length < 6) {
+      option.url = `http://api1.fun.tv/comment/display/video/${task.aid}?pg=1&pg_size=30&isajax=1&dtime=${new Date().getTime()}`;
+    }
     let total = 0;
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -78,6 +80,9 @@ class dealWith {
       () => page <= total,
       (cb) => {
         option.url = `http://api1.fun.tv/comment/display/gallery/${task.bid}?pg=${page}&isajax=1&dtime=${new Date().getTime()}`;
+        if (task.bid.length < 6) {
+          option.url = `http://api1.fun.tv/comment/display/video/${task.aid}?pg=${page}&pg_size=30&isajax=1&dtime=${new Date().getTime()}`;
+        }
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('风行网评论列表请求失败', err);

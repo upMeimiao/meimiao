@@ -121,10 +121,15 @@ class dealWith {
           this.videoInfo(video.data.id, (err, result) => {
             cb(null, result);
           });
+        },
+        (cb) => {
+          this.comment(video.data.id, (err, result) => {
+            cb(null, result);
+          });
         }
       ],
       (err, result) => {
-        if (result === 'next') {
+        if (result[0] === 'next') {
           callback();
           return;
         }
@@ -138,7 +143,7 @@ class dealWith {
           a_create_time: parseInt(video.data.date / 1000, 10),
           v_img: video.data.cover.feed,
           class: result[0].class,
-          comment_num: result[0].comment,
+          comment_num: result[1],
           long_t: result[0].long_t,
           save_num: result[0].save_num,
           forward_num: result[0].share,
@@ -146,7 +151,7 @@ class dealWith {
           tag: result[0].tag
         };
         task.total = task.total || video.data.author.videoNum;
-        // logger.info(media);
+        logger.info(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -190,8 +195,9 @@ class dealWith {
   }
   comment(vid, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.aipai.comment + vid}.html`,
-      ua: 2
+      url: `${this.settings.spiderAPI.kaiyan.comment + vid}&num=50&lastId=`,
+      ua: 3,
+      own_ua: 'Eyepetizer/3107 CFNetwork/811.5.4 Darwin/16.6.0'
     };
     request.get(logger, option, (err, result) => {
       if (err) {

@@ -21,15 +21,18 @@ class hostTime {
     });
   }
   getTime(task, callback) {
-    let page = 1,
-      total = Number(this.settings.commentTotal) % 10 === 0 ? Number(this.settings.commentTotal) / 10 : Math.ceil(Number(this.settings.commentTotal) / 10),
-      option = {};
+    const option = {},
+      total = Number(this.settings.commentTotal) % 10 === 0 ?
+        Number(this.settings.commentTotal) / 10 :
+        Math.ceil(Number(this.settings.commentTotal) / 10);
+    let page = 1;
     async.whilst(
       () => page <= total,
       (cb) => {
-        option = {
-          url: `http://api1.fun.tv/comment/display/gallery/${task.bid}?pg=${page}&isajax=1&dtime=${new Date().getTime()}`
-        };
+        option.url = `http://api1.fun.tv/comment/display/gallery/${task.bid}?pg=${page}&isajax=1&dtime=${new Date().getTime()}`;
+        if (task.bid.length < 6) {
+          option.url = `http://api1.fun.tv/comment/display/video/${task.aid}?pg=${page}&pg_size=30&isajax=1&dtime=${new Date().getTime()}`;
+        }
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('风行网评论列表请求失败', err);
