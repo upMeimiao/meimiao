@@ -85,12 +85,13 @@ class dealWith {
         callback(e);
         return;
       }
-      if (result.resultCode == 5 || result.resultMsg == '该文章已经下线！' || !result.postInfo) {
+      if (Number(result.resultCode) === 5 || result.resultMsg == '该文章已经下线！' || !result.postInfo) {
         callback();
         return;
       }
-      const postId = result.postInfo.postId,
-        postUserId = result.content.authors != '' ? result.content.authors[0].userId : '';
+      const postId = result.postInfo.postId;
+      let postUserId = result.content.authors.length ? result.content.authors[0].userId : '';
+      postUserId = postUserId || (result.postInfo.childList[0].userInfo.userId || '');
       if (postId) {
         this.commentList(task, postId, postUserId, () => {
           callback();
