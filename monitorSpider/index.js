@@ -47,6 +47,9 @@ class spiderCore extends events{
     this.on('error', (massage) => {
       this.error_event(massage);
     });
+    setTimeout(() => {
+      process.exit(0);
+    }, 3600000);
   }
   getH() {
     const options = { method: 'POST',
@@ -153,15 +156,12 @@ class spiderCore extends events{
           this.beginTask(plat);
           plat = null;
         }, 20000);
-      } else {
-        setTimeout(() => {
-          this.beginTask(plat);
-          plat = null;
-        }, 12000);
+        return;
       }
-      process.on('SIGINT', () => {
-        setTimeout(() => { process.exit(0); });
-      });
+      setTimeout(() => {
+        this.beginTask(plat);
+        plat = null;
+      }, 12000);
     };
     // 任务添加
     queue.push(plat, (err) => {
