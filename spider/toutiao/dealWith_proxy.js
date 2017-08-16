@@ -114,7 +114,7 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.toutiao.user + task.encodeId,
       ua: 3,
-      own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
+      own_ua: 'News 6.1.6 rv:6.1.6.7 (iPhone; iOS 10.3.3; zh_CN) Cronet'
     };
     request.get(logger, option, (err, result) => {
       if (err) {
@@ -131,14 +131,14 @@ class dealWith {
         callback('fail');
         return;
       }
-      let fans = result.data.total_cnt;
-      if (Number(fans) === 0 && result.data.users.length !== 0) {
-        callback('fail');
-        return;
-      }
-      if (typeof fans === 'string' && fans.indexOf('万') !== -1) {
-        fans = fans.replace('万', '') * 10000;
-      }
+      const fans = result.data.followers_count;
+      // if (Number(fans) === 0 && result.data.users.length !== 0) {
+      //   callback('fail');
+      //   return;
+      // }
+      // if (typeof fans === 'string' && fans.indexOf('万') !== -1) {
+      //   fans = fans.replace('万', '') * 10000;
+      // }
       if (Number(fans) === 0) {
         logger.info('粉丝数发生异常：', result);
       }

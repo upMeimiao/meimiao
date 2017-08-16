@@ -47,7 +47,7 @@
       "play": "http://cache.video.qiyi.com/jp/pc/"
     },
     "toutiao": {
-      "user": "http://lf.snssdk.com/user/followed/?version_code=6.1.5&app_name=news_article&openudid=c256e77ee51569ab2969b4ffadad6e7d8e4abe82&live_sdk_version=1.6.5&count=50&offset=0&user_id=",
+      "user": "https://is.snssdk.com/user/profile/homepage/v3/?version_code=6.1.6&app_name=news_article&channel=App%20Store&resolution=1242*2208&aid=13&ab_feature=z1&openudid=63859114aeb13e8eecab5cd43a0d6edd89177886&live_sdk_version=1.6.5&ac=WIFI&os_version=10.3.3&ssmix=a&device_platform=iphone&device_type=iPhone%206S%20Plus&refer=default&user_id=",
       "newList": "/pgc/ma/?page_type=0&output=json&is_json=1&count=50&version=2&media_id=",
       "list": "http://toutiao.com/ma_mobile/?page_type=0&count=10&version=2&media_id=",
       "info_old": "http://is.snssdk.com/2/article/information/v14/?aggr_type=2&group_id=",
