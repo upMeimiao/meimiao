@@ -58,7 +58,7 @@ class dealWith {
     let option = {
       url: this.settings.spiderAPI.toutiao.user + task.encodeId,
       ua: 3,
-      own_ua: 'News/5.9.5 (iPhone; iOS 10.2; Scale/3.00)'
+      own_ua: 'News 6.1.6 rv:6.1.6.7 (iPhone; iOS 10.3.3; zh_CN) Cronet'
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {
@@ -87,7 +87,7 @@ class dealWith {
         return;
       }
       let fans = result.data.total_cnt;
-      if (Number(fans) === 0 && result.data.users.length !== 0) {
+      if (Number(fans) === 0) {
         typeErr = {type: 'data', err: `toutiao-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
