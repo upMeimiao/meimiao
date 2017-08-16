@@ -112,11 +112,10 @@ class dealWith {
       return;
     }
     const option = {
-      url: this.settings.spiderAPI.toutiao.user2 + task.encodeId,
+      url: this.settings.spiderAPI.toutiao.user + task.encodeId,
       ua: 3,
       own_ua: 'News 6.1.6 rv:6.1.6.7 (iPhone; iOS 10.3.3; zh_CN) Cronet'
     };
-    logger.debug(option.url);
     request.get(logger, option, (err, result) => {
       if (err) {
         callback(err);
