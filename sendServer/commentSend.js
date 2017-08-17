@@ -71,7 +71,7 @@ class commentSend extends events {
       // if (elem.platform < 40 || Number(elem.platform) === 44) {
       //   newList.push(elem);
       // }
-      if (Number(elem.platform) < 48) {
+      if (Number(elem.platform) < 51) {
         newList.push(elem);
       }
     }
