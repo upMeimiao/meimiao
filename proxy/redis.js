@@ -17,10 +17,10 @@ class redis {
   ready(callback) {
     let keyPrefix;
     switch (os.hostname()) {
-      case 'servant_3':
+      case 'iZm5e5rntb358m27cwxt15Z':
         keyPrefix = 'weibo_';
         break;
-      case 'iZ28ilm78mlZ':
+      case 'iZm5e5cyw3eugnuyw2qeuqZ':
         keyPrefix = 'toutiao_';
         break;
       default:
