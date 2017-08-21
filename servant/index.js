@@ -137,11 +137,11 @@ class spiderCore {
       case 'new.item.btime.com':
         this.handle.btimeHandle(ctx, remote);
         break;
-      case 'www.weishi.com':
-      case 'weishi.com':
-      case 'weishi.qq.com':
-        this.handle.weishiHandle(ctx, remote);
-        break;
+      // case 'www.weishi.com':
+      // case 'weishi.com':
+      // case 'weishi.qq.com':
+      //   this.handle.weishiHandle(ctx, remote);
+      //   break;
       case 'xiaoying.tv':
         this.handle.xiaoyingHandle(ctx, remote);
         break;

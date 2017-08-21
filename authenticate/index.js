@@ -115,11 +115,11 @@ class spiderCore {
       case 'item.btime.com':
         handle.btimeHandle(ctx, verifyData);
         break;
-      case 'www.weishi.com':
-      case 'weishi.com':
-      case 'weishi.qq.com':
-        handle.weishiHandle(ctx, verifyData);
-        break;
+      // case 'www.weishi.com':
+      // case 'weishi.com':
+      // case 'weishi.qq.com':
+      //   handle.weishiHandle(ctx, verifyData);
+      //   break;
       case 'xiaoying.tv':
         handle.xiaoyingHandle(ctx, verifyData);
         break;
