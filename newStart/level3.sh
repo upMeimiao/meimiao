@@ -59,10 +59,6 @@ echo "启动暴风影音"
 pm2 start ~/newStart/baofeng.json
 echo "任务暴风影音启动完成"
 
-echo "启动微视"
-pm2 start ~/newStart/weishi.json
-echo "任务微视启动完成"
-
 echo "启动北京时间"
 pm2 start ~/newStart/btime.json
 echo "任务北京时间启动完成"
