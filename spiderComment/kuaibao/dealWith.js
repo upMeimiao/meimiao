@@ -129,6 +129,11 @@ class dealWith {
             cb();
             return;
           }
+          if (!result.comments) {
+            page += 1;
+            cb();
+            return;
+          }
           this.deal(task, result.comments.new, () => {
             if (task.isEnd) {
               callback();
