@@ -401,6 +401,8 @@ class DealWith {
       const back = eval(result.body);
       if (!back.ugc || !back.vppinfo || !back.vppinfo.isvpp || back.result && (back.result.code == -200 || back.result.code == -12)) {
         option.url = data;
+        option.ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36';
+        // console.log(option.url);
         request.get(option, (err, result) => {
           if (err) {
             logger.error('occur error : ', err);
@@ -410,12 +412,13 @@ class DealWith {
             logger.error('腾讯状态码错误2', result.statusCode);
             return callback(true, { code: 102, p: 4 });
           }
+          logger.debug(result.body);
           let $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-          let id, href, name, avatar, idDom
+          let id, href, name, avatar, idDom;
           if (num.length === 0) {
-            id = $('div[data-euin]').attr('data-euin')
-            href = `http://v.qq.com/vplus/${id}`
+            id = $('div[data-euin]').attr('data-euin');
+            href = `http://v.qq.com/vplus/${id}`;
           } else {
             let user = $('.user_info')
               href = user.attr('href')
@@ -425,6 +428,9 @@ class DealWith {
             avatar = $('div.video_user._video_user a.user_info img').attr('src');
             name = name || $('div.video_user a.user_info').attr('title');
             avatar = avatar || $('div.video_user img.user_avatar').attr('src');
+          }
+          if (avatar && !avatar.includes('http')) {
+            avatar = `http:${avatar}`;
           }
           if (name && avatar) {
             res = {
@@ -437,7 +443,7 @@ class DealWith {
             return;
           }
           option.url = href;
-          // logger.debug(option.url);
+          logger.debug(option.url);
           request.get(option, (err, result) => {
             if (err) {
               logger.error('occur error : ', err);
@@ -462,6 +468,9 @@ class DealWith {
             } else {
               avatar = '';
             }
+            if (avatar && !avatar.includes('http')) {
+              avatar = `http:${avatar}`;
+            }
             res = {
               id,
               name,
@@ -469,7 +478,6 @@ class DealWith {
               p: 4
             };
             callback(null, res);
-            return;
           });
         });
       } else {
@@ -478,14 +486,18 @@ class DealWith {
         //   return;
         // }
         const nameIs = back.vppinfo.nick ? back.vppinfo.nick : back.vppinfo.nickdefault;
-        if (nameIs && nameIs !== '' ) {
+        if (nameIs && nameIs !== '') {
           res = {
             id: back.vppinfo.euin,
             name: nameIs,
             avatar: back.vppinfo.avatar ? (back.vppinfo.avatar.replace('/60', '/0')) : '',
             p: 4
           };
-          return callback(null, res);
+          if (res.avatar && !res.avatar.includes('http')) {
+            res.avatar = `http:${res.avatar}`;
+          }
+          callback(null, res);
+          return;
         }
         option.url = data;
         request.get(option, (err, result) => {
@@ -497,9 +509,9 @@ class DealWith {
             logger.error('腾讯状态码错误2', result.statusCode);
             return callback(true, { code: 102, p: 4 });
           }
-          let $ = cheerio.load(result.body),
+          const $ = cheerio.load(result.body),
             num = $('.btn_book .num');
-          let user = $('.user_info'),
+          const user = $('.user_info'),
             href = user.attr('href'),
             id = href.substring(href.lastIndexOf('/') + 1);
           option.url = href;
@@ -512,9 +524,9 @@ class DealWith {
               logger.error('腾讯状态码错误3', result.statusCode);
               return callback(true, { code: 102, p: 4 });
             }
-            const $ = cheerio.load(result.body),
-              nameDom1 = $('h2.user_info_name'),
-              nameDom2 = $('#userInfoNick');
+            const _$ = cheerio.load(result.body),
+              nameDom1 = _$('h2.user_info_name'),
+              nameDom2 = _$('#userInfoNick');
             let name;
             if (nameDom1.length === 0) {
               name = nameDom2.text();
@@ -524,10 +536,13 @@ class DealWith {
             res = {
               id,
               name,
-              avatar: $('#userAvatar').attr('src') ? $('#userAvatar').attr('src') : '',
+              avatar: _$('#userAvatar').attr('src') ? _$('#userAvatar').attr('src') : '',
               p: 4
             };
-            return callback(null, res);
+            if (res.avatar && !res.avatar.includes('http')) {
+              res.avatar = `http:${res.avatar}`;
+            }
+            callback(null, res);
           });
         });
       }
