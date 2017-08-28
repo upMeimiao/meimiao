@@ -246,14 +246,22 @@ class dealWith {
         return;
       }
       const _$ = cheerio.load(result.body),
-        script = _$('script').eq(15).html().replace(/[\n\r\t]/g, ''),
-        startIndex = script.indexOf('var data = '),
+        script = _$('script').eq(15).html();
+      let dataJson = null, startIndex = null, lastIndex = null;
+      if (!script) {
+        dataJson = _$('script').eq(14).html().replace(/[\n\r\s]/g, '');
+        startIndex = dataJson.indexOf('data:{');
+        lastIndex = dataJson.indexOf(',req_id:');
+        result = dataJson.substring(startIndex + 5, lastIndex);
+      } else {
+        startIndex = script.indexOf('var data = ');
         lastIndex = script.indexOf('};');
+        result = script.substring(startIndex + 11, lastIndex + 1);
+      }
       if (startIndex === -1 || lastIndex === -1) {
         callback('next');
         return;
       }
-      result = script.substring(startIndex + 11, lastIndex + 1);
       try {
         result = JSON.parse(result);
       } catch (e) {
