@@ -246,9 +246,14 @@ class dealWith {
         return;
       }
       const _$ = cheerio.load(result.body),
-        script = _$('script').eq(15).html().replace('$', '');
-      result = script.replace(/[\n\r\t]/g, '');
-      result = result.substring(result.indexOf('var data = ') + 11, result.indexOf('};') + 1);
+        script = _$('script').eq(15).html().replace(/[\n\r\t]/g, ''),
+        startIndex = script.indexOf('var data = '),
+        lastIndex = script.indexOf('};');
+      if (startIndex === -1 || lastIndex === -1) {
+        callback('next');
+        return;
+      }
+      result = script.substring(startIndex + 11, lastIndex + 1);
       try {
         result = JSON.parse(result);
       } catch (e) {
