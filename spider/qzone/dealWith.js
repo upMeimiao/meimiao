@@ -17,7 +17,7 @@ class dealWith {
   }
   todo(task, callback) {
     task.total = 0;
-    if (task.id === '1816475038' || task.id === '550923413') {
+    if (task.id === '1816475038' || task.id === '550923413', task.id === '2682184134') {
       callback(null, task.total);
       return;
     }
@@ -149,6 +149,7 @@ class dealWith {
       (cb) => {
         option.url = `${this.settings.spiderAPI.qzone.listVideo + task.id}&start=${start}`;
         option.referer = `https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_module?i_uin=${task.id}&mode=4&previewV8=1&style=31&version=8&needDelOpr=true&transparence=true&hideExtend=false&showcount=10&MORE_FEEDS_CGI=http%3A%2F%2Fic2.qzone.qq.com%2Fcgi-bin%2Ffeeds%2Ffeeds_html_act_all&refer=2&paramstring=os-win7|100`;
+        console.log(option.url);
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.error('接口请求错误 : ', err);
