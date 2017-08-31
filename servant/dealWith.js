@@ -1530,6 +1530,7 @@ class DealWith {
         };
         callback(null, res);
       });
+      return;
     }
     if (bid.length > 10) {
       option.url = remote;
