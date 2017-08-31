@@ -1488,29 +1488,64 @@ class DealWith {
     });
   }
   weibo(remote, callback) {
-    let urlObj = URL.parse(remote, true),
+    const urlObj = URL.parse(remote, true),
       host = urlObj.hostname,
       path = urlObj.pathname,
-      bid = path.match(/\/\d*/).toString().replace(/\//g, ''),
       option = {},
-      v_id;
-    if (bid == '') {
-      bid = path.match(/status\/\d*/).toString().replace(/status\//, '');
+      _bid = path.match(/status\/(\d*)/) ? path.match(/status\/(\d*)/)[1] : '';
+    let bid = path.match(/\/(\d*)/) ? path.match(/\/(\d*)/)[1] : '';
+    bid = bid || _bid;
+    if (!bid) {
+      option.url = remote;
+      option.ua = 'baiduspider';
+      request.get(option, (err, result) => {
+        if (err) {
+          logger.error('dom-error', err);
+          callback(err, { code: 102, p: 23 });
+          return;
+        }
+        if (result.statusCode !== 200) {
+          logger.error('dom-status', err);
+          callback(err, { code: 102, p: 23 });
+          return;
+        }
+        const $ = cheerio.load(result.body);
+        let avatar = `https:${$('div.pf_photo>p>img').attr('src')}`,
+          name = $('div.pf_username>h1.username').text(),
+          id = $('div.pf_opt div.btn_bed').eq(0).attr('action-data'),
+          res = null;
+        id = id ? id.match(/uid=(\d*)/)[1] : '';
+        if (!id) {
+          let _info = $('div.bot_m.W_fl.clearfix>div').eq(1).attr('action-data');
+          _info = _info ? _info.split('&') : '';
+          id = _info ? _info[0].replace('uid=', '') : '';
+          name = _info ? _info[1].replace('fnick=', '') : '';
+          avatar = `https:${$('div.W_face_radius.W_fl img').attr('src')}`;
+        }
+        res = {
+          id,
+          name,
+          avatar,
+          p: 23
+        };
+        callback(null, res);
+      });
     }
     if (bid.length > 10) {
       option.url = remote;
       request.get(option, (err, result) => {
         if (err) {
           logger.error('occur error: ', err);
-          return callback(err, { code: 102, p: 23 });
+          callback(err, { code: 102, p: 23 });
+          return;
         }
-        if (result.statusCode != 200) {
+        if (result.statusCode !== 200) {
           logger.error('weibo状态码错误', result.statusCode);
-
-          return callback(true, { code: 102, p: 23 });
+          callback(true, { code: 102, p: 23 });
+          return;
         }
-        let $ = cheerio.load(result.body),
-          script;
+        const $ = cheerio.load(result.body);
+        let script;
         try {
           script = $('script')[1].children[0].data.replace(/[\s\n\r]/g, '');
           bid = script.match(/"user":\{"id":\d*/).toString().replace(/"user":\{"id":/, '');
@@ -1518,7 +1553,6 @@ class DealWith {
           this.weibo(remote, callback);
           return;
         }
-
         option.url = `http://m.weibo.cn/container/getIndex?sudaref=m.weibo.cn&retcode=6102&type=uid&value=${bid}`;
         this.getRes(option, callback);
       });
@@ -1531,18 +1565,20 @@ class DealWith {
     request.get(option, (err, result) => {
       if (err) {
         logger.error('occur error: ', err);
-        return callback(err, { code: 102, p: 23 });
+        callback(err, { code: 102, p: 23 });
+        return;
       }
-      if (result.statusCode != 200) {
+      if (result.statusCode !== 200) {
         logger.error('weibo状态码错误', result.statusCode);
-
-        return callback(true, { code: 102, p: 23 });
+        callback(true, { code: 102, p: 23 });
+        return;
       }
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.debug('weibo数据解析失败');
-        return callback(e, { code: 102, p: 23 });
+        logger.error('weibo数据解析失败');
+        callback(e, { code: 102, p: 23 });
+        return;
       }
       const res = {
         name: result.userInfo.screen_name,
