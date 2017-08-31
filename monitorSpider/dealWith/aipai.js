@@ -68,7 +68,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (Number(result.code) !== 0 || !result.data) {
+      if (Number(result.code) !== 0 || !result.data || !result.data.fansCount) {
         typeErr = {type: 'data', err: `aipai-粉丝数: ${JSON.stringify(result)}}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -100,7 +100,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if(Number(result.code) !== 0 || !result.data.length) {
+      if(Number(result.code) !== 0 || !result.data.length || !result.data[0].click) {
         typeErr = {type: 'data', err: `aipai-视频列表: ${JSON.stringify(result.data)}}`, interface: 'list', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

@@ -100,6 +100,13 @@ class dealWith {
       if(!result.contents ||  result.contents.length === 0) {
         typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.contents)}}`, interface: 'list', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; result = null; task = null;
+        return;
+      }
+      result = result.contents[0];
+      if (!result.views) {
+        typeErr = {type: 'data', err: `list-data-info-error: ${JSON.stringify(result)}}`, interface: 'list', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; typeErr = null; result = null; task = null;
     });
@@ -130,7 +137,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (!result || !result.data) {
+      if (!result || !result.data || !result.data.totalCount) {
         typeErr = {type: 'data', err: `list-data: ${JSON.stringify(result.contents)}}`, interface: 'list', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

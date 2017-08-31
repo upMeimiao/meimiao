@@ -110,7 +110,7 @@ class spiderCore extends events{
       case 'comment':
         for (const [key, value] of platfrom.entries()) {
           if (program.program().get(key)) {
-            commentList.push({ name: value, type: 'ceshi', t: 'comment', platform: new (require('./comment/' + value))(this) });
+            commentList.push({ name: value, type: '', t: 'comment', platform: new (require('./comment/' + value))(this) });
           }
         }
         // commentList.push({ name: 'meimiao', type: '', t: 'comment', platform: new (require('./comment/meimiao'))(this) });
@@ -139,6 +139,10 @@ class spiderCore extends events{
     // 并行执行任务
     const time = new Date().getHours(),
       queue = async.queue((task, callback) => {
+        if (task.name === 'ku6' || task.name === 'weishi') {//  || task.name === 'weibo'
+          callback();
+          return;
+        }
         this.getTask.start(task, () => {
           task = null;
           callback();
@@ -155,13 +159,13 @@ class spiderCore extends events{
         setTimeout(() => {
           this.beginTask(plat);
           plat = null;
-        }, 20000);
+        }, 25000);
         return;
       }
       setTimeout(() => {
         this.beginTask(plat);
         plat = null;
-      }, 12000);
+      }, 20000);
     };
     // 任务添加
     queue.push(plat, (err) => {

@@ -71,7 +71,8 @@ class dealWith {
   }
   list(task) {
     let option = {
-      url: `${this.settings.spiderAPI.btime.medialist + task.id}&pageNo=1&lastTime=`
+      url: `${this.settings.spiderAPI.btime.medialist + task.id}&pageNo=1&lastTime=`,
+      ua: 1
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {
