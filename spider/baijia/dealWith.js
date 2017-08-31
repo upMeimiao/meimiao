@@ -139,50 +139,69 @@ class dealWith {
   }
   getVidList(task, callback) {
     const option = {
-      url: `${this.settings.spiderAPI.baijia.videoList + task.id}&_limit=10000&_skip=0`,
       referer: `http://baijiahao.baidu.com/u?app_id=${task.id}&fr=bjhvideo`,
       ua: 1
     };
-    let videoList = [];
-    request.get(logger, option, (err, result) => {
-      if (err) {
-        logger.error('baijia视频列表请求错误 : ', err);
-        callback(err);
-        return;
-      }
-      try {
-        result = JSON.parse(result.body);
-      } catch (e) {
-        logger.error('baijia-json数据总量解析失败', result.body);
-        callback(e);
-        return;
-      }
-      if (!result.items) {
-        callback('baijia-list-error');
-        return;
-      }
-      for (const value of result.items) {
-        if (value.type === 'video') {
-          videoList.push({
-            aid: value.id,
-            title: value.title,
-            desc: value.abstract,
-            tag: value.tag || '',
-            v_img: JSON.parse(value.cover_images)[0].src,
-            v_url: `http://baijiahao.baidu.com/builder/preview/s?id=${value.tp_id}`,
-            comment_num: value.comment_amount,
-            forward_num: value.push_amount,
-            a_create_time: moment(new Date(value.publish_at)).format('X'),
-            feed_id: value.feed_id,
-            tpId: value.tp_id
+    let videoList = [],
+      _skip = 0, cycle = true, time = null;
+    async.whilst(
+      () => cycle,
+      (cb) => {
+        option.url = `${this.settings.spiderAPI.baijia.videoList + task.id}&_limit=50&_skip=${_skip}`;
+        request.get(logger, option, (err, result) => {
+          if (err) {
+            logger.error('baijia视频列表请求错误 : ', err);
+            cb();
+            return;
+          }
+          try {
+            result = JSON.parse(result.body);
+          } catch (e) {
+            logger.error('baijia-json数据总量解析失败', result.body);
+            cb();
+            return;
+          }
+          if (!result.items) {
+            callback('baijia-list-error');
+            return;
+          }
+          if (!result.items.length) {
+            cycle = false;
+            cb();
+            return;
+          }
+          if (Number(_skip) >= 10000) {
+            cycle = false;
+            cb();
+            return;
+          }
+          for (const value of result.items) {
+            if (value.type === 'video') {
+              time = Number(value.publish_at.substring(0, 1)) === 0 ? value.updated_at : value.publish_at;
+              videoList.push({
+                aid: value.id,
+                title: value.title,
+                desc: value.abstract,
+                tag: value.tag || '',
+                v_img: JSON.parse(value.cover_images)[0].src,
+                v_url: `http://baijiahao.baidu.com/builder/preview/s?id=${value.tp_id}`,
+                comment_num: value.comment_amount,
+                forward_num: value.push_amount,
+                a_create_time: moment(new Date(time)).format('X'),
+                feed_id: value.feed_id,
+                tpId: value.tp_id
+              });
+            }
+          }
+          this.deal(task, videoList, () => {
+            videoList = [];
+            _skip += 50;
+            cb();
           });
-        }
-      }
-      this.deal(task, videoList, () => {
-        callback();
-      });
-      videoList = null;
-    });
+        });
+      },
+      () => callback()
+    );
   }
   deal(task, list, callback) {
     let index = 0;
@@ -234,7 +253,7 @@ class dealWith {
         return;
       }
       task.total += 1;
-      logger.debug(media);
+      // logger.debug(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
