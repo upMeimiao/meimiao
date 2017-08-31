@@ -49,13 +49,10 @@ class dealWith {
   }
   getUser(task, callback) {
     const option = {
-      url: this.settings.spiderAPI.bili.userInfo,
-      referer: `http://space.bilibili.com/${task.id}/`,
-      data: {
-        mid: task.id
-      }
+      url: this.settings.spiderAPI.bili.userInfo + task.id,
+      referer: `http://space.bilibili.com/${task.id}/`
     };
-    request.post(logger, option, (err, result) => {
+    request.get(logger, option, (err, result) => {
       if (err) {
         logger.error('用户信息 : ', err);
         callback(err);
@@ -72,8 +69,8 @@ class dealWith {
       const userInfo = result.data,
         user = {
           platform: 8,
-          bid: userInfo.mid,
-          fans_num: userInfo.fans
+          bid: task.id,
+          fans_num: userInfo.follower
         };
       this.sendUser(user, () => {
         callback();

@@ -85,7 +85,7 @@
       "play": "http://action.interface.baomihua.com/AppInfoApi.asmx/GetAppInfo?jsoncallback=jsonp&appid="
     },
     "bili": {
-      "userInfo": "http://space.bilibili.com/ajax/member/GetInfo",
+      "userInfo": "https://api.bilibili.com/x/relation/stat?vmid=",
       "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
       "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
       "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid=",
