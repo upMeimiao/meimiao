@@ -18,6 +18,7 @@ class dealWith {
     task.isUser = Number(task.id.substring(0, 3));
     task.userId = task.cookies.match(/c_user=(\d*)/)[1];
     task.total = 0;
+    task.signNum = 0;
     async.series(
       {
         user: (cb) => {
@@ -192,9 +193,17 @@ class dealWith {
             }
           } catch (e) {
             logger.error('用户列表解析失败', result);
+            if (task.signNum >= 2) {
+              spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
+                process.exit();
+              });
+              return;
+            }
+            task.signNum += 1;
             cb();
             return;
           }
+          task.signNum = 0;
           if (num === 1) {
             tokenList = result.payload.jsmods.require;
             for (const [key, value] of tokenList.entries()) {
@@ -235,8 +244,8 @@ class dealWith {
           });
         });
       },
-      () => {
-        callback();
+      (err) => {
+        callback(err || '');
       }
     );
   }
@@ -367,7 +376,7 @@ class dealWith {
     option.url = option.url.toString().replace(/'/g, '"');
     request.get(logger, option, (err, result) => {
       if (err) {
-        logger.error('facebook单个视频信息接口请求失败', err);
+        // logger.error('facebook单个视频信息接口请求失败', err);
         if (err.status == 500) {
           spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
             process.exit();

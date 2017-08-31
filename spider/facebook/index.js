@@ -16,7 +16,10 @@ class spiderCore {
     this.settings = settings;
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
+    // 正常使用的cookie
     this.cookies = 'locale=zh_CN; datr=uarsWNHwHCDMME4QegGkXoHN; sb=6YrtWNWdRZc0ZD6Icppm_tQu; pl=n; lu=gA; c_user=100017290094462; xs=37%3AxIXj8PMRj_BcyQ%3A2%3A1500607556%3A-1%3A-1; fr=0r8fZNLbaDU2imrlv.AWW1_eZHu3l7c40wbgZm9zQ_Jmw.BZK-yc.9Q.Flx.0.0.BZdw5Q.AWU90BI5; act=1500974734029%2F4; presence=EDvF3EtimeF1500977306EuserFA21B17290094462A2EstateFDutF1500977306434CEchFDp_5f1B17290094462F1CC';
+    // 已失效的cookie测试
+    // this.cookies = 'datr=74GnWb2Z9O9Dgi6DQrRDrh1m; sb=74GnWWSmA-3w7GeHfTVlpQrC; c_user=100017345710792; xs=48%3ArxJo9wL-uCsnhg%3A2%3A1504151954%3A-1%3A-1; pl=n; fr=0DuLGK4OE8rrFViVo.AWXr_Tgk282II-5h_t0zeB_o5zs.BZo4-t.li.Fmn.0.0.BZp4mX.AWW1Olu3; presence=EDvF3EtimeF1504151960EuserFA21B17345710792A2EstateFDutF1504151959998CEchFDp_5f1B17345710792F2CC; wd=1064x974';
     logger = settings.logger;
     logger.trace('spiderCore instantiation ...');
   }
@@ -93,6 +96,7 @@ class spiderCore {
     };
     this.dealWith.todo(work, (err, total) => {
       if (err) {
+        // console.log(err);
         return;
       }
       logger.debug(total);
