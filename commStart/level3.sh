@@ -63,10 +63,6 @@ echo "第一优先级任务启动完成"
 
 echo "启动第四级别任务"
 
-echo "启动微视"
-pm2 start ~/commStart/weishi.json
-echo "任务微视启动完成"
-
 echo "启动YY"
 pm2 start ~/commStart/yy.json
 echo "任务YY启动完成"

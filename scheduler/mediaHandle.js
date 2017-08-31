@@ -14,12 +14,6 @@ class mediaHandle {
       data = null;
       return;
     }
-    const map = new Map();
-    for (const [index, elem] of data.entries()) {
-      map.set(elem.bid, elem);
-    }
-    data = [...map.values()]
-    map.clear();
     const len = data ? data.length : 0;
     let i = 0;
     // this.logger.debug(raw)
@@ -47,10 +41,10 @@ class mediaHandle {
     //   encodeId: _.encodeId ? _.encodeId : '',
     //   type: _.type ? _.type : ''
     // }
-    // if (Number(_.platform) === 12) {
-    //   callback();
-    //   return;
-    // }
+    if (Number(_.platform) === 16) {
+      callback();
+      return;
+    }
     const platform = platformMap.get(Number(_.platform)),
       baseInfo = {
         id: _.bid,

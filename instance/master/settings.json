@@ -12,9 +12,9 @@
     "MSDB": 6
   },
   "proxy": {
-    "host": "10.169.16.235",
-    "weiboHost": "10.169.16.235",
-    "toutiaoHost": "10.251.55.50",
+    "host": "10.31.32.85",
+    "weiboHost": "10.31.32.85",
+    "toutiaoHost": "10.28.79.123",
     "port": 3002,
     "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&protocol=1&method=1&f_pr=1&format=json&sep=1",
     "newApi2": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&format=json&f_pr=1",
@@ -32,7 +32,7 @@
   "concurrency": 7,
   "send_interval": 1000,
   "interval": 10000,
-  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV?limit=100",
+  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV?limit=105",
   "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideosMore/",
   "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
   "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
@@ -85,7 +85,7 @@
       "play": "http://action.interface.baomihua.com/AppInfoApi.asmx/GetAppInfo?jsoncallback=jsonp&appid="
     },
     "bili": {
-      "userInfo": "http://space.bilibili.com/ajax/member/GetInfo",
+      "userInfo": "https://api.bilibili.com/x/relation/stat?vmid=",
       "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
       "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
       "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid=",

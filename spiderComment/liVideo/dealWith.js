@@ -91,7 +91,11 @@ class dealWith {
       }
       const postId = result.postInfo.postId;
       let postUserId = result.content.authors.length ? result.content.authors[0].userId : '';
-      postUserId = postUserId || (result.postInfo.childList[0].userInfo.userId || '');
+      postUserId = postUserId || (result.postInfo.childList.length ? result.postInfo.childList[0].userInfo.userId : '');
+      if (!postUserId) {
+        callback();
+        return;
+      }
       if (postId) {
         this.commentList(task, postId, postUserId, () => {
           callback();

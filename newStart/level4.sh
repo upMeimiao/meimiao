@@ -55,10 +55,6 @@ echo "第一优先级任务启动完成"
 
 echo "启动第五级别任务"
 
-echo "启动微视"
-pm2 start ~/newStart/weishi.json
-echo "任务微视启动完成"
-
 echo "启动北京时间"
 pm2 start ~/newStart/btime.json
 echo "任务北京时间启动完成"

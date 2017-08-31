@@ -92,6 +92,7 @@ const platform = [
   { id: 40, name: 'Facebook' },
   { id: 41, name: '人人视频' },
   { id: 42, name: '点视' },
+  { id: 43, name: '小米想看' },
   { id: 44, name: '网易菠萝' },
   { id: 45, name: '火山小视频' },
   { id: 46, name: '咪咕动漫' },
