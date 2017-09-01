@@ -123,9 +123,15 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'total', url: JSON.stringify(option)};
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}`, interface: 'total', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; result = null; task = null; typeErr = null;
+        return;
+      }
+      if (result.code !== 'A00000') {
+        typeErr = {type: 'data', err: `{error: 总数数据异常, data: ${JSON.stringify(result.body)}`, interface: 'total', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; result = null; task = null; typeErr = null;;
         return;
       }
       if (result.total !== 0) {

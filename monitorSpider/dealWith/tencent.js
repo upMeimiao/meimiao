@@ -5,7 +5,7 @@
 const jsonp = (data) => {
   return data
 };
-let logger, typeErr, async, request, infoCheck;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;

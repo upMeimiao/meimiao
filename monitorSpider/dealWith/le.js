@@ -71,7 +71,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result.data) {
+      if (!result.data || !result.data.list || !result.data.list.length) {
         typeErr = {type: 'data', err: `可能是接口变了，数据返回出问题, data: ${JSON.stringify(result)}`, interface: 'videolist', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

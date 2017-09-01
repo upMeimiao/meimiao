@@ -51,7 +51,7 @@ class dealWith {
         callback();
         return;
       }
-      if (!result.data || !result.data.userInfo) {
+      if (!result.data || !result.data.userInfo || !result.data.userInfo.fansNum) {
         typeErr = {type: 'data', err: `migu-user-fans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; result = null; task = null; typeErr = null;

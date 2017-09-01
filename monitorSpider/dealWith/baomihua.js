@@ -70,7 +70,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result) {
+      if (!result || !result.result || !result.result.ChannelInfo || !result.result.ChannelInfo.RssNum) {
         typeErr = {type: 'json', err: `baomihua-用户信息异常, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

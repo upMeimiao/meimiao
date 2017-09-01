@@ -59,8 +59,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      const fans = result.followers_count;
-      if (!fans) {
+      if (!result || !result.followers_count) {
         typeErr = {type: 'data', err: `meipai-user-fansData-error, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

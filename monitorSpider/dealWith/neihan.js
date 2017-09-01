@@ -63,7 +63,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result || !result.data) {
+      if (!result || !result.data || !result.data.followers) {
         typeErr = {type: 'data', err: `neihan-fans-data-error, data: ${JSON.stringify(result.data)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -94,12 +94,11 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      let data = result.data.data;
-      if(!data || data.length === 0) {
+      if(!result.data || !result.data.data || !result.data.data.length) {
         typeErr = {type: 'data', err: `budejie-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
-      data = null; option = null; result = null; task = null; typeErr = null;
+      option = null; result = null; task = null; typeErr = null;
     });
   }
   getComment(task) {

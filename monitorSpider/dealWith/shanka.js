@@ -57,7 +57,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (Number(result.ret) !== 0 || !result.data || !result.data.feeds.length) {
+      if (Number(result.ret) !== 0 || !result.data || !result.data.feeds.length || !result.data.follower_num) {
         typeErr = {type: 'data', err: `shanka-粉丝数不存在或者视频列表有问题, data: ${JSON.stringify(result)}`, interface: 'user(list)', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

@@ -17,6 +17,7 @@ class dealWith {
     task.request = this.modules.request;
     task.async = this.modules.async;
     task.infoCheck = this.modules.infoCheck;
+    task.h = this.core.h;
     task.async.parallel(
       {
         user: (cb) => {
@@ -92,6 +93,54 @@ class dealWith {
       }
       if (!result.videolist) {
         typeErr = {type: 'data', err: `xiaoying-list-data-error, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; result = null; typeErr = null;
+        return;
+      }
+      this.getComment(task, result.videolist[0].puid);
+      option = null; task = null; result = null; typeErr = null;
+    });
+  }
+  getComment(task, aid) {
+    let option = {
+      url: this.settings.spiderAPI.xiaoying.comment,
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'user-agent': 'XiaoYing/5.5.6 (iPhone; iOS 10.2.1; Scale/3.00)'
+      },
+      data: {
+        a: 'pa',
+        b: '1.0',
+        c: '20008400',
+        e: 'DIqmr4fb',
+        h: task.h,
+        i: `{"d":20,"b":"1","c":1,"a":"${aid}"}`,
+        j: 'ae788dbe17e25d0cff743af7c3225567',
+        k: 'xysdkios20130711'
+      }
+    };
+    task.request.post(logger, option, (error, result) => {
+      if (error) {
+        if (error.status && error.status !== 200) {
+          typeErr = {type: 'status', err: JSON.stringify(error.status), interface: 'getComment', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
+        } else {
+          typeErr = {type: 'error', err: JSON.stringify(error.message), interface: 'getComment', url: JSON.stringify(option)};
+          task.infoCheck.interface(task.core, task, typeErr);
+        }
+        option = null; task = null; result = null; typeErr = null;
+        return;
+      }
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getComment', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; result = null; typeErr = null;
+        return;
+      }
+      if (!result || !result.total) {
+        typeErr = {type: 'data', err: `{error: 评论数据异常, data: ${result.body}`, interface: 'getComment', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; task = null; result = null; typeErr = null;

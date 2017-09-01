@@ -68,7 +68,7 @@ class dealWith {
         result = null; task = null; typeErr = null; option = null;
         return;
       }
-      if (!result || !result.data || !result.data.data) {
+      if (!result || !result.data || !result.data.data || !result.data.data.total) {
         typeErr = {type: 'data', err: `qzone-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

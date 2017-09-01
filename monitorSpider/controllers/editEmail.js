@@ -17,9 +17,10 @@ let logger = logging.getLogger('邮件编写模块');
  * */
 exports.interEmail = (events, message) => {
   logger.debug('邮件发送模块成功进入');
+  let emailContent = '';
   switch (message.typeErr) {
     case 'error':
-      let emailContent = '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgb(255, 89, 148);>';
+      emailContent += '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgb(255, 89, 148);>';
       emailContent += `<tbody><tr><td width="120">平台</td><td>${message.platform}</td></tr><tr><td width="120">用户ID</td><td>${message.bid}</td></tr><tr><td width="120">用户名称</td><td>${message.bname}</td></tr>`;
       emailContent += `<tr><td width="120">接口类型</td><td>${message.typeErr}:${message.interface}</td></tr><tr><td width="120">接口</td><td>${message.url}</td></tr>`;
       emailContent += `<tr><td width="120">错误信息</td><td>${message.message}</td></tr><tr><td width="120">出错时间</td><td>${message.lastTime}</td></tr></tbody></table>`;
@@ -27,13 +28,13 @@ exports.interEmail = (events, message) => {
       break;
     case 'status':
       if (message.typeErr < 500 && message.typeErr >= 400) {
-        let emailContent = '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(0, 74, 255, 0.42);">';
+        emailContent += '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(0, 74, 255, 0.42);">';
         emailContent += `<tbody><tr><td width="120">平台</td><td>${message.platform}</td></tr><tr><td width="120">用户ID</td><td>${message.bid}</td></tr><tr><td width="120">用户名称</td><td>${message.bname}</td></tr>`;
         emailContent += `<tr><td width="120">接口类型</td><td>${message.typeErr}:${message.interface}</td></tr><tr><td width="120">接口</td><td>${message.url}</td></tr>`;
         emailContent += `<tr><td width="120">错误信息</td><td>${message.message}</td></tr><tr><td width="120">出错时间</td><td>${message.lastTime}</td></tr></tbody></table>`;
         sendEmail.sendEmail(`${message.platform}平台 接口请求400状态`, emailContent, message.type);
       } else {
-        let emailContent = '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(211, 255, 0, 0.44);">';
+        emailContent += '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(211, 255, 0, 0.44);">';
         emailContent += `<tbody style=""><tr><td width="120">平台</td><td>${message.platform}</td></tr><tr><td width="120">用户ID</td><td>${message.bid}</td></tr><tr><td width="120">用户名称</td><td>${message.bname}</td></tr>`;
         emailContent += `<tr><td width="120">接口类型</td><td>${message.typeErr}:${message.interface}</td></tr><tr><td width="120">接口</td><td>${message.url}</td></tr>`;
         emailContent += `<tr><td width="120">错误信息</td><td>${message.message}</td></tr><tr><td width="120">出错时间</td><td>${message.lastTime}</td></tr></tbody></table>`;
@@ -41,28 +42,28 @@ exports.interEmail = (events, message) => {
       }
       break;
     case 'json':
-      let emailContent = '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(0, 74, 255, 0.42);">';
+      emailContent += '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(0, 74, 255, 0.42);">';
       emailContent += `<tbody><tr><td width="120">平台</td><td>${message.platform}</td></tr><tr><td width="120">用户ID</td><td>${message.bid}</td></tr><tr><td width="120">用户名称</td><td>${message.bname}</td></tr>`;
       emailContent += `<tr><td width="120">接口类型</td><td>${message.typeErr}:${message.interface}</td></tr><tr><td width="120">接口</td><td>${message.url}</td></tr>`;
       emailContent += `<tr><td width="120">错误信息</td><td>${message.message}</td></tr><tr><td width="120">出错时间</td><td>${message.lastTime}</td></tr></tbody></table>`;
       sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据解析失败`, emailContent, message.type);
       break;
     case 'bid':
-      let emailContent = '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(255, 0, 90, 0.55);">';
+      emailContent += '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(255, 0, 90, 0.55);">';
       emailContent += `<tbody><tr><td width="120">平台</td><td>${message.platform}</td></tr><tr><td width="120">用户ID</td><td>${message.bid}</td></tr><tr><td width="120">用户名称</td><td>${message.bname}</td></tr>`;
       emailContent += `<tr><td width="120">接口类型</td><td>${message.typeErr}:${message.interface}</td></tr><tr><td width="120">接口</td><td>${message.url}</td></tr>`;
       emailContent += `<tr><td width="120">错误信息</td><td>${message.message}</td></tr><tr><td width="120">出错时间</td><td>${message.lastTime}</td></tr></tbody></table>`;
       sendEmail.sendEmail(`${message.platform}平台 ${message.bname} 用户可能不存在(或者接口有变化)`, emailContent, message.type);
       break;
     case 'data':
-      let emailContent = '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(211, 255, 0, 0.44);">';
+      emailContent += '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(211, 255, 0, 0.44);">';
       emailContent += `<tbody><tr><td width="120">平台</td><td>${message.platform}</td></tr><tr><td width="120">用户ID</td><td>${message.bid}</td></tr><tr><td width="120">用户名称</td><td>${message.bname}</td></tr>`;
       emailContent += `<tr><td width="120">接口类型</td><td>${message.typeErr}:${message.interface}</td></tr><tr><td width="120">接口</td><td>${message.url}</td></tr>`;
       emailContent += `<tr><td width="120">错误信息</td><td>${message.message}</td></tr><tr><td width="120">出错时间</td><td>${message.lastTime}</td></tr></tbody></table>`;
       sendEmail.sendEmail(`${message.platform}平台 ${message.interface} 数据返回格式异常`, emailContent, message.type);
       break;
     case 'NoError':
-      let emailContent = '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(255, 0, 90, 0.55);">';
+      emailContent += '<table border="1" cellpadding="0" cellspacing="0" style="boder:1px #000 solid; background: rgba(255, 0, 90, 0.55);">';
       emailContent += `<tbody><tr><td>平台</td><td>${message.platform}</td></tr><tr><td>用户ID</td><td>${message.bid}</td></tr><tr><td>用户名称</td><td>${message.bname}</td></tr>`;
       emailContent += `<tr><td>接口类型</td><td>${message.typeErr}:${message.interface}</td></tr><tr><td>接口</td><td>${message.url}</td></tr>`;
       emailContent += `<tr><td>错误信息</td><td>${message.message}</td></tr><tr><td>出错时间</td><td>${message.lastTime}</td></tr></tbody></table>`;
