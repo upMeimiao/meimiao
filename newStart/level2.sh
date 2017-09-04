@@ -59,10 +59,6 @@ echo "启动爆米花"
 pm2 start ~/newStart/baomihua.json
 echo "任务爆米花启动完成"
 
-echo "启动酷6"
-pm2 start ~/newStart/ku6.json
-echo "任务酷6启动完成"
-
 echo "启动小影"
 pm2 start ~/newStart/xiaoying.json
 echo "任务小影启动完成"

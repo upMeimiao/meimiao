@@ -155,7 +155,8 @@ class commentScheduler extends events {
       res = null;
       body = null;
       if (!data || !Array.isArray(data) || data.length === 0) return;
-      if (Number(data[0].platform) === 16 || Number(data[0].platform) === 37
+      if (Number(data[0].platform) === 14 || Number(data[0].platform) === 16
+        || Number(data[0].platform) === 37
         || Number(data[0].platform) === 42 || Number(data[0].platform) === 30) {
         data = null;
         return;

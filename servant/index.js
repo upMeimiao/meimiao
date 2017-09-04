@@ -127,9 +127,9 @@ class spiderCore {
       case 'video.baomihua.com':
         this.handle.baomihuaHandle(ctx, remote);
         break;
-      case 'v.ku6.com':
-        this.handle.ku6Handle(ctx, remote);
-        break;
+      // case 'v.ku6.com':
+      //   this.handle.ku6Handle(ctx, remote);
+      //   break;
       case 'record.btime.com':
       case 'video.btime.com':
       case 'item.btime.com':

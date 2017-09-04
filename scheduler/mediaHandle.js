@@ -41,7 +41,7 @@ class mediaHandle {
     //   encodeId: _.encodeId ? _.encodeId : '',
     //   type: _.type ? _.type : ''
     // }
-    if (Number(_.platform) === 16) {
+    if (Number(_.platform) === 14 || Number(_.platform) === 16) {
       callback();
       return;
     }
