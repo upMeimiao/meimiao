@@ -70,7 +70,7 @@ class dealWith {
         option = null; task = null; typeErr = null; body = null;
         return;
       }
-      if (!body.data) {
+      if (!body.data || !body.data.channelOwnerInfo || !body.data.channelOwnerInfo.followerNum) {
         typeErr = {type: 'data', err: `data-null, data: ${JSON.stringify(body)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

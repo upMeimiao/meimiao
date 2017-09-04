@@ -71,7 +71,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result || !result.html) {
+      if (!result || !result.html || !result.html.sumCount) {
         typeErr = {type: 'data', err: `tudou-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

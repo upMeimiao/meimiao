@@ -78,7 +78,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result.body || !result.body.data) {
+      if (!result.body || !result.body.data || !result.body.data.fans_num) {
         typeErr = {type: 'data', err: `v1-list-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

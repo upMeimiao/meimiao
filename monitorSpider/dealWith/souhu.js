@@ -3,7 +3,7 @@
  */
 
 const jsonp = (data) => data;
-let logger, typeErr, async, request, infoCheck;
+let logger, typeErr;
 class dealWith {
   constructor(core) {
     this.core = core;
@@ -71,7 +71,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result || !result.data) {
+      if (!result || !result.data || !result.data.total_fans_count) {
         typeErr = {type: 'data', err: `souhu-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -102,7 +102,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result.data || result.data.videos.length === 0) {
+      if (!result.data || !result.data.videos || result.data.videos.length === 0) {
         typeErr = {type: 'data', err: `bili-list-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

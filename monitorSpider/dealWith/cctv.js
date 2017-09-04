@@ -60,7 +60,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result.data) {
+      if (!result.data || !result.data.fans_count) {
         typeErr = {type: 'data', err: `cctv-fans-数据异常, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

@@ -44,13 +44,10 @@ class dealWith {
   }
   getUser(task) {
     let option = {
-      url: this.settings.spiderAPI.bili.userInfo,
-      referer: `http://space.bilibili.com/${task.id}/`,
-      data: {
-        mid: task.id
-      }
+      url: this.settings.spiderAPI.bili.userInfo + task.id,
+      referer: `http://space.bilibili.com/${task.id}/`
     };
-    task.request.post(logger, option, (err, result) => {
+    task.request.get(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
           typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
@@ -70,7 +67,7 @@ class dealWith {
         option = null; result = null; typeErr = null; task = null;
         return;
       }
-      if (!result.data) {
+      if (!result.data || !result.data.follower) {
         typeErr = {type: 'json', err: `baomihua-fans-粉丝数据异常, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -132,7 +129,7 @@ class dealWith {
         option = null; result = null; typeErr = null; task = null;
         return;
       }
-      if (Number(result.code) !== 0) {
+      if (Number(result.code) !== 0 || !result.data || !result.data.stat || !result.data.stat.view) {
         typeErr = {type: 'data', err: `bili-video-data-error, data: ${JSON.stringify(result)}`, interface: 'getInfo', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

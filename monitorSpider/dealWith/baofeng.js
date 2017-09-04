@@ -60,7 +60,9 @@ class dealWith {
         callback();
         return;
       }
-      this.getList(task, aid);
+      if (aid) {
+        this.getList(task, aid);
+      }
       option = null; typeErr = null; aid = null; $ = null; bidstr = null; bid = null; result = null; task = null;
       callback();
     });
@@ -82,14 +84,16 @@ class dealWith {
         return;
       }
       result = result.body;
-      let aid = result.match(/"aid":"\d+/).toString().replace(/"aid":"/, '');
+      let aid = result.match(/"aid":"(\d+)/)[1];
       if (!aid) {
         typeErr = {type: 'data', err: 'baofeng-获取aid失败-DOM结构可能有问题', interface: 'getAid', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      this.getVidList(task, aid);
+      if (aid) {
+        this.getVidList(task, aid);
+      }
       result = null; option = null; aid = null; task = null;
     });
   }
@@ -123,9 +127,9 @@ class dealWith {
         option = null; result = null; typeErr = null; task = null;
         return;
       }
-      let videoList = result.video_list;
-      this.support(task, videoList[0].vid);
-      this.getComment(task, videoList[0].vid);
+      let videoList = result.video_list[0];
+      this.support(task, videoList.vid);
+      this.getComment(task, videoList.vid);
       this.getDesc(task);
       option = null; videoList = null; typeErr = null; task = null; result = null;
     });

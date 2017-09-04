@@ -64,7 +64,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result.channelInfo) {
+      if (!result.channelInfo || !result.channelInfo.subCount) {
         typeErr = {type: 'data', err: `kuaibao-user-data-null(undefind), data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -96,6 +96,12 @@ class dealWith {
         result = JSON.parse(result.body);
       } catch (e) {
         typeErr = {type: 'json', err:  `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVideos', url: JSON.stringify(option)};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; task = null; result = null; typeErr = null;
+        return;
+      }
+      if (!result.ids) {
+        typeErr = {type: 'data', err:  `{error: 视频信息异常, data: ${result.body}`, interface: 'getVideos', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; task = null; result = null; typeErr = null;
         return;
@@ -138,7 +144,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result || !result.newslist.length) {
+      if (!result.newslist || !result.newslist.length) {
         typeErr = {type: 'data', err: `kuaibao-list-data-null, data: ${JSON.stringify(result)}`, interface: 'getVideoList', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; task = null; result = null; typeErr = null;

@@ -103,7 +103,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result || !result.dramadatas.length) {
+      if (!result || !result.dramadatas || !result.dramadatas.length) {
         typeErr = {type: 'data', err: `huashu-videolit-data-error, data: ${JSON.stringify(result)}`, interface: 'getVideoList', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; result = null; task = null; typeErr = null;

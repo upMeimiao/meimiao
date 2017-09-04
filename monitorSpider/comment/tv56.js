@@ -18,6 +18,11 @@ class dealWith {
     this.totalPage(task, () => callback());
   }
   totalPage(task, callback) {
+    if (!task.bid) {
+      task = null;
+      callback();
+      return;
+    }
     let option = {
       url: `${this.settings.tv56.total}${task.aid}&topic_url=http://my.tv.sohu.com/us/${task.bid}/${task.aid}.shtml&_=${new Date().getTime()}`
     };
@@ -43,7 +48,7 @@ class dealWith {
         callback();
         return;
       }
-      if (!result) {
+      if (!result || !result.topic_id) {
         typeErr = {type: 'data', err: `{error: 评论总数异常, data: ${JSON.stringify(result)}}`, interface: 'totalPage', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; typeErr = null; result = null; task = null;

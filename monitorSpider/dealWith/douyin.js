@@ -63,7 +63,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (Number(result.status_code) !== 0 || !result.user) {
+      if (Number(result.status_code) !== 0 || !result.user || !result.user.follower_count) {
         typeErr = {type: 'data', err: `douyin-粉丝数不存在或者本次请求异常, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -99,7 +99,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if(!result || !result.aweme_list.length) {
+      if(!result || !result.aweme_list || !result.aweme_list.length) {
         typeErr = {type: 'data', err: `douyin-视频列表出现异常, data: ${JSON.stringify(result)}`, interface: 'list', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

@@ -23,44 +23,40 @@ class dealWith {
   }
   getUser(task, vid) {
     let option = {
-      url: `https://baijiahao.baidu.com/po/feed/video?wfr=spider&for=pc&context=%7B%22sourceFrom%22%3A%22bjh%22%2C%22nid%22%3A%22${vid}%22%7D`
+      url: this.settings.spiderAPI.baijia.api,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_2 like Mac OS X) AppleWebKit/603.2.4 (KHTML, like Gecko) Mobile/14F89 haokan/2.6.1 (Baidu; P2 10.3.2)/2.3.01_2,8enohP/381d/C2BB16A6BC640F0CD9DA2060098AC66793B62A080FCTOPTMEQM/1',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: {
+        'baijia/authorInfo': `method=get&app_id=${task.id}`
+      }
     };
-    task.request.get(logger, option, (err, result) => {
+    task.request.post(logger, option, (err, result) => {
       if (err) {
         if (err.status && err.status !== 200) {
-          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: option.url};
+          typeErr = {type: 'status', err: JSON.stringify(err.status), interface: 'user', url: JSON.stringify(option)};
           task.infoCheck.interface(task.core, task, typeErr);
         } else {
-          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: option.url};
+          typeErr = {type: 'error', err: JSON.stringify(err.message), interface: 'user', url: JSON.stringify(option)};
           task.infoCheck.interface(task.core, task, typeErr);
         }
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      let $ = task.cheerio.load(result.body);
-      if ($('div.item p').eq(0).text() === '视频已失效，请观看其他视频') {
-        typeErr = {type: 'data', err: '视频已失效，请观看其他视频', interface: 'user', url: option.url};
-        task.infoCheck.interface(task.core, task, typeErr);
-        option = null; typeErr = null; result = null; task = null; $ = null;
-        return;
-      }
-      result = result.body.replace(/[\s\n\r]/g, '');
-      const startIndex = result.indexOf('videoData={"id'),
-        endIndex = result.indexOf(';window.listInitData');
-      if (startIndex === -1 || endIndex === -1) {
-        typeErr = {type: 'json', err: 'baijia-fans-播放详情页DOM结构异常', interface: 'user', url: option.url};
+      try {
+        result = JSON.parse(result.body);
+      } catch (e) {
+        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(result.body)}}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      let dataJson = result.substring(startIndex + 10, endIndex);
-      try {
-        dataJson = JSON.parse(dataJson);
-      } catch (e) {
-        typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${JSON.stringify(dataJson)}}`, interface: 'user', url: option.url};
+      if (!result['baijia/authorInfo'] || !result['baijia/authorInfo'].data || !result['baijia/authorInfo'].data.subscribe_total) {
+        typeErr = {type: 'data', err: `{fans-error: 粉丝接口获取错误, data: ${JSON.stringify(result)}}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
-      typeErr = null; option = null; $ = null; result = null; dataJson = null;
+      typeErr = null; option = null; $ = null; result = null;
     });
   }
   getList(task, callback) {
@@ -100,9 +96,6 @@ class dealWith {
       }
       if (result.items[0].feed_id === '') {
         this.getVidInfo(task, null, result.items[0].url);
-      } else {
-        this.getUser(task, result.items[0].feed_id);
-        this.getVidInfo(task, result.items[0].feed_id, null);
       }
       result = null; task = null; typeErr = null; option = null;
       callback();
@@ -152,6 +145,12 @@ class dealWith {
         dataJson = JSON.parse(dataJson);
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${e.message}, data: ${dataJson}`, interface: 'getVidInfo', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; dataJson = null; result = null; task = null;
+        return;
+      }
+      if (!dataJson.video || !dataJson.video.playcnt) {
+        typeErr = {type: 'data', err: `{error: 视频详细数据获取失败, data: ${JSON.stringify(dataJson)}`, interface: 'getVidInfo', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
       typeErr = null; option = null; dataJson = null; $ = null; task = null; result = null;

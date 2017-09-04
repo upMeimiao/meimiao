@@ -62,7 +62,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (!result.data) {
+      if (!result.data || !result.data.fans) {
         typeErr = {type: 'data', err: `btime-fans-数据异常, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -71,7 +71,8 @@ class dealWith {
   }
   list(task) {
     let option = {
-      url: `${this.settings.spiderAPI.btime.medialist + task.id}&pageNo=1&lastTime=`
+      url: `${this.settings.spiderAPI.btime.medialist + task.id}&pageNo=1&lastTime=`,
+      ua: 1
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {
@@ -124,7 +125,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (Number(result.errno) !== 0) {
+      if (Number(result.errno) !== 0 || !result.data || !result.data.watches) {
         typeErr = {type: 'data', err: `btime-videoInfo-数据异常, data: ${JSON.stringify(result)}`, interface: 'getInfo', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

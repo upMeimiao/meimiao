@@ -107,6 +107,12 @@ class dealWith {
       } catch (e) {
         typeErr = {type: 'json', err: `{error: ${JSON.stringify(e.message)}, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
+        option = null; typeErr = null; task = null; result = null;
+        return;
+      }
+      if (!result) {
+        typeErr = {type: 'data', err: `{error: 视频详情数据异常, data: ${result.body}`, interface: 'getVidInfo', url: option.url};
+        task.infoCheck.interface(task.core, task, typeErr);
       }
       option = null; typeErr = null; task = null; result = null;
     });

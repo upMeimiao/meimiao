@@ -59,7 +59,7 @@ class dealWith {
         option = null; result = null; typeErr = null; task = null;
         return;
       }
-      if (!result.data) {
+      if (!result.data || !result.data.fans_count) {
         typeErr = {type: 'data', err: `budejie-user-数据异常, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -90,12 +90,11 @@ class dealWith {
         option = null; result = null; typeErr = null; task = null;
         return;
       }
-      let data = result.list;
-      if(!data) {
+      if(!result.list || !result.list[0].video) {
         typeErr = {type: 'data', err: `budejie-data-null, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
-      option = null; result = null; data = null; typeErr = null; task = null;
+      option = null; result = null; typeErr = null; task = null;
     });
   }
   getComment(task) {

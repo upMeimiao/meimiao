@@ -62,7 +62,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result.header) {
+      if (!result.header || !result.header.eventCnt) {
         typeErr = {type: 'data', err: 'miaopai-fans-data-error', interface: 'user', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

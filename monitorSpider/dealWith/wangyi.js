@@ -67,7 +67,7 @@ class dealWith {
         option = null; result = null; task = null; typeErr = null;
         return;
       }
-      if (!result.topicSet) {
+      if (!result.topicSet || !result.topicSet.subnum) {
         typeErr = {type: 'data', err: `wangyi-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user-total', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

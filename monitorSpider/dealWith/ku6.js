@@ -61,7 +61,8 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result.data) {
+      const fans = result.data.subscriptions ? result.data.subscriptions : '';
+      if (!result.data || !fans) {
         typeErr = {type: 'data', err:  `ku6-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

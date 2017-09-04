@@ -70,7 +70,7 @@ class dealWith {
         return;
       }
       let userInfo = result.data;
-      if (userInfo.length === 0) {
+      if (userInfo.length === 0 || !userInfo[0].fansCount) {
         typeErr = {type: 'data', err: `tv56-dans-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

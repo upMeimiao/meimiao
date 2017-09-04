@@ -59,7 +59,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (Number(result.error) !== 0 || !result.data) {
+      if (Number(result.error) !== 0 || !result.data || !result.data.follower || !result.data.follower.count) {
         typeErr = {type: 'data', err: `naitang-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

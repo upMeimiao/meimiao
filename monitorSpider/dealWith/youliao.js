@@ -71,7 +71,7 @@ class dealWith {
         option = null; typeErr = null; result = null; task = null;
         return;
       }
-      if (!result || !result.userId) {
+      if (!result || !result.userId || !result.userFansCount) {
         typeErr = {type: 'data', err: `youliao-粉丝数不存在或者有问题, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

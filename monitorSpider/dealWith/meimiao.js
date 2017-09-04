@@ -63,7 +63,7 @@ class dealWith {
         option = null; typeErr = null; task = null; result = null;
         return;
       }
-      if (Number(result.code) !== 0 || !result.data.publisherDetail.imageText.length) {
+      if (Number(result.code) !== 0 || !result.data.publisherDetail || !result.data.publisherDetail.imageText.length) {
         typeErr = {type: 'data', err: `error: meimiao-user&&list-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }

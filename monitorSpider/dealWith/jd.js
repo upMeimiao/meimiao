@@ -63,7 +63,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result || !result.data) {
+      if (!result || !result.data || !result.data.followNums) {
         typeErr = {type: 'data', err: `京东视频-用户粉丝出错, data: ${JSON.stringify(result)}`, interface: 'user', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
@@ -95,7 +95,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result.page || !result.page.content.length) {
+      if (!result.page || !result.page.content || !result.page.content.length) {
         typeErr = {type: 'data', err: `京东视频-视频列表数据出错, data: ${JSON.stringify(result)}`, interface: 'list', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }

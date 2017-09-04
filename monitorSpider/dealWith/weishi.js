@@ -59,7 +59,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      if (!result.data) {
+      if (!result.data || !result.data.follower_num) {
         typeErr = {type: 'data', err: `weishi-user-data-error, data: ${JSON.stringify(result)}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
