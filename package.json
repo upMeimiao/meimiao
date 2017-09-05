@@ -45,8 +45,8 @@
     "url": "http://git.meimiao.net/qiaosuan_spider/code.git"
   },
   "devDependencies": {
-    "eslint": "^4.5.0",
-    "eslint-config-airbnb-base": "^11.3.2",
+    "eslint": "^4.6.1",
+    "eslint-config-airbnb-base": "^12.0.0",
     "eslint-plugin-import": "^2.7.0"
   }
 }

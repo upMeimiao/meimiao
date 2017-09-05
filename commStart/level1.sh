@@ -63,10 +63,6 @@ echo "第一优先级任务启动完成"
 
 echo "启动第二级别任务"
 
-echo "启动酷6"
-pm2 start ~/commStart/ku6.json
-echo "任务酷6启动完成"
-
 echo "启动56视频"
 pm2 start ~/commStart/tv56.json
 echo "任务56视频启动完成"

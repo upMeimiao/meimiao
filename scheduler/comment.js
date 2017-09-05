@@ -116,7 +116,7 @@ class commentScheduler extends events {
     req.addListener('end', () => {
       if (postData && postData !== '') {
         body = JSON.parse(postData);
-        this.emit('task_loaded', body);
+        this.emit('task_loaded', body.data);
       }
     });
     res.setHeader('Content-Type', 'application/json;charset=utf-8');
@@ -155,7 +155,8 @@ class commentScheduler extends events {
       res = null;
       body = null;
       if (!data || !Array.isArray(data) || data.length === 0) return;
-      if (Number(data[0].platform) === 16 || Number(data[0].platform) === 37
+      if (Number(data[0].platform) === 14 || Number(data[0].platform) === 16
+        || Number(data[0].platform) === 37
         || Number(data[0].platform) === 42 || Number(data[0].platform) === 30) {
         data = null;
         return;

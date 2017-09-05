@@ -107,9 +107,9 @@ class spiderCore {
       case 'video.baomihua.com':
         handle.baomihuaHandle(ctx, verifyData);
         break;
-      case 'v.ku6.com':
-        handle.ku6Handle(ctx, verifyData);
-        break;
+      // case 'v.ku6.com':
+      //   handle.ku6Handle(ctx, verifyData);
+      //   break;
       case 'record.btime.com':
       case 'video.btime.com':
       case 'item.btime.com':
