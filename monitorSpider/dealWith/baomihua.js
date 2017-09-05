@@ -102,7 +102,7 @@ class dealWith {
         option = null; result = null; typeErr = null; task = null;
         return
       }
-      if (!result.result || !result.result.VideoList.length) {
+      if (!result.result || !result.result.VideoList) {
         typeErr = {type: 'json', err: `baomihua-视频列表数据异常, data: ${JSON.stringify(result.result)}`, interface: 'getTotal', url: option.url};
         task.infoCheck.interface(task.core, task, typeErr);
       }
