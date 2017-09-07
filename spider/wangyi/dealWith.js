@@ -144,9 +144,10 @@ class dealWith {
       () => cycle,
       (cb) => {
         option.url = `${this.settings.spiderAPI.wangyi.videoInfo + task.id}/video/${page}-20.html`;
+        logger.debug(option)
         request.get(logger, option, (err, result) => {
           if (err) {
-            logger.error('occur error : ', err);
+            logger.error('list occur error : ', err);
             cb();
             return;
           }
