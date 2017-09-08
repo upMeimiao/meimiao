@@ -222,16 +222,17 @@ class dealWith {
         callback(true);
         return;
       }
-      if (result.result[0].ctype === 'interest_navigation') {
-        if (!result.result[0].columns || result.result[0].columns.length < 2) {
-          callback(true);
-          return;
-        }
-        task.interest_id = result.result[0].columns[1].interest_id;
-        this.getList(task, 'video', () => callback());
-      } else {
-        this.getList(task, 'all', () => callback());
-      }
+      this.getList(task, 'all', () => callback());
+      // if (result.result[0].ctype === 'interest_navigation') {
+      //   if (!result.result[0].columns || result.result[0].columns.length < 2) {
+      //     callback(true);
+      //     return;
+      //   }
+      //   task.interest_id = result.result[0].columns[1].interest_id;
+      //   this.getList(task, 'video', () => callback());
+      // } else {
+      //   this.getList(task, 'all', () => callback());
+      // }
     });
   }
   getList(task, type, callback) {
