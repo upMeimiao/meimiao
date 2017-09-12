@@ -57,6 +57,15 @@ const _tag = (raw) => {
   }
   return '';
 };
+const _cookie = () => {
+  const str = '123456789';
+  let cookie = 'phone_id=;%20luin=o142';
+  for (let i = 0, j = 7; i < j; i += 1) {
+    cookie += Math.ceil(Math.random() * str.length);
+  }
+  return cookie;
+};
+
 class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
@@ -67,6 +76,8 @@ class dealWith {
   todo(task, callback) {
     task.total = 0;
     task.devId = getDevId();
+    task.cookie = _cookie();
+    // console.log(task.cookie);
     async.parallel({
       user: (cb) => {
         this.getUser(task, () => {
@@ -184,7 +195,6 @@ class dealWith {
   getVideos(task, callback) {
     const option = {
       url: this.settings.spiderAPI.kuaibao.video,
-      referer: 'http://r.cnews.qq.com/inews/iphone/',
       data: {
         chlid: task.id,
         is_video: 1
@@ -215,11 +225,14 @@ class dealWith {
   getVideoList(task, idStr, callback) {
     const option = {
         url: this.settings.spiderAPI.kuaibao.list,
-        referer: 'http://r.cnews.qq.com/inews/iphone/',
+        headers: {
+          cookie: task.cookie,
+          referer: 'http//r.cnews.qq.com/inews/iphone/',
+          'content-type': 'application/x-www-form-urlencoded',
+          'user-agent': '\\u5929\\u5929\\u5feb\\u62a5\\u0020 2.8.0 qnreading (iPhone; iOS 10.3.3; zh_CN; 2.8.0.11)' },
         data: {
           ids: idStr,
-          is_video: 1
-        }
+          is_video: '1' }
       },
       videoArr = [];
     request.post(logger, option, (err, result) => {
@@ -366,7 +379,7 @@ class dealWith {
         tag: results.videoInfo.tag || ''
       };
       media = spiderUtils.deleteProperty(media);
-      logger.debug(media);
+      // logger.debug(media);
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
       spiderUtils.commentSnapshots(this.core.taskDB,
         { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -436,8 +449,7 @@ class dealWith {
       try {
         result = JSON.parse(result.body);
       } catch (e) {
-        logger.error('json数据解析失败');
-        logger.info(result);
+        logger.error('json数据解析失败', result);
         callback(e);
         return;
       }
