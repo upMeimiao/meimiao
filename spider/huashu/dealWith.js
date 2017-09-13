@@ -236,9 +236,10 @@ class dealWith {
     });
   }
   getPlay(vid, times, callback) {
-    const option = {
-      url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}&jsoncallback=jsonp`
-    };
+    const time = new Date().getTime(),
+      option = {
+        url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${time - 2}&jsoncallback=jQuery18304247874418170927_${time - 3560}&_=${time}`
+      };
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('播放量请求失败', err);
