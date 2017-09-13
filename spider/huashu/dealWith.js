@@ -5,10 +5,6 @@ const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
-const jsonp = function (data) {
-  return data;
-};
-
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -251,18 +247,9 @@ class dealWith {
         this.getPlay(vid, times, callback);
         return;
       }
-      try {
-        result = eval(result.body);
-      } catch (e) {
-        logger.debug('播放量解析失败');
-        times += 1;
-        if (times < 10) {
-          callback(null, null);
-          return;
-        }
-        this.getPlay(vid, times, callback);
-        return;
-      }
+      const start = result.body.indexOf('("'),
+        end = result.body.indexOf('")');
+      result = result.body.substring(start + 2, end);
       result = result ? Number(result.replace(/,/g, '')) : '';
       callback(null, result);
     });
