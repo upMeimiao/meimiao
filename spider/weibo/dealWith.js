@@ -15,7 +15,6 @@ const _cookie = () => {
   for (let i = 0; i < length; i += 1) {
     sub += str.charAt(Math.floor(Math.random() * length));
   }
-  // return `SINAGLOBAL=9973892314779.559.${time - 117817}; _s_tentry=www.baidu.com; Apache=2296727999173.48.${time}; ULV=${time + 4}:2:2:2:2296727999173.48.${time}:${time - 117775}; SUB=_2A${sub}g..; UOR=,,login.sina.com.cn;`;
   return `_2A${sub}g..`;
 };
 let logger;
@@ -171,6 +170,7 @@ class dealWith {
         return;
       }
       option.proxy = proxy;
+      // option.proxy = 'http://127.0.0.1:56777';
       request.get(logger, option, (error, result) => {
         if (error) {
           logger.debug('用户的主页请求错误', error.message);
@@ -226,6 +226,7 @@ class dealWith {
     }
     task.containerid = containerid;
     option.proxy = proxy;
+    // option.proxy = 'http://127.0.0.1:56777';
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('视频总量请求错误', err.message);
@@ -259,7 +260,6 @@ class dealWith {
         this.core.proxy.back(proxy, false);
         this.core.proxy.getProxy((error, _proxy) => {
           if (_proxy === 'timeout') {
-            console.log('123');
             callback();
             return;
           }
@@ -304,7 +304,7 @@ class dealWith {
           }
         }
         option.proxy = _proxy;
-        // logger.debug(option.url);
+        // option.proxy = 'http://127.0.0.1:56777';
         request.get(logger, option, (err, result) => {
           if (err) {
             logger.debug('视频列表数据请求错误', err.message);
@@ -361,7 +361,7 @@ class dealWith {
             return;
           }
           task.proxy = _proxy;
-          this.deal(task, result.cards, _proxy, () => {
+           this.deal(task, result.cards, _proxy, () => {
             task.page += 1;
             cb();
           });
@@ -403,7 +403,7 @@ class dealWith {
       callback();
       return;
     }
-    if (!video.mblog.source || video.mblog.source.includes('一直播')) {
+    if (video.mblog.source && video.mblog.source.includes('一直播')) {
       callback();
       return;
     }
@@ -437,7 +437,7 @@ class dealWith {
           callback();
           return;
         }
-        if (!result[0].page_info.media_info.duration) {
+        if (!result[0].page_info.media_info.duration && result[0].page_info.media_info.duration !== 0) {
           callback();
           return;
         }
@@ -483,6 +483,7 @@ class dealWith {
     let dataTime = '',
       length = 0;
     option.proxy = proxy;
+    // option.proxy = 'http://127.0.0.1:56777';
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('单个视频信息请求错误', err);
@@ -563,59 +564,5 @@ class dealWith {
       callback(null, result.online_users_number);
     });
   }
-  // playNum(task, id, proxy, callback) {
-  //   const option = {
-  //     url: `http://weibo.com/${task.id}/${id}?mod=weibotime&type=comment`,
-  //     headers: {
-  //       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-  //       referer: 'http://weibo.com/',
-  //       cookie: task.cookie
-  //     }
-  //   };
-  //   option.proxy = proxy;
-  //   request.get(logger, option, (err, result) => {
-  //     if (err) {
-  //       logger.error('播放页请求失败', err);
-  //       this.core.proxy.back(proxy, false);
-  //       this.core.proxy.getProxy((error, _proxy) => {
-  //         if (_proxy === 'timeout') {
-  //           callback('error');
-  //           return;
-  //         }
-  //         this.playNum(task, id, _proxy, callback);
-  //       });
-  //       return;
-  //     }
-  //     const start = result.body.indexOf('&play_count='),
-  //       end = result.body.indexOf('&duration=');
-  //     let play = '';
-  //     if (start === -1 || end === -1) {
-  //       console.log(start, '/-*/-*/*/-/++++/+', end);
-  //       logger.debug(option.url);
-  //       callback('error');
-  //       return;
-  //     }
-  //     play = result.body.substring(start + 12, end);
-  //     if (!play) {
-  //       callback(null, 0);
-  //       return;
-  //     }
-  //     if (play.includes('万')) {
-  //       play = play.match(/(\d*)万/)[1];
-  //       play = `${play}0000`;
-  //       if (isNaN(play)) {
-  //         callback(null, 0);
-  //         return;
-  //       }
-  //       callback(null, Number(play));
-  //       return;
-  //     }
-  //     if (isNaN(play)) {
-  //       callback(null, 0);
-  //       return;
-  //     }
-  //     callback(null, Number(play));
-  //   });
-  // }
 }
 module.exports = dealWith;
