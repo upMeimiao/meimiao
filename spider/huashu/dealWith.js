@@ -27,6 +27,7 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.huashu.videoList + task.id
     };
+    // console.log(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('视频列表请求失败');
@@ -76,6 +77,10 @@ class dealWith {
       } catch (e) {
         logger.debug('视频列表解析失败');
         callback(e);
+        return;
+      }
+      if (!result.dramadatas) {
+        callback();
         return;
       }
       const contents = result.dramadatas,
@@ -176,6 +181,7 @@ class dealWith {
           delete media.play_num;
         }
         // console.log(media);
+        media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
