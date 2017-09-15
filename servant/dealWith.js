@@ -249,7 +249,19 @@ class DealWith {
       data: {
         ids: id
       },
-      referer: 'http://r.cnews.qq.com/inews/iphone/'
+      headers: {
+        cookie: (() => {
+          const str = '123456789';
+          let cookie = 'phone_id=;%20luin=o142';
+          for (let i = 0, j = 7; i < j; i += 1) {
+            cookie += Math.ceil(Math.random() * str.length);
+          }
+          return cookie;
+        })(),
+        referer: 'http//r.cnews.qq.com/inews/iphone/',
+        'content-type': 'application/x-www-form-urlencoded',
+        'user-agent': '\\u5929\\u5929\\u5feb\\u62a5\\u0020 2.8.0 qnreading (iPhone; iOS 10.3.3; zh_CN; 2.8.0.11)'
+      }
     };
     request.post(option, (err, result) => {
       if (err) {
