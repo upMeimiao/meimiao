@@ -146,7 +146,7 @@ class dealWith {
             cb();
             return;
           }
-          if (!result.body || !result.body.data.video_list || !result.body.data.video_list.data.length) {
+          if (!result.body || !result.body.data || !result.body.data.video_list || !result.body.data.video_list.data.length) {
             cycle = false;
             cb();
             return;
