@@ -249,7 +249,7 @@ class dealWith {
       }
       if (result.caption && result.caption !== '') {
         title = result.caption.substr(0, 100);
-        tagArr = result.caption.match(/#[^0-9a-zA-Z\x00-\xff]+#/ig);
+        tagArr = result.caption.match(/#[\u4e00-\u9fa50-9a-zA-Z]+#/ig);
         if (tagArr) {
           for (const [index, elem] of tagArr.entries()) {
             _tags.push(elem.replace(/#/g, ''));
@@ -275,7 +275,7 @@ class dealWith {
       } else {
         title = 'btwk_caihongip';
       }
-      const media = {
+      let media = {
         author: result.user.screen_name,
         platform: 5,
         bid: task.id,
@@ -298,9 +298,12 @@ class dealWith {
       tagArr = null;
       result = null;
       __tags = null;
+      media = spiderUtils.deleteProperty(media)
       spiderUtils.saveCache(this.core.cache_db, 'cache', media);
-      spiderUtils.commentSnapshots(this.core.taskDB,
-        { p: media.platform, aid: media.aid, comment_num: media.comment_num });
+      spiderUtils.commentSnapshots(
+        this.core.taskDB,
+        { p: media.platform, aid: media.aid, comment_num: media.comment_num }
+      );
       callback();
     });
   }
