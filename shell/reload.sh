@@ -2,6 +2,7 @@
 
 scheduler_1="10.251.55.50"
 scheduler_2="10.169.16.235"
+scheduler_3="10.25.13.139"
 send_1="10.28.79.123"
 send_2="10.28.79.37"
 spider_0="10.169.22.212"
@@ -14,6 +15,9 @@ spider_6="10.31.32.113"
 spider_7="10.28.227.41"
 spider_8="10.31.32.95"
 spider_9="10.30.144.86"
+spider_10="10.31.32.85"
+spider_11="10.25.13.164"
+spider_12="10.25.13.161"
 
 spider_comment_1="10.31.50.81"
 spider_comment_2="10.25.80.59"
@@ -37,7 +41,7 @@ then
         pm2 reload 调度中心
         echo "-------------- 重启$scheduler_1 调度服务--------------"
         echo
-        for loop in ${scheduler_2}
+        for loop in ${scheduler_2} ${scheduler_3}
         do
             echo
             echo "--------------$loop--------------"
@@ -57,7 +61,7 @@ then
         pm2 reload servant
         echo "-------------- 重启$scheduler_1 servant服务--------------"
         echo
-        for loop in ${scheduler_2}
+        for loop in ${scheduler_2} ${scheduler_3}
         do
             echo
             echo "--------------$loop--------------"
@@ -77,7 +81,7 @@ then
         pm2 reload 认证中心
         echo "-------------- 重启$scheduler_1 认证服务--------------"
         echo
-        for loop in ${scheduler_2}
+        for loop in ${scheduler_2} ${scheduler_3}
         do
             echo
             echo "--------------$loop--------------"
@@ -125,7 +129,7 @@ then
     esac
 elif [ $1 == 'sp' ]
 then
-    for loop in ${spider_0} ${spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6} ${spider_7} ${spider_8} ${spider_9}
+    for loop in ${spider_0} ${spider_1} ${spider_2} ${spider_3} ${spider_4} ${spider_5} ${spider_6} ${spider_7} ${spider_8} ${spider_9} ${spider_10} ${spider_11} ${spider_12}
         do
             echo
             echo "--------------$loop--------------"
