@@ -13,7 +13,7 @@
   },
   "proxy": {
     "host": "127.0.0.1",
-    "weiboHost": "10.31.94.82",
+    "weiboHost": "10.25.13.139",
     "toutiaoHost": "10.31.94.80",
     "port": 3002,
     "newApi": "http://dps.kuaidaili.com/api/getdps/?orderid=919820893731562&num=5&format=json&sep=1",

@@ -39,7 +39,7 @@ class commentScheduler extends events {
       this.createServer();
     } else {
       switch (osName) {
-        case 'servant_3':
+        case 'iZm5e5o52kssf0z0i9vm1hZ':
           rule = '1,13,25,37,49 * * * * *';
           // rule.second = [1, 13, 25, 37, 49];
           // rule.second = [20, 50];
