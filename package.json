@@ -34,7 +34,7 @@
     "nodemailer": "^4.1.0",
     "optimist": "^0.6.1",
     "redis": "^2.8.0",
-    "request": "^2.81.0",
+    "request": "^2.82.0",
     "restc": "^0.2.2",
     "socket.io": "^2.0.3",
     "trim-html": "^0.1.9"
