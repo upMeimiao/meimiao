@@ -2386,12 +2386,25 @@ class DealWith {
       };
     request.get(option, (err, result) => {
       if (err) {
-        logger.debug('百度百家视频请求失败', err);
-        return callback(err, { code: 102, p: 28 });
+        logger.error('百度百家视频请求失败', err);
+        callback(err, { code: 102, p: 28 });
+        return;
       }
-      if (result.statusCode != 200) {
-        logger.debug('百度百家的状态码错误', result.statusCode);
-        return callback(true, { code: 102, p: 28 });
+      if (result.statusCode !== 200) {
+        logger.error('百度百家的状态码错误', result.statusCode);
+        callback(true, { code: 102, p: 28 });
+        return;
+      }
+      if (data.includes('app_id')) {
+        bid = data.match(/app_id=(\d*)/)[1];
+        this.getBaijiaUser(bid, (e, info) => {
+          if (e) {
+            callback(true, { code: 102, p: 28 });
+            return;
+          }
+          callback(null, info);
+        });
+        return;
       }
       const $ = cheerio.load(result.body);
       result = result.body.replace(/[\n\r\s]/g, '');
@@ -2416,14 +2429,16 @@ class DealWith {
             avatar,
             p: 28
           };
-        return callback(null, res);
+        callback(null, res);
+        return;
       }
       try {
         dataJson = JSON.parse(dataJson);
       } catch (e) {
-        logger.debug('百家号用户数据解析失败');
+        logger.error('百家号用户数据解析失败');
         logger.info(dataJson);
-        return callback(true, { code: 102, p: 28 });
+        callback(true, { code: 102, p: 28 });
+        return;
       }
       const res = {
         id: dataJson.app.id,
@@ -2432,6 +2447,50 @@ class DealWith {
         p: 28
       };
       callback(null, res);
+    });
+  }
+  getBaijiaUser(bid, callback) {
+    const option = {
+      url: `https://author.baidu.com/profile?context={"from":0,"app_id":"${bid}"}&cmdType=&pagelets[]=root&reqID=0`,
+      ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'
+    };
+    request.get(option, (err, result) => {
+      if (err) {
+        logger.error('百度百家视频请求失败', err);
+        callback(err);
+        return;
+      }
+      if (result.statusCode !== 200) {
+        logger.error('百度百家的状态码错误', result.statusCode);
+        callback(result.statusCode);
+        return;
+      }
+      try {
+        result = result.body.replace('BigPipe.onPageletArrive', 'jsonp');
+        result = eval(result);
+      } catch (e) {
+        logger.error('百家号用户数据解析失败', result.body);
+        callback(e);
+        return;
+      }
+      const info = result.scripts[2],
+        start = info.indexOf('topBarData = '),
+        end = info.indexOf('; require(');
+      result = info.substring(start + 13, end);
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        logger.error(result);
+        callback(e);
+        return;
+      }
+      result = {
+        id: bid,
+        name: result.user.display_name,
+        avatar: result.user.avatar,
+        p: 28
+      };
+      callback(null, result);
     });
   }
   liVideo(data, callback) {
