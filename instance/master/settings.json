@@ -22,7 +22,7 @@
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=1000&format=json"
   },
   "kue": {
-    "ip": "10.251.55.50",
+    "ip": "10.31.94.80",
     "port": 3000
   },
   "listen": {
