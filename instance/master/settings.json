@@ -12,9 +12,9 @@
     "MSDB": 6
   },
   "proxy": {
-    "host": "10.31.32.85",
-    "weiboHost": "10.31.32.85",
-    "toutiaoHost": "10.28.79.123",
+    "host": "10.25.13.139",
+    "weiboHost": "10.25.13.139",
+    "toutiaoHost": "10.31.94.80",
     "port": 3002,
     "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&protocol=1&method=1&f_pr=1&format=json&sep=1",
     "newApi2": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&format=json&f_pr=1",
