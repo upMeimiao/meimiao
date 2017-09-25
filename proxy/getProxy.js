@@ -20,10 +20,10 @@ class getProxy {
     const proxy = [];
     let api;
     switch (os.hostname()) {
-      case 'iZm5e5rntb358m27cwxt15Z':
+      case 'iZm5e5o52kssf0z0i9vm1hZ':
         api = settings.proxy.newApi1
         break;
-      case 'iZm5e5cyw3eugnuyw2qeuqZ':
+      case 'iZ28ilm78mlZ':
         api = settings.proxy.newApi;
         break;
       default:

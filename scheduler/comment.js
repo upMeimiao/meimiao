@@ -39,7 +39,7 @@ class commentScheduler extends events {
       this.createServer();
     } else {
       switch (osName) {
-        case 'servant_3':
+        case 'iZm5e5o52kssf0z0i9vm1hZ':
           rule = '1,13,25,37,49 * * * * *';
           // rule.second = [1, 13, 25, 37, 49];
           // rule.second = [20, 50];
@@ -63,30 +63,38 @@ class commentScheduler extends events {
     this.logger.trace('启动函数');
     this.on('task_loaded', (raw) => {
       this.handle.classify(raw);
+      raw = null;
     });
     this.on('task_init', (raw) => {
       this.handle.checkInit(raw);
+      raw = null;
     });
     this.on('task_init_set', (raw) => {
       this.handle.setInit(raw);
+      raw = null;
     });
     this.on('task_check_kue', (raw) => {
       this.checkKue(raw);
+      raw = null;
     });
     this.on('task_set_create', (raw) => {
       this.handle.setCreate(raw);
+      raw = null;
     });
     this.on('task_create', (raw) => {
       this.createQueue(raw);
+      raw = null;
     });
     this.on('origin_youtube', (raw) => {
       this.originOverseas(raw);
+      raw = null;
     });
     this.on('redis_error', (raw) => {
       /**
        * todo send email
        */
       this.logger.error(raw);
+      raw = null;
     });
     this.assembly();
   }
@@ -166,6 +174,7 @@ class commentScheduler extends events {
       } else {
         this.emit('task_loaded', data);
       }
+      data = null;
     });
   }
   originOverseas(raw) {
@@ -228,6 +237,7 @@ class commentScheduler extends events {
         }
         // this.emit('task_create', raw);
         err = null;
+        raw = null;
         return;
       }
       delete raw.kue_id;
@@ -236,6 +246,7 @@ class commentScheduler extends events {
         this.emit('task_create', raw);
         time = null;
         job = null;
+        raw = null;
         return;
       }
       if (job.state() === 'failed') {
@@ -243,6 +254,7 @@ class commentScheduler extends events {
       }
       time = null;
       job = null;
+      raw = null;
     });
   }
 }

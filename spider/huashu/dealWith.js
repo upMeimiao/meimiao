@@ -5,10 +5,6 @@ const async = require('neo-async');
 const request = require('../../lib/request');
 const spiderUtils = require('../../lib/spiderUtils');
 
-const jsonp = function (data) {
-  return data;
-};
-
 let logger;
 class dealWith {
   constructor(spiderCore) {
@@ -31,6 +27,7 @@ class dealWith {
     const option = {
       url: this.settings.spiderAPI.huashu.videoList + task.id
     };
+    // console.log(option.url)
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('视频列表请求失败');
@@ -80,6 +77,10 @@ class dealWith {
       } catch (e) {
         logger.debug('视频列表解析失败');
         callback(e);
+        return;
+      }
+      if (!result.dramadatas) {
+        callback();
         return;
       }
       const contents = result.dramadatas,
@@ -180,6 +181,7 @@ class dealWith {
           delete media.play_num;
         }
         // console.log(media);
+        media = spiderUtils.deleteProperty(media);
         spiderUtils.saveCache(this.core.cache_db, 'cache', media);
         spiderUtils.commentSnapshots(this.core.taskDB,
           { p: media.platform, aid: media.aid, comment_num: media.comment_num });
@@ -236,9 +238,10 @@ class dealWith {
     });
   }
   getPlay(vid, times, callback) {
-    const option = {
-      url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}&jsoncallback=jsonp`
-    };
+    const time = new Date().getTime(),
+      option = {
+        url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${time - 2}&jsoncallback=jQuery18304247874418170927_${time - 3560}&_=${time}`
+      };
     request.get(logger, option, (err, result) => {
       if (err) {
         logger.debug('播放量请求失败', err);
@@ -250,18 +253,9 @@ class dealWith {
         this.getPlay(vid, times, callback);
         return;
       }
-      try {
-        result = eval(result.body);
-      } catch (e) {
-        logger.debug('播放量解析失败');
-        times += 1;
-        if (times < 10) {
-          callback(null, null);
-          return;
-        }
-        this.getPlay(vid, times, callback);
-        return;
-      }
+      const start = result.body.indexOf('("'),
+        end = result.body.indexOf('")');
+      result = result.body.substring(start + 2, end);
       result = result ? Number(result.replace(/,/g, '')) : '';
       callback(null, result);
     });

@@ -82,6 +82,7 @@ class spiderCore {
         return;
       }
       this.cookies = result;
+      logger.info(this.cookies)
       if (callback) {
         callback();
       }

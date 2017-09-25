@@ -12,9 +12,9 @@
     "MSDB": 6
   },
   "proxy": {
-    "host": "10.31.32.85",
-    "weiboHost": "10.31.32.85",
-    "toutiaoHost": "10.28.79.123",
+    "host": "10.25.13.139",
+    "weiboHost": "10.25.13.139",
+    "toutiaoHost": "10.31.94.80",
     "port": 3002,
     "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&protocol=1&method=1&f_pr=1&format=json&sep=1",
     "newApi2": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&format=json&f_pr=1",
@@ -22,7 +22,7 @@
     "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=1000&format=json"
   },
   "kue": {
-    "ip": "10.251.55.50",
+    "ip": "10.31.94.80",
     "port": 3000
   },
   "listen": {
@@ -32,7 +32,7 @@
   "concurrency": 7,
   "send_interval": 1000,
   "interval": 10000,
-  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV?limit=105",
+  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV?limit=117",
   "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideosMore/",
   "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
   "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
@@ -73,7 +73,7 @@
       "videoInfo":"http://xiyou.cctv.com/interface/index?videoId="
     },
     "baijia": {
-      "api": "https://sv.baidu.com/haokan/api?log=vhk&tn=1008350o&ctn=1008350o&os=ios&osbranch=i0&ua=1080_1920_401&ut=iPhone8%2C2_10.3.2&network=1&apiv=2.6.1&appv=1&version=2.6.1",
+      "api": "https://sv.baidu.com/haokan/api?log=vhk&tn=1020154y&ctn=1008350o&os=ios&osbranch=i0&ua=1080_1920_401&ut=iPhone8%2C2_10.3.3&network=1&apiv=2.7.0&appv=1&version=2.7.0&cuid=C2BB16A6BC640F0CD9DA2060098AC66793B62A080FCTOPTMEQM",
       "videoList":"http://baijiahao.baidu.com/api/content/article/listall?sk=super&ak=super&status=in:publish,published&_preload_statistic=1&_timg_cover=50,172,1000&_cache=1&app_id=",
       "sendFan":"http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
     },

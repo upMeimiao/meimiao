@@ -316,6 +316,11 @@ class dealWith {
         callback(body.statusText);
         return;
       }
+      if (!body.data) {
+        logger.error(body);
+        callback(true);
+        return;
+      }
       if (!body.data.video_desc) {
         logger.error(body.data);
         callback(true);

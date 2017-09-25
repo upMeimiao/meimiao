@@ -98,7 +98,7 @@ class dealWith {
       //   callback(body);
       //   request({
       //     method: 'POST',
-      //     url: 'http://10.251.55.50:3001/api/alarm',
+      //     url: 'http://10.31.94.80:3001/api/alarm',
       //     form: {
       //       mailGroup: 3,
       //       subject: '粉丝数据异常',
@@ -117,7 +117,7 @@ class dealWith {
       //   logger.error('粉丝数据异常', body.data);
       //   request({
       //     method: 'POST',
-      //     url: 'http://10.251.55.50:3001/api/alarm',
+      //     url: 'http://10.31.94.80:3001/api/alarm',
       //     form: {
       //       mailGroup: 3,
       //       subject: '粉丝数据异常',
@@ -225,7 +225,7 @@ class dealWith {
           callback();
           return;
         }
-        if ((task.id === '830492120' || task.id === '770448808' || task.id === '831934191' || task.id === '828264070' || task.id === '320729654') && body.code === -102) {
+        if (body.code === -102) {
           callback();
           return;
         }

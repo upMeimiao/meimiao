@@ -72,6 +72,12 @@ class dealWith {
         callback(err);
         return;
       }
+      if (!result.data || !result.data.comment || !result.data.comment.length) {
+        task.lastId = task.commentId;
+        task.lastTime = task.commentTime;
+        callback();
+        return;
+      }
       task.cNum = result.data.count;
       if ((task.cNum - task.commentNum) <= 0 || result.data.comments.length <= 0) {
         task.lastId = task.commentId;

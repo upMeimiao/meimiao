@@ -54,10 +54,10 @@ class proxyPool {
     const port = settings.proxy.port;
     let host;
     switch (os.hostname()) {
-      case 'iZm5e5rntb358m27cwxt15Z':
+      case 'iZm5e5o52kssf0z0i9vm1hZ':
         host = settings.proxy.weiboHost
         break;
-      case 'iZm5e5cyw3eugnuyw2qeuqZ':
+      case 'iZ28ilm78mlZ':
         host = settings.proxy.toutiaoHost;
         break;
       default:
