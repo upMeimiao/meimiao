@@ -16,12 +16,13 @@ class dealWith {
     task.request = this.modules.request;
     task.infoCheck = this.modules.infoCheck;
     task.core = this.core;
+    this.getUser(task);
     this.getList(task, () => {
       task = null;
       callback();
     });
   }
-  getUser(task, vid) {
+  getUser(task) {
     let option = {
       url: this.settings.spiderAPI.baijia.api,
       headers: {
@@ -56,7 +57,7 @@ class dealWith {
         typeErr = {type: 'data', err: `{fans-error: 粉丝接口获取错误, data: ${JSON.stringify(result)}}`, interface: 'user', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
-      typeErr = null; option = null; $ = null; result = null;
+      typeErr = null; option = null; result = null;
     });
   }
   getList(task, callback) {

@@ -93,10 +93,10 @@ class spiderCore extends events{
     this.getTask = new (require('./controllers/beginTask'))(this);
     switch (this.settings.type) {
       case 'video':
-        for (const [key, value] of platfrom.entries()) {
-          videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
-        }
-        // videoList.push({ name: 'youku', type: 'ceshi', t: 'video', platform: new (require('./dealWith/youku'))(this) });
+        // for (const [key, value] of platfrom.entries()) {
+        //   videoList.push({ name: value, type: '', t: 'video', platform: new (require('./dealWith/' + value))(this) });
+        // }
+        videoList.push({ name: 'baijia', type: 'ceshi', t: 'video', platform: new (require('./dealWith/baijia'))(this) });
         platfromObj = { videoList };
         break;
       case 'program':
@@ -139,7 +139,7 @@ class spiderCore extends events{
     // 并行执行任务
     const time = new Date().getHours(),
       queue = async.queue((task, callback) => {
-        if (task.name === 'ku6' || task.name === 'weishi') {//  || task.name === 'weibo'
+        if (task.name === 'ku6' || task.name === 'weishi' || task.name === 'youliao' || task.name === 'weibo') {//  || task.name === 'weibo'
           callback();
           return;
         }

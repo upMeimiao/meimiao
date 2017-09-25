@@ -186,8 +186,9 @@ class dealWith {
     });
   }
   getPlay(task, vid) {
+    const time = new Date().getTime();
     let option = {
-      url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${new Date().getTime()}&jsoncallback=jsonp`
+      url: `http://pro.wasu.cn/index/vod/updateViewHit/id/${vid}/pid/37/dramaId/${vid}?${time - 2}&jsoncallback=jQuery18304247874418170927_${time - 3560}&_=${time}`
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {

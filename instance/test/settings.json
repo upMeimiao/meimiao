@@ -72,7 +72,7 @@
       "videoInfo":"http://xiyou.cctv.com/interface/index?videoId="
     },
     "baijia": {
-      "api": "https://sv.baidu.com/haokan/api?log=vhk&tn=1008350o&ctn=1008350o&os=ios&osbranch=i0&ua=1080_1920_401&ut=iPhone8%2C2_10.3.2&network=1&apiv=2.6.1&appv=1&version=2.6.1",
+      "api": "https://sv.baidu.com/haokan/api?log=vhk&tn=1020154y&ctn=1008350o&os=ios&osbranch=i0&ua=1080_1920_401&ut=iPhone8%2C2_10.3.3&network=1&apiv=2.7.0&appv=1&version=2.7.0&cuid=C2BB16A6BC640F0CD9DA2060098AC66793B62A080FCTOPTMEQM",
       "videoList":"http://baijiahao.baidu.com/api/content/article/listall?sk=super&ak=super&status=in:publish,published&_preload_statistic=1&_timg_cover=50,172,1000&_cache=1&app_id=",
       "sendFan":"http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
     },

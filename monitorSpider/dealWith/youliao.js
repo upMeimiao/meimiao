@@ -115,7 +115,7 @@ class dealWith {
         return;
       }
       if (!result.data || Object.prototype.toString.call(result.data) !== '[object Array]' || !result.data.length) {
-        typeErr = {type: 'data', err: JSON.stringify(result.data), interface: 'list', url: option.url};
+        typeErr = {type: 'data', err: JSON.stringify(result.data), interface: 'list', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
         option = null; typeErr = null; result = null; task = null;
         return;

@@ -97,7 +97,7 @@ class dealWith {
         option = null; task = null; result = null; typeErr = null;
         return;
       }
-      this.getComment(task, result.videolist[0].puid);
+      this.getComment(task, result.videolist[1].puid);
       option = null; task = null; result = null; typeErr = null;
     });
   }

@@ -144,7 +144,7 @@ exports.interface = (events, task, typeErr) => {
     typeErr.platform = p;
     typeErr.bname = task.name;
     typeErr.lastTime = time;
-    typeErr.type = result.type;
+    // typeErr.type = result.type;
     editEmail.interEmail(events, typeErr);
     events = null; task = null; typeErr = null;
     return;

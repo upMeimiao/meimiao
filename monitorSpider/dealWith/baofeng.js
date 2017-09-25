@@ -69,7 +69,7 @@ class dealWith {
   }
   getAid(task) {
     let option = {
-      url: `http://www.baofeng.com/${this.aidUrl}`
+      url: `http://www.baofeng.com/${task.aidUrl}`
     };
     task.request.get(logger, option, (err, result) => {
       if (err) {
