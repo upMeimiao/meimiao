@@ -77,7 +77,8 @@ class mediaHandle {
   setInit(raw) {
     const key = `${raw.p}:${raw.id}`,
       time = new Date().getTime();
-    this.scheduler.taskDB.hmset(key, 'id', raw.id, 'bname', raw.name, 'init', time, 'create', time, 'video_number', 0,
+    this.scheduler.taskDB.hmset(
+      key, 'id', raw.id, 'bname', raw.name, 'init', time, 'create', time, 'video_number', 0,
       (err) => {
         if (err) {
           this.scheduler.emit('redis_error', { db: 'taskDB', action: 3 });

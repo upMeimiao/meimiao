@@ -7,7 +7,7 @@ class commentHandle {
     this.logger.debug('评论任务处理模块 实例化...');
   }
   classify(raw) {
-    const baseInfo = []
+    let baseInfo = [];
     for (const [index, elem] of raw.entries()) {
       if (elem.bid !== '' && elem.aid !== '') {
         baseInfo.push({
@@ -21,16 +21,16 @@ class commentHandle {
     }
     raw = null;
     this.scheduler.emit('task_init', baseInfo);
+    baseInfo = null;
   }
   checkInit(raw) {
     let key = [];
-    const initList = [], list = []
+    let initList = [], list = [];
     for (const [index, elem] of raw.entries()) {
       key[index] = ['hmget', `c:${elem.p}:${elem.aid}`, 'comment_number', 'last_comment_id', 'last_comment_time', 'oldSnapshots', 'newSnapshots', 'kue_id'];
     }
-    this.scheduler.taskDB.pipeline(
-      key
-    ).exec((err, result) => {
+    this.scheduler.taskDB.pipeline(key).exec((err, result) => {
+      key = null;
       if (err) {
         err = null;
         return;
@@ -65,13 +65,14 @@ class commentHandle {
       }
       result = null;
       raw = null;
-      key = null;
       if (initList.length > 0) {
         this.scheduler.emit('task_init_set', initList);
       }
       if (list.length > 0) {
         this.scheduler.emit('task_set_create', list);
       }
+      list = null;
+      initList = null;
     });
   }
   setInit(raw) {
@@ -82,9 +83,7 @@ class commentHandle {
         'comment_number', -1, 'last_comment_id', 0, 'last_comment_time', 0,
         'oldSnapshots', -1, 'newSnapshots', -1];
     }
-    this.scheduler.taskDB.pipeline(
-      key
-    ).exec((err, result) => {
+    this.scheduler.taskDB.pipeline(key).exec((err, result) => {
       if (err) {
         err = null;
         return;
@@ -109,9 +108,7 @@ class commentHandle {
     for (const [index, elem] of raw.entries()) {
       key[index] = ['hset', `c:${elem.p}:${elem.aid}`, 'create', time];
     }
-    this.scheduler.taskDB.pipeline(
-      key
-    ).exec((err, result) => {
+    this.scheduler.taskDB.pipeline(key).exec((err, result) => {
       if (err) {
         err = null;
         return;

@@ -32,7 +32,7 @@ class mediaScheduler extends events {
     });
     // this.emit('task_loaded',test_data)
     // const rule = new schedule.RecurrenceRule();
-    let rule
+    let rule;
     const osName = os.hostname();
     // if (osName === 'iFabledeMacBook-Pro.local') {
     if (osName === 'iZt4n0b9sw5qoog46blmorZ') {
@@ -52,7 +52,7 @@ class mediaScheduler extends events {
           // rule.second = [3, 9, 15, 21, 27, 33, 39, 42, 48, 54];
           break;
         default:
-          rule = '30 * * * * *'
+          rule = '30 * * * * *';
           // rule.second = [0, 3, 6, 9, 12, 15, 18, 21, 24,
           //   27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57];
           break;
