@@ -100,12 +100,12 @@ class spiderCore extends events{
         platfromObj = { videoList };
         break;
       case 'program':
-        // for (const [key, value] of platfrom.entries()) {
-        //   if (program.program().get(key)) {
-        //     programList.push({ name: value, type: '', t: 'program', platform: new (require('./program/' + value))(this) });
-        //   }
-        // }
-        programList.push({ name: 'bili', type: 'ceshi', t: 'video', platform: new (require('./dealWith/bili'))(this) });
+        for (const [key, value] of platfrom.entries()) {
+          if (program.program().get(key)) {
+            programList.push({ name: value, type: '', t: 'program', platform: new (require('./program/' + value))(this) });
+          }
+        }
+        // programList.push({ name: 'bili', type: 'ceshi', t: 'video', platform: new (require('./dealWith/bili'))(this) });
         platfromObj = { programList };
         break;
       case 'comment':
