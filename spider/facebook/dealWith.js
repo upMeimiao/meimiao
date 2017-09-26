@@ -11,12 +11,15 @@ class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
     this.settings = spiderCore.settings;
-    logger = this.settings.logger;
+    const { Logger } = this.settings.logger;
+    logger = Logger;
     logger.trace('DealWith instantiation ...');
   }
   todo(task, callback) {
+    return;
     task.isUser = Number(task.id.substring(0, 3));
-    task.userId = task.cookies.match(/c_user=(\d*)/)[1];
+    const [userId] = task.cookies.match(/c_user=(\d*)/)[1];
+    task.userId = userId;
     task.total = 0;
     task.signNum = 0;
     async.series(
