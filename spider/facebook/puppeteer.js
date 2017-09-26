@@ -17,10 +17,10 @@ const pass = process.argv[3];
   const $pwd = await page.$('#pass');
   await page.evaluate((el, name) => {
     el.value = name;
-  }, $email, 'zhu_gazi@163.com');
+  }, $email, email);
   await page.evaluate((el, pass) => {
     el.value = pass;
-  }, $pwd, 'hui111111.hui');
+  }, $pwd, pass);
   await page.waitFor('button[type="submit"]');
   const $loginbutton = await page.$('button[type="submit"]');
   await $loginbutton.click();

@@ -17,7 +17,7 @@ class spiderCore {
     this.redis = settings.redis;
     this.dealWith = new (require('./dealWith'))(this);
     // 正常使用的cookie
-    this.cookies = 'reg_fb_gate=https%3A%2F%2Fwww.facebook.com%2Flogin.php;reg_fb_ref=https%3A%2F%2Fwww.facebook.com%2Flogin.php;datr=nA_KWVYcuAd_hATD4VP3TTY-;wd=800x600;sfau=AYgx2_eZiEbozayFZjrI3YEGpIkcgD15x7y1KHirT4AEf12uu_MdVWw1ZCqM84k9WZBfk6oWSvenIsZvkgQlWzTaaqmE4ZS6RzMOymN3SlBMiy4x953Pbw19wj6tgagQvMvg14tG_okCWfK5Qk_JfGp-;fr=0prUIDUH7GnPPCECX..BZyg-c.6q.AAA.0.0.BZyg-e.AWWFpcU-;_js_datr=nA_KWVYcuAd_hATD4VP3TTY-;_js_reg_fb_ref=https%3A%2F%2Fwww.facebook.com%2Flogin.php%3Flogin_attempt%3D1%26lwv%3D100;';
+    this.cookies = 'locale=zh_CN; datr=i8bJWbbF0bmLFgX06O0rk6dl; sb=i8bJWTugOIa7798lNEcP-slk; c_user=100017345710792; xs=1%3AzRTUuymN8QWAmw%3A2%3A1506416440%3A-1%3A-1; fr=0ODFwFfmAXwYSaB2s.AWUJfJGa56Le7I5A3Z-zh03YeHM.BZw6ek.Mh.AAA.0.0.BZyhc4.AWV5ljYJ; pl=n; act=1506417937756%2F5; wd=1209x974; presence=EDvF3EtimeF1506418072EuserFA21B17345710792A2EstateFDutF1506418072749CEchFDp_5f1B17345710792F1CC';
     // 已失效的cookie测试
     // this.cookies = 'datr=74GnWb2Z9O9Dgi6DQrRDrh1m; sb=74GnWWSmA-3w7GeHfTVlpQrC; c_user=100017345710792; xs=48%3ArxJo9wL-uCsnhg%3A2%3A1504151954%3A-1%3A-1; pl=n; fr=0DuLGK4OE8rrFViVo.AWXr_Tgk282II-5h_t0zeB_o5zs.BZo4-t.li.Fmn.0.0.BZp4mX.AWW1Olu3; presence=EDvF3EtimeF1504151960EuserFA21B17345710792A2EstateFDutF1504151959998CEchFDp_5f1B17345710792F2CC; wd=1064x974';
     const { logger: Logger } = this.settings;
@@ -52,20 +52,20 @@ class spiderCore {
             break;
           }
         }
-        if (!auth) {
-          spiderUtils.sendError(this.taskDB, 'Facebook当前没有可用账号', () => {
-            process.exit();
-          });
-          return;
-        }
+        // if (!auth) {
+        //   spiderUtils.sendError(this.taskDB, 'Facebook当前没有可用账号', () => {
+        //     process.exit();
+        //   });
+        //   return;
+        // }
         this.auth = auth;
         // this.getCookie(auth, () => {
         // process.env.NODE_ENV = 'production';
-        if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-          this.deal();
-        } else {
-          this.test();
-        }
+          if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+            this.deal();
+          } else {
+            this.test();
+          }
         // });
       });
   }

@@ -13,14 +13,16 @@ const loginModule = (parameter, callback) => {
     console.error('检测到错误', error);
   });
   spawn.stdout.on('data', (result) => {
+    console.log('----', result);
     if (result === 'error') {
       loginModule(parameter, callback);
       return
     }
     if (result === 'emailError') {
-
+      callback(null, 'emailError');
+      return;
     }
-    process.exit(1)
+    callback(null, result)
   });
   spawn.stdout.on('close', () => {
     console.log('关闭进程');
