@@ -4,7 +4,7 @@
 const puppeteer = require('puppeteer');
 
 exports.Login = async (info, callback) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
   let result;
   page.on('error', async (error) => {
