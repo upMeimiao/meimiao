@@ -6,7 +6,7 @@ const kue = require('kue');
 const request = require('request');
 const domain = require('domain');
 const Redis = require('ioredis');
-const loginFacebook = require('./loginFacebook');
+const puppeteer = require('./puppeteer');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger, settings;
@@ -18,8 +18,6 @@ class spiderCore {
     this.dealWith = new (require('./dealWith'))(this);
     // 正常使用的cookie
     this.cookies = 'locale=zh_CN; datr=i8bJWbbF0bmLFgX06O0rk6dl; sb=i8bJWTugOIa7798lNEcP-slk; c_user=100017345710792; xs=1%3AzRTUuymN8QWAmw%3A2%3A1506416440%3A-1%3A-1; fr=0ODFwFfmAXwYSaB2s.AWUJfJGa56Le7I5A3Z-zh03YeHM.BZw6ek.Mh.AAA.0.0.BZyhc4.AWV5ljYJ; pl=n; act=1506417937756%2F5; wd=1209x974; presence=EDvF3EtimeF1506418072EuserFA21B17345710792A2EstateFDutF1506418072749CEchFDp_5f1B17345710792F1CC';
-    // 已失效的cookie测试
-    // this.cookies = 'datr=74GnWb2Z9O9Dgi6DQrRDrh1m; sb=74GnWWSmA-3w7GeHfTVlpQrC; c_user=100017345710792; xs=48%3ArxJo9wL-uCsnhg%3A2%3A1504151954%3A-1%3A-1; pl=n; fr=0DuLGK4OE8rrFViVo.AWXr_Tgk282II-5h_t0zeB_o5zs.BZo4-t.li.Fmn.0.0.BZp4mX.AWW1Olu3; presence=EDvF3EtimeF1504151960EuserFA21B17345710792A2EstateFDutF1504151959998CEchFDp_5f1B17345710792F2CC; wd=1064x974';
     const { logger: Logger } = this.settings;
     logger = Logger;
     logger.trace('spiderCore instantiation ...');
@@ -52,21 +50,21 @@ class spiderCore {
             break;
           }
         }
-        // if (!auth) {
-        //   spiderUtils.sendError(this.taskDB, 'Facebook当前没有可用账号', () => {
-        //     process.exit();
-        //   });
-        //   return;
-        // }
+        if (!auth) {
+          spiderUtils.sendError(this.taskDB, 'Facebook当前没有可用账号', () => {
+            process.exit();
+          });
+          return;
+        }
         this.auth = auth;
-        // this.getCookie(auth, () => {
+        this.getCookie(auth, () => {
         // process.env.NODE_ENV = 'production';
           if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
             this.deal();
           } else {
             this.test();
           }
-        // });
+        });
       });
   }
   getCookie(auth, callback) {
@@ -75,14 +73,19 @@ class spiderCore {
       timeout: 0,
       auth
     };
-    loginFacebook.start(parameter, (err, result) => {
-      if (err) {
-        logger.debug('当前用户不可用', err);
-        callback();
+    puppeteer.Login(parameter, (err, result) => {
+      if (result.error && result.error === 'error') {
+        this.getCookie(auth, callback);
         return;
       }
-      this.cookies = result;
-      logger.info(this.cookies);
+      if (result.error && result.error === 'emailError') {
+        spiderUtils.sendError(this.taskDB, auth.email, () => {
+          process.exit();
+        });
+        return;
+      }
+      this.cookies = result.cookie;
+      // logger.info(this.cookies);
       if (callback) {
         callback();
       }

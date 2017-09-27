@@ -16,13 +16,7 @@ class dealWith {
     logger.trace('DealWith instantiation ...');
   }
   todo(task, callback) {
-    if (!task.cookies.match(/c_user=(\d*)/)) {
-      spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
-        process.exit();
-      });
-      return;
-    }
-    const [userId] = task.cookies.match(/c_user=(\d*)/)[1];
+    const [, userId] = task.cookies.match(/c_user=(\d*)/);
     task.userId = userId;
     task.isUser = Number(task.id.substring(0, 3));
     task.total = 0;
@@ -75,7 +69,7 @@ class dealWith {
   getUserInfo(task, callback) {
     const option = {
       url: `https://www.facebook.com/pg/${task.id}/community/?ref=page_internal`,
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       headers: {
         'accept-language': 'zh-CN,zh;q=0.8',
         referer: `https://www.facebook.com/pg/${task.id}/community/?ref=page_internal`,
@@ -88,8 +82,14 @@ class dealWith {
         callback(err);
         return;
       }
-      const $ = cheerio.load(result.body),
-        fansDom = $('div#content_container>div>div.clearfix div._4bl7._3xoj').eq(1).find('._3xom').text();
+      const $ = cheerio.load(result.body);
+      if (!$('div#content_container>div>div.clearfix div._4bl7._3xoj').length) {
+        spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
+          process.exit();
+        });
+        return;
+      }
+      const fansDom = $('div#content_container>div>div.clearfix div._4bl7._3xoj').eq(1).find('._3xom').text();
       let fans = fansDom.replace(/[\s,]/g, '');
       if (fans.includes('万')) {
         fans = fans.replace('万', '0000');
@@ -162,9 +162,9 @@ class dealWith {
   getUserList(task, callback) {
     const time = parseInt(new Date().getTime() / 1000, 10),
       option = {
-        url: `https://www.facebook.com/${task.id}/videos?lst=${task.userId}%3A${task.id}%3A${Number.parseInt(new Date().getTime() / 1000, 10)}`,
+        url: `https://www.facebook.com/${task.id + this.settings.spiderAPI.facebook.userList}&lst=${task.userId}:${task.id}:${time}&__user=${task.userId}&__a=1`,
         ua: 1,
-        proxy: 'http://127.0.0.1:56777',
+        // proxy: 'http://127.0.0.1:56777',
         Cookie: task.cookies
       },
       pageletToken = 'AWtVRp2c4s4CWvlzBp5SG3ZMV2ky5ZXF9N5fW0lykpNiwcajcO6-L0UD-ljqleyXeIo';
@@ -187,33 +187,44 @@ class dealWith {
             cb();
             return;
           }
-          if (num === 1) {
-            let html = result.body.split('<!-- ');
-            html = html[html.length - 1];
-            const [, Token] = html.match(/pagelet_timeline_app_collection_(\d*:\d*:\d*)/);
-            const [, Cursor] = html.match(/,"(\w*)="]/);
-            html = html.substring(0, html.indexOf(' --></code>'));
-            $ = cheerio.load(html);
-            videolist = $('ul li');
-            token = Token;
-            cursor = `${Cursor}=`;
-            num = 2;
-          } else {
-            try {
-              result = JSON.parse(result.body);
-            } catch (e) {
-              logger.error('用户列表解析失败', result.body);
-              if (task.signNum >= 2) {
-                spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
-                  process.exit();
-                });
-                return;
-              }
-              task.signNum += 1;
-              cb();
+          try {
+            if (num === 1) {
+              const _$ = cheerio.load(result.body),
+                script = _$('script').eq(13).html();
+              result = script.replace(/[\n\r]/g, '')
+                .replace('parent.require("JSONPTransport").respond(4, ', '')
+                .replace(',true);', '');
+              result = result.substring(result.indexOf('if (self != top) {') + 18, result.indexOf(', true);} else {'));
+              result = JSON.parse(result);
+            } else {
+              result = JSON.parse(result.body.replace('for (;;);', ''));
+            }
+          } catch (e) {
+            logger.error('用户列表解析失败', result);
+            if (task.signNum >= 2) {
+              spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
+                process.exit();
+              });
               return;
             }
-            task.signNum = 0;
+            task.signNum += 1;
+            cb();
+            return;
+          }
+          task.signNum = 0;
+          if (num === 1) {
+            tokenList = result.payload.jsmods.require;
+            for (const [key, value] of tokenList.entries()) {
+              if (value[1] == 'enableContentLoader') {
+                token = value[3][0].replace('pagelet_timeline_app_collection_', '');
+                cursor = value[3][2];
+                $ = cheerio.load(result.payload.content[value[3][0]]);
+                videolist = $('ul li');
+                num = 2;
+                break;
+              }
+            }
+          } else {
             if (!result.payload || result.payload == '') {
               cycle = false;
               cb();
@@ -249,7 +260,7 @@ class dealWith {
   getListInfo(task, callback) {
     const option = {
       ua: 1,
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       referer: 'https://www.facebook.com'
     };
     let cursor = null,
@@ -363,7 +374,7 @@ class dealWith {
     const option = {
       url: `${this.settings.spiderAPI.facebook.vidInfo}"v":"${vid}","firstLoad":true,"ssid":${new Date().getTime()}}&__user=0&__a=1`,
       ua: 1,
-      proxy: 'http://127.0.0.1:56777',
+      // proxy: 'http://127.0.0.1:56777',
       referer: `https://www.facebook.com/${task.id}/?fref=ts`,
       Cookie: task.cookies
     };
