@@ -67,7 +67,7 @@ class spiderCore {
   }
   getCookie(auth, callback) {
     const parameter = {
-      loginAddr: this.settings.spiderAPI.facebook.loginAddr,
+      loginAddr: this.settings.facebook.loginAddr,
       timeout: 0,
       auth
     };
