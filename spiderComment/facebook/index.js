@@ -5,7 +5,7 @@
 const kue = require('kue');
 const Redis = require('ioredis');
 const domain = require('domain');
-const loginFacebook = require('../../spider/facebook/loginFacebook');
+const puppeteer = require('../../spider/facebook/puppeteer');
 const spiderUtils = require('../../lib/spiderUtils');
 
 let logger, settings;
@@ -67,17 +67,23 @@ class spiderCore {
   }
   getCookie(auth, callback) {
     const parameter = {
-      loginAddr: this.settings.facebook.loginAddr,
+      loginAddr: this.settings.spiderAPI.facebook.loginAddr,
       timeout: 0,
       auth
     };
-    loginFacebook.start(parameter, (err, result) => {
-      if (err) {
-        logger.debug('当前用户不可用', err);
-        callback();
+    puppeteer.Login(parameter, (err, result) => {
+      if (result.error && result.error === 'error') {
+        this.getCookie(auth, callback);
         return;
       }
-      this.cookies = result;
+      if (result.error && result.error === 'emailError') {
+        spiderUtils.sendError(this.taskDB, auth.email, () => {
+          process.exit();
+        });
+        return;
+      }
+      this.cookies = result.cookie;
+      // logger.info(this.cookies);
       if (callback) {
         callback();
       }
