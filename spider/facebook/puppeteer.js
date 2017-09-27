@@ -38,7 +38,7 @@ exports.Login = async (info, callback) => {
   const cookies = await page.cookies();
   let cookie = '';
   for (const [index, elem] of cookies.entries()) {
-    cookie += `${elem.name}=${elem.value};`
+    cookie += `${elem.name}=${elem.value};`;
   }
   // console.log(cookie);
   result = { cookie };
