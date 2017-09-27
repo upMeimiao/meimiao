@@ -4,7 +4,7 @@
 const puppeteer = require('puppeteer');
 
 exports.Login = async (info, callback) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
   let result;
   page.on('error', async (error) => {
@@ -38,7 +38,7 @@ exports.Login = async (info, callback) => {
   const cookies = await page.cookies();
   let cookie = '';
   for (const [index, elem] of cookies.entries()) {
-    cookie += `${elem.name}=${elem.value};`
+    cookie += `${elem.name}=${elem.value};`;
   }
   // console.log(cookie);
   result = { cookie };

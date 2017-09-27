@@ -33,6 +33,7 @@
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.1",
     "optimist": "^0.6.1",
+    "puppeteer": "^0.11.0",
     "redis": "^2.8.0",
     "request": "^2.82.0",
     "restc": "^0.2.2",

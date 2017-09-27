@@ -4,8 +4,7 @@ spider/iqiyi/dealWith_v1.js
 spider/iqiyi/dealWith_v2.js
 spider/iqiyi/dealWith_v3.js
 spider/toutiao/dealWith_v1.js
-spider/facebook/puppeteer.js
-spider/facebook/loginFacebook.js
+spider/facebook/casper.js
 oneTimeTask/avatar/*.js
 authenticate/dealWith.js
 #authenticate/dealWith-v2.js
