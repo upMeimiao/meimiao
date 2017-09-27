@@ -58,7 +58,7 @@ class commentSend extends events {
         }
       }
       this.emit('send_data', list, 0);
-      this.emit('send_data_staging', list);
+      // this.emit('send_data_staging', list);
     });
   }
   sendOnline(list, time) {
