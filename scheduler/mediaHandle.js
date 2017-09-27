@@ -53,7 +53,8 @@ class mediaHandle {
         platform,
         encodeId: _.encodeId ? _.encodeId : '',
         type: _.type ? _.type : '',
-        mapBid: _.map_bid
+        mapBid: _.map_bid,
+        priority: _.p_value ? 100 - Number(_.p_value) : 100
       };
     this.scheduler.emit('task_init', baseInfo);
     callback();
