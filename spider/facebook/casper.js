@@ -2,7 +2,7 @@
  * Created by dell on 2017/5/15.
  */
 const system = require('system');
-const casper = require('casper').create();
+const casper = require('spider/facebook/puppeteer').create();
 
 casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.91 Safari/537.36');
 
