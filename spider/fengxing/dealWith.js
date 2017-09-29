@@ -53,7 +53,11 @@ class dealWith {
       request.get(logger, option, (err, result) => {
         if (err) {
           logger.error('视频总量接口请求错误 : ', err);
-          callback(err);
+          if (task.id === '549') {
+            callback();
+          } else {
+            callback(err);
+          }
           return;
         }
         const $ = cheerio.load(result.body),
