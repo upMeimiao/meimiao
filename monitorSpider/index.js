@@ -110,7 +110,7 @@ class spiderCore extends events{
         break;
       case 'comment':
         for (const [key, value] of platfrom.entries()) {
-          if (program.program().get(key)) {
+          if (value !== 'baiduVideo' && value !== 'dianshi' && value !== 'jd') {
             commentList.push({ name: value, type: '', t: 'comment', platform: new (require('./comment/' + value))(this) });
           }
         }

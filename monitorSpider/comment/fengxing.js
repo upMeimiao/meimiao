@@ -46,7 +46,7 @@ class dealWith {
         callback();
         return;
       }
-      if (!result || !result.data) {
+      if (!result || result.status === 404 || !result.data || result.data.comment) {
         typeErr = {type: 'data', err: `{error: 评论列表数据error, data: ${JSON.stringify(result)}}`, interface: 'commentList', url: JSON.stringify(option)};
         task.infoCheck.interface(task.core, task, typeErr);
       }
