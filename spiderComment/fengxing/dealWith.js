@@ -152,7 +152,6 @@ class dealWith {
       }
     );
   }
-
 }
 
 module.exports = dealWith;

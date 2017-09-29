@@ -125,16 +125,22 @@ class dealWith {
           bid: task.id,
           platform: 34
         };
+      let bid, index = 0;
       for (let i = 0; i < list.length; i += 1) {
-        const bid = list.eq(i).attr('block').match(/g_\d*/).toString()
+        bid = list.eq(i).attr('block').match(/g_\d*/).toString()
           .replace('g_', '');
         if (Number(task.id) === Number(bid)) {
-          user.fans_num = list.eq(i).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text();
-          // logger.info(user);
-          this.sendUser(user);
-          this.sendStagingUser(user);
-          callback();
+          index = i;
         }
+      }
+      if (index) {
+        user.fans_num = list.eq(index).find('div.mod-li-i div.mod-sub-wrap span.sub-tip b').text();
+        // logger.info(user);
+        this.sendUser(user);
+        this.sendStagingUser(user);
+        callback();
+      } else {
+        callback();
       }
     });
   }
