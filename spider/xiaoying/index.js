@@ -49,8 +49,8 @@ class spiderCore {
   }
   test() {
     const work = {
-      id: '72znv',
-      name: '何仙姑夫工作室',
+      id: '2hane',
+      name: '橘子娱乐视频',
       p: 17
     };
     this.dealWith.todo(work, (err, total) => {

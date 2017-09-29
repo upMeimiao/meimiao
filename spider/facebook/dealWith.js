@@ -11,12 +11,14 @@ class dealWith {
   constructor(spiderCore) {
     this.core = spiderCore;
     this.settings = spiderCore.settings;
-    logger = this.settings.logger;
+    const { logger: Logger } = this.settings;
+    logger = Logger;
     logger.trace('DealWith instantiation ...');
   }
   todo(task, callback) {
+    const [, userId] = task.cookies.match(/c_user=(\d*)/);
+    task.userId = userId;
     task.isUser = Number(task.id.substring(0, 3));
-    task.userId = task.cookies.match(/c_user=(\d*)/)[1];
     task.total = 0;
     task.signNum = 0;
     async.series(
@@ -80,8 +82,14 @@ class dealWith {
         callback(err);
         return;
       }
-      const $ = cheerio.load(result.body),
-        fansDom = $('div#content_container>div>div.clearfix div._4bl7._3xoj').eq(1).find('._3xom').text();
+      const $ = cheerio.load(result.body);
+      if (!$('div#content_container>div>div.clearfix div._4bl7._3xoj').length) {
+        spiderUtils.sendError(this.core.taskDB, this.core.auth.email, () => {
+          process.exit();
+        });
+        return;
+      }
+      const fansDom = $('div#content_container>div>div.clearfix div._4bl7._3xoj').eq(1).find('._3xom').text();
       let fans = fansDom.replace(/[\s,]/g, '');
       if (fans.includes('万')) {
         fans = fans.replace('万', '0000');

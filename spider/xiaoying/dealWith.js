@@ -247,6 +247,9 @@ class dealWith {
     const time = data.publishtime,
       a_create_time = moment(time, ['YYYYMMDDHHmmss'], true).unix();
     this.getComment(data.puid, (err, result) => {
+      if (data.title && data.title === data.username) {
+        data.title = spiderUtils.stringHandling(data.desc, 80);
+      }
       let media = {
         author: task.name,
         platform: 17,
