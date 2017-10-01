@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>任务状态监控</title>
+    <link rel="stylesheet" href="/stylesheets/element.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<div id="app">
+    <template>
+        <el-row style="width: 1260px;margin: 20px auto;">
+            <el-radio-group v-model="radio" @change="changePlatform">
+                <el-radio-button v-for="(item, index) in platform" :label="item.id" :disabled="item.id >= 56 || item.id == 14 || item.id == 16 || item.id == 43">{{item.name}}</el-radio-button>
+            </el-radio-group>
+        </el-row>
+        <el-row style="width: 1260px;margin: 20px auto;">
+            <el-col :span="9">
+                <el-input placeholder="请输入内容" :disabled="disabled" v-model="input" @keyup.enter.native="search" style="width: 450px;">
+                    <el-select v-model="select" slot="prepend" placeholder="请选择">
+                        <el-option label="ID" value="1"></el-option>
+                        <el-option label="用户名" value="2"></el-option>
+                        <el-option label="ID（全平台）" value="3"></el-option>
+                        <el-option label="用户名（全平台）" value="4"></el-option>
+                    </el-select>
+                    <el-button slot="append" icon="search" @click="search"></el-button>
+                </el-input>
+            </el-col>
+            <el-col :span="3">
+                <el-button type="success" @click="refresh">数据刷新</el-button>
+            </el-col>
+        </el-row>
+        <el-row style="width: 1260px;margin: 0 auto;">
+            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border :summary-method="getSummaries" show-summary style="width: 100%;"  :row-class-name="tableRowClassName" max-height="750">
+                <el-table-column align="center" prop="p"  :formatter="show_pname" label="平台">
+                </el-table-column>
+                <el-table-column align="center" prop="bid" width="280"  label="ID">
+                </el-table-column>
+                <el-table-column align="center" prop="bname" width="140"  label="用户名">
+                </el-table-column>
+                <el-table-column align="center" prop="videoNumber" sortable label="视频总数">
+                </el-table-column>
+                <el-table-column label="服务器时间">
+                    <el-table-column align="center" prop="post_t" sortable width="110" :formatter="show_s_time" label="任务发送">
+                    </el-table-column>
+                    <el-table-column align="center" prop="update_t" sortable width="110" :formatter="show_s_time" label="任务更新">
+                    </el-table-column>
+                </el-table-column>
+                <el-table-column label="Spider时间">
+                    <el-table-column align="center" prop="init" sortable width="110" :formatter="show_time" label="任务初始化">
+                    </el-table-column>
+                    <el-table-column align="center" prop="create" sortable width="110" :formatter="show_time" label="任务创建">
+                    </el-table-column>
+                    <el-table-column align="center" prop="update" sortable width="110" :formatter="show_time" label="任务更新">
+                    </el-table-column>
+                </el-table-column>
+                <el-table-column align="center" prop="is_post" sortable :formatter="show_status" label="状态" :filters="[{ text: '是', value: 0 }, { text: '否', value: 1 }]" :filter-method="filterStatus">
+                </el-table-column>
+            </el-table>
+        </el-row>
+    </template>
+</div>
+<script src="/javascripts/lib/vue.min.js"></script>
+<!--<script src="/javascripts/lib/vue-resource.min.js"></script>-->
+<script src="/javascripts/lib/moment.min.js"></script>
+<script src="/javascripts/lib/element.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/javascripts/action.js"></script>
+</body>
+</html>

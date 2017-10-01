@@ -1,0 +1,409 @@
+{
+  "redis": {
+    "port": 6379,
+    "host": "r-m5e970ad613f13a4.redis.rds.aliyuncs.com",
+    "auth": "C19prsPjHs52CHoA0vm",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3,
+    "proxy": 4,
+    "monitor": 5,
+    "MSDB": 6
+  },
+  "proxy": {
+    "host": "10.25.13.139",
+    "weiboHost": "10.25.13.139",
+    "toutiaoHost": "10.31.94.80",
+    "port": 3002,
+    "newApi1": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&protocol=1&method=1&f_pr=1&format=json&sep=1",
+    "newApi2": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1500&format=json&f_pr=1",
+    "newApi": "http://dev.kuaidaili.com/api/getproxy/?orderid=958272362426814&num=1000&protocol=1&method=1&an_an=1&an_ha=1&sp1=1&sp2=1&f_pr=1&quality=1&format=json&sep=1",
+    "api": "http://tpv.daxiangdaili.com/ip/?tid=556231846556300&num=1000&format=json"
+  },
+  "kue": {
+    "ip": "10.31.94.80",
+    "port": 3000
+  },
+  "listen": {
+    "ip":"127.0.0.1",
+    "port": 3001
+  },
+  "concurrency": 7,
+  "send_interval": 1000,
+  "interval": 10000,
+  "url": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/getUpdateV?limit=125",
+  "sendUrl": "http://100.98.39.12/index.php/Spider/video/postVideosMore/",
+  "sendFans": "http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans",
+  "update": "http://qiaosuan-intra.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+  "spiderAPI": {
+    "iqiyi": {
+      "list": [
+        "http://www.iqiyi.com/u/api/V/video/get_paged_video?page_size=42&sort=1&uid=",
+        "http://www.iqiyi.com/u/"
+      ],
+      "expr": "http://up.video.iqiyi.com/ugc-updown/quud.do?type=2&callback=jsonp&dataid=",
+      "comment": "http://api.t.iqiyi.com/qx_api/comment/get_video_comments?need_total=1&sort=add_time&tvid=",
+      "info": "http://mixer.video.iqiyi.com/jp/mixin/videos/",
+      "play": "http://cache.video.qiyi.com/jp/pc/"
+    },
+    "toutiao": {
+      "user": "https://is.snssdk.com/user/profile/homepage/v3/?version_code=6.1.6&app_name=news_article&channel=App%20Store&resolution=1242*2208&aid=13&ab_feature=z1&openudid=63859114aeb13e8eecab5cd43a0d6edd89177886&live_sdk_version=1.6.5&ac=WIFI&os_version=10.3.3&ssmix=a&device_platform=iphone&device_type=iPhone%206S%20Plus&refer=default&user_id=",
+      "newList": "/pgc/ma/?page_type=0&output=json&is_json=1&count=20&version=2&media_id=",
+      "list": "http://toutiao.com/ma_mobile/?page_type=0&count=10&version=2&media_id=",
+      "info_old": "http://is.snssdk.com/2/article/information/v14/?aggr_type=2&group_id=",
+      "info": "http://a3.pstatp.com/article/full/12/2/",
+      "contentUrl_old": "https://mp.toutiao.com/statistic/content_article_stat/?"
+    },
+    "weibo": {
+      "userInfo":"http://api.weibo.cn/2/profile?c=iphone&s=6dd467f9&profile_entry_key=1&user_domain=",
+      "videoList":"http://api.weibo.cn/2/guest/cardlist?c=iphone&s=6dd467f9&count=20&containerid=",
+      "fans": "https://m.weibo.cn/api/container/getIndex?type=uid&value=",
+      "newList": "http://weibo.com/p/aj/v6/mblog/mbloglist?ajwvr=6&domain=100505&is_search=0&visible=0&is_video=1&is_tag=0&profile_ftype=1"
+    },
+    "acfun": {
+      "userInfo": "http://api.aixifan.com/users/",
+      "media": "http://www.aixifan.com/u/contributeList.aspx?pageSize=10&channelId=0&userId=",
+      "programList":"http://api.app.acfun.cn/apiserver/user/contribution?app_version=4.4.1&market=appstore&origin=ios&pageSize=20&resolution=1242x2208&sys_name=ios&sys_version=10.2&type=2&userId=",
+      "comment": "http://www.acfun.cn/comment_list_json.aspx?isNeedAllCount=true&contentId="
+    },
+    "baidu": {
+      "videoAlbum":"http://v.baidu.com/i/albumlist?type=2&id=",
+      "videoList":"http://v.baidu.com/i/albumvideos?type=time&id=",
+      "videoInfo":"http://xiyou.cctv.com/interface/index?videoId="
+    },
+    "baijia": {
+      "api": "https://sv.baidu.com/haokan/api?log=vhk&tn=1020154y&ctn=1008350o&os=ios&osbranch=i0&ua=1080_1920_401&ut=iPhone8%2C2_10.3.3&network=1&apiv=2.7.0&appv=1&version=2.7.0&cuid=C2BB16A6BC640F0CD9DA2060098AC66793B62A080FCTOPTMEQM",
+      "videoList":"http://baijiahao.baidu.com/api/content/article/listall?sk=super&ak=super&status=in:publish,published&_preload_statistic=1&_timg_cover=50,172,1000&_cache=1&app_id=",
+      "sendFan":"http://qiaosuan-intra.meimiaoip.com/index.php/Spider/Fans/postFans"
+    },
+    "baomihua": {
+      "userInfo": "http://m.interface.baomihua.com/interfaces/userchannel.ashx?type=channelinfo&channelid=",
+      "mediaList": "http://m.interface.baomihua.com/interfaces/userchannel.ashx?type=channelvideo&channelid=",
+      "expr_m": "http://m.interface.baomihua.com/Interfaces/getlist.ashx?appid=5&vs=36&sys=ios&type=action&objid=",
+      "expr_pc": "http://www.baomihua.com/interfaces/GetPrColInfo.ashx?datatype=GetCollNum&jsoncallback=jsonp&isshowtruepv=1&videoid=",
+      "play": "http://action.interface.baomihua.com/AppInfoApi.asmx/GetAppInfo?jsoncallback=jsonp&appid="
+    },
+    "bili": {
+      "userInfo": "https://api.bilibili.com/x/relation/stat?vmid=",
+      "mediaList": "http://space.bilibili.com/ajax/member/getSubmitVideos?tid=0&mid=",
+      "media": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid=",
+      "programList":"http://space.bilibili.com/ajax/channel/getChannel?mid=",
+      "time": "http://api.bilibili.com/x/v2/reply?nohot=1&type=1&oid="
+    },
+    "btime": {
+      "userInfo": "http://record.btime.com/getUserChannel?uid=",
+      "medialist": "http://record.btime.com/getNews?tab=video&pageRow=20&uid=",
+      "info": "http://api.btime.com/news/detail?nid="
+    },
+    "budejie": {
+      "userInfo": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid=",
+      "medialist": "http://s.budejie.com/topic/user-topic/",
+      "comment": "http://api.budejie.com/api/api_open.php?a=datalist&per=5&c=comment&data_id="
+    },
+    "cctv": {
+      "videoInfo":"http://xiyou.cctv.com/interface/index?videoId=",
+      "fans":"http://my.xiyou.cntv.cn/api/user/getuserinfo?&format=json&visit_id=0&snap=30&user_id="
+    },
+    "fengxing": {
+      "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid="
+    },
+    "huashu": {
+      "videoList":"https://phoneapi.wasu.cn/AggPhone/vodinfo/id/",
+      "videoList2":"https://phoneapi.wasu.cn/Phone/vodinfo/id/"
+    },
+    "ifeng": {
+      "medialist": "http://vcis.ifeng.com/api/weMediaVideoList?type=new&pageSize=20&weMediaID=",
+      "info": "http://vcis.ifeng.com/api/videoGuid?adapterNo=7.1.0&protocol=1.0.0&guid=",
+      "comment": "http://comment.ifeng.com/geti?pagesize=10&type=new&docUrl="
+    },
+    "ku6": {
+      "allInfo": "http://new.ku6.com/mobile/getuploadedvideos?rn=20&uid=",
+      "fansNum": "http://my.ku6.com/user/getvipuserinfo?uid=",
+      "listNum": "http://v.ku6.com/user.htm?t=statuser&uid=",
+      "comment": "http://comment.ku6.com/api/list.jhtm?vtype=111&type=2&size=20&id="
+    },
+    "kuaibao": {
+      "user": "http://r.cnews.qq.com/getSubItem?chlid=",
+      "news": "http://r.cnews.qq.com/getSubNewsIndex",
+      "video": "http://r.cnews.qq.com/getVideoNewsIndex",
+      "list": "http://r.cnews.qq.com/getSubNewsListItems",
+      "comment": "http://r.cnews.qq.com/getQQNewsComment",
+      "expr": "http://w.cnews.qq.com/getArticleExprList?appver=9.3.2_qnreading_2.1.1",
+      "play": "http://r.cnews.qq.com/getSubNewsContent?appver=9.3.2_qnreading_2.1.1",
+      "videoInfo": "http://r.cnews.qq.com/getSubNewsContent?qqnetwork=wifi&apptype=ios&screen_height=736&logfrom=0&store=1&apptypeExt=qnreading&appversion=2.8.0&device_model=iPhone8%2C2&startarticleid=&appver=10.3.3_qnreading_2.8.0"
+    },
+    "le": {
+      "list":"http://api.my.le.com/video/user/videolist?callback=jsonp&pagesize=30&userid=",
+      "newList":"http://chuang.le.com/u/",
+      "info":"http://v.stat.letv.com/vplay/getIdsInfo?type=vlist&ids=",
+      "time":"http://api.my.le.com/vcm/api/list?type=video&rows=20&page=1&sort=&source=1&xid=",
+      "desc": "http://d.api.m.le.com/apiplay/dynamicCard?type=introduction%2Crecommend&vid="
+    },
+    "meipai": {
+      "userInfo": "https://newapi.meipai.com/users/show.json?id=",
+      "mediaList": "https://newapi.meipai.com/medias/user_timeline.json?uid=",
+      "media": "https://newapi.meipai.com/medias/show.json?id="
+    },
+    "mgtv": {
+      "userInfo":"http://vc.mgtv.com/v2/dynamicinfo?",
+      "listVideo":"http://pcweb.api.mgtv.com/variety/showlist?collection_id=",
+      "videoInfo":"http://pcweb.api.mgtv.com/player/video?video_id="
+    },
+    "miaopai": {
+      "api": "http://api.miaopai.com/m/shot_channel.json?version=6.3.7&os=ios&page="
+    },
+    "neihan": {
+      "userInfo": "http://isub.snssdk.com/neihan/user/profile/v2/?device_platform=iphone&user_id=",
+      "medialist": "http://is.snssdk.com/2/essay/zone/user/posts/?user_id=",
+      "comment": "http://neihanshequ.com/m/api/get_essay_comments/?app_name=neihanshequ_web&group_id="
+    },
+    "pptv": {
+      "listVideo":"http://apis.web.pptv.com/show/videoList?from=web&version=1.0.0&format=jsonp&vt=22",
+      "videoInfo":"https://h5.qzone.qq.com/webapp/jsonp/videoRec/getRecommVideoList?scene=2&uin="
+    },
+    "qzone": {
+      "listVideo":"https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_act_all?count=20&hostuin=",
+      "listVideo2":"https://h5.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds_html_act_all?scope=0&filter=all&flag=1&refresh=0&firstGetGroup=0&mixnocache=0&scene=0&begintime=undefined&icServerTime=&count=20&sidomain=qzonestyle.gtimg.cn&useutf8=1&outputhtmlfeed=1&refer=2&r=0.8571641726123154&g_tk=569621886&hostuin=",
+      "videoInfo":"https://h5.qzone.qq.com/webapp/jsonp/videoRec/getRecommVideoList?scene=2&uin="
+    },
+    "souhu": {
+      "concurrency": 9,
+      "key": "f351515304020cad28c92f70f002261c",
+      "newUser": "http://api.tv.sohu.com/v4/user/info/",
+      "userInfo":"http://my.tv.sohu.com/user/media/mobile/userinfo.do?api_key=",
+      "newList": "http://api.tv.sohu.com/v4/user/videolist.json?api_key=f351515304020cad28c92f70f002261c&plat=3&sver=6.1&page_size=20&sort_type=2&user_id=",
+      "videoList":"http://api.tv.sohu.com/v4/user/video.json?page_size=20&with_fee_video=2&page=",
+      "videoInfo": "http://s1.api.tv.itc.cn/v4/video/info/",
+      "digg":"http://score.my.tv.sohu.com/digg/get.do?type=9001&callback=jsonp&vid=",
+      "comment":"http://changyan.sohu.com/api/2/topic/load?client_id=cyqyBluaj&topic_url=&page_size=1&topic_source_id=bk",
+      "programList":"http://my.tv.sohu.com/user/wm/ta/pl.do?sortType=2&size=40&uid=",
+      "programVideolist":"http://my.tv.sohu.com/user/wm/ta/plv.do?size=30&pid="
+    },
+    "tencent": {
+      "user": "http://c.v.qq.com/followcount?low_login=1&otype=json&callback=jsonp&euin=",
+      "videoList": "http://c.v.qq.com/vchannelinfo?otype=json&qm=1&sorttype=0&orderflag=0&callback=jsonp&low_login=1&num=25&uin=",
+      "commentId": "http://ncgi.video.qq.com/fcgi-bin/video_comment_id?op=1&otype=json&callback=jsonp&vid=",
+      "commentNum": "http://coral.qq.com/article/",
+      "view": "http://data.video.qq.com/fcgi-bin/data?tid=376&appid=10001007&appkey=e075742beb866145&callback=jsonp&low_login=1&otype=json&idlist=",
+      "programList":"http://c.v.qq.com/vchannelinfo?otype=json&qm=2&num=20&sorttype=0&orderflag=0&callback=jsonp&low_login=1&uin=",
+      "proVideoList":"http://c.v.qq.com/vchannelinfo?otype=json&qm=3&num=30&sorttype=0&orderflag=1&callback=jsonp&low_login=1&uin="
+    },
+    "tudou": {
+      "userInfo": "http://user.api.3g.tudou.com/v4/channel/info?guid=7066707c5bdc38af1621eaf94a6fe779&pid=c0637223f8b69b02&id=",
+      "fans": "http://video.tudou.com/subscribe/check?uid=",
+      "newList": "https://mapi-channel.youku.com/feed.stream/show/get_yt_channel.json?app_ver=6.2.1&brand=apple&btype=iPhone8%2C2&caller=1&devicetype=phone&module=videolist&os=ios&os_ver=10.3.1&pl=20&scale=3&version=6.2.1",
+      "comment": "http://p.comments.youku.com/ycp/comment/pc/commentList?app=700-cJpvjG4g&objectId=",
+      "programList":"https://mapi-channel.youku.com/feed.stream/show/get_yt_channel.json?app_ver=6.6.1&brand=apple&caller=1&module=playlists&network=WIFI&os=ios&os_ver=10.3.2&version=6.6.1&pl=20&uid=",
+      "proVideoList": "https://apis.tudou.com/play/v1/choose?app=newtudou-iflow&app_ver=6.6.1&brand=apple&devicetype=phone&fr=iphone&network=WIFI&nt=2&os=ios&os_ver=10.3.2&ver=6.6.1&playListId="
+    },
+    "tv56": {
+      "userInfo": "http://push.my.tv.sohu.com/user/a/fa/count.do",
+      "list": "http://my.tv.sohu.com/user/wm/56ta/v.do?sortType=2&size=20&callback=jsonp&uid=",
+      "video": "http://m.tv.sohu.com/phone_playinfo?site=2&api_key=f351515304020cad28c92f70f002261c&vid=",
+      "comment": "http://changyan.sohu.com/api/3/topic/liteload?client_id=cyqyBluaj&page_size=30&hot_size=5&topic_source_id=bk",
+      "programList":"http://my.tv.sohu.com/user/wm/ta/pl.do?sortType=2&size=40&uid=",
+      "programVideolist":"http://my.tv.sohu.com/user/wm/ta/plv.do?size=30&pid="
+    },
+    "v1": {
+      "videoList":"http://dynamic.app.m.v1.cn/www/dynamic.php?mod=user&ctl=video&act=get&version=4.5.4&uid=",
+      "newList": "http://app.v1.cn/user/otherHeVideo?pcode=010210000&version=6.0.1&devid=1098B90D-3A6F-41B2-9F03-ED7D66FA69C2&plat=1002"
+    },
+    "wangyi": {
+      "userInfo": "http://c.m.163.com/nc/topicset/home/android/",
+      "videoInfo": "http://c.m.163.com/nc/subscribe/list/"
+    },
+    "weishi": {
+      "userInfo": "http://wsm.qq.com/weishi/user/getUserInfo.php?v=w&g_tk=&ukey=147010735534085719&uid=",
+      "list": "http://wsm.qq.com/weishi/t/other.php?v=p&reqnum=20&pageflag=2&uid="
+    },
+    "xiaoying": {
+      "userInfo": "http://viva.api.xiaoying.co/webapi2/rest/user/detail?appkey=10000000&auid=",
+      "videoInfo": "https://viva.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&ver=1&puid=",
+      "List": "http://viva.api.xiaoying.co/api/rest/v/vq",
+      "list": "http://w.api.xiaoying.co/webapi2/rest/video/projectlist?appkey=10000000&format=MP4&pagesize=30&auid=",
+      "comment": "http://viva.api.xiaoying.co/api/rest/p/pa"
+    },
+    "xinlan": {
+      "listVideo":"http://api.cms.cztv.com/mms/out/album/videos?platform=pc&id=",
+      "videoInfo":"http://proxy.app.cztv.com/getVODDetail.do?videoId=",
+      "comment": "http://api.my.cztv.com/api/list?type=video&rows=20"
+    },
+    "yidian": {
+      "userInfo": "https://m.yidianzixun.com/api/channel/subnum?distribution=com.apple.appstore&platform=0&appid=yidian&cv=1.0.9.7&version=020125&fromid=",
+      "list": "http://www.yidianzixun.com/api/q/?fields=docid&fields=category&fields=date&fields=image&fields=image_urls&fields=like&fields=source&fields=title&fields=url&fields=comment_count&fields=summary&fields=up&version=999999&infinite=true"
+    },
+    "youku": {
+      "app_key": "c9e697e443715900",
+      "app_secret": "0fae643f14fc38f49e241328736e16d2",
+      "user": "http://yws.youku.com/friendships/js_get_podcast_fans_count.json?callback=jsonp&cid=",
+      "videos": "https://openapi.youku.com/v2/videos/by_user.json",
+      "program": "https://openapi.youku.com/v2/playlists/by_user.json",
+      "list": "http://mapi.channel.youku.com/feed.stream/show/get_channel_owner_videos.json",
+      "newInfo": "https://openapi.youku.com/v2/videos/show.json",
+      "info": "http://api.mobile.youku.com/layout/ios5_0/play/detail",
+      "info_old": "http://v.youku.com/action/getVideoPlayInfo?beta&param[]=download&param[]=updown&timestamp=",
+      "programList": "https://mapi-channel.youku.com/feed.stream/show/get_channel_owner_playlists.json?caller=1&pl=20&uid=",
+      "albumList": "http://c-api.youku.com/collection?brand=apple&btype=iPhone8%2C2&clid=",
+      "comment": "http://p.comments.youku.com/ycp/comment/pc/commentList?app=100-DDwODVkv&objectType=1&listType=0&pageSize=30&objectId="
+    },
+    "yy": {
+      "userInfo": "http://www.yy.com/u/",
+      "shenquList": "http://www.yy.com/u/works/s?yyno=",
+      "duanpaiList": "http://www.yy.com/u/works/d?yyno=",
+      "liveList": "http://www.yy.com/u/live/queryPlayback.json?pageSize=20&yy="
+    },
+    "liVideo": {
+      "list": "http://app.pearvideo.com/clt/jsp/v2/getNodeConts.jsp?sort=0&nodeId="
+    },
+    "youtube": {
+      "channel": "https://m.youtube.com/channel/",
+      "info": "https://m.youtube.com/watch"
+    },
+    "facebook":{
+      "list": "https://www.facebook.com/ajax/pagelet/generic.php/PagesVideoHubVideoContainerPagelet?dpr=1&data=",
+      "userList": "/videos?dpr=1&ajaxpipe=1&__af=j0&__req=jsonp_4&__be=-1&__pc=EXP1:home_page_pkg&__adt=4&__dyn=5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8ovyUWdwIhE98nyUdUy22EaUgxebkwy8xa5WjzHz9XDG4XzEa8iGt0gKum4UpKqqbAWCDxi5-ufAz8lUlwkEG9J7BwBx66EK2m5K5FLKEgDQ6EvG7ki4e2i8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uazoK2C6riykbybQ",
+      "userList2": "https://www.facebook.com/ajax/pagelet/generic.php/VideosByUserAppCollectionPagelet?dpr=1&__a=1&__af=j0&__req=v&__be=-1&__pc=EXP1:home_page_pkg&__dyn=5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8ovyUWdwIhE98nyUdUy22EaUgxebkwy8xa5WjzHz9XDG4XzEa8iGt0gKum4UpKqqbAWCDxi5-ufAz8lUlwkEG9J7BwBx66EK2m5K5FLKEgDQ6EvG7ki4e2i8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uazoK2C6riykbybQ&data=",
+      "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',",
+      "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
+      "auth": [
+        {"email": "15910630070 ","pass": "15910630070 "},
+        {"email": "15001229805 ","pass": "15001229805 "},
+        {"email": "15718813922 ","pass": "15718813922 "}
+      ]
+    },
+    "bolo":{
+      "list": "http://bolo.163.com/bolo/api/channel/videoList.htm?pageSize=100&rendering=true",
+      "videoInfo": "http://bolo.163.com/bolo/api/video/videoInfo.htm?videoId="
+    },
+    "huoshan":{
+      "user": "https://www.huoshan.com/share/user/",
+      "list": "https://www.huoshan.com/share/load_videos/?",
+      "video": "https://www.huoshan.com/share/video/"
+    },
+    "gumi": {
+      "list": "http://www.migudm.cn/userPage/index.html?pageSize=20&opusType=8&userId=",
+      "comment": "http://m.migudm.cn/opus/topic/list.html?opusType=29&hwOpusId="
+    },
+    "douyin": {
+      "user": "https://aweme.snssdk.com/aweme/v1/user/?user_id=",
+      "list": "https://www.amemv.com/aweme/v1/aweme/post/?count=50&user_id=",
+      "comment": "https://aweme.snssdk.com/aweme/v1/comment/list/?count=20&aweme_id="
+    },
+    "aipai": {
+      "user": "http://m.aipai.com/mobile/apps/apps.php?module=space&func=RelationCount&bid=",
+      "list": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-userAsset_sort-id_pageSize-50_bid-",
+      "video": "http://m.aipai.com/mobile/apps/apps_module-auxplayer_func-indexDataNew_assetId-",
+      "comment": "http://www.aipai.com/api/aipaiApp_action-getCommentNew_page-"
+    },
+    "xiaokaxiu": {
+      "list": "https://v.xiaokaxiu.com/video/web/get_member_videos?limit=10&memberid="
+    },
+    "shanka": {
+      "list": "http://yingdi.qq.com/cgi/kingCgiInCommonUse.php?function=GetPersonalPage&data="
+    },
+    "naitang": {
+      "user": "https://toffee.app.tvfanqie.com/iphone/user/detail?ch=AppStore&fquc=&ios_ver=10.3.2&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&type=2&vr=2.3.0&userid=",
+      "list": "https://toffee.app.tvfanqie.com/iphone/user/mylist?ch=AppStore&fquc=&ios_ver=10.3.2&isAppend=0&mid=a91a0bf200deed670235eaa467fc690b&model=iPhone6sPlus&ss=4&vr=2.3.0&userid="
+    },
+    "youliao": {
+      "user": "http://wjgl.xlmc.xunlei.com/api/index/user_getRa2UserInfo?userId=",
+      "list": "http://wjgl.xlmc.xunlei.com/api/index/file_list",
+      "comment": "http://wjgl.xlmc.xunlei.com/api/index/comment_list"
+    },
+    "kaiyan": {
+      "list": "https://baobab.kaiyanapp.com/api/v4/pgcs/videoList?v=3.8.0&id=",
+      "video": "http://baobab.kaiyanapp.com/api/v1/video/",
+      "programList": "https://baobab.kaiyanapp.com/api/v4/pgcs/detail/playlist?id=",
+      "comment": "https://baobab.kaiyanapp.com/api/v2/replies/video?videoId="
+    },
+    "jd": {
+      "user": "https://api.m.jd.com/client.action?functionId=jdDiscoveryAuthorPageHead&client=wh5&clientVersion=1.0.0&_=",
+      "list": "https://api.m.jd.com/client.action?functionId=discAuthorRelaseList&client=wh5&clientVersion=1.0.0&env=&_=",
+      "video": "https://api.m.jd.com/client.action?functionId=jdDiscoveryArticleDetail&client=wh5&clientVersion=1.0.0&env=&_="
+    },
+    "meimiao": {
+      "list": "https://v.gomeplus.com/json/publisherDetail.json?id=",
+      "comment": "https://m-v.gomeplus.com/api/comment/list?size=20"
+    }
+  },
+  "servantAPI": {
+    "youku": {
+      "key": "c9e697e443715900",
+      "url": "https://openapi.youku.com/v2/videos/show_basic.json"
+    },
+    "bili": {
+      "url": "http://app.bilibili.com/x/view?actionKey=appkey&appkey=27eb53fc9058f8c3&build=3060&device=phone&plat=0&platform=ios&aid="
+    },
+    "meipai": {
+      "url": "https://newapi.meipai.com/medias/show.json?id="
+    },
+    "miaopai": {
+      "url": "http://api.miaopai.com/m/v2_channel.json?fillType=259&scid="
+    },
+    "souhu": {
+      "url": "http://s1.api.tv.itc.cn/v4/video/info/"
+    },
+    "kuaibao": {
+      "url": "http://r.cnews.qq.com/getSubNewsListItems"
+    },
+    "iqiyi": {
+      "url": "http://mixer.video.iqiyi.com/jp/mixin/videos/"
+    },
+    "tencent": {
+      "url": "http://sns.video.qq.com/tvideo/fcgi-bin/video?otype=json&callback=jsonp&low_login=1&vid="
+    },
+    "toutiao": {
+      "url": "http://m.toutiao.com/i",
+      "media": "https://lf.snssdk.com/2/article/information/v21/?version_code=6.1.5&device_id=32511333734&iid=10861523602&aggr_type=2&article_page=1&flags=64&from=click_pgc&group_id="
+    },
+    "yidian": {
+      "url": "http://yidianzixun.com/home?page=article&id="
+    },
+    "tudou": {
+      "url": "http://api.3g.tudou.com/v4/play/detail?pid=c0637223f8b69b02&iid="
+    },
+    "baomihua": {
+      "url": "http://m.interface.baomihua.com/interfaces/userchannel.ashx"
+    },
+    "ku6": {
+      "url": "http://v.ku6.com/video.htm?t=getVideosByIds&ids="
+    },
+    "btime": {
+      "url": "http://record.btime.com/getUserChannel?uid="
+    },
+    "weishi": {
+      "url_1": "http://wsm.qq.com/weishi/t/other.php",
+      "url_2": "http://wsi.weishi.com/weishi/t/show.php"
+    },
+    "xiaoying": {
+      "url": "https://viva.api.xiaoying.co/webapi2/rest/video/publishinfo.get?appkey=30000000&puid="
+    },
+    "budejie": {
+      "url_1": "http://api.budejie.com/api/api_open.php?a=profile&c=user&userid="
+    },
+    "neihan": {
+      "url": "http://neihanshequ.com/"
+    },
+    "yy": {
+      "url_1": "http://www.yy.com/s/",
+      "url_2": "http://www.yy.com/d/" ,
+      "url_3": "http://www.yy.com/x/"
+    },
+    "tv56": {
+      "url": ""
+    },
+    "acfun": {
+      "url": "http://api.aixifan.com/videos/"
+    },
+    "ifeng":{
+      "url":"http://vcis.ifeng.com/api/videoGuid?guid="
+    },
+    "qzone": {
+      "url": "https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6?num=20"
+    },
+    "mgtv":{
+      "url": "http://pcweb.api.mgtv.com/player/video?video_id="
+    }
+  }
+}

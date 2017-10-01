@@ -1,0 +1,48 @@
+{
+  "redis": {
+    "port": 6379,
+    "host": "r-t4n464c318a826d4.redis.singapore.rds.aliyuncs.com",
+    "auth": "C19prsPjHs52CHoA0vm",
+    "userDB": 0,
+    "taskDB": 1,
+    "jobDB": 2,
+    "cache_db": 3,
+    "proxy": 4,
+    "monitor": 5
+  },
+  "kue": {
+    "ip": "127.0.0.1",
+    "port": 3000
+  },
+  "listen": {
+    "ip":"127.0.0.1",
+    "port": 3001
+  },
+  "concurrency": 10,
+  "send_interval": 30000,
+  "interval": 10000,
+  "sendUrl": "http://www.meimiaoip.com/index.php/Spider/video/postVideosMore/",
+  "sendFans": "http://www.meimiaoip.com/index.php/Spider/Fans/postFans",
+  "update": "http://www.meimiaoip.com/index.php/spider/videoO/postVUpdate",
+  "origin_update": "http://spider-monitor.meimiaoip.com/api/changeStatus",
+  "spiderAPI": {
+    "youtube": {
+      "channel": "https://m.youtube.com/channel/",
+      "info": "https://m.youtube.com/watch"
+    },
+    "facebook":{
+      "list": "https://www.facebook.com/ajax/pagelet/generic.php/PagesVideoHubVideoContainerPagelet?dpr=1&data=",
+      "userList": "/videos?dpr=1&ajaxpipe=1&__af=j0&__req=jsonp_4&__be=-1&__pc=EXP1:home_page_pkg&__adt=4&__dyn=5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8ovyUWdwIhE98nyUdUy22EaUgxebkwy8xa5WjzHz9XDG4XzEa8iGt0gKum4UpKqqbAWCDxi5-ufAz8lUlwkEG9J7BwBx66EK2m5K5FLKEgDQ6EvG7ki4e2i8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uazoK2C6riykbybQ",
+      "userList2": "https://www.facebook.com/ajax/pagelet/generic.php/VideosByUserAppCollectionPagelet?dpr=1&__a=1&__af=j0&__req=v&__be=-1&__pc=EXP1:home_page_pkg&__dyn=5V4cjEzUGByK5A9UoGya4A5EWq2WiWF298yfirWo8ovyUWdwIhE98nyUdUy22EaUgxebkwy8xa5WjzHz9XDG4XzEa8iGt0gKum4UpKqqbAWCDxi5-ufAz8lUlwkEG9J7BwBx66EK2m5K5FLKEgDQ6EvG7ki4e2i8xqawDDh45EgyouCwTAypUhKHxCqdKbyaBy8OcxO12zUryoK7Uy5uazoK2C6riykbybQ&data=",
+      "vidInfo": "https://www.facebook.com/ajax/pagelet/generic.php/PhotoViewerInitPagelet?data={'type':'3','source':'12',",
+      "loginAddr": "https://www.facebook.com/login.php?login_attempt=1&lwv=111",
+      "auth": [
+        {"email": "15718813922 ","pass": "15718813922 "},
+        {"email": "15910630070 ","pass": "15910630070 "},
+        {"email": "15001229805 ","pass": "15001229805 "},
+        {"email": "15718811500 ","pass": "15718811500 "},
+        {"email": "15910869550 ","pass": "15910869550 "}
+      ]
+    }
+  }
+}

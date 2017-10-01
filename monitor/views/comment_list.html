@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>视频详情</title>
+    <link rel="stylesheet" href="/stylesheets/element.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<div id="app">
+    <template>
+        <el-row style="width: 1260px;margin: 20px auto;">
+            <!--<el-col :span="7">-->
+                <!--<el-input placeholder="请输入内容" v-model="input" @keyup.enter.native="search" style="width: 300px;">-->
+                    <!--<el-select v-model="select" slot="prepend" placeholder="请选择">-->
+                        <!--<el-option label="ID" value="1"></el-option>-->
+                        <!--<el-option label="用户名" value="2"></el-option>-->
+                    <!--</el-select>-->
+                    <!--<el-button slot="append" icon="search" @click="search"></el-button>-->
+                <!--</el-input>-->
+            <!--</el-col>-->
+            <el-col :span="3">
+                <el-button type="success" @click="refresh">数据刷新</el-button>
+            </el-col>
+        </el-row>
+        <el-row style="width: 1260px;margin: 0 auto;">
+            <el-table v-loading="loading" element-loading-text="拼命加载中" :data="items" border style="width: 100%;" max-height="750">
+                <el-table-column align="center" prop="platform"  :formatter="show_pname" width="120" label="平台">
+                </el-table-column>
+                <el-table-column align="center" prop="bid" width="110"  label="bid">
+                </el-table-column>
+                <el-table-column align="center" prop="aid" width="110"  label="aid">
+                </el-table-column>
+                <el-table-column align="center" prop="cid" width="110"  label="cid">
+                </el-table-column>
+                <el-table-column align="center" prop="support" width="82"  label="顶量">
+                </el-table-column>
+                <el-table-column align="center" prop="step" width="82"  label="踩量">
+                </el-table-column>
+                <el-table-column align="center" prop="reply" width="82"  label="回复数">
+                </el-table-column>
+                <el-table-column align="center" prop="ctime" width="190" :formatter="show_time"  label="创建时间">
+                </el-table-column>
+                <el-table-column align="center" prop="content" width="200"  label="评论">
+                </el-table-column>
+                <el-table-column align="center" prop="c_user.uname" width="200"  label="用户信息">
+                </el-table-column>
+            </el-table>
+        </el-row>
+    </template>
+</div>
+<script src="/javascripts/lib/vue.min.js"></script>
+<script src="/javascripts/lib/vue-resource.min.js"></script>
+<script src="/javascripts/lib/moment.min.js"></script>
+<script src="/javascripts/lib/element.js"></script>
+<script src="/javascripts/commentList.js"></script>
+</body>
+</html>

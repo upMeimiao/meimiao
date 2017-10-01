@@ -1,0 +1,13 @@
+/*body {*/
+    /*margin: 0;*/
+/*}*/
+.el-select .el-input {
+    width: 140px;
+}
+.el-table .info-row {
+    background: #F7BA2A;
+}
+.el-table .cell, .el-table th>div {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}

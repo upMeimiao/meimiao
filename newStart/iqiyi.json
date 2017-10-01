@@ -1,0 +1,15 @@
+{
+  "name"        : "爱奇艺",
+  "script"      : "/root/qiaosuan/run.js",
+  "args"        : ["-i","master","-a","iqiyi"],
+  "log_date_format"  : "YYYY-MM-DD HH:mm Z",
+  "error_file": "NULL",
+  "out_file": "NULL",
+  "ignore_watch" : ["[\\/\\\\]\\./", "node_modules"],
+  "watch"       : false,
+  "node_args"   : "",
+  "cwd"         : "/root/qiaosuan",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

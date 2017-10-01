@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>绑定平台</title>
+    <style>
+        #url{
+            display: block;
+            width: 500px;
+            height: 40px;
+            margin: 100px auto 50px;
+            padding: 0 10px;
+        }
+        button{
+            display: block;
+            width: 300px;
+            height: 40px;
+            margin: 0 auto;
+            border: none;
+            outline: none;
+        }
+        p{
+            width: 450px;
+            margin: 60px auto;
+            font-size: 16px;
+            word-wrap: break-word;
+        }
+        p#success{
+            width: 560px;
+            color: green;
+        }
+        p#error{
+            text-align: center;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<input type="text" id="url" name="url" placeholder="请输入正确的播放页地址">
+<button id="submit">提交</button>
+<p id="success"></p>
+<p id="error"></p>
+<script src="/javascripts/lib/jquery.min.js"></script>
+<script>
+    const input = document.querySelector('#url')
+    const button = document.querySelector('#submit')
+    const p = document.querySelector('#success')
+    const err = document.querySelector('#error')
+    let url
+    button.addEventListener('click',function (event) {
+        if(input.value != ''){
+            url = encodeURIComponent(input.value)
+            console.log(url)
+            $.ajax({
+                type: "GET",
+                url: "http://121.42.164.116:2017?url=" + url,
+                // url: "http://127.0.0.1:2017?url=" + url,
+                success: function(data) {
+                  p.innerHTML = `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
+                  err.innerHTML =''
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown) {
+                    p.innerHTML = ''
+                    if(textStatus){
+                        err.innerHTML = '错误代码' + XMLHttpRequest.status + ' 错误信息' + textStatus
+                        return
+                    }
+                    if(errorThrown){
+                        err.innerHTML = '错误代码' + XMLHttpRequest.status + ' 错误信息' + errorThrown
+                        console.log('错误信息' + errorThrown)
+                    }
+                }
+            })
+        }else{
+            alert('请输入正确的播放页地址')
+        }
+    })
+</script>
+</body>
+</html>
